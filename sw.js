@@ -8,10 +8,13 @@
  *  - Navegaciones y HTML: red primero, con la copia cacheada como respaldo.
  *    Así el personal recibe las actualizaciones apenas se publican.
  *  - Iconos y manifiesto: cache primero, refrescando en segundo plano.
- *  - Todo lo demás (Firebase, la app de incidencias embebida, gstatic):
- *    pasa directo a la red, sin intervención del worker.
+ *  - Todo lo demás (Firebase, gstatic): pasa directo a la red, sin
+ *    intervención del worker.
  */
-const VERSION = 'hru-quirofanos-v1';
+/* Al publicar cambios hay que subir esta constante (y APP_VERSION en
+   index.html): es lo que hace que los dispositivos ya instalados descarten la
+   copia cacheada y estrenen la versión nueva. */
+const VERSION = 'hru-quirofanos-v2';
 const SHELL = [
   './',
   './index.html',
@@ -21,12 +24,15 @@ const SHELL = [
   './icon-maskable-512.png',
 ];
 
+/* A propósito no se llama a skipWaiting() acá: el worker nuevo queda en espera
+   y es la app la que decide cuándo estrenarlo (mensaje 'skipWaiting'). Si se
+   activara solo, la página se recargaría sin aviso y una incidencia o una
+   solicitud a medio escribir se perdería. */
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(VERSION)
       // addAll falla entero si un recurso falla; se agregan de a uno.
       .then((c) => Promise.all(SHELL.map((u) => c.add(u).catch(() => null))))
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -96,3 +102,4 @@ self.addEventListener('notificationclick', (e) => {
     })
   );
 });
+

@@ -351,6 +351,51 @@
   .bar-fill { height: 100%; border-radius: 99px; }
   .bar-goal { position: absolute; top: -3px; width: 2.5px; height: 14px; background: #171c24; border-radius: 2px; }
 
+  /* Estadísticas quirúrgicas */
+  .est-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 18px; }
+  .est-toolbar .field { margin: 0; }
+  .est-toolbar label { font-size: 0.76rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 4px; }
+  .est-toolbar input[type=date] { padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; font-family: inherit; font-weight: 600; font-size: 0.86rem; }
+  .est-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+  .est-preset { background: #fff; border: 1px solid var(--line); border-radius: 99px; padding: 7px 13px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit; color: #3d4b50; }
+  .est-preset:hover { border-color: var(--blue); color: var(--blue); }
+  .tbl th.orden { cursor: pointer; user-select: none; white-space: nowrap; }
+  .tbl th.orden:hover { color: var(--blue); }
+  .tbl th.orden.on { color: var(--blue); }
+  .tbl td.num, .tbl th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tbl tr.clic { cursor: pointer; }
+  .tbl tr.clic:hover td { background: #f8fafc; }
+  .tbl tr.propia td { background: var(--blue-soft); }
+  .est-mini { display: block; height: 6px; border-radius: 99px; background: #eef1f4; margin-top: 5px; overflow: hidden; }
+  .est-mini i { display: block; height: 100%; border-radius: 99px; background: var(--blue); }
+  .est-nom { font-weight: 600; }
+  .est-nom small { display: block; font-weight: 500; color: var(--muted); font-size: 0.76rem; margin-top: 2px; }
+  .est-pill { font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+  .est-pill.ok { background: var(--green-soft); color: #166b4a; }
+  .est-pill.mid { background: var(--amber-soft); color: #92600a; }
+  .est-pill.bad { background: var(--red-soft); color: var(--red); }
+
+  /* Hilo de reclamos */
+  .msg { border-radius: 12px; padding: 13px 16px; margin-bottom: 10px; font-size: 0.9rem; line-height: 1.55; border: 1px solid var(--line); background: #f8fafc; }
+  .msg.jefatura { background: var(--blue-soft); border-color: #c8dcf3; }
+  .msg.nuevo { box-shadow: 0 0 0 3px rgba(240,169,46,0.28); }
+  .msg-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+  .msg-head .quien { color: #171c24; }
+  .msg-txt { white-space: pre-wrap; }
+  .sin-leer { display: inline-flex; align-items: center; gap: 5px; background: var(--amber); color: #3b2a05; font-size: 0.72rem; font-weight: 800; padding: 3px 9px; border-radius: 99px; }
+  .turno-de { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; background: var(--red-soft); color: var(--red); }
+
+  /* Aviso de nueva versión */
+  .update-bar {
+    position: fixed; left: 50%; transform: translateX(-50%); bottom: 22px; z-index: 120;
+    display: none; align-items: center; gap: 14px; max-width: min(560px, calc(100vw - 32px));
+    background: #171c24; color: #fff; border-radius: 14px; padding: 13px 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.28); font-size: 0.88rem;
+  }
+  .update-bar.open { display: flex; }
+  .update-bar button { background: var(--green); color: #fff; border: none; border-radius: 9px; padding: 9px 15px; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
+  @media (max-width: 900px) { .update-bar { bottom: 78px; } }
+
   /* Perfil / habilitación */
   .req-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid #f0f2f4; font-size: 0.9rem; }
   .req-row:last-child { border-bottom: none; }
@@ -696,6 +741,12 @@
 
 <nav class="bottomnav" id="bottomnav"></nav>
 
+<!-- Aviso de versión nueva publicada -->
+<div class="update-bar" id="update-bar" role="status">
+  <span id="update-txt">Hay una versión nueva de la app.</span>
+  <button onclick="aplicarActualizacion()">Actualizar ahora</button>
+</div>
+
 <!-- Modal: acceso jefe -->
 <div class="overlay" id="jefe-overlay">
   <div class="modal">
@@ -817,6 +868,14 @@ const ICONS = {
   zap: I('<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>', 16),
   pkg: I('<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>', 16),
   layers: I('<path d="m12.83 2.18 8.34 4.17a1 1 0 0 1 0 1.3l-8.34 4.17a2 2 0 0 1-1.66 0L2.83 7.65a1 1 0 0 1 0-1.3l8.34-4.17a2 2 0 0 1 1.66 0Z"/><path d="m2.83 12 8.34 4.17a2 2 0 0 0 1.66 0L21.17 12"/><path d="m2.83 17 8.34 4.17a2 2 0 0 0 1.66 0L21.17 17"/>', 18),
+  pieChart: I('<path d="M21.2 15.9A10 10 0 1 1 8 2.8"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>', 18),
+  trending: I('<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>', 16),
+  arrowDown: I('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>', 12),
+  arrowUp: I('<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>', 12),
+  reply: I('<path d="M9 17H5a2 2 0 0 1-2-2V9"/><path d="m8 6-5 5 5 5"/><path d="M3 11h11a7 7 0 0 1 7 7v2"/>', 15),
+  mailOpen: I('<path d="M21 10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10l9-6z"/><path d="m3 10 8.2 5.5a1.9 1.9 0 0 0 1.6 0L21 10"/>', 16),
+  msg: I('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>', 16),
+  archive: I('<rect x="2" y="4" width="20" height="5" rx="1"/><path d="M4 9v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9"/><path d="M10 13h4"/>', 15),
 };
 
 /* ================= CATEGORÍAS DE INCIDENCIAS (Manual HRU 11.9.2) ================= */
@@ -980,6 +1039,11 @@ const BLOQUE = {
   cierreSolicitudes: '13:00', // del día previo
   publicacionParte: '14:00',  // del día previo
 };
+
+/* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
+   la constante VERSION de sw.js: es lo que dispara la actualización automática
+   en los dispositivos que ya tienen la app instalada. */
+const APP_VERSION = '2.0.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -1369,6 +1433,14 @@ let progTab = 'flujo';      // pestaña de programación
 let progEstado = '';        // filtro de estado en "todas"
 let kpiMes = null;          // mes seleccionado en indicadores
 let accesoTab = 'login';
+/* Estadísticas quirúrgicas */
+let estDesde = null;        // inicio del período analizado (ISO)
+let estHasta = null;        // fin del período analizado (ISO)
+let estTab = 'servicio';    // 'servicio' | 'cirujano'
+let estOrden = 'realizadas';// columna de ordenamiento
+let estAsc = false;         // sentido del ordenamiento
+let estServicio = '';       // filtro de servicio al desglosar por cirujano
+let reclamoAbierto = null;  // id del reclamo con el hilo desplegado
 
 function usuarioActual() {
   const e = sessionStorage.getItem('hru_user');
@@ -1486,6 +1558,37 @@ function coordFaltantes(c) {
   if (!c.hce?.preop) faltan.push('HCE: estudios preoperatorios incompletos');
   if (!c.hce?.consentimiento) faltan.push('HCE: consentimiento informado sin registrar');
   return faltan;
+}
+/* Minutos de quirófano de una cirugía: se prefiere el tiempo real medido y, si
+   no está cargado, la duración estimada de la solicitud. */
+function minutosCirugia(c) {
+  if (c.horaInicioReal && c.horaFinReal) {
+    const m = diffMin(c.horaInicioReal, c.horaFinReal);
+    if (m > 0 && m < 24 * 60) return m;
+  }
+  return c.duracionMin || 0;
+}
+function lvqIntegra(c) { return ['entrada', 'pausa', 'salida'].every((f) => lvqCompleta(c, f)); }
+
+/* ---- helpers varios ---- */
+/* Valor listo para interpolar dentro de un atributo onclick con comillas
+   simples: encodeURIComponent no escapa el apóstrofo, que sí rompería la
+   cadena (por ejemplo en "Dr. O'Connor"). */
+const attr = (s) => encodeURIComponent(String(s ?? '')).replace(/'/g, '%27');
+/* Las claves de Firebase no admiten . # $ [ ] / — el correo se normaliza igual
+   que el id de usuario de la app. */
+const claveMail = (m) => String(m || '').replace(/[.#$[\]/]/g, ',');
+function descargarCSV(nombre, filas) {
+  const csv = filas.map((f) => f.map((v) => {
+    const s = String(v ?? '');
+    return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }).join(';')).join('\r\n');
+  // BOM: Excel en español abre el archivo con los acentos correctos.
+  const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /* ================= HABILITACIÓN DE CIRUJANOS ================= */
@@ -1702,16 +1805,49 @@ function calcRecordatorios() {
     }
   }
 
-  /* ---- 9. Reclamos: 48 horas hábiles ---- */
-  DB.reclamos.filter((r) => r.estado === 'abierto').forEach((r) => {
-    if (!jefe && !(u && r.autorMail === u.email)) return;
-    const vence = addHorasHabiles(r.fechaHora, 48);
-    const falta = vence - ahora;
-    if (falta > 8 * 36e5) return;
+  /* ---- 9. Reclamos: dirigidos a quien debe contestar o leer la respuesta ----
+     Un reclamo genera aviso únicamente para sus dos partes —el autor y la
+     Jefatura—, y solo mientras haya algo que hacer: mensajes sin leer, o una
+     respuesta pendiente dentro del plazo de 48 horas hábiles. Los avisos llevan
+     `notif: true` para que lleguen al dispositivo aunque no sean críticos: si el
+     destinatario no los ve, el circuito formal se detiene. */
+  DB.reclamos.forEach((r) => {
+    const rol = rolEnReclamo(r);
+    // Un reclamo cerrado deja de reclamar atención, aunque queden mensajes sin abrir.
+    if (!rol || r.estado === 'cerrado') return;
+    const nuevos = reclamoNoLeidos(r);
+    if (nuevos) {
+      add({
+        key: 'reclamo-leer-' + r.id, nivel: 'warn', notif: true, vista: 'reclamos', reclamo: r.id,
+        titulo: rol === 'autor'
+          ? `Respuesta sin leer en su reclamo`
+          : `${nuevos} mensaje(s) sin leer en un reclamo`,
+        texto: `"${r.asunto}" — ${r.de}. ${rol === 'autor'
+          ? 'La Jefatura de Quirófanos respondió: lea la respuesta y cierre el reclamo o replique.'
+          : 'Le corresponde a la Jefatura leer y responder dentro de las 48 horas hábiles.'}`,
+        cuando: `Último mensaje ${fmtDT(ultimaActividad(r))}`,
+      });
+      return;
+    }
+    if (turnoDeReclamo(r) !== rol) return;
+    if (rol === 'autor') {
+      // Ya leyó la respuesta: queda el trámite de cerrarlo o replicar. Se avisa
+      // sin insistir —nivel informativo y sin notificación del dispositivo—.
+      add({
+        key: 'reclamo-cerrar-' + r.id, nivel: 'info', vista: 'reclamos', reclamo: r.id,
+        titulo: `Reclamo respondido y sin cerrar`,
+        texto: `"${r.asunto}". Si la respuesta de la Jefatura lo satisface, dé el reclamo por cerrado; si no, replique en el mismo hilo.`,
+        cuando: `Respondido ${fmtDT(ultimaActividad(r))}`,
+      });
+      return;
+    }
+    const falta = venceReclamo(r) - ahora;
     add({
-      key: 'reclamo-' + r.id, nivel: falta < 0 ? 'crit' : 'warn', vista: 'reclamos',
-      titulo: falta < 0 ? `Reclamo con plazo vencido` : `Reclamo por vencer`,
-      texto: `"${r.asunto}" — ${r.de}. El plazo formal de respuesta Jefe a Jefe es de 48 horas hábiles.`,
+      key: 'reclamo-resp-' + r.id,
+      nivel: falta < 0 ? 'crit' : (falta <= 8 * 36e5 ? 'warn' : 'info'),
+      notif: falta <= 8 * 36e5, vista: 'reclamos', reclamo: r.id,
+      titulo: falta < 0 ? `Reclamo sin responder — plazo vencido` : `Reclamo pendiente de respuesta`,
+      texto: `"${r.asunto}" — ${r.de}, ${r.autor}. El plazo formal de respuesta Jefe a Jefe es de 48 horas hábiles.`,
       cuando: `Vence ${humanoRestante(falta)}`,
     });
   });
@@ -1797,14 +1933,21 @@ function pintarCampana() {
 function notificarCriticos() {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   const hoy = hoyISO();
-  remLista.filter((r) => r.nivel === 'crit').forEach((r) => {
+  // Además de los críticos, se avisan los recordatorios marcados con `notif`:
+  // los del canal de reclamos, que están dirigidos a una persona concreta.
+  remLista.filter((r) => r.nivel === 'crit' || r.notif).forEach((r) => {
     if (remNotificados[r.key] === hoy) return;
     remNotificados[r.key] = hoy;
     try {
       const n = new Notification('HRU Quirófanos — ' + r.titulo, {
         body: r.texto, icon: 'icon-192.png', badge: 'icon-192.png', tag: r.key,
       });
-      n.onclick = () => { window.focus(); go(r.vista || 'recordatorios'); n.close(); };
+      n.onclick = () => {
+        window.focus();
+        if (r.reclamo) { reclamoAbierto = r.reclamo; go('reclamos'); marcarReclamoLeido(r.reclamo); }
+        else go(r.vista || 'recordatorios');
+        n.close();
+      };
     } catch (e) { /* algunos navegadores exigen ServiceWorkerRegistration.showNotification */ }
   });
   guardarNotificados();
@@ -1820,6 +1963,9 @@ function refreshView() {
   // No se re-renderizan las vistas con formularios en curso para no perder lo tipeado
   const conFormulario = ['nueva', 'acceso', 'perfil'];
   if (conFormulario.includes(view)) return;
+  // Los reclamos sí se refrescan en vivo, salvo que haya un asunto o un mensaje
+  // a medio escribir: un cambio de otro usuario en la nube no puede borrarlo.
+  if (view === 'reclamos' && hayTextoCargado()) return;
   go(view, true);
 }
 
@@ -1835,11 +1981,13 @@ function renderSidebar() {
     { id: 'recordatorios', icon: ICONS.bellRing, label: 'Recordatorios', badge: nRem || null, badgeAmber: !nCrit },
     { id: 'nueva', icon: ICONS.filePlus, label: 'Nueva Incidencia' },
   ];
+  const recl = reclamosPendientes();
   if (u) {
     items.push({ sep: 'Cirujano' });
     items.push({ id: 'solicitud', icon: ICONS.calPlus, label: 'Solicitud Quirúrgica' });
     items.push({ id: 'mis', icon: ICONS.list, label: 'Mis Solicitudes' });
-    items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos' });
+    items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
+    items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
     items.push({ id: 'perfil', icon: ICONS.user.replace('14', '18'), label: 'Mi Perfil' });
   }
   if (jefe) {
@@ -1847,8 +1995,9 @@ function renderSidebar() {
     const pend = DB.cirugias.filter((c) => c.estado === 'pendiente' || c.estado === 'validada').length;
     items.push({ id: 'programacion', icon: ICONS.clipboard, label: 'Programación', badge: pend || null });
     items.push({ id: 'confidenciales', icon: ICONS.lock, label: 'Incidencias Confidenciales' });
-    if (!u) items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: DB.reclamos.filter((r) => r.estado === 'abierto').length || null });
+    if (!u) items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'kpis', icon: ICONS.chart, label: 'Indicadores' });
+    if (!u) items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
     items.push({ id: 'usuarios', icon: ICONS.users, label: 'Profesionales' });
   }
   $('nav').innerHTML = items.map((it) => it.sep
@@ -1873,7 +2022,8 @@ function renderSidebar() {
          <button class="jefe-logout" onclick="jefeLogout()">${ICONS.logout} Cerrar sesión de jefe</button>
        </div>`
     : `<button class="jefe-access" onclick="openJefeModal()">${ICONS.shield} Acceso Jefe</button>`;
-  bottom += `<div class="confidential-note">Canal único y válido para la gestión quirúrgica del HRU. Las incidencias son confidenciales: solo la Jefatura accede a su contenido.</div>`;
+  bottom += `<div class="confidential-note">Canal único y válido para la gestión quirúrgica del HRU. Las incidencias son confidenciales: solo la Jefatura accede a su contenido.
+    <div style="margin-top:8px;opacity:0.75">Versión ${APP_VERSION} · ${cloudOn ? 'base compartida en Firebase' : 'modo local'}</div></div>`;
   $('sidebar-bottom').innerHTML = bottom;
 }
 
@@ -1885,12 +2035,16 @@ const TITULOS = {
   solicitud: 'Solicitud Quirúrgica', mis: 'Mis Solicitudes', reclamos: 'Reclamos',
   perfil: 'Mi Perfil', programacion: 'Programación', confidenciales: 'Incidencias Confidenciales',
   kpis: 'Indicadores', usuarios: 'Profesionales', acceso: 'Acceso Profesional',
+  estadisticas: 'Estadísticas Quirúrgicas',
 };
 function go(v, silencioso) {
   if (v === 'confidenciales' && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['programacion', 'kpis', 'usuarios'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['solicitud', 'mis', 'perfil'].includes(v) && !usuarioActual()) { v = 'acceso'; }
   if (v === 'reclamos' && !usuarioActual() && !jefe) { v = 'acceso'; }
+  // Las estadísticas las consulta cualquier profesional acreditado; el desglose
+  // nominal completo queda reservado a la Jefatura dentro de la propia vista.
+  if (v === 'estadisticas' && !usuarioActual() && !jefe) { v = 'acceso'; }
   view = v;
   closeDrawer();
   const t = $('topbar-title');
@@ -3146,10 +3300,426 @@ function renderKPIs() {
     </div>`;
 }
 
+/* ================= ESTADÍSTICAS QUIRÚRGICAS (por servicio y cirujano) =================
+   "Indicadores" mide el bloque como un todo contra las metas institucionales.
+   Esta vista, en cambio, compara la producción entre equipos sobre un período
+   libre: volumen, horas de quirófano, suspensiones, cumplimiento del informe
+   operatorio y de la lista de verificación, y lista de espera.
+
+   Alcance de la información: la Jefatura ve el plantel completo. Un profesional
+   con sesión iniciada ve el agregado por servicio y, en el desglose nominal,
+   solamente sus propios datos: el rendimiento individual de un colega no es
+   información de acceso general. */
+
+function estRango() {
+  if (!estDesde || !estHasta) {
+    const hoy = hoyISO();
+    estDesde = hoy.slice(0, 8) + '01';
+    estHasta = hoy;
+  }
+  return [estDesde, estHasta];
+}
+function estIso(y, m, d) { return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
+function estPreset(p) {
+  const hoy = hoyISO();
+  const [y, m] = hoy.split('-').map(Number);
+  const ultDia = (yy, mm) => new Date(yy, mm, 0).getDate();
+  if (p === 'mes') { estDesde = estIso(y, m, 1); estHasta = hoy; }
+  else if (p === 'mesant') {
+    const my = m === 1 ? y - 1 : y, mm = m === 1 ? 12 : m - 1;
+    estDesde = estIso(my, mm, 1); estHasta = estIso(my, mm, ultDia(my, mm));
+  } else if (p === 'trim') {
+    const d = new Date(y, m - 1, 1); d.setMonth(d.getMonth() - 2);
+    estDesde = estIso(d.getFullYear(), d.getMonth() + 1, 1); estHasta = hoy;
+  } else if (p === 'anio') { estDesde = estIso(y, 1, 1); estHasta = hoy; }
+  else if (p === '12m') {
+    const d = new Date(y, m - 1, 1); d.setMonth(d.getMonth() - 11);
+    estDesde = estIso(d.getFullYear(), d.getMonth() + 1, 1); estHasta = hoy;
+  }
+  renderEstadisticas();
+}
+function estSort(col) {
+  if (estOrden === col) estAsc = !estAsc;
+  else { estOrden = col; estAsc = col === 'nombre'; }
+  renderEstadisticas();
+}
+function estVerCirujanos(servEnc) {
+  estServicio = decodeURIComponent(servEnc);
+  estTab = 'cirujano';
+  renderEstadisticas();
+}
+
+function estGrupoVacio(nombre) {
+  return {
+    nombre, servicios: {}, salas: {}, causas: {}, espera: [],
+    programadas: 0, realizadas: 0, suspendidas: 0, minutos: 0,
+    urgencias: 0, pediatricos: 0, conInforme: 0, informeEnPlazo: 0, lvqOk: 0,
+    enEspera: 0, esperaMax: 0, mails: {},
+  };
+}
+
+/* Agrupa la actividad del período por servicio o por cirujano.
+   Se consideran "programadas" las cirugías que llegaron al parte (confirmadas,
+   en curso, realizadas y suspendidas): los borradores y las solicitudes en
+   circuito de validación todavía no consumieron quirófano. */
+function calcEstadisticas(clave) {
+  const [desde, hasta] = estRango();
+  const G = {};
+  const grupo = (c) => {
+    const k = (clave === 'servicio' ? c.servicio : c.cirujano) || 'Sin asignar';
+    const g = G[k] || (G[k] = estGrupoVacio(k));
+    if (c.servicio) g.servicios[c.servicio] = (g.servicios[c.servicio] || 0) + 1;
+    if (c.cirujanoEmail) g.mails[c.cirujanoEmail] = true;
+    return g;
+  };
+
+  DB.cirugias
+    .filter((c) => c.fecha && c.fecha >= desde && c.fecha <= hasta)
+    .filter((c) => ['confirmada', 'en_curso', 'realizada', 'suspendida'].includes(c.estado))
+    .forEach((c) => {
+      const g = grupo(c);
+      g.programadas++;
+      if (c.quirofano) g.salas[c.quirofano] = (g.salas[c.quirofano] || 0) + 1;
+      if (c.estado === 'suspendida') {
+        g.suspendidas++;
+        const causa = c.suspension?.causa || 'Sin causa registrada';
+        g.causas[causa] = (g.causas[causa] || 0) + 1;
+        return;
+      }
+      if (c.estado !== 'realizada') return;
+      g.realizadas++;
+      g.minutos += minutosCirugia(c);
+      if (prioridadEfectiva(c) <= 2) g.urgencias++;
+      if (c.paciente?.pediatrico) g.pediatricos++;
+      if (lvqIntegra(c)) g.lvqOk++;
+      if (c.informe) {
+        g.conInforme++;
+        if (c.horaFinReal && diffMin(c.horaFinReal, c.informe.fechaHora) <= 120) g.informeEnPlazo++;
+      }
+      if (c.fechaSolicitud) g.espera.push(Math.max(0, diasEntre(c.fechaSolicitud, c.fecha)));
+    });
+
+  // Lista de espera: es una foto del estado actual, no del período elegido.
+  DB.cirugias.filter((c) => ['borrador', 'pendiente', 'validada'].includes(c.estado)).forEach((c) => {
+    const g = grupo(c);
+    g.enEspera++;
+    g.esperaMax = Math.max(g.esperaMax, esperaDias(c));
+  });
+
+  const arr = Object.values(G).map((g) => {
+    g.horas = g.minutos / 60;
+    g.tasaSusp = g.programadas ? (g.suspendidas / g.programadas) * 100 : 0;
+    g.durMedia = g.realizadas ? g.minutos / g.realizadas : 0;
+    g.cumplInforme = g.realizadas ? (g.informeEnPlazo / g.realizadas) * 100 : 0;
+    g.cumplLVQ = g.realizadas ? (g.lvqOk / g.realizadas) * 100 : 0;
+    g.esperaMedia = g.espera.length ? g.espera.reduce((a, b) => a + b, 0) / g.espera.length : null;
+    g.servicioPrinc = Object.entries(g.servicios).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+    g.salaPrinc = Object.entries(g.salas).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+    return g;
+  });
+  const totMin = arr.reduce((s, g) => s + g.minutos, 0);
+  arr.forEach((g) => { g.share = totMin ? (g.minutos / totMin) * 100 : 0; });
+  return arr;
+}
+
+function estOrdenar(arr) {
+  const dir = estAsc ? 1 : -1;
+  return arr.slice().sort((a, b) => {
+    if (estOrden === 'nombre') return a.nombre.localeCompare(b.nombre) * dir;
+    const va = a[estOrden] === null || a[estOrden] === undefined ? -1 : a[estOrden];
+    const vb = b[estOrden] === null || b[estOrden] === undefined ? -1 : b[estOrden];
+    return (va - vb) * dir || a.nombre.localeCompare(b.nombre);
+  });
+}
+function estPill(valor, buenoDesde, regularDesde) {
+  const cls = valor >= buenoDesde ? 'ok' : valor >= regularDesde ? 'mid' : 'bad';
+  return `<span class="est-pill ${cls}">${valor.toFixed(0)} %</span>`;
+}
+function estPillInv(valor, maloDesde, regularDesde) {
+  const cls = valor >= maloDesde ? 'bad' : valor >= regularDesde ? 'mid' : 'ok';
+  return `<span class="est-pill ${cls}">${valor.toFixed(1)} %</span>`;
+}
+
+const EST_COLUMNAS = [
+  { k: 'realizadas', t: 'Realizadas' },
+  { k: 'suspendidas', t: 'Suspend.' },
+  { k: 'tasaSusp', t: '% susp.' },
+  { k: 'horas', t: 'Horas qx' },
+  { k: 'share', t: '% del bloque' },
+  { k: 'durMedia', t: 'Dur. media' },
+  { k: 'cumplInforme', t: 'Informe ≤ 2 h' },
+  { k: 'cumplLVQ', t: 'LVQ completa' },
+  { k: 'esperaMedia', t: 'Espera media' },
+  { k: 'enEspera', t: 'En espera' },
+];
+
+function estFila(g, clave, propia, maxRealizadas) {
+  const nMails = Object.keys(g.mails).length;
+  const sub = clave === 'cirujano'
+    ? [g.servicioPrinc, g.salaPrinc].filter(Boolean).join(' · ')
+    : `${nMails ? nMails + ' cirujano(s) con cuenta' : 'sin cirujanos con cuenta'} · ${g.salaPrinc || 'sin sala predominante'}`;
+  const drill = clave === 'servicio'
+    ? ` class="clic" onclick="estVerCirujanos('${attr(g.nombre)}')" title="Ver el desglose por cirujano de este servicio"`
+    : (propia ? ' class="propia"' : '');
+  return `<tr${drill}>
+    <td><div class="est-nom">${esc(g.nombre)}${propia ? ' <span class="est-pill ok">Usted</span>' : ''}<small>${esc(sub)}</small></div></td>
+    <td class="num"><b>${g.realizadas}</b>
+      <span class="est-mini"><i style="width:${maxRealizadas ? (g.realizadas / maxRealizadas) * 100 : 0}%"></i></span></td>
+    <td class="num">${g.suspendidas}</td>
+    <td class="num">${g.programadas ? estPillInv(g.tasaSusp, 10, 5) : '—'}</td>
+    <td class="num">${g.horas ? g.horas.toFixed(1) : '—'}</td>
+    <td class="num">${g.share ? g.share.toFixed(1) + ' %' : '—'}</td>
+    <td class="num">${g.durMedia ? Math.round(g.durMedia) + ' min' : '—'}</td>
+    <td class="num">${g.realizadas ? estPill(g.cumplInforme, 95, 80) : '—'}</td>
+    <td class="num">${g.realizadas ? estPill(g.cumplLVQ, 95, 80) : '—'}</td>
+    <td class="num">${g.esperaMedia === null ? '—' : Math.round(g.esperaMedia) + ' d'}</td>
+    <td class="num">${g.enEspera || '—'}${g.esperaMax > 90 ? `<small style="display:block;color:var(--red);font-weight:700">máx. ${g.esperaMax} d</small>` : ''}</td>
+  </tr>`;
+}
+
+function exportarEstadisticas() {
+  const clave = estTab;
+  const [desde, hasta] = estRango();
+  const filas = [[clave === 'servicio' ? 'Servicio' : 'Cirujano', 'Servicio principal', 'Programadas',
+    'Realizadas', 'Suspendidas', '% suspensión', 'Horas de quirófano', '% del bloque',
+    'Duración media (min)', 'Urgencias P1-P2', 'Pediátricos', '% informe ≤ 2 h', '% LVQ completa',
+    'Espera media (días)', 'En lista de espera', 'Espera máxima (días)']];
+  estOrdenar(estVisibles(clave)).forEach((g) => filas.push([
+    g.nombre, g.servicioPrinc, g.programadas, g.realizadas, g.suspendidas, g.tasaSusp.toFixed(1),
+    g.horas.toFixed(1), g.share.toFixed(1), Math.round(g.durMedia), g.urgencias, g.pediatricos,
+    g.cumplInforme.toFixed(1), g.cumplLVQ.toFixed(1),
+    g.esperaMedia === null ? '' : Math.round(g.esperaMedia), g.enEspera, g.esperaMax,
+  ]));
+  filas.push([]);
+  filas.push([`Período ${desde} a ${hasta}`, `Exportado ${nowDT().replace('T', ' ')}`]);
+  descargarCSV(`hru-estadisticas-${clave}-${desde}_${hasta}.csv`, filas);
+}
+
+/* Grupos visibles según quién mira: el desglose nominal solo lo ve completo la
+   Jefatura; el profesional ve su propia fila. */
+function estVisibles(clave) {
+  const u = usuarioActual();
+  let arr = calcEstadisticas(clave);
+  if (clave === 'cirujano') {
+    if (estServicio) arr = arr.filter((g) => g.servicioPrinc === estServicio || g.servicios[estServicio]);
+    if (!jefe) arr = arr.filter((g) => u && (g.nombre === u.nombre || g.mails[u.email]));
+  }
+  return arr;
+}
+
+function renderEstadisticas() {
+  const u = usuarioActual();
+  const [desde, hasta] = estRango();
+  const clave = estTab;
+  const todos = calcEstadisticas(clave);
+  const visibles = estOrdenar(estVisibles(clave));
+  const maxReal = Math.max(1, ...visibles.map((g) => g.realizadas));
+
+  // Totales del período, siempre sobre el universo completo.
+  const porServ = calcEstadisticas('servicio');
+  const tot = porServ.reduce((s, g) => ({
+    realizadas: s.realizadas + g.realizadas, suspendidas: s.suspendidas + g.suspendidas,
+    programadas: s.programadas + g.programadas, minutos: s.minutos + g.minutos,
+    urgencias: s.urgencias + g.urgencias,
+  }), { realizadas: 0, suspendidas: 0, programadas: 0, minutos: 0, urgencias: 0 });
+  const nCirujanos = calcEstadisticas('cirujano').filter((g) => g.realizadas > 0).length;
+  const nServicios = porServ.filter((g) => g.realizadas > 0).length;
+
+  const th = (c) => `<th class="num orden ${estOrden === c.k ? 'on' : ''}" onclick="estSort('${c.k}')">${c.t}${estOrden === c.k ? ' ' + (estAsc ? ICONS.arrowUp : ICONS.arrowDown) : ''}</th>`;
+
+  // Ranking de causas de suspensión del período (agregado de todos los grupos)
+  const causas = {};
+  porServ.forEach((g) => Object.entries(g.causas).forEach(([c, n]) => { causas[c] = (causas[c] || 0) + n; }));
+  const causasArr = Object.entries(causas).sort((a, b) => b[1] - a[1]);
+  const maxCausa = causasArr.length ? causasArr[0][1] : 1;
+
+  const topHoras = porServ.slice().sort((a, b) => b.minutos - a.minutos).slice(0, 8);
+  const maxHoras = topHoras.length ? topHoras[0].minutos : 1;
+
+  $('main').innerHTML = `
+    <div class="page-head">
+      <div class="head-row">
+        <div class="head-icon">${ICONS.pieChart}</div>
+        <div>
+          <h1 class="page-title">Estadísticas Quirúrgicas</h1>
+          <p class="page-sub">Producción por servicio y por cirujano — ${fmtFecha(desde)} al ${fmtFecha(hasta)}</p>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="exportarEstadisticas()">${ICONS.download} Exportar CSV</button>
+    </div>
+
+    <div class="est-toolbar">
+      <div class="field"><label>Desde</label>
+        <input type="date" value="${desde}" max="${hasta}" onchange="estDesde=this.value;renderEstadisticas()"></div>
+      <div class="field"><label>Hasta</label>
+        <input type="date" value="${hasta}" min="${desde}" onchange="estHasta=this.value;renderEstadisticas()"></div>
+      <div class="est-presets">
+        <button class="est-preset" onclick="estPreset('mes')">Este mes</button>
+        <button class="est-preset" onclick="estPreset('mesant')">Mes anterior</button>
+        <button class="est-preset" onclick="estPreset('trim')">Últimos 3 meses</button>
+        <button class="est-preset" onclick="estPreset('anio')">Año en curso</button>
+        <button class="est-preset" onclick="estPreset('12m')">Últimos 12 meses</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">${ICONS.check} Cirugías realizadas</div>
+        <div class="kpi-val">${tot.realizadas}</div>
+        <div class="kpi-meta">${tot.programadas} llegaron al parte en el período</div></div>
+      <div class="kpi"><div class="kpi-label">${ICONS.clockSm} Horas de quirófano</div>
+        <div class="kpi-val">${(tot.minutos / 60).toFixed(1)}</div>
+        <div class="kpi-meta">Tiempo real medido; si falta, la duración estimada</div></div>
+      <div class="kpi"><div class="kpi-label">${ICONS.layers.replace('18', '15')} Equipos con actividad</div>
+        <div class="kpi-val">${nServicios} <span style="font-size:1rem;font-weight:600;color:var(--muted)">servicios</span></div>
+        <div class="kpi-meta">${nCirujanos} cirujano(s) con al menos una cirugía realizada</div></div>
+      <div class="kpi"><div class="kpi-label">${ICONS.zap.replace('16', '15')} Urgencias P1–P2</div>
+        <div class="kpi-val">${tot.urgencias}</div>
+        <div class="kpi-meta">${tot.realizadas ? ((tot.urgencias / tot.realizadas) * 100).toFixed(1) : '0.0'} % de la producción del período</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab ${clave === 'servicio' ? 'active' : ''}" onclick="estTab='servicio';estServicio='';renderEstadisticas()">${ICONS.layers.replace('18', '15')} Por servicio <span class="n">${porServ.length}</span></button>
+      <button class="tab ${clave === 'cirujano' ? 'active' : ''}" onclick="estTab='cirujano';renderEstadisticas()">${ICONS.steth} Por cirujano <span class="n">${estVisibles('cirujano').length}</span></button>
+      ${clave === 'cirujano' && estServicio ? `<button class="tab" onclick="estServicio='';renderEstadisticas()">${ICONS.x} Quitar filtro: ${esc(estServicio)}</button>` : ''}
+    </div>
+
+    ${clave === 'cirujano' && !jefe ? `<div class="banner banner-blue">${ICONS.lock.replace('18', '16')}
+      <div><strong>Desglose nominal restringido</strong>
+      El rendimiento individual de cada profesional solo lo consulta la Jefatura de Quirófanos. Usted ve sus propios datos y el agregado por servicio.</div></div>` : ''}
+
+    ${clave === 'servicio' ? `<div class="banner banner-blue">${ICONS.info}
+      <div><strong>Cómo leer el cuadro</strong>
+      Toque un servicio para ver su desglose por cirujano. Las horas de quirófano usan el tiempo real medido entre incisión y cierre; cuando no está cargado se toma la duración estimada de la solicitud. La columna <b>En espera</b> es una foto del estado actual, no del período elegido.</div></div>` : ''}
+
+    <div class="tbl-wrap">
+      <table class="tbl" style="min-width:1080px">
+        <thead><tr>
+          <th class="orden ${estOrden === 'nombre' ? 'on' : ''}" onclick="estSort('nombre')">${clave === 'servicio' ? 'Servicio' : 'Cirujano'}${estOrden === 'nombre' ? ' ' + (estAsc ? ICONS.arrowUp : ICONS.arrowDown) : ''}</th>
+          ${EST_COLUMNAS.map(th).join('')}
+        </tr></thead>
+        <tbody>
+          ${visibles.length
+            ? visibles.map((g) => estFila(g, clave, !!(u && (g.nombre === u.nombre || (clave === 'cirujano' && g.mails[u.email]))), maxReal)).join('')
+            : `<tr><td colspan="${EST_COLUMNAS.length + 1}"><div class="empty">Sin actividad registrada en el período seleccionado.</div></td></tr>`}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="charts">
+      <div class="chart-card">
+        <div class="card-title" style="margin-bottom:6px">Ocupación del bloque por servicio</div>
+        <div class="card-sub">Horas de quirófano consumidas en el período</div>
+        ${topHoras.length && topHoras[0].minutos ? topHoras.map((g) => `
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${esc(g.nombre)}</span><b>${(g.minutos / 60).toFixed(1)} h · ${g.share.toFixed(1)} %</b></div>
+            <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(g.minutos / maxHoras) * 100}%;background:var(--blue)"></div></div>
+          </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin horas de quirófano registradas en el período.</div>'}
+      </div>
+      <div class="chart-card">
+        <div class="card-title" style="margin-bottom:6px">Causas de suspensión del período</div>
+        <div class="card-sub">${tot.suspendidas} suspensión(es) sobre ${tot.programadas} cirugías que llegaron al parte</div>
+        ${causasArr.length ? causasArr.map(([c, n]) => `
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${esc(c)}</span><b>${n}</b></div>
+            <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(n / maxCausa) * 100}%;background:var(--red)"></div></div>
+          </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin suspensiones registradas en el período.</div>'}
+      </div>
+    </div>`;
+}
+
 /* ================= RECLAMOS (canal Jefe a Jefe) ================= */
+const JEFATURA = 'Jefatura de Quirófanos';
+
+/* El reclamo dejó de ser un mensaje con una única respuesta: ahora es un hilo.
+   Los registros anteriores (asunto + texto + respuesta) se leen como un hilo de
+   uno o dos mensajes, sin necesidad de migrar nada en la base. */
+function hiloReclamo(r) {
+  if (Array.isArray(r.mensajes) && r.mensajes.length) return r.mensajes;
+  const h = [{ rol: 'autor', nombre: r.autor, email: r.autorMail || '', de: r.de, texto: r.texto, t: r.fechaHora }];
+  if (r.respuesta) h.push({ rol: 'jefatura', nombre: JEFATURA, email: '', de: JEFATURA, texto: r.respuesta, t: r.fechaRespuesta || r.fechaHora });
+  return h;
+}
+/* Papel de quien está mirando dentro de este reclamo. Si el jefe es además el
+   autor, manda su condición de autor: es quien espera la respuesta. */
+function rolEnReclamo(r) {
+  const u = usuarioActual();
+  if (u && r.autorMail && r.autorMail === u.email) return 'autor';
+  if (jefe) return 'jefatura';
+  return null;
+}
+function claveLector(r) {
+  const rol = rolEnReclamo(r);
+  if (rol === 'autor') return claveMail(usuarioActual().email);
+  return rol === 'jefatura' ? '__jefatura' : '';
+}
+/* A quién le toca actuar: tras un mensaje del autor responde la Jefatura; tras
+   una respuesta de la Jefatura, el autor debe leerla y cerrar o replicar. */
+function turnoDeReclamo(r) {
+  if (r.estado === 'cerrado') return null;
+  const ult = hiloReclamo(r).slice(-1)[0];
+  if (!ult) return null;
+  return ult.rol === 'autor' ? 'jefatura' : 'autor';
+}
+function venceReclamo(r) {
+  const delAutor = hiloReclamo(r).filter((m) => m.rol === 'autor').slice(-1)[0];
+  return addHorasHabiles((delAutor && delAutor.t) || r.fechaHora, 48);
+}
+/* Cuántos mensajes leyó ya quien mira. Se guarda la cantidad de mensajes vistos
+   y no la hora del último: `nowDT()` tiene precisión de minuto, y dos mensajes
+   del mismo minuto harían que una respuesta se diera por leída sin serlo. */
+function leidosPor(r) {
+  const clave = claveLector(r);
+  return clave ? (Number((r.leido || {})[clave]) || 0) : 0;
+}
+function reclamoNoLeidos(r) {
+  const rol = rolEnReclamo(r);
+  if (!rol) return 0;
+  return hiloReclamo(r).slice(leidosPor(r)).filter((m) => m.rol !== rol).length;
+}
+/* Avisos de reclamos que le corresponden a quien está mirando: los que debe
+   contestar y los que tienen respuestas sin leer. */
+function reclamosPendientes() {
+  return DB.reclamos.filter((r) => {
+    const mio = rolEnReclamo(r);
+    if (!mio || r.estado === 'cerrado') return false;
+    return turnoDeReclamo(r) === mio || reclamoNoLeidos(r) > 0;
+  }).length;
+}
+function verReclamo(id) {
+  reclamoAbierto = (String(reclamoAbierto) === String(id)) ? null : id;
+  if (reclamoAbierto !== null) marcarReclamoLeido(id);
+  renderReclamos();
+}
+function abrirReclamo(id) {
+  reclamoAbierto = id;
+  marcarReclamoLeido(id);
+  renderReclamos();
+  const el = document.getElementById('msg-' + id);
+  if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+function marcarReclamoLeido(id) {
+  const r = DB.reclamos.find((x) => String(x.id) === String(id));
+  if (!r) return;
+  const clave = claveLector(r);
+  if (!clave) return;
+  const total = hiloReclamo(r).length;
+  // Idempotente: sin esto, cada re-render volvería a escribir en la nube.
+  if (leidosPor(r) >= total) return;
+  r.leido = Object.assign({}, r.leido, { [clave]: total });
+  upsert('reclamos', r);
+}
+
 function renderReclamos() {
   const u = usuarioActual();
-  const lista = DB.reclamos.slice().sort((a, b) => String(b.fechaHora).localeCompare(String(a.fechaHora)));
+  const aResponder = DB.reclamos.filter((r) => rolEnReclamo(r) && turnoDeReclamo(r) === rolEnReclamo(r));
+  const sinLeer = DB.reclamos.filter((r) => r.estado !== 'cerrado' && reclamoNoLeidos(r) > 0);
+  const permiso = ('Notification' in window) ? Notification.permission : 'unsupported';
+  const lista = DB.reclamos.slice().sort((a, b) => {
+    // Primero lo que exige acción de quien mira, después por antigüedad.
+    const pa = (rolEnReclamo(a) && turnoDeReclamo(a) === rolEnReclamo(a) ? 0 : 2) - (reclamoNoLeidos(a) ? 1 : 0);
+    const pb = (rolEnReclamo(b) && turnoDeReclamo(b) === rolEnReclamo(b) ? 0 : 2) - (reclamoNoLeidos(b) ? 1 : 0);
+    return pa - pb || String(ultimaActividad(b)).localeCompare(String(ultimaActividad(a)));
+  });
   $('main').innerHTML = `
     <div class="page-head">
       <div class="head-row">
@@ -3160,6 +3730,19 @@ function renderReclamos() {
         </div>
       </div>
     </div>
+
+    ${aResponder.length ? `<div class="banner banner-amber">${ICONS.reply.replace('15', '18')}
+      <div><strong>${aResponder.length} reclamo(s) esperan su respuesta</strong>
+      ${aResponder.map((r) => `<div style="margin-top:6px">· <a href="#reclamos" onclick="event.preventDefault();abrirReclamo(${r.id})" style="color:inherit;font-weight:700">${esc(r.asunto)}</a> — ${esc(r.de)}, ${fmtDT(ultimaActividad(r))}</div>`).join('')}</div></div>` : ''}
+
+    ${sinLeer.length ? `<div class="banner banner-green">${ICONS.mailOpen.replace('16', '18')}
+      <div><strong>${sinLeer.length} reclamo(s) con mensajes sin leer</strong>
+      ${sinLeer.map((r) => `<div style="margin-top:6px">· <a href="#reclamos" onclick="event.preventDefault();abrirReclamo(${r.id})" style="color:inherit;font-weight:700">${esc(r.asunto)}</a> — ${reclamoNoLeidos(r)} mensaje(s) nuevo(s)</div>`).join('')}</div></div>` : ''}
+
+    ${permiso === 'granted' ? '' : `<div class="banner banner-blue">${ICONS.bell.replace('16', '18')}
+      <div><strong>Active las notificaciones del dispositivo</strong>
+      Recibirá un aviso cuando le toque responder un reclamo o cuando le respondan uno propio, sin depender de que revise la app.
+      <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pedirPermisoNotif()">${ICONS.bell} Activar notificaciones</button></div></div></div>`}
 
     <div class="banner banner-blue">${ICONS.info}
       <div><strong>Principio de Cultura Justa</strong>
@@ -3174,32 +3757,84 @@ function renderReclamos() {
       </div>
       <div class="form-actions">
         <button class="btn btn-blue" onclick="enviarReclamo()">${ICONS.send} Enviar reclamo</button>
-        <p class="form-note">La Jefatura debe responder dentro de las <b>48 horas hábiles</b>.</p>
+        <p class="form-note">La Jefatura debe responder dentro de las <b>48 horas hábiles</b>. Mientras el reclamo siga abierto, ambas partes reciben recordatorios en la campana y en el dispositivo.</p>
       </div>
     </div>` : ''}
 
-    <div class="result-count">${lista.length} reclamo(s) registrado(s)</div>
+    <div class="result-count">${lista.length} reclamo(s) registrado(s)${aResponder.length ? ` · ${aResponder.length} a su cargo` : ''}</div>
     ${lista.length ? lista.map(reclamoCard).join('') : '<div class="empty">No hay reclamos registrados.</div>'}`;
 }
 
+function ultimaActividad(r) {
+  const h = hiloReclamo(r);
+  return (h.length ? h[h.length - 1].t : r.fechaHora) || r.fechaHora;
+}
+
+function mensajeHTML(m, nuevo) {
+  const quien = m.nombre || (m.rol === 'jefatura' ? JEFATURA : 'Autor');
+  return `<div class="msg ${m.rol === 'jefatura' ? 'jefatura' : ''} ${nuevo ? 'nuevo' : ''}">
+    <div class="msg-head">
+      <span class="quien">${m.rol === 'jefatura' ? ICONS.shield.replace('18', '13') : ICONS.user.replace('14', '13')} ${esc(quien)}</span>
+      <span>${m.de && m.de !== quien ? esc(m.de) : ''}</span>
+      <span style="margin-left:auto">${fmtDT(m.t)}</span>
+      ${nuevo ? '<span class="sin-leer">Nuevo</span>' : ''}
+    </div>
+    <div class="msg-txt">${esc(m.texto)}</div>
+  </div>`;
+}
+
 function reclamoCard(r) {
-  const vence = addHorasHabiles(r.fechaHora, 48);
-  const vencido = r.estado === 'abierto' && new Date() > vence;
+  const rol = rolEnReclamo(r);
+  const turno = turnoDeReclamo(r);
+  const nuevos = reclamoNoLeidos(r);
+  const hilo = hiloReclamo(r);
+  const leidos = leidosPor(r);
+  const vence = venceReclamo(r);
+  const vencido = turno === 'jefatura' && new Date() > vence;
+  const abierto = String(reclamoAbierto) === String(r.id);
+  const estadoChip = r.estado === 'cerrado'
+    ? 'background:#eef1f4;color:#4b5563;border-color:var(--line)'
+    : turno === 'jefatura' ? 'background:var(--amber-soft);color:#92600a;border-color:#f3ddb0'
+      : 'background:var(--green-soft);color:#166b4a;border-color:#b9e8d2';
+  const estadoTxt = r.estado === 'cerrado' ? 'Cerrado' : turno === 'jefatura' ? 'Esperando respuesta' : 'Respondido';
+
   return `<div class="inc-card" style="cursor:default">
     <div class="inc-top">
-      <span class="chip" style="${r.estado === 'abierto' ? 'background:var(--amber-soft);color:#92600a;border-color:#f3ddb0' : 'background:var(--green-soft);color:#166b4a;border-color:#b9e8d2'}">${r.estado === 'abierto' ? 'Abierto' : 'Respondido'}</span>
+      <span class="chip" style="${estadoChip}">${estadoTxt}</span>
       <span class="chip">${ICONS.calendar} ${fmtDT(r.fechaHora)}</span>
-      ${r.estado === 'abierto' ? `<span class="chip" style="${vencido ? 'background:var(--red-soft);color:var(--red);border-color:#f3c8c8' : ''}">${ICONS.clockSm} ${vencido ? 'Plazo vencido' : 'Vence ' + fmtDT(dateToDT(vence))}</span>` : ''}
+      ${turno ? `<span class="turno-de">${ICONS.reply.replace('15', '12')} Debe responder: ${turno === 'jefatura' ? JEFATURA : esc(r.autor)}${turno === rol ? ' (usted)' : ''}</span>` : ''}
+      ${nuevos ? `<span class="sin-leer">${ICONS.msg.replace('16', '12')} ${nuevos} sin leer</span>` : ''}
+      ${turno === 'jefatura' ? `<span class="chip" style="${vencido ? 'background:var(--red-soft);color:var(--red);border-color:#f3c8c8' : ''}">${ICONS.clockSm} ${vencido ? 'Plazo vencido' : 'Vence ' + fmtDT(dateToDT(vence))}</span>` : ''}
     </div>
     <div style="font-weight:700;font-size:0.98rem;margin-bottom:6px">${esc(r.asunto)}</div>
-    <div class="inc-desc" style="-webkit-line-clamp:4">${esc(r.texto)}</div>
-    <div class="inc-meta"><span>${ICONS.user} ${esc(r.autor)} · ${esc(r.de)}</span><span>${ICONS.mail.replace('16', '14')} ${esc(r.para)}</span></div>
-    ${r.respuesta ? `<div class="banner banner-green" style="margin:14px 0 0"><div><strong>Respuesta de la Jefatura · ${fmtDT(r.fechaRespuesta)}</strong>${esc(r.respuesta)}</div></div>` : ''}
-    ${jefe && r.estado === 'abierto' ? `<div style="margin-top:14px">
-      <div class="field"><label>Respuesta de la Jefatura</label><textarea id="resp-${r.id}" style="min-height:80px" placeholder="Respuesta formal..."></textarea></div>
-      <button class="btn btn-sm btn-blue" style="margin-top:10px" onclick="responderReclamo(${r.id})">${ICONS.send} Responder</button>
+    ${abierto ? '' : `<div class="inc-desc" style="-webkit-line-clamp:3">${esc(hilo[hilo.length - 1].texto)}</div>`}
+    <div class="inc-meta"><span>${ICONS.user} ${esc(r.autor)} · ${esc(r.de)}</span><span>${ICONS.mail.replace('16', '14')} ${esc(r.para)}</span><span>${ICONS.msg.replace('16', '14')} ${hilo.length} mensaje(s)</span></div>
+
+    <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">
+      <button class="btn btn-sm btn-outline" onclick="verReclamo(${r.id})">${ICONS.msg} ${abierto ? 'Ocultar conversación' : `Ver conversación (${hilo.length})`}</button>
+      ${rol && r.estado !== 'cerrado' ? `<button class="btn btn-sm btn-outline" onclick="cerrarReclamo(${r.id})">${ICONS.archive} Dar por cerrado</button>` : ''}
+      ${rol && r.estado === 'cerrado' ? `<button class="btn btn-sm btn-outline" onclick="reabrirReclamo(${r.id})">${ICONS.refresh} Reabrir</button>` : ''}
+      ${rol === 'jefatura' && r.autorMail ? `<a class="btn btn-sm btn-outline" href="${avisoMailto(r)}">${ICONS.mail.replace('16', '15')} Avisar por correo</a>` : ''}
+    </div>
+
+    ${abierto ? `<div style="margin-top:16px">
+      ${hilo.map((m, i) => mensajeHTML(m, !!rol && m.rol !== rol && i >= leidos)).join('')}
+      ${rol && r.estado !== 'cerrado' ? `<div class="field" style="margin-top:12px">
+        <label>${rol === 'jefatura' ? 'Respuesta de la Jefatura' : 'Su réplica'}</label>
+        <textarea id="msg-${r.id}" style="min-height:84px" placeholder="${rol === 'jefatura' ? 'Respuesta formal...' : 'Agregue información o responda a la Jefatura...'}"></textarea>
+      </div>
+      <button class="btn btn-sm btn-blue" style="margin-top:10px" onclick="enviarMensajeReclamo(${r.id})">${ICONS.send} Enviar ${rol === 'jefatura' ? 'respuesta' : 'mensaje'}</button>` : ''}
+      ${!rol ? `<p class="form-note" style="margin-top:10px">Solo el autor del reclamo y la Jefatura de Quirófanos pueden escribir en este hilo.</p>` : ''}
     </div>` : ''}
   </div>`;
+}
+
+/* Aviso por correo: abre un borrador en el cliente de correo del dispositivo.
+   El envío lo hace la persona, la app no manda nada por su cuenta. */
+function avisoMailto(r) {
+  const asunto = `HRU Quirófanos — respuesta a su reclamo: ${r.asunto}`;
+  const cuerpo = `Estimado/a ${r.autor}:\n\nLa Jefatura de Quirófanos registró una respuesta a su reclamo "${r.asunto}".\nPuede leerla en la app, en la sección Reclamos.\n\n${location.origin}${location.pathname}#reclamos\n`;
+  return `mailto:${encodeURIComponent(r.autorMail)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
 }
 
 function enviarReclamo() {
@@ -3207,18 +3842,63 @@ function enviarReclamo() {
   const asunto = $('r-asunto').value.trim();
   const texto = $('r-texto').value.trim();
   if (!u || !asunto || !texto) { alert('Complete el asunto y el detalle del reclamo.'); return; }
+  const t = nowDT();
+  const id = Date.now();
   upsert('reclamos', {
-    id: Date.now(), de: u.servicio, para: 'Jefatura de Quirófanos', asunto, texto,
-    autor: u.nombre, autorMail: u.email, fechaHora: nowDT(),
+    id, de: u.servicio, para: JEFATURA, asunto, texto,
+    autor: u.nombre, autorMail: u.email, fechaHora: t,
     estado: 'abierto', respuesta: '', fechaRespuesta: '',
+    mensajes: [{ rol: 'autor', nombre: u.nombre, email: u.email, de: u.servicio, texto, t }],
+    leido: { [claveMail(u.email)]: 1 },
   });
+  reclamoAbierto = id;
   renderReclamos();
 }
-function responderReclamo(id) {
-  const r = DB.reclamos.find((x) => x.id === id);
-  const txt = $('resp-' + id).value.trim();
-  if (!r || !txt) { alert('Escriba la respuesta.'); return; }
-  r.respuesta = txt; r.fechaRespuesta = nowDT(); r.estado = 'respondido';
+
+function enviarMensajeReclamo(id) {
+  const r = DB.reclamos.find((x) => String(x.id) === String(id));
+  if (!r) return;
+  const rol = rolEnReclamo(r);
+  if (!rol) { alert('Solo el autor del reclamo y la Jefatura pueden escribir en este hilo.'); return; }
+  const ta = $('msg-' + id);
+  const texto = ta ? ta.value.trim() : '';
+  if (!texto) { alert('Escriba el mensaje.'); return; }
+  const u = usuarioActual();
+  const t = nowDT();
+  const hilo = hiloReclamo(r).slice();
+  hilo.push({
+    rol, texto, t,
+    nombre: rol === 'jefatura' ? JEFATURA : (u ? u.nombre : r.autor),
+    email: rol === 'jefatura' ? '' : (u ? u.email : r.autorMail || ''),
+    de: rol === 'jefatura' ? JEFATURA : (u ? u.servicio : r.de),
+  });
+  r.mensajes = hilo;
+  r.estado = rol === 'jefatura' ? 'respondido' : 'abierto';
+  // Espejo de la primera respuesta en los campos de la versión anterior.
+  if (rol === 'jefatura' && !r.respuesta) { r.respuesta = texto; r.fechaRespuesta = t; }
+  // Quien escribe leyó todo el hilo, incluido su propio mensaje.
+  r.leido = Object.assign({}, r.leido, { [claveLector(r)]: hilo.length });
+  if (ta) ta.value = '';
+  upsert('reclamos', r);
+  reclamoAbierto = r.id;
+  renderReclamos();
+}
+
+function cerrarReclamo(id) {
+  const r = DB.reclamos.find((x) => String(x.id) === String(id));
+  if (!r || !rolEnReclamo(r)) return;
+  if (!confirm('¿Dar por cerrado este reclamo? Dejarán de emitirse recordatorios. Puede reabrirse después.')) return;
+  r.estado = 'cerrado';
+  r.cerradoPor = rolEnReclamo(r) === 'jefatura' ? JEFATURA : (usuarioActual()?.nombre || r.autor);
+  r.fechaCierre = nowDT();
+  upsert('reclamos', r);
+  renderReclamos();
+}
+function reabrirReclamo(id) {
+  const r = DB.reclamos.find((x) => String(x.id) === String(id));
+  if (!r || !rolEnReclamo(r)) return;
+  r.estado = hiloReclamo(r).slice(-1)[0]?.rol === 'autor' ? 'abierto' : 'respondido';
+  r.cerradoPor = ''; r.fechaCierre = '';
   upsert('reclamos', r);
   renderReclamos();
 }
@@ -3963,6 +4643,7 @@ function remCard(r) {
       <div class="rem-when">${esc(r.cuando || '')}</div>
     </div>
     ${r.cirugia ? `<button class="rem-go" onclick="closeRecordatorios();openCirugia(${r.cirugia})">Ver</button>`
+      : r.reclamo ? `<button class="rem-go" onclick="closeRecordatorios();reclamoAbierto=${r.reclamo};go('reclamos');marcarReclamoLeido(${r.reclamo})">Abrir</button>`
       : r.vista ? `<button class="rem-go" onclick="closeRecordatorios();go('${r.vista}')">Ir</button>` : ''}
   </div>`;
 }
@@ -4060,6 +4741,82 @@ async function promptInstall() {
   if (b) b.style.display = 'none';
 }
 
+/* ================= ACTUALIZACIÓN AUTOMÁTICA =================
+   La app se publica en GitHub Pages y queda instalada en teléfonos y
+   computadoras del hospital. Sin esto, un dispositivo podría seguir usando la
+   copia cacheada por el service worker durante días.
+
+   Circuito: el navegador descarga el sw.js nuevo, entra en estado "waiting", la
+   app avisa con una barra y —al aceptar— le ordena tomar el control y recarga.
+   La comprobación se repite cada media hora y cada vez que la app vuelve al
+   frente, de modo que un cambio publicado hoy llega solo, sin desinstalar nada. */
+let swRegistro = null;
+let swEsperando = null;
+
+/* ¿Quedó texto cargado en la pantalla? Se ignoran las casillas y los selectores
+   de fecha, que traen valor por defecto y no son trabajo del usuario. */
+function hayTextoCargado() {
+  return [...document.querySelectorAll('#main input, #main textarea')].some((el) => {
+    if (['checkbox', 'radio', 'date', 'month'].includes(el.type)) return false;
+    return String(el.value || '').trim() !== '';
+  });
+}
+/* Hay trabajo a medio hacer si algún campo tiene texto o si hay un modal
+   abierto: en ese caso la actualización no se aplica sola. */
+function hayTrabajoEnCurso() {
+  return !!document.querySelector('.overlay.open') || hayTextoCargado();
+}
+function mostrarAvisoActualizacion() {
+  // Sin nada tipeado, la app se actualiza sola: es el caso habitual, con la
+  // pantalla en el panel o en la grilla.
+  if (!hayTrabajoEnCurso()) { aplicarActualizacion(); return; }
+  const bar = $('update-bar');
+  if (bar) bar.classList.add('open');
+}
+function aplicarActualizacion() {
+  const bar = $('update-bar');
+  if (bar) $('update-txt').textContent = 'Actualizando…';
+  if (swEsperando) swEsperando.postMessage('skipWaiting');
+  // Si el worker no responde, la recarga forzada alcanza igual.
+  setTimeout(() => location.reload(), 1500);
+}
+function vigilarWorker(reg) {
+  const nuevo = reg.installing || reg.waiting;
+  if (!nuevo) return;
+  const evaluar = () => {
+    // Solo es una actualización si ya había una versión controlando la página:
+    // en la primera instalación no hay nada que avisar.
+    if (nuevo.state === 'installed' && navigator.serviceWorker.controller) {
+      swEsperando = reg.waiting || nuevo;
+      mostrarAvisoActualizacion();
+    }
+  };
+  evaluar();
+  nuevo.addEventListener('statechange', evaluar);
+}
+function initActualizaciones() {
+  if (!('serviceWorker' in navigator) || location.protocol === 'file:') return;
+  navigator.serviceWorker.register('sw.js').then((reg) => {
+    swRegistro = reg;
+    vigilarWorker(reg);
+    reg.addEventListener('updatefound', () => vigilarWorker(reg));
+    setInterval(() => reg.update().catch(() => {}), 30 * 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
+    window.addEventListener('online', () => reg.update().catch(() => {}));
+  }).catch(() => { /* sin SW la app funciona igual, solo pierde el modo offline */ });
+
+  // El worker nuevo tomó el control: se recarga una sola vez para estrenar la
+  // versión publicada. En la primera visita no hay nada que estrenar —el worker
+  // recién se instala y reclama la página—, así que ahí no se recarga.
+  const teniaControlador = !!navigator.serviceWorker.controller;
+  let recargando = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (recargando || !teniaControlador) return;
+    recargando = true;
+    location.reload();
+  });
+}
+
 /* ================= REGISTRO DE VISTAS ================= */
 Object.assign(VIEWS, {
   grilla: renderProgDiaria,
@@ -4072,6 +4829,7 @@ Object.assign(VIEWS, {
   programacion: renderProgramacion,
   confidenciales: renderConfidenciales,
   kpis: renderKPIs,
+  estadisticas: renderEstadisticas,
   usuarios: renderUsuarios,
   reclamos: renderReclamos,
   acceso: renderAcceso,
@@ -4129,12 +4887,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('visibilitychange', () => { if (!document.hidden) revisarRecordatorios(); });
   });
 
-  // Service worker: permite abrir la app sin conexión en cualquier dispositivo.
-  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => { /* sin SW la app funciona igual, solo pierde el modo offline */ });
-    });
-  }
+  // Service worker: abre la app sin conexión y trae sola cada versión publicada.
+  window.addEventListener('load', initActualizaciones);
 });
 </script>
 </body>

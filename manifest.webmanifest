@@ -21,6 +21,7 @@
     { "name": "Programación Diaria", "short_name": "Turnos", "url": "./#grilla", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
     { "name": "Parte Quirúrgico", "short_name": "Parte", "url": "./#parte", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
     { "name": "Nueva Incidencia", "short_name": "Incidencia", "url": "./#nueva", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Estadísticas Quirúrgicas", "short_name": "Estadísticas", "url": "./#estadisticas", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
     { "name": "Recordatorios", "short_name": "Avisos", "url": "./#recordatorios", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
   ]
 }
