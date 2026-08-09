@@ -1987,7 +1987,7 @@ function renderSidebar() {
     items.push({ id: 'solicitud', icon: ICONS.calPlus, label: 'Solicitud Quirúrgica' });
     items.push({ id: 'mis', icon: ICONS.list, label: 'Mis Solicitudes' });
     items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
-    items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
+    if (!jefe) items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
     items.push({ id: 'perfil', icon: ICONS.user.replace('14', '18'), label: 'Mi Perfil' });
   }
   if (jefe) {
@@ -1997,7 +1997,7 @@ function renderSidebar() {
     items.push({ id: 'confidenciales', icon: ICONS.lock, label: 'Incidencias Confidenciales' });
     if (!u) items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'kpis', icon: ICONS.chart, label: 'Indicadores' });
-    if (!u) items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
+    items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
     items.push({ id: 'usuarios', icon: ICONS.users, label: 'Profesionales' });
   }
   $('nav').innerHTML = items.map((it) => it.sep
