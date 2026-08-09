@@ -2039,7 +2039,7 @@ const TITULOS = {
 };
 function go(v, silencioso) {
   if (v === 'confidenciales' && !jefe) { closeDrawer(); openJefeModal(); return; }
-  if (['programacion', 'kpis', 'usuarios'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
+  if (['programacion', 'kpis', 'usuarios', 'estadisticas'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['solicitud', 'mis', 'perfil'].includes(v) && !usuarioActual()) { v = 'acceso'; }
   if (v === 'reclamos' && !usuarioActual() && !jefe) { v = 'acceso'; }
   // Las estadísticas las consulta cualquier profesional acreditado; el desglose
