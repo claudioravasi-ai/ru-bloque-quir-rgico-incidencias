@@ -509,6 +509,22 @@
   .periodo-hdr .ph-t { font-weight: 600; letter-spacing: 0; text-transform: none; }
   .franjas-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
   .franjas-endo { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 14px; }
+  /* Guardia de 24 h del Quirófano 1: seis franjas de una hora por fila. */
+  .franjas-row.franjas-24 { grid-template-columns: repeat(6, 1fr); }
+  .sala-24 { border-color: #f0c6c6; }
+  .sala-24 .sala-hdr { background: #fdf3f3; }
+  .sala-nota-24 {
+    display: flex; align-items: flex-start; gap: 8px; padding: 10px 16px;
+    background: #fff8f8; border-bottom: 1px solid var(--line);
+    font-size: 0.78rem; color: #7a3b3b; line-height: 1.45;
+  }
+  .slot-nd {
+    margin-left: 5px; font-size: 0.56rem; font-weight: 800; letter-spacing: 0.03em;
+    background: #ede9fe; color: #5b21b6; padding: 1px 5px; border-radius: 4px; vertical-align: middle;
+  }
+  .slot-ci { font-size: 0.6rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; }
+  .ci-ok { background: var(--green-soft); color: #166b4a; }
+  .ci-falta { background: #ede9fe; color: #5b21b6; }
 
   .slot {
     border-radius: 10px; border: 1px solid var(--line); min-height: 92px;
@@ -690,12 +706,62 @@
     .coord-item { flex-wrap: wrap; }
     .cir-actions .btn { flex: 1 1 auto; justify-content: center; }
   }
+  /* ---- Consentimientos médicos informados ---- */
+  .ci-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); gap: 20px; align-items: start; }
+  .ci-preview-col { position: sticky; top: 78px; max-height: calc(100vh - 100px); display: flex; flex-direction: column; }
+  .ci-doc {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 26px 30px; overflow: auto; flex: 1;
+    font-family: 'Times New Roman', Times, serif; font-size: 0.83rem; line-height: 1.5; color: #111;
+  }
+  .ci-doc h1 { font-size: 1.05rem; text-align: center; text-transform: uppercase; margin: 6px 0; }
+  .ci-doc h3 { font-size: 0.86rem; border-bottom: 1px solid #bbb; margin: 14px 0 6px; padding-bottom: 2px; }
+  .ci-doc p { text-align: justify; margin: 6px 0; }
+  .ci-doc table.fil { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin: 6px 0; }
+  .ci-doc table.fil td { border: 1px solid #999; padding: 4px 6px; }
+  .ci-doc table.fil td.k { background: #f0f0f0; font-weight: 700; width: 22%; }
+  .ci-doc .membrete { text-align: center; border-bottom: 2px solid #143f60; padding-bottom: 6px; margin-bottom: 8px; }
+  .ci-doc .mb-tit { font-size: 0.98rem; font-weight: 700; color: #143f60; }
+  .ci-doc .mb-sub { font-size: 0.68rem; color: #333; }
+  .ci-doc .mb-blq { font-size: 0.76rem; font-weight: 700; margin-top: 4px; color: #1c5d8c; }
+  .ci-doc .meta { text-align: center; font-size: 0.72rem; color: #444; }
+  .ci-doc .cita { font-size: 0.7rem; font-style: italic; color: #333; }
+  .ci-doc .firmas { margin-top: 34px; display: flex; justify-content: space-between; gap: 10px; }
+  .ci-doc .firma { width: 46%; text-align: center; border-top: 1px solid #000; padding-top: 4px; font-size: 0.72rem; }
+  .ci-doc .legal { font-size: 0.66rem; color: #555; border-top: 1px dotted #bbb; margin-top: 18px; padding-top: 6px; }
+  .ci-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+  .ci-tab {
+    background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer;
+    font-family: inherit; font-size: 0.88rem; font-weight: 700; color: var(--muted);
+    padding: 10px 16px; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .ci-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .ci-badge {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 0.68rem; font-weight: 800;
+    background: var(--green-soft); color: #166b4a; padding: 3px 9px; border-radius: 99px; letter-spacing: 0.03em;
+  }
+  .ci-link {
+    display: flex; gap: 9px; align-items: flex-start; background: #eef6fc; border: 1px solid #cfe4f5;
+    border-radius: 10px; padding: 11px 14px; font-size: 0.82rem; margin-bottom: 16px; color: #14507a;
+  }
+  .ci-reg-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; background: #fff; }
+  .ci-reg-top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .ci-reg-top .nm { font-weight: 800; font-size: 0.92rem; }
+  .ci-reg-top .dt { font-size: 0.74rem; color: var(--muted); margin-left: auto; }
+  .ci-reg-sub { font-size: 0.8rem; color: #4b5563; margin: 3px 0 9px; }
+  .ci-reg-acc { display: flex; gap: 7px; flex-wrap: wrap; }
+  @media (max-width: 1180px) {
+    .franjas-row.franjas-24 { grid-template-columns: repeat(4, 1fr); }
+  }
   @media (max-width: 900px) {
     .salas-grid { grid-template-columns: 1fr; }
     .franjas-endo { grid-template-columns: repeat(3, 1fr); }
+    .ci-split { grid-template-columns: 1fr; }
+    .ci-preview-col { position: static; max-height: none; }
   }
   @media (max-width: 560px) {
     .franjas-row { grid-template-columns: repeat(2, 1fr); }
+    .franjas-row.franjas-24 { grid-template-columns: repeat(2, 1fr); }
     .franjas-endo { grid-template-columns: repeat(2, 1fr); }
     .slot { min-height: 84px; }
     .stats { grid-template-columns: 1fr 1fr; }
@@ -787,6 +853,11 @@
 <!-- Modal: éxito -->
 <div class="overlay" id="ok-overlay">
   <div class="modal modal-white" id="ok-modal" style="max-width:480px;"></div>
+</div>
+
+<!-- Modal: cirugía programada correctamente → consentimiento informado -->
+<div class="overlay" id="cxok-overlay">
+  <div class="modal modal-white" id="cxok-modal" style="max-width:520px;"></div>
 </div>
 
 <!-- Modal: recordatorios -->
@@ -998,11 +1069,31 @@ const FRANJAS_QX = [
   { id: 'T1', t: '08:00', p: 'M' }, { id: 'T2', t: '10:00', p: 'M' }, { id: 'T3', t: '12:00', p: 'M' },
   { id: 'T4', t: '14:00', p: 'T' }, { id: 'T5', t: '16:00', p: 'T' }, { id: 'T6', t: '18:00', p: 'T' },
 ];
+/* Quirófano 1 — guardia de urgencias y emergencias. A diferencia del resto del
+   bloque, su jornada no va de 08 a 20 h: cubre las 24 horas corridas de 08:00 a
+   08:00 del día siguiente, todos los días del año, sábados y domingos incluidos.
+   Las franjas de 00:00 a 07:00 llevan `nd: 1` porque pertenecen a la guardia del
+   día mostrado pero ocurren en la fecha calendario siguiente.
+   Los identificadores T1–T6 se conservan en 08, 10, 12, 14, 16 y 18 h para que
+   los turnos cargados con la grilla anterior sigan apareciendo en su franja. */
+const FRANJAS_Q1 = (() => {
+  const HEREDADOS = { '08:00': 'T1', '10:00': 'T2', '12:00': 'T3', '14:00': 'T4', '16:00': 'T5', '18:00': 'T6' };
+  const out = [];
+  for (let i = 0; i < 24; i++) {
+    const abs = 8 + i;                       // 8, 9, … 31
+    const h = abs % 24;                      // hora del reloj
+    const nd = abs >= 24 ? 1 : 0;            // 00:00–07:00 caen en el día siguiente
+    const t = String(h).padStart(2, '0') + ':00';
+    const p = nd || h >= 20 ? 'N' : (h < 14 ? 'M' : 'T');
+    out.push({ id: HEREDADOS[t] || ('H' + String(h).padStart(2, '0')), t, p, nd });
+  }
+  return out;
+})();
 const FRANJAS_ENDO = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']
   .map((t, i) => ({ id: 'E' + (i + 1), t, p: t < '14:00' ? 'M' : 'T' }));
 
 const SALAS = [
-  { id: 'Q1', nombre: 'Quirófano 1', tipo: 'qx', urgencias: true, franjas: FRANJAS_QX, etiqueta: 'URGENCIAS', clase: 'badge-urg' },
+  { id: 'Q1', nombre: 'Quirófano 1', tipo: 'qx', urgencias: true, guardia24: true, franjas: FRANJAS_Q1, etiqueta: 'URGENCIAS · 24 H', clase: 'badge-urg' },
   { id: 'Q2', nombre: 'Quirófano 2', tipo: 'qx', urgencias: false, franjas: FRANJAS_QX },
   { id: 'Q3', nombre: 'Quirófano 3', tipo: 'qx', urgencias: false, franjas: FRANJAS_QX },
   { id: 'Q4', nombre: 'Quirófano 4', tipo: 'qx', urgencias: false, franjas: FRANJAS_QX },
@@ -1043,7 +1134,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -1255,15 +1346,15 @@ const FIREBASE_CONFIG = {
    3. Si la nube está caída, la escritura se encola y se reenvía al reconectar.
    4. Cada snapshot de la nube también se espeja en localStorage, de modo que
       la próxima apertura sin red muestre los últimos datos conocidos. */
-const COLS = ['incidencias', 'cirugias', 'usuarios', 'reclamos', 'agenda'];
+const COLS = ['incidencias', 'cirugias', 'usuarios', 'reclamos', 'agenda', 'consentimientos'];
 /* Espejo local con prefijo propio. La app de incidencias embebida corre en el
    mismo origen de GitHub Pages y usa la clave 'hru_incidencias_v2': si ambas
    escribieran ahí se pisarían. Comparten los datos por Firebase (nodo
    'incidencias'), no por localStorage. */
-const LOCAL_KEYS = { incidencias: 'hruq_incidencias_v1', cirugias: 'hruq_cirugias_v1', usuarios: 'hruq_usuarios_v1', reclamos: 'hruq_reclamos_v1', agenda: 'hruq_agenda_v1' };
-const LEGACY_KEYS = { incidencias: 'hru_incidencias_v2', cirugias: 'hru_cirugias_v1', usuarios: 'hru_usuarios_v1', reclamos: 'hru_reclamos_v1', agenda: '' };
+const LOCAL_KEYS = { incidencias: 'hruq_incidencias_v1', cirugias: 'hruq_cirugias_v1', usuarios: 'hruq_usuarios_v1', reclamos: 'hruq_reclamos_v1', agenda: 'hruq_agenda_v1', consentimientos: 'hruq_consentimientos_v1' };
+const LEGACY_KEYS = { incidencias: 'hru_incidencias_v2', cirugias: 'hru_cirugias_v1', usuarios: 'hru_usuarios_v1', reclamos: 'hru_reclamos_v1', agenda: '', consentimientos: '' };
 const QUEUE_KEY = 'hruq_cola_v1';
-const DB = { incidencias: [], cirugias: [], usuarios: [], reclamos: [], agenda: [] };
+const DB = { incidencias: [], cirugias: [], usuarios: [], reclamos: [], agenda: [], consentimientos: [] };
 const refs = {};
 const forceLocal = new URLSearchParams(location.search).has('local');
 const cloudOn = !forceLocal && typeof firebase !== 'undefined' && !!FIREBASE_CONFIG.databaseURL;
@@ -1449,6 +1540,8 @@ function usuarioActual() {
 
 /* ================= HELPERS ================= */
 const $ = (id) => document.getElementById(id);
+/* Redimensiona un icono inline conservando la proporción. */
+const ico = (svg, n) => String(svg).replace(/width="\d+" height="\d+"/, `width="${n}" height="${n}"`);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const MESES_FULL = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -1492,6 +1585,17 @@ function addHorasHabiles(desdeDT, horas) {
 }
 function dateToDT(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+function diasDelMes(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  return new Date(y, m, 0).getDate();
+}
+/* Horas-quirófano disponibles en el mes: el Quirófano 1 aporta 24 h todos los
+   días (guardia permanente) y el resto del bloque, la jornada de 08 a 20 h de
+   cada día hábil. */
+function horasDisponiblesMes(ym) {
+  const jornada = BLOQUE.horaCierre - BLOQUE.horaApertura;
+  return SALAS.reduce((h, s) => h + (s.guardia24 ? diasDelMes(ym) * 24 : diasHabilesMes(ym) * jornada), 0);
 }
 function diasHabilesMes(ym) {
   const [y, m] = ym.split('-').map(Number);
@@ -1961,7 +2065,7 @@ async function pedirPermisoNotif() {
 
 function refreshView() {
   // No se re-renderizan las vistas con formularios en curso para no perder lo tipeado
-  const conFormulario = ['nueva', 'acceso', 'perfil'];
+  const conFormulario = ['nueva', 'acceso', 'perfil', 'consentimientos'];
   if (conFormulario.includes(view)) return;
   // Los reclamos sí se refrescan en vivo, salvo que haya un asunto o un mensaje
   // a medio escribir: un cambio de otro usuario en la nube no puede borrarlo.
@@ -1985,6 +2089,7 @@ function renderSidebar() {
   if (u) {
     items.push({ sep: 'Cirujano' });
     items.push({ id: 'solicitud', icon: ICONS.calPlus, label: 'Solicitud Quirúrgica' });
+    items.push({ id: 'consentimientos', icon: ico(ICONS.fileText, 18), label: 'Consentimientos Informados', badge: ciPendientesDe(u) || null, badgeAmber: true });
     items.push({ id: 'mis', icon: ICONS.list, label: 'Mis Solicitudes' });
     items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     if (!jefe) items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
@@ -1995,6 +2100,7 @@ function renderSidebar() {
     const pend = DB.cirugias.filter((c) => c.estado === 'pendiente' || c.estado === 'validada').length;
     items.push({ id: 'programacion', icon: ICONS.clipboard, label: 'Programación', badge: pend || null });
     items.push({ id: 'confidenciales', icon: ICONS.lock, label: 'Incidencias Confidenciales' });
+    if (!u) items.push({ id: 'consentimientos', icon: ico(ICONS.fileText, 18), label: 'Consentimientos Informados' });
     if (!u) items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'kpis', icon: ICONS.chart, label: 'Indicadores' });
     items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
@@ -2035,12 +2141,12 @@ const TITULOS = {
   solicitud: 'Solicitud Quirúrgica', mis: 'Mis Solicitudes', reclamos: 'Reclamos',
   perfil: 'Mi Perfil', programacion: 'Programación', confidenciales: 'Incidencias Confidenciales',
   kpis: 'Indicadores', usuarios: 'Profesionales', acceso: 'Acceso Profesional',
-  estadisticas: 'Estadísticas Quirúrgicas',
+  estadisticas: 'Estadísticas Quirúrgicas', consentimientos: 'Consentimientos Médicos Informados',
 };
 function go(v, silencioso) {
   if (v === 'confidenciales' && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['programacion', 'kpis', 'usuarios'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
-  if (['solicitud', 'mis', 'perfil'].includes(v) && !usuarioActual()) { v = 'acceso'; }
+  if (['solicitud', 'mis', 'perfil', 'consentimientos'].includes(v) && !usuarioActual() && !jefe) { v = 'acceso'; }
   if (v === 'reclamos' && !usuarioActual() && !jefe) { v = 'acceso'; }
   // Las estadísticas las consulta cualquier profesional acreditado; el desglose
   // nominal completo queda reservado a la Jefatura dentro de la propia vista.
@@ -2649,8 +2755,8 @@ function renderSolicitud() {
   const dOn = diaHabilitado(d);
 
   const libres = SALAS.map((s) => {
-    if (!dOn || !salaHabilitada(d, s.id)) return null;
-    const fs = s.franjas.filter((f) => !turnoEn(d, s.id, f.id) && puedeReservar(d, f.t, s.urgencias));
+    if (!s.guardia24 && (!dOn || !salaHabilitada(d, s.id))) return null;
+    const fs = s.franjas.filter((f) => !turnoEn(d, s.id, f.id) && puedeReservar(d, f, s.urgencias));
     return fs.length ? { s, fs } : null;
   }).filter(Boolean);
 
@@ -2758,7 +2864,7 @@ function accionesCirugia(c, rol) {
   const a = [];
   if (c.estado === 'borrador' && esDueno) {
     a.push(c.sala && c.franja
-      ? `<button class="btn btn-sm btn-outline" onclick="openSlot('${c.fecha}','${c.sala}','${c.franja}')">${ICONS.edit} Editar</button>`
+      ? `<button class="btn btn-sm btn-outline" onclick="openSlot('${diaDeGrilla(c)}','${c.sala}','${c.franja}')">${ICONS.edit} Editar</button>`
       : `<button class="btn btn-sm btn-outline" onclick="go('solicitud')">${ICONS.edit} Elegir franja</button>`);
     a.push(`<button class="btn btn-sm btn-red" onclick="delCirugia(${c.id})">${ICONS.trash} Eliminar</button>`);
   }
@@ -3038,6 +3144,9 @@ function openCirugia(id) {
       <div class="det-row"><b>Nombre</b> ${esc(c.paciente?.nombre)}${c.paciente?.pediatrico ? ' · <span style="color:#8b5cf6;font-weight:700">Pediátrico</span>' : ''}</div>
       <div class="det-row"><b>DNI</b> ${esc(c.paciente?.dni)} <b style="min-width:60px;margin-left:14px">Edad</b> ${c.paciente?.edad ?? '—'} años</div>
       <div class="det-row"><b>HCE</b> Estudios preoperatorios: ${c.hce?.preop ? '<span class="badge-ok">' + ICONS.check + ' verificados</span>' : '<span class="badge-no">' + ICONS.x + ' pendientes</span>'} &nbsp; Consentimiento: ${c.hce?.consentimiento ? '<span class="badge-ok">' + ICONS.check + ' registrado</span>' : '<span class="badge-no">' + ICONS.x + ' pendiente</span>'}</div>
+      <div class="cir-actions" style="margin-top:8px">
+        <button class="btn btn-sm btn-outline" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir el consentimiento informado' : 'Generar el consentimiento informado'}</button>
+      </div>
     </div>
 
     <div class="det-section">
@@ -3172,7 +3281,7 @@ function calcKPIs(ym) {
     if (c.horaInicioReal && c.horaFinReal) return s + Math.max(0, diffMin(c.horaInicioReal, c.horaFinReal));
     return s + (c.duracionMin || 0);
   }, 0);
-  const minDisponibles = diasHabilesMes(ym) * BLOQUE.quirofanos.length * (BLOQUE.horaCierre - BLOQUE.horaApertura) * 60;
+  const minDisponibles = horasDisponiblesMes(ym) * 60;
   const utilizacion = minDisponibles ? (minOperados / minDisponibles) * 100 : 0;
 
   // 2) Tasa de suspensiones sobre el total programado
@@ -3252,7 +3361,7 @@ function renderKPIs() {
     <div class="kpi-grid">
       ${kpiCard('Tasa de utilización del bloque', ICONS.chart.replace('18', '15'),
         k.utilizacion.toFixed(1) + ' %',
-        `${Math.round(k.minOperados / 60)} h operadas sobre ${Math.round(k.minDisponibles / 60)} h disponibles (${BLOQUE.quirofanos.length} salas × ${BLOQUE.horaCierre - BLOQUE.horaApertura} h × ${diasHabilesMes(kpiMes)} días hábiles)`,
+        `${Math.round(k.minOperados / 60)} h operadas sobre ${Math.round(k.minDisponibles / 60)} h disponibles (${SALAS.length - SALAS.filter((s) => s.guardia24).length} salas × ${BLOQUE.horaCierre - BLOQUE.horaApertura} h × ${diasHabilesMes(kpiMes)} días hábiles, más el Quirófano 1 con 24 h × ${diasDelMes(kpiMes)} días)`,
         k.utilizacion >= 75, '≥ 75 %', k.utilizacion, 75)}
 
       ${kpiCard('Tasa de suspensiones', ICONS.x.replace('14', '15'),
@@ -4155,6 +4264,9 @@ let slotCtx = null;
 function agendaDia(d) { return DB.agenda.find((a) => a.id === d) || null; }
 function diaHabilitado(d) { const a = agendaDia(d); return !a || a.on !== false; }
 function salaHabilitada(d, sid) {
+  // La guardia del Quirófano 1 no se deshabilita: si se cerrara, una urgencia
+  // quedaría sin franja donde cargarse.
+  if (sala(sid).guardia24) return true;
   const a = agendaDia(d);
   return !a || !a.salas || !a.salas[sid] || a.salas[sid].on !== false;
 }
@@ -4167,19 +4279,28 @@ function guardarAgenda(d, mut) {
 function setDiaOn(d, v) { guardarAgenda(d, (a) => { a.on = v; }); }
 function setSalaOn(d, sid, v) { guardarAgenda(d, (a) => { a.salas[sid] = { on: v }; }); }
 
+/* Día de grilla al que pertenece un turno. Coincide con `fecha` salvo en las
+   franjas de madrugada de la guardia del Quirófano 1, que se muestran en el día
+   anterior (la guardia de 08 a 08) pero se operan en la fecha siguiente. */
+function diaDeGrilla(c) { return c.diaGrilla || c.fecha; }
 function turnoEn(d, sid, fid) {
-  return DB.cirugias.find((c) => c.fecha === d && c.sala === sid && c.franja === fid) || null;
+  return DB.cirugias.find((c) => diaDeGrilla(c) === d && c.sala === sid && c.franja === fid) || null;
 }
+/* Fecha y hora reales de comienzo de una franja del día `d`. */
+function fechaDeFranja(d, f) { return f && f.nd ? sumarDias(d, f.nd) : d; }
+function inicioDeFranja(d, f) { return new Date(fechaDeFranja(d, f) + 'T' + f.t + ':00'); }
 function esLaborable(d) { const w = new Date(d + 'T12:00:00').getDay(); return w >= 1 && w <= 5; }
 function fmtDiaLargo(d) {
   const dt = new Date(d + 'T12:00:00');
   return `${DIAS_S[dt.getDay()]} ${dt.getDate()} de ${MESES_FULL[dt.getMonth()]} de ${dt.getFullYear()}`;
 }
 /* Regla de anticipación: un turno electivo se programa con 24 h como mínimo.
-   Las urgencias del Quirófano 1 y de Obstetricia la saltean. */
-function puedeReservar(d, hora, urgencia) {
+   Las urgencias del Quirófano 1 y de Obstetricia la saltean. `f` es la franja
+   completa, porque en la guardia de 24 h la hora sola no alcanza para saber en
+   qué fecha empieza el turno. */
+function puedeReservar(d, f, urgencia) {
   if (urgencia) return true;
-  return new Date(d + 'T' + hora + ':00').getTime() >= Date.now() + HORAS_ANTICIPACION * 36e5;
+  return inicioDeFranja(d, f).getTime() >= Date.now() + HORAS_ANTICIPACION * 36e5;
 }
 function anticipacionMinima() {
   const t = new Date(Date.now() + HORAS_ANTICIPACION * 36e5);
@@ -4194,12 +4315,13 @@ function authChip(c) {
 
 function slotCard(d, s, f, salaOff) {
   const c = turnoEn(d, s.id, f.id);
+  const nd = f.nd ? '<span class="slot-nd" title="Corresponde a la madrugada del día siguiente">+1 día</span>' : '';
   if (c) {
     const e = ESTC[c.estado];
     const pe = prioridadEfectiva(c);
     return `<button type="button" class="slot" style="border-left:4px solid ${e.color}" onclick="openSlot('${d}','${s.id}','${f.id}')">
       ${c.urgencia ? '<span class="slot-urg-tag">URG</span>' : ''}
-      <span class="slot-hora">${f.t}</span>
+      <span class="slot-hora">${f.t}${nd}</span>
       <span class="slot-cir">${esc(c.cirujano || 's/d')}</span>
       <span class="slot-pac">${esc(c.paciente?.nombre || 's/d')}</span>
       <span class="slot-cx">${esc(c.procedimiento || '')}</span>
@@ -4207,40 +4329,58 @@ function slotCard(d, s, f, salaOff) {
         <span class="slot-est" style="background:${e.soft};color:${e.text}">${e.label}</span>
         <span class="slot-prio" style="background:${PRIOS[pe].color}">P${pe}</span>
         ${authChip(c)}
+        ${consentimientoDeTurno(c) ? '<span class="slot-ci ci-ok">CI ✓</span>' : '<span class="slot-ci ci-falta">SIN CI</span>'}
       </span>
     </button>`;
   }
   if (salaOff) {
-    return `<div class="slot slot-libre slot-bloq"><span class="slot-hora">${f.t}</span>
+    return `<div class="slot slot-libre slot-bloq"><span class="slot-hora">${f.t}${nd}</span>
       <span class="slot-mas">${ICONS.lock.replace('18', '16')}</span><span class="slot-hint">Bloqueado</span></div>`;
   }
-  const reservable = puedeReservar(d, f.t, false);
+  const reservable = puedeReservar(d, f, false);
   if (!reservable && !s.urgencias) {
     return `<div class="slot slot-libre slot-bloq" title="Se programa con ${HORAS_ANTICIPACION} h de anticipación (desde ${anticipacionMinima()})">
-      <span class="slot-hora">${f.t}</span><span class="slot-mas">${ICONS.clockSm.replace('14', '16')}</span>
+      <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">${ICONS.clockSm.replace('14', '16')}</span>
       <span class="slot-hint">&lt; ${HORAS_ANTICIPACION} h</span></div>`;
   }
   return `<button type="button" class="slot slot-libre" onclick="openSlot('${d}','${s.id}','${f.id}')">
-    <span class="slot-hora">${f.t}</span><span class="slot-mas">+</span>
+    <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">+</span>
     <span class="slot-hint">${!reservable && s.urgencias ? 'Solo urgencia' : 'Disponible'}</span></button>`;
 }
 
+/* Bloque de franjas de un período (mañana, tarde o guardia nocturna). */
+function periodoBloque(d, s, off, p, titulo, rango, clase) {
+  const fs = s.franjas.filter((f) => f.p === p);
+  if (!fs.length) return '';
+  return `<div class="periodo-hdr">${titulo} <span class="ph-t">${rango}</span></div>
+    <div class="franjas-row ${clase || ''}">${fs.map((f) => slotCard(d, s, f, off)).join('')}</div>`;
+}
+
 function salaCard(d, s) {
-  const off = !diaHabilitado(d) || !salaHabilitada(d, s.id);
-  const cuerpo = s.tipo === 'endo'
-    ? `<div class="franjas-endo">${s.franjas.map((f) => slotCard(d, s, f, off)).join('')}</div>`
-    : `<div class="franjas-wrap">
-         <div class="periodo-hdr">Turno Mañana <span class="ph-t">08:00 – 14:00</span></div>
-         <div class="franjas-row">${s.franjas.filter((f) => f.p === 'M').map((f) => slotCard(d, s, f, off)).join('')}</div>
-         <div class="periodo-hdr">Turno Tarde <span class="ph-t">14:00 – 20:00</span></div>
-         <div class="franjas-row">${s.franjas.filter((f) => f.p === 'T').map((f) => slotCard(d, s, f, off)).join('')}</div>
-       </div>`;
-  return `<div class="sala-card ${off ? 'off' : ''}">
+  // La guardia de 24 h no se bloquea ni cuando la Jefatura cierra el día.
+  const off = !s.guardia24 && (!diaHabilitado(d) || !salaHabilitada(d, s.id));
+  let cuerpo;
+  if (s.tipo === 'endo') {
+    cuerpo = `<div class="franjas-endo">${s.franjas.map((f) => slotCard(d, s, f, off)).join('')}</div>`;
+  } else if (s.guardia24) {
+    cuerpo = `<div class="franjas-wrap">
+      ${periodoBloque(d, s, off, 'M', 'Turno Mañana', '08:00 – 14:00', 'franjas-24')}
+      ${periodoBloque(d, s, off, 'T', 'Turno Tarde', '14:00 – 20:00', 'franjas-24')}
+      ${periodoBloque(d, s, off, 'N', 'Guardia Nocturna', '20:00 – 08:00 del día siguiente', 'franjas-24')}
+    </div>`;
+  } else {
+    cuerpo = `<div class="franjas-wrap">
+      ${periodoBloque(d, s, off, 'M', 'Turno Mañana', '08:00 – 14:00')}
+      ${periodoBloque(d, s, off, 'T', 'Turno Tarde', '14:00 – 20:00')}
+    </div>`;
+  }
+  return `<div class="sala-card ${off ? 'off' : ''} ${s.guardia24 ? 'sala-24' : ''}">
     <div class="sala-hdr">
       <h3>${esc(s.nombre)}</h3>
       ${s.etiqueta ? `<span class="badge-sala ${s.clase}">${s.etiqueta}</span>` : ''}
-      <span class="sala-estado ${off ? 'off' : ''}"><span class="sd"></span>${off ? 'DESHABILITADA' : 'HABILITADA'}</span>
+      <span class="sala-estado ${off ? 'off' : ''}"><span class="sd"></span>${off ? 'DESHABILITADA' : s.guardia24 ? 'GUARDIA PERMANENTE' : 'HABILITADA'}</span>
     </div>
+    ${s.guardia24 ? `<div class="sala-nota-24">${ICONS.clockSm}<div>Disponibilidad continua de <b>08:00 a 08:00</b> — 24 franjas de una hora, todos los días del año, sábados y domingos incluidos. Destinado principalmente a la organización de cirugías de <b>urgencia y emergencia</b>.</div></div>` : ''}
     ${cuerpo}
   </div>`;
 }
@@ -4250,19 +4390,21 @@ function renderProgDiaria() {
   const d = diaSel;
   const laborable = esLaborable(d);
   const dOn = diaHabilitado(d);
-  const delDia = DB.cirugias.filter((c) => c.fecha === d);
+  const delDia = DB.cirugias.filter((c) => diaDeGrilla(c) === d);
   const ocupadas = delDia.length;
-  const capacidad = SALAS.reduce((n, s) => n + (salaHabilitada(d, s.id) && dOn ? s.franjas.length : 0), 0);
+  const capacidad = SALAS.reduce((n, s) => n + ((s.guardia24 || (salaHabilitada(d, s.id) && dOn)) ? s.franjas.length : 0), 0);
 
   let cuerpo = '';
   if (!laborable) {
-    cuerpo = `<div class="dia-banner">${ICONS.alertTri.replace(/22/g, '18')} ${fmtDiaLargo(d)} — día no laborable (fin de semana). Solo se registran urgencias y emergencias.</div>`;
+    cuerpo = `<div class="dia-banner">${ICONS.alertTri.replace(/22/g, '18')}<div>${fmtDiaLargo(d)} — día no laborable (fin de semana). En el resto del bloque solo se registran urgencias y emergencias; el <b>Quirófano 1 mantiene su grilla completa de 24 h</b>.</div></div>`;
   }
   if (!dOn) {
-    cuerpo += `<div class="dia-banner">${ICONS.lock} ${fmtDiaLargo(d)} — día deshabilitado por Jefatura de Quirófanos.</div>`;
+    cuerpo += `<div class="dia-banner">${ICONS.lock}<div>${fmtDiaLargo(d)} — día deshabilitado por Jefatura de Quirófanos. El <b>Quirófano 1</b> sigue abierto para urgencias.</div></div>`;
   }
-  cuerpo += `<div class="salas-grid">${SALAS.filter((s) => s.tipo === 'qx').map((s) => salaCard(d, s)).join('')}</div>`;
-  cuerpo += SALAS.filter((s) => s.tipo !== 'qx').map((s) => `<div style="margin-bottom:16px">${salaCard(d, s)}</div>`).join('');
+  // La guardia de 24 h va a lo ancho: son 24 franjas y no entran en media columna.
+  cuerpo += SALAS.filter((s) => s.guardia24).map((s) => `<div style="margin-bottom:16px">${salaCard(d, s)}</div>`).join('');
+  cuerpo += `<div class="salas-grid">${SALAS.filter((s) => s.tipo === 'qx' && !s.guardia24).map((s) => salaCard(d, s)).join('')}</div>`;
+  cuerpo += SALAS.filter((s) => s.tipo !== 'qx' && !s.guardia24).map((s) => `<div style="margin-bottom:16px">${salaCard(d, s)}</div>`).join('');
 
   // Turnos cargados antes de existir la grilla (o con la sala ya retirada del bloque):
   // se listan aparte para que ninguno quede invisible en la programación del día.
@@ -4301,6 +4443,7 @@ function renderProgDiaria() {
     <div class="banner banner-blue">${ICONS.clockSm.replace('14', '18')}
       <div><strong>Reglas de programación</strong>
       Anticipación mínima de <b>${HORAS_ANTICIPACION} h</b> para turnos electivos (desde ${anticipacionMinima()}). Las <b>urgencias</b> del Quirófano 1 y de Obstetricia la saltean.
+      El <b>Quirófano 1</b> es la sala de guardia: grilla continua de <b>08:00 a 08:00</b>, los siete días de la semana.
       Cierre de solicitudes <b>${BLOQUE.cierreSolicitudes} h</b> y publicación del parte <b>${BLOQUE.publicacionParte} h</b> del día previo.
       Los turnos se ordenan en el parte por prelación P1–P6.</div></div>
 
@@ -4324,12 +4467,12 @@ function openSlot(d, sid, fid) {
       go('perfil'); return;
     }
   }
-  slotCtx = { d, sid, fid, hora: f.t };
+  slotCtx = { d, sid, fid, hora: f.t, nd: f.nd || 0 };
   const puedeEditar = nuevo || jefe || (u && c.cirujanoEmail === u.email && ['borrador', 'pendiente'].includes(c.estado));
   const ro = puedeEditar ? '' : 'disabled';
   const v = (x, alt) => esc((c && x) || alt || '');
   const eq = (c && c.equipos) || [];
-  const avisoAnticip = (nuevo && !puedeReservar(d, f.t, false))
+  const avisoAnticip = (nuevo && !puedeReservar(d, f, false))
     ? `<div class="banner banner-amber" style="margin-bottom:14px">${ICONS.alertTri.replace(/22/g, '16')}<div>Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.
         ${s.urgencias ? 'Solo puede programarse marcando <b>Urgencia / Emergencia</b>.' : 'Esta sala no admite excepciones: use el Quirófano 1 para urgencias.'}</div></div>` : '';
 
@@ -4339,7 +4482,7 @@ function openSlot(d, sid, fid) {
       <div class="head-icon" style="background:#e8f4fb">${ICONS.calPlus}</div>
       <div>
         <div style="font-weight:800;font-size:1.1rem">${esc(s.nombre)} — ${f.t} h</div>
-        <div style="font-size:0.82rem;color:var(--muted)">${fmtDiaLargo(d)} · ${nuevo ? 'Nuevo turno' : 'Turno programado'}</div>
+        <div style="font-size:0.82rem;color:var(--muted)">${fmtDiaLargo(fechaDeFranja(d, f))}${f.nd ? ` · madrugada de la guardia del ${fmtFecha(d)}` : ''} · ${nuevo ? 'Nuevo turno' : 'Turno programado'}</div>
       </div>
     </div>
     ${c ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">${estChip(c)} ${prioChip(c)} ${authChip(c)}</div>` : '<div style="height:10px"></div>'}
@@ -4352,6 +4495,9 @@ function openSlot(d, sid, fid) {
         <div class="field"><label>Paciente — apellido y nombre *</label><input type="text" id="k-pac" value="${v(c && c.paciente?.nombre)}" ${ro}></div>
         <div class="field"><label>DNI</label><input type="text" id="k-dni" value="${v(c && c.paciente?.dni)}" ${ro}></div>
         <div class="field"><label>Edad</label><input type="number" id="k-edad" min="0" max="120" value="${c?.paciente?.edad ?? ''}" ${ro}></div>
+        <div class="field"><label>Fecha de nacimiento</label><input type="date" id="k-nac" value="${v(c && c.paciente?.nacimiento)}" ${ro}>
+          <span class="hint">Se vuelca al consentimiento informado.</span></div>
+        <div class="field"><label>Teléfono de contacto</label><input type="text" id="k-tel" value="${v(c && c.paciente?.telefono)}" ${ro}></div>
         <div class="field"><label>Obra social / financiador</label>
           <select id="k-obra" ${ro}><option value="">Seleccionar…</option>${OBRAS.map((o) => `<option ${c?.obraSocial === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
         <div class="field"><label>Diagnóstico preoperatorio *</label><input type="text" id="k-diag" value="${v(c && c.diagnostico)}" ${ro}></div>
@@ -4400,9 +4546,13 @@ function openSlot(d, sid, fid) {
       <h4>Circuito del turno</h4>
       <div class="det-row"><b>Estado</b> ${ESTC[c.estado].label} — ${ESTC[c.estado].desc}</div>
       <div class="det-row"><b>Autorización</b> ${c.auth || 'PENDIENTE'} (Admisión y Egresos)</div>
+      <div class="det-row"><b>Consentimiento informado</b> ${consentimientoDeTurno(c)
+        ? `generado el ${esc(consentimientoDeTurno(c).fecha)}`
+        : '<span style="color:var(--red);font-weight:700">pendiente de generar</span>'}</div>
       <div class="cir-actions" style="margin-top:10px">
         <button class="btn btn-sm btn-outline" onclick="closeSlot();openCirugia(${c.id})">${ICONS.eyeSm} Ver ficha completa (LVQ, coordinación, informe)</button>
         <button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} Autorización de Admisión</button>
+        <button class="btn btn-sm btn-blue" onclick="closeSlot();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir consentimiento' : 'Generar consentimiento informado'}</button>
       </div>
     </div>` : ''}
 
@@ -4419,6 +4569,7 @@ function closeSlot() { $('slot-overlay').classList.remove('open'); slotCtx = nul
 function guardarSlot() {
   const { d, sid, fid, hora } = slotCtx;
   const s = sala(sid);
+  const f = franjaDe(sid, fid);
   const u = usuarioActual();
   const paciente = $('k-pac').value.trim();
   const cirujano = $('k-cir').value.trim();
@@ -4431,7 +4582,7 @@ function guardarSlot() {
   const urgEl = $('k-urg');
   const urgencia = !!(urgEl && urgEl.checked);
   const existente = turnoEn(d, sid, fid);
-  if (!existente && !puedeReservar(d, hora, urgencia)) {
+  if (!existente && !puedeReservar(d, f, urgencia)) {
     alert(`Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.\n\nSolo puede programarse marcando "Urgencia / emergencia", y únicamente en el Quirófano 1 o en el quirófano de Obstetricia.`);
     return;
   }
@@ -4444,8 +4595,14 @@ function guardarSlot() {
     estado: 'pendiente',
   };
   Object.assign(c, {
-    sala: sid, franja: fid, quirofano: s.nombre, fecha: d, horaProg: hora,
-    paciente: { nombre: paciente, dni: $('k-dni').value.trim(), edad, pediatrico: edad > 0 && edad < 15 },
+    sala: sid, franja: fid, quirofano: s.nombre,
+    // `fecha` es siempre la fecha calendario real de la cirugía; `diaGrilla` es
+    // el día en que la franja se muestra (difieren en la madrugada del Q1).
+    fecha: fechaDeFranja(d, f), diaGrilla: d, horaProg: hora,
+    paciente: {
+      nombre: paciente, dni: $('k-dni').value.trim(), edad, pediatrico: edad > 0 && edad < 15,
+      nacimiento: $('k-nac').value, telefono: $('k-tel').value.trim(),
+    },
     obraSocial: $('k-obra').value,
     diagnostico, cie10: $('k-cie').value.trim(), procedimiento,
     cirujano, cirujanoEmail: existente ? c.cirujanoEmail : (u ? u.email : ''),
@@ -4468,7 +4625,35 @@ function guardarSlot() {
   upsert('cirugias', c);
   closeSlot();
   renderProgDiaria();
+  // Cerrado el circuito de programación, el paso siguiente es el consentimiento
+  // informado: se ofrece de inmediato, con los datos del turno ya volcados.
+  if (!existente) openTurnoOk(c);
 }
+
+/* ---- Confirmación de la programación y salida hacia el consentimiento ---- */
+function openTurnoOk(c) {
+  const f = franjaDe(c.sala, c.franja);
+  $('cxok-modal').innerHTML = `
+    <button class="modal-close" onclick="closeTurnoOk()" aria-label="Cerrar">✕</button>
+    <div class="success-icon">${ICONS.checkCircle.replace('22', '30').replace('22', '30')}</div>
+    <h2>Su cirugía se programó correctamente</h2>
+    <p class="modal-sub" style="color:var(--muted)">${esc(c.procedimiento)}</p>
+    <div class="notify-list">
+      <b>${ICONS.calendar.replace('16', '14')} Turno asignado</b><br>
+      · ${esc(c.quirofano)} — ${esc(c.horaProg)} h${f && f.nd ? ' (madrugada)' : ''}<br>
+      · ${fmtDiaLargo(c.fecha)}<br>
+      · Paciente: ${esc(c.paciente?.nombre || 's/d')}${c.paciente?.dni ? ` · DNI ${esc(c.paciente.dni)}` : ''}<br>
+      · Estado: ${ESTC[c.estado].label} · prioridad P${prioridadEfectiva(c)}${c.urgencia ? ' · <b style="color:var(--red)">URGENCIA</b>' : ''}
+    </div>
+    <p class="form-note" style="text-align:center;margin-bottom:14px">
+      Falta el <b>consentimiento informado</b>. Presione aquí para descargarlo: se abrirá la solapa correspondiente
+      con los datos del paciente y de la cirugía ya cargados, para leerlo, completarlo y descargarlo.</p>
+    <button class="btn btn-blue" style="width:100%;justify-content:center" onclick="closeTurnoOk();irAConsentimiento(${c.id})">
+      ${ICONS.fileText} Descargar el consentimiento informado</button>
+    <button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:10px" onclick="closeTurnoOk()">Más tarde — volver a la grilla</button>`;
+  $('cxok-overlay').classList.add('open');
+}
+function closeTurnoOk() { $('cxok-overlay').classList.remove('open'); }
 
 function cancelarSlot(id) {
   const c = DB.cirugias.find((x) => x.id === id);
@@ -4500,7 +4685,7 @@ function pedirAutorizacion(id) {
     c.auth = r === '1' ? 'AUTORIZADO' : 'NO AUTORIZADO';
     pushHist(c, 'Admisión y Egresos: ' + c.auth);
     upsert('cirugias', c);
-    if ($('slot-overlay').classList.contains('open')) openSlot(c.fecha, c.sala, c.franja);
+    if ($('slot-overlay').classList.contains('open')) openSlot(diaDeGrilla(c), c.sala, c.franja);
     else refreshView();
   });
 }
@@ -4508,12 +4693,13 @@ function pedirAutorizacion(id) {
 /* ---- Panel de jefatura del día: habilitar salas y limpiar la grilla ---- */
 function openJefaturaDia() {
   const d = diaSel || hoyISO();
-  const fila = (nombre, on, onToggle, onClear) => `
+  const fila = (nombre, on, onToggle, onClear, fijo) => `
     <div class="jefatura-row">
       <div><div class="jn">${nombre}</div>
-        <div style="font-size:0.76rem;font-weight:800;color:${on ? 'var(--green)' : 'var(--red)'}">${on ? 'HABILITADO' : 'DESHABILITADO'}</div></div>
+        <div style="font-size:0.76rem;font-weight:800;color:${on ? 'var(--green)' : 'var(--red)'}">${fijo ? 'GUARDIA PERMANENTE 08–08' : on ? 'HABILITADO' : 'DESHABILITADO'}</div></div>
       <div class="jb">
-        <button class="btn btn-sm btn-outline" onclick="${onToggle}">${on ? 'Deshabilitar' : 'Habilitar'}</button>
+        ${fijo ? '<span class="hint" style="max-width:190px;text-align:right">La guardia de urgencias no se deshabilita</span>'
+               : `<button class="btn btn-sm btn-outline" onclick="${onToggle}">${on ? 'Deshabilitar' : 'Habilitar'}</button>`}
         ${onClear ? `<button class="btn btn-sm btn-red" onclick="${onClear}">Limpiar</button>` : ''}
       </div>
     </div>`;
@@ -4528,16 +4714,17 @@ function openJefaturaDia() {
       ${fila('Día completo', diaHabilitado(d), `jefToggleDia('${d}')`, `jefLimpiarDia('${d}')`)}
     </div>
     <div class="det-section"><h4>Salas</h4>
-      ${SALAS.map((s) => fila(s.nombre, salaHabilitada(d, s.id), `jefToggleSala('${d}','${s.id}')`, `jefLimpiarSala('${d}','${s.id}')`)).join('')}
+      ${SALAS.map((s) => fila(s.nombre, salaHabilitada(d, s.id), `jefToggleSala('${d}','${s.id}')`, `jefLimpiarSala('${d}','${s.id}')`, s.guardia24)).join('')}
     </div>
-    <p class="form-note">Deshabilitar una sala bloquea sus franjas para nuevas reservas; los turnos ya cargados se conservan y deben suspenderse con causa si corresponde.</p>`;
+    <p class="form-note">Deshabilitar una sala bloquea sus franjas para nuevas reservas; los turnos ya cargados se conservan y deben suspenderse con causa si corresponde.
+    El <b>Quirófano 1</b> queda fuera de esta llave: es la sala de guardia y su grilla de 08:00 a 08:00 permanece abierta todos los días, incluidos sábados, domingos y feriados.</p>`;
   $('cir-overlay').classList.add('open');
 }
 function jefToggleDia(d) { setDiaOn(d, !diaHabilitado(d)); openJefaturaDia(); }
 function jefToggleSala(d, sid) { setSalaOn(d, sid, !salaHabilitada(d, sid)); openJefaturaDia(); }
 function jefLimpiarDia(d) {
   pedirClave('Limpiar programación del día', 'Se eliminarán todos los turnos aún no confirmados del día.', CLAVE_CANCELAR, () => {
-    const borrables = DB.cirugias.filter((c) => c.fecha === d && ['borrador', 'pendiente', 'validada'].includes(c.estado));
+    const borrables = DB.cirugias.filter((c) => diaDeGrilla(c) === d && ['borrador', 'pendiente', 'validada'].includes(c.estado));
     if (!borrables.length) { alert('No hay turnos cancelables en el día. Los turnos confirmados, en curso o realizados no se eliminan.'); return; }
     if (!confirm(`¿Eliminar ${borrables.length} turno(s) no confirmado(s) del ${fmtFecha(d)}?`)) return;
     borrables.forEach((c) => removeDoc('cirugias', c.id));
@@ -4547,7 +4734,7 @@ function jefLimpiarDia(d) {
 }
 function jefLimpiarSala(d, sid) {
   pedirClave('Limpiar sala', 'Se eliminarán los turnos no confirmados de esta sala.', CLAVE_CANCELAR, () => {
-    const borrables = DB.cirugias.filter((c) => c.fecha === d && c.sala === sid && ['borrador', 'pendiente', 'validada'].includes(c.estado));
+    const borrables = DB.cirugias.filter((c) => diaDeGrilla(c) === d && c.sala === sid && ['borrador', 'pendiente', 'validada'].includes(c.estado));
     if (!borrables.length) { alert('No hay turnos cancelables en esta sala.'); return; }
     if (!confirm(`¿Eliminar ${borrables.length} turno(s) de ${sala(sid).nombre}?`)) return;
     borrables.forEach((c) => removeDoc('cirugias', c.id));
@@ -4817,6 +5004,1425 @@ function initActualizaciones() {
   });
 }
 
+/* ================= CONSENTIMIENTOS MÉDICOS INFORMADOS =================
+   Generador del consentimiento informado quirúrgico del HRU. El texto clínico
+   de cada procedimiento (descripción, complicaciones, alternativas y la cita
+   del consenso en que se apoya) viene precargado y es editable: el documento
+   final lo redacta el cirujano, que adecua la información al caso concreto
+   (Lex Artis Ad-Hoc).
+
+   Al programar un turno en la grilla, los datos filiatorios del paciente, la
+   patología y la cirugía se vuelcan acá automáticamente, y el consentimiento
+   guardado queda vinculado al turno (`turnoId`), que a partir de ese momento
+   figura con el consentimiento registrado en la HCE. */
+
+const CI_ANESTESIAS = ['General', 'Regional / raquídea', 'Local + sedación', 'Sedación (endoscopía)', 'A definir por anestesiólogo'];
+const CI_LUCIDEZ = [
+  { v: 'lúcido, orientado en tiempo y espacio, con capacidad para comprender y decidir', label: 'Lúcido / orientado / competente' },
+  { v: 'con autonomía disminuida, por lo que firma su representante legal', label: 'Autonomía disminuida (firma representante)' },
+  { v: 'menor de edad, por lo que firma su representante legal', label: 'Menor de edad (firma representante)' },
+];
+/* Cláusula de ampliación o cambio de técnica: se incorpora siempre al documento. */
+const CI_CLAUSULA_LEXARTIS = 'Declaro haber sido informado/a de que, si durante el acto quirúrgico surgieran hallazgos o situaciones imprevistas, el equipo médico podrá modificar o ampliar la técnica quirúrgica programada, e incluso realizar procedimientos adicionales no previstos, cuando ello resulte necesario para preservar mi salud o mi vida, aunando criterios de Lex Artis Ad-Hoc. Autorizo expresamente dichas modificaciones.';
+const CI_REVOCACION = 'Declaro conocer que puedo revocar este consentimiento en cualquier momento anterior a la realización del procedimiento, sin expresar causa y sin que ello afecte la calidad de la atención que recibiré. La revocación se deja asentada por escrito en este mismo documento y en la historia clínica.';
+const CI_LEGAL = 'Documento emitido conforme a la Ley Nacional 26.529 de Derechos del Paciente en su relación con los Profesionales e Instituciones de la Salud (arts. 5 a 11), su modificatoria Ley 26.742 y el Decreto Reglamentario 1089/2012. Se archiva un ejemplar en la historia clínica y se entrega copia al paciente o a su representante legal.';
+
+/* Base de contenidos clínicos por especialidad y procedimiento. */
+const CI_PROCEDIMIENTOS = {
+  "Cirugía General": {
+    "hernia_inguinal_lap": {
+      label: "Hernia inguinal — laparoscópica (TAPP/TEP)",
+      nombre: "Reparación laparoscópica de hernia inguinal (TAPP/TEP) con malla protésica",
+      anest: "General",
+      desc: "Se realizará la reparación de la hernia inguinal por vía laparoscópica (transabdominal preperitoneal TAPP o totalmente extraperitoneal TEP). A través de pequeñas incisiones se reduce el contenido herniario, se diseca el espacio preperitoneal y se refuerza el defecto con una malla protésica. Puede requerir conversión a cirugía abierta.",
+      comp: "Dolor inguinal crónico, seroma o hematoma, infección de sitio quirúrgico o de la malla, recidiva herniaria, lesión del cordón espermático con riesgo testicular, lesión de vasos (epigástricos/ilíacos) o vísceras (vejiga, intestino), lesión nerviosa con alteraciones sensitivas, y riesgos generales de la anestesia y de todo acto quirúrgico (trombosis, eventos cardiorrespiratorios). Excepcionalmente pueden ser graves o comprometer la vida.",
+      alt: "Observación vigilante en hernias mínimamente sintomáticas; reparación abierta (Lichtenstein con malla). La no realización conlleva riesgo de incarceración o estrangulación.",
+      cita: "International Guidelines for Groin Hernia Management (HerniaSurge Group, 2018) y European Hernia Society (EHS); evidencia 1A para uso de malla y abordaje endoscópico en manos entrenadas.",
+    },
+    "hernia_inguinal_abierta": {
+      label: "Hernia inguinal — abierta (Lichtenstein)",
+      nombre: "Hernioplastia inguinal abierta con malla (técnica de Lichtenstein)",
+      anest: "Local + sedación",
+      desc: "Se reparará la hernia inguinal por vía abierta, reduciendo el saco herniario y reforzando la pared posterior con una malla protésica fijada sin tensión (técnica de Lichtenstein).",
+      comp: "Dolor inguinal crónico, seroma/hematoma, infección de herida o de la malla, recidiva, lesión de estructuras del cordón con riesgo testicular, lesión nerviosa (ilioinguinal/iliohipogástrico) con alteraciones sensitivas, y riesgos anestésicos y generales.",
+      alt: "Observación vigilante; reparación laparoscópica. La no corrección puede llevar a incarceración/estrangulación.",
+      cita: "HerniaSurge Group (2018) y EHS; la técnica de Lichtenstein es estándar con evidencia de alto nivel.",
+    },
+    "hernia_umbilical": {
+      label: "Hernia umbilical / epigástrica",
+      nombre: "Reparación de hernia umbilical/epigástrica con malla protésica",
+      anest: "Local + sedación",
+      desc: "Se reparará el defecto de la línea media reintegrando el contenido a la cavidad y reforzando la pared, en general con malla según el tamaño del defecto, por vía abierta o laparoscópica.",
+      comp: "Seroma, hematoma, infección de herida o de la malla, dolor crónico, recidiva, lesión de vísceras intraabdominales, y riesgos anestésicos y generales. Excepcionalmente graves.",
+      alt: "Conducta expectante en defectos pequeños asintomáticos; reparación con o sin malla. La abstención conlleva riesgo de incarceración/estrangulación.",
+      cita: "European Hernia Society — guías de hernia umbilical y epigástrica (2020).",
+    },
+    "eventracion": {
+      label: "Eventración / hernia incisional",
+      nombre: "Reparación de eventración/hernia incisional con malla",
+      anest: "General",
+      desc: "Se reparará el defecto de pared abdominal mediante disección del saco, reintegración del contenido y refuerzo con malla protésica, pudiendo requerir separación de componentes. Abordaje abierto o laparoscópico/híbrido.",
+      comp: "Seroma, hematoma, infección de sitio quirúrgico y de la malla, necrosis cutánea, dolor crónico, recidiva, lesión visceral con riesgo de fístula o peritonitis, íleo, síndrome compartimental abdominal, y riesgos anestésicos y generales.",
+      alt: "Faja de contención y conducta expectante en no candidatos; distintas técnicas protésicas. La no corrección puede generar incarceración/estrangulación.",
+      cita: "European Hernia Society / EuraHS — hernia incisional; refuerzo protésico para disminuir recidiva.",
+    },
+    "colecistectomia": {
+      label: "Colecistectomía laparoscópica",
+      nombre: "Colecistectomía laparoscópica",
+      anest: "General",
+      desc: "Se extirpará la vesícula biliar por vía laparoscópica. Se identifica el triángulo de Calot logrando la 'visión crítica de seguridad', se ligan y seccionan la arteria y el conducto cístico y se extrae la vesícula. Puede requerir colangiografía intraoperatoria y conversión a cirugía abierta.",
+      comp: "Lesión de la vía biliar principal (puede requerir reparación compleja), sangrado, fuga biliar/coleperitoneo, litiasis residual, lesión de intestino u otros órganos, infección, absceso, y riesgos anestésicos y generales. Excepcionalmente graves o mortales.",
+      alt: "Tratamiento médico/expectante en pacientes seleccionados (riesgo de cólicos, colecistitis, pancreatitis); colecistectomía abierta.",
+      cita: "SAGES Safe Cholecystectomy Program (visión crítica de seguridad) y Tokyo Guidelines (TG18).",
+    },
+    "apendicectomia": {
+      label: "Apendicectomía laparoscópica",
+      nombre: "Apendicectomía laparoscópica",
+      anest: "General",
+      desc: "Se extirpará el apéndice cecal por vía laparoscópica, ligando su meso y base y realizando lavado de la cavidad si hay perforación/peritonitis. Puede requerir conversión a cirugía abierta.",
+      comp: "Infección de sitio quirúrgico, absceso intraabdominal, sangrado, fístula/dehiscencia del muñón, íleo, lesión de estructuras vecinas, y riesgos anestésicos y generales. Mayor riesgo en apendicitis complicada.",
+      alt: "En apendicitis no complicada seleccionada, tratamiento antibiótico (riesgo de recurrencia); apendicectomía abierta. La no realización conlleva riesgo de perforación y peritonitis.",
+      cita: "WSES Jerusalem Guidelines — apendicitis aguda; evidencia que respalda el abordaje laparoscópico.",
+    },
+    "colectomia": {
+      label: "Colectomía (resección de colon)",
+      nombre: "Resección colónica (colectomía) por vía laparoscópica o abierta",
+      anest: "General",
+      desc: "Se resecará el segmento de colon afectado con su meso, restableciendo el tránsito mediante anastomosis o, según hallazgos, confeccionando un ostoma temporal o definitivo. Abordaje laparoscópico o abierto.",
+      comp: "Dehiscencia de anastomosis con peritonitis o necesidad de ostoma, sangrado, infección, absceso, íleo prolongado, lesión de uréter u otros órganos, eventos tromboembólicos y cardiorrespiratorios, y necesidad de reintervención. Excepcionalmente mortales.",
+      alt: "Tratamiento médico/oncológico según patología; vigilancia. La no resección de lesiones malignas implica progresión de la enfermedad.",
+      cita: "Guías ERAS y consensos de cirugía colorrectal (ASCRS/ESCP).",
+    },
+    "hemorroidectomia": {
+      label: "Hemorroidectomía",
+      nombre: "Hemorroidectomía / tratamiento quirúrgico de enfermedad hemorroidal",
+      anest: "Regional / raquídea",
+      desc: "Se tratará la enfermedad hemorroidal mediante resección (técnica abierta o cerrada) o técnicas con dispositivos, según el grado.",
+      comp: "Dolor postoperatorio, sangrado, retención urinaria, infección, estenosis anal, incontinencia transitoria, recidiva, y riesgos anestésicos.",
+      alt: "Medidas higiénico-dietéticas, flebotónicos, ligadura con banda elástica, esclerosis.",
+      cita: "Guías ASCRS sobre enfermedad hemorroidal.",
+    },
+    "fistula_ano": {
+      label: "Fístula / absceso anal",
+      nombre: "Tratamiento quirúrgico de fístula o absceso perianal",
+      anest: "Regional / raquídea",
+      desc: "Se drenará el absceso y/o se tratará el trayecto fistuloso (fistulotomía, sedal u otras técnicas) preservando el aparato esfinteriano.",
+      comp: "Dolor, sangrado, infección, recidiva, incontinencia por afectación esfinteriana, y riesgos anestésicos.",
+      alt: "Drenaje simple, manejo con sedal a largo plazo según el trayecto.",
+      cita: "Guías ASCRS sobre absceso y fístula anal.",
+    },
+    "tiroidectomia": {
+      label: "Tiroidectomía",
+      nombre: "Tiroidectomía (total o lobectomía)",
+      anest: "General",
+      desc: "Se extirpará la glándula tiroides en forma total o parcial según patología (nódulo, bocio, cáncer), con identificación de nervios recurrentes y paratiroides.",
+      comp: "Disfonía por lesión del nervio laríngeo recurrente (transitoria o definitiva), hipocalcemia por afectación paratiroidea, hematoma cervical (puede comprometer la vía aérea), infección, y riesgos anestésicos.",
+      alt: "Vigilancia, tratamiento médico o con yodo radiactivo según patología.",
+      cita: "Guías ATA (American Thyroid Association).",
+    },
+    "mastectomia": {
+      label: "Mastectomía / cirugía de mama",
+      nombre: "Cirugía mamaria oncológica (mastectomía o cirugía conservadora)",
+      anest: "General",
+      desc: "Se realizará la resección del tumor mamario (cirugía conservadora o mastectomía) con eventual biopsia de ganglio centinela o vaciamiento axilar.",
+      comp: "Seroma, hematoma, infección, linfedema del brazo, alteración sensitiva, necrosis cutánea, y riesgos anestésicos. Eventual necesidad de tratamiento complementario.",
+      alt: "Según estadio: distintas combinaciones de cirugía, radioterapia y tratamiento sistémico.",
+      cita: "Guías NCCN/ASCO sobre cáncer de mama.",
+    },
+    "laparotomia": {
+      label: "Laparotomía exploradora",
+      nombre: "Laparotomía exploradora / cirugía abdominal de urgencia",
+      anest: "General",
+      desc: "Se realizará la apertura de la cavidad abdominal para diagnóstico y tratamiento de patología abdominal aguda, con los gestos quirúrgicos que los hallazgos requieran.",
+      comp: "Sangrado con eventual transfusión, infección, dehiscencia de pared/anastomosis, fístula, íleo, abscesos, lesión de órganos, eventos tromboembólicos, y riesgos anestésicos. Excepcionalmente mortales.",
+      alt: "En la urgencia abdominal la abstención quirúrgica puede ser de alto riesgo vital.",
+      cita: "Consensos WSES de cirugía abdominal de urgencia.",
+    },
+    "otro_cg": {
+      label: "Otro procedimiento (genérico)",
+      nombre: "",
+      anest: "General",
+      desc: "Se realizará el procedimiento quirúrgico indicado según la patología del paciente, conforme a la técnica habitual y a las normas de buena práctica.",
+      comp: "Sangrado, infección de sitio quirúrgico, lesión de órganos o estructuras vecinas, trombosis venosa, complicaciones anestésicas y cardiorrespiratorias, y demás riesgos inherentes a todo acto quirúrgico, excepcionalmente graves o mortales.",
+      alt: "Serán informadas según el caso, incluyendo el tratamiento conservador cuando corresponda y las consecuencias de no tratarse.",
+      cita: "Normas de buena práctica médica y consensos de la especialidad.",
+    },
+  },
+  "Endoscopía digestiva": {
+    "endoscopia_alta": {
+      label: "Endoscopía digestiva alta (VEDA)",
+      nombre: "Videoendoscopía digestiva alta (VEDA) diagnóstica/terapéutica",
+      anest: "Sedación (endoscopía)",
+      desc: "Se introducirá por vía oral un endoscopio flexible para examinar esófago, estómago y duodeno, con posibilidad de biopsias y terapéutica (hemostasia, dilatación, polipectomía, clips) según hallazgos.",
+      comp: "Dolor o distensión, reacción a la sedación, sangrado (especialmente tras biopsia/terapéutica), perforación (rara, puede requerir cirugía), aspiración, y excepcionalmente eventos graves.",
+      alt: "Estudios por imágenes (seriada, TC), cápsula endoscópica en casos seleccionados.",
+      cita: "Guías ASGE/ESGE sobre seguridad y consentimiento en endoscopía digestiva.",
+    },
+    "colonoscopia": {
+      label: "Colonoscopía",
+      nombre: "Videocolonoscopía diagnóstica/terapéutica con eventual polipectomía",
+      anest: "Sedación (endoscopía)",
+      desc: "Se introducirá por vía anal un endoscopio flexible para examinar colon e íleon terminal, previa preparación intestinal, con posibilidad de biopsias y polipectomía/mucosectomía según hallazgos.",
+      comp: "Dolor/distensión, reacción a la sedación, sangrado (puede ser diferido tras polipectomía), perforación (puede requerir cirugía), síndrome postpolipectomía, y excepcionalmente eventos graves.",
+      alt: "Colonografía por TC, test de sangre oculta; la no realización puede demorar el diagnóstico de cáncer colorrectal.",
+      cita: "Guías ASGE/ESGE de colonoscopía y polipectomía.",
+    },
+    "cpre": {
+      label: "CPRE",
+      nombre: "Colangiopancreatografía retrógrada endoscópica (CPRE)",
+      anest: "Sedación (endoscopía)",
+      desc: "Se canula la vía biliar y/o pancreática para diagnóstico y tratamiento (esfinterotomía, extracción de cálculos, prótesis/stent), bajo control radioscópico.",
+      comp: "Pancreatitis post-CPRE (la más frecuente, puede ser grave), sangrado tras esfinterotomía, perforación, colangitis/infección, y riesgos de la sedación.",
+      alt: "Colangioresonancia (diagnóstica), ecoendoscopía, drenaje percutáneo o quirúrgico.",
+      cita: "Guías ESGE de CPRE y profilaxis de pancreatitis post-CPRE.",
+    },
+    "gastrostomia": {
+      label: "Gastrostomía endoscópica (PEG)",
+      nombre: "Gastrostomía endoscópica percutánea (PEG)",
+      anest: "Sedación (endoscopía)",
+      desc: "Se colocará una sonda de alimentación directamente en el estómago a través de la pared abdominal, guiada por endoscopía, para nutrición enteral.",
+      comp: "Infección periestomal, sangrado, perforación, peritonitis, neumoperitoneo, desplazamiento o obstrucción de la sonda, y riesgos de la sedación.",
+      alt: "Sonda nasogástrica, nutrición parenteral, gastrostomía quirúrgica/radiológica.",
+      cita: "Guías ESGE/ASPEN sobre nutrición enteral y PEG.",
+    },
+    "polipectomia": {
+      label: "Polipectomía / mucosectomía",
+      nombre: "Polipectomía endoscópica / resección mucosa (EMR)",
+      anest: "Sedación (endoscopía)",
+      desc: "Se resecarán pólipos o lesiones superficiales del tubo digestivo por vía endoscópica (asa de polipectomía, mucosectomía).",
+      comp: "Sangrado inmediato o diferido, perforación (puede requerir cirugía), síndrome postpolipectomía, resección incompleta con necesidad de nuevo procedimiento, y riesgos de la sedación.",
+      alt: "Vigilancia endoscópica o resección quirúrgica según tamaño y características.",
+      cita: "Guías ESGE/ASGE sobre resección endoscópica de pólipos.",
+    },
+    "ligadura_varices": {
+      label: "Ligadura de várices esofágicas",
+      nombre: "Ligadura endoscópica de várices esofágicas",
+      anest: "Sedación (endoscopía)",
+      desc: "Se colocarán bandas elásticas sobre las várices esofágicas para prevenir o tratar el sangrado en pacientes con hipertensión portal.",
+      comp: "Dolor torácico/disfagia, úlceras y sangrado por las bandas, estenosis, broncoaspiración, y riesgos de la sedación.",
+      alt: "Tratamiento farmacológico (betabloqueantes), escleroterapia, TIPS según el caso.",
+      cita: "Guías Baveno y AASLD sobre hipertensión portal.",
+    },
+    "dilatacion": {
+      label: "Dilatación esofágica",
+      nombre: "Dilatación endoscópica de estenosis digestiva",
+      anest: "Sedación (endoscopía)",
+      desc: "Se dilatará la estenosis del tubo digestivo mediante balón o bujías bajo control endoscópico.",
+      comp: "Dolor, sangrado, perforación (puede requerir cirugía), recidiva de la estenosis, y riesgos de la sedación.",
+      alt: "Tratamiento médico, colocación de prótesis, cirugía según causa.",
+      cita: "Guías ASGE/ESGE sobre dilatación digestiva.",
+    },
+  },
+  "Traumatología y Ortopedia": {
+    "artroscopia_rodilla": {
+      label: "Artroscopía de rodilla",
+      nombre: "Artroscopía de rodilla (meniscectomía/reparación)",
+      anest: "Regional / raquídea",
+      desc: "Mediante pequeñas incisiones se introduce una cámara y el instrumental en la articulación para diagnóstico y tratamiento (meniscectomía, sutura meniscal, condroplastia, extracción de cuerpos libres).",
+      comp: "Infección articular, hemartrosis, trombosis venosa profunda y tromboembolismo, rigidez, lesión neurovascular, dolor residual, y riesgos anestésicos. Posible necesidad de nueva cirugía.",
+      alt: "Tratamiento conservador (rehabilitación, infiltraciones); la no realización puede perpetuar dolor o inestabilidad.",
+      cita: "Guías AAOS sobre patología meniscal y artroscopía de rodilla.",
+    },
+    "lca": {
+      label: "Reconstrucción de LCA",
+      nombre: "Reconstrucción artroscópica del ligamento cruzado anterior (LCA)",
+      anest: "Regional / raquídea",
+      desc: "Se reconstruirá el LCA con injerto (autoinjerto o aloinjerto) fijado mediante túneles óseos por vía artroscópica, para restaurar la estabilidad de la rodilla.",
+      comp: "Infección, trombosis, fallo o rerruptura del injerto, rigidez/artrofibrosis, dolor en zona dadora, lesión neurovascular, aflojamiento de fijación, y riesgos anestésicos.",
+      alt: "Rehabilitación y modificación de actividad; la inestabilidad persistente puede dañar meniscos y cartílago.",
+      cita: "Guías AAOS sobre lesión del LCA.",
+    },
+    "osteosintesis": {
+      label: "Osteosíntesis de fractura",
+      nombre: "Reducción y osteosíntesis de fractura (placas/clavos/tornillos)",
+      anest: "Regional / raquídea",
+      desc: "Se reducirá la fractura y se fijará con material de osteosíntesis (placas, tornillos, clavos endomedulares) para restaurar la alineación y permitir la consolidación.",
+      comp: "Infección, retardo de consolidación o pseudoartrosis, consolidación viciosa, lesión neurovascular, fallo o movilización del material, síndrome compartimental, trombosis, embolia grasa, y riesgos anestésicos. Posible necesidad de retiro de material o reintervención.",
+      alt: "Tratamiento ortopédico (yeso/inmovilización) cuando es posible, con riesgo de mala consolidación.",
+      cita: "Principios AO de tratamiento de fracturas y guías AAOS.",
+    },
+    "protesis_cadera": {
+      label: "Prótesis de cadera",
+      nombre: "Artroplastia total de cadera",
+      anest: "Regional / raquídea",
+      desc: "Se reemplazará la articulación de la cadera por una prótesis (componentes acetabular y femoral) para aliviar el dolor y restaurar la función.",
+      comp: "Infección protésica, luxación, trombosis venosa y tromboembolismo, dismetría de miembros, aflojamiento o desgaste protésico, fractura periprotésica, lesión neurovascular, y riesgos anestésicos. Puede requerir revisión protésica.",
+      alt: "Tratamiento médico, kinesiología, analgesia; la artrosis avanzada limita progresivamente la función.",
+      cita: "Guías AAOS de artroplastia de cadera.",
+    },
+    "protesis_rodilla": {
+      label: "Prótesis de rodilla",
+      nombre: "Artroplastia total de rodilla",
+      anest: "Regional / raquídea",
+      desc: "Se reemplazarán las superficies articulares de la rodilla por una prótesis para aliviar el dolor y corregir la deformidad de la gonartrosis.",
+      comp: "Infección protésica, trombosis y tromboembolismo, rigidez, aflojamiento/desgaste, inestabilidad, lesión neurovascular, dolor residual, y riesgos anestésicos. Puede requerir revisión.",
+      alt: "Tratamiento médico, kinesiología, infiltraciones, ortesis; la gonartrosis avanzada es progresiva.",
+      cita: "Guías AAOS de artroplastia de rodilla.",
+    },
+    "tunel_carpiano": {
+      label: "Túnel carpiano",
+      nombre: "Liberación del túnel carpiano",
+      anest: "Local + sedación",
+      desc: "Se liberará el nervio mediano seccionando el ligamento transverso del carpo, por técnica abierta o endoscópica.",
+      comp: "Persistencia o recidiva de síntomas, infección, dolor cicatrizal, lesión nerviosa o vascular, rigidez, y riesgos anestésicos.",
+      alt: "Férula, infiltración con corticoides, modificación de actividad.",
+      cita: "Guías AAOS sobre síndrome del túnel carpiano.",
+    },
+    "hombro_artroscopia": {
+      label: "Artroscopía de hombro",
+      nombre: "Artroscopía de hombro (manguito rotador / inestabilidad)",
+      anest: "Regional / raquídea",
+      desc: "Se tratará por vía artroscópica la patología del hombro (reparación del manguito rotador, descompresión subacromial, estabilización).",
+      comp: "Rigidez, infección, lesión neurovascular, re-rotura del manguito, trombosis, dolor residual, y riesgos anestésicos.",
+      alt: "Rehabilitación, infiltraciones, analgesia.",
+      cita: "Guías AAOS sobre patología del manguito rotador.",
+    },
+    "hallux": {
+      label: "Hallux valgus (juanete)",
+      nombre: "Corrección quirúrgica de hallux valgus",
+      anest: "Regional / raquídea",
+      desc: "Se corregirá la deformidad del primer dedo del pie mediante osteotomías y/o partes blandas, con fijación según técnica.",
+      comp: "Recidiva, infección, retardo de consolidación, rigidez, dolor residual, lesión nerviosa, trombosis, y riesgos anestésicos.",
+      alt: "Calzado adecuado, ortesis, analgesia; la deformidad puede progresar.",
+      cita: "Guías AAOS / AOFAS sobre hallux valgus.",
+    },
+    "amputacion": {
+      label: "Amputación de miembro",
+      nombre: "Amputación de miembro inferior/superior",
+      anest: "Regional / raquídea",
+      desc: "Se realizará la amputación del segmento afectado por isquemia, infección o necrosis no recuperable, al nivel que permita la cicatrización.",
+      comp: "Infección y dehiscencia del muñón, necesidad de reamputación a nivel más alto, dolor de miembro fantasma, hematoma, eventos cardiovasculares, y riesgos anestésicos.",
+      alt: "Intentos de revascularización o tratamiento conservador cuando son viables; su fracaso puede comprometer la vida.",
+      cita: "Guías sobre manejo de isquemia crítica y pie diabético.",
+    },
+  },
+  "Ginecología y Obstetricia": {
+    "cesarea": {
+      label: "Cesárea",
+      nombre: "Operación cesárea",
+      anest: "Regional / raquídea",
+      desc: "Se realizará la extracción del feto mediante incisión de la pared abdominal y del útero, indicada por causa materna y/o fetal.",
+      comp: "Hemorragia con eventual transfusión, infección (herida, endometritis), lesión de vejiga, uréter o intestino, trombosis venosa y tromboembolismo, histerectomía de urgencia en casos graves, adherencias, riesgos para el recién nacido y riesgos anestésicos. Excepcionalmente comprometen la vida.",
+      alt: "Parto vaginal cuando es posible y seguro; la indicación de cesárea surge de la valoración obstétrica.",
+      cita: "Guías FIGO/ACOG y recomendaciones OMS sobre cesárea.",
+    },
+    "histerectomia": {
+      label: "Histerectomía",
+      nombre: "Histerectomía (abdominal, vaginal o laparoscópica)",
+      anest: "General",
+      desc: "Se extirpará el útero (con o sin anexos según indicación) por vía abdominal, vaginal o laparoscópica, según la patología.",
+      comp: "Hemorragia con eventual transfusión, infección, lesión de vejiga, uréter o intestino, fístula, trombosis y tromboembolismo, dehiscencia de cúpula vaginal, y riesgos anestésicos. Pérdida definitiva de la fertilidad.",
+      alt: "Tratamiento médico/hormonal, miomectomía, embolización, dispositivos, según patología.",
+      cita: "Guías ACOG/AAGL sobre histerectomía.",
+    },
+    "laparoscopia_gineco": {
+      label: "Laparoscopía ginecológica",
+      nombre: "Laparoscopía ginecológica diagnóstica/terapéutica",
+      anest: "General",
+      desc: "Mediante pequeñas incisiones se introduce una cámara para diagnóstico y tratamiento de patología anexial, endometriosis, quistes o adherencias, con eventual conversión a cirugía abierta.",
+      comp: "Lesión de vísceras (intestino, vejiga, uréter) o vasos, sangrado, infección, enfisema, trombosis, y riesgos anestésicos. Posible conversión a laparotomía.",
+      alt: "Tratamiento médico o seguimiento según patología; cirugía abierta.",
+      cita: "Guías AAGL/ESGE de cirugía laparoscópica ginecológica.",
+    },
+    "legrado": {
+      label: "Legrado / raspado uterino",
+      nombre: "Legrado uterino evacuador/biópsico",
+      anest: "Sedación (endoscopía)",
+      desc: "Se realizará dilatación cervical y evacuación/raspado de la cavidad uterina con fines evacuadores o diagnósticos.",
+      comp: "Perforación uterina, hemorragia, infección, sinequias (síndrome de Asherman), restos retenidos, y riesgos anestésicos.",
+      alt: "Manejo expectante o médico según indicación.",
+      cita: "Guías ACOG sobre manejo uterino instrumental.",
+    },
+    "miomectomia": {
+      label: "Miomectomía",
+      nombre: "Miomectomía (resección de miomas uterinos)",
+      anest: "General",
+      desc: "Se resecarán los miomas uterinos conservando el útero, por vía abdominal, laparoscópica o histeroscópica según localización.",
+      comp: "Hemorragia con eventual transfusión o histerectomía, infección, adherencias, recidiva, riesgo de rotura uterina en embarazos futuros, y riesgos anestésicos.",
+      alt: "Tratamiento médico/hormonal, embolización de arterias uterinas, vigilancia.",
+      cita: "Guías ACOG/AAGL sobre miomatosis uterina.",
+    },
+    "histeroscopia": {
+      label: "Histeroscopía",
+      nombre: "Histeroscopía diagnóstica/quirúrgica",
+      anest: "Sedación (endoscopía)",
+      desc: "Se examinará la cavidad uterina con un endoscopio por vía vaginal, con posibilidad de resección de pólipos, miomas submucosos o tabiques.",
+      comp: "Perforación uterina, hemorragia, infección, sobrecarga de líquido de distensión, sinequias, y riesgos anestésicos.",
+      alt: "Ecografía, manejo médico o expectante según patología.",
+      cita: "Guías AAGL/ESGE sobre histeroscopía.",
+    },
+    "quiste_anexial": {
+      label: "Quistectomía / anexial",
+      nombre: "Cirugía de quiste o masa anexial (quistectomía/anexectomía)",
+      anest: "General",
+      desc: "Se resecará el quiste o la masa anexial, preservando el ovario cuando es posible, por vía laparoscópica o abierta.",
+      comp: "Hemorragia, infección, lesión de órganos vecinos, pérdida de tejido ovárico/fertilidad, adherencias, y riesgos anestésicos.",
+      alt: "Seguimiento ecográfico en quistes simples; tratamiento médico según el caso.",
+      cita: "Guías ACOG sobre masa anexial.",
+    },
+    "parto": {
+      label: "Asistencia de parto / instrumental",
+      nombre: "Asistencia del parto vaginal (eventual parto instrumental)",
+      anest: "Regional / raquídea",
+      desc: "Se asistirá el trabajo de parto y el parto vaginal, con eventual uso de fórceps o vacuum y/o episiotomía si la situación obstétrica lo requiere.",
+      comp: "Desgarros perineales, hemorragia posparto, infección, lesión esfinteriana, riesgos para el recién nacido, y eventual conversión a cesárea de urgencia.",
+      alt: "Operación cesárea según indicación obstétrica.",
+      cita: "Guías FIGO/ACOG y recomendaciones OMS sobre atención del parto.",
+    },
+  },
+  "Cirugía Pediátrica": {
+    "hernia_inguinal_ped": {
+      label: "Hernia inguinal (niños)",
+      nombre: "Herniorrafia inguinal en pediatría",
+      anest: "General",
+      desc: "Se reparará la hernia inguinal mediante ligadura alta del saco herniario (conducto peritoneo-vaginal persistente), por vía abierta o laparoscópica.",
+      comp: "Recidiva, lesión del conducto deferente o vasos espermáticos con riesgo testicular, hematoma/seroma, infección, ascenso testicular, y riesgos anestésicos propios de la edad pediátrica.",
+      alt: "No existe tratamiento médico; la abstención conlleva riesgo de incarceración (mayor en lactantes).",
+      cita: "Consensos de cirugía pediátrica (APSA/EUPSA).",
+    },
+    "fimosis": {
+      label: "Fimosis (circuncisión)",
+      nombre: "Circuncisión / plástica de prepucio por fimosis",
+      anest: "General",
+      desc: "Se tratará la fimosis mediante circuncisión o plástica prepucial, resecando o liberando el anillo prepucial estenótico.",
+      comp: "Sangrado, infección, edema, estenosis del meato, resultado estético subóptimo, y riesgos anestésicos.",
+      alt: "Tratamiento con corticoides tópicos y maniobras de retracción en casos seleccionados.",
+      cita: "Guías de urología pediátrica (EAU/ESPU).",
+    },
+    "orquidopexia": {
+      label: "Orquidopexia (testículo no descendido)",
+      nombre: "Orquidopexia por criptorquidia",
+      anest: "General",
+      desc: "Se descenderá y fijará el testículo no descendido en la bolsa escrotal, por vía inguinal o laparoscópica.",
+      comp: "Atrofia testicular, recidiva del ascenso, lesión de elementos del cordón, hematoma, infección, y riesgos anestésicos.",
+      alt: "La conducta expectante tiene baja tasa de descenso espontáneo después del año y aumenta riesgos a largo plazo.",
+      cita: "Guías EAU/ESPU sobre criptorquidia (orquidopexia idealmente antes de los 18 meses).",
+    },
+    "apendicectomia_ped": {
+      label: "Apendicectomía (niños)",
+      nombre: "Apendicectomía laparoscópica pediátrica",
+      anest: "General",
+      desc: "Se extirpará el apéndice por vía laparoscópica, con lavado de la cavidad si hay perforación/peritonitis.",
+      comp: "Infección de sitio quirúrgico, absceso, sangrado, dehiscencia del muñón, íleo, y riesgos anestésicos pediátricos. Mayor riesgo en apendicitis complicada.",
+      alt: "Antibioticoterapia en casos seleccionados no complicados; apendicectomía abierta.",
+      cita: "WSES y consensos de cirugía pediátrica.",
+    },
+    "frenillo": {
+      label: "Frenillo lingual (anquiloglosia)",
+      nombre: "Frenotomía/frenectomía lingual por anquiloglosia",
+      anest: "Local + sedación",
+      desc: "Se seccionará el frenillo lingual corto para mejorar la movilidad de la lengua y/o la lactancia y el habla.",
+      comp: "Sangrado, dolor, infección, recidiva por cicatrización, lesión de conductos salivales (rara), y riesgos anestésicos.",
+      alt: "Observación y seguimiento, apoyo de lactancia/fonoaudiología según el caso.",
+      cita: "Consensos de cirugía pediátrica y odontopediatría sobre anquiloglosia.",
+    },
+    "hidrocele": {
+      label: "Hidrocele / quiste de cordón",
+      nombre: "Tratamiento quirúrgico de hidrocele/quiste de cordón en niños",
+      anest: "General",
+      desc: "Se tratará el hidrocele o quiste de cordón mediante ligadura del conducto peritoneo-vaginal persistente por vía inguinal.",
+      comp: "Recidiva, hematoma, infección, lesión de elementos del cordón, y riesgos anestésicos pediátricos.",
+      alt: "Observación durante el primer año (muchos resuelven espontáneamente).",
+      cita: "Consensos de cirugía pediátrica (APSA/EUPSA).",
+    },
+    "estenosis_pilorica": {
+      label: "Estenosis hipertrófica del píloro",
+      nombre: "Piloromiotomía de Ramstedt",
+      anest: "General",
+      desc: "Se tratará la estenosis hipertrófica del píloro mediante sección de la capa muscular pilórica (piloromiotomía), por vía abierta o laparoscópica.",
+      comp: "Perforación mucosa, sangrado, infección, miotomía incompleta con vómitos persistentes, y riesgos anestésicos en el lactante.",
+      alt: "No existe tratamiento médico definitivo; requiere previa corrección hidroelectrolítica.",
+      cita: "Consensos de cirugía pediátrica sobre estenosis hipertrófica del píloro.",
+    },
+  },
+  "Cirugía Vascular": {
+    "varices": {
+      label: "Várices (safenectomía/ablación)",
+      nombre: "Tratamiento de insuficiencia venosa (safenectomía o ablación endovenosa)",
+      anest: "Regional / raquídea",
+      desc: "Se tratará la insuficiencia venosa superficial mediante extracción de la safena (safenectomía) o ablación endovenosa (láser/radiofrecuencia) y flebectomías.",
+      comp: "Hematoma, dolor, parestesias por lesión nerviosa, trombosis venosa, infección, recidiva varicosa, pigmentación cutánea, y riesgos anestésicos.",
+      alt: "Medias de compresión, escleroterapia, medidas higiénico-dietéticas.",
+      cita: "Guías ESVS/SVS sobre enfermedad venosa crónica.",
+    },
+    "fistula_av": {
+      label: "Fístula arteriovenosa (hemodiálisis)",
+      nombre: "Confección de fístula arteriovenosa para hemodiálisis",
+      anest: "Local + sedación",
+      desc: "Se confeccionará una comunicación entre una arteria y una vena (autóloga o con prótesis) para acceso vascular de hemodiálisis.",
+      comp: "Trombosis o falta de maduración del acceso, infección, sangrado, isquemia distal (robo), aneurisma, estenosis, y riesgos anestésicos.",
+      alt: "Catéter venoso central, diálisis peritoneal, según el caso.",
+      cita: "Guías KDOQI sobre acceso vascular.",
+    },
+    "endarterectomia": {
+      label: "Endarterectomía carotídea",
+      nombre: "Endarterectomía carotídea",
+      anest: "General",
+      desc: "Se removerá la placa de ateroma de la arteria carótida para reducir el riesgo de ACV en estenosis significativa.",
+      comp: "Accidente cerebrovascular, infarto, lesión de pares craneales, sangrado/hematoma cervical, reestenosis, infección, y riesgos anestésicos. Puede comprometer la vida.",
+      alt: "Tratamiento médico óptimo (antiagregantes, estatinas, control de factores), angioplastia con stent carotídeo.",
+      cita: "Guías ESVS/AHA sobre enfermedad carotídea.",
+    },
+    "bypass_mmii": {
+      label: "Bypass / revascularización de MMII",
+      nombre: "Revascularización de miembros inferiores (bypass/angioplastia)",
+      anest: "Regional / raquídea",
+      desc: "Se restablecerá el flujo arterial del miembro mediante bypass con injerto o angioplastia/stent en la enfermedad arterial periférica.",
+      comp: "Trombosis u oclusión del injerto, sangrado, infección, isquemia persistente con riesgo de amputación, lesión nerviosa, eventos cardiovasculares, y riesgos anestésicos.",
+      alt: "Tratamiento médico, ejercicio supervisado, control de factores de riesgo; la progresión puede llevar a amputación.",
+      cita: "Guías ESVS/SVS sobre enfermedad arterial periférica.",
+    },
+    "aneurisma_aorta": {
+      label: "Aneurisma de aorta abdominal",
+      nombre: "Reparación de aneurisma de aorta abdominal (EVAR o abierta)",
+      anest: "General",
+      desc: "Se reparará el aneurisma de la aorta abdominal mediante endoprótesis (EVAR) o cirugía abierta con injerto protésico, para prevenir su rotura.",
+      comp: "Sangrado, eventos cardiovasculares y renales, isquemia de miembros o intestino, infección, endofugas y necesidad de reintervención (en EVAR), y riesgos anestésicos. La rotura aneurismática es de muy alta mortalidad.",
+      alt: "Vigilancia con imágenes en aneurismas pequeños y control de factores de riesgo.",
+      cita: "Guías ESVS/SVS sobre aneurisma de aorta abdominal.",
+    },
+    "trombectomia": {
+      label: "Trombectomía / embolectomía",
+      nombre: "Trombectomía o embolectomía arterial",
+      anest: "Local + sedación",
+      desc: "Se removerá el trombo o émbolo que ocluye la arteria para restablecer el flujo en la isquemia aguda del miembro.",
+      comp: "Resangrado o retrombosis, síndrome de reperfusión, daño arterial, isquemia persistente con riesgo de amputación, eventos cardiovasculares, y riesgos anestésicos.",
+      alt: "Trombólisis farmacológica, anticoagulación; la demora aumenta el riesgo de pérdida del miembro.",
+      cita: "Guías ESVS sobre isquemia aguda de miembros.",
+    },
+  },
+  "Neurocirugía": {
+    "craneotomia_tumor": {
+      label: "Craneotomía por lesión ocupante de espacio",
+      nombre: "Craneotomía para exéresis de lesión ocupante de espacio intracraneal",
+      anest: "General",
+      desc: "Se realizará una apertura del cráneo (craneotomía) para acceder a la lesión y extirparla en la mayor medida posible preservando el tejido nervioso funcionante, con apoyo de microscopio quirúrgico, neuronavegación y/o monitoreo neurofisiológico según disponibilidad. El fragmento óseo se repone al finalizar, salvo que los hallazgos aconsejen dejarlo fuera. Se remite material a Anatomía Patológica.",
+      comp: "Déficit neurológico nuevo o agravamiento del existente (motor, sensitivo, del lenguaje, visual o cognitivo), transitorio o definitivo; sangrado intracraneal con necesidad de reintervención; edema cerebral; convulsiones; infección de la herida, meningitis o absceso; fístula de líquido cefalorraquídeo; trombosis venosa y eventos cardiorrespiratorios; resección incompleta con necesidad de tratamiento complementario. Excepcionalmente pueden ser graves, dejar secuelas permanentes o comprometer la vida.",
+      alt: "Biopsia estereotáxica, tratamiento oncológico (radioterapia y/o quimioterapia) sin cirugía, o conducta expectante con controles por imágenes en lesiones seleccionadas. La abstención puede permitir la progresión de la lesión y de la hipertensión endocraneana.",
+      cita: "Consensos de la AANS/CNS y de la EANS sobre cirugía de tumores intracraneales; guías NCCN de tumores del sistema nervioso central.",
+    },
+    "hematoma_intracraneal": {
+      label: "Evacuación de hematoma subdural o extradural",
+      nombre: "Evacuación quirúrgica de hematoma intracraneal (subdural o extradural)",
+      anest: "General",
+      desc: "Se evacuará la colección hemática intracraneal mediante trépanos o craneotomía, con lavado de la cavidad, hemostasia y colocación de drenaje. Puede requerir craniectomía descompresiva según la presión intracraneana y los hallazgos.",
+      comp: "Resangrado o recidiva de la colección con necesidad de reintervención, déficit neurológico, convulsiones, neumoencéfalo, infección, fístula de líquido cefalorraquídeo, y riesgos anestésicos y generales. En el traumatismo grave el pronóstico depende en buena medida de la lesión cerebral primaria, ya presente antes de la cirugía.",
+      alt: "Tratamiento conservador con control clínico y por imágenes en colecciones pequeñas y pacientes asintomáticos. La no evacuación de una colección con efecto de masa conlleva riesgo vital por herniación cerebral.",
+      cita: "Brain Trauma Foundation — Guidelines for the Surgical Management of Traumatic Brain Injury.",
+    },
+    "discectomia_lumbar": {
+      label: "Discectomía / microdiscectomía lumbar",
+      nombre: "Discectomía lumbar (microdiscectomía) por hernia de disco",
+      anest: "General",
+      desc: "Se abordará el espacio intervertebral afectado para liberar la raíz nerviosa comprimida extirpando el fragmento discal herniado, con eventual ampliación del canal (laminotomía/foraminotomía).",
+      comp: "Persistencia o recidiva del dolor, hernia recidivada, lesión radicular con déficit motor o sensitivo, lesión dural con fístula de líquido cefalorraquídeo, hematoma epidural, infección o espondilodiscitis, inestabilidad segmentaria, y riesgos anestésicos y generales. Excepcionalmente, síndrome de cola de caballo.",
+      alt: "Tratamiento conservador (analgesia, kinesioterapia, infiltraciones) durante seis a ocho semanas en ausencia de déficit progresivo; el déficit motor progresivo o el síndrome de cola de caballo constituyen indicación quirúrgica urgente.",
+      cita: "Guías NASS (North American Spine Society) sobre hernia de disco lumbar con radiculopatía.",
+    },
+    "artrodesis_columna": {
+      label: "Artrodesis instrumentada de columna",
+      nombre: "Artrodesis vertebral instrumentada con tornillos y barras",
+      anest: "General",
+      desc: "Se estabilizará el segmento vertebral afectado mediante instrumentación (tornillos pediculares, barras y eventual caja intersomática) e injerto óseo, previa descompresión de las estructuras nerviosas si corresponde. Se utiliza radioscopía intraoperatoria.",
+      comp: "Mala posición o aflojamiento del material con necesidad de recambio, seudoartrosis, lesión radicular o dural, hematoma, infección profunda, sangrado con necesidad de transfusión, dolor residual, enfermedad del segmento adyacente, eventos tromboembólicos, y riesgos anestésicos.",
+      alt: "Tratamiento conservador, descompresión sin instrumentación en casos seleccionados. La no corrección de una inestabilidad puede producir deformidad progresiva y déficit neurológico.",
+      cita: "Guías NASS y consensos AOSpine sobre instrumentación y fusión vertebral.",
+    },
+    "dvp": {
+      label: "Derivación ventrículo-peritoneal",
+      nombre: "Colocación de sistema de derivación ventrículo-peritoneal",
+      anest: "General",
+      desc: "Se colocará un catéter en el ventrículo cerebral conectado, a través de un reservorio valvular, a un catéter que drena el líquido cefalorraquídeo hacia la cavidad peritoneal, para tratar la hidrocefalia.",
+      comp: "Obstrucción o disfunción del sistema con necesidad de recambio, infección del sistema (ventriculitis o peritonitis) que puede exigir su retiro, hiperdrenaje con colecciones subdurales, hemorragia del trayecto, convulsiones, migración o desconexión de los catéteres, y riesgos anestésicos.",
+      alt: "Tercer-ventriculostomía endoscópica en hidrocefalias obstructivas seleccionadas; derivación externa transitoria. La hidrocefalia no tratada evoluciona a deterioro neurológico e hipertensión endocraneana.",
+      cita: "Guías del Hydrocephalus Clinical Research Network y consensos de la AANS/CNS en hidrocefalia.",
+    },
+    "otro_ncx": {
+      label: "Otro procedimiento neuroquirúrgico (genérico)",
+      nombre: "",
+      anest: "General",
+      desc: "Se realizará el procedimiento neuroquirúrgico indicado según la patología del paciente, conforme a la técnica habitual y a las normas de buena práctica.",
+      comp: "Déficit neurológico transitorio o definitivo, sangrado, infección, convulsiones, fístula de líquido cefalorraquídeo, trombosis venosa, complicaciones anestésicas y cardiorrespiratorias, y demás riesgos inherentes a todo acto neuroquirúrgico, excepcionalmente graves o mortales.",
+      alt: "Serán informadas según el caso, incluyendo el tratamiento conservador cuando corresponda y las consecuencias de no tratarse.",
+      cita: "Normas de buena práctica médica y consensos de la especialidad.",
+    },
+  },
+  "Urología": {
+    "rtu_prostata": {
+      label: "RTU de próstata (HPB)",
+      nombre: "Resección transuretral de próstata (RTU-P)",
+      anest: "Regional / raquídea",
+      desc: "Se resecará por vía endoscópica transuretral el tejido prostático obstructivo en la hiperplasia benigna de próstata.",
+      comp: "Hematuria con eventual transfusión, infección urinaria, síndrome post-RTU, eyaculación retrógrada, estenosis uretral, incontinencia, disfunción eréctil, y riesgos anestésicos.",
+      alt: "Tratamiento médico (alfabloqueantes, inhibidores 5-alfa), técnicas láser, vigilancia.",
+      cita: "Guías EAU/AUA sobre hiperplasia prostática benigna.",
+    },
+    "nec": {
+      label: "Litiasis — ureteroscopía/litotricia",
+      nombre: "Tratamiento endoscópico de litiasis urinaria (ureteroscopía/litotricia)",
+      anest: "General",
+      desc: "Se tratará el cálculo urinario por vía endoscópica (ureteroscopía con láser) o litotricia, con eventual colocación de catéter doble J.",
+      comp: "Hematuria, infección/urosepsis, lesión o perforación ureteral, estenosis, dolor por el catéter, litiasis residual, y riesgos anestésicos.",
+      alt: "Tratamiento médico expulsivo, litotricia extracorpórea, vigilancia según tamaño/ubicación.",
+      cita: "Guías EAU/AUA sobre urolitiasis.",
+    },
+    "prostatectomia": {
+      label: "Prostatectomía radical",
+      nombre: "Prostatectomía radical (abierta/laparoscópica/robótica)",
+      anest: "General",
+      desc: "Se extirpará la próstata y las vesículas seminales por cáncer de próstata localizado, con eventual linfadenectomía.",
+      comp: "Incontinencia urinaria, disfunción eréctil, sangrado con eventual transfusión, lesión rectal, estenosis de la anastomosis, linfocele, trombosis, y riesgos anestésicos.",
+      alt: "Radioterapia, vigilancia activa en casos seleccionados, hormonoterapia.",
+      cita: "Guías EAU/AUA sobre cáncer de próstata.",
+    },
+    "nefrectomia": {
+      label: "Nefrectomía",
+      nombre: "Nefrectomía (radical o parcial)",
+      anest: "General",
+      desc: "Se extirpará el riñón en forma total o parcial por patología tumoral u otra, por vía laparoscópica o abierta.",
+      comp: "Sangrado con eventual transfusión, lesión de órganos vecinos (bazo, intestino, vasos), deterioro de la función renal, fístula urinaria, infección, y riesgos anestésicos.",
+      alt: "Vigilancia activa, ablación, tratamiento sistémico según el caso.",
+      cita: "Guías EAU/AUA sobre tumores renales.",
+    },
+    "rtu_vejiga": {
+      label: "RTU de vejiga (tumor)",
+      nombre: "Resección transuretral de tumor vesical (RTU-V)",
+      anest: "Regional / raquídea",
+      desc: "Se resecará por vía endoscópica transuretral el tumor vesical con fines diagnósticos y terapéuticos.",
+      comp: "Hematuria, infección urinaria, perforación vesical, estenosis uretral, recidiva tumoral, y riesgos anestésicos.",
+      alt: "Vigilancia, tratamientos endovesicales o cirugía mayor según estadio.",
+      cita: "Guías EAU/AUA sobre cáncer vesical no músculo-invasor.",
+    },
+    "circuncision_ad": {
+      label: "Circuncisión (adulto)",
+      nombre: "Circuncisión / postectomía en adulto",
+      anest: "Local + sedación",
+      desc: "Se resecará el prepucio por fimosis, balanopostitis recurrente u otra indicación.",
+      comp: "Sangrado, hematoma, infección, edema, resultado estético subóptimo, alteración de la sensibilidad, y reacciones al anestésico.",
+      alt: "Corticoides tópicos y medidas de higiene en casos seleccionados.",
+      cita: "Guías EAU sobre patología prepucial.",
+    },
+    "varicocele": {
+      label: "Varicocele",
+      nombre: "Varicocelectomía",
+      anest: "General",
+      desc: "Se ligarán las venas dilatadas del cordón espermático (varicocele) por vía inguinal, subinguinal o laparoscópica.",
+      comp: "Hidrocele, recidiva o persistencia, atrofia testicular (rara), hematoma, infección, y riesgos anestésicos.",
+      alt: "Observación, embolización percutánea.",
+      cita: "Guías EAU/AUA sobre varicocele e infertilidad.",
+    },
+    "cateter_jj": {
+      label: "Catéter doble J / cistoscopía",
+      nombre: "Cistoscopía con colocación o retiro de catéter doble J",
+      anest: "Local + sedación",
+      desc: "Se realizará cistoscopía para diagnóstico y/o colocación o retiro de catéter ureteral doble J por obstrucción o tras cirugía.",
+      comp: "Hematuria, infección urinaria, molestias vesicales por el catéter, migración u obstrucción del catéter, lesión uretral, y reacciones al anestésico.",
+      alt: "Nefrostomía percutánea u otras según el caso.",
+      cita: "Guías EAU sobre manejo de obstrucción del tracto urinario.",
+    },
+  },
+  "Oftalmología": {
+    "cataratas": {
+      label: "Cirugía de cataratas",
+      nombre: "Facoemulsificación de catarata con implante de lente intraocular",
+      anest: "Local + sedación",
+      desc: "Se removerá el cristalino opacificado por facoemulsificación y se implantará una lente intraocular.",
+      comp: "Infección (endoftalmitis), edema corneal, aumento de presión intraocular, ruptura capsular, desprendimiento de retina, opacidad capsular posterior, y reacciones al anestésico. Excepcionalmente pérdida visual.",
+      alt: "Corrección óptica y vigilancia en cataratas incipientes.",
+      cita: "Guías AAO (American Academy of Ophthalmology) sobre catarata.",
+    },
+    "pterigion": {
+      label: "Pterigion",
+      nombre: "Exéresis de pterigion con injerto conjuntival",
+      anest: "Local + sedación",
+      desc: "Se resecará el pterigion con técnica de injerto conjuntival/autoinjerto para reducir la recidiva.",
+      comp: "Recidiva, ojo rojo/irritación, infección, granuloma, astigmatismo, y reacciones al anestésico.",
+      alt: "Lubricación y protección solar en casos leves.",
+      cita: "Guías AAO sobre superficie ocular.",
+    },
+    "glaucoma": {
+      label: "Cirugía de glaucoma",
+      nombre: "Cirugía filtrante de glaucoma (trabeculectomía)",
+      anest: "Local + sedación",
+      desc: "Se creará una vía de drenaje del humor acuoso para reducir la presión intraocular en el glaucoma no controlado.",
+      comp: "Hipotonía, infección (endoftalmitis), catarata, sangrado, cierre de la fístula con necesidad de reintervención, y pérdida visual (rara).",
+      alt: "Tratamiento médico con colirios, láser; el glaucoma no tratado lleva a pérdida visual progresiva.",
+      cita: "Guías AAO sobre glaucoma.",
+    },
+    "vitrectomia": {
+      label: "Vitrectomía / retina",
+      nombre: "Vitrectomía y cirugía de retina",
+      anest: "Local + sedación",
+      desc: "Se tratará la patología vítreo-retinal (desprendimiento de retina, hemorragia vítrea) mediante vitrectomía y técnicas asociadas.",
+      comp: "Infección, sangrado, catarata, aumento de presión intraocular, nuevo desprendimiento, y pérdida visual.",
+      alt: "Observación o láser según patología; algunas condiciones progresan a ceguera sin tratamiento.",
+      cita: "Guías AAO sobre patología vítreo-retinal.",
+    },
+  },
+  "Otorrinolaringología": {
+    "amigdalectomia": {
+      label: "Amigdalectomía / adenoidectomía",
+      nombre: "Amigdalectomía y/o adenoidectomía",
+      anest: "General",
+      desc: "Se extirparán las amígdalas y/o adenoides por infecciones recurrentes u obstrucción de la vía aérea.",
+      comp: "Sangrado primario o tardío (puede requerir reintervención/transfusión), dolor, infección, deshidratación, cambios transitorios de la voz, y riesgos anestésicos.",
+      alt: "Tratamiento médico y observación según frecuencia de episodios.",
+      cita: "Guías AAO-HNS sobre amigdalectomía.",
+    },
+    "septoplastia": {
+      label: "Septoplastia",
+      nombre: "Septoplastia (corrección del tabique nasal)",
+      anest: "General",
+      desc: "Se corregirá la desviación del tabique nasal para mejorar la ventilación.",
+      comp: "Sangrado, hematoma o perforación septal, infección, alteración del olfato, adherencias, persistencia de la obstrucción, y riesgos anestésicos.",
+      alt: "Tratamiento médico de la obstrucción nasal según causa.",
+      cita: "Guías AAO-HNS sobre obstrucción nasal.",
+    },
+    "timpanostomia": {
+      label: "Tubos de ventilación (diábolos)",
+      nombre: "Miringotomía con colocación de tubos de ventilación timpánica",
+      anest: "General",
+      desc: "Se realizará una pequeña incisión en el tímpano y se colocarán tubos de ventilación para drenar la otitis media con derrame recurrente.",
+      comp: "Otorrea, obstrucción o extrusión precoz del tubo, perforación timpánica persistente, infección, timpanoesclerosis, y riesgos anestésicos.",
+      alt: "Observación y tratamiento médico de la otitis con derrame.",
+      cita: "Guías AAO-HNS sobre tubos de timpanostomía.",
+    },
+    "cens": {
+      label: "Cirugía endoscópica nasosinusal",
+      nombre: "Cirugía endoscópica de senos paranasales (CENS)",
+      anest: "General",
+      desc: "Se tratará la patología sinusal (poliposis, sinusitis crónica) por vía endoscópica nasal, ampliando los drenajes sinusales.",
+      comp: "Sangrado, infección, lesión orbitaria (diplopía, alteración visual), fístula de líquido cefalorraquídeo, alteración del olfato, recidiva, y riesgos anestésicos.",
+      alt: "Tratamiento médico prolongado (corticoides, lavados, antibióticos).",
+      cita: "Guías EPOS/AAO-HNS sobre rinosinusitis crónica.",
+    },
+  },
+  "Cirugía Plástica y Quemados": {
+    "escarectomia_injerto": {
+      label: "Escarectomía e injerto de piel (quemaduras)",
+      nombre: "Escarectomía y cobertura con injerto dermoepidérmico",
+      anest: "General",
+      desc: "Se extirpará el tejido quemado o necrótico (escarectomía) y se cubrirá la zona cruenta con injerto de piel obtenido de una zona dadora del propio paciente, o con sustitutos transitorios, pudiendo requerir curaciones y procedimientos sucesivos.",
+      comp: "Pérdida parcial o total del injerto con necesidad de repetir el procedimiento, sangrado con eventual transfusión, infección de la zona injertada o dadora, dolor y cicatrización de la zona dadora, cicatrices hipertróficas o retráctiles con limitación funcional, alteraciones del color y de la sensibilidad, y riesgos anestésicos y generales.",
+      alt: "Curaciones y cierre por segunda intención en lesiones superficiales, con mayor tiempo de evolución y peor resultado cicatrizal. La no cobertura de una quemadura profunda prolonga la infección y el catabolismo.",
+      cita: "Guías de la American Burn Association (ABA) e ISBI Practice Guidelines for Burn Care.",
+    },
+    "colgajo": {
+      label: "Reconstrucción con colgajo",
+      nombre: "Reconstrucción de defecto con colgajo local, regional o libre",
+      anest: "General",
+      desc: "Se cubrirá el defecto mediante un colgajo de tejido propio, con su pedículo vascular, procedente de una zona vecina o distante; en el colgajo libre se realizan anastomosis microquirúrgicas de arteria y vena.",
+      comp: "Sufrimiento o pérdida parcial o total del colgajo con necesidad de reintervención, trombosis de las anastomosis, hematoma, seroma, infección, dehiscencia, morbilidad de la zona dadora (cicatriz, debilidad, hernia), alteraciones de la sensibilidad, y riesgos anestésicos y generales de una cirugía prolongada.",
+      alt: "Injerto de piel, cierre directo o por segunda intención, según el defecto; cada opción con distinto resultado funcional y estético.",
+      cita: "Consensos de la American Society of Plastic Surgeons (ASPS) sobre reconstrucción con colgajos.",
+    },
+    "cirugia_mano": {
+      label: "Cirugía de mano (tendones, nervios, partes blandas)",
+      nombre: "Cirugía reparadora de mano — tendones, nervios y partes blandas",
+      anest: "Regional / raquídea",
+      desc: "Se explorará la lesión de la mano y se repararán las estructuras comprometidas (tendones, nervios, vasos o partes blandas) con las técnicas de sutura y reparación que correspondan, seguidas de inmovilización y rehabilitación.",
+      comp: "Rerruptura de la reparación tendinosa, adherencias con rigidez y pérdida de movilidad, recuperación nerviosa incompleta con alteración de la sensibilidad, dolor regional complejo, infección, y riesgos anestésicos. El resultado funcional depende en gran medida de la rehabilitación posterior.",
+      alt: "Tratamiento ortopédico con inmovilización en lesiones parciales seleccionadas; la no reparación de una sección tendinosa o nerviosa deja secuela funcional permanente.",
+      cita: "Guías de la American Society for Surgery of the Hand (ASSH).",
+    },
+    "otro_plastica": {
+      label: "Otro procedimiento reparador (genérico)",
+      nombre: "",
+      anest: "General",
+      desc: "Se realizará el procedimiento de cirugía plástica reparadora indicado según la patología del paciente, conforme a la técnica habitual y a las normas de buena práctica.",
+      comp: "Sangrado, hematoma, seroma, infección, dehiscencia, necrosis de bordes, cicatrices hipertróficas o retráctiles, asimetrías, alteraciones de la sensibilidad, necesidad de retoques quirúrgicos, y riesgos anestésicos y generales.",
+      alt: "Serán informadas según el caso, incluyendo el tratamiento conservador cuando corresponda y las consecuencias de no tratarse.",
+      cita: "Normas de buena práctica médica y consensos de la especialidad.",
+    },
+  },
+  "Odontología y Odontopediatría": {
+    "extraccion": {
+      label: "Extracción dentaria",
+      nombre: "Exodoncia (extracción dentaria)",
+      anest: "Local + sedación",
+      desc: "Se extraerá la pieza dentaria indicada mediante anestesia local, con eventual odontosección.",
+      comp: "Dolor, sangrado, infección, alveolitis, lesión de dientes vecinos, fractura radicular o alveolar, parestesia por lesión nerviosa, comunicación con el seno maxilar, y reacciones al anestésico.",
+      alt: "Tratamiento conservador (endodoncia, restauración) cuando la pieza es recuperable.",
+      cita: "Protocolos de cirugía bucal y consensos odontológicos.",
+    },
+    "tercer_molar": {
+      label: "Extracción de muela de juicio",
+      nombre: "Exodoncia de tercer molar (muela de juicio) retenido",
+      anest: "Local + sedación",
+      desc: "Se extraerá el tercer molar retenido o semiretenido mediante abordaje quirúrgico con eventual ostectomía y odontosección.",
+      comp: "Dolor e inflamación, sangrado, alveolitis, infección, parestesia transitoria o permanente del nervio dentario inferior o lingual, fractura mandibular (rara), comunicación oroantral, y reacciones al anestésico.",
+      alt: "Conducta expectante con controles cuando el molar es asintomático y sin patología.",
+      cita: "Guías de cirugía oral y maxilofacial sobre terceros molares.",
+    },
+    "odontoped": {
+      label: "Tratamiento odontopediátrico bajo sedación/anestesia",
+      nombre: "Rehabilitación odontológica integral en niños bajo sedación/anestesia general",
+      anest: "General",
+      desc: "Se realizará el tratamiento odontológico integral (restauraciones, pulpotomías, coronas, exodoncias) en un niño no colaborador o con necesidades especiales, bajo sedación o anestesia general.",
+      comp: "Riesgos propios de la sedación/anestesia en pediatría, náuseas/vómitos, dolor postoperatorio, sangrado, infección, y reacciones a los materiales o anestésicos.",
+      alt: "Tratamiento por etapas con manejo de conducta, sedación consciente, según colaboración del niño.",
+      cita: "Guías AAPD (American Academy of Pediatric Dentistry) sobre manejo del comportamiento y anestesia.",
+    },
+    "endodoncia": {
+      label: "Endodoncia (tratamiento de conducto)",
+      nombre: "Tratamiento endodóntico (conducto radicular)",
+      anest: "Local + sedación",
+      desc: "Se realizará la remoción del tejido pulpar, conformación y obturación de los conductos radiculares para conservar la pieza dentaria.",
+      comp: "Dolor postoperatorio, fractura de instrumentos, perforación radicular, persistencia de infección/absceso, necesidad de retratamiento o exodoncia, y reacciones al anestésico.",
+      alt: "Exodoncia de la pieza no recuperable; sin tratamiento, progresión de la infección.",
+      cita: "Guías de la Asociación Americana de Endodoncia (AAE).",
+    },
+    "implante": {
+      label: "Implante dental",
+      nombre: "Colocación de implante dental osteointegrado",
+      anest: "Local + sedación",
+      desc: "Se colocará un implante de titanio en el hueso maxilar/mandibular para sostener una prótesis, con eventual injerto óseo.",
+      comp: "Dolor e inflamación, infección, falta de osteointegración/pérdida del implante, lesión nerviosa con parestesia, perforación del seno maxilar, y reacciones al anestésico.",
+      alt: "Prótesis removible o puente fijo convencional.",
+      cita: "Consensos de implantología oral (ITI).",
+    },
+    "pulpotomia": {
+      label: "Pulpotomía (niños)",
+      nombre: "Pulpotomía en dentición temporaria",
+      anest: "Local + sedación",
+      desc: "Se removerá la pulpa coronaria de un diente temporario afectado, conservando la pulpa radicular vital, con material de recubrimiento y restauración.",
+      comp: "Dolor, fracaso del tratamiento con necesidad de exodoncia, infección, y reacciones al anestésico.",
+      alt: "Exodoncia con mantenedor de espacio según el caso.",
+      cita: "Guías AAPD sobre terapia pulpar en dientes primarios.",
+    },
+    "biopsia_oral": {
+      label: "Biopsia / lesión bucal",
+      nombre: "Exéresis o biopsia de lesión de la cavidad bucal",
+      anest: "Local + sedación",
+      desc: "Se tomará biopsia o se extirpará una lesión de mucosa oral, encía o tejidos blandos para diagnóstico y/o tratamiento.",
+      comp: "Sangrado, dolor, infección, recidiva, alteración sensitiva, y reacciones al anestésico.",
+      alt: "Observación y control según características de la lesión.",
+      cita: "Protocolos de cirugía y patología bucal.",
+    },
+  },
+  "Anestesiología": {
+    "anestesia_general": {
+      label: "Anestesia general",
+      nombre: "Acto anestésico — anestesia general",
+      anest: "General",
+      desc: "Se administrará anestesia general con monitoreo, manejo de la vía aérea y soporte de funciones vitales durante el procedimiento.",
+      comp: "Náuseas y vómitos, dolor de garganta, reacciones alérgicas, lesión dentaria o de la vía aérea, eventos cardiovasculares y respiratorios, conciencia intraoperatoria (rara), y excepcionalmente eventos graves o mortales.",
+      alt: "Anestesia regional, local o sedación según el procedimiento y la valoración preanestésica.",
+      cita: "Recomendaciones ASA/WFSA y valoración preanestésica.",
+    },
+    "anestesia_regional": {
+      label: "Anestesia regional / neuroaxial",
+      nombre: "Acto anestésico — anestesia regional/neuroaxial",
+      anest: "Regional / raquídea",
+      desc: "Se administrará anestesia regional (raquídea, peridural o bloqueo de nervios) con monitoreo durante el procedimiento.",
+      comp: "Hipotensión, cefalea pospunción, retención urinaria, bloqueo insuficiente con necesidad de conversión, hematoma o infección del neuroeje (raros), lesión nerviosa, y reacciones al anestésico.",
+      alt: "Anestesia general o sedación según el caso.",
+      cita: "Recomendaciones ASRA/ASA sobre anestesia regional.",
+    },
+  },
+  "Otra especialidad": {
+    "otro_generico": {
+      label: "Procedimiento genérico (editable)",
+      nombre: "",
+      anest: "General",
+      desc: "Se realizará el procedimiento indicado según la patología del paciente, conforme a la técnica habitual y a las normas de buena práctica.",
+      comp: "Sangrado, infección de sitio quirúrgico, lesión de órganos o estructuras vecinas, trombosis venosa, complicaciones anestésicas y cardiorrespiratorias, y demás riesgos inherentes a todo acto quirúrgico, excepcionalmente graves o mortales.",
+      alt: "Serán informadas según el caso, incluyendo el tratamiento conservador cuando corresponda y las consecuencias de no tratarse.",
+      cita: "Normas de buena práctica médica y consensos de la especialidad correspondiente.",
+    },
+  },
+};
+
+/* Traducción del servicio con que se carga el turno a la especialidad del
+   generador de consentimientos. */
+const CI_MAP_SERVICIO = {
+  'Cirugía General': 'Cirugía General',
+  'Traumatología y Ortopedia': 'Traumatología y Ortopedia',
+  'Neurocirugía': 'Neurocirugía',
+  'Urología': 'Urología',
+  'Ginecología': 'Ginecología y Obstetricia',
+  'Obstetricia': 'Ginecología y Obstetricia',
+  'Oftalmología': 'Oftalmología',
+  'ORL': 'Otorrinolaringología',
+  'Cirugía Cardiovascular': 'Cirugía Vascular',
+  'Cirugía Plástica': 'Cirugía Plástica y Quemados',
+  'Endoscopía Digestiva': 'Endoscopía digestiva',
+  'Cirugía Pediátrica': 'Cirugía Pediátrica',
+  'Otro': 'Otra especialidad',
+};
+/* Anestesia declarada en el turno → nomenclatura del consentimiento. */
+const CI_MAP_ANESTESIA = {
+  'General': 'General',
+  'Raquídea': 'Regional / raquídea',
+  'Epidural': 'Regional / raquídea',
+  'Peridural': 'Regional / raquídea',
+  'Local': 'Local + sedación',
+  'Sedación': 'Sedación (endoscopía)',
+  'Mixta (General + Regional)': 'General',
+  'Sin anestesia': 'A definir por anestesiólogo',
+};
+
+const CI_VACIO = {
+  p_nombre: '', p_dni: '', p_nac: '', p_edad: '', p_os: '', p_afil: '', p_dom: '', p_tel: '',
+  p_lucidez: CI_LUCIDEZ[0].v,
+  r_nombre: '', r_dni: '', r_vinculo: '',
+  m_nombre: '', m_mat: '', m_esp: 'Cirugía General', m_inst: 'Hospital Regional Ushuaia', m_serv: '',
+  c_esp: '', c_proc: '', c_fecha: '', c_hora: '', c_sala: '', c_anest: 'General',
+  c_dx: '', c_cie10: '', c_nombre: '',
+  t_desc: '', t_comp: '', t_alt: '', t_cita: '',
+  turnoId: null,
+};
+
+let ciForm = { ...CI_VACIO };
+let ciTab = 'generar';          // 'generar' | 'registro'
+let ciEvidencia = 'evidencia';  // etiqueta del origen del texto clínico cargado
+let ciRegQ = '';                // búsqueda dentro del registro guardado
+
+/* ---- Helpers del documento ---- */
+const escNl = (s) => esc(s).replace(/\n/g, '<br>');
+function ciFechaLarga(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return '';
+  return `${String(d).padStart(2, '0')} de ${MESES_FULL[m - 1].toLowerCase()} de ${y}`;
+}
+function ciHoy() { return ciFechaLarga(hoyISO()); }
+function ciEdad(nac, edadDeclarada) {
+  if (nac) {
+    const n = new Date(nac + 'T00:00:00'), h = new Date();
+    let a = h.getFullYear() - n.getFullYear();
+    const dm = h.getMonth() - n.getMonth();
+    if (dm < 0 || (dm === 0 && h.getDate() < n.getDate())) a--;
+    if (a >= 0) return `${a} años`;
+  }
+  return edadDeclarada ? `${edadDeclarada} años` : '';
+}
+function ciFirmaRepresentante() { return String(ciForm.p_lucidez || '').includes('representante'); }
+function ciProcsDe(esp) { return CI_PROCEDIMIENTOS[esp] ? Object.entries(CI_PROCEDIMIENTOS[esp]) : []; }
+
+/* ---- Documento ---- */
+function ciDocHTML(f) {
+  const rep = String(f.p_lucidez || '').includes('representante');
+  const edad = ciEdad(f.p_nac, f.p_edad);
+  const hoy = ciHoy();
+  let h = `
+  <div class="membrete">
+    <div class="mb-tit">HOSPITAL REGIONAL USHUAIA</div>
+    <div class="mb-sub">Gdor. Ernesto M. Campos — Ministerio de Salud, Tierra del Fuego A.I.A.S.</div>
+    <div class="mb-sub">Av. 12 de Octubre y Maipú (V9410) Ushuaia · Tel. 02901-441000</div>
+    <div class="mb-blq">BLOQUE DE QUIRÓFANOS CENTRALES</div>
+  </div>
+  <h1>Consentimiento Informado Quirúrgico</h1>
+  <div class="meta">${esc(f.m_serv || f.m_esp || 'Servicio interviniente')} · ${hoy}</div>
+
+  <h3>1. Datos del paciente</h3>
+  <table class="fil">
+    <tr><td class="k">Nombre y apellido</td><td>${esc(f.p_nombre)}</td><td class="k">DNI</td><td>${esc(f.p_dni)}</td></tr>
+    <tr><td class="k">Fecha de nacimiento</td><td>${ciFechaLarga(f.p_nac)}${edad ? ` (${edad})` : ''}</td><td class="k">Teléfono</td><td>${esc(f.p_tel)}</td></tr>
+    <tr><td class="k">Obra social</td><td>${esc(f.p_os)}</td><td class="k">N° afiliado</td><td>${esc(f.p_afil)}</td></tr>
+    <tr><td class="k">Domicilio</td><td colspan="3">${esc(f.p_dom)}</td></tr>
+    <tr><td class="k">Estado de lucidez</td><td colspan="3">El/la paciente se encuentra ${esc(f.p_lucidez)}.</td></tr>
+  </table>`;
+  if (rep) {
+    h += `<table class="fil">
+    <tr><td class="k">Representante legal</td><td>${esc(f.r_nombre)}</td><td class="k">DNI</td><td>${esc(f.r_dni)}</td></tr>
+    <tr><td class="k">Vínculo / carácter</td><td colspan="3">${esc(f.r_vinculo)}</td></tr>
+  </table>`;
+  }
+  h += `
+  <h3>2. Médico responsable</h3>
+  <table class="fil">
+    <tr><td class="k">Cirujano</td><td>${esc(f.m_nombre)}</td><td class="k">Matrícula</td><td>${esc(f.m_mat)}</td></tr>
+    <tr><td class="k">Especialidad</td><td>${esc(f.m_esp)}</td><td class="k">Institución</td><td>${esc(f.m_inst)}</td></tr>
+  </table>
+
+  <h3>3. Diagnóstico y procedimiento propuesto</h3>
+  <p><b>Patología / diagnóstico actual:</b> ${esc(f.c_dx) || '.....'}${f.c_cie10 ? ` (CIE-10: ${esc(f.c_cie10)})` : ''}</p>
+  <p><b>Procedimiento propuesto:</b> ${esc(f.c_nombre) || '.....'}</p>
+  <p><b>Fecha programada:</b> ${ciFechaLarga(f.c_fecha) || '.....'} &nbsp;·&nbsp; <b>Hora:</b> ${esc(f.c_hora) || '.....'} &nbsp;·&nbsp; <b>Anestesia:</b> ${esc(f.c_anest)}</p>
+  ${f.c_sala ? `<p><b>Sala asignada:</b> ${esc(f.c_sala)}</p>` : ''}
+
+  <h3>4. Descripción del procedimiento</h3>
+  <p>${escNl(f.t_desc)}</p>
+
+  <h3>5. Complicaciones posibles y consecuencias</h3>
+  <p>${escNl(f.t_comp)}</p>
+
+  <h3>6. Alternativas terapéuticas</h3>
+  <p>${escNl(f.t_alt)}</p>
+
+  <h3>7. Modificación de la técnica quirúrgica (Lex Artis Ad-Hoc)</h3>
+  <p>${esc(CI_CLAUSULA_LEXARTIS)}</p>
+
+  <h3>8. Declaración de consentimiento</h3>
+  <p>Declaro que se me ha explicado en lenguaje claro y comprensible la naturaleza, los beneficios y los riesgos del procedimiento propuesto, así como sus alternativas y las consecuencias de no realizarlo. He podido formular preguntas, que fueron respondidas satisfactoriamente. Comprendo que la medicina no es una ciencia exacta y que no se me ha garantizado un resultado determinado. En estas condiciones, en pleno uso de mis facultades, <b>presto mi consentimiento libre y voluntario</b> para la realización del procedimiento, pudiendo revocarlo por escrito en cualquier momento antes de su ejecución.</p>
+
+  <p class="cita">${esc(f.t_cita)}</p>
+
+  <div class="firmas">
+    <div class="firma">Firma y aclaración<br>${esc(rep ? (f.r_nombre || 'Representante legal') : (f.p_nombre || 'Paciente'))}<br>DNI ${esc(rep ? f.r_dni : f.p_dni)}</div>
+    <div class="firma">Firma y sello<br>${esc(f.m_nombre || 'Médico cirujano')}<br>Mat. ${esc(f.m_mat)}</div>
+  </div>
+  <p style="margin-top:20px;font-size:11.5px">Lugar y fecha: ${esc(f.m_inst)} , ${hoy} &nbsp;&nbsp; Hora: ............</p>
+
+  <h3>9. Revocación del consentimiento</h3>
+  <p>${esc(CI_REVOCACION)}</p>
+  <p style="margin-top:8px">Revoco el consentimiento otorgado en el presente documento.</p>
+  <div class="firmas">
+    <div class="firma">Firma y aclaración de quien revoca<br>DNI ............................</div>
+    <div class="firma">Firma y sello del profesional<br>Fecha y hora ............................</div>
+  </div>
+
+  <p class="legal">${esc(CI_LEGAL)}</p>`;
+  return h;
+}
+
+const CI_DOC_CSS = `
+  @page{size:A4;margin:2.2cm}
+  body{font-family:'Times New Roman',serif;font-size:11.5pt;line-height:1.5;color:#000}
+  h1{font-size:15pt;text-align:center;text-transform:uppercase}
+  h3{font-size:12pt;border-bottom:1px solid #999;margin-top:14pt}
+  p{text-align:justify;margin:6pt 0}
+  table.fil{width:100%;border-collapse:collapse;font-size:10.5pt;margin:6pt 0}
+  table.fil td{border:1px solid #999;padding:4pt 6pt}
+  table.fil td.k{background:#f0f0f0;font-weight:bold}
+  .meta{text-align:center;font-size:10pt;color:#444}
+  .membrete{text-align:center;border-bottom:2px solid #143f60;padding-bottom:6pt;margin-bottom:10pt}
+  .membrete .mb-tit{font-size:14pt;font-weight:bold;color:#143f60}
+  .membrete .mb-sub{font-size:9.5pt;color:#333}
+  .membrete .mb-blq{font-size:10.5pt;font-weight:bold;margin-top:4pt;color:#1c5d8c}
+  .cita{font-size:9.5pt;font-style:italic;color:#333}
+  .firmas{margin-top:44pt;display:flex;justify-content:space-between}
+  .firma{display:inline-block;width:44%;text-align:center;border-top:1px solid #000;padding-top:4pt;font-size:10pt}
+  .legal{font-size:8.5pt;color:#444;border-top:1px dotted #999;margin-top:16pt;padding-top:6pt;text-align:justify}
+`;
+function ciDocWord(cuerpo) {
+  return `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset='utf-8'><title>Consentimiento Informado Quirúrgico</title><style>${CI_DOC_CSS}</style></head>
+<body>${cuerpo}</body></html>`;
+}
+function ciDocImprimible(cuerpo) {
+  return `<!DOCTYPE html><html lang="es"><head><meta charset='utf-8'><title>Consentimiento Informado Quirúrgico</title><style>${CI_DOC_CSS}</style></head><body>${cuerpo}</body></html>`;
+}
+
+/* ---- Edición del formulario ----
+   El campo se actualiza en memoria y solo se repinta la vista previa, para no
+   perder el foco ni lo tipeado. Los cambios que alteran la estructura del
+   formulario (especialidad, procedimiento, quién firma) sí lo repintan entero. */
+function ciSet(k, valor, repintarTodo) {
+  ciForm[k] = valor;
+  if (['t_desc', 't_comp', 't_alt', 't_cita'].includes(k)) ciEvidencia = 'texto editado por el profesional';
+  if (repintarTodo) { renderConsentimientos(); return; }
+  ciPintarPreview();
+}
+function ciPintarPreview() {
+  const doc = $('ci-doc');
+  if (doc) doc.innerHTML = ciDocHTML(ciForm);
+  const b = $('ci-badge');
+  if (b) b.textContent = ciEvidencia.toUpperCase();
+}
+function ciSetEsp(v) {
+  ciForm.c_esp = v;
+  ciForm.c_proc = '';
+  renderConsentimientos();
+}
+function ciSetProc(v) {
+  ciForm.c_proc = v;
+  const p = v && CI_PROCEDIMIENTOS[ciForm.c_esp] ? CI_PROCEDIMIENTOS[ciForm.c_esp][v] : null;
+  if (p) {
+    if (p.nombre) ciForm.c_nombre = p.nombre;
+    ciForm.t_desc = p.desc;
+    ciForm.t_comp = p.comp;
+    ciForm.t_alt = p.alt;
+    ciForm.t_cita = p.cita;
+    ciForm.c_anest = p.anest;
+    ciEvidencia = 'consenso cargado';
+  }
+  renderConsentimientos();
+}
+
+/* ---- Volcado automático desde un turno de la grilla ---- */
+function ciNormalizar(s) {
+  return String(s || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+/* Busca dentro de la especialidad el procedimiento cuyo nombre se parece más al
+   texto escrito en el turno. Devuelve la clave, o la entrada genérica de la
+   especialidad si ninguno alcanza una coincidencia razonable. */
+function ciSugerirProc(esp, texto) {
+  const procs = CI_PROCEDIMIENTOS[esp];
+  if (!procs) return '';
+  const palabras = ciNormalizar(texto).split(' ').filter((w) => w.length > 3);
+  if (!palabras.length) return '';
+  let mejor = '', mejorPunt = 0;
+  Object.entries(procs).forEach(([k, p]) => {
+    const ref = ciNormalizar(p.label + ' ' + p.nombre);
+    const punt = palabras.reduce((n, w) => n + (ref.includes(w) ? w.length : 0), 0);
+    if (punt > mejorPunt) { mejorPunt = punt; mejor = k; }
+  });
+  if (mejorPunt >= 5) return mejor;
+  return Object.keys(procs).find((k) => k.startsWith('otro')) || '';
+}
+function ciDesdeTurno(c) {
+  const u = usuarioActual();
+  const esp = CI_MAP_SERVICIO[c.servicio] || 'Otra especialidad';
+  const f = { ...CI_VACIO };
+  f.turnoId = c.id;
+  f.p_nombre = c.paciente?.nombre || '';
+  f.p_dni = c.paciente?.dni || '';
+  f.p_nac = c.paciente?.nacimiento || '';
+  f.p_edad = c.paciente?.edad || '';
+  f.p_tel = c.paciente?.telefono || '';
+  f.p_os = c.obraSocial || '';
+  f.p_lucidez = (c.paciente?.edad && c.paciente.edad < 18) ? CI_LUCIDEZ[2].v : CI_LUCIDEZ[0].v;
+  f.m_nombre = c.cirujano || (u ? u.nombre : '');
+  f.m_mat = (u && u.matricula?.numero) || '';
+  f.m_esp = c.servicio || (u ? u.servicio : '');
+  f.m_serv = c.servicio || '';
+  f.m_inst = 'Hospital Regional Ushuaia';
+  f.c_esp = CI_PROCEDIMIENTOS[esp] ? esp : 'Otra especialidad';
+  f.c_fecha = c.fecha || '';
+  f.c_hora = c.horaProg || '';
+  f.c_sala = c.quirofano || '';
+  f.c_anest = CI_MAP_ANESTESIA[c.anestesia] || 'A definir por anestesiólogo';
+  f.c_dx = c.diagnostico || '';
+  f.c_cie10 = c.cie10 || '';
+  f.c_nombre = c.procedimiento || '';
+  // Contenido clínico sugerido a partir del nombre de la cirugía declarada.
+  const clave = ciSugerirProc(f.c_esp, c.procedimiento);
+  const p = clave ? CI_PROCEDIMIENTOS[f.c_esp][clave] : null;
+  if (p) {
+    f.c_proc = clave;
+    f.t_desc = p.desc; f.t_comp = p.comp; f.t_alt = p.alt; f.t_cita = p.cita;
+    if (!f.c_anest || f.c_anest === 'A definir por anestesiólogo') f.c_anest = p.anest;
+  }
+  return f;
+}
+/* Abre el generador con los datos del turno ya volcados. Si el turno ya tiene
+   un consentimiento guardado, se recupera ese en lugar de rehacerlo. */
+function irAConsentimiento(turnoId) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(turnoId));
+  if (!c) return;
+  const previo = consentimientoDeTurno(c);
+  ciForm = previo ? { ...CI_VACIO, ...previo.datos } : ciDesdeTurno(c);
+  ciEvidencia = previo ? 'recuperado del registro' : 'volcado desde la programación';
+  ciTab = 'generar';
+  go('consentimientos');
+}
+/* Turnos futuros del cirujano que todavía no tienen consentimiento generado.
+   Alimenta el aviso del menú lateral. */
+function ciPendientesDe(u) {
+  if (!u) return 0;
+  const hoy = hoyISO();
+  return DB.cirugias.filter((c) => c.cirujanoEmail === u.email && (c.fecha || '') >= hoy
+    && !['suspendida', 'realizada'].includes(c.estado) && !consentimientoDeTurno(c)).length;
+}
+function consentimientoDeTurno(c) {
+  if (!c) return null;
+  return DB.consentimientos.find((x) => String(x.turnoId) === String(c.id)) || null;
+}
+
+/* ---- Acciones ---- */
+function ciValido() {
+  if (!ciForm.p_nombre.trim() || !ciForm.c_nombre.trim()) {
+    alert('Complete al menos el nombre del paciente y el nombre del procedimiento.');
+    return false;
+  }
+  if (ciFirmaRepresentante() && !ciForm.r_nombre.trim()) {
+    alert('El paciente firma por representante legal: cargue su nombre y su vínculo.');
+    return false;
+  }
+  return true;
+}
+function ciNombreArchivo() {
+  const pac = (ciForm.p_nombre || 'paciente').replace(/[^a-zA-Z0-9áéíóúñÑÁÉÍÓÚ ]/g, '').replace(/\s+/g, '_');
+  return `Consentimiento_${pac}_${hoyISO()}`;
+}
+function ciBajarArchivo(cuerpo, nombre) {
+  const blob = new Blob(['﻿', ciDocWord(cuerpo)], { type: 'application/msword' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nombre + '.doc';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+}
+function ciImprimirCuerpo(cuerpo) {
+  const w = window.open('', '_blank');
+  if (!w) { alert('El navegador bloqueó la ventana de impresión. Habilite las ventanas emergentes para este sitio.'); return; }
+  w.document.write(ciDocImprimible(cuerpo));
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 400);
+}
+/* Guarda en el registro compartido y, si el consentimiento nació de un turno,
+   lo marca como registrado en la ficha de esa cirugía. */
+function ciRegistrar() {
+  const previo = ciForm.turnoId ? DB.consentimientos.find((x) => String(x.turnoId) === String(ciForm.turnoId)) : null;
+  const reg = {
+    id: previo ? previo.id : Date.now(),
+    fecha: new Date().toLocaleString('es-AR'),
+    fechaISO: hoyISO(),
+    paciente: ciForm.p_nombre,
+    dni: ciForm.p_dni,
+    procedimiento: ciForm.c_nombre,
+    medico: ciForm.m_nombre,
+    especialidad: ciForm.c_esp,
+    fechaCx: ciForm.c_fecha,
+    turnoId: ciForm.turnoId || null,
+    autor: (usuarioActual() || {}).email || (jefe ? 'jefatura' : ''),
+    datos: { ...ciForm },
+  };
+  upsert('consentimientos', reg);
+  if (reg.turnoId) {
+    const c = DB.cirugias.find((x) => String(x.id) === String(reg.turnoId));
+    if (c && !c.hce?.consentimiento) {
+      c.hce = { ...(c.hce || {}), consentimiento: true };
+      pushHist(c, 'Consentimiento informado generado y registrado');
+      upsert('cirugias', c);
+    }
+  }
+  return reg;
+}
+function ciGuardar() {
+  if (!ciValido()) return;
+  ciRegistrar();
+  alert('Consentimiento guardado en el registro del bloque quirúrgico.');
+  renderConsentimientos();
+}
+function ciDescargar() {
+  if (!ciValido()) return;
+  ciRegistrar();
+  ciBajarArchivo(ciDocHTML(ciForm), ciNombreArchivo());
+  renderConsentimientos();
+}
+function ciImprimir() {
+  if (!ciValido()) return;
+  ciImprimirCuerpo(ciDocHTML(ciForm));
+}
+function ciLimpiar() {
+  if (!confirm('¿Limpiar el formulario? No se borra nada del registro guardado.')) return;
+  ciForm = { ...CI_VACIO };
+  ciEvidencia = 'evidencia';
+  renderConsentimientos();
+}
+function ciCargarDelRegistro(id) {
+  const r = DB.consentimientos.find((x) => String(x.id) === String(id));
+  if (!r) return;
+  ciForm = { ...CI_VACIO, ...r.datos };
+  ciEvidencia = 'recuperado del registro';
+  ciTab = 'generar';
+  renderConsentimientos();
+  window.scrollTo(0, 0);
+}
+function ciBajarDelRegistro(id) {
+  const r = DB.consentimientos.find((x) => String(x.id) === String(id));
+  if (!r) return;
+  const cuerpo = ciDocHTML({ ...CI_VACIO, ...r.datos });
+  const pac = (r.paciente || 'paciente').replace(/[^a-zA-Z0-9áéíóúñÑÁÉÍÓÚ ]/g, '').replace(/\s+/g, '_');
+  ciBajarArchivo(cuerpo, `Consentimiento_${pac}_${r.fechaISO || hoyISO()}`);
+}
+function ciImprimirDelRegistro(id) {
+  const r = DB.consentimientos.find((x) => String(x.id) === String(id));
+  if (!r) return;
+  ciImprimirCuerpo(ciDocHTML({ ...CI_VACIO, ...r.datos }));
+}
+function ciBorrarDelRegistro(id) {
+  const r = DB.consentimientos.find((x) => String(x.id) === String(id));
+  if (!r) return;
+  pedirClave('Eliminar consentimiento', 'El consentimiento informado forma parte de la historia clínica. Ingrese la clave de autorización para retirarlo del registro.', CLAVE_CANCELAR, () => {
+    if (!confirm(`¿Eliminar el consentimiento de ${r.paciente || 's/d'} del registro?`)) return;
+    removeDoc('consentimientos', r.id);
+    renderConsentimientos();
+  });
+}
+
+/* ---- Vista ---- */
+function ciCampo(k, label, tipo, ancho, extra) {
+  const v = esc(ciForm[k] ?? '');
+  return `<div class="field${ancho === 'full' ? ' full' : ''}">
+    <label>${label}</label>
+    <input type="${tipo || 'text'}" value="${v}" ${extra || ''} oninput="ciSet('${k}', this.value)">
+  </div>`;
+}
+function ciArea(k, label, ayuda) {
+  return `<div class="field full">
+    <label>${label}</label>
+    <textarea oninput="ciSet('${k}', this.value)">${esc(ciForm[k] || '')}</textarea>
+    ${ayuda ? `<span class="hint">${ayuda}</span>` : ''}
+  </div>`;
+}
+function ciRegistroLista() {
+  const q = ciRegQ.toLowerCase();
+  const list = DB.consentimientos
+    .filter((r) => !q || [r.paciente, r.dni, r.procedimiento, r.medico].some((x) => String(x || '').toLowerCase().includes(q)))
+    .sort((a, b) => b.id - a.id);
+  if (!list.length) {
+    return `<div class="empty">${ciRegQ ? 'Ningún consentimiento coincide con la búsqueda.' : 'Todavía no hay consentimientos guardados. Los que genere desde la programación quedan archivados acá.'}</div>`;
+  }
+  return list.map((r) => `
+    <div class="ci-reg-card">
+      <div class="ci-reg-top">
+        <span class="nm">${esc(r.paciente || 's/d')}</span>
+        ${r.dni ? `<span style="font-size:0.78rem;color:var(--muted)">DNI ${esc(r.dni)}</span>` : ''}
+        ${r.turnoId ? '<span class="ci-badge">VINCULADO A UN TURNO</span>' : ''}
+        <span class="dt">${esc(r.fecha || '')}</span>
+      </div>
+      <div class="ci-reg-sub">${esc(r.procedimiento || '')}${r.fechaCx ? ` · cirugía del ${fmtFecha(r.fechaCx)}` : ''}${r.medico ? ` · ${esc(r.medico)}` : ''}</div>
+      <div class="ci-reg-acc">
+        <button class="btn btn-sm btn-outline" onclick="ciCargarDelRegistro('${r.id}')">${ICONS.edit} Cargar y editar</button>
+        <button class="btn btn-sm btn-blue" onclick="ciBajarDelRegistro('${r.id}')">${ico(ICONS.download, 14)} Descargar (Word)</button>
+        <button class="btn btn-sm btn-outline" onclick="ciImprimirDelRegistro('${r.id}')">${ICONS.fileText} Imprimir / PDF</button>
+        <button class="btn btn-sm btn-red" onclick="ciBorrarDelRegistro('${r.id}')">${ICONS.trash} Eliminar</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderConsentimientos() {
+  const u = usuarioActual();
+  if (!u && !jefe) { go('acceso'); return; }
+  if (!ciForm.m_nombre && u) { ciForm.m_nombre = u.nombre; ciForm.m_mat = u.matricula?.numero || ''; ciForm.m_esp = u.servicio || ciForm.m_esp; }
+
+  const turno = ciForm.turnoId ? DB.cirugias.find((x) => String(x.id) === String(ciForm.turnoId)) : null;
+  const rep = ciFirmaRepresentante();
+  const procs = ciProcsDe(ciForm.c_esp);
+  const nReg = DB.consentimientos.length;
+
+  const cabecera = `
+    <div class="page-head">
+      <div class="head-row">
+        <div class="head-icon">${ico(ICONS.fileText, 22)}</div>
+        <div>
+          <h1 class="page-title">Consentimientos Médicos Informados</h1>
+          <p class="page-sub">Generador del consentimiento informado quirúrgico — contenidos basados en consensos internacionales · Lex Artis Ad-Hoc</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="go('grilla')">${ico(ICONS.grid, 15)} Ir a la programación</button>
+      </div>
+    </div>
+    <div class="ci-tabs">
+      <button class="ci-tab ${ciTab === 'generar' ? 'active' : ''}" onclick="ciTab='generar';renderConsentimientos()">${ICONS.fileText} Generar consentimiento</button>
+      <button class="ci-tab ${ciTab === 'registro' ? 'active' : ''}" onclick="ciTab='registro';renderConsentimientos()">${ICONS.list} Registro guardado${nReg ? ` (${nReg})` : ''}</button>
+    </div>`;
+
+  if (ciTab === 'registro') {
+    $('main').innerHTML = `${cabecera}
+      <div class="toolbar" style="margin-bottom:14px">
+        <input type="search" placeholder="Buscar por paciente, DNI, cirugía o cirujano…" value="${esc(ciRegQ)}"
+          oninput="ciRegQ=this.value;$('ci-reg-list').innerHTML=ciRegistroLista()" style="flex:1;min-width:220px">
+      </div>
+      <div id="ci-reg-list">${ciRegistroLista()}</div>
+      <p class="form-note">El consentimiento informado integra la historia clínica del paciente (Ley 26.529). El registro se comparte con el resto del bloque quirúrgico y se conserva también en este dispositivo.</p>`;
+    return;
+  }
+
+  $('main').innerHTML = `${cabecera}
+    ${turno ? `<div class="ci-link">${ICONS.info}
+      <div><b>Datos tomados de la programación.</b> Turno de ${esc(turno.paciente?.nombre || 's/d')} — ${esc(turno.procedimiento || '')},
+      ${esc(turno.quirofano || '')} el ${fmtFecha(turno.fecha)} a las ${esc(turno.horaProg || '')} h.
+      Revise el texto, complete lo que falte y descargue el documento para su firma.</div></div>` : ''}
+
+    <div class="ci-split">
+      <div>
+        <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
+          <div class="card-title">Datos del paciente</div>
+          <div class="form-grid">
+            ${ciCampo('p_nombre', 'Nombre y apellido *')}
+            ${ciCampo('p_dni', 'DNI / Documento')}
+            ${ciCampo('p_nac', 'Fecha de nacimiento', 'date')}
+            ${ciCampo('p_edad', 'Edad (si no consta la fecha)', 'number', '', 'min="0" max="120"')}
+            ${ciCampo('p_os', 'Obra social / Cobertura')}
+            ${ciCampo('p_afil', 'N° de afiliado')}
+            ${ciCampo('p_dom', 'Domicilio', 'text', 'full')}
+            ${ciCampo('p_tel', 'Teléfono')}
+            <div class="field">
+              <label>Estado de lucidez</label>
+              <select onchange="ciSet('p_lucidez', this.value, true)">
+                ${CI_LUCIDEZ.map((l) => `<option value="${esc(l.v)}" ${ciForm.p_lucidez === l.v ? 'selected' : ''}>${l.label}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          ${rep ? `<div class="form-grid" style="margin-top:16px">
+            ${ciCampo('r_nombre', 'Representante legal — nombre y apellido *')}
+            ${ciCampo('r_dni', 'DNI del representante')}
+            ${ciCampo('r_vinculo', 'Vínculo / carácter (padre, madre, tutor, apoyo)', 'text', 'full')}
+          </div>` : ''}
+        </div>
+
+        <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
+          <div class="card-title">Médico cirujano</div>
+          <div class="form-grid">
+            ${ciCampo('m_nombre', 'Nombre y apellido')}
+            ${ciCampo('m_mat', 'Matrícula (M.N. / M.P.)')}
+            ${ciCampo('m_esp', 'Especialidad')}
+            ${ciCampo('m_serv', 'Servicio interviniente')}
+            ${ciCampo('m_inst', 'Institución / Centro', 'text', 'full')}
+          </div>
+        </div>
+
+        <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
+          <div class="card-title">Cirugía y patología</div>
+          <div class="form-grid">
+            <div class="field">
+              <label>Especialidad</label>
+              <select onchange="ciSetEsp(this.value)">
+                <option value="">— Seleccionar especialidad —</option>
+                ${Object.keys(CI_PROCEDIMIENTOS).map((e) => `<option ${ciForm.c_esp === e ? 'selected' : ''}>${e}</option>`).join('')}
+              </select>
+            </div>
+            <div class="field">
+              <label>Procedimiento (carga la evidencia)</label>
+              <select onchange="ciSetProc(this.value)" ${procs.length ? '' : 'disabled'}>
+                <option value="">— Seleccionar procedimiento —</option>
+                ${procs.map(([k, p]) => `<option value="${k}" ${ciForm.c_proc === k ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}
+              </select>
+              <span class="hint">${procs.length ? 'Al elegirlo se completa el contenido clínico, que puede editarse.' : 'Elija primero la especialidad.'}</span>
+            </div>
+            ${ciCampo('c_fecha', 'Fecha programada', 'date')}
+            ${ciCampo('c_hora', 'Hora', 'time')}
+            ${ciCampo('c_sala', 'Sala / quirófano')}
+            <div class="field">
+              <label>Tipo de anestesia</label>
+              <select onchange="ciSet('c_anest', this.value)">
+                ${CI_ANESTESIAS.map((a) => `<option ${ciForm.c_anest === a ? 'selected' : ''}>${a}</option>`).join('')}
+              </select>
+            </div>
+            ${ciCampo('c_dx', 'Diagnóstico / patología actual', 'text', 'full')}
+            ${ciCampo('c_cie10', 'Código CIE-10')}
+            ${ciCampo('c_nombre', 'Nombre del procedimiento (editable) *', 'text', 'full')}
+          </div>
+        </div>
+
+        <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
+          <div class="card-title" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            Contenido clínico <span class="ci-badge" id="ci-badge">${ciEvidencia.toUpperCase()}</span>
+          </div>
+          <div class="form-grid">
+            ${ciArea('t_desc', 'Descripción del procedimiento')}
+            ${ciArea('t_comp', 'Complicaciones posibles y sus consecuencias')}
+            ${ciArea('t_alt', 'Alternativas terapéuticas')}
+            ${ciArea('t_cita', 'Fundamento / consenso (cita)')}
+          </div>
+          <p class="form-note">El texto precargado refleja consensos internacionales y puede editarse libremente para adecuarlo a cada caso (Lex Artis Ad-Hoc).
+          La cláusula de cambio de técnica intraoperatoria y la de revocación se incluyen siempre.</p>
+        </div>
+      </div>
+
+      <div class="ci-preview-col">
+        <div class="q-group-title" style="margin-bottom:10px">${ICONS.eyeSm} Vista previa del documento</div>
+        <div class="form-actions" style="margin:0 0 12px">
+          <button class="btn btn-blue" onclick="ciDescargar()">${ico(ICONS.download, 16)} Bajar e imprimir (Word)</button>
+          <button class="btn btn-outline" onclick="ciImprimir()">${ICONS.fileText} Imprimir / PDF</button>
+          <button class="btn btn-outline" onclick="ciGuardar()">${ico(ICONS.check, 15)} Guardar en registro</button>
+          <button class="btn btn-outline" onclick="ciLimpiar()">Limpiar</button>
+        </div>
+        <div class="ci-doc" id="ci-doc">${ciDocHTML(ciForm)}</div>
+      </div>
+    </div>`;
+}
+
 /* ================= REGISTRO DE VISTAS ================= */
 Object.assign(VIEWS, {
   grilla: renderProgDiaria,
@@ -4830,6 +6436,7 @@ Object.assign(VIEWS, {
   confidenciales: renderConfidenciales,
   kpis: renderKPIs,
   estadisticas: renderEstadisticas,
+  consentimientos: renderConsentimientos,
   usuarios: renderUsuarios,
   reclamos: renderReclamos,
   acceso: renderAcceso,
