@@ -830,6 +830,69 @@
     body { background: #fff; }
     .inc-card, .card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
   }
+  /* El icono de los avisos no debe encogerse cuando el texto es largo. */
+  .banner > svg { flex: none; }
+
+  /* ================= NOMENCLADOR Y MÓDULOS QUIRÚRGICOS ================= */
+  .nom-box { position: relative; }
+  .nom-list {
+    position: absolute; z-index: 60; left: 0; right: 0; top: 100%; margin-top: 4px;
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: 0 14px 32px rgba(0,0,0,0.18); max-height: 320px; overflow-y: auto; display: none;
+  }
+  .nom-list.open { display: block; }
+  .nom-item {
+    display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left;
+    padding: 9px 12px; cursor: pointer; border: 0; background: none;
+    border-bottom: 1px solid #f1f2f4; font: inherit; color: var(--ink);
+  }
+  .nom-item:last-child { border-bottom: 0; }
+  .nom-item:hover, .nom-item:focus { background: var(--blue-soft); outline: none; }
+  .nom-item-txt { flex: 1; font-size: 0.86rem; line-height: 1.32; }
+  .nom-item-sub { display: block; font-size: 0.73rem; color: var(--muted); margin-top: 2px; }
+  .nom-vacio { padding: 14px; font-size: 0.85rem; color: var(--muted); }
+  .nom-sel {
+    display: flex; gap: 10px; align-items: flex-start; margin-top: 10px;
+    padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; background: #f7fafc;
+  }
+  .nom-sel-txt { flex: 1; font-size: 0.9rem; font-weight: 600; line-height: 1.32; }
+  .nom-link {
+    background: none; border: 0; padding: 0; margin-top: 8px; cursor: pointer;
+    color: var(--blue); font: inherit; font-size: 0.82rem; font-weight: 600; text-decoration: underline;
+  }
+  .mod-tag {
+    flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+    font-weight: 800; font-size: 0.84rem; color: #fff; background: #9ca3af;
+  }
+  .mod-A { background: #8b5cf6; }
+  .mod-B { background: #2980d9; }
+  .mod-C { background: #1fa971; }
+  .mod-pill {
+    display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px;
+    font-size: 0.74rem; font-weight: 800; color: #fff; background: #9ca3af;
+  }
+  .mod-row {
+    display: grid; grid-template-columns: 1fr 190px; gap: 12px; align-items: end;
+    padding: 12px 0; border-bottom: 1px solid var(--line);
+  }
+  .mod-row:last-of-type { border-bottom: 0; }
+  .mod-row input, .mod-row select { width: 100%; }
+  .mod-rol { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  @media (max-width: 620px) { .mod-row { grid-template-columns: 1fr; } }
+  .mod-periodo { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mod-per-btn {
+    border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 6px 14px;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer; color: var(--ink);
+  }
+  .mod-per-btn.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .mod-nav { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .mod-nav b { font-size: 0.9rem; }
+  .mod-cifras { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mod-cifra {
+    flex: 1 1 120px; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: #fff;
+  }
+  .mod-cifra .n { font-size: 1.5rem; font-weight: 800; line-height: 1.1; }
+  .mod-cifra .l { font-size: 0.76rem; color: var(--muted); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -926,6 +989,11 @@
 <!-- Modal: cirugía programada correctamente → consentimiento informado -->
 <div class="overlay" id="cxok-overlay">
   <div class="modal modal-white" id="cxok-modal" style="max-width:520px;"></div>
+</div>
+
+<!-- Modal: equipo quirúrgico y módulos -->
+<div class="overlay" id="eqm-overlay">
+  <div class="modal modal-white" id="eqm-modal" style="max-width:600px;"></div>
 </div>
 
 <!-- Modal: recordatorios -->
@@ -1176,6 +1244,7 @@ const franjaDe = (salaId, fid) => sala(salaId).franjas.find((f) => f.id === fid)
    no sustituye una autenticación real del servidor). */
 const CLAVE_CANCELAR = '2358';      // cancelar un turno programado
 const CLAVE_AUTORIZACION = '3340';  // Admisión y Egresos: autorizar el turno
+const CLAVE_DIRECTOR = '9876';      // Dirección Médica: módulos de todo el hospital
 
 /* Anticipación mínima para programar un turno electivo (las urgencias la saltean). */
 const HORAS_ANTICIPACION = 24;
@@ -1191,6 +1260,1523 @@ const OBRAS = ['PAMI', 'IPAUSS', 'OSDE', 'Swiss Medical', 'Galeno', 'OSECAC',
   'OSPEDYC', 'Medife', 'SICOS', 'Particular', 'Sin cobertura', 'Otra'];
 const DIAS_S = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
+/* ================= NOMENCLADOR MODULADO 2025 =================
+   Transcripción del "Nomenclador Modulado Hospitales Regionales TDF 2025" que
+   rige en el HRU. Cada práctica lleva el módulo que le asigna el nomenclador:
+   A, B o C. Para no inflar el archivo, el listado viaja como texto compacto
+   —'#' abre un capítulo, '>' una sección y cada práctica empieza con la letra
+   de su módulo ('-' cuando el nomenclador la dejó en blanco)— y se expande a
+   objetos al arrancar la app.
+   Única desviación respecto del PDF: «reconstrucción de cavidad orbitaria»
+   (Cirugía Reparadora · Cejas y Párpados) figura sin módulo en el original y
+   Dirección la asignó al módulo A. */
+const NOM_TXT = `#ABDOMEN
+>Pared
+BHematoma o abseso supra o infra aponeurótico
+Bherida (hasta aponeurosis) de menos de 20 cm
+Ccuerpo extraño
+Bherida de pared abdominal de más de 20 cm
+Bfístula umbilical
+Bonfalitis
+Bdiastasis de los rectos
+Btumor de pared
+Bhernia umbilical, crural o epigástrica
+Bhernia recidivada
+Bhernia estrangulada
+Bhernia atascada
+Bhernia inguinal en lactantes unilateral
+Bhernia inguinal en adultos (no complicadas) unilateral
+Beventración
+Beviceración
+Breparación de hernia con colocación de malla (convencional)
+Ahernia estrangulada con reseccion intestinal
+Ahernia inguinal laparoscopica sin colocacion de malla unilateral
+Ahernia inguinal laparoscopica con colocación de malla unilateral
+Areparación eventración plástica con injerto (malla)
+Adermolipectomía no estética
+Aonfalocele - tratamiento quirúrgico
+>Cavidad
+Cperitoneocentesis
+Blaparotomía exploradora, como única intervención
+Blaparotomía contenida (lavado de cavidad)
+Bbiopsia
+Bresección de epiplón
+Babsceso subfrénico (via convencional)
+Bsimpaticectomia abdominal o lumbar
+Blaparoscopía exploradora, como unica intervención
+Aperitonitis generalizada por laparotomia
+Bhernia hiatal
+Aperitonitis por video laparoscopia
+Aabsceso subfrénico laparoscopico
+BAbsceso intra abdominal o profundo (via convencional)
+AAbsceso intra abdominal o profundo por Video Laparoscopia
+Avaciamiento inguino-escrotal
+Avaciamiento inguino-abdominal
+Ahernia hiatal por vía laparoscopica
+Ahernia diafragmática por vía abdominal
+Ahernia diafragmática por vía toraxica
+Alaparotomía exploradora en paciente crítico
+Ahernia diafragmática congénita
+Ahernia diafragmática por vía toraco-abdominal
+>Retroperitoneo
+Bhematoma retroperitoneal
+Atumor retroperitoneal
+Alinfadenectomía lumboaortica
+Atumor retroperitoneal laparóscopico
+>Higado, Vesicula y Vías Biliares
+Cbiopsia percutanea de higado
+Bbiopsia de higado a cielo abierto o laparoscopica
+Bsutura de herida simple de higado
+Bcolecistostomía percutanea
+Bcolecistostomía
+Babsceso de higado
+Acolecistectomía simple
+Bcoledocotomía, como única intervención
+Bcolocación de cateter inahepatico para quimioterapia
+Aquiste hidatidico de higado
+Acolecistectomía laparoscopica
+Aexploración de vías biliares (via convencional)
+Ainstrumentacion de via biliar por laparoscopia
+Aherida traumática de higado
+Aduodenopapilotomía con o sin colecistectomía
+Acolecistectomía laparoscopica convertida
+Ametastasis hepatica fenolización termotratamiento
+Aembolización hepatica
+Aanastomosis bilio-digestiva con o sin colecistectomía
+Afístula biliar con anastomosis bilio-digestiva, con o sin colecistectomía
+Aexploración de vías biliares por LAPAROSCOPIA
+Ahepatectomía lobar derecha o izquierda
+Asegmentectomía hepática
+Areconstrucción de vías biliares
+Ahemihepatectomía
+Atrasplante hepático
+>Bazo y Pancreas
+Besplenoportografía
+Aquiste hidatidico de bazo
+Aesplenectomía electiva
+Adrenaje de wirsung
+Aquiste de pancreas
+Aabsceso de pancreas
+Aesplenectomía por rotura de bazo
+Aanastomosis pancreato-digestiva
+Asecuestrectomía
+Apancreatectomía con exploración y drenaje
+Aesplenectomía por toracotomia
+Apancreato-duodenectomía - duodenopancreatectomía
+Aesplenopancreatectomía corporocaudal
+Aimplante de células B
+>Estomago
+Bgastrostomía (excluye cirugia bariatrica)
+Bhipertrofia de piloro-piloromiotomía
+Bgastrostomía - exploración - extracción de cuerpo extraño, lesión local o tumor beningno (excluye cirugia bariatrica)
+Bcierre de gastrostomía
+Bvagotomía, vagotomía selectiva, gastropexia, piloroplastía
+Bgastrostomía endoscopia percutanea
+Bgastrorrafia - herida o traumatismo estomago
+Ahipertrofia de piloro por vía laparoscopica
+Agastroenteroanastomosis
+Aulcera perforada, gastrorrafia, herida perforada, cierre de fístula gástrica
+Aulcera perforada, gastrorrafia, herida perforada, cierre de fístula gástrica por VIDEOLAPAROSCOPIA
+Agastrectomía subtotal (excluye cirugia bariatrica)
+Agastrectomía total (excluye cirugia bariatrica)
+Agastrectomía total por toracolaparotomía
+Agastroquisis
+Acirugia bariatrica por laparoscopia
+Agastrectomía subtotal laparoscopica (excluye cirugia bariatrica)
+Agastrectomía total laparoscopica (excluye cirugia bariatrica)
+>Intestino
+Bcolostomía
+Benterostomía temporaria o definitiva
+Bcecostomía
+Bcierre de colostomía
+Bcolpopexia
+Benterorrafia simple
+Byeyunostomía
+BIleostomía
+Bcierre de ileostomía
+Aapendicectomía
+Aapendicectomía con peritonitis
+Adivetículo de meckel
+Aenterolisis o debridamiento intestinal o de epiplon o adhesiolisis
+Aapendicectomía laparoscópica
+Aapendicectomía laparoscópica con peritonitis
+Aenterorrafia múltiple
+Adevolvulación - desinvaginación intestinal
+Aderivaciones intestinales internas
+Aresección de intestino delgado
+Asigmoidectomía
+Aoclusión con resección de intestino
+Ahemicolectomía
+Aplicatura intestinal - op. De noble
+Acierre de hartman
+Atratamiento quirúrgico del megacolon
+Adebridamiento intestinal - enterotomía
+Acolectomía transversa segmentaria - op. De hartman
+Acierre de hartman laparoscopica
+Asigmoidectomía laparoscopica
+Ahemicolectomía laparoscopica
+Ahartman laparoscopica
+Acolectomía total
+Acolectomía o hemicolectomía abdomen -pélvica
+Ahemicolectomía abdomino-perineal- Op de Miles
+Aatresia ano-rectal por vía sagital en pediatría
+>Endoscopias abdominales
+Cesofagovideoscopía
+Cgastrovideoscopía
+Crectoscopía
+Crectosigmoideoscopía
+Cdilatación esofágica, pilórica o colonica en adulto
+Bgastrostomía por vía endoscópica
+Cvideocolonoscopía
+Cextracción de cuerpo extraño de esófago
+Cdevolvulación endoscópica
+Bcolocación de prótesis en esófago
+Cvideocolonoscopía con toma de biopsia
+Ccolocación de sonda de alimentación por endoscopía
+Bdilatación esofágica, pilórica o colonica en niños
+Bgastrostomía por vía endoscópica en niños
+Cextracción de cuerpo extraño de esófago en niños
+Bcolocación de stent en duodeno por endoscopía
+Cresección de pólipo por fibrocolonoscopía
+Btratamiento endoscópico de hemorragia digestiva
+Btratamiento varices esofágicas (bandas o esclerosis)
+Cvideocolonoscopía con polipectomía
+Bcolocación de stent colónico
+Cvideogastroduodenoscopía con polipectomía
+Bdrenaje transgástrico de quiste pancreático guiado por ecografía
+Bdrenaje percutaneo de vía biliar
+Bdrenaje absceso hepático
+Btratamiento de ulceras o fístulas traqueoesofágicas por endoscopías
+AColangio Papilotomia Retrograda Endoscopica
+Bcolocación de stent vía biliar
+Bdilatación endoscópica de estenosis de vía biliar
+Bcolocación stent vía biliar por punción hepática
+Bextracción de pólipo gigante colónico - gástrico - duodenal
+Bexeresis de tumor hepático por radiofrecuencia
+Apapilotomía con o sin extracción de cálculo vía endoscópica
+>Laparoscopía Abdominal
+Blaparoscopía diagnóstica
+Bbiopsia de higado laparoscópica
+Aenterolisis abdominal laparoscópica (como única intervención)
+Ahernia inguinal unilateral por laparoscopía sin colocacion de malla
+Ahernia inguinal unilateral por laparoscopía con colocacion de malla
+Avagotomía laparoscópica
+Acolecistectomía laparoscópica
+Ahernia hiatal laparoscópica
+Aesplenectomía laparoscópica
+Ahartman, cierre asistido por laparoscopía
+Anefrectomía laparoscópica unilateral
+#PROCTOLOGIA
+>Recto y Ano
+Cdilatación anal
+Cabsceso perianal
+Cesfinterotomía
+Besfinterectomia
+Ccondilomas acuminados (fulguración)
+Bfístula anal o fistulectomía o fistulotomía o cuerpo extraño o bolo fecal
+Bcuerpo extraño infraaponeurótico
+Bhemorroidectomía
+Ctrombosis hemorroidal
+Cproctorrafia
+Cfisura anal
+Babsceso perirectal
+Btumor benigno de ano
+Besfinteroplastía tipo plicatura
+Bplástica anal - anoplastía
+Bcerclaje anal
+Bquiste sacrocoxígeo
+Bprolapso rectal
+Apropalso proctohemorroidal
+Bfulguración de neoplasia de recto
+Bplástica anal o anoplastía
+Bano imperforado con recto bajo (excepto en neonato)
+Aesfinteroplastía con colostomía
+Aproctectomía
+Bcolocación de semillas radioactivas transrectal
+Aprotectomía con prostatectomía
+Arecto, resección anterior (vía abdominal) tipo hartman
+Amegacolon congénito
+Aoperación de dixon
+Aano imperforado con recto alto (excepto en neonato)
+Adixon laparoscópico
+Aoperación de Miles o similares
+Aoperaciones plásticas de malformaciones congénitas ano-rectales
+#TORAX
+>Pared
+Cbiopsia de ganglios linfáticos de pared toráxico
+Cpunción pleural
+Cbiopsia costal
+Ctumor de paredes blandas
+Babsceso de pared
+Bresección costal
+Cbiopsia de grasa preescalenica
+Btumor de pared costal
+Aosteosíntesis de esternon como única intervención
+Atoracoplastía
+Acierre de fístula bronco-cutánea
+Atorax excavado
+>Pleura
+Cpunción de cavidad pleural para lavaje o instalación de sustancias terapeúticas
+Cdrenaje pleural por toracotomía mínima o biopsia pleural
+Aresección pleuro-parietal
+Adecorticación pleuropulmonar
+Adecorticación pleuropulmonar o reseccion pleuro-parietal por VIDEOTORACOSCOPIA
+>Pulmón
+Bvideotorascoscopía diagnóstica
+Avideotorascoscopía para tratamiento de bullas
+Abroncorrafía
+Acavernostomía
+Alesión de pulmón (absceso, tumor)
+Atoracotomía exploradora amplia o biopsia pulmonar
+Atraqueoplastía
+Aresección tumor bronquial con laser
+Aneumonectomía
+Alobectomía
+Asegmentectomía
+Aneumonectomía por VIDEOTORACOSCOPIA
+Asegmentectomía o lobectomía por VIDEOTORACOSCOPIA
+>Mediastino
+Alinfadenectomía mediastínica
+Amediastinitis
+Abocio endotorácico
+Amediastinoscopía diagnóstica
+Atimectomía por miastenia gravis
+Atumores mediastinales
+>Esófago
+Bdilatación de esófago - extracción de cuerpo extraño
+Besofagostomía
+Amegaesofago
+Aperforaciones de esófago
+Adivertículo de esófago
+Ahernia diafragmática por vía toráxica
+Aderivación paliativa de esófago
+Afístula traqueo-esofágica
+Aresección de esófago
+Aesofaguectomía total
+Amalformaciones congénitas de esófago - atresia
+Aesofaguectomía laparoscópica
+Areemplazo de esófago
+Aesofagogastrectomía
+>Endoscopias Toráxicas
+Clavado de cavidad
+Cbroncoscopía
+Cbroncoscopía con biopsia, con o sin lavado
+Clavado bronquial para desobstrucción
+Cbroncoscopía con broncospio rígido
+Bcolocación de stent bronquial por endoscopía
+>Toracoscopía
+Btoracoscopía diagnóstica
+Atoracoscopía tratamiento de bullas
+#ENDOCRINAS
+>Tiroides
+Cpunción biopsia de tiroides
+Bquiste tirogloso (extirpación)
+Bhemitiroidectomía
+Atiroidectomía total
+Atiroidectomía endóscopica
+Atiroidectomía total con vaciamiento cervical
+>Paratiroides
+Aparatiroidectomía
+>Suprarenales
+Aadrenalectomía unilateral
+Asuprarenalectomía laparoscópica unilateral
+#GINECOLOGIA
+>Mama
+Cpunción de mama unilateral
+Cabsceso de mama - drenaje unilateral
+Cbiopsia de mama unilateral
+Cquiste de mama unilateral
+Cmastotomía unilateral
+Bnódulo de mama unilateral
+Bginecomastía unilateral - mama supernumeraria
+Btumorectomia unilateral
+Badenomastectomía - mastectomía simple unilateral
+Bbiopsia radioquirúrgica de mama unilateral
+Bcuadrantectomia unilateral
+Acuadrantectomía unilateral con ganglio centinela
+Acuadrantectomía unilateral con vaciamiento axilar
+Atumorectomía unilateral con vaciamiento axilar
+Amastectomía subradical - mastoplastía unilateral - op. Urban
+Amastectomía radical unilateral
+Amastectomía radical unilateral con vaciamiento ganglionar
+Amastectomía unilateral y colocación de prótesis
+>Utero
+Cdiu, colocación y extracción compleja con anestesia en quirófano
+Cpólipo de cuello
+Ccuretaje - legrado
+Cbiopsia o cauterización de cuello uterino
+Bmiomectomía vaginal (mioma nascens)
+Bdesgarro de cuello uterino
+Bconización de cuello uterino o leep
+Cdesinversión uterina - colocación de radium por sesión
+Bamputación de cuello como único procedimiento
+Bhisteroscopia diagnostica
+Bcauterización de cuello con laser
+Boperación correctora de vicios de conformación uterina
+Bhisterectomía fundica
+Bligamentopexia abdominal
+Bcerclaje
+Bcolpopexia
+Bhisteroscopia terapeutica
+Bmiomectomía - histerorrafia
+Afístula recto-uterina o vesico-uterina
+Amiomectomía por laparoscopía
+Aendometrosis tratamiento por videolaparoscopía
+Ahisterectomía sin anexectomía
+Ahisterectomía vaginal con o sin colpoperineorrafia
+Amiomectomía múltiple - ligamentopexia - colpopexia abdominal
+Amiomectomía por laparoscopía múltiple
+Ahisterectomía laparoscópica
+Awerthein - colpoanexohisterectomía total ampliada
+Awerthein
+Amalformaciones uterinas
+Awerthein con lavaje cavitario
+>Anexos: Ovarios y Trompas
+Bresección cuneiforme de ovario, unilateral
+Booforectomía simple unilateral
+Booforosalpinguectomía unilateral
+Bvaricocele pelviano
+Bquiste de ovario, unilateral
+Bembarazo ectópico no complicado
+Btumor de ovario, unilateral
+Aembarazo ectópico hemorragico
+Bsalpingoplastía unilateral
+Bsalpingolisis unilateral
+Bresección de plexo hipogastrico
+Bsalpingolisis unilateral Videolaparoscópica
+Amicrocirugía tubaria unilateral
+>Vagina
+Ccolpotomía - lesión local de vagina
+Cpunción drenaje de douglas
+Cbiopsia de vagina
+Ctumor beningo de vagina
+Bdesgarro de vagina - colporrafia o colpocleisis fuera del trabajo de parto
+Boperación de lefort
+Bfístula recto-vaginal
+Blaser de vagina
+Afístula vesico-vaginal - colporrafia posterior con reconstrucción del esfínter anal
+Aformación de vagina artificial
+>Perine-Vulva
+Cbiopsia de vulva
+Ctumor benigno de vulva
+Cdrenaje de absceso de glándula de bartholino
+Cmarsupialización de glándula de bartholino
+Cepisiorrafia
+Cperineorrafia
+Cextirpación de glándula de bartholino
+Bvulvectomía simple
+Bfístula vagino-perineal
+Acolpoperineorrafia anterior o posterior - episioperineoplastía
+Binclusión de semillas radioactivas en periné
+Acorrección incontinencia orina (bursch, marchal marchetti - pereyra)
+Atratamiento combinado incontinencia urinaria (tvt)
+Avulvectomía con vaciamiento ganglionar
+>Endoscopías Ginecológicas
+Chisteroscopía diagnóstica
+Chisteroscopía terapéutica
+>Laparoscopía Ginecológica
+Blaparoscopía diagnóstica ginecológica
+Booforectomía laparoscópica, unilateral
+Booforosalpinguectomía unilateral laparoscópica
+Atumor de ovario por laparoscopía, unilateral
+Bembarazon ectópico no complicado por video laparoscopía
+Blaparoscopía para seguimiento de esterilidad
+Blaparoscopía para fertilización asistida
+Alisis pelviana, unilateral por laparoscopía
+Amiomectomía laparoscópica
+Bvaricocele pelviano por laparoscopía
+Aincontinencia de orina, corrección laparoscópica (bursch o similares)
+Bquiste de ovario, unilateral por laparoscopía
+Bsalpingoplastía, unilateral por laparoscopía
+Aembarazo ectopico HEMORRAGICO por video laparoscopia
+Blisis tubarica unilateral o ligadura de trompa UNILATERAL, por laparoscopía
+Aresección de plexo hipogástrico por laparoscopía (op. De Cotte)
+Amiomectomía múltiple por laparoscopía
+Bsalpinguectomía, unilateral por video laparoscopía
+Amicrocirugía tubaria unilateral por laparoscopía
+Ahisterectomía vaginal asistida
+#OBSTETRICIA
+>Parto - Cesáreas
+Cexamen gineco-obstétrico bajo anestesia en quirófano
+CLegrado uterino
+Chuevo muerto y retenido - legrado
+Camniocentesis
+Cepisiorrafia
+Bdesgarro de vagina o esfínter
+Cextracción manual de placenta como único procedimiento
+Bcerclaje
+Ctaponamiento intrauterino
+Blegrado por mola o similar
+Bparto-período expulsivo, distócico o no, espontáneo o instrumental con o sin episiotomía y con o sin desgarro bajo anestesia general o regional (hasta 60 minutos)
+Bcesárea - microcesárea
+Bcesárea
+Bconducción del trabajo de parto bajo anestesia epidural continua, que termina en parto por vía vaginal espontáneo o instrumental con o sin episiotomía y con o sin desgarro de mas de 60 minutos
+Aconducción del trabajo de parto bajo anestesia epidural continua, por más de 60 minutos que fracasa y pasa a cesarea
+Acesárea por placenta ácreta e histerectomía
+Acirugías intrauterino a cielo abierto o por punción
+#UROLOGIA
+>Pene y Testículo
+Cmeatotomía
+Cfrenulotomía
+Cdrenaje de absceso testicular
+Cpunción de derrame escrotal
+Cbiopsia de pene
+Cbiopsia de testículo
+Cbiopsia de epidídimo
+Cepididimotomía y drenaje
+Canastomosis de conducto deferente
+Cquiste de cordón
+Cvaricocele
+Cvasectomía unilateral
+Bvasectomía unilateral por videolaparoscopia
+Cepididimectomía
+Chidrocele
+Corquidopexia
+Ccircuncisión
+Bfimosis y parafimosis - postioplastía
+Borquidectomía
+Bescrotoplastía
+Bvaricocele por VIDEOLAPAROSCOPIA
+Bamputación total o parcial de pene
+Ahipospadia - epispadia - plástica de pene
+Aprótesis testicular unilateral
+Aenfermedad de peyronie (lesión peneana)
+Aemasculación total con vaciamiento inguino-abdominal
+Aprótesis de pene con injerto
+Aprótesis peneana
+Amicrocirugía de la vía espermal
+>Uretra
+Curetrotomía interna - uretroscopía
+Curetrografia
+Ccaruncular uretral
+Cdilatación uretral
+Curetrorrafia
+Bplástica de uretra
+Bcierre de fístua uretro-rectal
+Aplástica de uretra con injerto de mucosa yugal o lingual
+>Riñon
+Cbiopsia renal percutánea
+Carteriografia renal
+Bembolectomía renal
+Bexploración renal con y sin biopsia
+Bcolocación o retiro de doble j (pig tail)
+Bnefropexia
+Bnefrostomía (percutánea)
+Cpielografia descendente
+Bpielolitotomía
+Anefrolitotomía
+Anefrectomía
+Anefrectomía parcial
+Alitotricia percutánea
+Apielolitotomía laparoscópica
+Aplástica pieloureteral laparoscópica
+Anefrectomía por toraco-freno-laparotomía
+Atrasplante renal
+Anefrectomía total o parcial por videolaparoscópica
+>Uréter
+Ccateterismo de uréter
+Cextracción de cálculo por endoscopía
+Cpielografía ascendente por ureteroscopia
+Bureterectomía
+Bureterostomía
+Bdilatación de uréter más colocación de doble j
+Blitotricia por choque extracorporeo
+Bureterolitotomía
+Bplástica ureteral
+Breimplante de uréter unilateral
+Babocamiento de uréter a piel
+Auretro-sigmoideo anastomosis
+Areimplante ureteral unilateral con afinamiento
+Alitotricia ureteral por vía endoscópica
+Alitotricia ureteral por vía endoscópica con LASER
+Allitotricia calculo multiple en ureter
+Alitotomia unilateral laparoscópica
+Aplastica ureteral laparoscópica
+Areimplante ureteral unilateral laparoscópico
+>Vejiga
+Ccistoscopia
+Ccistotomía por punción
+Ccolocación de taponaje vesical
+Cbiopsia de vejiga
+Bcistotomía (talla)
+Bfístula vesico-parietal
+Bresección de cuello de vejiga
+Blevantamiento de vejiga por vía abdominal
+Bresección endoscópica por electrocoagulación
+Bcateterismo vesical / cistomanometria
+Blitotricia cálculo único
+Bextirpación de tumor laparotomía
+Bcistectomía parcial
+Artu de vejiga pólipo, tumor
+Acistectomía parcial con reimplante de uréter
+Acistoplastía - uretero sigmoideo anastomosis
+Alitotricia cálculo múltiple en vejiga
+Aneovejiga
+Afístula vesico-útero-vaginal con anastomosis uretero-intestinal
+Afístula uretero-vaginal con anastomosis uretero-vesical
+Acistectomía total
+Acistectomia total laparoscópica
+Acistectomia parcial laparoscópica
+>Próstata
+Cbiopsia prostática por punción
+Cextracción taponaje loge prostática
+Cpunción /biopsia de próstata bajo contro ecográfico
+Aresección transuretral de próstata (RTU)
+Aprostatectomía o adenectomía por vía abdominal, con o sin vasectomía
+Aprostatectomía radical
+Aresección video por laser
+Aprostatectomía radical laparoscópica
+>Practicas urologicas LASER
+Alitiasis vesical
+Alitotricia transuretral
+Alitotricia transvesical
+Alitiasis ureter
+Alitotricia endouretral
+Alitiasis pielica o calicilar
+Alitotricia endopielocalicilar con uretroscopia flexible
+Atumor de ureter, caliz o pelvis renal
+Aablacion de tumor de ureter
+Aablacion de tumor de caliz o pelvis
+Abiopsia y laserterapia por HPV pene
+Abiopsia y laserterapia por HPV testiculo
+Atratamientos con energia bipolar
+Auretrotomia interna bipolar
+ARTU prostata bibolar
+ARTU bipolar de vejiga por tumor
+#ORTOPEDIA
+>Yesos
+Ccolocación o extracción de yesos
+Cyesos de antebrazo, braquipalmar, pierna o inguinopedico
+Cyesos -minerva, corsé, toracobraquial, pelvi rotuliano o pédico
+>Generalización de Huesos
+Ctracción esquelética
+Ccuretaje oseo
+Cmovilizaciones
+Cpunción biopsia de hueso
+Cresección de exostosis
+Creducción incruenta de fracturas- reducción de luxaciones
+Cbiopsia quirúrgica de hueso
+Costeoclasia - extirpación neurinoma de morton
+Costeotomía simple
+Cquiste oseo (resección)
+Cobtención de injerto simple de hueso
+Cextracción de placas o tornillos (no de rodilla ni de cadera)
+Bartrodesis hasta tres dedos
+Btutor externo (excepto cadera o maxilar)
+Btutor externo de tibia
+Btutor externo de antebrazo (radio - cúbito)
+Btutor externo de clavícula
+Btutor externo de húmero
+Btutor externo de fémur
+Btoilette de fracturas expuestas
+Atutor externo de cadera
+Aresección total de huesos (radio, cúbito, peroné, astrálago, calcáneo, clavícula, malar, etc.)
+Areducción quirúrgica -osteosíntesis de fractura de maxilar superior e inferior
+Atutor externo de maxilar
+Btoilette quirúrgica
+Aresección diaficiaria con prótesis o injerto de sustitución
+Bretiro de material miembro superior (unilateral)
+Bretiro de material miembro inferior (unilateral)
+>Articulaciones
+Cartrocentesis
+Ccapsulotomía
+Cquiste artrosinovial
+Bcapsuloplastía
+Bartrotomía - exploración intraarticular
+Bderivación articular
+Bartrovideoscopía diagnóstica de rodilla
+Bartrodesis de muñeca, tarso, hombro y codo
+Bmeniscectomía artroscópica
+Aartroplastía convencional de hombro
+Ahemiartroplastía de cadera
+Aartroplastía (no de cadera)
+Aartrodesis triple chopart
+Aosteosíntesis de rodilla, hombro o cadera
+Aplástica de ligamento cruzado anterior o cruzado posterior o ligamento lateral (convencional)
+Aartrovideoscopía de hombro (manguito rotador)
+Aplástica de ligamento cruzado anterior o posterior por artroscopía
+Aartroscopía quirúrgica de tobillo
+Amosaicoplastía videoartroscópica
+Aartoscopia de muñeca
+>Tendones
+Cextirpación de ganglión
+Ctenotomía simple
+Btenotomía múltiple
+Btenolisis (hasta 3 tendones)
+Btratamiento de secuelas de parálisis (por cada procedimiento)
+Btenorrafia (más de 3 tendones)
+Atenorrafia o tenolisis (4 tendones o más)
+Atrasplante y alargamiento (hasta 3 tendones)
+Atenoplastía con alargamiento en mano
+Atrasplante y alargamiento (más de 3 tendones)
+Atenoplastía con alargamiento o acortamiento fuera de mano
+>Aponeurosis y Músculos
+Ctracción de partes blandas
+Caponeurotomía - fasciotomía cutánea
+Creparación de hernia muscular
+Csíntesis muscular
+Cextirpación de tumor de partes blandas de brazo o antebrazo (unilateral)
+Csección de abductores
+Cexploración drenajes, cuerpo extraño o biopsia de músculos
+Ctortícolis congénita - miectomías
+Bsección de aductores
+>Miembro Superior
+Cpanadizo
+Creducción incruenta de luxaciones
+Cbursitis miembro superior, unilateral
+Ccalcificaciones de hombro
+Ctumor de dedo
+Camputación de dedo
+Blimpieza quirúrgica de mano
+Bcuerpo extraño de mano
+Btúnel carpiano
+Bepifiolisis
+Bresección de más de 3 falanges
+Bamputación de más de 3 dedos
+Blimpieza quirúrgica de fractura expuesta
+Bextirpación de aponeurosis palmar hasta 3 dedos
+Bresección de cabeza de radio
+Bmallet finger
+Bartroplastía de un dedo
+Benfermedad de dequervain
+Bosteosíntesis de falange o metacarpiano (hasta 3 huesos)
+Bartrodesis de más de 3 dedos
+Btransposición de nervio periférico
+Bfractura supracondilea de codo
+Bextirpación de aponeurosis palmar más de 3 dedos
+Bamputación de antebrazo
+Bamputación de brazo
+Bamputación de mano
+Bartrodesis de hombro
+Bextirpación aponeurosis palmar más de 3 dedos (dupuytren)
+Btúnel carpiano por artroscopía
+Bosteosíntesis de hasta 2 huesos del carpo
+Aosteosíntesis de escafoide
+Aosteosíntes de cúbito o radio
+Aosteosíntesis de clavícula, costilla o escápula
+Areimplante de dedo (hasta dos)
+Aartrodesis de cualquier hueso
+Aosteosíntesis de más de 2 huesos del carpo
+Aosteosíntesis de húmero, alargamiento, acortamiento, epifisiolisis, injerto de huesos, seudoartrosis, consolidación viciosa
+Adesarticulación interescapulo torácica - reemplazo parcial o total de hombro
+Areimplante de más de dos dedos (unilateral)
+Agran cirugía reconstructora de mano
+Areimplante de miembro superior
+ARevision de hombro
+>Miembro Inferior
+Ccuerpo extraño de tobillo
+Cdedos en martillo cada uno
+Cbursitis miembro inferior unilateral
+Cmetatarsalgia
+Cratas articulares
+Cluxación de cadera, reducción incruenta
+Cresección de exostosis y bursitis (operación de haglund)
+Cdesgarro muscular de cara anterior de muslo
+Bluxación recidivante de rótula
+Bdesgarro muscular de cara aposterior de muslo
+Bbiopsia quirúrgica de cadera
+Bextirpación de aponeurosis plantar hasta 3 dedos
+Bpatelectomía - osteosíntesis de rótula
+Bmeniscectomía
+Bretoque de muñon
+Bexploración de heridas en partes blandas
+Bplástica de cuadriceps
+Bosteotomía correctora de pie
+Bacortamiento de los metatarsianos
+Bsinovectomía
+Bhallux valgus completo unilateral
+Blimpieza quirúrgica de fractura expuesta (no fémur)
+Bextracción de clavo intramedular
+Bextracción de prótesis de rodilla, un elemento
+Bpie plano unilateral
+Bartrodesis de pie y tibioastragalina
+Bartrodesis de rodilla
+Bamputación de pierna
+Bosteotomía correctora de tibia o peroné
+Btendón de aquiles, plástica
+Bquiste - tumor de hueso poplíteo
+Bexéresis de neuroma de morton
+Bdisplacia de cadera
+Bepifiolisis de cadera
+Bosteosíntesis de tarso o metatarso hasta 2 huesos
+Bamputación de muslo, pie o antepie
+Bresección parcial de hueso infeccioso o tumoral
+Apie bot unilateral
+Aextracción prótesis total de rodilla
+Aosteosíntesis de tibia o peroné o tobillo (calcáneo - astralago)
+Afractura expuesta de fémur
+Aosteosíntesis de fémur (kunntcher y otras)
+Aartrodesis de cadera
+Areducción cruenta de luxación de cadera
+Aextracción de prótesis total de cadera
+Areparación ligamentaria de rodilla - ligamento laterales o cruzados (convencional)
+Areemplazo parcial de cadera
+Aresección parcial de cadera
+Acadera en resorte
+Aosteosíntesis tarso o metatarso más de 2 huesos
+Aplástica de ligamentos de rodilla no cruzados
+Apie cavo o equino
+Apie zambo, varo, equino supinado
+Agran cirugía reconstructora de pie
+Areducción de fractura o luxación de cócix
+Afractura bimaleolar de tobillo o platillo tibial
+Aosteoplastía de tibia o peroné - alargamiento, acortamiento, epifiolisis, injerto de huesos, seudoartrosis, consolidación viciosa tibia o peroné
+Adesarticulación coxo femoral
+Areemplazo total de cadera
+Areemplazo total de fémur
+Areemplazo total de rodilla
+Aluxación congénita de cadera, cruenta con o sin osteotomía
+Aamputación interilioabdominal
+Atrasplante oseo en procedimientos primarios
+Atrasplante oseo intercalares
+Atrasplante oseo osteoarticulares
+Aextracción de prótesis y reemplazo (mismo acto)
+Areimplante de miembro inferior
+Atrasplante oseo combinados con prótesis
+Atrasplante oseo con artroplastías primarias
+Atrasplante oseo en revisión de artroplastías
+ARevision de cadera
+ARevision de rodilla
+>Cintura Escapular
+Boperación de hueso escapular
+Bexploración de hombro doloroso
+Bluxación recidivante de hombro
+Aresección de clavícula o acromio
+Aosteosíntesis clavicular
+Aescápula alata
+Amanguito rotador plástica (no artroscópico)
+Adesarticulación del brazo
+Acirugías artroscópica de hombro
+Acirugía artroscópia de codo
+>Cintura Pelviana
+Creducción incruenta de luxación de cadera
+Bdiastasis del pubis
+Bresección parcial de pelvis infecciosa o tumoral
+Areducción cruenta de fractura de pelvis
+Aamputación interiliofemoral
+Aartroscopía de cadera
+Aosteosíntesis de fractura de pelvis
+>Neurocirugía de Columna
+Cmovilización (quiropraxia )
+Bextirpación de cócix
+Bbiopsia de vértebra
+Areducción cruenta de luxación o fractura de columna sin fijación
+Ahernia de disco dorsolumbar
+Aexploración de columna por vía anterior
+Areducción incruenta cervical o dorsal
+Ahernia de disco cervical un espacio vía posterior
+Aoperación de frikolm (hasta 2 discos)
+Avertebroplastía cada una
+Ahernia de disco dorsolumbar múltiple
+Atorticolis congénita
+Aartrodesis dorsal, lumbar o sacra (hasta 3 vértebras)
+Aartrodesis dinámica (colocación de espaciadores)
+Asindrome apicotransverso
+Areducción de columna con fijación hasta 7 horas
+Aartrodesis cervical
+Aplástica canal estrecho con discectomía hasta 2 espacios
+Ahernia de disco cervical por vía anterior
+Acolocación de prótesis cervical o dorsal o lumbar
+Aextracción de prótesis de columna
+Aresección parcial osea infecciosa o tumoral (coporectomía)
+Aartrodesis cervico-dorso-lumbar
+Aplástica canal estrecho con discectomía más de 2 espacios
+Acirugía de columna por fibroscopía
+Aprótesis de columna más de 7 horas de cirugía
+Aintervención quirúrgica correctora de columna vertebral (escoliosis, lordosis, cifosis) hasta 7 horas
+Arevisión de fijación de columna
+Aintervención quirúrgica correctora de columna vertebral (escoliosis, lordosis, cifosis) más de 7 horas
+BRevision de herida quirurgica en columna
+AReintervención dentro de las primeras 24 hs
+AReintervencion entre 24 hs y 72 hs
+>Cara
+Creducción incruenta de luxación de maxilar
+Bmeniscectomía maxilar
+Bfijación interdentaria
+Aosteosíntesis malar o maxilar (hasta 2 placas)
+Aosteosíntesis malar o maxilar más de 2 placas
+#OTORRINOLARINGOLOGIA
+>Oído
+Cescisión de lesiónn local de CAE
+Cincisión y drenaje de aurícula
+Csutura de pabellón auricular
+Cincisión y drenaje de CAE y /o biopsia
+Cextracción de cuerpo extraño de CAE
+Cotoplastía de lóbulo hendido
+Cextirpación de coloboma auris
+Cmiringotomía (paracentesis) unilateral
+Bmiringotomía (paracentesis) unilateral con colocación de drenaje (diábolos o similar)
+Cmolivización de estribo, unilateral
+Cpunción de antromastoideo
+Bmiringoplastía unilateral
+Btimpanoplastía unilateral
+Bplástica de pabellón auricular unilateral
+Bcirugía de agenesia de CAE unilateral
+Bresección de osteoma de CAE
+Bmastoidectomía simple unilateral
+Bmastoidectomía radical (operación radical de oído) unilateral
+Aantrotomía o atico-antrotomía unilateral
+Bcierre de fístula mastoidea
+Aestapedectomía unilateral
+Alaberintectomía unilateral
+Afenestración del conducto semicircular externo, unilateral
+Acirugía del saco endolinfático, unilateral
+Atimpanomastoidectomía, unilateral
+Acirugía de la 2da y 3ra porción del nervio facial, unilateral
+Acirugía del CAI y su contenido, unilateral
+Acirugía 1ra porción del facial, nervio auditivo o vestibular, cualquiera fuera la vía de abordaje, unilateral
+Aagenesia del oído medio (cirugía plástica) , unilateral
+Acirugía del glomus yugularis, unilateral
+Afractura de peñasco (tratamiento quirúrgico), unilateral
+Aneurinoma del acústico por vía óptica (tratamiento quirúrgico)
+>Nariz y Senos Paranasales
+Cpunción de seno con o sin inserción de sonda o biopsia de seno paranasal
+Ctaponaje anterior o posterior
+Csutura o biopsia de nariz - extracción de cuerpo extraño de fosa nasal
+Cescisión de pólipo retrocoanal unilateral
+Cendoscopía nasal diagnóstica
+Bresección de lesión local endonasal de septum, cornetes, hematoma septal o drenaje de septum)
+Cextirpación de pólipos nasales unilateral
+Bsinusotomía frontal externa (trepanación de seno frontal)
+Bturbinectomía parcial o completa simple (única o múltiple)
+Bresección submucosa de cornete inferior
+Bpunción de seno esfenoidal
+Bseptumplastía o resección de tabique nasal (operación de killian o similar)
+Bextirpación pólipos por endoscopías unilateral
+Breconstrucción diferida de pirámide nasal con colgajo
+Bescición de tumores endonasales por rinotomia lateral
+Bsinusotomía maxilar simple
+Bsinusotompia maxilar radical
+Bsinusotomía frontal radical por vía externa
+Bsinusotomía esfenoidal
+Betmoidectomía interna
+Bcierre de fístula oral del seno maxilar (bucoantral)
+Arinoseptumplastía
+Acirugia videoendoscopica rinosinusal unilateral
+Atumores etmoidales
+Acierre de fístula meningea por vía transinusal
+Asinusotomías combinadas (frontal, etmoidal, etc.) por vía externa transmaxilar
+Acirugía de fosa pterigo-maxilar (exploración, escisión de tumores, etc.) con o sin septumplastía
+Aatresia de coanas por vía palatina - sinusotomía combinada endoscópica
+Breduccion de fractura de nariz
+>Boca y Lengua
+Csección de frenillo lingual
+Csialografía
+Cescisión local de lesión de labio
+Cincisión y drenaje, biopsia o sutura de labio
+Cbiopsia de encia
+Cglosotomía con drenaje de absceso o hematoma
+Cglosoplastía
+Cextracción de cuerpo extraño o sutura de lengua
+Cescisión de lesión localizada superficial de lengua
+Cincisión y drenaje de paladar, absceso
+Cbiopsia o sutura de paladar
+Cpapilotomía del conducto de warthon o stenon
+Csutura de encia
+Bextracción cruenta de cálculos salivales
+Bextirpación de ranula
+Bincisión y drenaje de glándula parotidia o submaxilar
+Cincisión y drenaje, biopsia o sutura de piso del boca o mejilla
+Cbiopsia de glándula saliaval
+Bquiste de maxilar, pieza dental incluida
+Bcierre de fístula externa de boca
+Bpalatoplastía
+Bgingivectomía parcial por tumores
+Bextracción dentaria hasta tres piezas
+Bparotidectomía de lóbulo superficial
+Bgingivectomía total ampliada
+Bescisión radical de glándula submaxilar
+Barreglos hasta cuatro piezas
+Aresección parcial de paladar
+Aparotidectomía total
+Aoperación comando de encias o trigonoretromolar
+Aescisión de lesión primaria de encias más vaciamiento cervical
+Aescisión ampliada de mucosa yugal y recomposición inmediata con injerto o colgajo (incluye toma)
+Aestomatoplastía con injerto (incluye toma)
+Aglosectomía subtotal ampliada
+Aextracción dentaria piezas múltiples (mas de tres piezas)
+Areconstrucción total de paladar inmediata con injerto o colgajo
+Aresección total de paladar
+Aoperación comando de paladar blando
+Aoperación comando de glándula submaxilar
+Aoperación comando de piso de la boca
+Aglosectomía total - operación comando de lengua
+Aarreglos más de cuatro piezas
+>Laringe
+Btraqueostomía como única operación
+Bmicrocirugía de laringe
+Blaringoplastía o cordopexia o aritenoideopexia
+Bincisión y drenaje de laringe, absceso, pericondritis, etc.
+Blaringotomía mediana o laringofisura o cricotomía o laringografía como única operación
+Alaringuectomía parcial
+Alaringuectomía total
+Alaringuectomía radical con vaciamiento cervical
+Alaringofaringuectomía
+Alaringofaringuectomía con vaciamiento cervical
+>Faringe
+Cincisión y drenaje de amigdalas o tejido periamigdalino
+Cresto amigdalectomía o resto de adenoamigdalectomía
+Cescisión o electrocoagulación de amigdalas lingual
+Cbiopsia de faringe o amigdala, faringe, biopsia de lesión nasofaringea
+Cexploración, extracción de cuerpo extraño, incisión y drenaje de tejido retrofaringeo por vía oral
+Bamigdalectomía o adenoidectomía
+Badenoamigdalectomía
+Bhemorragia post adenoamigdalectomía
+Bcierre de faringostomía
+Bsutura de faringe
+Bescisión de divertículo faringoesofágico, faringe, fístula branquial o quiste branquial o vestigio
+Afaringoplastía
+Asomnoplastía
+Afaringuectomía parcial
+Aescisión radical de tumor de nasofaringeo
+Aoperación comando de faringe con vaciamiento
+>Endoscopía ORL
+Cpolipectomía nasal endoscópica unilateral
+Betmoidectomía endoscópica
+Bcirguia videoendoscopica rinosinusal
+Bsinusotomía combinadas endoscópicas
+#OFTALMOLOGIA
+>Orbita
+Bexcenteración del contenido orbitario
+Borbitotomía con escisión de lesión de orbita con extracción de cuerpo extraño, con exploración, biopsia, drenaje
+Breparación plástica de orbita, con o sin injerto de piel
+Aexcenteración del contenido orbitario con resección total de maxilar superior
+>Músculos Oculares
+Bestrabismo - dos músculos
+Bestrabismo más de dos músculos
+Aestrabismo más de cuatro músculos
+Aestrabismo bilateral
+>Globo Ocular
+Cneurotomía del nervio óptico
+Benucleación ocular
+Bevisceración ocular
+Bhipema
+Bherida penetrante de ojo
+Bextracción de cuerpo extraño endoocular
+Baspiración, lavado e implante de vitreo
+Avitrectomía
+>Parpados
+Cabsceso de párpado
+Cchalazión
+Corzuelo
+Cextracción de puntos de párpados
+Cescisión de lesión local de párpados
+Cherida de párpado
+Ctarsorrafía
+Bptosis palpebral
+Bblefaroplastía unilateral
+Breconstrucción total de párpado (unilateral)
+>Conjuntiva
+Cextracción de punto de conjuntiva
+Cextracción de cuerpo extraño superficial (conjuntiva)
+Csutura de conjuntiva
+Cescisión de lesión conjuntival
+Cconjuntivoplastía unilateral
+>Cornea
+Cfulguración corneal con o sin raspado
+Cqueratosentesis
+Cestafiloma
+Csutura de cornea
+Bsutura de herida de cornea con prolapso de iris y o herida de cristalino
+Ainjerto de cornea (unilateral)
+>Iris y Cuerpo ciliar
+Cdiatermia o crioaplicacion escleral
+Boperación correctora de glaucoma
+>Retina
+Caplicación de láser en retina
+Cfotocoagulación de retina
+Bretinopexia (diatermia y o crioaplicacion)
+Bretinopexia y esclerectomia
+Aretinopexia con o sin esclerectomia e implante, o con endoláser y vitrectomía posterior e inyección de sustancias (aceites de siliconas )
+>Esclera
+Besclerotomia
+Besclerotomia con extracción de cuerpo extraño intraocular
+Binjerto de esclera
+>Cristalino
+Ccapsulotomia (cristalino)
+Cfacoemulsificacion con asistencia anestesiológica
+Bextracción de masas cristalinas
+Bfaco con anestesia para bulbar
+Bfacofragmentacion y facoexeresis
+Bextracción intracapsular de cristalino
+Bextracción extracapsular de cristalino
+Aimplante secundario de lente intraocular
+Afacoexeresis con implante de lente intraocular
+>Vía Lagrimal
+Csondaje y lavado de via lagrimal unilateral
+Cdrenaje de glandula y o saco lagrimal unilateral
+Bherida de via lagrimal
+Bplastica de via lagrimal unilateral
+Adacricistorrinostomia
+Adacriocistorrinoanastomosis
+#NEUROCIRUGIA
+>Generalidades
+Cpunción transfontanoidal
+>Nervios Periféricos
+Cneurolisis extracraneal
+Cbloqueo extracraneal antalgico
+Cneurolisis de nervios perifericos
+Cinyeccion paravertebral de troncos y ganglios simpaticos
+Btransposición del cubital
+Btúnel carpiano – resección tumoral de nervio periférico
+Bneurotomía infra o supraorbitaria, suboccipital, temporal superior
+Bneurotomía del facial , glosofaríngeo o neumogástrico cervical
+Binjerto o anastomosis facial, hipogloso o similar
+Bexploración de plexo cervico-braquial
+Bresección de plexo hipogástrico
+Bneurorrafia con o sin injerto de un solo nervio
+Aexploración de plexo lumbo-sacro
+Aneurotomía trigeminal, vestibular o glosofaríngeo
+Bliberación nervio cubital
+Bliberación nervio mediano
+Bliberación nervio radial
+Aintervenciones en nervios ópticos
+>Sistema Neurovegetativo
+Bsimpatectomía periarterial
+Bsimpatectomía lumbar
+Bsimpatectomía cervical
+Asimpatectomía toracica
+Asimpatectomía lumbar o toraxica por laparoscopía
+>Raquis
+Cmielografia – punción raquídea diagnóstica
+Ahernia de disco lumbar
+Alaminectomia descompresiva
+Arizotomia ligamento dentado
+Ahernia de disco cervical
+Aespina bifida
+Ameningocele
+Acordotomia
+Alesiones adquiridas o congénitas vertebro-meningo-medulares
+Aaneurismas medulares- Aneurismas o malformaciones AV medulares
+>Cráneo y Cerebro
+Carteriografia cerebral por cateterismo
+Bneumoencefalografia
+Bextracción de tubo de derivación
+Bdrenaje ventricular continuo
+Bpunción ventricular por trepanación
+Bneurolisis transoval del trigemino
+Bpanarterectomia o panarteriografía cerebral
+Brevisión de válvulas
+Adiagnóstico estereotaxico para estudios de epilepsia
+Areducción de fractura expuesta de cráneo
+Alesión tumoral de los huesos del cráneo
+Aevacuación por punición de colección intracerebral o extracerebral
+Acraneotomia exploradora – colocación de catéter p/ pic
+Adescompresión orbitaria
+Arecambio de vávulas
+Aderivación ventrículo peritoneal
+Ahematoma extradural
+Aencefalomeningocele
+Acraneoplastía
+Areparación de senos craneales
+Aextracción de cuerpo extraño de cerebro
+Ahematoma cerebral intradural
+Aventriculocisternotomia
+Atractotomia
+Acraneoestenosis
+ANeuroendoscopía (hasta 6 horas)
+Alobectomia
+Atumor cerebral intracraneal
+Aaneurisma cerebral único
+Aintervensiones estereotaxicas
+Atumor de fosa posterior (Arnold-Chiari)
+Atumor de hipofisis
+Ahipofisectomia transeptoesfenoidal
+Aimplante de material radioactivo en cerebro
+ATratamiento endovascular aneurisma cerebral
+ATratamiento de seudoaneurisma con o sin colocación de stent
+ATratamiento de aneurisma- coils mas stent
+ATratamiento endovascular de malformación arterio-venosa
+Aneuroendoscopía (más de 6 horas)
+Atumor cerebral más de 7 horas
+Atumor de fosa posterior más d 7 horas
+Atumor de hipofisis más de 7 horas
+Aby-pass temporo-silviano
+ATratamiento Endovascular de dos o mas aneurismas cerebrales
+BRevision de herida quirurgica en cerebro o craneo dentro de las primeras 24 hs
+AReintervención dentro de las primeras 24 hs
+AReintevencion entre las 24 hs y 72 hs
+#CARDIOVASCULAR
+>Vasos Periféricos
+Ccanalización de venas o arterias como único procedimiento
+Ccanalizacion arterial para monitoreo
+CColocación vía central o catéter para quimioterapia
+Cflebografia de miembros
+Cligadura unilateral de troncos profundos de miembros
+Bsafenectomia externa unilateral
+Bsafenectomia interna unilateral
+Bembolectomia de arteria periferica
+Bexploración de arteria periferica
+Boperación de cigorraga
+Bflebectomia segmentaria, varices residuales como única operación
+Bsafenectomia interna unilateral con o sin comunicantes
+Bvarices no residuales - microcirugía
+Bfistula arterio-venosa para hemodialisis
+Boperación de linton como único procedimiento
+Boperación de gockett como único procedimiento
+Barteriografia
+BAngiografía del cuello
+BAngiografia de vasos uterinos
+BAngiografía medular
+BAngiografía control tratamiento aneurisma
+BAngiografía de vasos miembros inferior o superior
+Btromboendarterectomia de vasos periféricos
+Baneurisma de fístula arterio-venosa
+Bangioplastia de un vaso periférico con o sin stent
+Btrombectomia venosa profunda
+Bsafenectomia interna unilateral con flebectomia segmentaria o varices residuales
+Bsafenectomia interna unilateral con exeresis escalonada de multiples colaterales de pierna y muslo
+BTratamiento con laser más flebectomía segmentaria
+Aby-pass de vasos perisfericos unilateral – derivación aorto-ilíaca, o femoral
+Aligadura subaponeurotica de perforantes directas , más safenectomía interna unilateral con exeresis escalonadas de colaterales insuficientes de pierna y muslo (unilateral)
+Aoperacion de gockett, más safenectomía interna unilateral con exeresis escalonada de múltiples colaterales insuficientes de pierna y muslo unilateral
+Aangioplastia de mas de un vaso con o sin stent
+Aderivacion aorto-renal
+Atumor de glomus carotideo
+>Grandes Vasos
+Caortografia por punción – colocación de vía central
+Bsutura o ligadura de vasos profundos del cuello
+Bcavografia torácica o abdominal – colocación de portacath
+Bcolocación de filtros en la vena cava
+Bcirugía de vena cava
+Acirugía de ramas de la aorta abdominal
+Acirugía de carótida
+Aderivación aorto-iliaca con o sin simpaticectomia
+Acirugía de los grandes troncos arteriovenosos de tórax
+Aderivación aorto-bifemoral
+Aanastomosis portocava o espleno-renal
+Aaneurisma de aorta abdominal no complicado
+Aendoprótesis toracico-abdominal
+AEndoprótesis abdominal mas by-pass femoral-femoral o biiliaco
+AEndoprótesis aorto- biiliaco
+ATratamiento endovascular de arterias uterinas
+ATratamiento endovascular de seudoaneurisma periférico
+ATratamiento quirúrgico de seudoaneurisma de arteria humeral o femoral
+Aaneurisma de aorta abdominal complicado
+Aaneurisma del cayado de la aorta ascendente o descendente
+Aendoprótesis toracico más by pass carotideo
+Aendoprótesis toracico-abdominal más embolización arteria renal
+AEndoprótesis arteria abdominal o arteria iliaca
+ATratamiento Quirúrgico de seudo-aneurisma de arteria humeral o femoral con colocación de by pass o Prótesis
+>Corazón
+Bcolocación de marcapaso endocavitario
+Ccambio de generador
+Cpericardiosentesis
+Bcateterismo cardiaco para toma de presiones y muestras de sangre
+Cretiro de cables endocavitarios
+Bimplantación de circulación asistida - coronariografía
+Bcateterismo mas angiocardiografia
+Cestudio electrofisiológico
+Bbiopsia de pericardio
+Bpericardiotomía
+Bpericardiectomía no constrictiva
+Bcolocación de marcapaso epicardico
+Bablación de arritmias
+Acardiorrafia
+Aangioplastia coronaria - ductus
+Adesfibrilador interno (colocación)
+Aseptostomia interauricular (blalock- hannoq)
+Apericardiectomia amplia (pericarditis contrictiva)
+Aangiosplastía coronaria mas stent
+Aseptostomía auricular (Blaloc – Hannoq)
+AReintervención dentro de las primeras 24 hs (practica de origen 12.03.01 a 12.03.21)
+Avalvuloplastía mitral, aortica o pulmonar
+Aby-pass aorto-coronario simples
+Acierre de defectos septales congénitos simples
+Avalvuloplastia mitral , aortica o pulmonar
+Aby-pass mamario-coronario
+Aaneurisma ventricular
+Aanuloplastia mistral y tricuspidea
+Aelectro fisiologia para tratamiento de arritmias
+Areemplazo valvular unico
+Acierre de defectos septales adquiridos
+Aby-pass aorto-coronario múltiple
+Aderivación pericardio-peritoneal/ ventana pleuro-pericardica
+Acardiomioplastía
+Aablación de corazón
+Areemplazo valvular o bivalvular con cirugía de revascularización
+ATumoración cardiaca
+AToilette cardiaco post-quirúrgico con o sin extracción de alambres
+Ainsuficiencia mitral con civ post infarto
+Areemplazo de una válvula cardiaca y plástica de otra
+Acardiopatias congénitas complejas
+Acirugía coronaria o valvular por minitoracotomía
+Areemplazo bivalvular
+AReoperación alejada más de 24 hs, cambio valvula , by pass, prótesis, banding
+Atrasplante de corazón
+#VASOS Y GANGLIOS LINFATICOS
+>Ganglios Linfáticos
+Cpunción de ganglio
+Cbiopsia de ganglios linfáticos o exeresis
+Cdisección quirúrgica para linfoadenografia
+Blinfadenectomía cervical, axilar o inguinal como única operación
+Bescisión de lesión de conductos linfáticos (linfangioma higroma)
+Aresección de plexos hipogástricos
+Avaciamiento ganglionar lumbo-aortico
+#CIRUGIA REPARADORA
+>Generalidades
+Csutura de herida simple
+Cbiopsia de piel excepto cabeza y cuello
+Cnevus, extirpación, hasta 3 excepto cabeza y cuello
+Cpapilomas, extirpación hasta 5, excepto cabeza y cuello
+Cdrenaje de hematoma, excepto cabeza y cuello
+Cquiste sebaceo, extirpación, excepto cabeza y cuello
+Cbiopsia de piel en cabeza o cuello
+Cabsceso, drenaje en cabeza o cuello
+Cnevus, extirpación, hasta 3 en cabeza o cuello
+Cquiste sebaceo, extirpación en cabeza o cuello
+Cpapilomas, extirpación, más de 5 cm
+Ctumor benigno de más de 5 cm
+Cinjerto de piel
+Ccicatriz , resección simple
+Cangioma, inyección esclerosante
+Cescara, resección con el paciente en decúbito dorsal o lateral
+Cquiste sacro-coxigeo
+Bcolgajo diferido
+Bcolgajo de vecindad
+Clipoma, resección con el paciente en decúbito dorsal o lateral
+Bgran cicatriz, resección - zetoplastía
+Bnevus, resección de más de 3 excepto en cabeza y cuello
+Bnevus, resección de más de 3 en cabeza y cuello
+Bangioma , extirpación
+Btumor benigno de más de 5 cm, extirpación y cierre plástico
+Cqueloide, resección
+Cqueloide, tratamiento intralesional sin reseccion
+Bcicatriz retractil de cuello, resección e injerto
+Bresección de tumor maligno externo con reconstrucción plástica
+Bcolgajo miocutaneo
+Acolgajo alejado
+Acierre de grandes defectos con combinación de varios colgajos
+Acolgajos libres con microcirugía vascular
+>Cara
+Bextracción de cuerpo extraño profundo
+Brinofina
+Bsecuelas de paralisis facial en todas sus formas
+Aimplante capilar
+>Cejas y Párpados
+Ctarsorrafia
+Cectropion simple
+Ccantotomia externa
+Cepicanto
+Cblefaroplastía simple, no estetica
+Cinjerto libre de ceja
+Ccoloboma de párpado, reconstrucción simple
+Ccolgajo en isla, reparación de ceja
+Btelecanto
+Bptosis de párpado
+Areconstrucción de cavidad orbitaria
+>Órbita
+Bfractura simple de orbita, reducción y osteosintesis
+Bresección de tumor, intraorbitario mediante orbitotomia
+Breconstrucción parcial de orbita
+Afractura compleja de orbita, reducción, osteosintesis o injerto
+Areseccion de tumor de orbita c/ reseccion ósea y reconstrucción inmediata
+Aexoftalmia endocrina o de otras causas
+Areconstrucción total de orbita con injerto por tumores esfenoorbitarios o anoftalmia congénita
+Ahipertelorismo, fisura facial mediana
+>Bóveda Craneana
+Acraneoplastía
+Aremodelación de la bóveda craneana (turricefalia, plagioce falia)
+>Naríz
+Creducción de fractura nasal
+Crinoplastía simple, no estética
+Cextirpación parcial de nariz
+Cnariz leporina compleja
+Brinoplastía compleja con o sin injerto, no estética
+Breconstrucción nasal parcial
+Afractura nasal asociada (naso-orbitaria , etc. )
+Areconstrucción total de nariz mediante colgajos
+>Maxilares y Huesos Faciales
+Cincisión y drenaje de lesión dentaria
+Cextirpación dentaria
+Cbiopsia ósea
+Cfractura simple
+Cextracción dentaria hasta 3 piezas
+Cretromentonismo no estético
+Btumor óseo, extirpación
+Banquilosis temporo mandibular, unilateral
+Bextracción dentaria múltiples
+Atumor óseo, extirpación- reconstrucción
+Aanquilosis temporo-mandibular bilateral
+Amicrosomia hemifacial, osteotomias e injertos oseos en mandibula
+Amaxilar inferior: prognatismo - retrognatismo
+Aobturación dentaria mas de 4 piezas
+Afractura compleja de maxilares y huesos de la cara
+Amaxilar superior: pronasia - retronasia
+Afisura congénita del esqueleto facial ( treacher- collins, etc. )
+Aosteotomía craneo facial sin tiempo neuroquirúrgico (crouzon apert, etc. )
+Aosteotomía craneofacial con tiempo neuroquirúgico
+>Labios
+Cbermellectomia
+Cresección cuneiforme de labio
+Cectropion de labio
+Ccomisuroplastía
+Bheridas complejas de labio
+Bcolgajo para reconstrucción parcial de labio
+Blabio leporino unilateral incompleto
+Bcolgajo de vecindad o a la distancia para reconstrucción total de labio
+Alabio leporino unilateral completo
+>Paladar
+Cpalatorrafia
+Cestafilorrafia
+Bpalatoplastía
+>Oreja
+Clóbulo hendido de oreja
+Cmicrotia, reconstrucción en varios tiempos
+Camputación de oreja
+Coreja en asa y otras malformaciones
+Breconstrucción de oreja parcial o total mediante colgajos y o injertos
+Breconstrucción de conducto auditivo externo
+Areimplante de oreja con microcirugía vascular
+>Cuello
+Cbiopsia de ganglios linfáticos de cuello
+Ccierre de traqueostomía
+Bextracción de cuerpo extraño profundo de cuello
+Bquiste congénito (tirogloso , etc)
+Bfístula congénita de cuello
+Bcierre de colgajo de faringostoma
+Bvaciamiento radical unilateral de cuello
+>Mamas
+Bginecomastia unilateral
+Bmama supernumeraria unilateral
+Breconstrucción de areola o pezón
+Bimplante mamario unilateral en cirugía reconstructiva
+Aimplante mamario unilateral más pexia
+Amastomegalia, cirugía reductora no estética unilateral
+Areconstrucción mamaria con colgajo cutáneo o miocutaneo
+Areductiva bilateral
+>Abdomen y Genitales
+Creconstrucción de ombligo
+Breconstrucción de vulva
+Breconstrucción de pene y o escroto
+ADermolipectomía
+ALiposucción abdomen
+Ahipospadia, epispadia, cada tiempo
+Areconstrucción de pared abdominal
+ADermolipectomía con ombligo
+>Miembros
+Bpolidactilia
+Bsindactilia
+Aliposucción de cadera
+ALiposucción de muslo
+Areimplante total o parcial de miembro con microcirugía
+>Quemados
+Bresección de escara
+Ccuración de un quemado hasta el 30%
+Bcuración de un gran quemado, mas del 30%
+Agrandes quemados, injertos
+#CIRUGÍAS ESTÉTICAS REPARADORAS autorizadas por la Obra Social
+>Generales
+CCicatriz reseccion simple
+CCapsulectomia
+BDiastasis de Rectos
+BDermoabrasion
+BGinecomastia unilateral-mama supernumeraria
+BBlefaroplastia Unilateral
+BRinoplastia estetica
+BCicatriz grande, reseccion, zetoplastia
+BColocacion de Expansores Mamarios
+BFLAP unilateral incompleto
+AImplante de protesis UNILATERAL
+ACambio Implante Unilateral
+ACicatirz retractil en cuello reseccion e injerto
+ACuadrantectomia c/ Vaciamiento Axilar
+AExpansor Cuero Cabelludo
+AFLAP unilateral completo
+AImplantes gluteos
+ALaser Panfacial
+ALipoaspiracion hasta 2 zonas
+AMastectomia Subradical - mastoplastia unilateral
+APexia Mamaria Unilateral
+ARinoseptumplastia
+AAbdominoplastia
+AAbdominoplastia Vert-Horiz
+ADermolipectomia
+ADorsal Ancho
+ALifting
+ALifting Completo
+ALipoaspiracion hasta 3 zonas
+AMastectomia Radical con Vaciamiento Ganglionar
+APexia + Implante de Protesis Unilateral
+AReductiva Mamaria Unilateral
+ATRAM
+ALifting Endoscopico
+ALipoaspiracion hasta 4 zonas`;
+const NOMENCLADOR = (() => {
+  const out = [];
+  let g = '', s = '';
+  NOM_TXT.split('\n').forEach((l) => {
+    if (!l) return;
+    if (l[0] === '#') { g = l.slice(1); s = ''; return; }
+    if (l[0] === '>') { s = l.slice(1); return; }
+    out.push({ i: out.length, g, s, p: l.slice(1), m: l[0] === '-' ? '' : l[0] });
+  });
+  return out;
+})();
+
+/* Capítulo del nomenclador → servicio del HRU. Define qué prácticas se le
+   ofrecen primero a cada cirujano en el buscador. El módulo, en cambio, se
+   imputa siempre al servicio declarado en el turno. */
+const NOM_SERVICIO = {
+  'ABDOMEN': 'Cirugía General',
+  'PROCTOLOGIA': 'Cirugía General',
+  'TORAX': 'Cirugía General',
+  'ENDOCRINAS': 'Cirugía General',
+  'GINECOLOGIA': 'Ginecología',
+  'OBSTETRICIA': 'Obstetricia',
+  'UROLOGIA': 'Urología',
+  'ORTOPEDIA': 'Traumatología y Ortopedia',
+  'OTORRINOLARINGOLOGIA': 'ORL',
+  'OFTALMOLOGIA': 'Oftalmología',
+  'NEUROCIRUGIA': 'Neurocirugía',
+  'CARDIOVASCULAR': 'Cirugía Cardiovascular',
+  'VASOS Y GANGLIOS LINFATICOS': 'Cirugía General',
+  'CIRUGIA REPARADORA': 'Cirugía Plástica',
+  'CIRUGÍAS ESTÉTICAS REPARADORAS autorizadas por la Obra Social': 'Cirugía Plástica',
+};
+function servicioDePractica(pr) {
+  if (!pr) return '';
+  if (pr.g === 'ORTOPEDIA' && pr.s === 'Neurocirugía de Columna') return 'Neurocirugía';
+  if (pr.s === 'Endoscopias abdominales') return 'Endoscopía Digestiva';
+  return NOM_SERVICIO[pr.g] || 'Otro';
+}
+
+/* Módulos del nomenclador. El color acompaña a la letra en toda la app. */
+const MODULOS = {
+  A: { label: 'Módulo A', color: '#8b5cf6', desc: 'Alta complejidad' },
+  B: { label: 'Módulo B', color: '#2980d9', desc: 'Complejidad intermedia' },
+  C: { label: 'Módulo C', color: '#1fa971', desc: 'Baja complejidad' },
+};
+const MOD_LETRAS = ['A', 'B', 'C'];
+/* Roles que perciben módulo por un acto quirúrgico. */
+const MOD_ROLES = ['Cirujano', '1er Ayudante', 'Anestesiólogo/a'];
+/* Valores unitarios de referencia. Los actualiza la Dirección Médica desde la
+   solapa Módulos y quedan compartidos en la nube para todos los equipos. */
+const MOD_VALORES_DEF = { A: 120000, B: 80000, C: 45000 };
+
+/* Búsqueda sin tildes y por palabras sueltas: «hernia ing» encuentra
+   «hernia inguinal en adultos (no complicadas) unilateral». */
+const sinTildes = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const NOM_INDICE = NOMENCLADOR.map((r) => sinTildes(r.p));
+const NOM_INDICE_CTX = NOMENCLADOR.map((r) => sinTildes(r.p + ' ' + r.s + ' ' + r.g));
+/* Prioridad de los resultados: primero lo que coincide en el nombre de la
+   práctica (y dentro de eso, lo del propio servicio); recién después lo que
+   coincide solo por el capítulo o la sección del nomenclador. Sin esta
+   distinción, buscar «cesarea» devolvería toda la sección «Parto - Cesáreas». */
+function buscarPracticas(q, servicio, limite) {
+  const t = sinTildes(q).split(/\s+/).filter(Boolean);
+  if (!t.length) return [];
+  const cubos = [[], [], [], []];
+  for (let i = 0; i < NOMENCLADOR.length; i++) {
+    const enNombre = t.every((w) => NOM_INDICE[i].indexOf(w) >= 0);
+    if (!enNombre && !t.every((w) => NOM_INDICE_CTX[i].indexOf(w) >= 0)) continue;
+    const propia = servicioDePractica(NOMENCLADOR[i]) === servicio;
+    cubos[(enNombre ? 0 : 2) + (propia ? 0 : 1)].push(NOMENCLADOR[i]);
+  }
+  return cubos[0].concat(cubos[1], cubos[2], cubos[3]).slice(0, limite || 40);
+}
+
+
 /* ================= CONFIGURACIÓN DEL BLOQUE ================= */
 const BLOQUE = {
   quirofanos: SALAS.map((s) => s.nombre),
@@ -1203,7 +2789,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.2.1';
+const APP_VERSION = '2.3.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -1415,15 +3001,15 @@ const FIREBASE_CONFIG = {
    3. Si la nube está caída, la escritura se encola y se reenvía al reconectar.
    4. Cada snapshot de la nube también se espeja en localStorage, de modo que
       la próxima apertura sin red muestre los últimos datos conocidos. */
-const COLS = ['incidencias', 'cirugias', 'usuarios', 'reclamos', 'agenda', 'consentimientos'];
+const COLS = ['incidencias', 'cirugias', 'usuarios', 'reclamos', 'agenda', 'consentimientos', 'config'];
 /* Espejo local con prefijo propio. La app de incidencias embebida corre en el
    mismo origen de GitHub Pages y usa la clave 'hru_incidencias_v2': si ambas
    escribieran ahí se pisarían. Comparten los datos por Firebase (nodo
    'incidencias'), no por localStorage. */
-const LOCAL_KEYS = { incidencias: 'hruq_incidencias_v1', cirugias: 'hruq_cirugias_v1', usuarios: 'hruq_usuarios_v1', reclamos: 'hruq_reclamos_v1', agenda: 'hruq_agenda_v1', consentimientos: 'hruq_consentimientos_v1' };
-const LEGACY_KEYS = { incidencias: 'hru_incidencias_v2', cirugias: 'hru_cirugias_v1', usuarios: 'hru_usuarios_v1', reclamos: 'hru_reclamos_v1', agenda: '', consentimientos: '' };
+const LOCAL_KEYS = { incidencias: 'hruq_incidencias_v1', cirugias: 'hruq_cirugias_v1', usuarios: 'hruq_usuarios_v1', reclamos: 'hruq_reclamos_v1', agenda: 'hruq_agenda_v1', consentimientos: 'hruq_consentimientos_v1', config: 'hruq_config_v1' };
+const LEGACY_KEYS = { incidencias: 'hru_incidencias_v2', cirugias: 'hru_cirugias_v1', usuarios: 'hru_usuarios_v1', reclamos: 'hru_reclamos_v1', agenda: '', consentimientos: '', config: '' };
 const QUEUE_KEY = 'hruq_cola_v1';
-const DB = { incidencias: [], cirugias: [], usuarios: [], reclamos: [], agenda: [], consentimientos: [] };
+const DB = { incidencias: [], cirugias: [], usuarios: [], reclamos: [], agenda: [], consentimientos: [], config: [] };
 const refs = {};
 const forceLocal = new URLSearchParams(location.search).has('local');
 const cloudOn = !forceLocal && typeof firebase !== 'undefined' && !!FIREBASE_CONFIG.databaseURL;
@@ -1585,6 +3171,7 @@ function pintarConexion() {
 
 /* ================= SESIÓN Y ESTADO DE UI ================= */
 let jefe = sessionStorage.getItem('hru_jefe') === '1';
+let director = sessionStorage.getItem('hru_director') === '1';   // Dirección Médica (módulos de todo el hospital)
 let view = 'panel';
 let filtros = { q: '', cat: '', estado: '' };
 let formCat = null;
@@ -2136,6 +3723,9 @@ function refreshView() {
   // No se re-renderizan las vistas con formularios en curso para no perder lo tipeado
   const conFormulario = ['nueva', 'acceso', 'perfil', 'consentimientos'];
   if (conFormulario.includes(view)) return;
+  // En Módulos solo hay campos editables para la Dirección: si está tipeando
+  // uno de ellos, un cambio remoto no se lo puede borrar.
+  if (view === 'modulos' && document.activeElement && document.activeElement.tagName === 'INPUT') return;
   // Los reclamos sí se refrescan en vivo, salvo que haya un asunto o un mensaje
   // a medio escribir: un cambio de otro usuario en la nube no puede borrarlo.
   if (view === 'reclamos' && hayTextoCargado()) return;
@@ -2161,6 +3751,7 @@ function renderSidebar() {
     items.push({ id: 'consentimientos', icon: ico(ICONS.fileText, 18), label: 'Consentimientos Informados', badge: ciPendientesDe(u) || null, badgeAmber: true });
     items.push({ id: 'mis', icon: ICONS.list, label: 'Mis Solicitudes' });
     items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
+    items.push({ id: 'modulos', icon: ICONS.layers, label: 'Módulos Quirúrgicos', badge: modulosIncompletos(u).length || null, badgeAmber: true });
     if (!jefe) items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
     items.push({ id: 'perfil', icon: ICONS.user.replace('14', '18'), label: 'Mi Perfil' });
   }
@@ -2174,6 +3765,12 @@ function renderSidebar() {
     items.push({ id: 'kpis', icon: ICONS.chart, label: 'Indicadores' });
     items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
     items.push({ id: 'usuarios', icon: ICONS.users, label: 'Profesionales' });
+  }
+  // Con sesión de cirujano abierta la solapa ya figura arriba: la de Dirección
+  // es la misma vista, ampliada a todos los servicios.
+  if (director && !u) {
+    items.push({ sep: 'Dirección Médica' });
+    items.push({ id: 'modulos', icon: ICONS.layers, label: 'Módulos Quirúrgicos' });
   }
   $('nav').innerHTML = items.map((it) => it.sep
     ? `<div class="nav-sep">${it.sep}</div>`
@@ -2191,6 +3788,13 @@ function renderSidebar() {
   } else {
     bottom += `<button class="jefe-access" onclick="go('acceso')">${ICONS.userPlus} Acceso Profesional</button>`;
   }
+  bottom += director
+    ? `<div class="jefe-session">
+         <div class="jefe-session-name">${ico(ICONS.shield, 16)} Dirección Médica</div>
+         <div class="jefe-session-sub">Módulos de todos los servicios</div>
+         <button class="jefe-logout" onclick="directorLogout()">${ICONS.logout} Cerrar sesión de dirección</button>
+       </div>`
+    : `<button class="jefe-access" onclick="openDirectorModal()">${ico(ICONS.pieChart, 16)} Acceso Dirección Médica</button>`;
   bottom += jefe
     ? `<div class="jefe-session">
          <div class="jefe-session-name">${ICONS.shield} Jefe de Quirófanos</div>
@@ -2211,12 +3815,16 @@ const TITULOS = {
   perfil: 'Mi Perfil', programacion: 'Programación', confidenciales: 'Incidencias Confidenciales',
   kpis: 'Indicadores', usuarios: 'Profesionales', acceso: 'Acceso Profesional',
   estadisticas: 'Estadísticas Quirúrgicas', consentimientos: 'Consentimientos Médicos Informados',
+  modulos: 'Módulos Quirúrgicos',
 };
 function go(v, silencioso) {
   if (v === 'confidenciales' && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['programacion', 'kpis', 'usuarios'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['solicitud', 'mis', 'perfil', 'consentimientos'].includes(v) && !usuarioActual() && !jefe) { v = 'acceso'; }
   if (v === 'reclamos' && !usuarioActual() && !jefe) { v = 'acceso'; }
+  // Los módulos los consulta el profesional acreditado (solo su servicio) o la
+  // Dirección Médica (todo el hospital, con su propia clave).
+  if (v === 'modulos' && !usuarioActual() && !director) { closeDrawer(); openDirectorModal(); return; }
   // Las estadísticas las consulta cualquier profesional acreditado; el desglose
   // nominal completo queda reservado a la Jefatura dentro de la propia vista.
   if (v === 'estadisticas' && !usuarioActual() && !jefe) { v = 'acceso'; }
@@ -3227,6 +4835,20 @@ function openCirugia(id) {
       <div class="det-row"><b>Recursos</b> ${[c.recursos?.arcoC ? 'Arco en C' : '', c.recursos?.implante ? 'Implante: ' + esc(c.recursos.implanteDetalle || 's/d') : '', c.recursos?.hemoderivados ? 'Hemoderivados' : ''].filter(Boolean).join(' · ') || 'Sin recursos especiales'}</div>
       ${c.horaInicioReal ? `<div class="det-row"><b>Inicio real</b> ${fmtDT(c.horaInicioReal)}</div>` : ''}
       ${c.horaFinReal ? `<div class="det-row"><b>Fin real</b> ${fmtDT(c.horaFinReal)} · duración real ${diffMin(c.horaInicioReal, c.horaFinReal)} min</div>` : ''}
+    </div>
+
+    <div class="det-section">
+      <h4>Módulos quirúrgicos</h4>
+      ${c.modulo
+        ? `<div class="det-row"><b>Práctica</b> ${esc(c.procedimiento)}${c.practica ? ` <small>(${esc(c.practica.g)} · ${esc(c.practica.s)})</small>` : ' <small>(fuera del nomenclador)</small>'}</div>
+           <div class="det-row"><b>Módulo</b> <span class="mod-pill mod-${c.modulo}">${c.modulo}</span> ${MODULOS[c.modulo].desc}</div>
+           <div class="det-row"><b>Equipo</b> ${equipoDe(c).map((p) => `${esc(p.rol)}: ${esc(p.nombre)} (${p.modulo})`).join(' · ') || 'sin cargar'}</div>
+           ${tieneAyudante(c) ? '' : `<div class="banner banner-amber" style="margin:10px 0 0;padding:10px 14px">${ico(ICONS.alertTri, 16)}<div>Falta cargar el <b>cirujano ayudante</b> y su módulo.</div></div>`}`
+        : `<div class="banner banner-amber" style="margin:0;padding:10px 14px">${ico(ICONS.alertTri, 16)}<div>Sin práctica del nomenclador: esta cirugía no genera módulo para nadie.</div></div>`}
+      <div class="det-row" style="color:var(--muted)">Los módulos se imputan en la solapa Módulos Quirúrgicos únicamente cuando la cirugía queda <b>Realizada</b>.</div>
+      <div class="cir-actions" style="margin-top:8px">
+        <button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">${ico(ICONS.users, 14)} ${c.modulo ? 'Cargar / editar equipo y módulos' : 'Asignar práctica del nomenclador'}</button>
+      </div>
     </div>
 
     <div class="det-section">
@@ -4571,7 +6193,7 @@ function openSlot(d, sid, fid) {
           <select id="k-obra" ${ro}><option value="">Seleccionar…</option>${OBRAS.map((o) => `<option ${c?.obraSocial === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
         <div class="field"><label>Diagnóstico preoperatorio *</label><input type="text" id="k-diag" value="${v(c && c.diagnostico)}" ${ro}></div>
         <div class="field"><label>Código CIE-10</label><input type="text" id="k-cie" placeholder="Ej: K80.2" value="${v(c && c.cie10)}" ${ro}></div>
-        <div class="field full"><label>Cirugía / procedimiento *</label><input type="text" id="k-proc" value="${v(c && c.procedimiento)}" ${ro}></div>
+        ${campoPractica(c, ro)}
       </div>
       <div style="margin-top:12px">
         <label class="check-row"><input type="checkbox" id="k-preop" ${c?.hce?.preop ? 'checked' : ''} ${ro}> Estudios preoperatorios completos y verificados en la HCE</label>
@@ -4621,6 +6243,7 @@ function openSlot(d, sid, fid) {
       <div class="cir-actions" style="margin-top:10px">
         <button class="btn btn-sm btn-outline" onclick="closeSlot();openCirugia(${c.id})">${ICONS.eyeSm} Ver ficha completa (LVQ, coordinación, informe)</button>
         <button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} Autorización de Admisión</button>
+      <button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">${ico(ICONS.users, 14)} Equipo y módulos</button>
         <button class="btn btn-sm btn-blue" onclick="closeSlot();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir consentimiento' : 'Generar consentimiento informado'}</button>
       </div>
     </div>` : ''}
@@ -4632,6 +6255,7 @@ function openSlot(d, sid, fid) {
       ${!puedeEditar ? `<p class="form-note">El turno ya avanzó en el circuito: los cambios se gestionan desde la ficha completa.</p>` : ''}
     </div>`;
   $('slot-overlay').classList.add('open');
+  nomIniciar(c, ro);
 }
 function closeSlot() { $('slot-overlay').classList.remove('open'); slotCtx = null; }
 
@@ -4643,9 +6267,14 @@ function guardarSlot() {
   const paciente = $('k-pac').value.trim();
   const cirujano = $('k-cir').value.trim();
   const diagnostico = $('k-diag').value.trim();
-  const procedimiento = $('k-proc').value.trim();
+  const { procedimiento, modulo, practica } = nomLeer();
   if (!paciente || !cirujano || !diagnostico || !procedimiento) {
-    alert('Complete los campos obligatorios: paciente, cirujano, diagnóstico y procedimiento.');
+    alert('Complete los campos obligatorios: paciente, cirujano, diagnóstico y la cirugía a realizar (elíjala en el nomenclador).');
+    return;
+  }
+  // Sin módulo la cirugía no puede imputarse en la solapa Módulos Quirúrgicos.
+  if (!modulo) {
+    alert('Indique el módulo que corresponde a la práctica (A, B o C).\n\nSi la eligió del nomenclador, el módulo se completa solo; si la cargó a mano, debe seleccionarlo.');
     return;
   }
   const urgEl = $('k-urg');
@@ -4673,7 +6302,7 @@ function guardarSlot() {
       nacimiento: $('k-nac').value, telefono: $('k-tel').value.trim(),
     },
     obraSocial: $('k-obra').value,
-    diagnostico, cie10: $('k-cie').value.trim(), procedimiento,
+    diagnostico, cie10: $('k-cie').value.trim(), procedimiento, practica, modulo,
     cirujano, cirujanoEmail: existente ? c.cirujanoEmail : (u ? u.email : ''),
     servicio: $('k-serv').value,
     anestesista: $('k-anest').value.trim(), anestesia: $('k-tanest').value,
@@ -4690,6 +6319,9 @@ function guardarSlot() {
   });
   // La pediatría y la alta complejidad se programan en los primeros horarios.
   if (c.paciente.pediatrico && c.prioridad === 6) c.prioridad = 3;
+  // El cirujano queda inscripto de oficio con el módulo de la práctica; el
+  // ayudante y el anestesiólogo se cargan aparte, desde el modal de equipo.
+  c.equipo = equipoActualizado(c, modulo);
   if (existente) pushHist(c, 'Turno actualizado');
   upsert('cirugias', c);
   closeSlot();
@@ -4714,8 +6346,17 @@ function openTurnoOk(c) {
       · Paciente: ${esc(c.paciente?.nombre || 's/d')}${c.paciente?.dni ? ` · DNI ${esc(c.paciente.dni)}` : ''}<br>
       · Estado: ${ESTC[c.estado].label} · prioridad P${prioridadEfectiva(c)}${c.urgencia ? ' · <b style="color:var(--red)">URGENCIA</b>' : ''}
     </div>
+    <div class="banner banner-amber" style="text-align:left;margin:0 0 14px">${ico(ICONS.alertTri, 20)}
+      <div><strong>Falta cargar el cirujano ayudante</strong>
+      La cirugía quedó registrada con <b>módulo ${c.modulo}</b> a nombre de ${esc(c.cirujano)}. Cargue ahora al
+      <b>1er ayudante</b> —y al anestesiólogo/a si corresponde— con el módulo A, B o C que le corresponda.
+      Recuerde que los módulos se imputan en la solapa <b>Módulos Quirúrgicos</b> recién cuando la cirugía
+      se marque como <b>Realizada</b>.</div></div>
+    <button class="btn btn-orange" style="width:100%;justify-content:center;margin-bottom:14px" onclick="closeTurnoOk();openEquipoMod(${c.id})">
+      ${ico(ICONS.userPlus, 16)} Cargar cirujano ayudante y módulos</button>
+
     <p class="form-note" style="text-align:center;margin-bottom:14px">
-      Falta el <b>consentimiento informado</b>. Presione aquí para descargarlo: se abrirá la solapa correspondiente
+      Falta también el <b>consentimiento informado</b>. Presione aquí para descargarlo: se abrirá la solapa correspondiente
       con los datos del paciente y de la cirugía ya cargados, para leerlo, completarlo y descargarlo.</p>
     <button class="btn btn-blue" style="width:100%;justify-content:center" onclick="closeTurnoOk();irAConsentimiento(${c.id})">
       ${ICONS.fileText} Descargar el consentimiento informado</button>
@@ -6540,6 +8181,662 @@ function closeLibroBlanco() {
   $('libro-modal').innerHTML = '';
 }
 
+
+/* ================= MÓDULOS QUIRÚRGICOS =================
+   Un módulo no es un dato aparte: nace de la cirugía. Al programar el turno el
+   cirujano elige la práctica en el Nomenclador Modulado 2025 y con ella queda
+   fijado el módulo (A, B o C). Ese módulo se imputa al cirujano, al ayudante y
+   al anestesiólogo cargados en el equipo, pero **solo cuenta cuando la cirugía
+   está marcada como Realizada**: mientras el turno esté programado, confirmado
+   o en curso no figura en la solapa. Así la planilla de módulos y el parte
+   quirúrgico no pueden contradecirse, y todo viaja por Firebase en vivo. */
+
+/* ---- Configuración compartida (valores unitarios e importes) ---- */
+function modConfig() {
+  const c = DB.config.find((x) => String(x.id) === 'modulos') || {};
+  return {
+    id: 'modulos',
+    valores: Object.assign({}, MOD_VALORES_DEF, c.valores || {}),
+    mostrarImportes: !!c.mostrarImportes,
+    actualizado: c.actualizado || '',
+  };
+}
+function guardarModConfig(cambios) {
+  upsert('config', Object.assign(modConfig(), cambios, { id: 'modulos', actualizado: nowDT() }));
+}
+const money = (n) => '$ ' + Math.round(n || 0).toLocaleString('es-AR');
+/* Los importes son información sensible: solo los ve la Dirección Médica y
+   únicamente si los habilitó de forma expresa. */
+function verImportes() { return director && modConfig().mostrarImportes; }
+
+/* ---- Equipo que percibe módulos ---- */
+function equipoDe(c) {
+  if (Array.isArray(c.equipo) && c.equipo.length) return c.equipo.filter((p) => p && p.nombre && p.modulo);
+  // Turnos cargados antes de esta versión: el cirujano es el único conocido.
+  return c.modulo ? [{ rol: 'Cirujano', nombre: c.cirujano || '', email: c.cirujanoEmail || '', modulo: c.modulo }] : [];
+}
+function equipoActualizado(c, modulo) {
+  const previo = Array.isArray(c.equipo) ? c.equipo : [];
+  const resto = previo.filter((p) => p && p.rol !== 'Cirujano');
+  return [{ rol: 'Cirujano', nombre: c.cirujano || '', email: c.cirujanoEmail || '', modulo }].concat(resto);
+}
+function tieneAyudante(c) { return equipoDe(c).some((p) => p.rol === '1er Ayudante'); }
+/* Cirugías ya realizadas a las que todavía les falta el ayudante. Es lo que se
+   avisa al programar y lo que muestra el contador de la solapa. */
+function modulosIncompletos(u) {
+  return DB.cirugias.filter((c) => c.estado === 'realizada' && c.modulo && !tieneAyudante(c)
+    && (!u || c.cirujanoEmail === u.email));
+}
+
+/* ---- Registro de módulos realizados ---- */
+function modulosRegistrados(desde, hasta) {
+  const filas = [];
+  DB.cirugias.forEach((c) => {
+    if (c.estado !== 'realizada' || !c.modulo) return;      // solo lo efectivamente operado
+    const f = c.fecha || '';
+    if ((desde && f < desde) || (hasta && f > hasta)) return;
+    equipoDe(c).forEach((p) => filas.push({
+      cir: c, fecha: f, servicio: c.servicio || 'Otro', rol: p.rol,
+      nombre: p.nombre, email: p.email || '', modulo: p.modulo,
+    }));
+  });
+  return filas.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
+}
+function agrupar(filas, clave) {
+  const map = {};
+  filas.forEach((f) => {
+    const k = clave(f);
+    if (!k) return;
+    if (!map[k]) map[k] = { nombre: k, A: 0, B: 0, C: 0, T: 0, cir: 0, ayu: 0, servicios: {}, cirugias: {} };
+    const g = map[k];
+    g[f.modulo] = (g[f.modulo] || 0) + 1;
+    g.T++;
+    if (f.rol === 'Cirujano') g.cir++;
+    if (f.rol === '1er Ayudante') g.ayu++;
+    g.servicios[f.servicio] = (g.servicios[f.servicio] || 0) + 1;
+    g.cirugias[f.cir.id] = true;
+  });
+  return Object.values(map).map((g) => Object.assign(g, {
+    nCirugias: Object.keys(g.cirugias).length,
+    servicioPrinc: Object.entries(g.servicios).sort((a, b) => b[1] - a[1])[0]?.[0] || '',
+  })).sort((a, b) => b.T - a.T || a.nombre.localeCompare(b.nombre));
+}
+function importeDe(g) {
+  const v = modConfig().valores;
+  return g.A * v.A + g.B * v.B + g.C * v.C;
+}
+
+/* ---- Período: día, semana, mes, año o rango libre ---- */
+let modPeriodo = 'mes';   // 'dia' | 'semana' | 'mes' | 'anio' | 'rango'
+let modAncla = null;      // fecha de referencia del período
+let modDesde = null, modHasta = null;   // solo para el rango libre
+let modTab = 'prof';      // 'prof' | 'servicio' | 'detalle'
+let modServicio = '';     // filtro de servicio (Dirección Médica)
+
+function modRango() {
+  const a = modAncla || hoyISO();
+  if (modPeriodo === 'dia') return [a, a];
+  if (modPeriodo === 'semana') {
+    const dow = (new Date(a + 'T12:00:00').getDay() + 6) % 7;   // lunes = 0
+    const ini = sumarDias(a, -dow);
+    return [ini, sumarDias(ini, 6)];
+  }
+  if (modPeriodo === 'anio') return [a.slice(0, 4) + '-01-01', a.slice(0, 4) + '-12-31'];
+  if (modPeriodo === 'rango') return [modDesde || a, modHasta || a];
+  const ym = a.slice(0, 7);
+  return [ym + '-01', ym + '-' + String(diasDelMes(ym)).padStart(2, '0')];
+}
+function modTituloPeriodo() {
+  const [d, h] = modRango();
+  if (modPeriodo === 'dia') return fmtDiaLargo(d);
+  if (modPeriodo === 'semana') return `Semana del ${fmtFecha(d)} al ${fmtFecha(h)}`;
+  if (modPeriodo === 'mes') return `${MESES_FULL[Number(d.slice(5, 7)) - 1]} de ${d.slice(0, 4)}`;
+  if (modPeriodo === 'anio') return `Año ${d.slice(0, 4)}`;
+  return `${fmtFecha(d)} al ${fmtFecha(h)}`;
+}
+function modMover(n) {
+  const a = modAncla || hoyISO();
+  if (modPeriodo === 'dia') modAncla = sumarDias(a, n);
+  else if (modPeriodo === 'semana') modAncla = sumarDias(a, n * 7);
+  else if (modPeriodo === 'mes') {
+    const d = new Date(Number(a.slice(0, 4)), Number(a.slice(5, 7)) - 1 + n, 1);
+    modAncla = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+  } else if (modPeriodo === 'anio') modAncla = (Number(a.slice(0, 4)) + n) + a.slice(4);
+  renderModulos();
+}
+function modSetPeriodo(p) { modPeriodo = p; if (!modAncla) modAncla = hoyISO(); renderModulos(); }
+
+/* ---- Alcance: cada cirujano ve su servicio; la Dirección Médica, todo ---- */
+function modAlcance() {
+  const u = usuarioActual();
+  if (director) return { todo: true, servicio: modServicio, quien: 'Dirección Médica' };
+  return { todo: false, servicio: (u && u.servicio) || '', quien: (u && u.servicio) || '' };
+}
+function modFilasVisibles() {
+  const [d, h] = modRango();
+  const al = modAlcance();
+  let filas = modulosRegistrados(d, h);
+  if (!al.todo) filas = filas.filter((f) => f.servicio === al.servicio);
+  else if (al.servicio) filas = filas.filter((f) => f.servicio === al.servicio);
+  return filas;
+}
+
+/* ---- Acceso de la Dirección Médica ---- */
+function openDirectorModal() {
+  pedirClave('Dirección Médica', 'Los módulos de todos los servicios y de todos los profesionales son de consulta exclusiva de la Dirección Médica. Ingrese la clave.', CLAVE_DIRECTOR, () => {
+    director = true;
+    sessionStorage.setItem('hru_director', '1');
+    go('modulos');
+  });
+}
+function directorLogout() {
+  director = false;
+  modServicio = '';
+  sessionStorage.removeItem('hru_director');
+  go(usuarioActual() ? 'modulos' : 'panel');
+}
+
+/* ================= VISTA: MÓDULOS QUIRÚRGICOS ================= */
+function renderModulos() {
+  const u = usuarioActual();
+  if (!u && !director) { go('acceso'); return; }
+  const [desde, hasta] = modRango();
+  const al = modAlcance();
+  const filas = modFilasVisibles();
+  const cfg = modConfig();
+  const conImportes = verImportes();
+
+  const tot = { A: 0, B: 0, C: 0, T: 0 };
+  const cirugiasSet = {};
+  filas.forEach((f) => { tot[f.modulo]++; tot.T++; cirugiasSet[f.cir.id] = true; });
+  const nCx = Object.keys(cirugiasSet).length;
+  const porProf = agrupar(filas, (f) => f.nombre);
+  const porServ = agrupar(filas, (f) => f.servicio);
+
+  // Cirugías realizadas del alcance a las que les falta el ayudante.
+  const faltantes = DB.cirugias.filter((c) => c.estado === 'realizada' && c.modulo && !tieneAyudante(c)
+    && c.fecha >= desde && c.fecha <= hasta
+    && (al.todo ? (!al.servicio || c.servicio === al.servicio) : c.servicio === al.servicio));
+
+  // Realizadas del alcance que todavía no tienen práctica del nomenclador.
+  const sinPractica = DB.cirugias.filter((c) => c.estado === 'realizada' && !c.modulo
+    && c.fecha >= desde && c.fecha <= hasta
+    && (al.todo ? (!al.servicio || c.servicio === al.servicio) : c.servicio === al.servicio));
+
+  const barras = modEvolucion(filas, desde, hasta);
+  const maxBarra = Math.max(1, ...barras.map((b) => b.T));
+
+  $('main').innerHTML = `
+    <div class="page-head">
+      <div class="head-row">
+        <div class="head-icon" style="background:#efe7fd">${ICONS.layers}</div>
+        <div>
+          <h1 class="page-title">Módulos Quirúrgicos</h1>
+          <p class="page-sub">Nomenclador Modulado 2025 · ${al.todo ? (al.servicio ? esc(al.servicio) : 'todos los servicios') : esc(al.servicio)} — ${modTituloPeriodo()}</p>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="exportarModulos()">${ICONS.download} Exportar CSV</button>
+    </div>
+
+    <div class="banner banner-blue">${ICONS.info}
+      <div><strong>Qué cuenta esta solapa</strong>
+      Solo las cirugías marcadas como <b>Realizada</b>. Un turno programado, confirmado o en curso todavía no genera módulo:
+      aparece recién cuando se cierra el procedimiento con la Lista de Verificación de salida. El módulo A, B o C lo fija el
+      nomenclador al elegir la práctica; el ayudante y el anestesiólogo los carga el cirujano en la ficha del turno.</div></div>
+
+    ${al.todo ? '' : `<div class="banner banner-amber">${ico(ICONS.lock, 16)}
+      <div><strong>Alcance de su consulta</strong>
+      Usted ve los módulos de <b>${esc(al.servicio)}</b>, el servicio al que pertenece. El detalle del resto de los servicios
+      y del conjunto del hospital es de consulta exclusiva de la Dirección Médica.</div></div>`}
+
+    <div class="est-toolbar" style="align-items:center">
+      <div class="mod-periodo">
+        ${[['dia', 'Día'], ['semana', 'Semana'], ['mes', 'Mes'], ['anio', 'Año']].map(([k, l]) =>
+          `<button class="mod-per-btn ${modPeriodo === k ? 'on' : ''}" onclick="modSetPeriodo('${k}')">${l}</button>`).join('')}
+        <button class="mod-per-btn ${modPeriodo === 'rango' ? 'on' : ''}" onclick="modSetPeriodo('rango')">Personalizado</button>
+      </div>
+      ${modPeriodo === 'rango' ? `
+        <div class="field"><label>Desde</label><input type="date" value="${desde}" max="${hasta}" onchange="modDesde=this.value;renderModulos()"></div>
+        <div class="field"><label>Hasta</label><input type="date" value="${hasta}" min="${desde}" onchange="modHasta=this.value;renderModulos()"></div>`
+        : `<div class="mod-nav">
+            <button class="dia-nav" onclick="modMover(-1)" aria-label="Período anterior">‹</button>
+            <b>${modTituloPeriodo()}</b>
+            <button class="dia-nav" onclick="modMover(1)" aria-label="Período siguiente">›</button>
+            <button class="est-preset" onclick="modAncla=hoyISO();renderModulos()">Hoy</button>
+          </div>`}
+      ${al.todo ? `<div class="field" style="min-width:220px"><label>Servicio</label>
+        <select onchange="modServicio=this.value;renderModulos()">
+          <option value="">Todos los servicios</option>
+          ${SERVICIOS_HRU.map((s) => `<option ${modServicio === s ? 'selected' : ''}>${s}</option>`).join('')}
+        </select></div>` : ''}
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">${ICONS.check} Cirugías realizadas</div>
+        <div class="kpi-val">${nCx}</div>
+        <div class="kpi-meta">Con práctica del nomenclador cargada</div></div>
+      <div class="kpi"><div class="kpi-label">${ico(ICONS.layers, 15)} Módulos generados</div>
+        <div class="kpi-val">${tot.T}</div>
+        <div class="kpi-meta">${nCx ? (tot.T / nCx).toFixed(2) : '0'} módulos por cirugía (equipo completo)</div></div>
+      <div class="kpi"><div class="kpi-label">${ICONS.pieChart.replace('18', '15')} Composición</div>
+        <div class="kpi-val" style="display:flex;gap:8px;align-items:center;font-size:1.3rem">
+          ${MOD_LETRAS.map((k) => `<span class="mod-pill mod-${k}">${k} ${tot[k]}</span>`).join('')}</div>
+        <div class="kpi-meta">${tot.T ? ((tot.A / tot.T) * 100).toFixed(0) : 0} % de alta complejidad (módulo A)</div></div>
+      ${conImportes
+        ? `<div class="kpi"><div class="kpi-label">${ICONS.trending} Liquidación estimada</div>
+             <div class="kpi-val" style="font-size:1.5rem">${money(importeDe(tot))}</div>
+             <div class="kpi-meta">A ${money(cfg.valores.A)} · B ${money(cfg.valores.B)} · C ${money(cfg.valores.C)}</div></div>`
+        : `<div class="kpi"><div class="kpi-label">${ICONS.users.replace('18', '15')} Profesionales</div>
+             <div class="kpi-val">${porProf.length}</div>
+             <div class="kpi-meta">${porServ.length} servicio(s) con actividad en el período</div></div>`}
+    </div>
+
+    ${faltantes.length ? `<div class="banner banner-red">${ico(ICONS.alertTri, 20)}
+      <div><strong>${faltantes.length} cirugía(s) realizada(s) sin cirujano ayudante cargado</strong>
+      Sin el ayudante, el módulo del segundo profesional no se imputa. Cárguelo desde cada turno:
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+        ${faltantes.slice(0, 12).map((c) => `<button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">
+          ${ico(ICONS.userPlus, 13)} ${fmtFecha(c.fecha)} — ${esc((c.paciente?.nombre || 's/d').split(' ')[0])} · ${esc(c.procedimiento.slice(0, 34))}${c.procedimiento.length > 34 ? '…' : ''}</button>`).join('')}
+        ${faltantes.length > 12 ? `<span style="align-self:center;font-size:0.82rem">y ${faltantes.length - 12} más…</span>` : ''}
+      </div></div></div>` : ''}
+
+    ${sinPractica.length ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 20)}
+      <div><strong>${sinPractica.length} cirugía(s) realizada(s) sin práctica del nomenclador</strong>
+      Son turnos cargados antes de que el nomenclador estuviera en la app, o prácticas escritas a mano. Mientras no tengan
+      módulo no se imputan a nadie. Asígneles la práctica desde cada una:
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+        ${sinPractica.slice(0, 12).map((c) => `<button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">
+          ${ico(ICONS.edit, 13)} ${fmtFecha(c.fecha)} — ${esc((c.procedimiento || 's/d').slice(0, 38))}${(c.procedimiento || '').length > 38 ? '…' : ''}</button>`).join('')}
+        ${sinPractica.length > 12 ? `<span style="align-self:center;font-size:0.82rem">y ${sinPractica.length - 12} más…</span>` : ''}
+      </div></div></div>` : ''}
+
+    <div class="tabs">
+      <button class="tab ${modTab === 'prof' ? 'active' : ''}" onclick="modTab='prof';renderModulos()">${ICONS.steth} Por profesional <span class="n">${porProf.length}</span></button>
+      <button class="tab ${modTab === 'servicio' ? 'active' : ''}" onclick="modTab='servicio';renderModulos()">${ico(ICONS.layers, 15)} Por servicio <span class="n">${porServ.length}</span></button>
+      <button class="tab ${modTab === 'detalle' ? 'active' : ''}" onclick="modTab='detalle';renderModulos()">${ICONS.list.replace('18', '15')} Detalle <span class="n">${nCx}</span></button>
+    </div>
+
+    ${modTab === 'prof' ? modTablaProf(porProf, conImportes, u) : ''}
+    ${modTab === 'servicio' ? modTablaServ(porServ, conImportes) : ''}
+    ${modTab === 'detalle' ? modTablaDetalle(filas) : ''}
+
+    <div class="charts" style="margin-top:18px">
+      <div class="chart-card">
+        <div class="card-title" style="margin-bottom:6px">Evolución del período</div>
+        <div class="card-sub">Módulos generados por ${barras.unidad || 'período'}</div>
+        ${barras.length ? barras.map((b) => `
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px">
+              <span>${esc(b.label)}</span><b>${b.T} · A ${b.A} / B ${b.B} / C ${b.C}</b></div>
+            <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(b.T / maxBarra) * 100}%;background:var(--blue)"></div></div>
+          </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin módulos registrados en el período.</div>'}
+      </div>
+      <div class="chart-card">
+        <div class="card-title" style="margin-bottom:6px">Reparto por complejidad</div>
+        <div class="card-sub">Distribución de los ${tot.T} módulo(s) del período</div>
+        ${tot.T ? MOD_LETRAS.map((k) => `
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px">
+              <span>${MODULOS[k].label} — ${MODULOS[k].desc}</span><b>${tot[k]} · ${((tot[k] / tot.T) * 100).toFixed(1)} %</b></div>
+            <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(tot[k] / tot.T) * 100}%;background:${MODULOS[k].color}"></div></div>
+          </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin módulos registrados en el período.</div>'}
+      </div>
+    </div>
+
+    ${director ? modPanelDireccion(cfg) : ''}`;
+}
+
+function modTablaProf(grupos, conImportes, u) {
+  return `<div class="tbl-wrap"><table class="tbl" style="min-width:820px">
+    <thead><tr><th>Profesional</th><th>Servicio</th><th class="num">Cirugías</th>
+      <th class="num">Como cirujano</th><th class="num">Como ayudante</th>
+      <th class="num">A</th><th class="num">B</th><th class="num">C</th><th class="num">Total</th>
+      ${conImportes ? '<th class="num">Importe estimado</th>' : ''}</tr></thead>
+    <tbody>${grupos.length ? grupos.map((g) => `
+      <tr${u && g.nombre === u.nombre ? ' style="background:var(--blue-soft)"' : ''}>
+        <td><b>${esc(g.nombre)}</b></td>
+        <td>${esc(g.servicioPrinc)}</td>
+        <td class="num">${g.nCirugias}</td>
+        <td class="num">${g.cir}</td>
+        <td class="num">${g.ayu}</td>
+        <td class="num">${g.A}</td><td class="num">${g.B}</td><td class="num">${g.C}</td>
+        <td class="num"><b>${g.T}</b></td>
+        ${conImportes ? `<td class="num">${money(importeDe(g))}</td>` : ''}
+      </tr>`).join('')
+      : `<tr><td colspan="${conImportes ? 10 : 9}"><div class="empty">Sin módulos registrados en el período seleccionado.</div></td></tr>`}
+    </tbody></table></div>`;
+}
+
+function modTablaServ(grupos, conImportes) {
+  return `<div class="tbl-wrap"><table class="tbl" style="min-width:700px">
+    <thead><tr><th>Servicio</th><th class="num">Cirugías</th>
+      <th class="num">A</th><th class="num">B</th><th class="num">C</th><th class="num">Total</th>
+      ${conImportes ? '<th class="num">Importe estimado</th>' : ''}</tr></thead>
+    <tbody>${grupos.length ? grupos.map((g) => `
+      <tr><td><b>${esc(g.nombre)}</b></td>
+        <td class="num">${g.nCirugias}</td>
+        <td class="num">${g.A}</td><td class="num">${g.B}</td><td class="num">${g.C}</td>
+        <td class="num"><b>${g.T}</b></td>
+        ${conImportes ? `<td class="num">${money(importeDe(g))}</td>` : ''}
+      </tr>`).join('')
+      : `<tr><td colspan="${conImportes ? 7 : 6}"><div class="empty">Sin módulos registrados en el período seleccionado.</div></td></tr>`}
+    </tbody></table></div>`;
+}
+
+function modTablaDetalle(filas) {
+  // Una fila por cirugía, con el equipo completo y el módulo de cada integrante.
+  const porCx = {};
+  filas.forEach((f) => { porCx[f.cir.id] = f.cir; });
+  const cxs = Object.values(porCx).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
+  const puedeEditar = (c) => { const u = usuarioActual(); return jefe || director || (u && c.cirujanoEmail === u.email); };
+  return `<div class="tbl-wrap"><table class="tbl" style="min-width:960px">
+    <thead><tr><th>Fecha</th><th>Paciente</th><th>Práctica del nomenclador</th><th>Servicio</th>
+      <th class="num">Módulo</th><th>Equipo y módulo de cada uno</th><th></th></tr></thead>
+    <tbody>${cxs.length ? cxs.map((c) => `
+      <tr>
+        <td>${fmtFecha(c.fecha)}</td>
+        <td>${esc(c.paciente?.nombre || 's/d')}${c.paciente?.dni ? `<br><small>DNI ${esc(c.paciente.dni)}</small>` : ''}</td>
+        <td>${esc(c.procedimiento)}${c.practica ? `<br><small>${esc(c.practica.g)} · ${esc(c.practica.s)}</small>` : '<br><small>Fuera del nomenclador — módulo declarado</small>'}</td>
+        <td>${esc(c.servicio || '')}</td>
+        <td class="num"><span class="mod-pill mod-${c.modulo}">${c.modulo}</span></td>
+        <td>${equipoDe(c).map((p) => `<div style="font-size:0.82rem;margin-bottom:2px">
+              <span class="mod-pill mod-${p.modulo}">${p.modulo}</span> ${esc(p.rol)}: <b>${esc(p.nombre)}</b></div>`).join('')
+            || '<span style="color:var(--red)">Sin equipo cargado</span>'}
+          ${tieneAyudante(c) ? '' : '<div style="font-size:0.78rem;color:var(--red);font-weight:700">Falta el 1er ayudante</div>'}</td>
+        <td>${puedeEditar(c) ? `<button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">${ICONS.edit} Equipo</button>` : ''}</td>
+      </tr>`).join('')
+      : `<tr><td colspan="7"><div class="empty">Sin cirugías realizadas con módulo en el período seleccionado.</div></td></tr>`}
+    </tbody></table></div>`;
+}
+
+function modPanelDireccion(cfg) {
+  return `<div class="card" style="margin-top:18px">
+    <div class="card-title">${ico(ICONS.shield, 16)} Dirección Médica — valores del nomenclador</div>
+    <div class="card-sub">Los importes son de referencia para estimar la liquidación. Quedan guardados en la base compartida:
+      al cambiarlos se actualizan en todas las computadoras. Están ocultos hasta que la Dirección los habilite.</div>
+    <label class="check-row"><input type="checkbox" id="mod-ver" ${cfg.mostrarImportes ? 'checked' : ''}
+      onchange="guardarModConfig({ mostrarImportes: this.checked })"> Mostrar los importes estimados en esta solapa</label>
+    <div class="form-grid" style="margin-top:12px">
+      ${MOD_LETRAS.map((k) => `<div class="field"><label>Valor del módulo ${k} — ${MODULOS[k].desc}</label>
+        <input type="number" id="mod-val-${k}" min="0" step="1000" value="${cfg.valores[k]}"></div>`).join('')}
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-blue" onclick="guardarValoresMod()">${ico(ICONS.check, 16)} Guardar valores</button>
+      ${cfg.actualizado ? `<span class="form-note">Última actualización: ${fmtDT(cfg.actualizado)}</span>` : ''}
+    </div></div>`;
+}
+function guardarValoresMod() {
+  const v = {};
+  MOD_LETRAS.forEach((k) => { v[k] = Number($('mod-val-' + k).value) || 0; });
+  guardarModConfig({ valores: v });
+  renderModulos();
+}
+
+/* Barras del período: por día cuando el rango es corto, por mes cuando es largo. */
+function modEvolucion(filas, desde, hasta) {
+  const dias = diasEntre(desde, hasta) + 1;
+  const porMes = dias > 62;
+  const map = {};
+  filas.forEach((f) => {
+    const k = porMes ? f.fecha.slice(0, 7) : f.fecha;
+    if (!map[k]) map[k] = { k, label: '', A: 0, B: 0, C: 0, T: 0 };
+    map[k][f.modulo]++; map[k].T++;
+  });
+  const arr = Object.values(map).sort((a, b) => a.k.localeCompare(b.k));
+  arr.forEach((b) => {
+    b.label = porMes ? `${MESES_FULL[Number(b.k.slice(5, 7)) - 1]} ${b.k.slice(0, 4)}` : fmtFecha(b.k);
+  });
+  arr.unidad = porMes ? 'mes' : 'día';
+  return arr;
+}
+
+function exportarModulos() {
+  const [desde, hasta] = modRango();
+  const conImportes = verImportes();
+  const cfg = modConfig();
+  const filas = [['Fecha', 'Paciente', 'DNI', 'Práctica', 'Capítulo', 'Sección', 'Servicio',
+    'Módulo de la cirugía', 'Rol', 'Profesional', 'Módulo del profesional'].concat(conImportes ? ['Valor unitario'] : [])];
+  modFilasVisibles().forEach((f) => filas.push([
+    f.fecha, f.cir.paciente?.nombre || '', f.cir.paciente?.dni || '', f.cir.procedimiento || '',
+    f.cir.practica?.g || 'Fuera del nomenclador', f.cir.practica?.s || '', f.servicio,
+    f.cir.modulo, f.rol, f.nombre, f.modulo,
+  ].concat(conImportes ? [cfg.valores[f.modulo]] : [])));
+  filas.push([]);
+  filas.push([`Período ${desde} a ${hasta}`, `Alcance: ${modAlcance().quien}`, `Exportado ${nowDT().replace('T', ' ')}`]);
+  descargarCSV(`hru-modulos-${desde}_${hasta}.csv`, filas);
+}
+
+/* ================= MODAL: EQUIPO Y MÓDULOS DE UNA CIRUGÍA ================= */
+function openEquipoMod(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!c) return;
+  const u = usuarioActual();
+  if (!jefe && !director && !(u && c.cirujanoEmail === u.email)) {
+    alert('El equipo de una cirugía lo carga el cirujano responsable, la Jefatura de Quirófanos o la Dirección Médica.');
+    return;
+  }
+  // Dos buscadores del nomenclador a la vez compartirían los mismos campos.
+  if ($('slot-overlay').classList.contains('open')) closeSlot();
+  // Los turnos anteriores a esta versión —y los ya realizados— no tienen
+  // práctica cargada: se elige acá mismo, sin reabrir la grilla.
+  const sinPractica = !c.modulo;
+  const eq = equipoDe(c);
+  const de = (rol) => eq.find((p) => p.rol === rol) || null;
+  const cir = de('Cirujano'), ayu = de('1er Ayudante'), ane = de('Anestesiólogo/a');
+  const selMod = (idc, val) => `<select id="${idc}">
+      <option value="">— sin módulo —</option>
+      ${MOD_LETRAS.map((k) => `<option value="${k}" ${val === k ? 'selected' : ''}>Módulo ${k} — ${MODULOS[k].desc}</option>`).join('')}
+    </select>`;
+
+  $('eqm-modal').innerHTML = `
+    <button class="modal-close" onclick="closeEquipoMod()" aria-label="Cerrar">✕</button>
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:6px">
+      <div class="head-icon" style="background:#efe7fd">${ICONS.users}</div>
+      <div>
+        <div style="font-weight:800;font-size:1.08rem">Equipo quirúrgico y módulos</div>
+        <div style="font-size:0.82rem;color:var(--muted)">${esc(c.procedimiento)} · ${fmtFecha(c.fecha)} — ${esc(c.paciente?.nombre || 's/d')}</div>
+      </div>
+    </div>
+    ${sinPractica ? `
+      <div class="banner banner-amber" style="margin:0 0 12px">${ico(ICONS.alertTri, 18)}
+        <div><strong>Esta cirugía todavía no tiene práctica del nomenclador</strong>
+        Se cargó como «${esc(c.procedimiento || 's/d')}». Elíjala abajo para que quede fijado el módulo A, B o C:
+        sin módulo la cirugía no se imputa a nadie.</div></div>
+      <div class="form-grid" style="margin-bottom:6px">${campoPractica(c, '')}</div>`
+    : `<div class="nom-sel" style="margin-bottom:14px">
+      <span class="mod-tag mod-${c.modulo}">${c.modulo}</span>
+      <div class="nom-sel-txt">${esc(c.procedimiento)}
+        <span class="nom-item-sub">${c.practica ? esc(c.practica.g + ' · ' + c.practica.s) : 'Práctica declarada fuera del nomenclador'} — ${esc(c.servicio || '')}</span></div>
+    </div>`}
+    <p class="modal-sub" style="text-align:left;margin-bottom:4px">Cada integrante percibe el módulo que se le asigne aquí.
+      Se propone el módulo de la práctica${c.modulo ? ` (<b>${c.modulo}</b>)` : ''} y puede modificarse. Los módulos se imputan
+      <b>solo cuando la cirugía esté marcada como Realizada</b>${c.estado === 'realizada' ? ' — esta ya lo está.' : `; hoy está <b>${ESTC[c.estado].label}</b>.`}</p>
+
+    <div class="mod-row">
+      <div><div class="mod-rol">Cirujano</div>
+        <input type="text" id="eq-cir-nom" value="${esc((cir && cir.nombre) || c.cirujano || '')}"></div>
+      <div><div class="mod-rol">Módulo</div>${selMod('eq-cir-mod', (cir && cir.modulo) || c.modulo)}</div>
+    </div>
+    <div class="mod-row">
+      <div><div class="mod-rol">1er Ayudante</div>
+        <input type="text" id="eq-ayu-nom" placeholder="Apellido y nombre del cirujano ayudante" value="${esc((ayu && ayu.nombre) || '')}"></div>
+      <div><div class="mod-rol">Módulo</div>${selMod('eq-ayu-mod', (ayu && ayu.modulo) || c.modulo)}</div>
+    </div>
+    <div class="mod-row">
+      <div><div class="mod-rol">Anestesiólogo/a</div>
+        <input type="text" id="eq-ane-nom" placeholder="Apellido y nombre" value="${esc((ane && ane.nombre) || c.anestesista || '')}"></div>
+      <div><div class="mod-rol">Módulo</div>${selMod('eq-ane-mod', (ane && ane.modulo) || '')}</div>
+    </div>
+
+    <p class="form-note">Deje el nombre en blanco si el rol no corresponde: ese integrante no se registra y no genera módulo.</p>
+    <div class="form-actions">
+      <button class="btn btn-blue" onclick="guardarEquipoMod(${c.id})">${ico(ICONS.check, 16)} Guardar equipo y módulos</button>
+      <button class="btn btn-outline" onclick="closeEquipoMod()">Cancelar</button>
+    </div>`;
+  $('eqm-overlay').classList.add('open');
+  if (sinPractica) nomIniciar(c, '', true);
+}
+function closeEquipoMod() { $('eqm-overlay').classList.remove('open'); }
+function guardarEquipoMod(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!c) return;
+  // Si la cirugía venía sin práctica, la que se eligió acá define su módulo.
+  if (!c.modulo) {
+    const pr = nomLeer();
+    if (!pr.procedimiento || !pr.modulo) {
+      alert('Elija la práctica del nomenclador (o cárguela a mano indicando su módulo) antes de guardar el equipo.');
+      return;
+    }
+    c.procedimiento = pr.procedimiento;
+    c.practica = pr.practica;
+    c.modulo = pr.modulo;
+    pushHist(c, `Práctica del nomenclador asignada: ${pr.procedimiento} (módulo ${pr.modulo})`);
+  }
+  const leer = (rol, pre) => {
+    const nombre = ($(pre + '-nom').value || '').trim();
+    const modulo = $(pre + '-mod').value;
+    return nombre && modulo ? { rol, nombre, email: rol === 'Cirujano' ? (c.cirujanoEmail || '') : '', modulo } : null;
+  };
+  const cir = leer('Cirujano', 'eq-cir');
+  if (!cir) { alert('El cirujano y su módulo son obligatorios.'); return; }
+  const equipo = [cir, leer('1er Ayudante', 'eq-ayu'), leer('Anestesiólogo/a', 'eq-ane')].filter(Boolean);
+  c.equipo = equipo;
+  c.cirujano = cir.nombre;
+  pushHist(c, `Equipo de módulos actualizado (${equipo.map((p) => p.rol + ' ' + p.modulo).join(', ')})`);
+  upsert('cirugias', c);
+  closeEquipoMod();
+  refreshView();
+}
+
+/* ================= BUSCADOR DEL NOMENCLADOR (formulario del turno) =================
+   Reemplaza al viejo campo de texto libre de "Cirugía / procedimiento". El
+   cirujano escribe dos o tres letras, elige la práctica y con ella queda fijado
+   el módulo. Si la práctica no figura en el nomenclador puede escribirla a mano,
+   pero entonces debe declarar el módulo: sin módulo no hay imputación posible. */
+let nomSel = null;        // práctica elegida del nomenclador
+let nomLibre = false;     // el cirujano optó por escribirla a mano
+let nomRO = '';           // 'disabled' cuando el turno ya no admite cambios
+let nomHits = [];         // resultados visibles del buscador
+
+function campoPractica(c, ro) {
+  return `
+    <div class="field full">
+      <label>Cirugía / procedimiento *</label>
+      <div class="nom-box">
+        <input type="text" id="k-nomq" autocomplete="off" ${ro}
+          placeholder="Escriba para buscar en el nomenclador — ej.: «colecis», «hernia ing», «rodilla»"
+          oninput="nomBuscar()" onfocus="nomBuscar()" onkeydown="if(event.key==='Escape'){nomCerrarLista();}">
+        <div class="nom-list" id="k-nomlist"></div>
+      </div>
+      <span class="hint">Nomenclador Modulado 2025 — ${NOMENCLADOR.length} prácticas. La práctica elegida fija el módulo A, B o C
+        que se imputa en la solapa <b>Módulos Quirúrgicos</b> una vez realizada la cirugía.</span>
+      <div id="k-nomsel"></div>
+    </div>`;
+}
+
+/* Estado inicial del campo al abrir el turno. `prefill` deja el nombre viejo en
+   el buscador: sirve al reasignar una cirugía que se había escrito a mano. */
+function nomIniciar(c, ro, prefill) {
+  nomRO = ro;
+  nomHits = [];
+  nomSel = (c && c.practica && c.practica.p) ? Object.assign({}, c.practica) : null;
+  nomLibre = !!(c && c.procedimiento && !nomSel);
+  nomPintarSel(c);
+  const q = $('k-nomq');
+  if (q) q.value = (prefill && !nomSel && c) ? (c.procedimiento || '') : '';
+}
+
+function nomBuscar() {
+  const q = $('k-nomq');
+  const lista = $('k-nomlist');
+  if (!q || !lista) return;
+  const u = usuarioActual();
+  const serv = ($('k-serv') && $('k-serv').value) || (u && u.servicio) || '';
+  const txt = q.value.trim();
+  if (txt.length < 2) { nomCerrarLista(); return; }
+  nomHits = buscarPracticas(txt, serv, 40);
+  lista.innerHTML = nomHits.length
+    ? nomHits.map((r, i) => `<button type="button" class="nom-item" onclick="nomElegir(${i})">
+        <span class="mod-tag mod-${r.m || 'none'}">${r.m || '?'}</span>
+        <span class="nom-item-txt">${esc(r.p)}<span class="nom-item-sub">${esc(r.g)} · ${esc(r.s)}</span></span>
+      </button>`).join('')
+    : `<div class="nom-vacio">Ninguna práctica del nomenclador coincide con «${esc(txt)}».
+        Pruebe con otra palabra o cárguela como práctica fuera del nomenclador.</div>`;
+  lista.classList.add('open');
+}
+function nomCerrarLista() { const l = $('k-nomlist'); if (l) l.classList.remove('open'); }
+function nomElegir(i) {
+  const r = nomHits[i];
+  if (!r) return;
+  nomSel = { g: r.g, s: r.s, p: r.p, m: r.m };
+  nomLibre = false;
+  const q = $('k-nomq');
+  if (q) q.value = '';
+  nomCerrarLista();
+  nomPintarSel();
+  // Dentro del modal de equipo, la práctica recién elegida propone su módulo a
+  // quienes todavía no lo tengan asignado.
+  ['eq-cir-mod', 'eq-ayu-mod'].forEach((k) => { if ($(k) && !$(k).value) $(k).value = r.m || ''; });
+  // El nomenclador es la fuente del módulo; si además indica otro servicio, se
+  // sugiere alinear el turno para que la imputación caiga donde corresponde.
+  const sug = servicioDePractica(r);
+  const sel = $('k-serv');
+  if (sel && sug && !sel.disabled && sel.value !== sug && SERVICIOS_HRU.includes(sug)) sel.value = sug;
+}
+function nomLimpiar() { nomSel = null; nomLibre = false; nomPintarSel(); const q = $('k-nomq'); if (q) q.focus(); }
+function nomUsarLibre(c) { nomSel = null; nomLibre = true; nomPintarSel(c); }
+
+function nomPintarSel(c) {
+  const cont = $('k-nomsel');
+  if (!cont) return;
+  const ro = nomRO;
+  if (nomSel) {
+    cont.innerHTML = `
+      <div class="nom-sel">
+        <span class="mod-tag mod-${nomSel.m || 'none'}">${nomSel.m || '?'}</span>
+        <div class="nom-sel-txt">${esc(nomSel.p)}
+          <span class="nom-item-sub">${esc(nomSel.g)} · ${esc(nomSel.s)}${nomSel.m ? ` — ${MODULOS[nomSel.m].label}, ${MODULOS[nomSel.m].desc}` : ''}</span>
+          ${!nomSel.m ? `<div style="margin-top:8px;max-width:280px">
+             <label style="font-size:0.78rem;font-weight:700">El nomenclador no le asignó módulo — indíquelo</label>
+             <select id="k-modsel" ${ro}>${['', 'A', 'B', 'C'].map((k) => `<option value="${k}">${k ? 'Módulo ' + k : 'Seleccionar…'}</option>`).join('')}</select></div>` : ''}
+        </div>
+        ${ro ? '' : `<button type="button" class="btn btn-sm btn-outline" onclick="nomLimpiar()">${ICONS.x} Cambiar</button>`}
+      </div>`;
+    return;
+  }
+  if (nomLibre) {
+    cont.innerHTML = `
+      <div class="form-grid" style="margin-top:10px">
+        <div class="field full"><label>Práctica no incluida en el nomenclador *</label>
+          <input type="text" id="k-proclibre" value="${esc((c && !c.practica && c.procedimiento) || '')}" ${ro}
+            placeholder="Nombre del procedimiento tal como debe figurar en el parte"></div>
+        <div class="field"><label>Módulo que le corresponde *</label>
+          <select id="k-modlibre" ${ro}>${['', 'A', 'B', 'C'].map((k) =>
+            `<option value="${k}" ${c && !c.practica && c.modulo === k ? 'selected' : ''}>${k ? `Módulo ${k} — ${MODULOS[k].desc}` : 'Seleccionar…'}</option>`).join('')}</select></div>
+      </div>
+      ${ro ? '' : `<button type="button" class="nom-link" onclick="nomLimpiar()">Volver a buscar en el nomenclador</button>`}`;
+    return;
+  }
+  cont.innerHTML = ro ? '' :
+    `<button type="button" class="nom-link" onclick="nomUsarLibre()">La práctica no figura en el nomenclador — cargarla a mano</button>`;
+}
+
+/* Lo que el formulario debe guardar: texto del parte, módulo y práctica. */
+function nomLeer() {
+  if (nomSel) {
+    const mod = nomSel.m || (($('k-modsel') && $('k-modsel').value) || '');
+    return { procedimiento: nomSel.p, modulo: mod, practica: { g: nomSel.g, s: nomSel.s, p: nomSel.p, m: mod } };
+  }
+  if (nomLibre) {
+    return {
+      procedimiento: (($('k-proclibre') && $('k-proclibre').value) || '').trim(),
+      modulo: ($('k-modlibre') && $('k-modlibre').value) || '',
+      practica: null,
+    };
+  }
+  return { procedimiento: '', modulo: '', practica: null };
+}
+
 /* ================= REGISTRO DE VISTAS ================= */
 Object.assign(VIEWS, {
   grilla: renderProgDiaria,
@@ -6558,6 +8855,7 @@ Object.assign(VIEWS, {
   reclamos: renderReclamos,
   acceso: renderAcceso,
   perfil: renderPerfil,
+  modulos: renderModulos,
 });
 
 /* ================= INIT ================= */

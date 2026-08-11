@@ -2,7 +2,7 @@
 
 Plataforma digital centralizada de la actividad quirúrgica y endoscópica del **Hospital Regional Ushuaia**.
 Canal único y válido para la programación de turnos, la lista de verificación quirúrgica, el reporte de
-incidencias y los indicadores de gestión del bloque.
+incidencias, los módulos quirúrgicos y los indicadores de gestión del bloque.
 
 Aplicación web instalable (PWA) sin dependencias ni proceso de compilación: un `index.html`, un manifiesto,
 un service worker y tres iconos.
@@ -73,8 +73,8 @@ notificaciones del sistema.
 La app abre siempre con la última copia local conocida y se sincroniza en segundo plano. El indicador de la
 barra superior muestra **Sincronizado**, **Sin conexión**, **N sin sincronizar** o **Modo local**.
 
-Colecciones: `cirugias` (turnos), `incidencias`, `usuarios`, `reclamos`, `agenda` (habilitación de días y salas)
-y `consentimientos` (consentimientos informados generados).
+Colecciones: `cirugias` (turnos), `incidencias`, `usuarios`, `reclamos`, `agenda` (habilitación de días y salas),
+`consentimientos` (consentimientos informados generados) y `config` (valores unitarios de los módulos).
 
 Agregando `?local=1` a la URL la app corre sin nube, con datos de demostración
 (usuario `demo@hru.gob.ar`, contraseña `demo123`).
@@ -117,9 +117,27 @@ salvo en la madrugada del Quirófano 1. Los identificadores `T1` a `T6` se conse
 | `0112` | Jefatura de Quirófanos |
 | `2358` | Cancelar un turno / limpiar la grilla |
 | `3340` | Autorización de Admisión y Egresos |
+| `9876` | Dirección Médica (módulos de todos los servicios) |
 
 > El control es del lado del cliente: sirve para separar roles en la operación diaria, no como seguridad
 > real frente a alguien que inspeccione el código. Para eso hace falta autenticación en el servidor.
+
+---
+
+## Libro Blanco de Quirófanos
+
+En el panel izquierdo, justo debajo del nombre de la app, hay un acceso destacado al **Libro Blanco**: el
+*Manual de Organización y Funcionamiento de Quirófanos Centrales y de la Unidad de Endoscopía Digestiva*
+(versión 3.0, mayo 2026, Jefatura del Departamento Quirúrgico del HRU), elaborado sobre las Directrices del
+Ministerio de Salud de la Nación (IF-2020-14236688-APN).
+
+Al tocarlo se abre el PDF en una **ventana emergente** dentro de la app, con botones para *abrir en pestaña
+nueva* y *descargar*. En iPhone y iPad, donde Safari no muestra PDF dentro de un marco, la ventana ofrece
+directamente el enlace a la pestaña propia del sistema.
+
+El archivo viaja con la app (`libro-blanco-quirofanos-hru.pdf`, 1,3 MB) y el service worker lo precarga, así que
+**también se consulta sin conexión**. Para reemplazarlo por una versión nueva alcanza con pisar ese archivo y
+subir `VERSION` en `sw.js`.
 
 ---
 
@@ -238,6 +256,66 @@ individual de un colega no es información de acceso general.
 
 ---
 
+## Módulos quirúrgicos
+
+Solapa propia, dentro del bloque **Cirujano**. No es una planilla aparte: el módulo **nace de la cirugía**.
+
+### Del nomenclador al módulo
+
+Al programar un turno, el campo *Cirugía / procedimiento* es un **buscador sobre el Nomenclador Modulado
+2025 de los Hospitales Regionales de Tierra del Fuego** (1.329 prácticas, transcriptas del archivo oficial
+del HRU). Se escriben dos o tres letras —`colecis`, `hernia ing`, `rodilla`—, se elige la práctica y con ella
+queda fijado su **módulo A, B o C**. La búsqueda ignora tildes, admite palabras sueltas y ofrece primero las
+prácticas del servicio del cirujano.
+
+Si la práctica no figura en el nomenclador puede escribirse a mano, pero entonces **hay que declarar el
+módulo**: sin módulo el turno no se guarda, porque no habría nada que imputar.
+
+| Módulo | Complejidad | Prácticas en el nomenclador |
+|---|---|---|
+| A | Alta | 590 |
+| B | Intermedia | 458 |
+| C | Baja | 281 |
+
+> Única desviación respecto del PDF oficial: *reconstrucción de cavidad orbitaria* (Cirugía Reparadora ·
+> Cejas y Párpados) figura sin módulo en el original y la Dirección la asignó al **módulo A**.
+
+### Quién percibe el módulo
+
+El **cirujano** queda inscripto de oficio con el módulo de la práctica. Al terminar de programar, la ventana
+de confirmación **recuerda cargar el cirujano ayudante** —y al anestesiólogo/a si corresponde— con el módulo
+A, B o C que le corresponda a cada uno; se propone el de la cirugía y puede modificarse. El mismo formulario
+está en la ficha del turno (*Equipo y módulos*) y en el detalle de la solapa.
+
+### Cuándo se imputa
+
+**Solo cuando la cirugía está marcada como Realizada.** Un turno programado, confirmado o en curso no figura
+en la solapa: aparece recién cuando se cierra el procedimiento con la LVQ de salida. Así la planilla de
+módulos y el parte quirúrgico no pueden contradecirse.
+
+La solapa avisa de dos deudas: cirugías realizadas **sin ayudante cargado** y cirugías realizadas **sin
+práctica del nomenclador** (los turnos anteriores a esta versión). Ambas se resuelven desde el mismo aviso.
+
+### Quién ve qué
+
+| Quien mira | Alcance |
+|---|---|
+| Cirujano con sesión iniciada | Únicamente los módulos de **su servicio** |
+| Dirección Médica (clave `9876`) | **Todos** los servicios y profesionales, con filtro por servicio |
+
+### Estadísticas
+
+Período por **día, semana, mes, año** o rango libre, con navegación hacia atrás y adelante. Tres vistas:
+**por profesional** (cirugías, módulos como cirujano y como ayudante, A/B/C y total), **por servicio** y
+**detalle** cirugía por cirugía con el equipo completo. Más la evolución del período (por día o por mes) y
+el reparto por complejidad. Todo exportable a **CSV**.
+
+**Importes.** La Dirección Médica puede cargar los valores unitarios de A, B y C —quedan guardados en la
+base compartida— y estimar la liquidación del período. Están **ocultos por defecto**: se muestran solo si la
+Dirección activa la casilla, y nunca para el resto de los profesionales.
+
+---
+
 ## Canal de reclamos
 
 Comunicación formal Jefe a Jefe, con **hilo de conversación**: la Jefatura responde, el autor puede
@@ -280,3 +358,4 @@ Después abrí `http://127.0.0.1:8777/` (o `http://127.0.0.1:8777/?local=1` para
 | `manifest.webmanifest` | Identidad de la PWA, iconos y accesos directos |
 | `sw.js` | Service worker: apertura sin conexión y actualización automática |
 | `icon-*.png` | Iconos de instalación (192, 512 y maskable) |
+| `libro-blanco-quirofanos-hru.pdf` | Manual de Organización y Funcionamiento del bloque quirúrgico |
