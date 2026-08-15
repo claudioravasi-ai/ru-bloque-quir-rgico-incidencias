@@ -864,13 +864,15 @@
     flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
     font-weight: 800; font-size: 0.84rem; color: #fff; background: #9ca3af;
   }
-  .mod-A { background: #8b5cf6; }
-  .mod-B { background: #2980d9; }
-  .mod-C { background: #1fa971; }
   .mod-pill {
     display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px;
     font-size: 0.74rem; font-weight: 800; color: #fff; background: #9ca3af;
   }
+  /* Después de .mod-tag y .mod-pill: con la misma especificidad gana el último,
+     y el color de la letra tiene que ganarle al gris de base. */
+  .mod-A { background: #8b5cf6; }
+  .mod-B { background: #2980d9; }
+  .mod-C { background: #1fa971; }
   .mod-row {
     display: grid; grid-template-columns: 1fr 190px; gap: 12px; align-items: end;
     padding: 12px 0; border-bottom: 1px solid var(--line);
@@ -2831,7 +2833,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.3.1';
+const APP_VERSION = '2.3.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
