@@ -296,6 +296,17 @@ módulos y el parte quirúrgico no pueden contradecirse.
 La solapa avisa de dos deudas: cirugías realizadas **sin ayudante cargado** y cirugías realizadas **sin
 práctica del nomenclador** (los turnos anteriores a esta versión). Ambas se resuelven desde el mismo aviso.
 
+### Los nombres de los servicios
+
+El servicio de cada profesional se escribía a mano en el alta, así que en la base conviven `Cirugía General`
+y `Cirugia General`. Comparándolos literalmente, un cirujano no veía sus propios módulos. Desde la versión
+2.3.1 **dos servicios son el mismo si coinciden ignorando tildes, mayúsculas, puntuación, espacios de más y
+palabras de enlace** (`y`, `de`, `la`): `Traumatologia`, `ORTOPEDIA` y `Traumatología y Ortopedia` son el
+mismo servicio, y `Otorrinolaringología` equivale a `ORL`. Un nombre incompleto se resuelve solo si apunta a
+un único servicio del listado: `cirugia`, que podría ser cuatro, se deja como está.
+
+El alta pasó a ser un **desplegable** con el listado oficial, para que no vuelvan a aparecer variantes.
+
 ### Quién ve qué
 
 | Quien mira | Alcance |

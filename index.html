@@ -2754,6 +2754,47 @@ const MOD_ROLES = ['Cirujano', '1er Ayudante', 'Anestesiólogo/a'];
    solapa Módulos y quedan compartidos en la nube para todos los equipos. */
 const MOD_VALORES_DEF = { A: 120000, B: 80000, C: 45000 };
 
+/* ---- Identidad de los servicios ----
+   El servicio se escribió a mano durante el alta de cada profesional, así que
+   en la base conviven «Cirugía General», «Cirugia General» y «CIRUGIA GRAL».
+   Comparándolos con === un cirujano no veía sus propios módulos. De acá en más
+   dos servicios son el mismo si coinciden ignorando tildes, mayúsculas,
+   puntuación, espacios de más y palabras de enlace («y», «de», «la»): así
+   «Traumatologia» y «Traumatología y Ortopedia» son el mismo servicio. */
+const SERV_ENLACES = ['y', 'e', 'de', 'del', 'la', 'el', 'los', 'las'];
+function servicioTokens(s) {
+  return sinTildes(String(s || ''))
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w && SERV_ENLACES.indexOf(w) < 0);
+}
+/* Sinónimos de uso corriente en el hospital que no comparten ninguna palabra
+   con el nombre del listado oficial. */
+const SERV_SINONIMOS = {
+  otorrinolaringologia: 'ORL',
+  otorrino: 'ORL',
+  ginecologia: 'Ginecología',
+  obstetricia: 'Obstetricia',
+  tocoginecologia: 'Obstetricia',
+};
+const SERV_CANON = {};      // clave normalizada → nombre oficial
+function servicioCanonico(s) {
+  const t = servicioTokens(s);
+  if (!t.length) return '';
+  const k = t.join(' ');
+  if (SERV_CANON[k]) return SERV_CANON[k];
+  if (SERV_SINONIMOS[k]) return SERV_SINONIMOS[k];
+  // Nombre incompleto o de más: vale si señala a un solo servicio del listado.
+  // «traumatologia» → «Traumatología y Ortopedia»; «cirugia», a cuatro, no.
+  const cand = SERVICIOS_HRU.filter((x) => {
+    const o = servicioTokens(x);
+    return o.every((w) => t.indexOf(w) >= 0) || t.every((w) => o.indexOf(w) >= 0);
+  });
+  return cand.length === 1 ? cand[0] : String(s || '').trim();
+}
+const claveServicio = (s) => servicioTokens(servicioCanonico(s)).join(' ');
+const mismoServicio = (a, b) => claveServicio(a) === claveServicio(b);
+
 /* Búsqueda sin tildes y por palabras sueltas: «hernia ing» encuentra
    «hernia inguinal en adultos (no complicadas) unilateral». */
 const sinTildes = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -2775,6 +2816,7 @@ function buscarPracticas(q, servicio, limite) {
   }
   return cubos[0].concat(cubos[1], cubos[2], cubos[3]).slice(0, limite || 40);
 }
+SERVICIOS_HRU.forEach((s) => { SERV_CANON[servicioTokens(s).join(' ')] = s; });
 
 
 /* ================= CONFIGURACIÓN DEL BLOQUE ================= */
@@ -2789,7 +2831,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.3.0';
+const APP_VERSION = '2.3.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -5738,7 +5780,9 @@ function renderAcceso() {
           <div class="field"><label>Nombre y apellido *</label><input type="text" id="a-nombre"></div>
           <div class="field"><label>DNI *</label><input type="text" id="a-dni"></div>
           <div class="field"><label>Correo institucional *</label><input type="email" id="a-mail" placeholder="nombre@hru.gob.ar"></div>
-          <div class="field"><label>Servicio *</label><input type="text" id="a-serv" placeholder="Ej: Cirugía General"></div>
+          <div class="field"><label>Servicio *</label>
+            <select id="a-serv"><option value="">Seleccionar…</option>${SERVICIOS_HRU.map((s) => `<option>${s}</option>`).join('')}</select>
+            <span class="hint">Determina qué módulos quirúrgicos verá en su solapa.</span></div>
           <div class="field"><label>Contraseña *</label><input type="password" id="a-pass" autocomplete="new-password"></div>
           <div class="field"><label>Repetir contraseña *</label><input type="password" id="a-pass2" autocomplete="new-password"></div>
         </div>
@@ -5766,7 +5810,9 @@ async function doLogin() {
 async function doAlta() {
   const err = $('alta-error');
   const nombre = $('a-nombre').value.trim(), dni = $('a-dni').value.trim();
-  const mail = $('a-mail').value.trim().toLowerCase(), serv = $('a-serv').value.trim();
+  // Canónico: escrito a mano, «Cirugia General» y «Cirugía General» quedaban
+  // como dos servicios distintos y el cirujano no veía sus propios módulos.
+  const mail = $('a-mail').value.trim().toLowerCase(), serv = servicioCanonico($('a-serv').value);
   const p1 = $('a-pass').value, p2 = $('a-pass2').value;
   const fail = (m) => { err.textContent = m; err.style.display = 'block'; };
   if (!nombre || !dni || !mail || !serv || !p1) return fail('Complete todos los campos.');
@@ -6206,7 +6252,7 @@ function openSlot(d, sid, fid) {
       <div class="form-grid">
         <div class="field"><label>Cirujano / especialista *</label><input type="text" id="k-cir" value="${v(c && c.cirujano, u ? u.nombre : '')}" ${ro}></div>
         <div class="field"><label>Servicio / especialidad *</label>
-          <select id="k-serv" ${ro}>${SERVICIOS_HRU.map((x) => `<option ${(c?.servicio || (u && u.servicio)) === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+          <select id="k-serv" ${ro}>${SERVICIOS_HRU.map((x) => `<option ${mismoServicio(c?.servicio || (u && u.servicio), x) ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
         <div class="field"><label>Anestesista</label><input type="text" id="k-anest" value="${v(c && c.anestesista)}" ${ro}></div>
         <div class="field"><label>Tipo de anestesia</label>
           <select id="k-tanest" ${ro}><option value="">Seleccionar…</option>${ANESTESIAS.map((a) => `<option ${c?.anestesia === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
@@ -8236,7 +8282,7 @@ function modulosRegistrados(desde, hasta) {
     const f = c.fecha || '';
     if ((desde && f < desde) || (hasta && f > hasta)) return;
     equipoDe(c).forEach((p) => filas.push({
-      cir: c, fecha: f, servicio: c.servicio || 'Otro', rol: p.rol,
+      cir: c, fecha: f, servicio: servicioCanonico(c.servicio) || 'Otro', rol: p.rol,
       nombre: p.nombre, email: p.email || '', modulo: p.modulo,
     }));
   });
@@ -8310,14 +8356,14 @@ function modSetPeriodo(p) { modPeriodo = p; if (!modAncla) modAncla = hoyISO(); 
 function modAlcance() {
   const u = usuarioActual();
   if (director) return { todo: true, servicio: modServicio, quien: 'Dirección Médica' };
-  return { todo: false, servicio: (u && u.servicio) || '', quien: (u && u.servicio) || '' };
+  const serv = servicioCanonico(u && u.servicio);
+  return { todo: false, servicio: serv, quien: serv };
 }
 function modFilasVisibles() {
   const [d, h] = modRango();
   const al = modAlcance();
   let filas = modulosRegistrados(d, h);
-  if (!al.todo) filas = filas.filter((f) => f.servicio === al.servicio);
-  else if (al.servicio) filas = filas.filter((f) => f.servicio === al.servicio);
+  if (!al.todo || al.servicio) filas = filas.filter((f) => mismoServicio(f.servicio, al.servicio));
   return filas;
 }
 
@@ -8356,12 +8402,12 @@ function renderModulos() {
   // Cirugías realizadas del alcance a las que les falta el ayudante.
   const faltantes = DB.cirugias.filter((c) => c.estado === 'realizada' && c.modulo && !tieneAyudante(c)
     && c.fecha >= desde && c.fecha <= hasta
-    && (al.todo ? (!al.servicio || c.servicio === al.servicio) : c.servicio === al.servicio));
+    && (al.todo && !al.servicio ? true : mismoServicio(c.servicio, al.servicio)));
 
   // Realizadas del alcance que todavía no tienen práctica del nomenclador.
   const sinPractica = DB.cirugias.filter((c) => c.estado === 'realizada' && !c.modulo
     && c.fecha >= desde && c.fecha <= hasta
-    && (al.todo ? (!al.servicio || c.servicio === al.servicio) : c.servicio === al.servicio));
+    && (al.todo && !al.servicio ? true : mismoServicio(c.servicio, al.servicio)));
 
   const barras = modEvolucion(filas, desde, hasta);
   const maxBarra = Math.max(1, ...barras.map((b) => b.T));
