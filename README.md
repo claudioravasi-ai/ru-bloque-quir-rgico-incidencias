@@ -93,9 +93,43 @@ Seis salas, cada una con sus franjas horarias:
 | Quirófano de Obstetricia | 08, 10, 12 · 14, 16, 18 | Cesáreas; admite urgencias |
 
 - **Anticipación mínima de 24 h** para turnos electivos. Las urgencias del Quirófano 1 y de Obstetricia la saltean.
-- La Jefatura puede **habilitar o deshabilitar** el día completo o cada sala, y limpiar los turnos no confirmados.
-  El Quirófano 1 queda fuera de esa llave: la guardia no se cierra.
+- **El bloque programado nace cerrado** (ver más abajo).
 - El parte del día se **imprime o descarga** ordenado por prelación.
+
+### El bloque nace cerrado
+
+Desde la versión 2.4, **todos los días, los quirófanos 2, 3 y 4 y la Sala de Endoscopía aparecen bloqueados**,
+turno de mañana y turno de tarde. Nadie puede programar ahí hasta que la **Jefatura de Quirófanos** lo abra.
+
+Dos salas quedan fuera de la llave:
+
+| Sala | Estado |
+|---|---|
+| Quirófano 1 — guardia de urgencias | Abierto siempre, 08:00 a 08:00. **No se puede cerrar** |
+| Quirófano de Obstetricia — cesáreas | Abierto por defecto; la Jefatura puede cerrarlo expresamente |
+
+**La llave es el turno, no la sala.** La Jefatura abre mañana y tarde por separado, sala por sala, desde
+*Programación Diaria → Jefatura*:
+
+- **Abrir el día completo**: mañana y tarde, solo mañana, solo tarde, o cerrar el día.
+- **Sala por sala, turno por turno**: un botón por turno; en verde el que está abierto.
+- **Repetir esta configuración**: copia lo abierto a los próximos 7 o 30 días (hábiles o corridos). Pide la
+  clave `0112` porque alcanza a varias fechas. Sin esto habría que repetir la apertura día por día todo el año.
+
+Abrir un turno abre el día automáticamente; cerrar el día cierra todo lo que hubiera abierto. **Los turnos ya
+cargados no se pierden**: siguen visibles y editables aunque después se bloquee la franja; si corresponde, se
+suspenden con causa.
+
+El bloqueo se aplica en los tres lugares donde se podría colar un turno: la grilla no ofrece la franja, la
+*Solicitud Quirúrgica* no la lista, y tanto la apertura del formulario como el guardado la rechazan —incluso
+si el turno se cerró mientras el formulario estaba abierto—.
+
+Todo se guarda en la colección `agenda` de Firebase, un documento por fecha, así que la apertura que hace la
+Jefatura se ve en el momento en el resto de las computadoras:
+
+```json
+{ "id": "2026-08-20", "on": true, "salas": { "Q2": { "M": true, "T": false }, "END": { "M": true } } }
+```
 
 ### La guardia de 24 h del Quirófano 1
 
@@ -114,7 +148,7 @@ salvo en la madrugada del Quirófano 1. Los identificadores `T1` a `T6` se conse
 
 | Clave | Para qué |
 |---|---|
-| `0112` | Jefatura de Quirófanos |
+| `0112` | Jefatura de Quirófanos — **abre el bloque**: día, turno y sala |
 | `2358` | Cancelar un turno / limpiar la grilla |
 | `3340` | Autorización de Admisión y Egresos |
 | `9876` | Dirección Médica (módulos de todos los servicios) |

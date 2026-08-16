@@ -561,6 +561,12 @@
     color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 4px 0 8px;
   }
   .periodo-hdr .ph-t { font-weight: 600; letter-spacing: 0; text-transform: none; }
+  /* Estado del turno: la llave del bloque es el turno, no la sala entera. */
+  .turno-estado {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 0.03em; color: var(--green);
+  }
+  .turno-estado.off { color: var(--red); }
   .franjas-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
   .franjas-endo { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 14px; }
   /* Guardia de 24 h del Quirófano 1: seis franjas de una hora por fila. */
@@ -1232,12 +1238,16 @@ const FRANJAS_ENDO = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:
   .map((t, i) => ({ id: 'E' + (i + 1), t, p: t < '14:00' ? 'M' : 'T' }));
 
 const SALAS = [
-  { id: 'Q1', nombre: 'Quirófano 1', tipo: 'qx', urgencias: true, guardia24: true, franjas: FRANJAS_Q1, etiqueta: 'URGENCIAS · 24 H', clase: 'badge-urg' },
+  /* `siempreAbierta`: salas que no nacen bloqueadas. El Quirófano 1 es la
+     guardia y no se cierra nunca; Obstetricia atiende cesáreas, así que queda
+     abierto salvo que la Jefatura lo cierre a propósito. El resto del bloque
+     arranca cerrado todos los días y lo abre la Jefatura turno por turno. */
+  { id: 'Q1', nombre: 'Quirófano 1', tipo: 'qx', urgencias: true, guardia24: true, siempreAbierta: true, franjas: FRANJAS_Q1, etiqueta: 'URGENCIAS · 24 H', clase: 'badge-urg' },
   { id: 'Q2', nombre: 'Quirófano 2', tipo: 'qx', urgencias: false, franjas: FRANJAS_QX },
   { id: 'Q3', nombre: 'Quirófano 3', tipo: 'qx', urgencias: false, franjas: FRANJAS_QX },
   { id: 'Q4', nombre: 'Quirófano 4', tipo: 'qx', urgencias: false, franjas: FRANJAS_QX },
   { id: 'END', nombre: 'Sala de Endoscopía Digestiva', tipo: 'endo', urgencias: false, franjas: FRANJAS_ENDO, etiqueta: 'ENDOSCOPÍA', clase: 'badge-endo' },
-  { id: 'QOBS', nombre: 'Quirófano de Obstetricia — Cesáreas', tipo: 'obs', urgencias: true, franjas: FRANJAS_QX, etiqueta: 'OBSTETRICIA', clase: 'badge-obs' },
+  { id: 'QOBS', nombre: 'Quirófano de Obstetricia — Cesáreas', tipo: 'obs', urgencias: true, siempreAbierta: true, franjas: FRANJAS_QX, etiqueta: 'OBSTETRICIA', clase: 'badge-obs' },
 ];
 const sala = (id) => SALAS.find((s) => s.id === id) || SALAS[0];
 const franjaDe = (salaId, fid) => sala(salaId).franjas.find((f) => f.id === fid) || null;
@@ -2833,7 +2843,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.3.2';
+const APP_VERSION = '2.4.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -4476,8 +4486,8 @@ function renderSolicitud() {
   const dOn = diaHabilitado(d);
 
   const libres = SALAS.map((s) => {
-    if (!s.guardia24 && (!dOn || !salaHabilitada(d, s.id))) return null;
-    const fs = s.franjas.filter((f) => !turnoEn(d, s.id, f.id) && puedeReservar(d, f, s.urgencias));
+    const fs = s.franjas.filter((f) => turnoHabilitado(d, s.id, f.p)
+      && !turnoEn(d, s.id, f.id) && puedeReservar(d, f, s.urgencias));
     return fs.length ? { s, fs } : null;
   }).filter(Boolean);
 
@@ -4505,7 +4515,9 @@ function renderSolicitud() {
       <div style="margin-left:auto"><input type="date" value="${d}" min="${hoyISO()}" onchange="solFecha=this.value;renderSolicitud()"></div>
     </div>
 
-    ${!dOn ? `<div class="dia-banner">${ICONS.lock} Día deshabilitado por Jefatura de Quirófanos.</div>` : ''}
+    ${!dOn ? `<div class="dia-banner">${ICONS.lock}<div><b>Bloque programado cerrado para este día.</b>
+      Los quirófanos 2, 3 y 4 y Endoscopía se habilitan desde la Jefatura de Quirófanos, por turno y por sala.
+      Abajo solo aparecen el Quirófano 1 (urgencias) y Obstetricia, que no requieren habilitación.</div></div>` : ''}
     ${!esLaborable(d) ? `<div class="dia-banner">${ICONS.alertTri.replace(/22/g, '18')} Día no laborable: solo urgencias y emergencias.</div>` : ''}
 
     ${libres.length ? libres.map(({ s, fs }) => `
@@ -6000,23 +6012,104 @@ function jefeLogout() {
 let diaSel = null;
 let slotCtx = null;
 
-function agendaDia(d) { return DB.agenda.find((a) => a.id === d) || null; }
-function diaHabilitado(d) { const a = agendaDia(d); return !a || a.on !== false; }
-function salaHabilitada(d, sid) {
-  // La guardia del Quirófano 1 no se deshabilita: si se cerrara, una urgencia
-  // quedaría sin franja donde cargarse.
-  if (sala(sid).guardia24) return true;
-  const a = agendaDia(d);
-  return !a || !a.salas || !a.salas[sid] || a.salas[sid].on !== false;
+/* ================= HABILITACIÓN DEL BLOQUE =================
+   El bloque programado **nace cerrado**. Todos los días, en los quirófanos 2, 3
+   y 4 y en la Sala de Endoscopía, los turnos de mañana y de tarde aparecen
+   bloqueados hasta que la Jefatura de Quirófanos los abra. Dos salas quedan
+   fuera de la llave: el Quirófano 1 —guardia de urgencias de 08 a 08, que no se
+   cierra nunca— y el Quirófano de Obstetricia —cesáreas—, abierto salvo cierre
+   expreso de la Jefatura.
+
+   Lo abierto se guarda en la colección `agenda`, un documento por fecha:
+       { id: '2026-08-20', on: true, salas: { Q2: { M: true, T: false } } }
+   `on` es el día; dentro de cada sala, una llave por turno ('M' mañana,
+   'T' tarde). Ausente = cerrado. Como todo pasa por `upsert`, cada cambio viaja
+   a Firebase y aparece en el resto de las computadoras en el momento. */
+const TURNOS_BLOQUE = [
+  { p: 'M', label: 'Mañana', rango: '08:00 – 14:00' },
+  { p: 'T', label: 'Tarde', rango: '14:00 – 20:00' },
+  { p: 'N', label: 'Guardia Nocturna', rango: '20:00 – 08:00 del día siguiente' },
+];
+const rotuloTurno = (p) => TURNOS_BLOQUE.find((t) => t.p === p) || TURNOS_BLOQUE[0];
+/* Turnos que realmente tiene una sala, en orden de reloj. */
+function turnosDeSala(s) {
+  return TURNOS_BLOQUE.map((t) => t.p).filter((p) => s.franjas.some((f) => f.p === p));
 }
+/* Salas que la Jefatura abre y cierra (las de acceso permanente no cuentan). */
+const salasProgramables = () => SALAS.filter((s) => !s.siempreAbierta);
+
+function agendaDia(d) { return DB.agenda.find((a) => a.id === d) || null; }
+function cfgSala(d, sid) { const a = agendaDia(d); return (a && a.salas && a.salas[sid]) || null; }
+function diaHabilitado(d) { const a = agendaDia(d); return !!(a && a.on === true); }
+function turnoHabilitado(d, sid, p) {
+  const s = sala(sid);
+  if (s.guardia24) return true;                       // la guardia nunca se cierra
+  const cfg = cfgSala(d, sid);
+  if (s.siempreAbierta) return !cfg || cfg[p] !== false;
+  return !!(diaHabilitado(d) && cfg && cfg[p] === true);
+}
+function salaHabilitada(d, sid) {
+  return turnosDeSala(sala(sid)).some((p) => turnoHabilitado(d, sid, p));
+}
+function franjaHabilitada(d, sid, fid) {
+  const f = franjaDe(sid, fid);
+  return !!f && turnoHabilitado(d, sid, f.p);
+}
+/* Franjas del día realmente ofrecidas: es la capacidad que abrió la Jefatura. */
+function franjasAbiertas(d) {
+  return SALAS.reduce((n, s) => n + s.franjas.filter((f) => turnoHabilitado(d, s.id, f.p)).length, 0);
+}
+
 function guardarAgenda(d, mut) {
-  const a = agendaDia(d) || { id: d, on: true, salas: {} };
+  const a = agendaDia(d) || { id: d, on: false, salas: {} };
   a.salas = a.salas || {};
   mut(a);
   upsert('agenda', a);
 }
-function setDiaOn(d, v) { guardarAgenda(d, (a) => { a.on = v; }); }
-function setSalaOn(d, sid, v) { guardarAgenda(d, (a) => { a.salas[sid] = { on: v }; }); }
+/* Abrir un turno abre el día: no puede quedar una franja disponible en un día
+   cerrado. Cerrar el día, en cambio, cierra todo lo que hubiera abierto. */
+function setTurnoOn(d, sid, p, v) {
+  guardarAgenda(d, (a) => {
+    a.salas[sid] = Object.assign({}, a.salas[sid], { [p]: v });
+    if (v) a.on = true;
+  });
+}
+function setSalaOn(d, sid, v) {
+  guardarAgenda(d, (a) => {
+    const cfg = Object.assign({}, a.salas[sid]);
+    turnosDeSala(sala(sid)).forEach((p) => { cfg[p] = v; });
+    a.salas[sid] = cfg;
+    if (v) a.on = true;
+  });
+}
+function setDiaOn(d, v) {
+  guardarAgenda(d, (a) => { a.on = v; if (!v) a.salas = {}; });
+}
+/* Abre el día completo en los turnos indicados, en todas las salas programables. */
+function abrirDiaEnTurnos(d, turnos) {
+  guardarAgenda(d, (a) => {
+    a.on = true;
+    salasProgramables().forEach((s) => {
+      const cfg = Object.assign({}, a.salas[s.id]);
+      turnosDeSala(s).forEach((p) => { if (turnos.indexOf(p) >= 0) cfg[p] = true; });
+      a.salas[s.id] = cfg;
+    });
+  });
+}
+/* Copia la configuración de un día a un rango. Sin esto la Jefatura tendría que
+   repetir la apertura día por día durante todo el año. */
+function copiarAgendaA(origen, dias, soloHabiles) {
+  const base = agendaDia(origen);
+  if (!base) return 0;
+  let n = 0;
+  for (let i = 1; i <= dias; i++) {
+    const d = sumarDias(origen, i);
+    if (soloHabiles && !esLaborable(d)) continue;
+    upsert('agenda', { id: d, on: base.on === true, salas: JSON.parse(JSON.stringify(base.salas || {})) });
+    n++;
+  }
+  return n;
+}
 
 /* Día de grilla al que pertenece un turno. Coincide con `fecha` salvo en las
    franjas de madrugada de la guardia del Quirófano 1, que se muestran en el día
@@ -6087,37 +6180,34 @@ function slotCard(d, s, f, salaOff) {
     <span class="slot-hint">${!reservable && s.urgencias ? 'Solo urgencia' : 'Disponible'}</span></button>`;
 }
 
-/* Bloque de franjas de un período (mañana, tarde o guardia nocturna). */
-function periodoBloque(d, s, off, p, titulo, rango, clase) {
+/* Bloque de franjas de un turno. El bloqueo ya no es de sala entera: cada turno
+   —mañana o tarde— se abre y se cierra por separado, así que se resuelve acá. */
+function periodoBloque(d, s, p, clase) {
   const fs = s.franjas.filter((f) => f.p === p);
   if (!fs.length) return '';
-  return `<div class="periodo-hdr">${titulo} <span class="ph-t">${rango}</span></div>
-    <div class="franjas-row ${clase || ''}">${fs.map((f) => slotCard(d, s, f, off)).join('')}</div>`;
+  const t = rotuloTurno(p);
+  const off = !turnoHabilitado(d, s.id, p);
+  const titulo = p === 'N' ? t.label : 'Turno ' + t.label;
+  return `<div class="periodo-hdr">${titulo} <span class="ph-t">${t.rango}</span>
+      <span class="turno-estado ${off ? 'off' : ''}">${off ? ico(ICONS.lock, 12) + ' Bloqueado' : 'Abierto'}</span></div>
+    <div class="${clase || 'franjas-row'}">${fs.map((f) => slotCard(d, s, f, off)).join('')}</div>`;
 }
 
 function salaCard(d, s) {
-  // La guardia de 24 h no se bloquea ni cuando la Jefatura cierra el día.
-  const off = !s.guardia24 && (!diaHabilitado(d) || !salaHabilitada(d, s.id));
-  let cuerpo;
-  if (s.tipo === 'endo') {
-    cuerpo = `<div class="franjas-endo">${s.franjas.map((f) => slotCard(d, s, f, off)).join('')}</div>`;
-  } else if (s.guardia24) {
-    cuerpo = `<div class="franjas-wrap">
-      ${periodoBloque(d, s, off, 'M', 'Turno Mañana', '08:00 – 14:00', 'franjas-24')}
-      ${periodoBloque(d, s, off, 'T', 'Turno Tarde', '14:00 – 20:00', 'franjas-24')}
-      ${periodoBloque(d, s, off, 'N', 'Guardia Nocturna', '20:00 – 08:00 del día siguiente', 'franjas-24')}
-    </div>`;
-  } else {
-    cuerpo = `<div class="franjas-wrap">
-      ${periodoBloque(d, s, off, 'M', 'Turno Mañana', '08:00 – 14:00')}
-      ${periodoBloque(d, s, off, 'T', 'Turno Tarde', '14:00 – 20:00')}
-    </div>`;
-  }
+  const turnos = turnosDeSala(s);
+  const abiertos = turnos.filter((p) => turnoHabilitado(d, s.id, p));
+  const off = !abiertos.length;
+  const clase = s.tipo === 'endo' ? 'franjas-endo' : (s.guardia24 ? 'franjas-row franjas-24' : 'franjas-row');
+  const cuerpo = `<div class="franjas-wrap">${turnos.map((p) => periodoBloque(d, s, p, clase)).join('')}</div>`;
+  const estado = s.guardia24 ? 'GUARDIA PERMANENTE'
+    : off ? 'BLOQUEADA'
+    : abiertos.length === turnos.length ? 'ABIERTA'
+    : 'SOLO ' + abiertos.map((p) => rotuloTurno(p).label.toUpperCase()).join(' Y ');
   return `<div class="sala-card ${off ? 'off' : ''} ${s.guardia24 ? 'sala-24' : ''}">
     <div class="sala-hdr">
       <h3>${esc(s.nombre)}</h3>
       ${s.etiqueta ? `<span class="badge-sala ${s.clase}">${s.etiqueta}</span>` : ''}
-      <span class="sala-estado ${off ? 'off' : ''}"><span class="sd"></span>${off ? 'DESHABILITADA' : s.guardia24 ? 'GUARDIA PERMANENTE' : 'HABILITADA'}</span>
+      <span class="sala-estado ${off ? 'off' : ''}"><span class="sd"></span>${estado}</span>
     </div>
     ${s.guardia24 ? `<div class="sala-nota-24">${ICONS.clockSm}<div>Disponibilidad continua de <b>08:00 a 08:00</b> — 24 franjas de una hora, todos los días del año, sábados y domingos incluidos. Destinado principalmente a la organización de cirugías de <b>urgencia y emergencia</b>.</div></div>` : ''}
     ${cuerpo}
@@ -6131,14 +6221,24 @@ function renderProgDiaria() {
   const dOn = diaHabilitado(d);
   const delDia = DB.cirugias.filter((c) => diaDeGrilla(c) === d);
   const ocupadas = delDia.length;
-  const capacidad = SALAS.reduce((n, s) => n + ((s.guardia24 || (salaHabilitada(d, s.id) && dOn)) ? s.franjas.length : 0), 0);
+  const capacidad = franjasAbiertas(d);
+  const cerradas = salasProgramables().filter((s) => !salaHabilitada(d, s.id));
 
   let cuerpo = '';
   if (!laborable) {
     cuerpo = `<div class="dia-banner">${ICONS.alertTri.replace(/22/g, '18')}<div>${fmtDiaLargo(d)} — día no laborable (fin de semana). En el resto del bloque solo se registran urgencias y emergencias; el <b>Quirófano 1 mantiene su grilla completa de 24 h</b>.</div></div>`;
   }
   if (!dOn) {
-    cuerpo += `<div class="dia-banner">${ICONS.lock}<div>${fmtDiaLargo(d)} — día deshabilitado por Jefatura de Quirófanos. El <b>Quirófano 1</b> sigue abierto para urgencias.</div></div>`;
+    cuerpo += `<div class="dia-banner">${ICONS.lock}<div><b>${fmtDiaLargo(d)} — bloque programado cerrado.</b>
+      Los quirófanos 2, 3 y 4 y la Sala de Endoscopía nacen bloqueados todos los días: los abre la
+      <b>Jefatura de Quirófanos</b> con su clave, por turno y por sala. El <b>Quirófano 1</b> (guardia de urgencias)
+      y el <b>Quirófano de Obstetricia</b> (cesáreas) siguen disponibles.
+      ${jefe ? '' : ' Si necesita operar este día, solicítelo a la Jefatura.'}</div>
+      ${jefe ? `<button class="btn btn-sm btn-teal" style="margin-left:auto;flex:none" onclick="openJefaturaDia()">${ico(ICONS.key, 14)} Abrir el día</button>` : ''}</div>`;
+  } else if (cerradas.length) {
+    cuerpo += `<div class="dia-banner">${ICONS.lock}<div>Día abierto parcialmente: ${cerradas.length} de ${salasProgramables().length} salas
+      siguen bloqueadas (${cerradas.map((s) => esc(s.nombre)).join(', ')}).</div>
+      ${jefe ? `<button class="btn btn-sm btn-teal" style="margin-left:auto;flex:none" onclick="openJefaturaDia()">${ico(ICONS.key, 14)} Habilitar</button>` : ''}</div>`;
   }
   // La guardia de 24 h va a lo ancho: son 24 franjas y no entran en media columna.
   cuerpo += SALAS.filter((s) => s.guardia24).map((s) => `<div style="margin-bottom:16px">${salaCard(d, s)}</div>`).join('');
@@ -6181,6 +6281,8 @@ function renderProgDiaria() {
 
     <div class="banner banner-blue">${ICONS.clockSm.replace('14', '18')}
       <div><strong>Reglas de programación</strong>
+      El bloque programado está <b>cerrado por defecto</b>: los quirófanos 2, 3 y 4 y Endoscopía se habilitan por turno
+      (mañana o tarde) desde la Jefatura de Quirófanos. El Quirófano 1 y Obstetricia no requieren habilitación.
       Anticipación mínima de <b>${HORAS_ANTICIPACION} h</b> para turnos electivos (desde ${anticipacionMinima()}). Las <b>urgencias</b> del Quirófano 1 y de Obstetricia la saltean.
       El <b>Quirófano 1</b> es la sala de guardia: grilla continua de <b>08:00 a 08:00</b>, los siete días de la semana.
       Cierre de solicitudes <b>${BLOQUE.cierreSolicitudes} h</b> y publicación del parte <b>${BLOQUE.publicacionParte} h</b> del día previo.
@@ -6200,6 +6302,11 @@ function openSlot(d, sid, fid) {
   const nuevo = !c;
 
   if (nuevo) {
+    // El turno cerrado no se programa ni entrando por un enlace directo.
+    if (!turnoHabilitado(d, sid, f.p)) {
+      alert(`El turno de ${rotuloTurno(f.p).label.toLowerCase()} de ${s.nombre} está bloqueado para el ${fmtFecha(fechaDeFranja(d, f))}.\n\nEl bloque programado se abre desde la Jefatura de Quirófanos, por día, turno y sala.`);
+      return;
+    }
     if (!u && !jefe) { alert('Para programar un turno debe ingresar con su correo institucional (Acceso Profesional) o con la clave de Jefatura.'); go('acceso'); return; }
     if (u && !habilitacion(u).ok) {
       alert('Su habilitación está incompleta. Complete matrícula, título de especialista, seguro de responsabilidad civil, RCP vigente y esquema de vacunación en Mi Perfil antes de programar turnos.');
@@ -6328,6 +6435,10 @@ function guardarSlot() {
   const urgEl = $('k-urg');
   const urgencia = !!(urgEl && urgEl.checked);
   const existente = turnoEn(d, sid, fid);
+  if (!existente && !turnoHabilitado(d, sid, f.p)) {
+    alert('Ese turno acaba de bloquearse desde la Jefatura de Quirófanos. Actualice la grilla y elija otra franja.');
+    return;
+  }
   if (!existente && !puedeReservar(d, f, urgencia)) {
     alert(`Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.\n\nSolo puede programarse marcando "Urgencia / emergencia", y únicamente en el Quirófano 1 o en el quirófano de Obstetricia.`);
     return;
@@ -6448,38 +6559,118 @@ function pedirAutorizacion(id) {
   });
 }
 
-/* ---- Panel de jefatura del día: habilitar salas y limpiar la grilla ---- */
+/* ---- Panel de jefatura del día: abrir el bloque turno por turno ----
+   El bloque nace cerrado, así que este panel es la única llave. Se llega con la
+   sesión de Jefatura, que ya exigió la clave 0112; las acciones que alcanzan a
+   varios días la vuelven a pedir. */
 function openJefaturaDia() {
   const d = diaSel || hoyISO();
-  const fila = (nombre, on, onToggle, onClear, fijo) => `
-    <div class="jefatura-row">
-      <div><div class="jn">${nombre}</div>
-        <div style="font-size:0.76rem;font-weight:800;color:${on ? 'var(--green)' : 'var(--red)'}">${fijo ? 'GUARDIA PERMANENTE 08–08' : on ? 'HABILITADO' : 'DESHABILITADO'}</div></div>
+  const prog = salasProgramables();
+  const abiertas = prog.filter((s) => salaHabilitada(d, s.id)).length;
+  const dOn = diaHabilitado(d);
+
+  const filaSala = (s) => {
+    const turnos = turnosDeSala(s);
+    const fijo = s.guardia24;
+    // Mismo rótulo que la grilla: «abierta» a secas confundiría cuando solo
+    // está abierto uno de los dos turnos.
+    const abiertos = turnos.filter((p) => turnoHabilitado(d, s.id, p));
+    const rotulo = fijo ? 'GUARDIA PERMANENTE 08–08'
+      : !abiertos.length ? 'BLOQUEADA'
+      : abiertos.length === turnos.length ? 'ABIERTA — MAÑANA Y TARDE'
+      : 'SOLO ' + abiertos.map((p) => rotuloTurno(p).label.toUpperCase()).join(' Y ');
+    return `<div class="jefatura-row">
+      <div style="min-width:170px">
+        <div class="jn">${esc(s.nombre)}</div>
+        <div style="font-size:0.76rem;font-weight:800;color:${abiertos.length ? 'var(--green)' : 'var(--red)'}">
+          ${rotulo}</div>
+        ${s.siempreAbierta && !fijo ? '<div class="hint">Cesáreas: abierta salvo cierre expreso</div>' : ''}
+      </div>
       <div class="jb">
-        ${fijo ? '<span class="hint" style="max-width:190px;text-align:right">La guardia de urgencias no se deshabilita</span>'
-               : `<button class="btn btn-sm btn-outline" onclick="${onToggle}">${on ? 'Deshabilitar' : 'Habilitar'}</button>`}
-        ${onClear ? `<button class="btn btn-sm btn-red" onclick="${onClear}">Limpiar</button>` : ''}
+        ${fijo
+          ? '<span class="hint" style="max-width:190px;text-align:right">La guardia de urgencias no se cierra</span>'
+          : turnos.map((p) => {
+              const on = turnoHabilitado(d, s.id, p);
+              return `<button class="btn btn-sm ${on ? 'btn-green' : 'btn-outline'}" onclick="jefToggleTurno('${d}','${s.id}','${p}')">
+                ${on ? ico(ICONS.check, 13) : ico(ICONS.lock, 13)} ${rotuloTurno(p).label}</button>`;
+            }).join('')}
+        ${fijo ? '' : `<button class="btn btn-sm btn-red" onclick="jefLimpiarSala('${d}','${s.id}')">Limpiar</button>`}
       </div>
     </div>`;
+  };
+
   $('cir-modal').innerHTML = `
     <button class="modal-close" onclick="closeCirugia()" aria-label="Cerrar">✕</button>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
       <div class="head-icon" style="background:#e8f4fb">${ICONS.shield}</div>
-      <div><div style="font-weight:800;font-size:1.1rem">Jefatura de Quirófanos</div>
+      <div><div style="font-weight:800;font-size:1.1rem">Jefatura de Quirófanos — habilitación del bloque</div>
         <div style="font-size:0.82rem;color:var(--muted)">${fmtDiaLargo(d)}</div></div>
     </div>
-    <div class="det-section"><h4>Control del día</h4>
-      ${fila('Día completo', diaHabilitado(d), `jefToggleDia('${d}')`, `jefLimpiarDia('${d}')`)}
+
+    <div class="banner ${dOn ? 'banner-green' : 'banner-amber'}" style="margin-bottom:14px">
+      ${dOn ? ico(ICONS.checkCircle, 20) : ico(ICONS.lock, 20)}
+      <div><strong>${dOn ? `Día abierto — ${abiertas} de ${prog.length} salas habilitadas` : 'Día cerrado'}</strong>
+      Los quirófanos 2, 3 y 4 y la Sala de Endoscopía nacen bloqueados todos los días. El Quirófano 1 (guardia)
+      y el Quirófano de Obstetricia (cesáreas) no requieren habilitación.</div></div>
+
+    <div class="det-section"><h4>Abrir el día completo</h4>
+      <div class="jefatura-row">
+        <div style="min-width:170px"><div class="jn">Todas las salas programables</div>
+          <div class="hint">Quirófanos 2, 3 y 4 y Endoscopía</div></div>
+        <div class="jb">
+          <button class="btn btn-sm btn-teal" onclick="jefAbrirDia('${d}','MT')">${ico(ICONS.key, 13)} Mañana y tarde</button>
+          <button class="btn btn-sm btn-outline" onclick="jefAbrirDia('${d}','M')">Solo mañana</button>
+          <button class="btn btn-sm btn-outline" onclick="jefAbrirDia('${d}','T')">Solo tarde</button>
+          <button class="btn btn-sm btn-red" onclick="jefCerrarDia('${d}')">Cerrar el día</button>
+        </div>
+      </div>
     </div>
-    <div class="det-section"><h4>Salas</h4>
-      ${SALAS.map((s) => fila(s.nombre, salaHabilitada(d, s.id), `jefToggleSala('${d}','${s.id}')`, `jefLimpiarSala('${d}','${s.id}')`, s.guardia24)).join('')}
+
+    <div class="det-section"><h4>Sala por sala, turno por turno</h4>
+      ${SALAS.map(filaSala).join('')}
+      <p class="form-note">El botón en verde indica el turno abierto. Tocarlo lo cierra; los turnos ya cargados
+      se conservan y, si corresponde, deben suspenderse con causa.</p>
     </div>
-    <p class="form-note">Deshabilitar una sala bloquea sus franjas para nuevas reservas; los turnos ya cargados se conservan y deben suspenderse con causa si corresponde.
-    El <b>Quirófano 1</b> queda fuera de esta llave: es la sala de guardia y su grilla de 08:00 a 08:00 permanece abierta todos los días, incluidos sábados, domingos y feriados.</p>`;
+
+    <div class="det-section"><h4>Repetir esta configuración</h4>
+      <p class="form-note" style="margin:0 0 10px">Copia lo abierto hoy a los días siguientes, para no repetir la
+      habilitación uno por uno. Pide la clave de Jefatura porque alcanza a varias fechas.</p>
+      <div class="jb" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-outline" onclick="jefCopiarAgenda('${d}',7,true)">Próximos 7 días hábiles</button>
+        <button class="btn btn-sm btn-outline" onclick="jefCopiarAgenda('${d}',30,true)">Próximos 30 días hábiles</button>
+        <button class="btn btn-sm btn-outline" onclick="jefCopiarAgenda('${d}',7,false)">Próximos 7 días corridos</button>
+      </div>
+    </div>
+
+    <div class="det-section"><h4>Limpiar la programación</h4>
+      <div class="jefatura-row">
+        <div style="min-width:170px"><div class="jn">Turnos no confirmados del día</div>
+          <div class="hint">No toca los confirmados, en curso ni realizados</div></div>
+        <div class="jb"><button class="btn btn-sm btn-red" onclick="jefLimpiarDia('${d}')">Limpiar el día</button></div>
+      </div>
+    </div>`;
   $('cir-overlay').classList.add('open');
 }
-function jefToggleDia(d) { setDiaOn(d, !diaHabilitado(d)); openJefaturaDia(); }
-function jefToggleSala(d, sid) { setSalaOn(d, sid, !salaHabilitada(d, sid)); openJefaturaDia(); }
+function jefToggleTurno(d, sid, p) { setTurnoOn(d, sid, p, !turnoHabilitado(d, sid, p)); openJefaturaDia(); renderProgDiaria(); }
+function jefAbrirDia(d, modo) {
+  abrirDiaEnTurnos(d, modo === 'MT' ? ['M', 'T'] : [modo]);
+  openJefaturaDia();
+  renderProgDiaria();
+}
+function jefCerrarDia(d) {
+  if (!confirm(`¿Cerrar el bloque programado del ${fmtFecha(d)}?\n\nSe bloquean todos los turnos de los quirófanos 2, 3 y 4 y de Endoscopía. Los turnos ya cargados se conservan.`)) return;
+  setDiaOn(d, false);
+  openJefaturaDia();
+  renderProgDiaria();
+}
+function jefCopiarAgenda(d, dias, soloHabiles) {
+  pedirClave('Repetir la habilitación', `Se copiará lo que está abierto el ${fmtFecha(d)} a los próximos ${dias} días ${soloHabiles ? 'hábiles' : 'corridos'}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, () => {
+    const n = copiarAgendaA(d, dias, soloHabiles);
+    alert(n ? `Habilitación copiada a ${n} día(s).` : 'No hay nada que copiar: este día todavía no tiene ninguna habilitación cargada.');
+    openJefaturaDia();
+    renderProgDiaria();
+  });
+}
 function jefLimpiarDia(d) {
   pedirClave('Limpiar programación del día', 'Se eliminarán todos los turnos aún no confirmados del día.', CLAVE_CANCELAR, () => {
     const borrables = DB.cirugias.filter((c) => diaDeGrilla(c) === d && ['borrador', 'pendiente', 'validada'].includes(c.estado));
