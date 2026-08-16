@@ -204,6 +204,10 @@
   .btn-gray { background: #eceef1; color: #374151; }
   .btn-outline { background: #fff; border: 1px solid #d7dce2; color: #374151; }
   .btn-sm { padding: 7px 13px; font-size: 0.82rem; border-radius: 8px; }
+  /* `.btn-teal` nació como el botón a todo el ancho de los modales de clave, y
+     por eso lleva width:100%. En su variante chica va dentro de una fila junto a
+     un texto: estirado lo aplastaba contra el margen. */
+  .btn-sm.btn-teal { width: auto; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   /* ============ CARDS ============ */
@@ -621,8 +625,13 @@
   .dia-banner {
     background: #2b2f36; color: #e5e7eb; border-radius: var(--radius);
     padding: 14px 18px; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px;
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   }
+  /* El icono conserva su tamaño, el texto se queda con el resto del ancho y el
+     botón baja a una segunda línea antes que dejar el texto en una columna. */
+  .dia-banner > svg { flex: none; }
+  .dia-banner > div { flex: 1 1 260px; min-width: 0; }
+  .dia-banner .btn { flex: none; margin-left: auto; }
   .jefatura-row {
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     padding: 11px 0; border-bottom: 1px solid #f0f2f4;
@@ -2843,7 +2852,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.4.0';
+const APP_VERSION = '2.4.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
