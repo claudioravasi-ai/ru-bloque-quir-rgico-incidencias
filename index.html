@@ -2926,7 +2926,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.5.0';
+const APP_VERSION = '2.5.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -3889,7 +3889,7 @@ function notificarCriticos() {
       });
       n.onclick = () => {
         window.focus();
-        if (r.reclamo) { reclamoAbierto = r.reclamo; go('reclamos'); marcarReclamoLeido(r.reclamo); }
+        if (r.reclamo) { reclamoAbierto = reclamoPermitido(r.reclamo) ? r.reclamo : null; go('reclamos'); marcarReclamoLeido(r.reclamo); }
         else go(r.vista || 'recordatorios');
         n.close();
       };
@@ -5683,6 +5683,14 @@ function reclamoNoLeidos(r) {
   if (!rol) return 0;
   return hiloReclamo(r).slice(leidosPor(r)).filter((m) => m.rol !== rol).length;
 }
+/* ---- Quién ve un reclamo ----
+   Un reclamo es un asunto entre dos partes: lo ven su autor y la Jefatura de
+   Quirófanos, y nadie más. Otro profesional con sesión abierta no entra al hilo
+   ni se entera de que el reclamo existe. Los registros antiguos sin `autorMail`
+   no se pueden atribuir a nadie, así que quedan solo para la Jefatura. */
+function puedeVerReclamo(r) { return !!rolEnReclamo(r); }
+function reclamosVisibles() { return DB.reclamos.filter(puedeVerReclamo); }
+
 /* Avisos de reclamos que le corresponden a quien está mirando: los que debe
    contestar y los que tienen respuestas sin leer. */
 function reclamosPendientes() {
@@ -5692,12 +5700,20 @@ function reclamosPendientes() {
     return turnoDeReclamo(r) === mio || reclamoNoLeidos(r) > 0;
   }).length;
 }
+/* Las dos entradas al hilo revalidan el permiso: un enlace viejo de la campana
+   o una llamada suelta no pueden abrir el reclamo de otro profesional. */
+function reclamoPermitido(id) {
+  const r = DB.reclamos.find((x) => String(x.id) === String(id));
+  return r && puedeVerReclamo(r) ? r : null;
+}
 function verReclamo(id) {
+  if (!reclamoPermitido(id)) { reclamoAbierto = null; renderReclamos(); return; }
   reclamoAbierto = (String(reclamoAbierto) === String(id)) ? null : id;
   if (reclamoAbierto !== null) marcarReclamoLeido(id);
   renderReclamos();
 }
 function abrirReclamo(id) {
+  if (!reclamoPermitido(id)) { reclamoAbierto = null; renderReclamos(); return; }
   reclamoAbierto = id;
   marcarReclamoLeido(id);
   renderReclamos();
@@ -5706,7 +5722,7 @@ function abrirReclamo(id) {
 }
 function marcarReclamoLeido(id) {
   const r = DB.reclamos.find((x) => String(x.id) === String(id));
-  if (!r) return;
+  if (!r || !puedeVerReclamo(r)) return;
   const clave = claveLector(r);
   if (!clave) return;
   const total = hiloReclamo(r).length;
@@ -5718,10 +5734,12 @@ function marcarReclamoLeido(id) {
 
 function renderReclamos() {
   const u = usuarioActual();
-  const aResponder = DB.reclamos.filter((r) => rolEnReclamo(r) && turnoDeReclamo(r) === rolEnReclamo(r));
-  const sinLeer = DB.reclamos.filter((r) => r.estado !== 'cerrado' && reclamoNoLeidos(r) > 0);
+  // Punto único de filtrado: todo lo que se muestra abajo sale de acá.
+  const propios = reclamosVisibles();
+  const aResponder = propios.filter((r) => turnoDeReclamo(r) === rolEnReclamo(r));
+  const sinLeer = propios.filter((r) => r.estado !== 'cerrado' && reclamoNoLeidos(r) > 0);
   const permiso = ('Notification' in window) ? Notification.permission : 'unsupported';
-  const lista = DB.reclamos.slice().sort((a, b) => {
+  const lista = propios.slice().sort((a, b) => {
     // Primero lo que exige acción de quien mira, después por antigüedad.
     const pa = (rolEnReclamo(a) && turnoDeReclamo(a) === rolEnReclamo(a) ? 0 : 2) - (reclamoNoLeidos(a) ? 1 : 0);
     const pb = (rolEnReclamo(b) && turnoDeReclamo(b) === rolEnReclamo(b) ? 0 : 2) - (reclamoNoLeidos(b) ? 1 : 0);
@@ -5751,6 +5769,12 @@ function renderReclamos() {
       Recibirá un aviso cuando le toque responder un reclamo o cuando le respondan uno propio, sin depender de que revise la app.
       <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pedirPermisoNotif()">${ICONS.bell} Activar notificaciones</button></div></div></div>`}
 
+    <div class="banner banner-blue">${ICONS.lock}
+      <div><strong>${jefe && !u ? 'Vista de Jefatura' : 'Su reclamo es confidencial'}</strong>
+      ${jefe && !u
+        ? 'Como Jefatura de Quirófanos usted ve todos los reclamos del hospital. Cada profesional, en cambio, solo ve los suyos.'
+        : 'Cada reclamo lo ven únicamente <b>usted</b>, como autor, y la <b>Jefatura de Quirófanos</b>. Ningún otro profesional puede leerlo ni sabe que existe.'}</div></div>
+
     <div class="banner banner-blue">${ICONS.info}
       <div><strong>Principio de Cultura Justa</strong>
       El canal de reclamos es para desacuerdos formales entre jefaturas de servicio. No reemplaza el reporte de incidencias: los eventos adversos, cuasi-accidentes y fallas de proceso se cargan en <b>Nueva Incidencia</b>.</div></div>
@@ -5768,8 +5792,8 @@ function renderReclamos() {
       </div>
     </div>` : ''}
 
-    <div class="result-count">${lista.length} reclamo(s) registrado(s)${aResponder.length ? ` · ${aResponder.length} a su cargo` : ''}</div>
-    ${lista.length ? lista.map(reclamoCard).join('') : '<div class="empty">No hay reclamos registrados.</div>'}`;
+    <div class="result-count">${lista.length} reclamo(s) ${jefe && !u ? 'registrado(s) en el hospital' : 'suyo(s)'}${aResponder.length ? ` · ${aResponder.length} a su cargo` : ''}</div>
+    ${lista.length ? lista.map(reclamoCard).join('') : `<div class="empty">${jefe && !u ? 'No hay reclamos registrados.' : 'Usted no tiene reclamos registrados. Los reclamos de otros profesionales no se muestran acá.'}</div>`}`;
 }
 
 function ultimaActividad(r) {
