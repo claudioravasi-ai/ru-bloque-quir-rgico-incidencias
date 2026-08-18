@@ -512,6 +512,50 @@
   .pass-label { font-weight: 600; font-size: 0.88rem; margin-bottom: 7px; display: block; }
   .pass-error { color: var(--red); font-size: 0.83rem; margin: -8px 0 12px; display: none; }
 
+  /* ---- Comunicados de la Jefatura ---- */
+  /* El emergente se apoya sobre un fondo más opaco que el resto de los modales:
+     es una interrupción deliberada, no una ventana más. */
+  #com-overlay { background: rgba(10, 14, 12, 0.82); z-index: 200; }
+  .com-modal { border-top: 6px solid var(--blue); }
+  .com-modal.p-urgente { border-top-color: var(--red); }
+  .com-modal.p-importante { border-top-color: var(--amber); }
+  .com-modal.p-informativo { border-top-color: var(--blue); }
+  .com-kicker {
+    display: flex; align-items: center; gap: 9px; font-size: 0.75rem; font-weight: 800;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .com-modal.p-urgente .com-kicker { color: var(--red); }
+  .com-modal.p-importante .com-kicker { color: #a5700c; }
+  .com-modal.p-informativo .com-kicker { color: var(--blue); }
+  /* El latido solo acompaña a lo urgente; se anula si el sistema pide menos
+     movimiento (mareos, sensibilidad vestibular). */
+  .com-modal.p-urgente .com-kicker svg { animation: comlat 1.5s ease-in-out infinite; }
+  @keyframes comlat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.16); } }
+  @media (prefers-reduced-motion: reduce) { .com-modal.p-urgente .com-kicker svg { animation: none; } }
+  .com-modal h2 { text-align: left; font-size: 1.3rem; line-height: 1.35; margin-bottom: 10px; }
+  .com-meta { font-size: 0.82rem; color: var(--muted); margin-bottom: 16px; }
+  .com-cuerpo {
+    background: #f8fafc; border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; font-size: 0.97rem; line-height: 1.65;
+    white-space: pre-wrap; word-break: break-word; margin-bottom: 18px;
+  }
+  .com-acciones { display: flex; flex-direction: column; gap: 10px; }
+  .com-pila { font-size: 0.8rem; color: var(--muted); text-align: center; margin-top: 4px; }
+  /* Lista de lecturas en el panel de la Jefatura */
+  .com-lect-row {
+    display: flex; align-items: center; gap: 10px; padding: 9px 0;
+    border-bottom: 1px solid var(--line); font-size: 0.88rem;
+  }
+  .com-lect-row:last-child { border-bottom: none; }
+  .com-lect-row .cl-n { font-weight: 650; }
+  .com-lect-row .cl-s { color: var(--muted); font-size: 0.82rem; }
+  .com-lect-row .cl-t { margin-left: auto; font-size: 0.8rem; white-space: nowrap; }
+  .com-barra {
+    height: 9px; border-radius: 99px; background: var(--line);
+    overflow: hidden; margin: 10px 0 6px;
+  }
+  .com-barra > i { display: block; height: 100%; background: var(--green); border-radius: 99px; transition: width 0.3s ease; }
+
   /* Detail modal */
   .det-section { margin-bottom: 18px; }
   .det-section h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 8px; }
@@ -1044,6 +1088,13 @@
   </div>
 </div>
 
+<!-- Modal: comunicado emergente de la Jefatura de Quirófanos.
+     No se cierra con Escape, con el botón atrás ni tocando el fondo: la única
+     salida es confirmar la lectura. Ver `esOverlayFijo()`. -->
+<div class="overlay overlay-fijo" id="com-overlay">
+  <div class="modal modal-white com-modal" id="com-modal" style="max-width:620px;"></div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script>
@@ -1092,6 +1143,8 @@ const ICONS = {
   edit: I('<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>', 14),
   fileText: I('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/>', 15),
   menu: I('<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/>', 20),
+  megafono: I('<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'),
+  megafonoBig: I('<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>', 22),
   download: I('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>', 16),
   external: I('<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>', 15),
   refresh: I('<path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>', 15),
@@ -2926,7 +2979,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.5.1';
+const APP_VERSION = '2.6.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -3139,15 +3192,15 @@ const FIREBASE_CONFIG = {
    3. Si la nube está caída, la escritura se encola y se reenvía al reconectar.
    4. Cada snapshot de la nube también se espeja en localStorage, de modo que
       la próxima apertura sin red muestre los últimos datos conocidos. */
-const COLS = ['incidencias', 'cirugias', 'usuarios', 'reclamos', 'agenda', 'consentimientos', 'config'];
+const COLS = ['incidencias', 'cirugias', 'usuarios', 'reclamos', 'agenda', 'consentimientos', 'config', 'comunicados'];
 /* Espejo local con prefijo propio. La app de incidencias embebida corre en el
    mismo origen de GitHub Pages y usa la clave 'hru_incidencias_v2': si ambas
    escribieran ahí se pisarían. Comparten los datos por Firebase (nodo
    'incidencias'), no por localStorage. */
-const LOCAL_KEYS = { incidencias: 'hruq_incidencias_v1', cirugias: 'hruq_cirugias_v1', usuarios: 'hruq_usuarios_v1', reclamos: 'hruq_reclamos_v1', agenda: 'hruq_agenda_v1', consentimientos: 'hruq_consentimientos_v1', config: 'hruq_config_v1' };
-const LEGACY_KEYS = { incidencias: 'hru_incidencias_v2', cirugias: 'hru_cirugias_v1', usuarios: 'hru_usuarios_v1', reclamos: 'hru_reclamos_v1', agenda: '', consentimientos: '', config: '' };
+const LOCAL_KEYS = { incidencias: 'hruq_incidencias_v1', cirugias: 'hruq_cirugias_v1', usuarios: 'hruq_usuarios_v1', reclamos: 'hruq_reclamos_v1', agenda: 'hruq_agenda_v1', consentimientos: 'hruq_consentimientos_v1', config: 'hruq_config_v1', comunicados: 'hruq_comunicados_v1' };
+const LEGACY_KEYS = { incidencias: 'hru_incidencias_v2', cirugias: 'hru_cirugias_v1', usuarios: 'hru_usuarios_v1', reclamos: 'hru_reclamos_v1', agenda: '', consentimientos: '', config: '', comunicados: '' };
 const QUEUE_KEY = 'hruq_cola_v1';
-const DB = { incidencias: [], cirugias: [], usuarios: [], reclamos: [], agenda: [], consentimientos: [], config: [] };
+const DB = { incidencias: [], cirugias: [], usuarios: [], reclamos: [], agenda: [], consentimientos: [], config: [], comunicados: [] };
 const refs = {};
 const forceLocal = new URLSearchParams(location.search).has('local');
 const cloudOn = !forceLocal && typeof firebase !== 'undefined' && !!FIREBASE_CONFIG.databaseURL;
@@ -3261,7 +3314,9 @@ async function initStore(onReady) {
       }
       saveLocal(col); // espejo local de cada snapshot
       if (first) { first = false; if (--pending === 0) { clearTimeout(guarda); listo(); } }
-      else if (ready) { refreshView(); revisarRecordatorios(); }
+      // Un comunicado recién emitido llega por este mismo canal: se revisa acá
+      // para que emerja en el momento, sin esperar la ronda del minuto.
+      else if (ready) { refreshView(); revisarRecordatorios(); revisarComunicados(); }
     }, () => {
       // Sin permiso o sin conexión: se conserva lo que ya está en memoria/local.
       refs[col] = null;
@@ -3547,6 +3602,7 @@ const REM_NOTIF_KEY = 'hru_rem_notificados_v1';
 let remLista = [];
 let remNotificados = {};
 let remTimer = null;
+let comTimer = null;  // ronda de revisión de los comunicados de la Jefatura
 
 function cargarNotificados() {
   try { remNotificados = JSON.parse(localStorage.getItem(REM_NOTIF_KEY) || '{}'); } catch (e) { remNotificados = {}; }
@@ -3942,6 +3998,10 @@ function renderSidebar() {
   }
   if (jefe) {
     items.push({ sep: 'Jefatura' });
+    // Badge: comunicados vigentes que todavía no confirmó todo el padrón.
+    const comSinLeer = DB.comunicados.filter((c) => comVigente(c)
+      && comDestinatarios(c).some((d) => !comLeidoPor(c, d.clave))).length;
+    items.push({ id: 'comunicados', icon: ICONS.megafono, label: 'Comunicados', badge: comSinLeer || null, badgeAmber: true });
     const pend = DB.cirugias.filter((c) => c.estado === 'pendiente' || c.estado === 'validada').length;
     items.push({ id: 'programacion', icon: ICONS.clipboard, label: 'Programación', badge: pend || null });
     items.push({ id: 'confidenciales', icon: ICONS.lock, label: 'Incidencias Confidenciales' });
@@ -4001,12 +4061,13 @@ const TITULOS = {
   solicitud: 'Solicitud Quirúrgica', mis: 'Mis Solicitudes', reclamos: 'Reclamos',
   perfil: 'Mi Perfil', programacion: 'Programación', confidenciales: 'Incidencias Confidenciales',
   kpis: 'Indicadores', usuarios: 'Profesionales', acceso: 'Acceso Profesional',
+  comunicados: 'Comunicados',
   estadisticas: 'Estadísticas Quirúrgicas', consentimientos: 'Consentimientos Médicos Informados',
   modulos: 'Módulos Quirúrgicos',
 };
 function go(v, silencioso) {
   if (v === 'confidenciales' && !jefe) { closeDrawer(); openJefeModal(); return; }
-  if (['programacion', 'kpis', 'usuarios'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
+  if (['programacion', 'kpis', 'usuarios', 'comunicados'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['solicitud', 'mis', 'perfil', 'consentimientos'].includes(v) && !usuarioActual() && !jefe) { v = 'acceso'; }
   if (v === 'reclamos' && !usuarioActual() && !jefe) { v = 'acceso'; }
   // Los módulos los consulta el profesional acreditado (solo su servicio) o la
@@ -6004,6 +6065,8 @@ async function doLogin() {
     alert('Su cuenta está PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos.\n\nPuede consultar la grilla y completar su documentación, pero no programar cirugías hasta que la Jefatura la autorice.');
   }
   go('mis');
+  // Recién ahora hay identidad de lectura: pueden esperarlo comunicados sin confirmar.
+  setTimeout(revisarComunicados, 400);
 }
 
 async function doAlta() {
@@ -6039,6 +6102,7 @@ async function doAlta() {
 
 function userLogout() {
   sessionStorage.removeItem('hru_user');
+  cerrarComunicado();  // sin identidad no hay a quién registrarle la lectura
   go('panel');
 }
 
@@ -6450,7 +6514,7 @@ function tryJefeLogin() {
 function jefeLogout() {
   jefe = false;
   sessionStorage.removeItem('hru_jefe');
-  if (['confidenciales', 'programacion', 'kpis', 'usuarios'].includes(view)) view = 'panel';
+  if (['confidenciales', 'programacion', 'kpis', 'usuarios', 'comunicados'].includes(view)) view = 'panel';
   go(view);
 }
 
@@ -9210,12 +9274,15 @@ function openDirectorModal() {
     director = true;
     sessionStorage.setItem('hru_director', '1');
     go('modulos');
+    // Recién ahora hay identidad de lectura: pueden esperarla comunicados.
+    setTimeout(revisarComunicados, 400);
   });
 }
 function directorLogout() {
   director = false;
   modServicio = '';
   sessionStorage.removeItem('hru_director');
+  cerrarComunicado();  // sin identidad no hay a quién registrarle la lectura
   go(usuarioActual() ? 'modulos' : 'panel');
 }
 
@@ -9720,6 +9787,464 @@ function nomLeer() {
   return { procedimiento: '', modulo: '', practica: null };
 }
 
+/* ================= COMUNICADOS DE LA JEFATURA =================
+   Canal de aviso urgente de la Jefatura de Quirófanos hacia los profesionales y
+   la Dirección Médica. A diferencia de los recordatorios —que se derivan del
+   estado de los datos y se recalculan— un comunicado es un registro que la
+   Jefatura redacta y queda guardado con su fecha y hora de emisión.
+
+   Cómo interrumpe:
+   - Al entrar a la app, todo comunicado vigente y sin leer se muestra como
+     ventana modal que solo se cierra confirmando la lectura.
+   - Si no se confirma, vuelve a aparecer cada 10 minutos, con un tope de
+     insistencia por prioridad (ver COM_PRIOS): lo urgente insiste sin límite,
+     lo importante tres veces y lo informativo una sola vez. La idea es que un
+     aviso menor no moleste a un cirujano en pleno quirófano.
+
+   Quién queda registrado:
+   - Los profesionales entran con su correo, así que cada lectura guarda nombre,
+     servicio y hora exacta.
+   - La Dirección Médica entra con clave compartida y no tiene identidad
+     individual: se registra como un único renglón ('__direccion__'). No se
+     puede saber qué persona de Dirección leyó, solo que Dirección lo leyó.
+
+   Si la Jefatura no emite ningún comunicado, nada de esto se activa: los
+   profesionales no ven la solapa, ni el modal, ni reciben sonido alguno. */
+const COM_PRIOS = {
+  urgente:     { label: 'Urgente',     orden: 0, veces: Infinity, color: 'var(--red)',   badge: 'badge-no',   banner: 'banner-red' },
+  importante:  { label: 'Importante',  orden: 1, veces: 3,        color: 'var(--amber)', badge: 'badge-pend', banner: 'banner-amber' },
+  informativo: { label: 'Informativo', orden: 2, veces: 1,        color: 'var(--blue)',  badge: 'badge-ok',   banner: 'banner-blue' },
+};
+const COM_DESTINOS = {
+  todos:     'Profesionales y Dirección Médica',
+  medicos:   'Solo profesionales',
+  direccion: 'Solo Dirección Médica',
+};
+const COM_INTERVALO_MIN = 10;   // reiteración del emergente sin confirmar
+const COM_DIAS_EMERGENTE = 30;  // pasado ese plazo deja de interrumpir (sigue en la lista)
+const COM_CLAVE_DIRECCION = '__direccion__';
+const COM_AVISOS_KEY = 'hruq_com_avisos_v1';       // sessionStorage: veces mostrado
+const COM_PEND_KEY = 'hruq_com_lecturas_pend_v1';  // localStorage: lecturas sin enviar
+const COM_MUTE_KEY = 'hruq_com_mute_v1';
+
+/* Un overlay «fijo» no se cierra con Escape, con el botón atrás ni tocando el
+   fondo. Hoy solo lo es el comunicado: su razón de ser es que no se pueda
+   esquivar sin dejar constancia de la lectura. */
+function esOverlayFijo(ov) { return !!ov && ov.classList.contains('overlay-fijo'); }
+
+function comPrio(c) { return COM_PRIOS[c && c.prioridad] ? c.prioridad : 'informativo'; }
+function comLecturas(c) { return (c && c.lecturas && typeof c.lecturas === 'object') ? c.lecturas : {}; }
+function comLeidoPor(c, clave) { return !!comLecturas(c)[clave]; }
+function comPorId(id) { return DB.comunicados.find((x) => String(x.id) === String(id)) || null; }
+
+/* Identidad de lectura. La Jefatura, por sí sola, no es destinataria: emite. Si
+   además tiene sesión de profesional abierta, sí recibe como profesional. */
+function comIdentidad() {
+  const u = usuarioActual();
+  if (u) return { clave: claveMail(u.email), nombre: u.nombre, servicio: u.servicio || '', tipo: 'medico' };
+  if (director) return { clave: COM_CLAVE_DIRECCION, nombre: 'Dirección Médica', servicio: 'Dirección Médica', tipo: 'direccion' };
+  return null;
+}
+function comVigente(c) {
+  if (!c || c.activo === false) return false;
+  if (c.vigenteHasta && c.vigenteHasta < hoyISO()) return false;
+  return true;
+}
+function comEsPara(c, ident) {
+  const d = c.destino || 'todos';
+  if (d === 'medicos') return ident.tipo === 'medico';
+  if (d === 'direccion') return ident.tipo === 'direccion';
+  return true;
+}
+/* Comunicados vigentes, dirigidos a quien está mirando, y sin confirmar. */
+function comPendientes() {
+  const ident = comIdentidad();
+  if (!ident) return [];
+  const limite = sumarDias(hoyISO(), -COM_DIAS_EMERGENTE);
+  return DB.comunicados
+    .filter((c) => comVigente(c) && comEsPara(c, ident) && !comLeidoPor(c, ident.clave))
+    .filter((c) => String(c.emitido || '').slice(0, 10) >= limite)
+    .sort((a, b) => (COM_PRIOS[comPrio(a)].orden - COM_PRIOS[comPrio(b)].orden)
+      || String(a.emitido || '').localeCompare(String(b.emitido || '')));
+}
+/* Los que la Jefatura ve en su solapa, del más nuevo al más viejo. */
+function comTodosOrdenados() {
+  return DB.comunicados.slice().sort((a, b) => String(b.emitido || '').localeCompare(String(a.emitido || '')));
+}
+
+/* ---- Escritura de la lectura ----
+   No se usa `upsert`, que reescribe el documento entero: si dos profesionales
+   confirman al mismo tiempo, el segundo borraría el acuse del primero. Se
+   escribe directamente la rama `comunicados/<id>/lecturas/<clave>`. */
+function comLecturasPend() { try { return JSON.parse(localStorage.getItem(COM_PEND_KEY) || '[]'); } catch (e) { return []; } }
+function comLecturasPendSet(a) { try { localStorage.setItem(COM_PEND_KEY, JSON.stringify(a)); } catch (e) {} }
+function comEncolarLectura(id, clave, reg) {
+  const p = comLecturasPend().filter((x) => !(String(x.id) === String(id) && x.clave === clave));
+  p.push({ id, clave, reg });
+  comLecturasPendSet(p);
+}
+function comEscribirLectura(id, clave, reg) {
+  if (!cloudOn) return;
+  if (refs.comunicados && conectado) {
+    refs.comunicados.child(String(id)).child('lecturas').child(clave).set(reg)
+      .catch(() => comEncolarLectura(id, clave, reg));
+  } else comEncolarLectura(id, clave, reg);
+}
+/* Reenvío de los acuses que quedaron sin red. Se llama en cada ronda de revisión. */
+function comFlushLecturas() {
+  if (!cloudOn || !conectado || !refs.comunicados) return;
+  const p = comLecturasPend();
+  if (!p.length) return;
+  comLecturasPendSet([]);
+  p.forEach((x) => {
+    refs.comunicados.child(String(x.id)).child('lecturas').child(x.clave).set(x.reg)
+      .catch(() => comEncolarLectura(x.id, x.clave, x.reg));
+  });
+}
+/* Cambio puntual de un campo del comunicado (archivar, reabrir): tampoco pisa
+   las lecturas que estén entrando en ese momento. */
+function comSetCampo(id, campo, valor) {
+  const c = comPorId(id);
+  if (!c) return;
+  c[campo] = valor;
+  saveLocal('comunicados');
+  if (cloudOn) {
+    if (refs.comunicados && conectado) {
+      refs.comunicados.child(String(id)).child(campo).set(valor)
+        .catch(() => upsert('comunicados', c));
+    } else upsert('comunicados', c);
+  }
+  refreshView();
+}
+
+/* ---- Aviso sonoro ----
+   Se sintetiza con Web Audio: no hay archivo que descargar ni que cachear, y
+   funciona sin conexión. El navegador bloquea el audio hasta que hubo alguna
+   interacción del usuario con la página; si lo bloquea, el modal igual aparece. */
+let comAudioCtx = null;
+function comSilenciado() { try { return localStorage.getItem(COM_MUTE_KEY) === '1'; } catch (e) { return false; } }
+function comToggleSilencio() {
+  try { localStorage.setItem(COM_MUTE_KEY, comSilenciado() ? '0' : '1'); } catch (e) {}
+  refreshView();
+}
+function comSonar(prio) {
+  if (comSilenciado()) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    comAudioCtx = comAudioCtx || new AC();
+    const ctx = comAudioCtx;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    const pauta = prio === 'urgente' ? [0, 0.3, 0.6] : (prio === 'importante' ? [0, 0.32] : [0]);
+    const hz = prio === 'urgente' ? 880 : (prio === 'importante' ? 660 : 523);
+    pauta.forEach((t) => {
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = hz;
+      const t0 = ctx.currentTime + t;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.2, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.24);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t0); osc.stop(t0 + 0.26);
+    });
+  } catch (e) { /* audio bloqueado: el emergente sigue siendo visible */ }
+}
+
+/* ---- Motor de interrupción ---- */
+function comAvisos() { try { return JSON.parse(sessionStorage.getItem(COM_AVISOS_KEY) || '{}'); } catch (e) { return {}; } }
+function comAvisosSet(o) { try { sessionStorage.setItem(COM_AVISOS_KEY, JSON.stringify(o)); } catch (e) {} }
+function revisarComunicados() {
+  comFlushLecturas();
+  if (!comIdentidad()) return;
+  const ov = $('com-overlay');
+  if (!ov || ov.classList.contains('open')) return;  // ya hay uno en pantalla
+  const avisos = comAvisos();
+  const ahora = Date.now();
+  const toca = comPendientes().find((c) => {
+    const a = avisos[c.id] || { veces: 0, ultimo: 0 };
+    if (a.veces >= COM_PRIOS[comPrio(c)].veces) return false;
+    return a.veces === 0 || (ahora - a.ultimo) >= COM_INTERVALO_MIN * 60000;
+  });
+  if (toca) mostrarComunicado(toca.id);
+}
+function mostrarComunicado(id, soloLectura) {
+  const c = comPorId(id);
+  const ov = $('com-overlay'), md = $('com-modal');
+  if (!c || !ov || !md) return;
+  const prio = comPrio(c), P = COM_PRIOS[prio];
+  const ident = comIdentidad();
+  const yaLeido = !ident || comLeidoPor(c, ident.clave);
+  const restantes = ident && !soloLectura ? comPendientes().length - 1 : 0;
+
+  if (!soloLectura && ident) {
+    const avisos = comAvisos();
+    const a = avisos[c.id] || { veces: 0, ultimo: 0 };
+    avisos[c.id] = { veces: a.veces + 1, ultimo: Date.now() };
+    comAvisosSet(avisos);
+    comSonar(prio);
+    comNotificarSistema(c);
+  }
+
+  md.className = 'modal modal-white com-modal p-' + prio;
+  md.innerHTML = `
+    <div class="com-kicker">${ICONS.megafonoBig} Comunicado ${esc(P.label)} · Jefatura de Quirófanos</div>
+    <h2>${esc(c.titulo || 'Comunicado de la Jefatura')}</h2>
+    <div class="com-meta">Emitido el <b>${fmtDT(c.emitido)}</b> · Dirigido a ${esc(COM_DESTINOS[c.destino] || COM_DESTINOS.todos)}${c.vigenteHasta ? ` · Vigente hasta el <b>${fmtFecha(c.vigenteHasta)}</b>` : ''}</div>
+    <div class="com-cuerpo">${esc(c.texto || '')}</div>
+    ${yaLeido || soloLectura ? `
+      <div class="com-acciones">
+        ${yaLeido && ident ? `<div class="banner banner-green" style="margin:0">${ICONS.check}
+          <div><strong>Lectura confirmada</strong> El ${fmtDT(comLecturas(c)[ident.clave].t)}.</div></div>` : ''}
+        <button class="btn btn-gray" onclick="cerrarComunicado()">Cerrar</button>
+      </div>`
+    : `
+      <div class="com-acciones">
+        <button class="btn btn-green" onclick="confirmarLecturaCom('${attr(c.id)}')">${ICONS.check} Confirmo que lo leí</button>
+        <button class="btn btn-outline" onclick="consultarPorComunicado('${attr(c.id)}')">${ICONS.mail} Confirmo y consulto a la Jefatura</button>
+        ${restantes > 0 ? `<div class="com-pila">Quedan ${restantes} comunicado(s) sin confirmar.</div>` : ''}
+      </div>`}`;
+  ov.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function cerrarComunicado() {
+  const ov = $('com-overlay');
+  if (ov) ov.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function confirmarLecturaCom(id) {
+  const ident = comIdentidad();
+  const c = comPorId(id);
+  if (!c || !ident) { cerrarComunicado(); return; }
+  const reg = { nombre: ident.nombre, servicio: ident.servicio, tipo: ident.tipo, t: nowDT() };
+  // Espejo inmediato en memoria para que no vuelva a interrumpir, haya red o no.
+  c.lecturas = Object.assign({}, comLecturas(c), { [ident.clave]: reg });
+  saveLocal('comunicados');
+  comEscribirLectura(c.id, ident.clave, reg);
+  cerrarComunicado();
+  refreshView();
+  // Encadena el siguiente pendiente, si lo hay.
+  setTimeout(revisarComunicados, 500);
+}
+/* Confirma la lectura y abre Reclamos con el asunto ya escrito: el canal de
+   respuesta a un comunicado es el que ya existe, no uno nuevo. */
+function consultarPorComunicado(id) {
+  const c = comPorId(id);
+  confirmarLecturaCom(id);
+  if (!usuarioActual()) { alert('Las consultas a la Jefatura se envían desde una sesión de profesional.'); return; }
+  go('reclamos');
+  setTimeout(() => {
+    const a = $('r-asunto');
+    if (!a || !c) return;
+    a.value = 'Consulta sobre el comunicado: ' + (c.titulo || fmtDT(c.emitido));
+    const t = $('r-texto');
+    if (t) t.focus();
+    a.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 250);
+}
+function comNotificarSistema(c) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  try {
+    const n = new Notification('HRU Quirófanos — Comunicado de la Jefatura', {
+      body: (c.titulo || '') + '\n' + String(c.texto || '').slice(0, 140),
+      tag: 'com-' + c.id,
+      requireInteraction: comPrio(c) === 'urgente',
+    });
+    n.onclick = () => { window.focus(); mostrarComunicado(c.id, true); n.close(); };
+  } catch (e) { /* algunos navegadores exigen ServiceWorkerRegistration.showNotification */ }
+}
+
+/* ---- Emisión y seguimiento (Jefatura) ---- */
+/* Padrón de destinatarios: profesionales con cuenta autorizada, más el renglón
+   único de Dirección Médica cuando el comunicado la incluye. Las cuentas dadas
+   de baja no cuentan como destinatarios: no pueden entrar a leer. */
+function comDestinatarios(c) {
+  const d = c.destino || 'todos';
+  const lista = [];
+  if (d !== 'direccion') {
+    DB.usuarios.filter((u) => estadoCuenta(u) !== 'baja').forEach((u) => {
+      lista.push({ clave: claveMail(u.email), nombre: u.nombre, servicio: u.servicio || '', tipo: 'medico' });
+    });
+  }
+  if (d !== 'medicos') {
+    lista.push({ clave: COM_CLAVE_DIRECCION, nombre: 'Dirección Médica', servicio: 'Clave compartida', tipo: 'direccion' });
+  }
+  return lista.sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es'));
+}
+function emitirComunicado() {
+  const err = $('c-error');
+  const fail = (m) => { err.textContent = m; err.style.display = 'block'; };
+  const titulo = $('c-titulo').value.trim();
+  const texto = $('c-texto').value.trim();
+  const prioridad = $('c-prio').value;
+  const destino = $('c-destino').value;
+  const vigenteHasta = $('c-vigencia').value;
+  if (!titulo) return fail('Escriba un título: es lo primero que ve el profesional.');
+  if (!texto) return fail('Escriba el cuerpo del comunicado.');
+  if (vigenteHasta && vigenteHasta < hoyISO()) return fail('La fecha de vigencia no puede ser anterior a hoy.');
+  const cuantos = comDestinatarios({ destino }).length;
+  const aviso = prioridad === 'urgente'
+    ? `Va a interrumpir a ${cuantos} destinatario(s) con una ventana que reaparece cada ${COM_INTERVALO_MIN} minutos hasta que cada uno confirme la lectura.`
+    : `Va a interrumpir a ${cuantos} destinatario(s)${COM_PRIOS[prioridad].veces === 1 ? ' una sola vez' : ` hasta ${COM_PRIOS[prioridad].veces} veces`}.`;
+  if (!confirm(`Emitir el comunicado «${titulo}»?\n\n${aviso}\n\nUna vez emitido queda registrado con su fecha y hora. Puede archivarlo, pero no borrar el registro de quiénes lo leyeron.`)) return;
+  const c = {
+    id: 'com' + Date.now(),
+    titulo, texto, prioridad, destino,
+    vigenteHasta: vigenteHasta || '',
+    emitido: nowDT(),
+    emitidoPor: JEFATURA,
+    activo: true,
+    lecturas: {},
+  };
+  upsert('comunicados', c);
+  $('c-titulo').value = '';
+  $('c-texto').value = '';
+  $('c-vigencia').value = '';
+  err.style.display = 'none';
+  comAbierto = c.id;
+  renderComunicados();
+  alert('Comunicado emitido.\n\nLos destinatarios que tengan la app abierta lo verán en el momento; el resto, al entrar. Puede seguir las confirmaciones de lectura en esta misma pantalla.');
+}
+function archivarComunicado(id) {
+  const c = comPorId(id);
+  if (!c) return;
+  if (!confirm(`Archivar «${c.titulo}»?\n\nDeja de aparecer como ventana emergente. El comunicado y el registro de lecturas se conservan.`)) return;
+  comSetCampo(id, 'activo', false);
+}
+function reabrirComunicado(id) {
+  const c = comPorId(id);
+  if (!c) return;
+  if (!confirm(`Reactivar «${c.titulo}»?\n\nVolverá a interrumpir a quienes todavía no confirmaron la lectura.`)) return;
+  comSetCampo(id, 'activo', true);
+}
+function toggleComunicado(id) {
+  comAbierto = String(comAbierto) === String(id) ? null : id;
+  renderComunicados();
+}
+function exportarLecturas(id) {
+  const c = comPorId(id);
+  if (!c) return;
+  const lect = comLecturas(c);
+  const filas = [['Comunicado', 'Emitido', 'Prioridad', 'Destinatario', 'Servicio', 'Estado', 'Fecha y hora de lectura']];
+  comDestinatarios(c).forEach((d) => {
+    const l = lect[d.clave];
+    filas.push([c.titulo, fmtDT(c.emitido), COM_PRIOS[comPrio(c)].label, d.nombre, d.servicio,
+      l ? 'Leído' : 'Sin leer', l ? fmtDT(l.t) : '']);
+  });
+  descargarCSV(`comunicado-${String(c.emitido).slice(0, 10)}.csv`, filas);
+}
+
+let comAbierto = null;  // id del comunicado con el detalle de lecturas desplegado
+
+function comFicha(c) {
+  const prio = comPrio(c), P = COM_PRIOS[prio];
+  const dest = comDestinatarios(c);
+  const lect = comLecturas(c);
+  const leidos = dest.filter((d) => lect[d.clave]);
+  const pct = dest.length ? Math.round((leidos.length / dest.length) * 100) : 0;
+  const abierto = String(comAbierto) === String(c.id);
+  const vencido = c.vigenteHasta && c.vigenteHasta < hoyISO();
+  return `
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <span class="${P.badge}">${esc(P.label)}</span>
+            ${c.activo === false ? '<span class="badge-pend">Archivado</span>' : ''}
+            ${vencido && c.activo !== false ? '<span class="badge-pend">Vigencia cumplida</span>' : ''}
+          </div>
+          <div class="card-title" style="margin-bottom:2px">${esc(c.titulo || 'Comunicado')}</div>
+          <div class="card-sub">Emitido el ${fmtDT(c.emitido)} · ${esc(COM_DESTINOS[c.destino] || COM_DESTINOS.todos)}${c.vigenteHasta ? ` · Vigente hasta el ${fmtFecha(c.vigenteHasta)}` : ''}</div>
+        </div>
+        <div style="text-align:right;min-width:110px">
+          <div style="font-size:1.5rem;font-weight:800;color:${leidos.length === dest.length ? 'var(--green)' : 'var(--amber)'}">${leidos.length}/${dest.length}</div>
+          <div style="font-size:0.76rem;color:var(--muted)">confirmaron</div>
+        </div>
+      </div>
+
+      <div class="com-barra"><i style="width:${pct}%"></i></div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:12px">${pct}% de lectura confirmada</div>
+
+      <div class="com-cuerpo" style="margin-bottom:14px">${esc(c.texto || '')}</div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="toggleComunicado('${attr(c.id)}')">${abierto ? 'Ocultar' : 'Ver'} quién lo leyó</button>
+        <button class="btn btn-outline btn-sm" onclick="exportarLecturas('${attr(c.id)}')">${ICONS.download.replace('18', '15')} Descargar planilla</button>
+        ${c.activo === false
+          ? `<button class="btn btn-outline btn-sm" onclick="reabrirComunicado('${attr(c.id)}')">Reactivar</button>`
+          : `<button class="btn btn-outline btn-sm" onclick="archivarComunicado('${attr(c.id)}')">Archivar</button>`}
+      </div>
+
+      ${abierto ? `<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:10px">
+        ${dest.map((d) => {
+          const l = lect[d.clave];
+          return `<div class="com-lect-row">
+            <span class="${l ? 'badge-ok' : 'badge-no'}" style="min-width:74px;text-align:center">${l ? 'Leído' : 'Sin leer'}</span>
+            <div><div class="cl-n">${esc(d.nombre)}</div><div class="cl-s">${esc(d.servicio)}</div></div>
+            <div class="cl-t" style="color:${l ? 'var(--green)' : 'var(--muted)'}">${l ? fmtDT(l.t) : '—'}</div>
+          </div>`;
+        }).join('')}
+        ${dest.length ? '' : '<div class="empty">Todavía no hay profesionales registrados como destinatarios.</div>'}
+      </div>` : ''}
+    </div>`;
+}
+
+function renderComunicados() {
+  const lista = comTodosOrdenados();
+  const activos = lista.filter((c) => comVigente(c));
+  const permiso = ('Notification' in window) ? Notification.permission : 'unsupported';
+  $('main').innerHTML = `
+    <div class="page-head">
+      <div class="head-row">
+        <div class="head-icon">${ICONS.megafonoBig}</div>
+        <div>
+          <h1 class="page-title">Comunicados</h1>
+          <p class="page-sub">Aviso urgente de la Jefatura de Quirófanos a los profesionales y a la Dirección Médica</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="banner banner-blue">${ICONS.info}
+      <div><strong>Cómo llega un comunicado</strong>
+      Aparece como <b>ventana emergente</b> apenas el destinatario entra a la app y no se cierra hasta que confirma la lectura. Si no la confirma, vuelve a aparecer cada ${COM_INTERVALO_MIN} minutos: sin límite si es <b>urgente</b>, hasta ${COM_PRIOS.importante.veces} veces si es <b>importante</b> y una sola vez si es <b>informativo</b>. Quien tenga dudas puede responder desde la solapa <b>Reclamos</b>.</div></div>
+
+    ${permiso === 'granted' ? '' : `<div class="banner banner-amber">${ICONS.bell.replace('16', '18')}
+      <div><strong>Las notificaciones del dispositivo están desactivadas</strong>
+      El emergente y el sonido funcionan igual dentro de la app, pero sin permiso del navegador no se avisa a quien la tenga cerrada.
+      <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pedirPermisoNotif()">${ICONS.bell} Activar notificaciones</button></div></div></div>`}
+
+    <div class="card">
+      <div class="card-title">Emitir un comunicado</div>
+      <div class="card-sub">Queda registrado a nombre de la Jefatura de Quirófanos con la fecha y hora exactas de emisión</div>
+      <div class="form-grid">
+        <div class="field full"><label>Título *</label><input type="text" id="c-titulo" placeholder="Ej: Quirófano 3 fuera de servicio por falla del sistema de gases"></div>
+        <div class="field full"><label>Cuerpo del comunicado *</label><textarea id="c-texto" placeholder="Detalle la situación, desde cuándo rige y qué debe hacer el profesional."></textarea></div>
+        <div class="field"><label>Prioridad</label>
+          <select id="c-prio">
+            <option value="urgente">Urgente — insiste cada ${COM_INTERVALO_MIN} min hasta que lo lean</option>
+            <option value="importante" selected>Importante — insiste hasta ${COM_PRIOS.importante.veces} veces</option>
+            <option value="informativo">Informativo — se muestra una sola vez</option>
+          </select></div>
+        <div class="field"><label>Destinatarios</label>
+          <select id="c-destino">
+            <option value="todos">${COM_DESTINOS.todos}</option>
+            <option value="medicos">${COM_DESTINOS.medicos}</option>
+            <option value="direccion">${COM_DESTINOS.direccion}</option>
+          </select></div>
+        <div class="field"><label>Vigente hasta (opcional)</label><input type="date" id="c-vigencia" min="${hoyISO()}">
+          <div class="req-sub" style="margin-top:5px">Cumplida esa fecha deja de emerger. Si se deja vacío, rige hasta que la Jefatura lo archive.</div></div>
+      </div>
+      <p class="pass-error" id="c-error"></p>
+      <div class="form-actions">
+        <button class="btn btn-red" onclick="emitirComunicado()">${ICONS.megafono} Emitir comunicado</button>
+        <p class="form-note">La Dirección Médica entra con clave compartida: su lectura se registra como un único renglón y no identifica a la persona. La de cada profesional sí queda con nombre, servicio y hora.</p>
+      </div>
+    </div>
+
+    <div class="result-count">${lista.length} comunicado(s) · ${activos.length} vigente(s)</div>
+    ${lista.length ? lista.map(comFicha).join('') : `<div class="empty">Todavía no se emitió ningún comunicado. Mientras no haya ninguno, los profesionales no ven cambio alguno en la app.</div>`}`;
+}
+
 /* ================= REGISTRO DE VISTAS ================= */
 Object.assign(VIEWS, {
   grilla: renderProgDiaria,
@@ -9736,6 +10261,7 @@ Object.assign(VIEWS, {
   consentimientos: renderConsentimientos,
   usuarios: renderUsuarios,
   reclamos: renderReclamos,
+  comunicados: renderComunicados,
   acceso: renderAcceso,
   perfil: renderPerfil,
   modulos: renderModulos,
@@ -9761,11 +10287,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   $('jefe-pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') tryJefeLogin(); });
   document.querySelectorAll('.overlay').forEach((ov) => {
-    ov.addEventListener('click', (e) => { if (e.target === ov) ov.classList.remove('open'); });
+    ov.addEventListener('click', (e) => { if (e.target === ov && !esOverlayFijo(ov)) ov.classList.remove('open'); });
   });
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    document.querySelectorAll('.overlay.open').forEach((ov) => ov.classList.remove('open'));
+    document.querySelectorAll('.overlay.open').forEach((ov) => { if (!esOverlayFijo(ov)) ov.classList.remove('open'); });
     closeDrawer();
   });
   // El cajón lateral solo existe en móvil: al ensanchar la ventana se cierra.
@@ -9777,7 +10303,7 @@ document.addEventListener('DOMContentLoaded', () => {
   pintarConexion();
 
   window.addEventListener('popstate', () => {
-    const abiertos = document.querySelectorAll('.overlay.open');
+    const abiertos = [...document.querySelectorAll('.overlay.open')].filter((ov) => !esOverlayFijo(ov));
     if (abiertos.length) { abiertos.forEach((ov) => ov.classList.remove('open')); return; }
     go(vistaDelHash(), true);
   });
@@ -9791,6 +10317,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (remTimer) clearInterval(remTimer);
     remTimer = setInterval(revisarRecordatorios, 60000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) revisarRecordatorios(); });
+
+    /* Comunicados: se revisan al abrir y en cada ronda del minuto. La ronda es
+       corta a propósito —la insistencia real la gobierna COM_INTERVALO_MIN—
+       para que un comunicado nuevo no espere diez minutos para aparecer. */
+    revisarComunicados();
+    if (comTimer) clearInterval(comTimer);
+    comTimer = setInterval(revisarComunicados, 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) revisarComunicados(); });
   });
 
   // Service worker: abre la app sin conexión y trae sola cada versión publicada.

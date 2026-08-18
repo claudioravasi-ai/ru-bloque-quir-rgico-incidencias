@@ -67,14 +67,15 @@ notificaciones del sistema.
 | Capa | Qué guarda | Cuándo |
 |---|---|---|
 | Firebase Realtime Database | Fuente compartida entre todos los dispositivos del hospital | Siempre que haya conexión |
-| `localStorage` | Espejo completo de las seis colecciones | En cada cambio y en cada sincronización |
+| `localStorage` | Espejo completo de todas las colecciones | En cada cambio y en cada sincronización |
 | Cola de escrituras | Cambios hechos sin conexión | Se reenvían solos al reconectar |
 
 La app abre siempre con la última copia local conocida y se sincroniza en segundo plano. El indicador de la
 barra superior muestra **Sincronizado**, **Sin conexión**, **N sin sincronizar** o **Modo local**.
 
 Colecciones: `cirugias` (turnos), `incidencias`, `usuarios`, `reclamos`, `agenda` (habilitación de días y salas),
-`consentimientos` (consentimientos informados generados) y `config` (valores unitarios de los módulos).
+`consentimientos` (consentimientos informados generados), `config` (valores unitarios de los módulos y
+financiadores agregados a mano) y `comunicados` (avisos de la Jefatura, con sus acuses de lectura).
 
 Agregando `?local=1` a la URL la app corre sin nube, con datos de demostración
 (usuario `demo@hru.gob.ar`, contraseña `demo123`).
@@ -382,6 +383,60 @@ borrador en el cliente de correo del dispositivo: lo envía la persona, la app n
 
 Los reclamos cargados con la versión anterior (asunto, texto y una única respuesta) se leen como un
 hilo de dos mensajes, sin migrar nada.
+
+---
+
+## Comunicados de la Jefatura
+
+Canal de aviso urgente **de la Jefatura hacia el resto**: el camino inverso al de los reclamos. La
+solapa **Comunicados** está en el menú de Jefatura, detrás de la clave `0112`.
+
+A diferencia de los recordatorios —que se derivan del estado de los datos y se recalculan solos— un
+comunicado es un registro que la Jefatura redacta y que queda guardado con su **fecha y hora de
+emisión**.
+
+### Cómo llega
+
+Aparece como **ventana modal** apenas el destinatario entra a la app. No se cierra con Escape, ni con
+el botón atrás, ni tocando el fondo: la única salida es confirmar la lectura. Si no se confirma,
+vuelve a aparecer cada **10 minutos**, con un tope de insistencia según la prioridad:
+
+| Prioridad | Insiste | Sonido |
+|---|---|---|
+| Urgente | Sin límite, cada 10 minutos hasta que se confirme | Tres tonos |
+| Importante | Hasta 3 veces | Dos tonos |
+| Informativo | Una sola vez | Un tono |
+
+El tope existe para que un aviso menor no moleste a un cirujano en pleno quirófano. El sonido se
+sintetiza con Web Audio: no hay archivo que descargar y funciona sin conexión. El navegador lo
+bloquea hasta que hubo alguna interacción con la página; si lo bloquea, el modal igual aparece.
+
+Quien tenga dudas responde con el botón **Confirmo y consulto a la Jefatura**, que registra la
+lectura y abre el canal de reclamos con el asunto ya escrito. No se agregó un canal de respuesta
+nuevo: se usa el que ya existía.
+
+### Quién queda registrado
+
+Los profesionales entran con su correo, así que cada lectura guarda **nombre, servicio y hora
+exacta**. La Dirección Médica entra con clave compartida y no tiene identidad individual: se registra
+como un único renglón. Se sabe que Dirección lo leyó, no qué persona de Dirección.
+
+La Jefatura ve en vivo el porcentaje de lectura, la lista de quién confirmó y quién no, y puede
+descargar la planilla en CSV. Las cuentas dadas de baja no cuentan como destinatarias.
+
+Un comunicado se puede **archivar** (deja de emerger, se conserva el registro) y reactivar. El
+registro de lecturas no se puede borrar. Pasados 30 días de la emisión deja de interrumpir, aunque
+siga en la lista.
+
+### Si no hay comunicados, no hay cambio
+
+Mientras la Jefatura no emita ninguno, los profesionales no ven la solapa, ni el modal, ni reciben
+sonido alguno: la app se comporta exactamente igual que antes. El primer comunicado es lo que
+enciende la función.
+
+Las lecturas se escriben en la rama `comunicados/<id>/lecturas/<clave>` y no con el `upsert` del
+documento entero: si dos profesionales confirman al mismo tiempo, el segundo borraría el acuse del
+primero. Las que quedan sin red se encolan aparte y se reenvían al reconectar.
 
 ---
 
