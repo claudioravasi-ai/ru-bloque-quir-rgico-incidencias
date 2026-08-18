@@ -459,7 +459,8 @@
   .req-row:last-child { border-bottom: none; }
   .req-name { flex: 1; }
   .req-sub { font-size: 0.78rem; color: var(--muted); }
-  .badge-ok, .badge-no { font-size: 0.76rem; font-weight: 700; padding: 4px 11px; border-radius: 99px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+  .badge-ok, .badge-no, .badge-pend { font-size: 0.76rem; font-weight: 700; padding: 4px 11px; border-radius: 99px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+  .badge-pend { background: var(--amber-soft); color: #92600a; }
   .badge-ok { background: var(--green-soft); color: #166b4a; }
   .badge-no { background: var(--red-soft); color: var(--red); }
 
@@ -618,6 +619,7 @@
   .auth-ok { background: var(--green-soft); color: #166b4a; }
   .auth-no { background: var(--red-soft); color: var(--red); }
   .auth-pend { background: var(--amber-soft); color: #92600a; }
+  .auth-exe { background: #ede9fe; color: #5b21b6; }
   .slot-urg-tag {
     position: absolute; top: 6px; right: 6px; font-size: 0.58rem; font-weight: 800;
     background: var(--red); color: #fff; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.04em;
@@ -1023,6 +1025,11 @@
   <div class="modal modal-white" id="slot-modal" style="max-width:760px;"></div>
 </div>
 
+<!-- Modal: dictamen de Admisión y Egresos (autoriza / no autoriza + motivo) -->
+<div class="overlay" id="auth-overlay">
+  <div class="modal modal-white" id="auth-modal" style="max-width:560px;"></div>
+</div>
+
 <!-- Modal: clave operativa (cancelación / autorización) -->
 <div class="overlay" id="clave-overlay">
   <div class="modal">
@@ -1277,8 +1284,75 @@ const ANESTESIAS = ['General', 'Raquídea', 'Epidural', 'Peridural', 'Local',
   'Sedación', 'Mixta (General + Regional)', 'Sin anestesia'];
 const EQUIPOS = ['Arco en C (Rayos X)', 'Ecografía intraoperatoria', 'Láser',
   'Laparoscopio', 'Artroscopio', 'Microscopio quirúrgico', 'Neuronavegación', 'Torre de endoscopía'];
-const OBRAS = ['PAMI', 'IPAUSS', 'OSDE', 'Swiss Medical', 'Galeno', 'OSECAC',
-  'OSPEDYC', 'Medife', 'SICOS', 'Particular', 'Sin cobertura', 'Otra'];
+/* ---- Cobertura del paciente ----
+   Listado agrupado: Tierra del Fuego, coberturas nacionales, obras sociales
+   provinciales, sindicales y empresas de medicina prepaga. Si el financiador no
+   figura, el formulario deja agregarlo: las altas se guardan en la colección
+   `config` (documento `obras`) y quedan disponibles para todo el hospital. */
+const OBRAS_GRUPOS = [
+  { g: 'Tierra del Fuego', o: [
+    'OSEF', 'SICOS', 'Caja Complementaria de Previsión TDF', 'Obra Social del Poder Judicial TDF'] },
+  { g: 'Coberturas nacionales', o: [
+    'PAMI (INSSJP)', 'Programa Incluir Salud', 'IOSFA (Fuerzas Armadas)',
+    'Superintendencia de Bienestar — Policía Federal', 'DIBA (Gendarmería Nacional)',
+    'DIBPFA (Prefectura Naval)', 'OSPJN (Poder Judicial de la Nación)',
+    'Obra Social del Congreso de la Nación', 'DAS (Servicio Penitenciario Federal)'] },
+  { g: 'Obras sociales provinciales', o: [
+    'IOMA (Buenos Aires)', 'APROSS (Córdoba)', 'IAPOS (Santa Fe)', 'IOSPER (Entre Ríos)',
+    'OSEP (Mendoza)', 'ISSN (Neuquén)', 'IPROSS (Río Negro)', 'SEROS (Chubut)',
+    'CSS — Caja de Servicios Sociales (Santa Cruz)', 'SEMPRE (La Pampa)',
+    'IOSCOR (Corrientes)', 'InSSSeP (Chaco)', 'IPS (Salta)', 'ISJ (Jujuy)',
+    'IPSST (Tucumán)', 'APOS (La Rioja)', 'OSEP (Catamarca)', 'DOSEP (San Luis)',
+    'OSP (San Juan)', 'IASEP (Santiago del Estero)', 'IPS (Misiones)',
+    'Subsidio de Salud (Formosa)'] },
+  { g: 'Obras sociales sindicales y nacionales', o: [
+    'OSECAC (Comercio)', 'OSPRERA (Trabajadores Rurales)', 'OSUOMRA (Metalúrgicos)',
+    'OSPE (Petroleros Privados)', 'OSUTHGRA (Gastronómicos)', 'OSMATA (Mecánicos)',
+    'OSPLAD (Actividad Docente)', 'OSDOP (Docentes Particulares)', 'OSPSA (Sanidad)',
+    'OSSEG (Seguro)', 'OSPACA (Aceiteros)', 'OSPIA (Alimentación)',
+    'OSCHOCA (Choferes de Camiones)', 'OSFATLYF (Luz y Fuerza)', 'OSPAT (Peajes)',
+    'OSPEDYC', 'OSDEPYM', 'Unión Personal — UPCN / Accord Salud',
+    'OSPIL (Industria Lechera)', 'OSPETAX (Peones de Taxis)', 'OSTEL (Telefónicos)',
+    'OSPIM (Molineros)', 'OSCEP (Construcción)'] },
+  { g: 'Empresas de medicina prepaga', o: [
+    'OSDE', 'Swiss Medical', 'Galeno', 'Medifé', 'OMINT', 'Medicus', 'Sancor Salud',
+    'Avalian (ex ACA Salud)', 'Prevención Salud', 'Federada Salud', 'Jerárquicos Salud',
+    'Premedic', 'Hospital Italiano — Plan de Salud', 'Hospital Alemán', 'Hospital Británico',
+    'Construir Salud', 'Boreal Salud', 'Nobis Salud', 'Bristol Medicine', 'William Hope',
+    'Colegio Médico / Círculo Médico', 'Vital Salud'] },
+  { g: 'Sin cobertura de terceros', o: ['Particular', 'Sin cobertura'] },
+];
+const OBRAS = OBRAS_GRUPOS.reduce((a, x) => a.concat(x.o), []);
+
+/* Financiadores agregados a mano por el hospital (colección `config`, doc `obras`). */
+function obrasAgregadas() {
+  const c = DB.config.find((x) => String(x.id) === 'obras');
+  return (c && Array.isArray(c.lista)) ? c.lista.slice() : [];
+}
+function obrasTodas() { return OBRAS.concat(obrasAgregadas()); }
+/* Agrega un financiador al listado compartido y devuelve el nombre canónico
+   (si ya existía con otra combinación de mayúsculas, gana el que ya estaba). */
+function agregarObraSocial(nombre) {
+  const n = String(nombre || '').trim().replace(/\s+/g, ' ');
+  if (!n) return '';
+  const ya = obrasTodas().find((o) => o.toLowerCase() === n.toLowerCase());
+  if (ya) return ya;
+  const lista = obrasAgregadas().concat([n]).sort((a, b) => a.localeCompare(b, 'es'));
+  upsert('config', { id: 'obras', lista, actualizado: nowDT() });
+  return n;
+}
+/* <option>s del selector de cobertura, con el valor actual siempre presente
+   aunque venga de un registro anterior a este listado. */
+function opcionesObra(sel) {
+  const extra = obrasAgregadas();
+  const opt = (o) => `<option value="${esc(o)}" ${sel === o ? 'selected' : ''}>${esc(o)}</option>`;
+  let html = '<option value="">Seleccionar…</option>';
+  html += OBRAS_GRUPOS.map((gr) => `<optgroup label="${esc(gr.g)}">${gr.o.map(opt).join('')}</optgroup>`).join('');
+  if (extra.length) html += `<optgroup label="Agregadas por el hospital">${extra.map(opt).join('')}</optgroup>`;
+  if (sel && !obrasTodas().some((o) => o === sel)) html += `<optgroup label="Registro anterior">${opt(sel)}</optgroup>`;
+  html += '<optgroup label="No figura en el listado"><option value="__nueva__">＋ Agregar otra obra social / prepaga…</option></optgroup>';
+  return html;
+}
 const DIAS_S = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
 /* ================= NOMENCLADOR MODULADO 2025 =================
@@ -2852,7 +2926,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.4.1';
+const APP_VERSION = '2.5.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -3039,6 +3113,7 @@ const SEED_USER = {
   seguro: { vence: '2027-03-31' },
   rcp: { tipo: 'Avanzado (ACLS)', fecha: '2025-09-15' },
   vacunas: { hepB: true, dobleAdultos: true, influenza: true, covid: true },
+  cuenta: 'aprobado', cuentaMotivo: '', cuentaFecha: '2026-06-01T09:00',
   passHash: '', creado: '2026-06-01',
 };
 
@@ -3427,6 +3502,42 @@ function habilitacion(u) {
   return { reqs, ok: reqs.every((r) => r.ok) };
 }
 
+/* ================= AUTORIZACIÓN DE LA CUENTA POR LA JEFATURA =================
+   La habilitación documental (matrícula, seguro, RCP…) la carga el propio
+   profesional. La autorización de la cuenta, en cambio, la otorga la Jefatura de
+   Quirófanos: toda alta nace PENDIENTE y no puede programar hasta que la
+   Jefatura la apruebe. La Jefatura también puede dar de baja una cuenta en
+   cualquier momento, con motivo registrado. Las cuentas anteriores a esta
+   versión no traen el campo y se tratan como pendientes: la Jefatura las revisa
+   una vez y quedan resueltas. */
+const CUENTAS = {
+  pendiente: { label: 'Pendiente de autorización', badge: 'badge-pend', color: 'var(--amber)' },
+  aprobado:  { label: 'Autorizado por Jefatura',   badge: 'badge-ok',   color: 'var(--green)' },
+  baja:      { label: 'Dado de baja',              badge: 'badge-no',   color: 'var(--red)' },
+};
+function estadoCuenta(u) {
+  const e = u && u.cuenta;
+  return (e === 'aprobado' || e === 'baja') ? e : 'pendiente';
+}
+function cuentaAprobada(u) { return estadoCuenta(u) === 'aprobado'; }
+/* El motivo lo escribe la Jefatura a mano: puede venir con punto final o sin él. */
+function motivoCuenta(u) {
+  const m = String((u && u.cuentaMotivo) || '').trim();
+  if (!m) return '.';
+  return ': ' + (/[.!?]$/.test(m) ? m : m + '.');
+}
+/* Motivo por el que un profesional no puede programar, o cadena vacía si puede. */
+function bloqueoCuenta(u) {
+  const e = estadoCuenta(u);
+  if (e === 'aprobado') return '';
+  if (e === 'baja') {
+    return 'Su cuenta fue dada de baja por la Jefatura de Quirófanos' + motivoCuenta(u)
+      + '\n\nNo puede programar cirugías. Comuníquese con la Jefatura de Quirófanos para regularizar la situación.';
+  }
+  return 'Su cuenta está PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos.'
+    + '\n\nHasta que la Jefatura la autorice no puede programar cirugías. Mientras tanto puede completar su documentación de habilitación en Mi Perfil.';
+}
+
 /* ================= MOTOR DE RECORDATORIOS =================
    Los recordatorios se derivan del estado real de los datos y del reloj: no se
    guardan como registros, se recalculan. Se muestran en la campana del
@@ -3534,7 +3645,7 @@ function calcRecordatorios() {
     });
 
   /* ---- 3 bis. Autorización de Admisión y Egresos pendiente ---- */
-  DB.cirugias.filter((c) => ['pendiente', 'validada'].includes(c.estado) && c.auth !== 'AUTORIZADO' && c.fecha >= hoy)
+  DB.cirugias.filter((c) => ['pendiente', 'validada'].includes(c.estado) && !authOk(c) && c.fecha >= hoy)
     .forEach((c) => {
       const inicio = new Date(c.fecha + 'T' + (c.horaProg || '08:00') + ':00');
       const horas = (inicio - ahora) / 36e5;
@@ -3545,7 +3656,9 @@ function calcRecordatorios() {
         key: 'auth-' + c.id, nivel: c.auth === 'NO AUTORIZADO' ? 'crit' : (horas <= 24 ? 'crit' : 'warn'),
         vista: 'grilla', cirugia: c.id,
         titulo: c.auth === 'NO AUTORIZADO' ? `Turno NO AUTORIZADO en el parte` : `Turno sin autorización de Admisión`,
-        texto: `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.quirofano}, ${c.horaProg} h). Sin la autorización de Admisión y Egresos el turno no puede confirmarse en el parte oficial.`,
+        texto: c.auth === 'NO AUTORIZADO'
+          ? `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.quirofano}, ${c.horaProg} h). Motivo del rechazo: ${c.authMotivo || 'sin motivo registrado'}.`
+          : `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.quirofano}, ${c.horaProg} h). Sin la autorización de Admisión y Egresos el turno no puede confirmarse en el parte oficial.`,
         cuando: `Cirugía ${humanoRestante(inicio - ahora)}`,
       });
     });
@@ -3718,6 +3831,15 @@ function calcRecordatorios() {
     }
   }
   if (jefe) {
+    const porAutorizar = DB.usuarios.filter((x) => estadoCuenta(x) === 'pendiente');
+    if (porAutorizar.length) {
+      add({
+        key: 'cuentas-pend', nivel: 'crit', vista: 'usuarios',
+        titulo: `${porAutorizar.length} profesional(es) esperando autorización de la Jefatura`,
+        texto: 'Altas registradas que todavía no pueden programar cirugías: ' + porAutorizar.map((x) => x.nombre).join('; ') + '.',
+        cuando: 'Pendiente de resolución',
+      });
+    }
     const incompletos = DB.usuarios.filter((x) => !habilitacion(x).ok);
     if (incompletos.length) {
       add({
@@ -3827,7 +3949,8 @@ function renderSidebar() {
     if (!u) items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'kpis', icon: ICONS.chart, label: 'Indicadores' });
     items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
-    items.push({ id: 'usuarios', icon: ICONS.users, label: 'Profesionales' });
+    const pendCta = DB.usuarios.filter((x) => estadoCuenta(x) === 'pendiente').length;
+    items.push({ id: 'usuarios', icon: ICONS.users, label: 'Profesionales', badge: pendCta || null, badgeAmber: true });
   }
   // Con sesión de cirujano abierta la solapa ya figura arriba: la de Dirección
   // es la misma vista, ampliada a todos los servicios.
@@ -3846,6 +3969,7 @@ function renderSidebar() {
     bottom += `<div class="jefe-session">
       <div class="jefe-session-name">${ICONS.steth.replace('14', '16')} ${esc(u.nombre)}</div>
       <div class="jefe-session-sub">${esc(u.servicio)} · ${habilitacion(u).ok ? 'Habilitado' : 'Habilitación incompleta'}</div>
+      <div class="jefe-session-sub" style="color:${CUENTAS[estadoCuenta(u)].color};font-weight:800">${CUENTAS[estadoCuenta(u)].label}</div>
       <button class="jefe-logout" onclick="userLogout()">${ICONS.logout} Cerrar sesión</button>
     </div>`;
   } else {
@@ -4474,6 +4598,21 @@ function parteCard(c) {
 function renderSolicitud() {
   const u = usuarioActual();
   if (!u) { go('acceso'); return; }
+  if (!cuentaAprobada(u)) {
+    const e = estadoCuenta(u);
+    $('main').innerHTML = `
+      <div class="page-head"><div>
+        <h1 class="page-title">Solicitud Quirúrgica</h1>
+        <p class="page-sub">Carga de solicitudes al ciclo de programación</p>
+      </div></div>
+      <div class="banner ${e === 'baja' ? 'banner-red' : 'banner-amber'}">${ico(ICONS.alertTri, 20)}
+        <div><strong>${e === 'baja' ? 'Cuenta dada de baja por la Jefatura de Quirófanos' : 'Cuenta pendiente de autorización de la Jefatura de Quirófanos'}</strong>
+        ${e === 'baja'
+          ? `Su acceso fue dado de baja${u.cuentaMotivo ? ': <b>' + esc(u.cuentaMotivo) + '</b>' : '.'} No puede cargar solicitudes quirúrgicas. Comuníquese con la Jefatura de Quirófanos.`
+          : 'Su alta fue registrada y está a la espera del visto de la Jefatura de Quirófanos. Hasta que la Jefatura la autorice no puede cargar solicitudes quirúrgicas. Mientras tanto puede completar su documentación de habilitación.'}</div></div>
+      <button class="btn btn-outline" onclick="go('perfil')">${ICONS.user.replace('14', '16')} Ver mi perfil</button>`;
+    return;
+  }
   const hab = habilitacion(u);
   if (!hab.ok) {
     $('main').innerHTML = `
@@ -4659,8 +4798,10 @@ function confirmarCirugia(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
   // Un turno no entra al parte oficial sin la autorización de Admisión y Egresos.
-  if (c.auth !== 'AUTORIZADO') {
-    alert('No se puede confirmar en el parte: el turno no tiene la autorización de Admisión y Egresos.\n\nEstado actual: ' + (c.auth || 'PENDIENTE') + '.\nSolicite la autorización desde la grilla de Programación Diaria.');
+  if (!authOk(c)) {
+    alert('No se puede confirmar en el parte: el turno no tiene la autorización de Admisión y Egresos.\n\nEstado actual: ' + (c.auth || 'PENDIENTE') + '.'
+      + (c.auth === 'NO AUTORIZADO' ? '\nMotivo del rechazo: ' + (c.authMotivo || 'sin motivo registrado') : '')
+      + '\nSolicite la autorización desde la grilla de Programación Diaria.');
     return;
   }
   c.estado = 'confirmada';
@@ -4897,6 +5038,7 @@ function openCirugia(id) {
       <div class="det-row"><b>Quirófano</b> ${esc(c.quirofano || '—')}</div>
       <div class="det-row"><b>Cirujano</b> ${esc(c.cirujano)} (${esc(c.servicio)})</div>
       <div class="det-row"><b>Solicitada</b> ${fmtFecha(c.fechaSolicitud)} · ${esperaDias(c)} días de espera</div>
+      ${authDetalle(c)}
       <div class="det-row"><b>Recursos</b> ${[c.recursos?.arcoC ? 'Arco en C' : '', c.recursos?.implante ? 'Implante: ' + esc(c.recursos.implanteDetalle || 's/d') : '', c.recursos?.hemoderivados ? 'Hemoderivados' : ''].filter(Boolean).join(' · ') || 'Sin recursos especiales'}</div>
       ${c.horaInicioReal ? `<div class="det-row"><b>Inicio real</b> ${fmtDT(c.horaInicioReal)}</div>` : ''}
       ${c.horaFinReal ? `<div class="det-row"><b>Fin real</b> ${fmtDT(c.horaFinReal)} · duración real ${diffMin(c.horaInicioReal, c.horaFinReal)} min</div>` : ''}
@@ -5812,7 +5954,7 @@ function renderAcceso() {
         <p class="pass-error" id="alta-error" style="margin:12px 0 0"></p>
         <div class="form-actions">
           <button class="btn btn-blue" onclick="doAlta()">${ICONS.userPlus} Crear cuenta</button>
-          <p class="form-note">La cuenta queda creada con <b>habilitación incompleta</b> hasta que cargue la documentación en Mi Perfil. Sin habilitación completa no se pueden cargar solicitudes quirúrgicas.</p>
+          <p class="form-note">La cuenta queda <b>pendiente de autorización de la Jefatura de Quirófanos</b> y con <b>habilitación incompleta</b> hasta que cargue la documentación en Mi Perfil. Recién con la autorización de la Jefatura y la habilitación completa se pueden cargar solicitudes quirúrgicas.</p>
         </div>
       </div>`}`;
 }
@@ -5823,10 +5965,20 @@ async function doLogin() {
   const u = DB.usuarios.find((x) => x.email.toLowerCase() === mail);
   const h = await hashPass(pass);
   if (!u || u.passHash !== h) {
+    $('login-error').textContent = 'Correo o contraseña incorrectos.';
+    $('login-error').style.display = 'block';
+    return;
+  }
+  if (estadoCuenta(u) === 'baja') {
+    $('login-error').textContent = 'Su cuenta fue dada de baja por la Jefatura de Quirófanos'
+      + motivoCuenta(u) + ' Comuníquese con la Jefatura de Quirófanos.';
     $('login-error').style.display = 'block';
     return;
   }
   sessionStorage.setItem('hru_user', u.email);
+  if (!cuentaAprobada(u)) {
+    alert('Su cuenta está PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos.\n\nPuede consultar la grilla y completar su documentación, pero no programar cirugías hasta que la Jefatura la autorice.');
+  }
   go('mis');
 }
 
@@ -5851,10 +6003,13 @@ async function doAlta() {
     seguro: { vence: '' },
     rcp: { tipo: '', fecha: '' },
     vacunas: { hepB: false, dobleAdultos: false, influenza: false, covid: false },
+    // Toda alta queda a la espera del visto de la Jefatura de Quirófanos.
+    cuenta: 'pendiente', cuentaMotivo: '', cuentaFecha: nowDT(),
     passHash: await hashPass(p1), creado: hoyISO(),
   };
   upsert('usuarios', u);
   sessionStorage.setItem('hru_user', u.email);
+  alert('Cuenta creada correctamente.\n\nSu acceso queda PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos: hasta que la Jefatura lo habilite no podrá programar cirugías.\n\nMientras tanto, complete su documentación de habilitación en Mi Perfil.');
   go('perfil');
 }
 
@@ -5878,6 +6033,15 @@ function renderPerfil() {
         </div>
       </div>
     </div>
+
+    <div class="banner ${cuentaAprobada(u) ? 'banner-green' : (estadoCuenta(u) === 'baja' ? 'banner-red' : 'banner-amber')}">
+      ${cuentaAprobada(u) ? ICONS.shieldCheck : ICONS.alertTri.replace('22', '20').replace('22', '20')}
+      <div><strong>Autorización de la Jefatura de Quirófanos: ${CUENTAS[estadoCuenta(u)].label}</strong>
+      ${cuentaAprobada(u)
+        ? `La Jefatura autorizó esta cuenta${u.cuentaFecha ? ' el ' + fmtDT(u.cuentaFecha) : ''}. Con la habilitación documental completa puede programar cirugías.`
+        : (estadoCuenta(u) === 'baja'
+          ? `La Jefatura dio de baja esta cuenta${u.cuentaFecha ? ' el ' + fmtDT(u.cuentaFecha) : ''}${u.cuentaMotivo ? ': <b>' + esc(u.cuentaMotivo) + '</b>' : '.'} No puede programar cirugías.`
+          : 'Su alta está a la espera del visto de la Jefatura de Quirófanos. Hasta que la Jefatura la autorice no puede programar cirugías, aunque tenga toda la documentación al día.')}</div></div>
 
     <div class="banner ${hab.ok ? 'banner-green' : 'banner-red'}">
       ${hab.ok ? ICONS.shieldCheck : ICONS.alertTri.replace('22', '20').replace('22', '20')}
@@ -5941,48 +6105,302 @@ function guardarPerfil() {
   renderSidebar();
 }
 
-/* ================= PROFESIONALES (jefe) ================= */
+/* ================= PROFESIONALES (jefe) =================
+   Dos controles distintos conviven en esta vista: la habilitación documental,
+   que se calcula sola a partir de lo que cargó el profesional, y la
+   autorización de la cuenta, que la otorga o revoca la Jefatura a mano. */
 function renderUsuarios() {
   const lista = DB.usuarios.slice().sort((a, b) => a.nombre.localeCompare(b.nombre));
   const habilitados = lista.filter((u) => habilitacion(u).ok).length;
+  const porEstado = (e) => lista.filter((u) => estadoCuenta(u) === e);
+  const pend = porEstado('pendiente'), bajas = porEstado('baja'), oks = porEstado('aprobado');
   $('main').innerHTML = `
     <div class="page-head">
       <div class="head-row">
         <div class="head-icon">${ICONS.users}</div>
         <div>
           <h1 class="page-title">Profesionales</h1>
-          <p class="page-sub">Auditoría de habilitación — ${habilitados} de ${lista.length} habilitados para operar</p>
+          <p class="page-sub">${oks.length} autorizados · ${pend.length} pendientes · ${bajas.length} dados de baja — ${habilitados} de ${lista.length} con habilitación documental completa</p>
         </div>
       </div>
     </div>
 
+    ${pend.length ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 20)}
+      <div><strong>${pend.length} profesional(es) esperando su autorización</strong>
+      Ninguna de estas cuentas puede programar cirugías hasta que la Jefatura la autorice: ${pend.map((u) => esc(u.nombre)).join(' · ')}.</div></div>` : ''}
+
     <div class="banner banner-blue">${ICONS.info}
-      <div><strong>Requisitos de habilitación</strong>
-      Matrícula provincial vigente · Título de especialista · Seguro de responsabilidad civil vigente · RCP con revalidación bienal · Vacunación completa (Hep. B, Doble Adultos, Influenza, COVID-19).</div></div>
+      <div><strong>Dos controles independientes</strong>
+      La <b>autorización de la cuenta</b> la da y la revoca la Jefatura de Quirófanos en esta pantalla. La <b>habilitación documental</b> —matrícula provincial vigente, título de especialista, seguro de responsabilidad civil, RCP con revalidación bienal y vacunación completa— la carga cada profesional en Mi Perfil y el sistema la verifica solo. Para programar hacen falta las dos.</div></div>
 
     <div class="tbl-wrap">
       <table class="tbl">
         <thead><tr>
-          <th>Profesional</th><th>Servicio</th><th>Matrícula</th><th>Especialista</th><th>Seguro</th><th>RCP</th><th>Vacunas</th><th>Estado</th>
+          <th>Profesional</th><th>Servicio</th><th>Cuenta</th><th>Matrícula</th><th>Especialista</th><th>Seguro</th><th>RCP</th><th>Vacunas</th><th>Habilitación</th><th>Acciones de Jefatura</th>
         </tr></thead>
         <tbody>
           ${lista.length ? lista.map((u) => {
             const h = habilitacion(u);
+            const e = estadoCuenta(u);
             const b = (ok) => ok ? `<span class="badge-ok">${ICONS.check}</span>` : `<span class="badge-no">${ICONS.x}</span>`;
+            const id = esc(u.id);
             return `<tr>
-              <td><b>${esc(u.nombre)}</b><div class="req-sub">${esc(u.email)}</div></td>
+              <td><b>${esc(u.nombre)}</b>${u.prueba ? ' <span class="badge-pend">PRUEBA</span>' : ''}<div class="req-sub">${esc(u.email)}${u.dni ? ' · DNI ' + esc(u.dni) : ''}</div></td>
               <td>${esc(u.servicio)}</td>
+              <td><span class="${CUENTAS[e].badge}">${CUENTAS[e].label}</span>
+                ${u.cuentaFecha ? `<div class="req-sub">${fmtDT(u.cuentaFecha)}</div>` : ''}
+                ${e === 'baja' && u.cuentaMotivo ? `<div class="req-sub" style="color:var(--red)">Motivo: ${esc(u.cuentaMotivo)}</div>` : ''}</td>
               <td>${b(h.reqs[0].ok)}</td>
               <td>${b(h.reqs[1].ok)}</td>
               <td>${b(h.reqs[2].ok)}<div class="req-sub">${u.seguro?.vence ? fmtFecha(u.seguro.vence) : '—'}</div></td>
               <td>${b(h.reqs[3].ok)}<div class="req-sub">${u.rcp?.fecha ? fmtFecha(u.rcp.fecha) : '—'}</div></td>
               <td>${b(h.reqs[4].ok)}</td>
               <td>${h.ok ? '<span class="badge-ok">Habilitado</span>' : '<span class="badge-no">Incompleto</span>'}</td>
+              <td><div class="cir-actions" style="margin:0">
+                ${e !== 'aprobado' ? `<button class="btn btn-sm btn-blue" onclick="autorizarCuenta('${id}')">${ico(ICONS.check, 14)} ${e === 'baja' ? 'Reactivar' : 'Autorizar'}</button>` : ''}
+                ${e !== 'baja' ? `<button class="btn btn-sm btn-red" onclick="darDeBajaCuenta('${id}')">${ico(ICONS.x, 14)} Dar de baja</button>` : ''}
+                <button class="btn btn-sm btn-outline" onclick="eliminarProfesional('${id}')">${ico(ICONS.trash, 14)} Eliminar</button>
+              </div></td>
             </tr>`;
-          }).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">No hay profesionales registrados.</td></tr>'}
+          }).join('') : '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">No hay profesionales registrados.</td></tr>'}
         </tbody>
       </table>
-    </div>`;
+    </div>
+
+    ${cardDatosPrueba()}`;
+}
+
+/* ---- Acciones de la Jefatura sobre una cuenta ----
+   Todas piden la clave 0112 aunque la sesión de Jefatura ya esté abierta: dar de
+   baja a un cirujano lo deja fuera del sistema y no puede salir de un clic
+   distraído en una terminal compartida del quirófano. */
+function usuarioPorId(id) { return DB.usuarios.find((u) => String(u.id) === String(id)) || null; }
+
+function autorizarCuenta(id) {
+  const u = usuarioPorId(id);
+  if (!u) return;
+  const alta = estadoCuenta(u) === 'baja';
+  pedirClave('Jefatura de Quirófanos', `${alta ? 'Reactivar' : 'Autorizar'} la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, () => {
+    u.cuenta = 'aprobado';
+    u.cuentaMotivo = '';
+    u.cuentaFecha = nowDT();
+    upsert('usuarios', u);
+    renderUsuarios();
+    alert(`${u.nombre} quedó ${alta ? 'reactivado' : 'autorizado'} por la Jefatura de Quirófanos.` +
+      (habilitacion(u).ok ? '' : '\n\nAtención: su habilitación documental sigue incompleta, así que todavía no podrá programar hasta que cargue los requisitos faltantes en Mi Perfil.'));
+  });
+}
+
+function darDeBajaCuenta(id) {
+  const u = usuarioPorId(id);
+  if (!u) return;
+  pedirClave('Jefatura de Quirófanos', `Dar de baja la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, () => {
+    const motivo = prompt(`Motivo de la baja de ${u.nombre}:\n\n(Queda registrado y se le muestra al profesional cuando intente ingresar.)`, '');
+    if (motivo === null) return;
+    if (!motivo.trim()) { alert('La baja exige un motivo escrito.'); return; }
+    u.cuenta = 'baja';
+    u.cuentaMotivo = motivo.trim();
+    u.cuentaFecha = nowDT();
+    upsert('usuarios', u);
+    renderUsuarios();
+    alert(`${u.nombre} fue dado de baja. No podrá ingresar ni programar cirugías.\n\nLos turnos que ya haya programado se conservan: revíselos en Programación.`);
+  });
+}
+
+/* Eliminar borra el registro de la base. Se ofrece sobre todo para limpiar los
+   datos de prueba; los turnos ya cargados por esa persona no se tocan. */
+function eliminarProfesional(id) {
+  const u = usuarioPorId(id);
+  if (!u) return;
+  const suyos = DB.cirugias.filter((c) => c.cirujanoEmail === u.email).length;
+  pedirClave('Jefatura de Quirófanos', `Eliminar definitivamente la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, () => {
+    if (!confirm(`¿Eliminar la cuenta de ${u.nombre} (${u.email})?\n\n` +
+      (suyos ? `Tiene ${suyos} turno(s) cargado(s), que NO se eliminan.\n\n` : '') +
+      'Esta acción no se puede deshacer. Si solo quiere impedirle el acceso, use "Dar de baja".')) return;
+    removeDoc('usuarios', u.id);
+    renderUsuarios();
+  });
+}
+
+/* ================= DATOS DE PRUEBA (Jefatura) =================
+   Alta y baja de un juego de profesionales y cirugías marcados con `prueba: true`
+   para recorrer el circuito completo en la base real. Se guardan en Firebase
+   como cualquier otro registro —esa es la idea: probar contra la base
+   compartida— y la Jefatura los borra de un clic cuando termina de mirarlos. */
+const CLAVE_PRUEBA = 'prueba123';
+
+function hayDatosPrueba() {
+  return DB.usuarios.some((u) => u.prueba) || DB.cirugias.some((c) => c.prueba);
+}
+
+function cardDatosPrueba() {
+  const nu = DB.usuarios.filter((u) => u.prueba).length;
+  const nc = DB.cirugias.filter((c) => c.prueba).length;
+  return `<div class="card" style="margin-top:18px">
+    <div class="card-title">Datos de prueba</div>
+    <div class="card-sub">Juego de profesionales y cirugías para recorrer el circuito completo</div>
+    ${hayDatosPrueba()
+      ? `<div class="banner banner-amber" style="margin:0 0 12px">${ico(ICONS.alertTri, 18)}
+          <div><strong>Hay datos de prueba cargados</strong>
+          ${nu} profesional(es) y ${nc} cirugía(s) marcados como PRUEBA, guardados en la base compartida. Bórrelos cuando termine de verificar el funcionamiento.</div></div>`
+      : `<p class="form-note" style="margin:0 0 12px">Carga cuatro profesionales (uno autorizado, uno pendiente, uno sin documentación completa y uno dado de baja) y cinco cirugías que cubren los cuatro estados de autorización: pendiente, autorizada, no autorizada con motivo y urgencia exenta. Abre además la agenda de los días que usan esos turnos.</p>`}
+    <div class="cir-actions" style="margin:0">
+      <button class="btn btn-blue" onclick="cargarDatosPrueba()">${ico(ICONS.userPlus, 16)} Cargar datos de prueba</button>
+      ${hayDatosPrueba() ? `<button class="btn btn-red" onclick="borrarDatosPrueba()">${ico(ICONS.trash, 16)} Borrar todos los datos de prueba</button>` : ''}
+    </div>
+    <p class="form-note" style="margin-top:10px">Los profesionales de prueba ingresan con su correo y la contraseña <b>${CLAVE_PRUEBA}</b>.</p>
+  </div>`;
+}
+
+/* Primera franja de la sala que no tenga turno cargado ese día. */
+function franjaLibre(d, sid, desde) {
+  const fr = sala(sid).franjas;
+  const i0 = Math.max(0, fr.findIndex((f) => f.id === desde));
+  for (let i = i0; i < fr.length; i++) if (!turnoEn(d, sid, fr[i].id)) return fr[i];
+  for (let i = 0; i < i0; i++) if (!turnoEn(d, sid, fr[i].id)) return fr[i];
+  return null;
+}
+
+async function cargarDatosPrueba() {
+  if (hayDatosPrueba() && !confirm('Ya hay datos de prueba cargados. ¿Volver a generarlos?\n\nLos anteriores se reemplazan.')) return;
+  pedirClave('Jefatura de Quirófanos', 'Cargar los datos de prueba en la base compartida. Ingrese la clave de Jefatura.', JEFE_CLAVE, async () => {
+    if (hayDatosPrueba()) quitarDatosPrueba();
+    const hash = await hashPass(CLAVE_PRUEBA);
+    const hoy = hoyISO();
+    const d2 = sumarDias(hoy, 2), d3 = sumarDias(hoy, 3);
+
+    /* ---- Profesionales ---- */
+    const base = (email, nombre, dni, servicio, mat, extra) => Object.assign({
+      id: 'PRUEBA-' + email.replace(/[.#$/\[\]]/g, ','),
+      email, nombre, dni, servicio,
+      matricula: { numero: mat, vigente: true },
+      especialista: { titulo: 'Especialista en ' + servicio + ' (MSAL)', si: true },
+      seguro: { vence: sumarDias(hoy, 300) },
+      rcp: { tipo: 'Avanzado (ACLS)', fecha: sumarDias(hoy, -200) },
+      vacunas: { hepB: true, dobleAdultos: true, influenza: true, covid: true },
+      cuenta: 'pendiente', cuentaMotivo: '', cuentaFecha: nowDT(),
+      passHash: hash, creado: hoy, prueba: true,
+    }, extra || {});
+
+    const usuarios = [
+      base('prueba.sosa@hru.gob.ar', '[PRUEBA] Dr. Martín Sosa', '28.114.907', 'Cirugía General', 'MP 3011 (TDF)',
+        { cuenta: 'aprobado' }),
+      base('prueba.benitez@hru.gob.ar', '[PRUEBA] Dra. Carla Benítez', '31.220.443', 'Traumatología y Ortopedia', 'MP 3012 (TDF)',
+        { cuenta: 'pendiente' }),
+      // Autorizado por Jefatura pero con la documentación a medio cargar: sirve
+      // para ver que los dos controles son independientes.
+      base('prueba.vera@hru.gob.ar', '[PRUEBA] Dr. Ignacio Vera', '30.556.118', 'Urología', 'MP 3013 (TDF)',
+        { cuenta: 'aprobado', seguro: { vence: '' }, rcp: { tipo: '', fecha: '' },
+          vacunas: { hepB: true, dobleAdultos: false, influenza: false, covid: true } }),
+      base('prueba.ledesma@hru.gob.ar', '[PRUEBA] Dra. Sofía Ledesma', '27.889.302', 'Ginecología', 'MP 3014 (TDF)',
+        { cuenta: 'baja', cuentaMotivo: 'Baja de prueba: seguro de responsabilidad civil vencido y sin renovar.' }),
+    ];
+    usuarios.forEach((u) => upsert('usuarios', u));
+
+    /* ---- Agenda: abrir los días que usan los turnos de prueba ---- */
+    [d2, d3].forEach((d) => abrirDiaEnTurnos(d, ['M', 'T']));
+
+    /* ---- Cirugías ---- */
+    const sosa = usuarios[0], benitez = usuarios[1];
+    let seq = 0;
+    const mk = (d, sid, desdeFranja, datos) => {
+      const f = franjaLibre(d, sid, desdeFranja);
+      if (!f) return null;
+      const c = Object.assign({
+        id: Date.now() + (seq++),
+        prueba: true,
+        sala: sid, quirofano: sala(sid).nombre, franja: f.id,
+        fecha: fechaDeFranja(d, f), diaGrilla: d, horaProg: f.t,
+        fechaSolicitud: hoy, estado: 'pendiente', prioridad: 6, urgencia: false,
+        auth: null, authMotivo: '', authAgente: '', authPor: '', authFecha: '',
+        recursos: { arcoC: false, implante: false, implanteDetalle: '', hemoderivados: false },
+        coordinacion: { insumos: true, esterilizacion: true, hemoterapia: false, anestesia: true },
+        hce: { datos: true, preop: true, consentimiento: false },
+        duracionMin: 90, anestesista: 'Dr. A. Fernández', anestesia: 'General',
+        equipos: [], historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }],
+      }, datos);
+      c.equipo = equipoActualizado(c, c.modulo);
+      upsert('cirugias', c);
+      return c;
+    };
+
+    const hechos = [];
+    // 1) Electiva esperando el dictamen de Admisión y Egresos.
+    hechos.push(mk(d2, 'Q2', 'T1', {
+      paciente: { nombre: '[PRUEBA] Rosa Maidana', dni: '18.220.114', edad: 61, pediatrico: false, telefono: '2901-400111' },
+      obraSocial: 'OSEF', diagnostico: 'Colelitiasis sintomática', cie10: 'K80.2',
+      procedimiento: 'Colecistectomía laparoscópica', modulo: 'B',
+      cirujano: sosa.nombre, cirujanoEmail: sosa.email, servicio: 'Cirugía General',
+    }));
+    // 2) Electiva autorizada: circuito administrativo cerrado.
+    hechos.push(mk(d2, 'Q3', 'T1', {
+      paciente: { nombre: '[PRUEBA] Héctor Quilodrán', dni: '22.907.663', edad: 54, pediatrico: false, telefono: '2901-400222' },
+      obraSocial: 'OSDE', diagnostico: 'Gonartrosis derecha', cie10: 'M17.1',
+      procedimiento: 'Artroscopia de rodilla', modulo: 'B',
+      cirujano: benitez.nombre, cirujanoEmail: benitez.email, servicio: 'Traumatología y Ortopedia',
+      auth: 'AUTORIZADO', authPor: 'Admisión y Egresos', authAgente: 'Sra. M. Coronel', authFecha: nowDT(),
+      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Admisión y Egresos: AUTORIZADO (Sra. M. Coronel)' }],
+    }));
+    // 3) Electiva rechazada con motivo escrito: es lo que ve el cirujano.
+    hechos.push(mk(d3, 'Q2', 'T4', {
+      paciente: { nombre: '[PRUEBA] Nadia Fuentes', dni: '35.114.008', edad: 33, pediatrico: false, telefono: '2901-400333' },
+      obraSocial: 'Swiss Medical', diagnostico: 'Hernia umbilical', cie10: 'K42.9',
+      procedimiento: 'Hernioplastia umbilical', modulo: 'B',
+      cirujano: sosa.nombre, cirujanoEmail: sosa.email, servicio: 'Cirugía General',
+      auth: 'NO AUTORIZADO', authPor: 'Admisión y Egresos', authAgente: 'Sra. M. Coronel', authFecha: nowDT(),
+      authMotivo: 'La obra social no otorgó la autorización de la práctica: falta el código de autorización y la orden médica sellada. Reprogramar una vez presentada la documentación.',
+      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Admisión y Egresos: NO AUTORIZADO (Sra. M. Coronel) — Motivo: autorización de la obra social no otorgada' }],
+    }));
+    // 4) Urgencia en la guardia: exenta de Admisión y Egresos.
+    hechos.push(mk(hoy, 'Q1', 'H21', {
+      paciente: { nombre: '[PRUEBA] Ramón Alcaraz', dni: '40.223.771', edad: 27, pediatrico: false, telefono: '2901-400444' },
+      obraSocial: 'Particular', diagnostico: 'Apendicitis aguda', cie10: 'K35.8',
+      procedimiento: 'Apendicectomía laparoscópica', modulo: 'B',
+      cirujano: sosa.nombre, cirujanoEmail: sosa.email, servicio: 'Cirugía General',
+      urgencia: true, prioridad: 2,
+      auth: 'AUTORIZADO', authPor: 'Exento — urgencia / emergencia', authFecha: nowDT(),
+      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Urgencia / emergencia: exenta de la autorización de Admisión y Egresos — pasa a validación de la Jefatura de Quirófanos' }],
+    }));
+    // 5) Emergencia obstétrica: la otra sala que admite urgencias.
+    hechos.push(mk(hoy, 'QOBS', 'T5', {
+      paciente: { nombre: '[PRUEBA] Julia Painé', dni: '38.665.291', edad: 29, pediatrico: false, telefono: '2901-400555' },
+      obraSocial: 'PAMI (INSSJP)', diagnostico: 'Sufrimiento fetal agudo', cie10: 'O68.9',
+      procedimiento: 'Cesárea de urgencia', modulo: 'A',
+      cirujano: benitez.nombre, cirujanoEmail: benitez.email, servicio: 'Obstetricia',
+      urgencia: true, prioridad: 1, duracionMin: 60,
+      recursos: { arcoC: false, implante: false, implanteDetalle: '', hemoderivados: true },
+      coordinacion: { insumos: true, esterilizacion: true, hemoterapia: true, anestesia: true },
+      auth: 'AUTORIZADO', authPor: 'Exento — urgencia / emergencia', authFecha: nowDT(),
+      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Urgencia / emergencia: exenta de la autorización de Admisión y Egresos — pasa a validación de la Jefatura de Quirófanos' }],
+    }));
+
+    const ok = hechos.filter(Boolean).length;
+    renderUsuarios();
+    alert(`Datos de prueba cargados en la base compartida.\n\n· ${usuarios.length} profesionales (contraseña ${CLAVE_PRUEBA})\n· ${ok} cirugías de prueba\n· Agenda abierta el ${fmtFecha(d2)} y el ${fmtFecha(d3)}\n\nTodos llevan el rótulo [PRUEBA]. La Jefatura los borra desde esta misma pantalla.`);
+  });
+}
+
+/* Baja efectiva de los registros marcados como prueba (sin confirmaciones).
+   Arrastra también los consentimientos que se hayan generado desde esos turnos:
+   quedarían huérfanos y ensuciando la solapa de Consentimientos. */
+function quitarDatosPrueba() {
+  const ids = DB.cirugias.filter((c) => c.prueba).map((c) => String(c.id));
+  DB.consentimientos.filter((x) => x.prueba || ids.includes(String(x.turnoId)))
+    .forEach((x) => removeDoc('consentimientos', x.id));
+  DB.cirugias.filter((c) => c.prueba).forEach((c) => removeDoc('cirugias', c.id));
+  DB.usuarios.filter((u) => u.prueba).forEach((u) => removeDoc('usuarios', u.id));
+}
+
+function borrarDatosPrueba() {
+  const nu = DB.usuarios.filter((u) => u.prueba).length;
+  const nc = DB.cirugias.filter((c) => c.prueba).length;
+  if (!nu && !nc) { alert('No hay datos de prueba cargados.'); return; }
+  pedirClave('Jefatura de Quirófanos', 'Borrar los datos de prueba. Ingrese la clave de Jefatura.', JEFE_CLAVE, () => {
+    if (!confirm(`¿Borrar ${nu} profesional(es) y ${nc} cirugía(s) de prueba de la base compartida?\n\nNo se toca ningún registro real.`)) return;
+    quitarDatosPrueba();
+    renderUsuarios();
+    alert('Datos de prueba eliminados. La agenda que se abrió para ellos se conserva: ciérrela desde el panel de Jefatura si no la necesita.');
+  });
 }
 
 /* ================= ACCESO JEFE ================= */
@@ -6147,11 +6565,29 @@ function anticipacionMinima() {
   const t = new Date(Date.now() + HORAS_ANTICIPACION * 36e5);
   return `${String(t.getDate()).padStart(2, '0')}/${String(t.getMonth() + 1).padStart(2, '0')}/${t.getFullYear()} ${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')} h`;
 }
+/* El selector de cobertura abre un campo de texto cuando el financiador no
+   figura en el listado; lo que se escriba ahí se suma al listado compartido. */
+function onObraChange() {
+  const sel = $('k-obra'), wrap = $('k-obra-nueva-wrap');
+  if (!sel || !wrap) return;
+  const nueva = sel.value === '__nueva__';
+  wrap.style.display = nueva ? 'block' : 'none';
+  if (nueva) setTimeout(() => { const i = $('k-obra-nueva'); if (i) i.focus(); }, 40);
+}
+
+/* Las urgencias y emergencias no pasan por Admisión y Egresos: quedan exentas
+   y van directo a la validación de la Jefatura de Quirófanos. */
+function authExenta(c) { return !!(c && c.urgencia); }
+/* Un turno puede confirmarse en el parte si tiene el visto de Admisión, o si es
+   una urgencia (exenta de ese trámite). */
+function authOk(c) { return authExenta(c) || c.auth === 'AUTORIZADO'; }
+
 function authChip(c) {
+  if (authExenta(c)) return '<span class="slot-auth auth-exe" title="Urgencia: exenta de la autorización de Admisión y Egresos">SIN AUT. (URG)</span>';
   if (!c.auth) return '<span class="slot-auth auth-pend">PEND. AUT.</span>';
   return c.auth === 'AUTORIZADO'
     ? '<span class="slot-auth auth-ok">AUTORIZADO</span>'
-    : '<span class="slot-auth auth-no">NO AUTORIZ.</span>';
+    : `<span class="slot-auth auth-no" title="${esc(c.authMotivo || 'Sin motivo registrado')}">NO AUTORIZ.</span>`;
 }
 
 function slotCard(d, s, f, salaOff) {
@@ -6317,6 +6753,9 @@ function openSlot(d, sid, fid) {
       return;
     }
     if (!u && !jefe) { alert('Para programar un turno debe ingresar con su correo institucional (Acceso Profesional) o con la clave de Jefatura.'); go('acceso'); return; }
+    // La autorización de la Jefatura va antes que la documentación: sin ella la
+    // cuenta no programa aunque tenga todos los papeles al día.
+    if (u && !jefe && !cuentaAprobada(u)) { alert(bloqueoCuenta(u)); go('perfil'); return; }
     if (u && !habilitacion(u).ok) {
       alert('Su habilitación está incompleta. Complete matrícula, título de especialista, seguro de responsabilidad civil, RCP vigente y esquema de vacunación en Mi Perfil antes de programar turnos.');
       go('perfil'); return;
@@ -6354,7 +6793,11 @@ function openSlot(d, sid, fid) {
           <span class="hint">Se vuelca al consentimiento informado.</span></div>
         <div class="field"><label>Teléfono de contacto</label><input type="text" id="k-tel" value="${v(c && c.paciente?.telefono)}" ${ro}></div>
         <div class="field"><label>Obra social / financiador</label>
-          <select id="k-obra" ${ro}><option value="">Seleccionar…</option>${OBRAS.map((o) => `<option ${c?.obraSocial === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
+          <select id="k-obra" ${ro} onchange="onObraChange()">${opcionesObra(c && c.obraSocial)}</select>
+          <div id="k-obra-nueva-wrap" style="display:none;margin-top:6px">
+            <input type="text" id="k-obra-nueva" placeholder="Nombre de la obra social, prepaga o mutual" ${ro}>
+            <span class="hint">Queda agregada al listado compartido del hospital.</span>
+          </div></div>
         <div class="field"><label>Diagnóstico preoperatorio *</label><input type="text" id="k-diag" value="${v(c && c.diagnostico)}" ${ro}></div>
         <div class="field"><label>Código CIE-10</label><input type="text" id="k-cie" placeholder="Ej: K80.2" value="${v(c && c.cie10)}" ${ro}></div>
         ${campoPractica(c, ro)}
@@ -6400,13 +6843,13 @@ function openSlot(d, sid, fid) {
     ${c ? `<div class="det-section">
       <h4>Circuito del turno</h4>
       <div class="det-row"><b>Estado</b> ${ESTC[c.estado].label} — ${ESTC[c.estado].desc}</div>
-      <div class="det-row"><b>Autorización</b> ${c.auth || 'PENDIENTE'} (Admisión y Egresos)</div>
+      ${authDetalle(c)}
       <div class="det-row"><b>Consentimiento informado</b> ${consentimientoDeTurno(c)
         ? `generado el ${esc(consentimientoDeTurno(c).fecha)}`
         : '<span style="color:var(--red);font-weight:700">pendiente de generar</span>'}</div>
       <div class="cir-actions" style="margin-top:10px">
         <button class="btn btn-sm btn-outline" onclick="closeSlot();openCirugia(${c.id})">${ICONS.eyeSm} Ver ficha completa (LVQ, coordinación, informe)</button>
-        <button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} Autorización de Admisión</button>
+        ${authExenta(c) ? '' : `<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} Autorización de Admisión</button>`}
       <button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">${ico(ICONS.users, 14)} Equipo y módulos</button>
         <button class="btn btn-sm btn-blue" onclick="closeSlot();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir consentimiento' : 'Generar consentimiento informado'}</button>
       </div>
@@ -6441,9 +6884,25 @@ function guardarSlot() {
     alert('Indique el módulo que corresponde a la práctica (A, B o C).\n\nSi la eligió del nomenclador, el módulo se completa solo; si la cargó a mano, debe seleccionarlo.');
     return;
   }
+  // Cobertura: si se eligió "agregar otra", el nombre escrito se suma al
+  // listado compartido y queda como financiador del turno.
+  let obraSocial = $('k-obra').value;
+  if (obraSocial === '__nueva__') {
+    const escrita = ($('k-obra-nueva') || {}).value || '';
+    if (!escrita.trim()) {
+      alert('Escriba el nombre de la obra social o prepaga que quiere agregar al listado.');
+      return;
+    }
+    obraSocial = agregarObraSocial(escrita);
+  }
   const urgEl = $('k-urg');
   const urgencia = !!(urgEl && urgEl.checked);
   const existente = turnoEn(d, sid, fid);
+  // La cuenta pudo darse de baja mientras el modal estaba abierto.
+  if (!existente && u && !jefe && !cuentaAprobada(u)) {
+    alert(bloqueoCuenta(u));
+    closeSlot(); go('perfil'); return;
+  }
   if (!existente && !turnoHabilitado(d, sid, f.p)) {
     alert('Ese turno acaba de bloquearse desde la Jefatura de Quirófanos. Actualice la grilla y elija otra franja.');
     return;
@@ -6469,7 +6928,7 @@ function guardarSlot() {
       nombre: paciente, dni: $('k-dni').value.trim(), edad, pediatrico: edad > 0 && edad < 15,
       nacimiento: $('k-nac').value, telefono: $('k-tel').value.trim(),
     },
-    obraSocial: $('k-obra').value,
+    obraSocial,
     diagnostico, cie10: $('k-cie').value.trim(), procedimiento, practica, modulo,
     cirujano, cirujanoEmail: existente ? c.cirujanoEmail : (u ? u.email : ''),
     servicio: $('k-serv').value,
@@ -6485,6 +6944,22 @@ function guardarSlot() {
     equipos: [...document.querySelectorAll('.k-eq')].filter((x) => x.checked).map((x) => x.dataset.eq),
     hce: { datos: true, preop: $('k-preop').checked, consentimiento: $('k-consent').checked },
   });
+  // Urgencias y emergencias: no pasan por Admisión y Egresos. Quedan exentas
+  // del trámite administrativo y siguen directo a la validación de la Jefatura.
+  if (c.urgencia && c.authPor !== 'Exento — urgencia / emergencia') {
+    c.auth = 'AUTORIZADO';
+    c.authPor = 'Exento — urgencia / emergencia';
+    c.authMotivo = '';
+    c.authAgente = '';
+    c.authFecha = nowDT();
+    pushHist(c, 'Urgencia / emergencia: exenta de la autorización de Admisión y Egresos — pasa a validación de la Jefatura de Quirófanos');
+  } else if (!c.urgencia && c.authPor === 'Exento — urgencia / emergencia') {
+    // Si se quita la marca de urgencia, el turno vuelve al circuito normal.
+    c.auth = null;
+    c.authPor = '';
+    c.authFecha = '';
+    pushHist(c, 'Se quitó la marca de urgencia: el turno vuelve a requerir autorización de Admisión y Egresos');
+  }
   // La pediatría y la alta complejidad se programan en los primeros horarios.
   if (c.paciente.pediatrico && c.prioridad === 6) c.prioridad = 3;
   // El cirujano queda inscripto de oficio con el módulo de la práctica; el
@@ -6512,7 +6987,10 @@ function openTurnoOk(c) {
       · ${esc(c.quirofano)} — ${esc(c.horaProg)} h${f && f.nd ? ' (madrugada)' : ''}<br>
       · ${fmtDiaLargo(c.fecha)}<br>
       · Paciente: ${esc(c.paciente?.nombre || 's/d')}${c.paciente?.dni ? ` · DNI ${esc(c.paciente.dni)}` : ''}<br>
-      · Estado: ${ESTC[c.estado].label} · prioridad P${prioridadEfectiva(c)}${c.urgencia ? ' · <b style="color:var(--red)">URGENCIA</b>' : ''}
+      · Estado: ${ESTC[c.estado].label} · prioridad P${prioridadEfectiva(c)}${c.urgencia ? ' · <b style="color:var(--red)">URGENCIA</b>' : ''}<br>
+      · Autorización: ${authExenta(c)
+        ? '<b style="color:#5b21b6">no requiere Admisión y Egresos</b> — pasa directo a la Jefatura de Quirófanos'
+        : 'pendiente del sector <b>Admisión y Egresos</b>'}
     </div>
     <div class="banner banner-amber" style="text-align:left;margin:0 0 14px">${ico(ICONS.alertTri, 20)}
       <div><strong>Falta cargar el cirujano ayudante</strong>
@@ -6554,18 +7032,150 @@ function cancelarSlot(id) {
   });
 }
 
+/* ================= AUTORIZACIÓN DE ADMISIÓN Y EGRESOS =================
+   El sector administrativo autoriza o rechaza el turno. El rechazo exige un
+   motivo escrito, que queda guardado en el turno y visible en la grilla, en la
+   ficha, en el parte y en los recordatorios: sin eso el cirujano no sabe qué
+   corregir para volver a presentarlo. */
+let authCtx = null;
+
 function pedirAutorizacion(id) {
-  pedirClave('Autorización — Admisión y Egresos', 'Ingrese la clave del sector de Admisión y Egresos del HRU.', CLAVE_AUTORIZACION, () => {
-    const c = DB.cirugias.find((x) => x.id === id);
-    if (!c) return;
-    const r = prompt('Estado de autorización:\n\n  1  →  AUTORIZADO\n  2  →  NO AUTORIZADO\n\nIngrese 1 o 2:');
-    if (r !== '1' && r !== '2') return;
-    c.auth = r === '1' ? 'AUTORIZADO' : 'NO AUTORIZADO';
-    pushHist(c, 'Admisión y Egresos: ' + c.auth);
-    upsert('cirugias', c);
-    if ($('slot-overlay').classList.contains('open')) openSlot(diaDeGrilla(c), c.sala, c.franja);
-    else refreshView();
-  });
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c) return;
+  if (authExenta(c)) {
+    alert('Este turno está marcado como URGENCIA / EMERGENCIA.\n\nLas urgencias no requieren autorización de Admisión y Egresos: pasan directamente a la validación de la Jefatura de Quirófanos.');
+    return;
+  }
+  pedirClave('Autorización — Admisión y Egresos', 'Ingrese la clave del sector de Admisión y Egresos del HRU.', CLAVE_AUTORIZACION, () => openAuth(id));
+}
+
+const MOTIVOS_NO_AUT = [
+  'Cobertura sin verificar o dada de baja',
+  'Falta documentación administrativa del paciente',
+  'Paciente sin empadronar / datos filiatorios incompletos',
+  'Autorización de la obra social no otorgada',
+  'Prestación no cubierta por el financiador',
+  'Deuda o cobertura suspendida',
+  'Duplicación de solicitud para el mismo paciente',
+];
+
+function openAuth(id) {
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c) return;
+  authCtx = id;
+  const prev = c.auth === 'NO AUTORIZADO';
+  $('auth-modal').innerHTML = `
+    <button class="modal-close" onclick="closeAuth()" aria-label="Cerrar">✕</button>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+      <div class="head-icon" style="background:#e8f4fb">${ico(ICONS.shield, 20)}</div>
+      <div>
+        <div style="font-weight:800;font-size:1.05rem">Admisión y Egresos</div>
+        <div style="font-size:0.82rem;color:var(--muted)">Dictamen administrativo del turno</div>
+      </div>
+    </div>
+    <div class="notify-list" style="margin:6px 0 14px">
+      <b>${esc(c.procedimiento || 's/d')}</b><br>
+      · Paciente: ${esc(c.paciente?.nombre || 's/d')}${c.paciente?.dni ? ` · DNI ${esc(c.paciente.dni)}` : ''}<br>
+      · Cobertura: ${esc(c.obraSocial || 'sin declarar')}<br>
+      · ${esc(c.quirofano || '')} — ${esc(c.horaProg || '')} h · ${fmtFecha(c.fecha)}<br>
+      · Estado actual: <b>${esc(c.auth || 'PENDIENTE')}</b>
+    </div>
+
+    <div class="field" style="margin-bottom:12px">
+      <label>Dictamen</label>
+      <label class="check-row"><input type="radio" name="auth-r" value="1" ${c.auth === 'AUTORIZADO' ? 'checked' : ''} onchange="onAuthOpcion()"><span><b>1 — AUTORIZADO</b> · el turno puede confirmarse en el parte oficial</span></label>
+      <label class="check-row" style="color:var(--red)"><input type="radio" name="auth-r" value="2" ${prev ? 'checked' : ''} onchange="onAuthOpcion()"><span><b>2 — NO AUTORIZADO</b> · el turno no entra al parte oficial y el cirujano ve el motivo</span></label>
+    </div>
+
+    <div id="auth-motivo-wrap" style="display:${prev ? 'block' : 'none'}">
+      <div class="field" style="margin-bottom:10px">
+        <label>Motivo del rechazo *</label>
+        <select id="auth-motivo-sel" onchange="onAuthMotivoSel()">
+          <option value="">Seleccionar un motivo frecuente…</option>
+          ${MOTIVOS_NO_AUT.map((m) => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}
+          <option value="__otro__">Otro motivo (escribir)</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:6px">
+        <label>Detalle del motivo *</label>
+        <textarea id="auth-motivo" rows="3" placeholder="Explique por qué no se autoriza el turno. El cirujano verá este texto.">${esc(c.authMotivo || '')}</textarea>
+        <span class="hint">Queda visible para el cirujano, la Jefatura y en el parte quirúrgico.</span>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:6px">
+      <label>Agente que dictamina (opcional)</label>
+      <input type="text" id="auth-agente" placeholder="Apellido y nombre del administrativo" value="${esc(c.authAgente || '')}">
+    </div>
+
+    <p class="pass-error" id="auth-err" style="margin:6px 0 0"></p>
+    <div class="form-actions" style="margin-top:14px">
+      <button class="btn btn-blue" onclick="guardarAuth()">${ico(ICONS.check, 16)} Registrar dictamen</button>
+      <button class="btn btn-outline" onclick="closeAuth()">Cancelar</button>
+    </div>`;
+  $('auth-overlay').classList.add('open');
+}
+function closeAuth() { $('auth-overlay').classList.remove('open'); authCtx = null; }
+function authOpcion() {
+  const r = document.querySelector('input[name="auth-r"]:checked');
+  return r ? r.value : '';
+}
+function onAuthOpcion() {
+  const w = $('auth-motivo-wrap');
+  if (w) w.style.display = authOpcion() === '2' ? 'block' : 'none';
+}
+/* El motivo frecuente precarga el detalle, que sigue siendo editable. */
+function onAuthMotivoSel() {
+  const sel = $('auth-motivo-sel'), t = $('auth-motivo');
+  if (!sel || !t) return;
+  if (sel.value && sel.value !== '__otro__') t.value = sel.value;
+  else if (sel.value === '__otro__') t.value = '';
+  t.focus();
+}
+function guardarAuth() {
+  const c = DB.cirugias.find((x) => x.id === authCtx);
+  if (!c) return closeAuth();
+  const err = $('auth-err');
+  const op = authOpcion();
+  if (op !== '1' && op !== '2') {
+    err.textContent = 'Elija el dictamen: 1 (autorizado) o 2 (no autorizado).';
+    err.style.display = 'block';
+    return;
+  }
+  const motivo = (($('auth-motivo') || {}).value || '').trim();
+  if (op === '2' && motivo.length < 5) {
+    err.textContent = 'El rechazo exige un motivo escrito: explique por qué no se autoriza el turno.';
+    err.style.display = 'block';
+    return;
+  }
+  c.auth = op === '1' ? 'AUTORIZADO' : 'NO AUTORIZADO';
+  c.authMotivo = op === '2' ? motivo : '';
+  c.authAgente = (($('auth-agente') || {}).value || '').trim();
+  c.authFecha = nowDT();
+  c.authPor = 'Admisión y Egresos';
+  pushHist(c, 'Admisión y Egresos: ' + c.auth + (c.authAgente ? ' (' + c.authAgente + ')' : '') + (c.authMotivo ? ' — Motivo: ' + c.authMotivo : ''));
+  upsert('cirugias', c);
+  closeAuth();
+  if ($('slot-overlay').classList.contains('open')) openSlot(diaDeGrilla(c), c.sala, c.franja);
+  else refreshView();
+}
+/* Bloque reutilizable con el dictamen y —si corresponde— el motivo del rechazo. */
+function authDetalle(c) {
+  if (authExenta(c)) {
+    return `<div class="det-row"><b>Autorización</b> <span style="color:#5b21b6;font-weight:800">NO REQUERIDA — urgencia / emergencia</span><br>
+      <small>Las urgencias saltean Admisión y Egresos y pasan directo a la validación de la Jefatura de Quirófanos.</small></div>`;
+  }
+  const cuando = c.authFecha ? ` · ${fmtDT(c.authFecha)}` : '';
+  const quien = c.authAgente ? ` · ${esc(c.authAgente)}` : '';
+  if (c.auth === 'NO AUTORIZADO') {
+    return `<div class="det-row"><b>Autorización</b> <span style="color:var(--red);font-weight:800">NO AUTORIZADO</span> (Admisión y Egresos${quien})${cuando}</div>
+      <div class="banner banner-red" style="margin:8px 0 0;padding:10px 14px">${ico(ICONS.alertTri, 16)}
+        <div><strong>Motivo del rechazo</strong>${esc(c.authMotivo || 'sin motivo registrado')}</div></div>`;
+  }
+  if (c.auth === 'AUTORIZADO') {
+    return `<div class="det-row"><b>Autorización</b> <span style="color:var(--green);font-weight:800">AUTORIZADO</span> (Admisión y Egresos${quien})${cuando}</div>`;
+  }
+  return '<div class="det-row"><b>Autorización</b> PENDIENTE (Admisión y Egresos)</div>';
 }
 
 /* ---- Panel de jefatura del día: abrir el bloque turno por turno ----
@@ -6743,7 +7353,8 @@ function imprimirParte(d) {
         <td>${esc(c.cirujano || '')}<br><small>${esc(c.servicio || '')}</small></td>
         <td>${esc(c.anestesista || '—')}<br><small>${esc(c.anestesia || '')}</small></td>
         <td>P${pe} — ${PRIOS[pe].label}${c.urgencia ? '<br><small><b>URGENCIA</b></small>' : ''}</td>
-        <td>${ESTC[c.estado].label}<br><small>${esc(c.auth || 'Pend. aut.')}</small></td>
+        <td>${ESTC[c.estado].label}<br><small>${authExenta(c) ? 'Sin aut. (urgencia)' : esc(c.auth || 'Pend. aut.')}</small>
+          ${c.auth === 'NO AUTORIZADO' && c.authMotivo ? `<div class="req-sub" style="color:var(--red)">Motivo: ${esc(c.authMotivo)}</div>` : ''}</td>
       </tr>`);
     });
   });
