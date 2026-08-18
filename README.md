@@ -413,7 +413,23 @@ bloquea hasta que hubo alguna interacción con la página; si lo bloquea, el mod
 
 Quien tenga dudas responde con el botón **Confirmo y consulto a la Jefatura**, que registra la
 lectura y abre el canal de reclamos con el asunto ya escrito. No se agregó un canal de respuesta
-nuevo: se usa el que ya existía.
+nuevo: se usa el que ya existía. Ese botón solo aparece para los profesionales con cuenta, que son
+los únicos que pueden abrir un reclamo.
+
+### A quién se dirige
+
+| Destino | Alcance |
+|---|---|
+| Un profesional en particular | Una sola persona del padrón |
+| Un servicio completo | Todos los profesionales de ese servicio |
+| Todos los profesionales | El padrón entero de cuentas activas |
+| Solo Dirección Médica | Quien entre con la clave de Dirección |
+| Profesionales y Dirección Médica | Los dos grupos anteriores |
+| Personal no registrado | Quien entra sin cuenta: enfermería, higiene, instrumentación, radiología y demás |
+
+El selector de servicio indica cuántos profesionales tiene cada uno, y la app no deja emitir a un
+servicio sin gente. Las cuentas dadas de baja nunca cuentan como destinatarias. Los servicios se
+comparan sin tildes ni mayúsculas, igual que en el resto de la app.
 
 ### Quién queda registrado
 
@@ -421,12 +437,28 @@ Los profesionales entran con su correo, así que cada lectura guarda **nombre, s
 exacta**. La Dirección Médica entra con clave compartida y no tiene identidad individual: se registra
 como un único renglón. Se sabe que Dirección lo leyó, no qué persona de Dirección.
 
-La Jefatura ve en vivo el porcentaje de lectura, la lista de quién confirmó y quién no, y puede
-descargar la planilla en CSV. Las cuentas dadas de baja no cuentan como destinatarias.
+El **personal no registrado** es un caso aparte. Al confirmar declara su área —enfermería de
+quirófano, higiene, instrumentación quirúrgica, técnicos de radiología u otros— y puede dejar su
+nombre si quiere; quien no lo deja figura como «Sin identificar». Para que el emergente no le insista
+a quien ya confirmó se guarda un identificador del dispositivo, que no identifica a la persona: dos
+personas que compartan la misma máquina comparten la clave.
 
-Un comunicado se puede **archivar** (deja de emerger, se conserva el registro) y reactivar. El
-registro de lecturas no se puede borrar. Pasados 30 días de la emisión deja de interrumpir, aunque
-siga en la lista.
+De ahí se sigue una limitación que conviene tener presente: **de ese grupo no hay padrón**. Nadie
+sabe cuántos enfermeros o instrumentadores existen ni quién entró hoy, así que la Jefatura ve
+«7 lecturas registradas» y nunca «7 de 20». Para los demás destinos sí hay denominador, con
+porcentaje y lista de faltantes.
+
+La Jefatura puede descargar la planilla en CSV en todos los casos.
+
+### Archivar y eliminar
+
+**Archivar** saca el comunicado de circulación y conserva el registro; se puede reactivar cuando se
+quiera. **Eliminar** lo borra definitivamente, junto con la constancia de quiénes lo leyeron, y por eso
+el botón aparece solo cuando el comunicado ya cumplió su función: cuando lo confirmaron **todos** sus
+destinatarios, o —si va dirigido a personal sin cuenta, donde no hay forma de saberlo— cuando está
+archivado.
+
+Pasados 30 días de la emisión deja de interrumpir, aunque siga en la lista.
 
 ### Si no hay comunicados, no hay cambio
 

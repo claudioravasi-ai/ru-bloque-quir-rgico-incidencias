@@ -2979,7 +2979,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.6.0';
+const APP_VERSION = '2.7.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -9815,17 +9815,45 @@ const COM_PRIOS = {
   importante:  { label: 'Importante',  orden: 1, veces: 3,        color: 'var(--amber)', badge: 'badge-pend', banner: 'banner-amber' },
   informativo: { label: 'Informativo', orden: 2, veces: 1,        color: 'var(--blue)',  badge: 'badge-ok',   banner: 'banner-blue' },
 };
+/* ---- A quién se dirige un comunicado ----
+   `padron: true` significa que se conoce de antemano la lista completa de
+   destinatarios, y entonces la Jefatura puede leer «7 de 20 confirmaron». El
+   personal no registrado no tiene padrón: nadie sabe cuántos enfermeros,
+   instrumentadores o técnicos hay ni quién entró hoy, así que de ese grupo solo
+   se puede contar cuántas lecturas hubo, no cuántas faltan. */
 const COM_DESTINOS = {
-  todos:     'Profesionales y Dirección Médica',
-  medicos:   'Solo profesionales',
-  direccion: 'Solo Dirección Médica',
+  profesional:       { label: 'Un profesional en particular',     padron: true,  pide: 'profesional' },
+  servicio:          { label: 'Un servicio completo',             padron: true,  pide: 'servicio' },
+  medicos:           { label: 'Todos los profesionales',          padron: true,  pide: '' },
+  direccion:         { label: 'Solo Dirección Médica',            padron: true,  pide: '' },
+  medicos_direccion: { label: 'Profesionales y Dirección Médica', padron: true,  pide: '' },
+  publico:           { label: 'Personal no registrado',           padron: false, pide: '' },
 };
+/* Áreas del personal que entra a la app sin cuenta. Al confirmar la lectura se
+   elige una: es lo único que permite saber a qué sector llegó el aviso. */
+const COM_AREAS = ['Enfermería de quirófano', 'Higiene de quirófanos',
+  'Instrumentación quirúrgica', 'Técnicos de radiología', 'Otros'];
 const COM_INTERVALO_MIN = 10;   // reiteración del emergente sin confirmar
 const COM_DIAS_EMERGENTE = 30;  // pasado ese plazo deja de interrumpir (sigue en la lista)
 const COM_CLAVE_DIRECCION = '__direccion__';
 const COM_AVISOS_KEY = 'hruq_com_avisos_v1';       // sessionStorage: veces mostrado
 const COM_PEND_KEY = 'hruq_com_lecturas_pend_v1';  // localStorage: lecturas sin enviar
 const COM_MUTE_KEY = 'hruq_com_mute_v1';
+const COM_DISPOSITIVO_KEY = 'hruq_com_dispositivo_v1';
+
+/* Identificador del dispositivo, para el personal sin cuenta. No identifica a
+   la persona —dos enfermeros que compartan la máquina comparten la clave— pero
+   alcanza para que el emergente deje de insistirle a quien ya lo confirmó. */
+function comDispositivo() {
+  try {
+    let d = localStorage.getItem(COM_DISPOSITIVO_KEY);
+    if (!d) {
+      d = 'disp_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+      localStorage.setItem(COM_DISPOSITIVO_KEY, d);
+    }
+    return d;
+  } catch (e) { return 'disp_sin_almacenamiento'; }
+}
 
 /* Un overlay «fijo» no se cierra con Escape, con el botón atrás ni tocando el
    fondo. Hoy solo lo es el comunicado: su razón de ser es que no se pueda
@@ -9838,23 +9866,52 @@ function comLeidoPor(c, clave) { return !!comLecturas(c)[clave]; }
 function comPorId(id) { return DB.comunicados.find((x) => String(x.id) === String(id)) || null; }
 
 /* Identidad de lectura. La Jefatura, por sí sola, no es destinataria: emite. Si
-   además tiene sesión de profesional abierta, sí recibe como profesional. */
+   además tiene sesión de profesional abierta, sí recibe como profesional. Quien
+   entra sin cuenta y sin clave es «público»: enfermería, higiene,
+   instrumentación, radiología y demás personal del bloque. */
 function comIdentidad() {
   const u = usuarioActual();
   if (u) return { clave: claveMail(u.email), nombre: u.nombre, servicio: u.servicio || '', tipo: 'medico' };
   if (director) return { clave: COM_CLAVE_DIRECCION, nombre: 'Dirección Médica', servicio: 'Dirección Médica', tipo: 'direccion' };
-  return null;
+  if (jefe) return null;
+  return { clave: comDispositivo(), nombre: '', servicio: '', tipo: 'publico' };
 }
 function comVigente(c) {
   if (!c || c.activo === false) return false;
   if (c.vigenteHasta && c.vigenteHasta < hoyISO()) return false;
   return true;
 }
+/* Normaliza el destino. Los comunicados de la primera versión guardaban una
+   cadena suelta ('todos' | 'medicos' | 'direccion'); se leen sin migrar nada. */
+function comDestino(c) {
+  const d = c && c.destino;
+  if (d && typeof d === 'object') {
+    return { tipo: COM_DESTINOS[d.tipo] ? d.tipo : 'medicos_direccion', valor: d.valor || '' };
+  }
+  if (d === 'medicos' || d === 'direccion') return { tipo: d, valor: '' };
+  return { tipo: 'medicos_direccion', valor: '' };
+}
+function comDestinoLabel(c) {
+  const d = comDestino(c);
+  if (d.tipo === 'profesional') {
+    const u = DB.usuarios.find((x) => claveMail(x.email) === claveMail(d.valor));
+    return u ? `${u.nombre} (${u.servicio || 'sin servicio'})` : 'Un profesional (cuenta eliminada)';
+  }
+  if (d.tipo === 'servicio') return `Servicio de ${d.valor}`;
+  return COM_DESTINOS[d.tipo].label;
+}
 function comEsPara(c, ident) {
-  const d = c.destino || 'todos';
-  if (d === 'medicos') return ident.tipo === 'medico';
-  if (d === 'direccion') return ident.tipo === 'direccion';
-  return true;
+  const d = comDestino(c);
+  switch (d.tipo) {
+    case 'profesional':       return ident.tipo === 'medico' && ident.clave === claveMail(d.valor);
+    case 'servicio':          return ident.tipo === 'medico'
+                                     && servicioCanonico(ident.servicio) === servicioCanonico(d.valor);
+    case 'medicos':           return ident.tipo === 'medico';
+    case 'direccion':         return ident.tipo === 'direccion';
+    case 'medicos_direccion': return ident.tipo === 'medico' || ident.tipo === 'direccion';
+    case 'publico':           return ident.tipo === 'publico';
+  }
+  return false;
 }
 /* Comunicados vigentes, dirigidos a quien está mirando, y sin confirmar. */
 function comPendientes() {
@@ -9990,7 +10047,7 @@ function mostrarComunicado(id, soloLectura) {
   md.innerHTML = `
     <div class="com-kicker">${ICONS.megafonoBig} Comunicado ${esc(P.label)} · Jefatura de Quirófanos</div>
     <h2>${esc(c.titulo || 'Comunicado de la Jefatura')}</h2>
-    <div class="com-meta">Emitido el <b>${fmtDT(c.emitido)}</b> · Dirigido a ${esc(COM_DESTINOS[c.destino] || COM_DESTINOS.todos)}${c.vigenteHasta ? ` · Vigente hasta el <b>${fmtFecha(c.vigenteHasta)}</b>` : ''}</div>
+    <div class="com-meta">Emitido el <b>${fmtDT(c.emitido)}</b> · Dirigido a ${esc(comDestinoLabel(c))}${c.vigenteHasta ? ` · Vigente hasta el <b>${fmtFecha(c.vigenteHasta)}</b>` : ''}</div>
     <div class="com-cuerpo">${esc(c.texto || '')}</div>
     ${yaLeido || soloLectura ? `
       <div class="com-acciones">
@@ -9999,9 +10056,22 @@ function mostrarComunicado(id, soloLectura) {
         <button class="btn btn-gray" onclick="cerrarComunicado()">Cerrar</button>
       </div>`
     : `
+      ${ident.tipo === 'publico' ? `
+        <div class="form-grid" style="margin-bottom:14px">
+          <div class="field full"><label>¿En qué área trabaja? *</label>
+            <select id="com-area">
+              <option value="">Seleccionar…</option>
+              ${COM_AREAS.map((a) => `<option>${esc(a)}</option>`).join('')}
+            </select></div>
+          <div class="field full"><label>Nombre y apellido (opcional)</label>
+            <input type="text" id="com-nombre" placeholder="Deja constancia de quién lo leyó" autocomplete="name"></div>
+        </div>
+        <p class="pass-error" id="com-err">Elija su área para poder confirmar la lectura.</p>` : ''}
       <div class="com-acciones">
         <button class="btn btn-green" onclick="confirmarLecturaCom('${attr(c.id)}')">${ICONS.check} Confirmo que lo leí</button>
-        <button class="btn btn-outline" onclick="consultarPorComunicado('${attr(c.id)}')">${ICONS.mail} Confirmo y consulto a la Jefatura</button>
+        ${ident.tipo === 'medico'
+          ? `<button class="btn btn-outline" onclick="consultarPorComunicado('${attr(c.id)}')">${ICONS.mail} Confirmo y consulto a la Jefatura</button>`
+          : ''}
         ${restantes > 0 ? `<div class="com-pila">Quedan ${restantes} comunicado(s) sin confirmar.</div>` : ''}
       </div>`}`;
   ov.classList.add('open');
@@ -10016,6 +10086,20 @@ function confirmarLecturaCom(id) {
   const ident = comIdentidad();
   const c = comPorId(id);
   if (!c || !ident) { cerrarComunicado(); return; }
+  // El personal sin cuenta declara su área: es el único dato que permite saber
+  // a qué sector del bloque llegó el aviso. El nombre queda a su criterio.
+  if (ident.tipo === 'publico') {
+    const sel = $('com-area');
+    const area = sel ? sel.value : '';
+    if (!area) {
+      const e = $('com-err');
+      if (e) e.style.display = 'block';
+      if (sel) sel.focus();
+      return;
+    }
+    ident.servicio = area;
+    ident.nombre = ($('com-nombre') && $('com-nombre').value.trim()) || '';
+  }
   const reg = { nombre: ident.nombre, servicio: ident.servicio, tipo: ident.tipo, t: nowDT() };
   // Espejo inmediato en memoria para que no vuelva a interrumpir, haya red o no.
   c.lecturas = Object.assign({}, comLecturas(c), { [ident.clave]: reg });
@@ -10057,19 +10141,35 @@ function comNotificarSistema(c) {
 /* ---- Emisión y seguimiento (Jefatura) ---- */
 /* Padrón de destinatarios: profesionales con cuenta autorizada, más el renglón
    único de Dirección Médica cuando el comunicado la incluye. Las cuentas dadas
-   de baja no cuentan como destinatarios: no pueden entrar a leer. */
+   de baja no cuentan como destinatarios: no pueden entrar a leer.
+   El personal no registrado no tiene padrón —devuelve lista vacía— y su
+   seguimiento se hace por lecturas registradas, no por faltantes. */
+function comTienePadron(c) { return COM_DESTINOS[comDestino(c).tipo].padron; }
 function comDestinatarios(c) {
-  const d = c.destino || 'todos';
+  const d = comDestino(c);
+  if (d.tipo === 'publico') return [];
   const lista = [];
-  if (d !== 'direccion') {
-    DB.usuarios.filter((u) => estadoCuenta(u) !== 'baja').forEach((u) => {
-      lista.push({ clave: claveMail(u.email), nombre: u.nombre, servicio: u.servicio || '', tipo: 'medico' });
-    });
+  const activos = () => DB.usuarios.filter((u) => estadoCuenta(u) !== 'baja');
+  const comoDest = (u) => ({ clave: claveMail(u.email), nombre: u.nombre, servicio: u.servicio || '', tipo: 'medico' });
+  if (d.tipo === 'profesional') {
+    const u = activos().find((x) => claveMail(x.email) === claveMail(d.valor));
+    if (u) lista.push(comoDest(u));
+  } else if (d.tipo === 'servicio') {
+    activos().filter((u) => servicioCanonico(u.servicio) === servicioCanonico(d.valor)).forEach((u) => lista.push(comoDest(u)));
+  } else if (d.tipo === 'medicos' || d.tipo === 'medicos_direccion') {
+    activos().forEach((u) => lista.push(comoDest(u)));
   }
-  if (d !== 'medicos') {
+  if (d.tipo === 'direccion' || d.tipo === 'medicos_direccion') {
     lista.push({ clave: COM_CLAVE_DIRECCION, nombre: 'Dirección Médica', servicio: 'Clave compartida', tipo: 'direccion' });
   }
   return lista.sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es'));
+}
+/* Lecturas del personal sin cuenta, en orden de llegada. */
+function comLecturasPublico(c) {
+  return Object.entries(comLecturas(c))
+    .filter(([, l]) => l && l.tipo === 'publico')
+    .map(([clave, l]) => Object.assign({ clave }, l))
+    .sort((a, b) => String(a.t || '').localeCompare(String(b.t || '')));
 }
 function emitirComunicado() {
   const err = $('c-error');
@@ -10077,16 +10177,33 @@ function emitirComunicado() {
   const titulo = $('c-titulo').value.trim();
   const texto = $('c-texto').value.trim();
   const prioridad = $('c-prio').value;
-  const destino = $('c-destino').value;
+  const tipo = $('c-destino').value;
+  const pide = COM_DESTINOS[tipo].pide;
+  const valor = pide === 'profesional' ? $('c-dest-prof').value
+    : (pide === 'servicio' ? $('c-dest-serv').value : '');
   const vigenteHasta = $('c-vigencia').value;
-  if (!titulo) return fail('Escriba un título: es lo primero que ve el profesional.');
+  if (!titulo) return fail('Escriba un título: es lo primero que ve el destinatario.');
   if (!texto) return fail('Escriba el cuerpo del comunicado.');
+  if (pide === 'profesional' && !valor) return fail('Elija a qué profesional se dirige el comunicado.');
+  if (pide === 'servicio' && !valor) return fail('Elija a qué servicio se dirige el comunicado.');
   if (vigenteHasta && vigenteHasta < hoyISO()) return fail('La fecha de vigencia no puede ser anterior a hoy.');
-  const cuantos = comDestinatarios({ destino }).length;
-  const aviso = prioridad === 'urgente'
-    ? `Va a interrumpir a ${cuantos} destinatario(s) con una ventana que reaparece cada ${COM_INTERVALO_MIN} minutos hasta que cada uno confirme la lectura.`
-    : `Va a interrumpir a ${cuantos} destinatario(s)${COM_PRIOS[prioridad].veces === 1 ? ' una sola vez' : ` hasta ${COM_PRIOS[prioridad].veces} veces`}.`;
-  if (!confirm(`Emitir el comunicado «${titulo}»?\n\n${aviso}\n\nUna vez emitido queda registrado con su fecha y hora. Puede archivarlo, pero no borrar el registro de quiénes lo leyeron.`)) return;
+
+  const destino = { tipo, valor };
+  const dest = comDestinatarios({ destino });
+  const cuantos = dest.length;
+  if (tipo !== 'publico' && !cuantos) {
+    return fail(tipo === 'servicio'
+      ? 'Ese servicio no tiene profesionales con cuenta activa: el comunicado no llegaría a nadie.'
+      : 'No hay destinatarios con cuenta activa: el comunicado no llegaría a nadie.');
+  }
+  const aQuienes = tipo === 'publico'
+    ? 'Va a interrumpir a todo el personal que entre a la app sin cuenta (enfermería, higiene, instrumentación, radiología y demás). No se puede saber de antemano a cuántas personas alcanza.'
+    : `Va a interrumpir a ${cuantos} destinatario(s): ${dest.slice(0, 4).map((d) => d.nombre).join('; ')}${cuantos > 4 ? ` y ${cuantos - 4} más` : ''}.`;
+  const insistencia = prioridad === 'urgente'
+    ? `Reaparece cada ${COM_INTERVALO_MIN} minutos hasta que cada uno confirme la lectura.`
+    : `Se muestra ${COM_PRIOS[prioridad].veces === 1 ? 'una sola vez' : `hasta ${COM_PRIOS[prioridad].veces} veces`}.`;
+  if (!confirm(`¿Emitir el comunicado «${titulo}»?\n\n${aQuienes}\n\n${insistencia}\n\nQueda registrado con su fecha y hora de emisión.`)) return;
+
   const c = {
     id: 'com' + Date.now(),
     titulo, texto, prioridad, destino,
@@ -10103,7 +10220,23 @@ function emitirComunicado() {
   err.style.display = 'none';
   comAbierto = c.id;
   renderComunicados();
-  alert('Comunicado emitido.\n\nLos destinatarios que tengan la app abierta lo verán en el momento; el resto, al entrar. Puede seguir las confirmaciones de lectura en esta misma pantalla.');
+  alert('Comunicado emitido.\n\nQuienes tengan la app abierta lo verán en el momento; el resto, al entrar. Puede seguir las confirmaciones de lectura en esta misma pantalla.');
+}
+/* El segundo selector (profesional o servicio) solo aparece si el destino lo pide. */
+function onDestinoComChange() {
+  const tipo = $('c-destino').value;
+  const pide = COM_DESTINOS[tipo].pide;
+  const wrapProf = $('c-dest-prof-wrap'), wrapServ = $('c-dest-serv-wrap');
+  if (wrapProf) wrapProf.style.display = pide === 'profesional' ? '' : 'none';
+  if (wrapServ) wrapServ.style.display = pide === 'servicio' ? '' : 'none';
+  const nota = $('c-destino-nota');
+  if (nota) {
+    nota.innerHTML = tipo === 'publico'
+      ? 'Al confirmar, cada persona declara su área (enfermería, higiene, instrumentación, radiología u otros). Como no hay padrón, se cuentan las lecturas registradas, no las que faltan.'
+      : (tipo === 'direccion'
+        ? 'Dirección Médica entra con clave compartida: la lectura se registra como un único renglón y no identifica a la persona.'
+        : 'Cada lectura queda registrada con nombre, servicio y hora exacta.');
+  }
 }
 function archivarComunicado(id) {
   const c = comPorId(id);
@@ -10117,6 +10250,31 @@ function reabrirComunicado(id) {
   if (!confirm(`Reactivar «${c.titulo}»?\n\nVolverá a interrumpir a quienes todavía no confirmaron la lectura.`)) return;
   comSetCampo(id, 'activo', true);
 }
+/* Borrado definitivo. Solo se habilita cuando ya no queda nadie por confirmar
+   —es decir, cuando el comunicado cumplió su función— porque al borrarlo se
+   pierde también el registro de quién lo leyó, que es la prueba de que el aviso
+   circuló. El personal no registrado no tiene padrón, así que ahí el criterio
+   es que el comunicado esté archivado. */
+function comSePuedeBorrar(c) {
+  if (!comTienePadron(c)) return c.activo === false;
+  const dest = comDestinatarios(c);
+  return dest.length > 0 && dest.every((d) => comLeidoPor(c, d.clave));
+}
+function eliminarComunicado(id) {
+  const c = comPorId(id);
+  if (!c) return;
+  if (!comSePuedeBorrar(c)) {
+    alert(comTienePadron(c)
+      ? 'Todavía hay destinatarios que no confirmaron la lectura.\n\nUn comunicado se puede eliminar recién cuando lo leyeron todos: hasta entonces, use Archivar, que lo saca de circulación y conserva el registro.'
+      : 'Archive primero el comunicado.\n\nComo se dirige a personal sin cuenta, no hay forma de saber si lo leyeron todos; archivarlo es la señal de que ya cumplió su función.');
+    return;
+  }
+  const n = Object.keys(comLecturas(c)).length;
+  if (!confirm(`¿Eliminar «${c.titulo}» definitivamente?\n\nSe borra también el registro de las ${n} lectura(s) confirmada(s), que es la constancia de que el aviso circuló. Esto no se puede deshacer.\n\nSi puede llegar a necesitar esa constancia, cancele y descargue antes la planilla.`)) return;
+  removeDoc('comunicados', c.id);
+  if (String(comAbierto) === String(c.id)) comAbierto = null;
+  renderComunicados();
+}
 function toggleComunicado(id) {
   comAbierto = String(comAbierto) === String(id) ? null : id;
   renderComunicados();
@@ -10125,12 +10283,20 @@ function exportarLecturas(id) {
   const c = comPorId(id);
   if (!c) return;
   const lect = comLecturas(c);
-  const filas = [['Comunicado', 'Emitido', 'Prioridad', 'Destinatario', 'Servicio', 'Estado', 'Fecha y hora de lectura']];
-  comDestinatarios(c).forEach((d) => {
-    const l = lect[d.clave];
-    filas.push([c.titulo, fmtDT(c.emitido), COM_PRIOS[comPrio(c)].label, d.nombre, d.servicio,
-      l ? 'Leído' : 'Sin leer', l ? fmtDT(l.t) : '']);
-  });
+  const meta = [c.titulo, fmtDT(c.emitido), COM_PRIOS[comPrio(c)].label, comDestinoLabel(c)];
+  const filas = [['Comunicado', 'Emitido', 'Prioridad', 'Dirigido a', 'Destinatario', 'Área o servicio', 'Estado', 'Fecha y hora de lectura']];
+  if (comTienePadron(c)) {
+    comDestinatarios(c).forEach((d) => {
+      const l = lect[d.clave];
+      filas.push(meta.concat([d.nombre, d.servicio, l ? 'Leído' : 'Sin leer', l ? fmtDT(l.t) : '']));
+    });
+  } else {
+    const pub = comLecturasPublico(c);
+    if (!pub.length) filas.push(meta.concat(['—', '—', 'Sin lecturas registradas', '']));
+    pub.forEach((l) => {
+      filas.push(meta.concat([l.nombre || 'Sin identificar', l.servicio || '—', 'Leído', fmtDT(l.t)]));
+    });
+  }
   descargarCSV(`comunicado-${String(c.emitido).slice(0, 10)}.csv`, filas);
 }
 
@@ -10138,12 +10304,16 @@ let comAbierto = null;  // id del comunicado con el detalle de lecturas desplega
 
 function comFicha(c) {
   const prio = comPrio(c), P = COM_PRIOS[prio];
+  const conPadron = comTienePadron(c);
   const dest = comDestinatarios(c);
   const lect = comLecturas(c);
+  const pub = conPadron ? [] : comLecturasPublico(c);
   const leidos = dest.filter((d) => lect[d.clave]);
-  const pct = dest.length ? Math.round((leidos.length / dest.length) * 100) : 0;
+  const pct = conPadron && dest.length ? Math.round((leidos.length / dest.length) * 100) : 0;
+  const completo = conPadron && dest.length > 0 && leidos.length === dest.length;
   const abierto = String(comAbierto) === String(c.id);
   const vencido = c.vigenteHasta && c.vigenteHasta < hoyISO();
+  const borrable = comSePuedeBorrar(c);
   return `
     <div class="card">
       <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
@@ -10152,18 +10322,21 @@ function comFicha(c) {
             <span class="${P.badge}">${esc(P.label)}</span>
             ${c.activo === false ? '<span class="badge-pend">Archivado</span>' : ''}
             ${vencido && c.activo !== false ? '<span class="badge-pend">Vigencia cumplida</span>' : ''}
+            ${completo ? '<span class="badge-ok">Leído por todos</span>' : ''}
           </div>
           <div class="card-title" style="margin-bottom:2px">${esc(c.titulo || 'Comunicado')}</div>
-          <div class="card-sub">Emitido el ${fmtDT(c.emitido)} · ${esc(COM_DESTINOS[c.destino] || COM_DESTINOS.todos)}${c.vigenteHasta ? ` · Vigente hasta el ${fmtFecha(c.vigenteHasta)}` : ''}</div>
+          <div class="card-sub">Emitido el ${fmtDT(c.emitido)} · ${esc(comDestinoLabel(c))}${c.vigenteHasta ? ` · Vigente hasta el ${fmtFecha(c.vigenteHasta)}` : ''}</div>
         </div>
         <div style="text-align:right;min-width:110px">
-          <div style="font-size:1.5rem;font-weight:800;color:${leidos.length === dest.length ? 'var(--green)' : 'var(--amber)'}">${leidos.length}/${dest.length}</div>
-          <div style="font-size:0.76rem;color:var(--muted)">confirmaron</div>
+          <div style="font-size:1.5rem;font-weight:800;color:${completo ? 'var(--green)' : (conPadron ? 'var(--amber)' : 'var(--blue)')}">${conPadron ? `${leidos.length}/${dest.length}` : pub.length}</div>
+          <div style="font-size:0.76rem;color:var(--muted)">${conPadron ? 'confirmaron' : 'lecturas'}</div>
         </div>
       </div>
 
-      <div class="com-barra"><i style="width:${pct}%"></i></div>
-      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:12px">${pct}% de lectura confirmada</div>
+      ${conPadron ? `
+        <div class="com-barra"><i style="width:${pct}%"></i></div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:12px">${pct}% de lectura confirmada</div>`
+      : `<div style="font-size:0.8rem;color:var(--muted);margin:10px 0 12px">Dirigido a personal sin cuenta: no hay padrón contra el cual medir, así que se cuentan las lecturas registradas y no las que faltan.</div>`}
 
       <div class="com-cuerpo" style="margin-bottom:14px">${esc(c.texto || '')}</div>
 
@@ -10173,18 +10346,23 @@ function comFicha(c) {
         ${c.activo === false
           ? `<button class="btn btn-outline btn-sm" onclick="reabrirComunicado('${attr(c.id)}')">Reactivar</button>`
           : `<button class="btn btn-outline btn-sm" onclick="archivarComunicado('${attr(c.id)}')">Archivar</button>`}
+        ${borrable ? `<button class="btn btn-del btn-sm" onclick="eliminarComunicado('${attr(c.id)}')">${ICONS.trash ? ico(ICONS.trash, 15) + ' ' : ''}Eliminar</button>` : ''}
       </div>
 
       ${abierto ? `<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:10px">
-        ${dest.map((d) => {
+        ${conPadron ? dest.map((d) => {
           const l = lect[d.clave];
           return `<div class="com-lect-row">
             <span class="${l ? 'badge-ok' : 'badge-no'}" style="min-width:74px;text-align:center">${l ? 'Leído' : 'Sin leer'}</span>
             <div><div class="cl-n">${esc(d.nombre)}</div><div class="cl-s">${esc(d.servicio)}</div></div>
             <div class="cl-t" style="color:${l ? 'var(--green)' : 'var(--muted)'}">${l ? fmtDT(l.t) : '—'}</div>
           </div>`;
-        }).join('')}
-        ${dest.length ? '' : '<div class="empty">Todavía no hay profesionales registrados como destinatarios.</div>'}
+        }).join('') : pub.map((l) => `<div class="com-lect-row">
+            <span class="badge-ok" style="min-width:74px;text-align:center">Leído</span>
+            <div><div class="cl-n">${esc(l.nombre || 'Sin identificar')}</div><div class="cl-s">${esc(l.servicio || 'Área no declarada')}</div></div>
+            <div class="cl-t" style="color:var(--green)">${fmtDT(l.t)}</div>
+          </div>`).join('')}
+        ${(conPadron ? dest.length : pub.length) ? '' : `<div class="empty">${conPadron ? 'Este comunicado no tiene destinatarios con cuenta activa.' : 'Todavía nadie confirmó la lectura.'}</div>`}
       </div>` : ''}
     </div>`;
 }
@@ -10206,7 +10384,11 @@ function renderComunicados() {
 
     <div class="banner banner-blue">${ICONS.info}
       <div><strong>Cómo llega un comunicado</strong>
-      Aparece como <b>ventana emergente</b> apenas el destinatario entra a la app y no se cierra hasta que confirma la lectura. Si no la confirma, vuelve a aparecer cada ${COM_INTERVALO_MIN} minutos: sin límite si es <b>urgente</b>, hasta ${COM_PRIOS.importante.veces} veces si es <b>importante</b> y una sola vez si es <b>informativo</b>. Quien tenga dudas puede responder desde la solapa <b>Reclamos</b>.</div></div>
+      Aparece como <b>ventana emergente</b> apenas el destinatario entra a la app y no se cierra hasta que confirma la lectura. Si no la confirma, vuelve a aparecer cada ${COM_INTERVALO_MIN} minutos: sin límite si es <b>urgente</b>, hasta ${COM_PRIOS.importante.veces} veces si es <b>importante</b> y una sola vez si es <b>informativo</b>. Los profesionales con cuenta pueden responder desde la solapa <b>Reclamos</b>.</div></div>
+
+    <div class="banner banner-blue">${ICONS.users}
+      <div><strong>Quién queda registrado</strong>
+      Los <b>profesionales</b> entran con su correo: cada lectura guarda nombre, servicio y hora exacta. La <b>Dirección Médica</b> usa clave compartida, así que figura como un único renglón sin identificar a la persona. El <b>personal sin cuenta</b> declara su área al confirmar y puede dejar su nombre si quiere; como no hay padrón, de ese grupo se cuentan las lecturas registradas, nunca las que faltan.</div></div>
 
     ${permiso === 'granted' ? '' : `<div class="banner banner-amber">${ICONS.bell.replace('16', '18')}
       <div><strong>Las notificaciones del dispositivo están desactivadas</strong>
@@ -10226,18 +10408,37 @@ function renderComunicados() {
             <option value="informativo">Informativo — se muestra una sola vez</option>
           </select></div>
         <div class="field"><label>Destinatarios</label>
-          <select id="c-destino">
-            <option value="todos">${COM_DESTINOS.todos}</option>
-            <option value="medicos">${COM_DESTINOS.medicos}</option>
-            <option value="direccion">${COM_DESTINOS.direccion}</option>
+          <select id="c-destino" onchange="onDestinoComChange()">
+            <option value="medicos_direccion">${COM_DESTINOS.medicos_direccion.label}</option>
+            <option value="medicos">${COM_DESTINOS.medicos.label}</option>
+            <option value="servicio">${COM_DESTINOS.servicio.label}</option>
+            <option value="profesional">${COM_DESTINOS.profesional.label}</option>
+            <option value="direccion">${COM_DESTINOS.direccion.label}</option>
+            <option value="publico">${COM_DESTINOS.publico.label}</option>
           </select></div>
+        <div class="field full" id="c-dest-prof-wrap" style="display:none"><label>¿A qué profesional?</label>
+          <select id="c-dest-prof">
+            <option value="">Seleccionar…</option>
+            ${DB.usuarios.filter((u) => estadoCuenta(u) !== 'baja')
+              .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es'))
+              .map((u) => `<option value="${esc(u.email)}">${esc(u.nombre)} — ${esc(u.servicio || 'sin servicio')}</option>`).join('')}
+          </select></div>
+        <div class="field full" id="c-dest-serv-wrap" style="display:none"><label>¿A qué servicio?</label>
+          <select id="c-dest-serv">
+            <option value="">Seleccionar…</option>
+            ${SERVICIOS_HRU.map((s) => {
+              const n = DB.usuarios.filter((u) => estadoCuenta(u) !== 'baja' && servicioCanonico(u.servicio) === servicioCanonico(s)).length;
+              return `<option value="${esc(s)}">${esc(s)} (${n} profesional${n === 1 ? '' : 'es'})</option>`;
+            }).join('')}
+          </select></div>
+        <div class="field full"><div class="req-sub" id="c-destino-nota">Cada lectura queda registrada con nombre, servicio y hora exacta.</div></div>
         <div class="field"><label>Vigente hasta (opcional)</label><input type="date" id="c-vigencia" min="${hoyISO()}">
           <div class="req-sub" style="margin-top:5px">Cumplida esa fecha deja de emerger. Si se deja vacío, rige hasta que la Jefatura lo archive.</div></div>
       </div>
       <p class="pass-error" id="c-error"></p>
       <div class="form-actions">
         <button class="btn btn-red" onclick="emitirComunicado()">${ICONS.megafono} Emitir comunicado</button>
-        <p class="form-note">La Dirección Médica entra con clave compartida: su lectura se registra como un único renglón y no identifica a la persona. La de cada profesional sí queda con nombre, servicio y hora.</p>
+        <p class="form-note">Un comunicado se puede archivar cuando ya no hace falta, y eliminar definitivamente recién cuando lo confirmaron todos sus destinatarios: al eliminarlo se borra también la constancia de quiénes lo leyeron.</p>
       </div>
     </div>
 
