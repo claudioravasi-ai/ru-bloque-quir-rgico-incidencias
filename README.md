@@ -71,7 +71,23 @@ notificaciones del sistema.
 | Cola de escrituras | Cambios hechos sin conexión | Se reenvían solos al reconectar |
 
 La app abre siempre con la última copia local conocida y se sincroniza en segundo plano. El indicador de la
-barra superior muestra **Sincronizado**, **Sin conexión**, **N sin sincronizar** o **Modo local**.
+barra superior muestra **Sincronizado**, **Sin conexión**, **N sin enviar** o **Modo local**. Mientras todo va
+bien, en el teléfono el indicador no ocupa lugar; **apenas hay algo sin enviar aparece en ámbar y late**, y al
+tocarlo explica qué quedó pendiente y ofrece reintentar. Antes estaba oculto en pantallas de menos de 900 px:
+un cambio hecho sin señal podía quedarse en el dispositivo sin que nadie se enterara.
+
+### El último cambio gana, no el último envío
+
+Cada escritura se sella con la hora del servidor de Firebase (no con el reloj del dispositivo, que puede estar
+corrido). Cuando la cola descarga un cambio que estuvo esperando, lo hace dentro de una **transacción** que
+primero mira la nube: si ese registro fue editado *después*, el cambio viejo se descarta y el dispositivo
+adopta lo que hay en la nube. Sin esta comparación, una baja registrada sin señal podía volver horas o días
+más tarde y pisar el alta que la Jefatura ya había dado desde otro equipo.
+
+Las acciones que deciden quién puede trabajar —**autorizar** y **dar de baja** una cuenta— esperan la
+confirmación de la nube antes de dar el aviso. Si el cambio quedó solo en el dispositivo, el cartel lo dice
+con todas las letras en lugar de anunciar un alta que el resto del hospital todavía no ve, y la pantalla de
+Profesionales muestra una advertencia roja mientras haya cambios sin enviar.
 
 Colecciones: `cirugias` (turnos), `incidencias`, `usuarios`, `reclamos`, `agenda` (habilitación de días y salas),
 `consentimientos` (consentimientos informados generados), `config` (valores unitarios de los módulos y
@@ -152,7 +168,7 @@ salvo en la madrugada del Quirófano 1. Los identificadores `T1` a `T6` se conse
 | `0112` | Jefatura de Quirófanos — **abre el bloque**: día, turno y sala |
 | `2358` | Cancelar un turno / limpiar la grilla |
 | `3340` | Autorización de Admisión y Egresos |
-| `9876` | Dirección Médica (módulos de todos los servicios) |
+| `9876` | Dirección Médica (módulos de todos los servicios y estadísticas quirúrgicas) |
 
 > El control es del lado del cliente: sirve para separar roles en la operación diaria, no como seguridad
 > real frente a alguien que inspeccione el código. Para eso hace falta autenticación en el servidor.
@@ -295,7 +311,8 @@ Solapa aparte de **Indicadores**. Mientras los indicadores miden el bloque contr
 institucionales, las estadísticas comparan la producción **entre equipos** sobre un período libre
 (desde/hasta, con atajos: este mes, mes anterior, últimos 3 meses, año en curso, últimos 12 meses).
 
-Dos vistas, **por servicio** y **por cirujano**, con las mismas columnas ordenables:
+Tres vistas: **por servicio**, **por cirujano** y **por tipo de cirugía** (una fila por práctica del
+nomenclador). Las dos primeras comparten las mismas columnas ordenables:
 
 | Columna | Cómo se calcula |
 |---|---|
@@ -311,9 +328,49 @@ Dos vistas, **por servicio** y **por cirujano**, con las mismas columnas ordenab
 Tocando un servicio se abre su desglose por cirujano. Todo el cuadro se exporta a **CSV**
 (separador `;` y BOM, listo para abrir en Excel en español).
 
-**Quién ve qué.** La Jefatura ve el plantel completo. Un profesional con sesión iniciada ve el
-agregado por servicio y, en el desglose nominal, únicamente sus propios datos: el rendimiento
-individual de un colega no es información de acceso general.
+### Por tipo de cirugía
+
+Las dos primeras vistas miran **quién** opera; esta mira **qué** se opera. Cada fila es la
+**práctica** tal como se cargó en el turno: la misma descripción del Nomenclador Modulado 2025 que
+fija el módulo A, B o C en la solapa de **Módulos Quirúrgicos** («colecistectomía simple», «hernia
+inguinal laparoscópica con colocación de malla unilateral», «cesárea - microcesárea»). Los turnos
+declarados fuera del listado entran con el texto libre del procedimiento, igual que en Módulos.
+Como una misma práctica puede repartirse entre varios equipos, el cuadro **engloba al servicio y al
+cirujano** en lugar de reemplazarlos.
+
+- **Gráfico de torta** con la distribución de las cirugías realizadas, del mismo trazo que el de
+  incidencias del Panel. Entran con color propio las **diez prácticas más operadas** del período y
+  el resto se suma en una porción gris, «Otras N prácticas»: con cientos de prácticas posibles, el
+  detalle largo se lee en el cuadro y no en el gráfico. Al lado, las diez que más quirófano
+  consumieron.
+- **Cuadro** con la práctica y, debajo, su capítulo y sección del nomenclador; la letra del módulo
+  con el mismo distintivo de color que en Módulos; realizadas, % del total, horas, duración media,
+  suspensiones y cuántos servicios y cuántos cirujanos sostienen cada práctica.
+- Tocando una práctica se abre su desglose **por servicio** y **por cirujano**.
+- **Alcance** seleccionable: el profesional alterna entre *Mis cirugías* y *Mi servicio*; la Jefatura
+  y la Dirección Médica ven todo el bloque.
+- Exporta a CSV con capítulo, sección, módulo y el detalle de servicios y cirujanos de cada práctica
+  en la misma fila.
+
+### Quién ve qué
+
+La regla es una sola y vale para las tres solapas, para las tarjetas de cabecera, para los dos
+gráficos del pie y para el CSV:
+
+| Quién | Alcance |
+|---|---|
+| **Jefe de Quirófanos** (clave `0112`) y **Dirección Médica** (clave `9876`) | Todo el bloque: todos los servicios y todos los profesionales, con nombre y apellido |
+| **Cirujano con sesión iniciada** | Lo suyo y lo de **su servicio**, y nada de los demás servicios |
+
+Del propio servicio el cirujano ve el **agregado**, no el rendimiento nominal de cada colega: en la
+solapa por cirujano aparece únicamente su fila, y en el cuadro por tipo de cirugía la producción del
+resto figura agrupada como «Otros profesionales del servicio» —aunque el recuento de cuántos
+cirujanos hicieron esa práctica sí es real—. El rendimiento individual de un colega no es
+información de acceso general.
+
+Las cifras de cabecera y los gráficos siguen el mismo alcance: el cirujano los lee sobre su
+servicio, con una única referencia institucional —el **% del bloque** que consumió su equipo—, que
+es un dato del hospital y no de otro equipo.
 
 ---
 

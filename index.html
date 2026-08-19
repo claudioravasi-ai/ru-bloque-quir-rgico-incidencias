@@ -727,6 +727,10 @@
   .conn .dotc { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
   .conn.off .dotc { background: var(--amber); }
   .conn.local .dotc { background: var(--blue); }
+  /* Con cambios sin enviar el chip deja de ser un adorno: se pinta de ámbar,
+     late y se puede tocar para reintentar el envío. */
+  .conn.alerta { background: #fff3d6; color: #7a4c05; cursor: pointer; border: 1px solid #f0c264; }
+  .conn.alerta .dotc { animation: pulseBadge 1.6s ease-in-out infinite; }
 
   .drawer-backdrop {
     position: fixed; inset: 0; background: rgba(10,14,12,0.5); z-index: 55;
@@ -800,7 +804,11 @@
     .topbar { padding: 9px 14px; padding-top: calc(9px + env(safe-area-inset-top)); }
     .topbar-title { display: block; }
     .top-btn .lbl { display: none; }
+    /* En el teléfono el chip estorba mientras todo va bien, pero esconderlo
+       siempre dejaba al usuario sin saber que un cambio no se había enviado:
+       desaparece solo cuando está sincronizado. */
     .conn { display: none; }
+    .conn.alerta { display: inline-flex; font-size: 0.7rem; padding: 5px 9px; gap: 5px; }
     .sidebar {
       position: fixed; top: 0; left: 0; z-index: 60;
       width: 86%; max-width: 310px; min-width: 0;
@@ -1003,7 +1011,7 @@
       <button class="hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Abrir menú"></button>
       <div class="topbar-title" id="topbar-title">Panel</div>
       <div class="topbar-spacer"></div>
-      <span class="conn" id="conn-chip"><span class="dotc"></span><span id="conn-text">Conectado</span></span>
+      <span class="conn" id="conn-chip" onclick="explicarConexion()" title="Estado de la sincronización"><span class="dotc"></span><span id="conn-text">Conectado</span></span>
       <button class="top-btn" id="install-btn" style="display:none" onclick="promptInstall()" aria-label="Instalar aplicación"><span id="install-ico"></span><span class="lbl">Instalar</span></button>
       <button class="top-btn" id="bell-btn" onclick="openRecordatorios()" aria-label="Recordatorios"><span id="bell-ico"></span><span class="lbl">Recordatorios</span><span class="top-badge" id="bell-badge" style="display:none">0</span></button>
     </header>
@@ -2996,7 +3004,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.7.0';
+const APP_VERSION = '2.9.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -3246,6 +3254,15 @@ function saveLocal(col) {
   try { localStorage.setItem(LOCAL_KEYS[col], JSON.stringify(DB[col])); } catch (e) {}
 }
 function saveAllLocal() { COLS.forEach(saveLocal); }
+/* ---- Hora de referencia ----
+   Cada escritura se sella con la hora para poder decidir, más tarde, si un
+   cambio que estuvo esperando en la cola sigue siendo el más nuevo. Se usa la
+   hora del servidor de Firebase (Date.now() más el desfasaje que informa la
+   propia base) porque el reloj de un teléfono puede estar corrido y eso
+   alcanzaría para que un cambio viejo se creyera el último. */
+let servidorOffset = 0;
+function ahoraServidor() { return Date.now() + servidorOffset; }
+
 function loadCola() {
   try { colaPendiente = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch (e) { colaPendiente = []; }
 }
@@ -3259,6 +3276,21 @@ function encolar(op) {
   saveCola();
   pintarConexion();
 }
+/* Descarga de la cola. Cada operación se envía dentro de una transacción que
+   primero mira qué hay en la nube: si alguien editó ese mismo registro después
+   de que este cambio se guardara acá, el cambio viejo se descarta y se adopta
+   el de la nube. Sin esta comparación, un alta hecha sin señal podía volver
+   días después y pisar lo que el resto del hospital ya había corregido: gana
+   el último cambio, no el último envío. */
+/* La decisión, aparte y sin efectos: ¿este cambio guardado sin señal sigue
+   siendo el más nuevo? Devuelve lo que hay que escribir, o undefined para
+   dejar la nube como está. Los registros anteriores a esta versión no tienen
+   sello (_m): ante la duda se los considera viejos y el cambio se aplica. */
+function resolverCola(actual, op) {
+  if (actual && Number(actual._m || 0) > Number(op.m || 0)) return undefined;
+  return op.tipo === 'set' ? op.obj : null;
+}
+
 function vaciarCola() {
   if (!conectado || !colaPendiente.length) return;
   const pend = colaPendiente.slice();
@@ -3267,8 +3299,22 @@ function vaciarCola() {
   pend.forEach((op) => {
     const r = refs[op.col];
     if (!r) { colaPendiente.push(op); return; }
-    if (op.tipo === 'set') r.child(op.id).set(op.obj).catch(() => { encolar(op); });
-    else r.child(op.id).remove().catch(() => { encolar(op); });
+    r.child(op.id).transaction(
+      // undefined aborta la transacción y deja la nube intacta.
+      (actual) => resolverCola(actual, op),
+      (err, hecho, snap) => {
+        if (err) { encolar(op); return; }
+        if (hecho) return;
+        // Descartado por viejo: este dispositivo se pone al día con la nube.
+        const val = snap && snap.val();
+        const i = DB[op.col].findIndex((x) => String(x.id) === String(op.id));
+        if (val) { if (i >= 0) DB[op.col][i] = val; else DB[op.col].push(val); }
+        else if (i >= 0) DB[op.col].splice(i, 1);
+        saveLocal(op.col);
+        refreshView();
+      },
+      false, // sin estado intermedio local: evita parpadeos en la vista
+    );
   });
   saveCola();
   pintarConexion();
@@ -3308,6 +3354,10 @@ async function initStore(onReady) {
     pintarConexion();
     if (conectado) vaciarCola();
   }); } catch (e) {}
+  // Reloj de referencia: cuánto se aparta este dispositivo de la hora del servidor.
+  try { firebase.database().ref('.info/serverTimeOffset').on('value', (s) => {
+    servidorOffset = Number(s.val()) || 0;
+  }); } catch (e) {}
 
   let pending = COLS.length;
   let ready = false;
@@ -3343,7 +3393,12 @@ async function initStore(onReady) {
     });
   });
 }
+/* Devuelve una promesa que dice si el cambio quedó confirmado en la nube
+   (true) o solamente guardado en este dispositivo, a la espera de red (false).
+   Quien necesite darle una respuesta franca al usuario —autorizar una cuenta,
+   por ejemplo— la espera; el resto la ignora y sigue como siempre. */
 function upsert(col, obj) {
+  obj._m = ahoraServidor();
   const plano = JSON.parse(JSON.stringify(obj));
   // 1) memoria + localStorage (siempre, haya o no red)
   const i = DB[col].findIndex((x) => String(x.id) === String(obj.id));
@@ -3351,33 +3406,64 @@ function upsert(col, obj) {
   if (col === 'incidencias') ordenarInc(DB[col]);
   saveLocal(col);
   // 2) nube, o cola si no hay enlace
+  let envio = Promise.resolve(!cloudOn);
   if (cloudOn) {
-    if (refs[col] && conectado) refs[col].child(obj.id).set(plano).catch(() => encolar({ tipo: 'set', col, id: obj.id, obj: plano }));
-    else encolar({ tipo: 'set', col, id: obj.id, obj: plano });
+    const op = { tipo: 'set', col, id: obj.id, obj: plano, m: plano._m };
+    if (refs[col] && conectado) {
+      envio = refs[col].child(obj.id).set(plano).then(() => true).catch(() => { encolar(op); return false; });
+    } else { encolar(op); envio = Promise.resolve(false); }
   }
   refreshView();
   revisarRecordatorios();
+  return envio;
 }
 function removeDoc(col, id) {
   DB[col] = DB[col].filter((x) => String(x.id) !== String(id));
   saveLocal(col);
+  let envio = Promise.resolve(!cloudOn);
   if (cloudOn) {
-    if (refs[col] && conectado) refs[col].child(id).remove().catch(() => encolar({ tipo: 'del', col, id }));
-    else encolar({ tipo: 'del', col, id });
+    const op = { tipo: 'del', col, id, m: ahoraServidor() };
+    if (refs[col] && conectado) {
+      envio = refs[col].child(id).remove().then(() => true).catch(() => { encolar(op); return false; });
+    } else { encolar(op); envio = Promise.resolve(false); }
   }
   refreshView();
   revisarRecordatorios();
+  return envio;
 }
 function pintarConexion() {
   const chip = $('conn-chip'), txt = $('conn-text');
   if (!chip || !txt) return;
-  chip.classList.remove('off', 'local');
-  if (!cloudOn) { chip.classList.add('local'); txt.textContent = 'Modo local'; chip.title = 'Los datos se guardan solo en este dispositivo.'; return; }
+  chip.classList.remove('off', 'local', 'alerta');
+  if (!cloudOn) { chip.classList.add('local', 'alerta'); txt.textContent = 'Modo local'; chip.title = 'Los datos se guardan solo en este dispositivo.'; return; }
   if (conectado && !colaPendiente.length) { txt.textContent = 'Sincronizado'; chip.title = 'Datos compartidos en tiempo real con el resto del hospital.'; return; }
-  chip.classList.add('off');
-  txt.textContent = colaPendiente.length ? `${colaPendiente.length} sin sincronizar` : 'Sin conexión';
+  // La clase «alerta» es la que lo hace visible en el teléfono: mientras todo
+  // va bien el chip no ocupa lugar, pero un cambio sin enviar tiene que verse.
+  chip.classList.add('off', 'alerta');
+  txt.textContent = colaPendiente.length ? `${colaPendiente.length} sin enviar` : 'Sin conexión';
   chip.title = 'Los cambios quedan guardados en este dispositivo y se envían al recuperar la conexión.';
 }
+
+/* Al tocar el chip: qué está pasando y, si hay algo trabado, un reintento. */
+function explicarConexion() {
+  if (!cloudOn) { alert('Modo local\n\nEsta copia de la app no está conectada a la base compartida: lo que cargue queda solo en este dispositivo.'); return; }
+  const n = colaPendiente.length;
+  if (!n && conectado) { alert('Sincronizado\n\nTodo lo que cargó en este dispositivo está guardado en la base compartida del hospital y el resto de los equipos ya lo ve.'); return; }
+  if (!n) { alert('Sin conexión\n\nEste dispositivo no está llegando a la base compartida. Puede seguir trabajando: lo que cargue se guarda acá y se envía solo al recuperar la señal.'); return; }
+  const detalle = colaPendiente.slice(0, 6).map((op) => `· ${COLA_NOMBRES[op.col] || op.col}`).join('\n');
+  if (confirm(`${n} cambio(s) sin enviar\n\nEstos cambios están guardados en ESTE dispositivo pero todavía no llegaron al hospital, así que nadie más los ve:\n\n${detalle}${n > 6 ? `\n· y ${n - 6} más` : ''}\n\n¿Reintentar el envío ahora?`)) {
+    if (!conectado) { alert('Todavía sin conexión.\n\nAcerque el dispositivo a una zona con señal o conéctelo a una red wifi y vuelva a intentar. Los cambios no se pierden.'); return; }
+    vaciarCola();
+    setTimeout(() => alert(colaPendiente.length
+      ? `Quedan ${colaPendiente.length} cambio(s) sin enviar. Verifique la conexión y reintente.`
+      : 'Listo: los cambios pendientes se enviaron al hospital.'), 900);
+  }
+}
+const COLA_NOMBRES = {
+  incidencias: 'Incidencia', cirugias: 'Turno quirúrgico', usuarios: 'Ficha de profesional',
+  reclamos: 'Reclamo', agenda: 'Agenda', consentimientos: 'Consentimiento informado',
+  config: 'Configuración', comunicados: 'Comunicado',
+};
 
 /* ================= SESIÓN Y ESTADO DE UI ================= */
 let jefe = sessionStorage.getItem('hru_jefe') === '1';
@@ -3393,10 +3479,12 @@ let accesoTab = 'login';
 /* Estadísticas quirúrgicas */
 let estDesde = null;        // inicio del período analizado (ISO)
 let estHasta = null;        // fin del período analizado (ISO)
-let estTab = 'servicio';    // 'servicio' | 'cirujano'
+let estTab = 'servicio';    // 'servicio' | 'cirujano' | 'tipo'
 let estOrden = 'realizadas';// columna de ordenamiento
 let estAsc = false;         // sentido del ordenamiento
 let estServicio = '';       // filtro de servicio al desglosar por cirujano
+let estTipoAlcance = 'propio'; // alcance del cuadro por tipo de cirugía
+let estTipoSel = '';        // tipo de cirugía abierto en el desglose
 let reclamoAbierto = null;  // id del reclamo con el hilo desplegado
 
 function usuarioActual() {
@@ -4101,6 +4189,9 @@ function renderSidebar() {
   if (director && !u) {
     items.push({ sep: 'Dirección Médica' });
     items.push({ id: 'modulos', icon: ICONS.layers, label: 'Módulos Quirúrgicos' });
+    // La Dirección ve el mismo cuadro que la Jefatura, con el desglose nominal
+    // completo. Si además hay sesión de Jefatura, la solapa ya figura arriba.
+    if (!jefe) items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
   }
   $('nav').innerHTML = items.map((it) => it.sep
     ? `<div class="nav-sep">${it.sep}</div>`
@@ -4159,7 +4250,7 @@ function go(v, silencioso) {
   if (v === 'modulos' && !usuarioActual() && !director) { closeDrawer(); openDirectorModal(); return; }
   // Las estadísticas las consulta cualquier profesional acreditado; el desglose
   // nominal completo queda reservado a la Jefatura dentro de la propia vista.
-  if (v === 'estadisticas' && !usuarioActual() && !jefe) { v = 'acceso'; }
+  if (v === 'estadisticas' && !usuarioActual() && !jefe && !director) { v = 'acceso'; }
   view = v;
   closeDrawer();
   const t = $('topbar-title');
@@ -5634,6 +5725,7 @@ function estFila(g, clave, propia, maxRealizadas) {
 function exportarEstadisticas() {
   const clave = estTab;
   const [desde, hasta] = estRango();
+  if (clave === 'tipo') { exportarPorTipo(); return; }
   const filas = [[clave === 'servicio' ? 'Servicio' : 'Cirujano', 'Servicio principal', 'Programadas',
     'Realizadas', 'Suspendidas', '% suspensión', 'Horas de quirófano', '% del bloque',
     'Duración media (min)', 'Urgencias P1-P2', 'Pediátricos', '% informe ≤ 2 h', '% LVQ completa',
@@ -5649,34 +5741,419 @@ function exportarEstadisticas() {
   descargarCSV(`hru-estadisticas-${clave}-${desde}_${hasta}.csv`, filas);
 }
 
-/* Grupos visibles según quién mira: el desglose nominal solo lo ve completo la
-   Jefatura; el profesional ve su propia fila. */
+/* El CSV del cuadro por tipo de cirugía sale con una fila por práctica —la
+   misma descripción y el mismo módulo que usa la solapa de Módulos— y el
+   desglose de servicios y de cirujanos en esa misma fila. */
+function exportarPorTipo() {
+  const [desde, hasta] = estRango();
+  const arr = calcPorTipo();
+  const filas = [['Práctica / intervención', 'Capítulo y sección del nomenclador', 'Módulo',
+    'Programadas', 'Realizadas', 'Suspendidas', '% suspensión',
+    'Horas de quirófano', '% del total', 'Duración media (min)', 'Servicios', 'Cirujanos',
+    'Detalle por servicio', 'Detalle por cirujano']];
+  arr.forEach((t) => filas.push([
+    t.nombre, t.contexto, t.modulo, t.programadas, t.realizadas, t.suspendidas, t.tasaSusp.toFixed(1),
+    t.horas.toFixed(1), t.share.toFixed(1), Math.round(t.durMedia),
+    t.listaServicios.length, t.nCirujanos,
+    t.listaServicios.map(([n, v]) => `${n} (${v})`).join(' | '),
+    t.listaCirujanos.map(([n, v]) => `${n} (${v})`).join(' | '),
+  ]));
+  filas.push([]);
+  const alc = estTipoAlcanceEfectivo();
+  const u = usuarioActual();
+  filas.push([`Período ${desde} a ${hasta}`,
+    alc === 'hospital' ? 'Alcance: todo el bloque quirúrgico'
+      : alc === 'propio' ? `Alcance: cirugías de ${(u && u.nombre) || ''}`
+      : `Alcance: servicio de ${(u && u.servicio) || ''}`,
+    `Exportado ${nowDT().replace('T', ' ')}`]);
+  descargarCSV(`hru-estadisticas-tipo-cirugia-${desde}_${hasta}.csv`, filas);
+}
+
+/* ---- Quién ve qué en Estadísticas ----
+   La regla es una sola y vale para las tres solapas: el Jefe de Quirófanos y la
+   Dirección Médica ven todo el bloque; el cirujano acreditado ve lo suyo y lo
+   de su servicio, y nada de los demás servicios. Del propio servicio ve el
+   agregado, no el rendimiento nominal de cada colega. */
+function estTodoElBloque() { return jefe || director; }
+function estServicioPropio() {
+  const u = usuarioActual();
+  return estTodoElBloque() ? '' : ((u && u.servicio) || '');
+}
+/* Filtro de un grupo (servicio o cirujano) contra el servicio de quien mira. */
+function estDeSuServicio(g) {
+  const serv = estServicioPropio();
+  if (!serv) return true;
+  if (mismoServicio(g.nombre, serv)) return true;
+  if (g.servicioPrinc && mismoServicio(g.servicioPrinc, serv)) return true;
+  return Object.keys(g.servicios || {}).some((x) => mismoServicio(x, serv));
+}
+
+/* Grupos visibles según quién mira: el desglose nominal solo lo ven completo la
+   Jefatura y la Dirección; el profesional ve su propia fila y su servicio. */
 function estVisibles(clave) {
   const u = usuarioActual();
   let arr = calcEstadisticas(clave);
+  if (!estTodoElBloque()) arr = arr.filter(estDeSuServicio);
   if (clave === 'cirujano') {
     if (estServicio) arr = arr.filter((g) => g.servicioPrinc === estServicio || g.servicios[estServicio]);
-    if (!jefe) arr = arr.filter((g) => u && (g.nombre === u.nombre || g.mails[u.email]));
+    if (!estTodoElBloque()) arr = arr.filter((g) => u && (g.nombre === u.nombre || g.mails[u.email]));
   }
   return arr;
+}
+
+/* ================= ESTADÍSTICAS SEGÚN TIPO DE CIRUGÍA =================
+   Las dos solapas anteriores miran quién opera (servicio y cirujano). Esta
+   mira qué se opera: agrupa la producción del período por la **práctica** del
+   Nomenclador Modulado 2025 elegida en el turno —«colecistectomía
+   videolaparoscópica», «hernia inguinal unilateral»— que es exactamente la
+   misma descripción que fija el módulo A, B o C en la solapa de Módulos
+   Quirúrgicos. Los turnos declarados fuera del nomenclador entran con el texto
+   libre del procedimiento, igual que en Módulos.
+
+   Una práctica puede repartirse entre varios servicios y cirujanos (una hernia
+   la opera Cirugía General, pero una eventración posparto puede caer en
+   Ginecología), así que el cuadro engloba a ambos en lugar de reemplazarlos.
+
+   Alcance: la Jefatura y la Dirección Médica ven todo el bloque; el
+   profesional acreditado ve sus propias cirugías y las de su servicio, igual
+   que en el resto de la vista. */
+
+/* Nombre legible del capítulo del nomenclador, para el renglón de contexto que
+   acompaña a cada práctica. Dos secciones se separan de su capítulo porque en
+   el HRU son actividad de otro equipo. */
+const TIPO_CX_NOMBRE = {
+  'ABDOMEN': 'Abdomen',
+  'PROCTOLOGIA': 'Proctología',
+  'TORAX': 'Tórax',
+  'ENDOCRINAS': 'Endocrinas',
+  'GINECOLOGIA': 'Ginecología',
+  'OBSTETRICIA': 'Obstetricia',
+  'UROLOGIA': 'Urología',
+  'ORTOPEDIA': 'Ortopedia y Traumatología',
+  'OTORRINOLARINGOLOGIA': 'Otorrinolaringología',
+  'OFTALMOLOGIA': 'Oftalmología',
+  'NEUROCIRUGIA': 'Neurocirugía',
+  'CARDIOVASCULAR': 'Cardiovascular',
+  'VASOS Y GANGLIOS LINFATICOS': 'Vasos y ganglios linfáticos',
+  'CIRUGIA REPARADORA': 'Cirugía reparadora',
+  'CIRUGÍAS ESTÉTICAS REPARADORAS autorizadas por la Obra Social': 'Estéticas reparadoras',
+};
+const TIPO_CX_FUERA = 'Fuera del nomenclador';
+/* Cuántas prácticas entran en la torta con color propio; el resto se agrupa en
+   una porción final. Con una lista de cientos de prácticas, el gráfico solo se
+   lee si el detalle largo queda en el cuadro de abajo. */
+const TIPO_CX_TOP = 10;
+/* Paleta del gráfico de torta. La última posición es el gris de "otras
+   prácticas", que nunca se usa para una práctica con nombre propio. */
+const TIPO_CX_COLORES = ['#2980d9', '#1fa971', '#f0a92e', '#8b5cf6', '#e8543f', '#0ea5a4',
+  '#d946a0', '#6b7ad9', '#7c9c2f', '#c2703a'];
+const TIPO_CX_GRIS = '#9aa3ad';
+
+/* El "tipo de cirugía" es la práctica tal como quedó escrita en el turno: si
+   salió del nomenclador es el texto exacto del listado (el mismo que decide el
+   módulo), y si se declaró a mano, el procedimiento escrito por el cirujano. */
+function tipoDeCirugia(c) {
+  const pr = c.practica;
+  if (pr && pr.p) return pr.p;
+  return String(c.procedimiento || '').trim() || 'Sin práctica declarada';
+}
+/* Renglón de contexto de la práctica: capítulo y sección del nomenclador, o el
+   aviso de que la práctica se declaró fuera del listado. */
+function tipoContexto(c) {
+  const pr = c.practica;
+  if (!pr || !pr.g) return TIPO_CX_FUERA;
+  const cap = TIPO_CX_NOMBRE[pr.g] || pr.g;
+  if (pr.g === 'ORTOPEDIA' && pr.s === 'Neurocirugía de Columna') return 'Neurocirugía de columna';
+  if (pr.s === 'Endoscopias abdominales') return 'Abdomen · Endoscopías abdominales';
+  return pr.s ? `${cap} · ${pr.s}` : cap;
+}
+/* Mayúscula inicial: el nomenclador viene en minúsculas y en el cuadro cada
+   práctica encabeza su fila. */
+function tipoTitulo(n) { return n ? n.charAt(0).toUpperCase() + n.slice(1) : n; }
+
+/* Alcances disponibles para quien mira. La Jefatura y la Dirección tienen el
+   hospital entero; el profesional, lo suyo y lo de su servicio. */
+function estTipoAlcances() {
+  const u = usuarioActual();
+  const opciones = [];
+  if (u) {
+    opciones.push({ k: 'propio', label: 'Mis cirugías' });
+    if (u.servicio) opciones.push({ k: 'servicio', label: 'Mi servicio' });
+  }
+  if (estTodoElBloque()) opciones.push({ k: 'hospital', label: 'Todo el bloque' });
+  return opciones;
+}
+function estTipoAlcanceEfectivo() {
+  const ops = estTipoAlcances();
+  if (!ops.length) return 'hospital';
+  return ops.some((o) => o.k === estTipoAlcance) ? estTipoAlcance : ops[ops.length - 1].k;
+}
+function estTipoAlcanceSet(k) { estTipoAlcance = k; estTipoSel = ''; renderEstadisticas(); }
+function estTipoVer(nombreEnc) {
+  const n = decodeURIComponent(nombreEnc);
+  estTipoSel = (estTipoSel === n) ? '' : n;
+  renderEstadisticas();
+}
+/* Qué cirugías entran en el cuadro según el alcance elegido. */
+function estTipoAlcanza(c) {
+  const alc = estTipoAlcanceEfectivo();
+  if (alc === 'hospital') return true;
+  const u = usuarioActual();
+  if (!u) return false;
+  if (alc === 'propio') return (c.cirujanoEmail && c.cirujanoEmail === u.email) || c.cirujano === u.nombre;
+  return mismoServicio(c.servicio, u.servicio);
+}
+
+/* Quién figura en el desglose por cirujano. La Jefatura y la Dirección ven el
+   plantel con nombre y apellido; el profesional ve su propia barra y el resto
+   de su servicio agrupado, igual que en la solapa "Por cirujano". */
+function estTipoNombreCirujano(c) {
+  const nombre = c.cirujano || 'Sin cirujano';
+  if (estTodoElBloque()) return nombre;
+  const u = usuarioActual();
+  const propio = !!u && ((c.cirujanoEmail && c.cirujanoEmail === u.email) || c.cirujano === u.nombre);
+  return propio ? nombre : 'Otros profesionales del servicio';
+}
+
+function calcPorTipo() {
+  const [desde, hasta] = estRango();
+  const T = {};
+  DB.cirugias
+    .filter((c) => c.fecha && c.fecha >= desde && c.fecha <= hasta)
+    .filter((c) => ['confirmada', 'en_curso', 'realizada', 'suspendida'].includes(c.estado))
+    .filter(estTipoAlcanza)
+    .forEach((c) => {
+      const k = tipoDeCirugia(c);
+      const t = T[k] || (T[k] = {
+        nombre: tipoTitulo(k), contexto: tipoContexto(c), fuera: !(c.practica && c.practica.g),
+        programadas: 0, realizadas: 0, suspendidas: 0, minutos: 0,
+        servicios: {}, cirujanos: {}, cirujanosReales: {}, modulos: {},
+      });
+      t.programadas++;
+      // El módulo lo fija la práctica; se cuenta también en las suspendidas
+      // para que el cuadro coincida con la letra que muestra la ficha del turno.
+      if (c.modulo) t.modulos[c.modulo] = (t.modulos[c.modulo] || 0) + 1;
+      if (c.estado === 'suspendida') { t.suspendidas++; return; }
+      if (c.estado !== 'realizada') return;
+      t.realizadas++;
+      t.minutos += minutosCirugia(c);
+      // Servicio y cirujano se cuentan sobre lo efectivamente realizado: es lo
+      // que sostiene el porcentaje de la torta.
+      const serv = c.servicio || 'Sin servicio';
+      t.servicios[serv] = (t.servicios[serv] || 0) + 1;
+      t.cirujanosReales[c.cirujano || 'Sin cirujano'] = true;
+      const cir = estTipoNombreCirujano(c);
+      t.cirujanos[cir] = (t.cirujanos[cir] || 0) + 1;
+    });
+  const arr = Object.values(T);
+  const tot = arr.reduce((n, t) => n + t.realizadas, 0);
+  arr.forEach((t) => {
+    t.horas = t.minutos / 60;
+    t.share = tot ? (t.realizadas / tot) * 100 : 0;
+    t.tasaSusp = t.programadas ? (t.suspendidas / t.programadas) * 100 : 0;
+    t.durMedia = t.realizadas ? t.minutos / t.realizadas : 0;
+    t.listaServicios = Object.entries(t.servicios).sort((a, b) => b[1] - a[1]);
+    t.listaCirujanos = Object.entries(t.cirujanos).sort((a, b) => b[1] - a[1]);
+    // El recuento va sobre los nombres reales aunque el desglose se muestre agrupado.
+    t.nCirujanos = Object.keys(t.cirujanosReales).length;
+    // Letra del módulo de la práctica: la dominante, que salvo carga manual
+    // dispar es la única que aparece.
+    t.modulo = MOD_LETRAS.filter((m) => t.modulos[m]).sort((a, b) => t.modulos[b] - t.modulos[a])[0] || '';
+  });
+  // El orden fija el color de cada porción: la práctica más operada queda
+  // primero y las declaradas fuera del nomenclador, al final del cuadro.
+  arr.sort((a, b) => (a.fuera - b.fuera)
+    || b.realizadas - a.realizadas || a.nombre.localeCompare(b.nombre));
+  // Solo las primeras prácticas llevan color propio en la torta.
+  let n = 0;
+  arr.forEach((t) => {
+    t.color = t.realizadas > 0 && n < TIPO_CX_TOP ? TIPO_CX_COLORES[n++] : TIPO_CX_GRIS;
+  });
+  return arr;
+}
+
+/* Torta de tipos de cirugía, con el mismo trazo que la de incidencias del
+   Panel: un anillo de segmentos y el total en el centro. */
+function donutTipos(arr, total) {
+  const R = 74, CX = 110, CY = 105, SW = 34;
+  const circ = 2 * Math.PI * R;
+  let segs = '', off = 0;
+  const conDatos = arr.filter((t) => t.realizadas > 0);
+  // Las prácticas que no entran en la torta con color propio se suman en una
+  // única porción gris: sin esto, un período largo dibuja cien hilos ilegibles.
+  const conColor = conDatos.filter((t) => t.color !== TIPO_CX_GRIS);
+  const resto = conDatos.filter((t) => t.color === TIPO_CX_GRIS);
+  const restoN = resto.reduce((n, t) => n + t.realizadas, 0);
+  const porciones = conColor.map((t) => ({ nombre: t.nombre, n: t.realizadas, color: t.color }));
+  if (restoN) porciones.push({ nombre: `Otras ${resto.length} práctica(s)`, n: restoN, color: TIPO_CX_GRIS });
+
+  if (!total || !porciones.length) {
+    segs = `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="#e5e7eb" stroke-width="${SW}"/>`;
+  } else {
+    porciones.forEach((p) => {
+      const frac = p.n / total;
+      segs += `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${p.color}"
+        stroke-width="${SW}" stroke-dasharray="${frac * circ} ${circ}" stroke-dashoffset="${-off * circ}"
+        transform="rotate(-90 ${CX} ${CY})"><title>${esc(p.nombre)} — ${p.n} (${(frac * 100).toFixed(1)} %)</title></circle>`;
+      off += frac;
+    });
+  }
+  return `<div style="display:flex;justify-content:center"><svg viewBox="0 0 220 210" style="width:220px">
+      ${segs}
+      <text x="${CX}" y="${CY - 2}" text-anchor="middle" font-size="30" font-weight="800" fill="#171c24">${total}</text>
+      <text x="${CX}" y="${CY + 20}" text-anchor="middle" font-size="11" fill="#8b929c">cirugías</text>
+    </svg></div>
+    <div class="legend" style="justify-content:center">
+      ${porciones.length
+        ? porciones.map((p) => `<span><span class="dot" style="background:${p.color};border-radius:50%"></span>${esc(p.nombre)} (${p.n} · ${((p.n / total) * 100).toFixed(1)} %)</span>`).join('')
+        : '<span style="color:var(--muted)">Sin cirugías realizadas en el período</span>'}
+    </div>`;
+}
+
+/* Detalle de un tipo: qué servicios y qué cirujanos lo componen. */
+function tipoDetalle(t) {
+  const barras = (lista, color) => {
+    const max = lista.length ? lista[0][1] : 1;
+    return lista.map(([n, v]) => `
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px;gap:10px"><span>${esc(n)}</span><b>${v}</b></div>
+        <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(v / max) * 100}%;background:${color}"></div></div>
+      </div>`).join('');
+  };
+  return `<div class="charts" style="margin-top:4px">
+    <div class="chart-card">
+      <div class="card-title" style="margin-bottom:6px">${esc(t.nombre)} — por servicio</div>
+      <div class="card-sub">${esc(t.contexto)}${t.modulo ? ` · ${MODULOS[t.modulo].label}` : ''} — ${t.realizadas} cirugía(s) realizada(s) · ${t.horas.toFixed(1)} h de quirófano</div>
+      ${t.listaServicios.length ? barras(t.listaServicios, 'var(--blue)') : '<div class="empty" style="padding:16px 0">Sin datos.</div>'}
+    </div>
+    <div class="chart-card">
+      <div class="card-title" style="margin-bottom:6px">${esc(t.nombre)} — por cirujano</div>
+      <div class="card-sub">${t.nCirujanos} profesional(es) con actividad en esta práctica</div>
+      ${t.listaCirujanos.length ? barras(t.listaCirujanos, '#1fa971') : '<div class="empty" style="padding:16px 0">Sin datos.</div>'}
+    </div>
+  </div>`;
+}
+
+/* La letra del módulo con el mismo distintivo que usa la solapa de Módulos
+   Quirúrgicos. Si un mismo texto llegara con dos letras distintas —solo pasa
+   con prácticas declaradas a mano— se muestran todas. */
+function modTagsTipo(t) {
+  const ls = MOD_LETRAS.filter((m) => t.modulos[m]);
+  if (!ls.length) return '<small style="color:var(--muted)">sin módulo</small>';
+  return `<span style="display:inline-flex;gap:4px;justify-content:flex-end">${ls.map((m) =>
+    `<span class="mod-tag mod-${m}" style="width:22px;height:22px;font-size:0.78rem" title="${MODULOS[m].label} — ${MODULOS[m].desc}">${m}</span>`).join('')}</span>`;
+}
+
+function seccionTipoCirugia() {
+  const arr = calcPorTipo();
+  const total = arr.reduce((n, t) => n + t.realizadas, 0);
+  const ops = estTipoAlcances();
+  const alc = estTipoAlcanceEfectivo();
+  const sel = arr.find((t) => t.nombre === estTipoSel);
+  const u = usuarioActual();
+  const leyendaAlcance = alc === 'hospital'
+    ? 'Todas las cirugías del bloque en el período.'
+    : alc === 'propio'
+      ? `Solamente las cirugías a cargo de ${esc((u && u.nombre) || 'usted')}.`
+      : `Cirugías del servicio de ${esc((u && u.servicio) || '')}, con todos sus cirujanos.`;
+
+  return `
+    ${ops.length > 1 ? `<div class="est-presets" style="margin-bottom:14px">
+      ${ops.map((o) => `<button class="est-preset ${alc === o.k ? 'on' : ''}" style="${alc === o.k ? 'background:var(--blue);color:#fff;border-color:var(--blue)' : ''}" onclick="estTipoAlcanceSet('${o.k}')">${o.label}</button>`).join('')}
+    </div>` : ''}
+
+    ${estTodoElBloque() ? '' : `<div class="banner banner-blue">${ICONS.lock.replace('18', '16')}
+      <div><strong>Desglose nominal restringido</strong>
+      Dentro de cada práctica usted ve su propia producción; la del resto de su servicio figura agrupada, sin nombres. El detalle nominal lo consultan el Jefe de Quirófanos y la Dirección Médica.</div></div>`}
+
+    <div class="banner banner-blue">${ICONS.info}
+      <div><strong>Producción según tipo de cirugía</strong>
+      Cada fila es la <b>práctica</b> tal como se cargó en el turno: la misma descripción del Nomenclador Modulado 2025 que fija el módulo A, B o C en Módulos Quirúrgicos. Una práctica puede repartirse entre varios servicios y cirujanos. ${leyendaAlcance} Toque una práctica del cuadro para ver quiénes la sostienen.</div></div>
+
+    <div class="charts">
+      <div class="chart-card">
+        <div class="card-title" style="margin-bottom:6px">Distribución por tipo de cirugía</div>
+        <div class="card-sub">Sobre ${total} cirugía(s) realizada(s) en el período · ${arr.filter((t) => t.realizadas > 0).length} práctica(s) distinta(s)</div>
+        ${donutTipos(arr, total)}
+      </div>
+      <div class="chart-card">
+        <div class="card-title" style="margin-bottom:6px">Horas de quirófano por práctica</div>
+        <div class="card-sub">Las diez que más quirófano consumieron. Tiempo real medido; si falta, la duración estimada</div>
+        ${(() => {
+          const orden = arr.filter((t) => t.minutos > 0).sort((a, b) => b.minutos - a.minutos).slice(0, 10);
+          const tope = orden.length ? orden[0].minutos : 1;
+          return orden.length ? orden.map((t) => `
+            <div style="margin-bottom:12px">
+              <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px;gap:10px"><span>${esc(t.nombre)}</span><b>${t.horas.toFixed(1)} h</b></div>
+              <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(t.minutos / tope) * 100}%;background:${t.color}"></div></div>
+            </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin horas de quirófano registradas en el período.</div>';
+        })()}
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table class="tbl" style="min-width:900px">
+        <thead><tr>
+          <th>Práctica / intervención</th>
+          <th class="num">Módulo</th>
+          <th class="num">Realizadas</th>
+          <th class="num">% del total</th>
+          <th class="num">Horas qx</th>
+          <th class="num">Dur. media</th>
+          <th class="num">Suspend.</th>
+          <th class="num">% susp.</th>
+          <th class="num">Servicios</th>
+          <th class="num">Cirujanos</th>
+        </tr></thead>
+        <tbody>
+          ${arr.length ? arr.map((t) => `
+            <tr class="clic" onclick="estTipoVer('${attr(t.nombre)}')" title="Ver el desglose por servicio y por cirujano">
+              <td><div class="est-nom"><span class="dot" style="background:${t.color};border-radius:50%;margin-right:6px"></span>${esc(t.nombre)}
+                <small>${esc(t.contexto)}${t.listaServicios.length ? ' — ' + esc(t.listaServicios.slice(0, 2).map(([n, v]) => `${n} (${v})`).join(' · ')) : ''}</small></div></td>
+              <td class="num">${modTagsTipo(t)}</td>
+              <td class="num"><b>${t.realizadas}</b></td>
+              <td class="num">${t.share ? t.share.toFixed(1) + ' %' : '—'}</td>
+              <td class="num">${t.horas ? t.horas.toFixed(1) : '—'}</td>
+              <td class="num">${t.durMedia ? Math.round(t.durMedia) + ' min' : '—'}</td>
+              <td class="num">${t.suspendidas}</td>
+              <td class="num">${t.programadas ? estPillInv(t.tasaSusp, 10, 5) : '—'}</td>
+              <td class="num">${t.listaServicios.length || '—'}</td>
+              <td class="num">${t.nCirujanos || '—'}</td>
+            </tr>`).join('')
+            : '<tr><td colspan="10"><div class="empty">Sin actividad registrada en el período seleccionado.</div></td></tr>'}
+        </tbody>
+      </table>
+    </div>
+
+    ${sel ? tipoDetalle(sel) : ''}`;
 }
 
 function renderEstadisticas() {
   const u = usuarioActual();
   const [desde, hasta] = estRango();
   const clave = estTab;
-  const todos = calcEstadisticas(clave);
-  const visibles = estOrdenar(estVisibles(clave));
+  const esTipo = clave === 'tipo';
+  const visibles = esTipo ? [] : estOrdenar(estVisibles(clave));
   const maxReal = Math.max(1, ...visibles.map((g) => g.realizadas));
 
-  // Totales del período, siempre sobre el universo completo.
-  const porServ = calcEstadisticas('servicio');
-  const tot = porServ.reduce((s, g) => ({
+  // Los totales y los dos gráficos del pie también respetan el alcance: el
+  // cirujano los lee sobre su servicio, la Jefatura y la Dirección sobre todo
+  // el bloque. El universo completo se conserva únicamente como denominador
+  // del "% del bloque", que es un dato institucional y no de otro equipo.
+  const todoElBloque = estTodoElBloque();
+  const servPropio = estServicioPropio();
+  const porServTodos = calcEstadisticas('servicio');
+  const porServ = todoElBloque ? porServTodos : porServTodos.filter(estDeSuServicio);
+  const sumar = (arr) => arr.reduce((s, g) => ({
     realizadas: s.realizadas + g.realizadas, suspendidas: s.suspendidas + g.suspendidas,
     programadas: s.programadas + g.programadas, minutos: s.minutos + g.minutos,
     urgencias: s.urgencias + g.urgencias,
   }), { realizadas: 0, suspendidas: 0, programadas: 0, minutos: 0, urgencias: 0 });
-  const nCirujanos = calcEstadisticas('cirujano').filter((g) => g.realizadas > 0).length;
+  const tot = sumar(porServ);
+  const totBloque = sumar(porServTodos);
+  const shareBloque = totBloque.minutos ? (tot.minutos / totBloque.minutos) * 100 : 0;
+  const nCirujanos = calcEstadisticas('cirujano')
+    .filter((g) => g.realizadas > 0 && (todoElBloque || estDeSuServicio(g))).length;
   const nServicios = porServ.filter((g) => g.realizadas > 0).length;
 
   const th = (c) => `<th class="num orden ${estOrden === c.k ? 'on' : ''}" onclick="estSort('${c.k}')">${c.t}${estOrden === c.k ? ' ' + (estAsc ? ICONS.arrowUp : ICONS.arrowDown) : ''}</th>`;
@@ -5696,7 +6173,7 @@ function renderEstadisticas() {
         <div class="head-icon">${ICONS.pieChart}</div>
         <div>
           <h1 class="page-title">Estadísticas Quirúrgicas</h1>
-          <p class="page-sub">Producción por servicio y por cirujano — ${fmtFecha(desde)} al ${fmtFecha(hasta)}</p>
+          <p class="page-sub">Producción por servicio, por cirujano y por tipo de cirugía — ${fmtFecha(desde)} al ${fmtFecha(hasta)}</p>
         </div>
       </div>
       <button class="btn btn-outline btn-sm" onclick="exportarEstadisticas()">${ICONS.download} Exportar CSV</button>
@@ -5716,34 +6193,47 @@ function renderEstadisticas() {
       </div>
     </div>
 
+    ${todoElBloque ? '' : `<div class="banner banner-green">${ICONS.steth.replace('14', '18')}
+      <div><strong>Alcance de esta solapa</strong>
+      Usted ve su propia producción y la de su servicio${servPropio ? ` (<b>${esc(servPropio)}</b>)` : ''}. Las cifras de los demás servicios y el rendimiento individual de cada colega los consultan el Jefe de Quirófanos y la Dirección Médica.</div></div>`}
+
     <div class="kpi-grid">
       <div class="kpi"><div class="kpi-label">${ICONS.check} Cirugías realizadas</div>
         <div class="kpi-val">${tot.realizadas}</div>
-        <div class="kpi-meta">${tot.programadas} llegaron al parte en el período</div></div>
+        <div class="kpi-meta">${tot.programadas} llegaron al parte en el período${todoElBloque ? '' : ' en su servicio'}</div></div>
       <div class="kpi"><div class="kpi-label">${ICONS.clockSm} Horas de quirófano</div>
         <div class="kpi-val">${(tot.minutos / 60).toFixed(1)}</div>
-        <div class="kpi-meta">Tiempo real medido; si falta, la duración estimada</div></div>
-      <div class="kpi"><div class="kpi-label">${ICONS.layers.replace('18', '15')} Equipos con actividad</div>
-        <div class="kpi-val">${nServicios} <span style="font-size:1rem;font-weight:600;color:var(--muted)">servicios</span></div>
-        <div class="kpi-meta">${nCirujanos} cirujano(s) con al menos una cirugía realizada</div></div>
+        <div class="kpi-meta">${todoElBloque
+          ? 'Tiempo real medido; si falta, la duración estimada'
+          : `${shareBloque.toFixed(1)} % del bloque quirúrgico del período`}</div></div>
+      ${todoElBloque
+        ? `<div class="kpi"><div class="kpi-label">${ICONS.layers.replace('18', '15')} Equipos con actividad</div>
+            <div class="kpi-val">${nServicios} <span style="font-size:1rem;font-weight:600;color:var(--muted)">servicios</span></div>
+            <div class="kpi-meta">${nCirujanos} cirujano(s) con al menos una cirugía realizada</div></div>`
+        : `<div class="kpi"><div class="kpi-label">${ICONS.steth.replace('14', '15')} Cirujanos con actividad</div>
+            <div class="kpi-val">${nCirujanos}</div>
+            <div class="kpi-meta">De su servicio, con al menos una cirugía realizada en el período</div></div>`}
       <div class="kpi"><div class="kpi-label">${ICONS.zap.replace('16', '15')} Urgencias P1–P2</div>
         <div class="kpi-val">${tot.urgencias}</div>
-        <div class="kpi-meta">${tot.realizadas ? ((tot.urgencias / tot.realizadas) * 100).toFixed(1) : '0.0'} % de la producción del período</div></div>
+        <div class="kpi-meta">${tot.realizadas ? ((tot.urgencias / tot.realizadas) * 100).toFixed(1) : '0.0'} % de la producción${todoElBloque ? ' del período' : ' de su servicio'}</div></div>
     </div>
 
     <div class="tabs">
       <button class="tab ${clave === 'servicio' ? 'active' : ''}" onclick="estTab='servicio';estServicio='';renderEstadisticas()">${ICONS.layers.replace('18', '15')} Por servicio <span class="n">${porServ.length}</span></button>
       <button class="tab ${clave === 'cirujano' ? 'active' : ''}" onclick="estTab='cirujano';renderEstadisticas()">${ICONS.steth} Por cirujano <span class="n">${estVisibles('cirujano').length}</span></button>
+      <button class="tab ${esTipo ? 'active' : ''}" onclick="estTab='tipo';renderEstadisticas()">${ICONS.pieChart.replace('18', '15')} Por tipo de cirugía</button>
       ${clave === 'cirujano' && estServicio ? `<button class="tab" onclick="estServicio='';renderEstadisticas()">${ICONS.x} Quitar filtro: ${esc(estServicio)}</button>` : ''}
     </div>
 
-    ${clave === 'cirujano' && !jefe ? `<div class="banner banner-blue">${ICONS.lock.replace('18', '16')}
+    ${esTipo ? seccionTipoCirugia() : `
+
+    ${clave === 'cirujano' && !todoElBloque ? `<div class="banner banner-blue">${ICONS.lock.replace('18', '16')}
       <div><strong>Desglose nominal restringido</strong>
-      El rendimiento individual de cada profesional solo lo consulta la Jefatura de Quirófanos. Usted ve sus propios datos y el agregado por servicio.</div></div>` : ''}
+      El rendimiento individual de cada profesional solo lo consultan el Jefe de Quirófanos y la Dirección Médica. Usted ve sus propios datos y, en la solapa anterior, el agregado de su servicio.</div></div>` : ''}
 
     ${clave === 'servicio' ? `<div class="banner banner-blue">${ICONS.info}
       <div><strong>Cómo leer el cuadro</strong>
-      Toque un servicio para ver su desglose por cirujano. Las horas de quirófano usan el tiempo real medido entre incisión y cierre; cuando no está cargado se toma la duración estimada de la solicitud. La columna <b>En espera</b> es una foto del estado actual, no del período elegido.</div></div>` : ''}
+      ${todoElBloque ? 'Toque un servicio para ver su desglose por cirujano.' : 'El cuadro muestra el agregado de su servicio.'} Las horas de quirófano usan el tiempo real medido entre incisión y cierre; cuando no está cargado se toma la duración estimada de la solicitud. La columna <b>En espera</b> es una foto del estado actual, no del período elegido.</div></div>` : ''}
 
     <div class="tbl-wrap">
       <table class="tbl" style="min-width:1080px">
@@ -5761,16 +6251,16 @@ function renderEstadisticas() {
 
     <div class="charts">
       <div class="chart-card">
-        <div class="card-title" style="margin-bottom:6px">Ocupación del bloque por servicio</div>
-        <div class="card-sub">Horas de quirófano consumidas en el período</div>
+        <div class="card-title" style="margin-bottom:6px">Ocupación del bloque ${todoElBloque ? 'por servicio' : '— su servicio'}</div>
+        <div class="card-sub">Horas de quirófano consumidas en el período${todoElBloque ? '' : ', medidas contra el total del bloque'}</div>
         ${topHoras.length && topHoras[0].minutos ? topHoras.map((g) => `
           <div style="margin-bottom:12px">
             <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${esc(g.nombre)}</span><b>${(g.minutos / 60).toFixed(1)} h · ${g.share.toFixed(1)} %</b></div>
-            <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(g.minutos / maxHoras) * 100}%;background:var(--blue)"></div></div>
+            <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${todoElBloque ? (g.minutos / maxHoras) * 100 : g.share}%;background:var(--blue)"></div></div>
           </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin horas de quirófano registradas en el período.</div>'}
       </div>
       <div class="chart-card">
-        <div class="card-title" style="margin-bottom:6px">Causas de suspensión del período</div>
+        <div class="card-title" style="margin-bottom:6px">Causas de suspensión del período${todoElBloque ? '' : ' — su servicio'}</div>
         <div class="card-sub">${tot.suspendidas} suspensión(es) sobre ${tot.programadas} cirugías que llegaron al parte</div>
         ${causasArr.length ? causasArr.map(([c, n]) => `
           <div style="margin-bottom:12px">
@@ -5778,7 +6268,7 @@ function renderEstadisticas() {
             <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(n / maxCausa) * 100}%;background:var(--red)"></div></div>
           </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin suspensiones registradas en el período.</div>'}
       </div>
-    </div>`;
+    </div>`}`;
 }
 
 /* ================= RECLAMOS (canal Jefe a Jefe) ================= */
@@ -6299,6 +6789,19 @@ function renderUsuarios() {
       </div>
     </div>
 
+    ${(() => {
+      // Un alta o una baja que no salió de este dispositivo no habilita ni
+      // impide nada en el resto del hospital: acá es donde hay que decirlo.
+      const sinEnviar = colaPendiente.filter((op) => op.col === 'usuarios').length;
+      if (!sinEnviar && conectado) return '';
+      return `<div class="banner banner-red">${ico(ICONS.alertTri, 20)}
+        <div><strong>${sinEnviar ? `${sinEnviar} cambio(s) de esta pantalla sin enviar al hospital` : 'Este dispositivo está sin conexión'}</strong>
+        ${sinEnviar
+          ? 'Las autorizaciones y bajas que hizo acá están guardadas en este dispositivo pero todavía no llegaron a la base compartida: los demás equipos siguen viendo el estado anterior.'
+          : 'Mientras no haya conexión, las autorizaciones y bajas que registre quedan guardadas solo en este dispositivo.'}
+        <div style="margin-top:10px"><button class="btn btn-sm btn-blue" onclick="explicarConexion()">${ico(ICONS.info, 14)} Ver estado y reintentar</button></div></div></div>`;
+    })()}
+
     ${pend.length ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 20)}
       <div><strong>${pend.length} profesional(es) esperando su autorización</strong>
       Ninguna de estas cuentas puede programar cirugías hasta que la Jefatura la autorice: ${pend.map((u) => esc(u.nombre)).join(' · ')}.</div></div>` : ''}
@@ -6350,34 +6853,48 @@ function renderUsuarios() {
    distraído en una terminal compartida del quirófano. */
 function usuarioPorId(id) { return DB.usuarios.find((u) => String(u.id) === String(id)) || null; }
 
+/* Coletilla honesta para las acciones que cambian quién puede trabajar: si el
+   dispositivo no llegó a la base, el resto del hospital todavía no se enteró. */
+function avisoEnvio(enviado, que) {
+  if (enviado) return '';
+  return `\n\n⚠ ATENCIÓN: este dispositivo no está llegando a la base compartida.` +
+    `\n${que} quedó guardada acá y se enviará sola al recuperar la conexión, pero HASTA ENTONCES el resto de los equipos NO la ve.` +
+    `\n\nDeje la app abierta con señal hasta que el indicador de arriba diga «Sincronizado».`;
+}
+
 function autorizarCuenta(id) {
   const u = usuarioPorId(id);
   if (!u) return;
   const alta = estadoCuenta(u) === 'baja';
-  pedirClave('Jefatura de Quirófanos', `${alta ? 'Reactivar' : 'Autorizar'} la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, () => {
+  pedirClave('Jefatura de Quirófanos', `${alta ? 'Reactivar' : 'Autorizar'} la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, async () => {
     u.cuenta = 'aprobado';
     u.cuentaMotivo = '';
     u.cuentaFecha = nowDT();
-    upsert('usuarios', u);
+    // Se espera la confirmación de la nube: un alta que quedó guardada solo en
+    // este dispositivo no habilita a nadie, y decir lo contrario es peor que
+    // no decir nada.
+    const enviado = await upsert('usuarios', u);
     renderUsuarios();
     alert(`${u.nombre} quedó ${alta ? 'reactivado' : 'autorizado'} por la Jefatura de Quirófanos.` +
-      (habilitacion(u).ok ? '' : '\n\nAtención: su habilitación documental sigue incompleta, así que todavía no podrá programar hasta que cargue los requisitos faltantes en Mi Perfil.'));
+      (habilitacion(u).ok ? '' : '\n\nAtención: su habilitación documental sigue incompleta, así que todavía no podrá programar hasta que cargue los requisitos faltantes en Mi Perfil.') +
+      avisoEnvio(enviado, 'La autorización'));
   });
 }
 
 function darDeBajaCuenta(id) {
   const u = usuarioPorId(id);
   if (!u) return;
-  pedirClave('Jefatura de Quirófanos', `Dar de baja la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, () => {
+  pedirClave('Jefatura de Quirófanos', `Dar de baja la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, async () => {
     const motivo = prompt(`Motivo de la baja de ${u.nombre}:\n\n(Queda registrado y se le muestra al profesional cuando intente ingresar.)`, '');
     if (motivo === null) return;
     if (!motivo.trim()) { alert('La baja exige un motivo escrito.'); return; }
     u.cuenta = 'baja';
     u.cuentaMotivo = motivo.trim();
     u.cuentaFecha = nowDT();
-    upsert('usuarios', u);
+    const enviado = await upsert('usuarios', u);
     renderUsuarios();
-    alert(`${u.nombre} fue dado de baja. No podrá ingresar ni programar cirugías.\n\nLos turnos que ya haya programado se conservan: revíselos en Programación.`);
+    alert(`${u.nombre} fue dado de baja. No podrá ingresar ni programar cirugías.\n\nLos turnos que ya haya programado se conservan: revíselos en Programación.` +
+      avisoEnvio(enviado, 'La baja'));
   });
 }
 
