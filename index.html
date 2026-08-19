@@ -254,8 +254,17 @@
   .stat-label { font-size: 0.84rem; color: var(--muted); line-height: 1.3; }
 
   /* Charts */
-  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  /* El margen inferior importa: en el Panel este bloque cierra la vista, pero
+     en Estadísticas lo sigue una tabla y sin separación quedaban pegados. */
+  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 22px; }
   @media (max-width: 900px) { .charts { grid-template-columns: 1fr; } }
+  /* Filas de barras dentro de una tarjeta: nombre largo a la izquierda, cifra
+     entera y sin cortar a la derecha. */
+  .barra-fila { margin-bottom: 14px; }
+  .barra-fila:last-child { margin-bottom: 0; }
+  .barra-top { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; font-size: 0.85rem; margin-bottom: 5px; }
+  .barra-top span { min-width: 0; line-height: 1.35; }
+  .barra-top b { flex: none; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .chart-card { background: var(--card); border-radius: var(--radius); padding: 24px 26px; box-shadow: 0 1px 3px rgba(23,28,36,0.07); }
   .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; font-size: 0.8rem; color: var(--muted); }
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
@@ -428,6 +437,27 @@
   .est-mini i { display: block; height: 100%; border-radius: 99px; background: var(--blue); }
   .est-nom { font-weight: 600; }
   .est-nom small { display: block; font-weight: 500; color: var(--muted); font-size: 0.76rem; margin-top: 2px; }
+
+  /* ---- Cuadro por tipo de cirugía ----
+     Las cifras venían partiéndose en dos renglones («50.0 %», «90 min») porque
+     la tabla se comprimía. Acá se les da ancho propio y se prohíbe el corte: es
+     más honesto un desplazamiento lateral que un número roto. */
+  .tbl-tipo { min-width: 1120px; }
+  .tbl-tipo td, .tbl-tipo th { padding-top: 15px; padding-bottom: 15px; }
+  .tbl-tipo td.num, .tbl-tipo th.num { white-space: nowrap; }
+  .tbl-tipo tbody tr:nth-child(even) td { background: #fbfcfd; }
+  .tbl-tipo tr.clic:hover td { background: #f2f7fd; }
+  .tbl-tipo .tipo-nom { display: flex; gap: 10px; align-items: flex-start; min-width: 300px; max-width: 380px; }
+  .tbl-tipo .tipo-punto { flex: none; width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; }
+  .tbl-tipo .tipo-txt { min-width: 0; font-weight: 700; line-height: 1.35; }
+  .tbl-tipo .tipo-ctx { display: block; font-weight: 500; color: var(--muted); font-size: 0.76rem; margin-top: 3px; line-height: 1.4; }
+  .tbl-tipo .tipo-serv { display: block; font-weight: 600; color: #55606d; font-size: 0.76rem; margin-top: 3px; }
+  /* La cifra principal, con su barra de tamaño relativo debajo. */
+  .tbl-tipo .tipo-cifra { font-size: 1.05rem; font-weight: 800; line-height: 1.1; }
+  .tbl-tipo .tipo-share { display: inline-flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .tbl-tipo .tipo-share .est-mini { width: 54px; margin-top: 0; }
+  .tbl-tipo .dato-sec { color: #55606d; }
+  .tbl-tipo .dato-nulo { color: #aeb6bf; }
   .est-pill { font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
   .est-pill.ok { background: var(--green-soft); color: #166b4a; }
   .est-pill.mid { background: var(--amber-soft); color: #92600a; }
@@ -3004,7 +3034,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.9.0';
+const APP_VERSION = '2.9.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -5521,8 +5551,8 @@ function renderKPIs() {
         <div class="card-title" style="margin-bottom:6px">Causas de suspensión del mes</div>
         <div class="card-sub">Insumo para el análisis de mejora continua</div>
         ${causasArr.length ? causasArr.map(([c, n]) => `
-          <div style="margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${esc(c)}</span><b>${n}</b></div>
+          <div class="barra-fila">
+            <div class="barra-top"><span>${esc(c)}</span><b>${n}</b></div>
             <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(n / maxCausa) * 100}%;background:var(--red)"></div></div>
           </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin suspensiones registradas en el período.</div>'}
       </div>
@@ -5536,8 +5566,8 @@ function renderKPIs() {
           const arr = Object.entries(porServ).sort((a, b) => b[1] - a[1]);
           const mx = arr.length ? arr[0][1] : 1;
           return arr.length ? arr.map(([s, n]) => `
-            <div style="margin-bottom:12px">
-              <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${esc(s)}</span><b>${n}</b></div>
+            <div class="barra-fila">
+              <div class="barra-top"><span>${esc(s)}</span><b>${n}</b></div>
               <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(n / mx) * 100}%;background:var(--blue)"></div></div>
             </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin cirugías realizadas en el período.</div>';
         })()}
@@ -6015,8 +6045,8 @@ function tipoDetalle(t) {
   const barras = (lista, color) => {
     const max = lista.length ? lista[0][1] : 1;
     return lista.map(([n, v]) => `
-      <div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px;gap:10px"><span>${esc(n)}</span><b>${v}</b></div>
+      <div class="barra-fila">
+        <div class="barra-top"><span>${esc(n)}</span><b>${v}</b></div>
         <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(v / max) * 100}%;background:${color}"></div></div>
       </div>`).join('');
   };
@@ -6083,8 +6113,8 @@ function seccionTipoCirugia() {
           const orden = arr.filter((t) => t.minutos > 0).sort((a, b) => b.minutos - a.minutos).slice(0, 10);
           const tope = orden.length ? orden[0].minutos : 1;
           return orden.length ? orden.map((t) => `
-            <div style="margin-bottom:12px">
-              <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px;gap:10px"><span>${esc(t.nombre)}</span><b>${t.horas.toFixed(1)} h</b></div>
+            <div class="barra-fila">
+              <div class="barra-top"><span>${esc(t.nombre)}</span><b>${t.horas.toFixed(1)} h</b></div>
               <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(t.minutos / tope) * 100}%;background:${t.color}"></div></div>
             </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin horas de quirófano registradas en el período.</div>';
         })()}
@@ -6092,7 +6122,7 @@ function seccionTipoCirugia() {
     </div>
 
     <div class="tbl-wrap">
-      <table class="tbl" style="min-width:900px">
+      <table class="tbl tbl-tipo">
         <thead><tr>
           <th>Práctica / intervención</th>
           <th class="num">Módulo</th>
@@ -6108,17 +6138,26 @@ function seccionTipoCirugia() {
         <tbody>
           ${arr.length ? arr.map((t) => `
             <tr class="clic" onclick="estTipoVer('${attr(t.nombre)}')" title="Ver el desglose por servicio y por cirujano">
-              <td><div class="est-nom"><span class="dot" style="background:${t.color};border-radius:50%;margin-right:6px"></span>${esc(t.nombre)}
-                <small>${esc(t.contexto)}${t.listaServicios.length ? ' — ' + esc(t.listaServicios.slice(0, 2).map(([n, v]) => `${n} (${v})`).join(' · ')) : ''}</small></div></td>
+              <td>
+                <div class="tipo-nom">
+                  <span class="tipo-punto" style="background:${t.color}"></span>
+                  <span class="tipo-txt">${esc(t.nombre)}
+                    <span class="tipo-ctx">${esc(t.contexto)}</span>
+                    ${t.listaServicios.length ? `<span class="tipo-serv">${esc(t.listaServicios.slice(0, 2).map(([n, v]) => `${n} (${v})`).join(' · '))}${t.listaServicios.length > 2 ? ` +${t.listaServicios.length - 2}` : ''}</span>` : ''}
+                  </span>
+                </div>
+              </td>
               <td class="num">${modTagsTipo(t)}</td>
-              <td class="num"><b>${t.realizadas}</b></td>
-              <td class="num">${t.share ? t.share.toFixed(1) + ' %' : '—'}</td>
-              <td class="num">${t.horas ? t.horas.toFixed(1) : '—'}</td>
-              <td class="num">${t.durMedia ? Math.round(t.durMedia) + ' min' : '—'}</td>
-              <td class="num">${t.suspendidas}</td>
-              <td class="num">${t.programadas ? estPillInv(t.tasaSusp, 10, 5) : '—'}</td>
-              <td class="num">${t.listaServicios.length || '—'}</td>
-              <td class="num">${t.nCirujanos || '—'}</td>
+              <td class="num"><span class="tipo-cifra">${t.realizadas}</span></td>
+              <td class="num">${t.share
+                ? `<span class="tipo-share"><span class="est-mini"><i style="width:${Math.max(4, t.share)}%;background:${t.color}"></i></span>${t.share.toFixed(1)} %</span>`
+                : '<span class="dato-nulo">—</span>'}</td>
+              <td class="num">${t.horas ? `<b>${t.horas.toFixed(1)}</b> <span class="dato-sec">h</span>` : '<span class="dato-nulo">—</span>'}</td>
+              <td class="num">${t.durMedia ? `${Math.round(t.durMedia)} <span class="dato-sec">min</span>` : '<span class="dato-nulo">—</span>'}</td>
+              <td class="num">${t.suspendidas || '<span class="dato-nulo">0</span>'}</td>
+              <td class="num">${t.programadas ? estPillInv(t.tasaSusp, 10, 5) : '<span class="dato-nulo">—</span>'}</td>
+              <td class="num">${t.listaServicios.length || '<span class="dato-nulo">—</span>'}</td>
+              <td class="num">${t.nCirujanos || '<span class="dato-nulo">—</span>'}</td>
             </tr>`).join('')
             : '<tr><td colspan="10"><div class="empty">Sin actividad registrada en el período seleccionado.</div></td></tr>'}
         </tbody>
@@ -6254,8 +6293,8 @@ function renderEstadisticas() {
         <div class="card-title" style="margin-bottom:6px">Ocupación del bloque ${todoElBloque ? 'por servicio' : '— su servicio'}</div>
         <div class="card-sub">Horas de quirófano consumidas en el período${todoElBloque ? '' : ', medidas contra el total del bloque'}</div>
         ${topHoras.length && topHoras[0].minutos ? topHoras.map((g) => `
-          <div style="margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${esc(g.nombre)}</span><b>${(g.minutos / 60).toFixed(1)} h · ${g.share.toFixed(1)} %</b></div>
+          <div class="barra-fila">
+            <div class="barra-top"><span>${esc(g.nombre)}</span><b>${(g.minutos / 60).toFixed(1)} h · ${g.share.toFixed(1)} %</b></div>
             <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${todoElBloque ? (g.minutos / maxHoras) * 100 : g.share}%;background:var(--blue)"></div></div>
           </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin horas de quirófano registradas en el período.</div>'}
       </div>
@@ -6263,8 +6302,8 @@ function renderEstadisticas() {
         <div class="card-title" style="margin-bottom:6px">Causas de suspensión del período${todoElBloque ? '' : ' — su servicio'}</div>
         <div class="card-sub">${tot.suspendidas} suspensión(es) sobre ${tot.programadas} cirugías que llegaron al parte</div>
         ${causasArr.length ? causasArr.map(([c, n]) => `
-          <div style="margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px"><span>${esc(c)}</span><b>${n}</b></div>
+          <div class="barra-fila">
+            <div class="barra-top"><span>${esc(c)}</span><b>${n}</b></div>
             <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(n / maxCausa) * 100}%;background:var(--red)"></div></div>
           </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin suspensiones registradas en el período.</div>'}
       </div>
@@ -10037,8 +10076,8 @@ function renderModulos() {
         <div class="card-title" style="margin-bottom:6px">Evolución del período</div>
         <div class="card-sub">Módulos generados por ${barras.unidad || 'período'}</div>
         ${barras.length ? barras.map((b) => `
-          <div style="margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px">
+          <div class="barra-fila">
+            <div class="barra-top">
               <span>${esc(b.label)}</span><b>${b.T} · A ${b.A} / B ${b.B} / C ${b.C}</b></div>
             <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(b.T / maxBarra) * 100}%;background:var(--blue)"></div></div>
           </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin módulos registrados en el período.</div>'}
@@ -10047,8 +10086,8 @@ function renderModulos() {
         <div class="card-title" style="margin-bottom:6px">Reparto por complejidad</div>
         <div class="card-sub">Distribución de los ${tot.T} módulo(s) del período</div>
         ${tot.T ? MOD_LETRAS.map((k) => `
-          <div style="margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px">
+          <div class="barra-fila">
+            <div class="barra-top">
               <span>${MODULOS[k].label} — ${MODULOS[k].desc}</span><b>${tot[k]} · ${((tot[k] / tot.T) * 100).toFixed(1)} %</b></div>
             <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(tot[k] / tot.T) * 100}%;background:${MODULOS[k].color}"></div></div>
           </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin módulos registrados en el período.</div>'}
