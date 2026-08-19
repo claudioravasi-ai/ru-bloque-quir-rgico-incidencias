@@ -244,6 +244,32 @@ procedimientos excedidos · informe operatorio (< 2 h) · muestras sin enviar a 
 incidencias A–C (< 2 h) y D–F (< 24 h) · reclamos dirigidos al autor o a la Jefatura (48 h hábiles) ·
 espera > 90 días · vencimiento de seguro y de RCP.
 
+### Cada uno recibe lo suyo
+
+Un aviso quirúrgico solo le llega a **quien puede actuar sobre él**: el cirujano dueño del turno
+(`cirujanoEmail`) y la Jefatura, que necesita la vista global. Un cirujano no ve los retrasos, informes
+pendientes ni muestras sin enviar de sus colegas. Si a todos les suena todo, el aviso deja de leerse.
+
+Las cirugías **sin cirujano identificado** —cargadas por la Jefatura, o anteriores a que se registrara el
+dato— quedan solo en manos de la Jefatura, que puede averiguar de quién son.
+
+Los avisos que no dependen de una cirugía mantienen su alcance propio: la habilitación es de cada
+profesional, las incidencias y las cuentas por autorizar son de la Jefatura, y los reclamos van al autor
+y a la Jefatura.
+
+### Visto
+
+Marcar un recordatorio como **visto** lo silencia por la jornada: deja de contar en la campana, queda
+atenuado al final de su grupo y no vuelve a saltar como notificación del dispositivo. Abrir el aviso
+—tocar «Ver», «Ir» o «Abrir»— también lo da por visto.
+
+No lo borra, y es deliberado: un recordatorio no es un mensaje, se recalcula a partir del estado real y
+existe mientras exista el problema que lo origina. Si al día siguiente sigue sin resolverse, **vuelve a
+contar**. Así un informe operatorio sin cargar no se puede silenciar para siempre con un clic.
+
+La marca se guarda por dispositivo y lleva el correo de quien la puso, de modo que si dos profesionales
+comparten la computadora del quirófano cada uno mantiene su propia lista.
+
 > Las notificaciones del sistema se emiten mientras la app está abierta (incluso en segundo plano o
 > instalada). Para avisos con la app cerrada haría falta un servidor de push (Firebase Cloud Messaging),
 > que hoy no forma parte de esta versión.

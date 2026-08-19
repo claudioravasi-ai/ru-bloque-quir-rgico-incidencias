@@ -761,6 +761,23 @@
     cursor: pointer; color: var(--blue); white-space: nowrap; align-self: center;
   }
   .rem-go:hover { background: var(--blue-soft); }
+  /* Recordatorio ya visto: sigue en la lista pero deja de reclamar la vista. */
+  .rem-acciones { display: flex; flex-direction: column; gap: 6px; align-self: center; }
+  .rem-visto-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    background: none; border: 1px solid var(--line); border-radius: 8px;
+    padding: 5px 10px; font-family: inherit; font-size: 0.74rem; font-weight: 650;
+    cursor: pointer; color: var(--muted); white-space: nowrap;
+  }
+  .rem-visto-btn:hover { background: var(--green-soft); color: var(--green); border-color: var(--green); }
+  .rem-visto-btn svg { width: 13px; height: 13px; }
+  .rem.rem-leido { opacity: 0.55; border-left-color: var(--line) !important; }
+  .rem.rem-leido:hover { opacity: 0.85; }
+  .rem-visto {
+    font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--green); background: var(--green-soft); border-radius: 5px;
+    padding: 2px 6px; margin-left: 7px; vertical-align: middle;
+  }
   #rem-modal { max-width: 560px; max-height: 84vh; overflow-y: auto; }
   #rem-modal .rem { box-shadow: none; border: 1px solid var(--line); border-left-width: 4px; }
 
@@ -3609,9 +3626,55 @@ function cargarNotificados() {
   // Se purgan las marcas de días anteriores para que el aviso se repita cada jornada.
   const hoy = hoyISO();
   Object.keys(remNotificados).forEach((k) => { if (remNotificados[k] !== hoy) delete remNotificados[k]; });
+  cargarLeidos();
 }
 function guardarNotificados() {
   try { localStorage.setItem(REM_NOTIF_KEY, JSON.stringify(remNotificados)); } catch (e) {}
+}
+
+/* ================= RECORDATORIOS LEÍDOS =================
+   Un recordatorio no es un mensaje guardado: se recalcula a partir del estado
+   real de los datos. Existe mientras exista el problema que lo origina. Por eso
+   «leído» no lo borra, solo lo silencia por la jornada: deja de contar en la
+   campana y queda atenuado en la lista. Si al día siguiente el problema sigue
+   sin resolverse, vuelve a contar. Así un informe operatorio sin cargar no se
+   puede silenciar para siempre con un clic.
+
+   La marca es por dispositivo y por persona: la clave lleva el correo de quien
+   la puso, de modo que si dos profesionales comparten la computadora del
+   quirófano cada uno mantiene su propia lista. */
+const REM_LEIDOS_KEY = 'hruq_rem_leidos_v1';
+let remLeidos = {};
+/* Nombre con prefijo `rem` a propósito: el módulo de reclamos ya define su
+   propio `claveLector(r)`, y dos declaraciones con el mismo nombre se pisan. */
+function remClaveLector() {
+  const u = usuarioActual();
+  if (u) return claveMail(u.email);
+  if (jefe) return '__jefatura__';
+  if (director) return '__direccion__';
+  return '__anonimo__';
+}
+function cargarLeidos() {
+  try { remLeidos = JSON.parse(localStorage.getItem(REM_LEIDOS_KEY) || '{}'); } catch (e) { remLeidos = {}; }
+  const hoy = hoyISO();
+  Object.keys(remLeidos).forEach((k) => { if (remLeidos[k] !== hoy) delete remLeidos[k]; });
+  guardarLeidos();
+}
+function guardarLeidos() {
+  try { localStorage.setItem(REM_LEIDOS_KEY, JSON.stringify(remLeidos)); } catch (e) {}
+}
+function remEsLeido(r) { return remLeidos[remClaveLector() + '|' + r.key] === hoyISO(); }
+function remSinLeer() { return remLista.filter((r) => !remEsLeido(r)); }
+function marcarRemLeido(key, silencioso) {
+  remLeidos[remClaveLector() + '|' + key] = hoyISO();
+  guardarLeidos();
+  if (!silencioso) { pintarCampana(); if (view === 'recordatorios') renderRecordatorios(); }
+}
+function marcarTodosRemLeidos() {
+  remLista.forEach((r) => { remLeidos[remClaveLector() + '|' + r.key] = hoyISO(); });
+  guardarLeidos();
+  pintarCampana();
+  if (view === 'recordatorios') renderRecordatorios();
 }
 function humanoRestante(ms) {
   const neg = ms < 0;
@@ -3626,6 +3689,19 @@ function humanoRestante(ms) {
 }
 function creadaEn(c) {
   return (c.historial && c.historial[0] && c.historial[0].t) || ((c.fechaSolicitud || hoyISO()) + 'T08:00');
+}
+
+/* ¿Le corresponde a quien está mirando el aviso de esta cirugía?
+   Un recordatorio quirúrgico solo tiene sentido para quien puede actuar sobre
+   él: el cirujano dueño del turno y la Jefatura, que necesita la vista global.
+   Si a todos les suena todo, el aviso deja de leerse.
+   Las cirugías sin `cirujanoEmail` —cargadas por la Jefatura o anteriores a que
+   se registrara el dato— quedan solo en manos de la Jefatura, que puede
+   averiguar de quién son. */
+function remMia(c) {
+  if (jefe) return true;
+  const u = usuarioActual();
+  return !!(u && c.cirujanoEmail && c.cirujanoEmail === u.email);
 }
 
 function calcRecordatorios() {
@@ -3664,6 +3740,7 @@ function calcRecordatorios() {
 
   /* ---- 2. Emergencias (< 30 min a incisión) y urgencias diferibles (< 6 h) ---- */
   DB.cirugias.filter((c) => c.prioridad === 1 && ['borrador', 'pendiente', 'validada', 'confirmada'].includes(c.estado))
+    .filter(remMia)
     .forEach((c) => {
       const limite = new Date(new Date(creadaEn(c)).getTime() + 30 * 60000);
       add({
@@ -3674,6 +3751,7 @@ function calcRecordatorios() {
       });
     });
   DB.cirugias.filter((c) => c.prioridad === 2 && ['borrador', 'pendiente', 'validada', 'confirmada'].includes(c.estado))
+    .filter(remMia)
     .forEach((c) => {
       const limite = new Date(new Date(creadaEn(c)).getTime() + 6 * 36e5);
       add({
@@ -3686,6 +3764,7 @@ function calcRecordatorios() {
 
   /* ---- 3. Coordinación de áreas: verificar 48–72 h antes ---- */
   DB.cirugias.filter((c) => ['borrador', 'pendiente', 'validada', 'confirmada'].includes(c.estado) && c.fecha >= hoy)
+    .filter(remMia)
     .forEach((c) => {
       const inicio = new Date(c.fecha + 'T' + (c.horaProg || '08:00') + ':00');
       const horas = (inicio - ahora) / 36e5;
@@ -3720,7 +3799,7 @@ function calcRecordatorios() {
     });
 
   /* ---- 4. Retraso de inicio > 60 min (incidencia D reportable) ---- */
-  DB.cirugias.filter((c) => c.estado === 'confirmada' && c.fecha === hoy).forEach((c) => {
+  DB.cirugias.filter((c) => c.estado === 'confirmada' && c.fecha === hoy).filter(remMia).forEach((c) => {
     const prog = new Date(hoy + 'T' + (c.horaProg || '08:00') + ':00');
     const atraso = (ahora - prog) / 60000;
     if (atraso < 60) return;
@@ -3733,7 +3812,7 @@ function calcRecordatorios() {
   });
 
   /* ---- 5. Cirugía en curso excedida ---- */
-  DB.cirugias.filter((c) => c.estado === 'en_curso' && c.horaInicioReal).forEach((c) => {
+  DB.cirugias.filter((c) => c.estado === 'en_curso' && c.horaInicioReal).filter(remMia).forEach((c) => {
     const transcurrido = diffMin(c.horaInicioReal, dateToDT(ahora));
     const estimado = c.duracionMin || 90;
     if (transcurrido <= estimado + 30) return;
@@ -3921,8 +4000,11 @@ function revisarRecordatorios() {
 function pintarCampana() {
   const badge = $('bell-badge');
   if (!badge) return;
-  const crit = remLista.filter((r) => r.nivel === 'crit').length;
-  const n = remLista.length;
+  // La campana cuenta lo que falta mirar, no lo que existe: los ya leídos
+  // siguen en la lista pero dejan de reclamar atención.
+  const pend = remSinLeer();
+  const crit = pend.filter((r) => r.nivel === 'crit').length;
+  const n = pend.length;
   badge.style.display = n ? 'block' : 'none';
   badge.textContent = n > 99 ? '99+' : String(n);
   badge.classList.toggle('crit', crit > 0);
@@ -3938,6 +4020,7 @@ function notificarCriticos() {
   // los del canal de reclamos, que están dirigidos a una persona concreta.
   remLista.filter((r) => r.nivel === 'crit' || r.notif).forEach((r) => {
     if (remNotificados[r.key] === hoy) return;
+    if (remEsLeido(r)) return;   // ya lo miró: no se le vuelve a saltar al dispositivo
     remNotificados[r.key] = hoy;
     try {
       const n = new Notification('HRU Quirófanos — ' + r.titulo, {
@@ -3976,8 +4059,9 @@ function refreshView() {
 /* ================= SIDEBAR ================= */
 function renderSidebar() {
   const u = usuarioActual();
-  const nRem = remLista.length;
-  const nCrit = remLista.filter((r) => r.nivel === 'crit').length;
+  const pendRem = remSinLeer();
+  const nRem = pendRem.length;
+  const nCrit = pendRem.filter((r) => r.nivel === 'crit').length;
   let items = [
     { id: 'panel', icon: ICONS.grid, label: 'Panel' },
     { id: 'grilla', icon: ICONS.calPlus, label: 'Programación Diaria' },
@@ -4113,7 +4197,7 @@ function closeDrawer() {
 function renderBottomNav() {
   const nav = $('bottomnav');
   if (!nav) return;
-  const n = remLista.length;
+  const n = remSinLeer().length;
   const items = [
     { id: 'panel', icon: ICONS.grid, label: 'Panel' },
     { id: 'grilla', icon: ICONS.calPlus, label: 'Turnos' },
@@ -4130,15 +4214,17 @@ function renderBottomNav() {
 
 /* ================= PANEL ================= */
 function panelRecordatorios() {
-  if (!remLista.length) return '';
-  const crit = remLista.filter((r) => r.nivel === 'crit');
-  const top = (crit.length ? crit : remLista).slice(0, 3);
+  // El Panel muestra lo que falta mirar; lo ya visto se consulta en Recordatorios.
+  const pend = remSinLeer();
+  if (!pend.length) return '';
+  const crit = pend.filter((r) => r.nivel === 'crit');
+  const top = (crit.length ? crit : pend).slice(0, 3);
   return `
     <div class="q-group-title">${ICONS.bellRing} Recordatorios activos
-      <span style="color:var(--muted);font-weight:500;font-size:0.8rem">· ${remLista.length} aviso(s)${crit.length ? ` · ${crit.length} crítico(s)` : ''}</span>
+      <span style="color:var(--muted);font-weight:500;font-size:0.8rem">· ${pend.length} sin ver${crit.length ? ` · ${crit.length} crítico(s)` : ''}</span>
     </div>
     ${top.map(remCard).join('')}
-    ${remLista.length > top.length ? `<button class="btn btn-outline btn-sm" style="margin-bottom:22px" onclick="go('recordatorios')">${ICONS.list} Ver los ${remLista.length} recordatorios</button>` : '<div style="height:12px"></div>'}`;
+    ${pend.length > top.length ? `<button class="btn btn-outline btn-sm" style="margin-bottom:22px" onclick="go('recordatorios')">${ICONS.list} Ver los ${pend.length} recordatorios</button>` : '<div style="height:12px"></div>'}`;
 }
 
 function renderPanel() {
@@ -7479,16 +7565,23 @@ function imprimirParte(d) {
 /* ================= VISTA: RECORDATORIOS ================= */
 function remCard(r) {
   const ico = r.nivel === 'crit' ? ICONS.alertTri.replace(/22/g, '18') : r.nivel === 'warn' ? ICONS.clockSm.replace('14', '18') : ICONS.info;
-  return `<div class="rem ${r.nivel}">
+  const leido = remEsLeido(r);
+  const k = attr(r.key);
+  // Abrir el aviso es leerlo: ir a la cirugía o a la sección ya lo da por visto.
+  const ver = `marcarRemLeido('${k}', true);closeRecordatorios();`;
+  return `<div class="rem ${r.nivel}${leido ? ' rem-leido' : ''}">
     <div class="rem-ico">${ico}</div>
     <div class="rem-body">
-      <div class="rem-title">${esc(r.titulo)}</div>
+      <div class="rem-title">${esc(r.titulo)}${leido ? ' <span class="rem-visto">visto</span>' : ''}</div>
       <div class="rem-text">${esc(r.texto)}</div>
       <div class="rem-when">${esc(r.cuando || '')}</div>
     </div>
-    ${r.cirugia ? `<button class="rem-go" onclick="closeRecordatorios();openCirugia(${r.cirugia})">Ver</button>`
-      : r.reclamo ? `<button class="rem-go" onclick="closeRecordatorios();reclamoAbierto=${r.reclamo};go('reclamos');marcarReclamoLeido(${r.reclamo})">Abrir</button>`
-      : r.vista ? `<button class="rem-go" onclick="closeRecordatorios();go('${r.vista}')">Ir</button>` : ''}
+    <div class="rem-acciones">
+      ${r.cirugia ? `<button class="rem-go" onclick="${ver}openCirugia(${r.cirugia})">Ver</button>`
+        : r.reclamo ? `<button class="rem-go" onclick="${ver}reclamoAbierto=${r.reclamo};go('reclamos');marcarReclamoLeido(${r.reclamo})">Abrir</button>`
+        : r.vista ? `<button class="rem-go" onclick="${ver}go('${r.vista}')">Ir</button>` : ''}
+      ${leido ? '' : `<button class="rem-visto-btn" onclick="marcarRemLeido('${k}')" title="Dejar de contarlo por hoy">${ICONS.check} Visto</button>`}
+    </div>
   </div>`;
 }
 
@@ -7499,10 +7592,13 @@ function bloquesRecordatorios() {
     { n: 'info', t: 'Información del ciclo', s: 'Plazos vigentes de programación' },
   ];
   const html = grupos.map((g) => {
-    const l = remLista.filter((r) => r.nivel === g.n);
+    // Los ya vistos bajan al final del grupo: primero lo que falta mirar.
+    const l = remLista.filter((r) => r.nivel === g.n)
+      .sort((a, b) => (remEsLeido(a) ? 1 : 0) - (remEsLeido(b) ? 1 : 0));
     if (!l.length) return '';
+    const sinVer = l.filter((r) => !remEsLeido(r)).length;
     return `<div class="rem-group">
-      <div class="q-group-title">${g.t} <span style="color:var(--muted);font-weight:500;font-size:0.8rem">· ${g.s} · ${l.length}</span></div>
+      <div class="q-group-title">${g.t} <span style="color:var(--muted);font-weight:500;font-size:0.8rem">· ${g.s} · ${sinVer ? `${sinVer} sin ver de ${l.length}` : `${l.length}, todos vistos`}</span></div>
       ${l.map(remCard).join('')}
     </div>`;
   }).join('');
@@ -7523,8 +7619,17 @@ function renderRecordatorios() {
           <p class="page-sub">Plazos activos del ciclo quirúrgico, de incidencias y de habilitación — recalculados en vivo</p>
         </div>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="revisarRecordatorios();renderRecordatorios()">${ICONS.refresh} Actualizar</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${remSinLeer().length ? `<button class="btn btn-outline btn-sm" onclick="marcarTodosRemLeidos()">${ICONS.check} Marcar todo como visto</button>` : ''}
+        <button class="btn btn-outline btn-sm" onclick="revisarRecordatorios();renderRecordatorios()">${ICONS.refresh} Actualizar</button>
+      </div>
     </div>
+
+    <div class="banner banner-blue">${ICONS.user.replace('14', '18')}
+      <div><strong>Solo lo que le corresponde a usted</strong>
+      ${jefe
+        ? 'Como Jefatura de Quirófanos ve los avisos de todo el bloque. Cada profesional, en cambio, recibe únicamente los de sus propias cirugías.'
+        : 'Los avisos de cirugías son los de <b>sus</b> turnos: los de otros profesionales no le llegan. Marcar uno como visto lo silencia por hoy; si mañana el problema sigue sin resolverse, vuelve a avisarle.'}</div></div>
 
     ${permiso === 'granted'
       ? `<div class="banner banner-green">${ICONS.bell.replace('16', '18')}<div><strong>Notificaciones del sistema activadas</strong>
@@ -7551,7 +7656,7 @@ function openRecordatorios() {
       <div class="head-icon" style="background:#e8f4fb">${ICONS.bellRing}</div>
       <div>
         <div style="font-weight:800;font-size:1.12rem">Recordatorios</div>
-        <div style="font-size:0.82rem;color:var(--muted)">${remLista.length} aviso(s) activo(s)</div>
+        <div style="font-size:0.82rem;color:var(--muted)">${remSinLeer().length} sin ver · ${remLista.length} activo(s)</div>
       </div>
     </div>
     ${bloquesRecordatorios()}
