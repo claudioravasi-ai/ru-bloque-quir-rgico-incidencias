@@ -148,6 +148,43 @@ Jefatura se ve en el momento en el resto de las computadoras:
 { "id": "2026-08-20", "on": true, "salas": { "Q2": { "M": true, "T": false }, "END": { "M": true } } }
 ```
 
+### Programación fuera de horario — la excepción de la Jefatura
+
+Hay días en que la cirugía no puede esperar al circuito: un paciente derivado con fecha comprometida, una
+ventana oncológica, un implante que solo está disponible mañana. Para eso existe **Programación Fuera de
+Horario**, una solapa que **solo ve el Jefe de Quirófanos** y que es la única llave capaz de cargar un turno en
+una franja que el flujo normal ya cerró: bloque no habilitado, cierre de solicitudes de las 13:00 h superado o
+menos de 24 h de anticipación.
+
+Es una excepción, no una vía alternativa, y por eso:
+
+1. La Jefatura elige fecha, sala y franja. Al lado de cada hora figura **por qué está fuera del flujo normal**;
+   las franjas ocupadas y las que ya comenzaron no se pueden elegir.
+2. Elige al **cirujano que va a operar**, de entre las cuentas autorizadas. Sin cuenta no hay a quién avisarle,
+   y una excepción sin aviso no es admisible.
+3. Carga **motivo y detalle por escrito**. Los dos quedan asentados en el turno y viajan en el aviso.
+4. Se pide **otra vez la clave `0112`**, aunque la sesión de Jefatura ya esté abierta.
+5. Recién entonces se abre la ficha del turno con los datos del paciente.
+
+**El cirujano se entera siempre.** Al guardarse el turno, la app emite a su nombre un **comunicado urgente**
+que le aparece como ventana que no se cierra sin confirmar la lectura y que vuelve cada 10 minutos hasta que la
+confirme:
+
+> **ATENCIÓN**
+>
+> Jefatura de Quirófanos le ha coordinado una cirugía a realizarse *mañana* y está fuera del cronograma
+> habitual del flujo de trabajo.
+>
+> Comuníquese con Jefatura, mediante la solapa «Reclamos», si usted NO ha autorizado la misma.
+
+Debajo van los datos concretos —paciente, práctica, quirófano, hora, fecha larga, prioridad y el motivo de la
+excepción— para que no tenga que buscar de qué cirugía se trata. El «mañana» se ajusta solo: dice *hoy*,
+*mañana* o la fecha completa según corresponda.
+
+La solapa lleva además el **registro de todas las excepciones**: quién fue avisado, cuándo, con qué motivo y si
+confirmó la lectura. Mientras haya una excepción con fecha por delante sin confirmar, la solapa muestra un
+contador en el menú y ofrece **reenviar el aviso**. En la grilla, el turno lleva la etiqueta violeta `EXC`.
+
 ### La guardia de 24 h del Quirófano 1
 
 El Quirófano 1 no sigue la jornada de 08 a 20 h del resto del bloque: cubre las **24 horas corridas de 08:00 a
@@ -165,7 +202,7 @@ salvo en la madrugada del Quirófano 1. Los identificadores `T1` a `T6` se conse
 
 | Clave | Para qué |
 |---|---|
-| `0112` | Jefatura de Quirófanos — **abre el bloque**: día, turno y sala |
+| `0112` | Jefatura de Quirófanos — **abre el bloque** (día, turno y sala) y habilita la **programación fuera de horario** |
 | `2358` | Cancelar un turno / limpiar la grilla |
 | `3340` | Autorización de Admisión y Egresos |
 | `9876` | Dirección Médica (módulos de todos los servicios y estadísticas quirúrgicas) |
@@ -230,6 +267,7 @@ el menú lateral lleva el contador de turnos futuros sin consentimiento.
 Borrador → Pendiente → Validada → Confirmada → En curso → Realizada
    gris     amarillo      azul       verde      naranja   verde oscuro
                                   ↘ Suspendida (rojo, con causa obligatoria)
+                                  ↘ Resuelta por urgencia (violeta, libera la franja)
 ```
 
 Reglas que el sistema hace cumplir:
@@ -246,6 +284,38 @@ Reglas que el sistema hace cumplir:
 
 P1 Emergencias (incisión < 30 min) · P2 Urgencias diferibles (< 6 h) · P3 Alta complejidad y pediatría ·
 P4 Recursos escasos · P5 Espera > 90 días (automática) · P6 Electiva estándar.
+
+### La cirugía que se adelantó por urgencia
+
+Un paciente con cirugía programada para el miércoles puede descompensarse el lunes y operarse esa misma noche
+de urgencia. La cirugía **se hizo**, pero no en el turno previsto. Si nadie cierra ese turno, la franja del
+miércoles queda ocupada por una operación que no va a ocurrir y el paciente figura dos veces en el sistema.
+
+**No se resuelve suspendiendo.** Suspender significa que el turno se cayó por una falla —falta de insumo,
+paciente no apto, ayuno incumplido—, exige causa y alimenta la **tasa de suspensiones**, que es un indicador de
+calidad. Acá no falló nada: el problema se resolvió antes y mejor. Por eso hay un estado propio,
+**Resuelta por urgencia**, que:
+
+- conserva el turno con toda su historia y lo **vincula con la urgencia** que efectivamente lo resolvió;
+- **devuelve la franja al bloque**, que es capacidad real recuperada, no un asiento contable;
+- **no cuenta como suspensión** en los indicadores ni en las estadísticas, y sale del parte y de la lista de
+  espera.
+
+El cruce se ofrece solo, en el momento en que el dato está fresco: **al guardar una urgencia**, la app busca
+turnos en circuito del mismo paciente —por DNI, y si falta, por nombre normalizado— con fecha igual o posterior,
+y pregunta si esa urgencia resuelve esa misma cirugía. Nunca cierra nada por su cuenta: siempre lo confirma una
+persona, porque bien pueden ser dos cirugías distintas.
+
+Si nadie responde en el momento, hay dos redes de seguridad:
+
+- Un **recordatorio** —para el cirujano dueño del turno y para la Jefatura— avisa que hay un turno en pie de un
+  paciente ya operado de urgencia, e insiste hasta que se cierre.
+- Desde la ficha del turno, el botón **«Resuelta por urgencia»** permite hacerlo a mano y elegir a qué urgencia
+  corresponde. Si la urgencia no figura en el sistema —se operó en otro efector, o la guardia no la cargó— se
+  exige el detalle escrito, que es lo único que deja constancia.
+
+La grilla del día muestra aparte las **franjas liberadas por resolución anticipada**, y si el cierre fue un
+error, la Jefatura **repone el turno** en su franja original cuando sigue libre.
 
 ---
 

@@ -694,10 +694,15 @@
   .auth-no { background: var(--red-soft); color: var(--red); }
   .auth-pend { background: var(--amber-soft); color: #92600a; }
   .auth-exe { background: #ede9fe; color: #5b21b6; }
-  .slot-urg-tag {
-    position: absolute; top: 6px; right: 6px; font-size: 0.58rem; font-weight: 800;
-    background: var(--red); color: #fff; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.04em;
+  /* Etiquetas de la esquina del turno. Van en un contenedor porque un mismo
+     turno puede ser urgencia y excepción de Jefatura a la vez. */
+  .slot-tags { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; }
+  .slot-urg-tag, .slot-exc-tag {
+    font-size: 0.58rem; font-weight: 800; font-style: normal; color: #fff;
+    padding: 2px 6px; border-radius: 4px; letter-spacing: 0.04em;
   }
+  .slot-urg-tag { background: var(--red); }
+  .slot-exc-tag { background: #7c3aed; }
   .dia-banner {
     background: #2b2f36; color: #e5e7eb; border-radius: var(--radius);
     padding: 14px 18px; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px;
@@ -1264,6 +1269,11 @@ const ESTC = {
   en_curso:   { label: 'En curso',   color: '#f97316', soft: '#ffedd5', text: '#b45309', desc: 'Procedimiento registrado en tiempo real' },
   realizada:  { label: 'Realizada',  color: '#0e6b47', soft: '#cdeadd', text: '#0e6b47', desc: 'Procedimiento finalizado y cerrado' },
   suspendida: { label: 'Suspendida', color: '#d94848', soft: '#fbe5e5', text: '#a12c2c', desc: 'Con causa registrada obligatoria' },
+  /* El paciente se operó de urgencia antes de la fecha prevista, así que el
+     turno programado ya no tiene objeto. No es una suspensión —no hubo falla de
+     proceso ni causa que reportar— y por eso no entra en la tasa de
+     suspensiones: la franja simplemente vuelve a estar disponible. */
+  anticipada: { label: 'Resuelta por urgencia', color: '#7c3aed', soft: '#efe7fd', text: '#5b21b6', desc: 'El paciente se operó de urgencia antes de la fecha: la franja quedó liberada' },
 };
 
 /* ================= PRIORIZACIÓN AUTOMÁTICA (orden de prelación) ================= */
@@ -1384,6 +1394,19 @@ const CLAVE_DIRECTOR = '9876';      // Dirección Médica: módulos de todo el h
 
 /* Anticipación mínima para programar un turno electivo (las urgencias la saltean). */
 const HORAS_ANTICIPACION = 24;
+
+/* Motivos admitidos para la programación fuera de horario. Es una potestad
+   exclusiva de la Jefatura de Quirófanos y de uso excepcional: el motivo queda
+   asentado en el turno y viaja en el aviso que recibe el cirujano. */
+const MOTIVOS_EXCEPCION = [
+  'Paciente derivado de otro efector con fecha comprometida',
+  'Ventana oncológica: la demora agrava el pronóstico',
+  'Disponibilidad excepcional de implante, insumo o equipamiento',
+  'Reprogramación de una cirugía suspendida el mismo día',
+  'Cobertura de una franja liberada sobre la hora',
+  'Requerimiento expreso de la Dirección Médica',
+  'Otro motivo (detallar debajo)',
+];
 
 const SERVICIOS_HRU = ['Cirugía General', 'Traumatología y Ortopedia', 'Neurocirugía', 'Urología',
   'Ginecología', 'Obstetricia', 'Oftalmología', 'ORL', 'Cirugía Cardiovascular',
@@ -3034,7 +3057,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '2.9.1';
+const APP_VERSION = '3.0.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -3897,6 +3920,23 @@ function calcRecordatorios() {
       });
     });
 
+  /* ---- 2 bis. El paciente ya se operó de urgencia y el turno sigue en pie ----
+     Es la red de seguridad del cierre por anticipación: si nadie vinculó la
+     urgencia con el turno programado, la franja quedaría ocupada por una
+     cirugía que no se va a hacer y el paciente figuraría dos veces. */
+  DB.cirugias.filter((c) => c.urgencia && ['confirmada', 'en_curso', 'realizada'].includes(c.estado) && !c.resuelveTurno)
+    .forEach((urg) => {
+      turnosQueResuelve(urg).filter(remMia).forEach((p) => {
+        const inicio = new Date(p.fecha + 'T' + (p.horaProg || '08:00') + ':00');
+        add({
+          key: 'antic-' + p.id, nivel: 'warn', vista: jefe ? 'programacion' : 'mis', cirugia: p.id,
+          titulo: `Turno en pie de un paciente ya operado de urgencia — ${p.paciente?.nombre || 's/d'}`,
+          texto: `Tiene turno el ${fmtFecha(p.fecha)} (${p.quirofano || 's/d'}, ${p.horaProg || '—'} h) para ${p.procedimiento}, y el ${fmtFecha(urg.fecha)} se le registró una urgencia: ${urg.procedimiento}. Si la urgencia resolvió esa misma cirugía, ciérrela como «resuelta por urgencia»: el turno deja de figurar y la franja vuelve a estar disponible.`,
+          cuando: `Turno ${humanoRestante(inicio - ahora)}`,
+        });
+      });
+    });
+
   /* ---- 3 bis. Autorización de Admisión y Egresos pendiente ---- */
   DB.cirugias.filter((c) => ['pendiente', 'validada'].includes(c.estado) && !authOk(c) && c.fecha >= hoy)
     .forEach((c) => {
@@ -4163,7 +4203,7 @@ async function pedirPermisoNotif() {
 
 function refreshView() {
   // No se re-renderizan las vistas con formularios en curso para no perder lo tipeado
-  const conFormulario = ['nueva', 'acceso', 'perfil', 'consentimientos'];
+  const conFormulario = ['nueva', 'acceso', 'perfil', 'consentimientos', 'excepcion'];
   if (conFormulario.includes(view)) return;
   // En Módulos solo hay campos editables para la Dirección: si está tipeando
   // uno de ellos, un cambio remoto no se lo puede borrar.
@@ -4206,6 +4246,8 @@ function renderSidebar() {
     items.push({ id: 'comunicados', icon: ICONS.megafono, label: 'Comunicados', badge: comSinLeer || null, badgeAmber: true });
     const pend = DB.cirugias.filter((c) => c.estado === 'pendiente' || c.estado === 'validada').length;
     items.push({ id: 'programacion', icon: ICONS.clipboard, label: 'Programación', badge: pend || null });
+    // Badge: excepciones todavía vigentes que el cirujano no acusó.
+    items.push({ id: 'excepcion', icon: ico(ICONS.zap, 18), label: 'Programación Fuera de Horario', badge: excSinAcuse() || null, badgeAmber: true });
     items.push({ id: 'confidenciales', icon: ICONS.lock, label: 'Incidencias Confidenciales' });
     if (!u) items.push({ id: 'consentimientos', icon: ico(ICONS.fileText, 18), label: 'Consentimientos Informados' });
     if (!u) items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
@@ -4266,13 +4308,13 @@ const TITULOS = {
   solicitud: 'Solicitud Quirúrgica', mis: 'Mis Solicitudes', reclamos: 'Reclamos',
   perfil: 'Mi Perfil', programacion: 'Programación', confidenciales: 'Incidencias Confidenciales',
   kpis: 'Indicadores', usuarios: 'Profesionales', acceso: 'Acceso Profesional',
-  comunicados: 'Comunicados',
+  comunicados: 'Comunicados', excepcion: 'Programación Fuera de Horario',
   estadisticas: 'Estadísticas Quirúrgicas', consentimientos: 'Consentimientos Médicos Informados',
   modulos: 'Módulos Quirúrgicos',
 };
 function go(v, silencioso) {
   if (v === 'confidenciales' && !jefe) { closeDrawer(); openJefeModal(); return; }
-  if (['programacion', 'kpis', 'usuarios', 'comunicados'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
+  if (['programacion', 'kpis', 'usuarios', 'comunicados', 'excepcion'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['solicitud', 'mis', 'perfil', 'consentimientos'].includes(v) && !usuarioActual() && !jefe) { v = 'acceso'; }
   if (v === 'reclamos' && !usuarioActual() && !jefe) { v = 'acceso'; }
   // Los módulos los consulta el profesional acreditado (solo su servicio) o la
@@ -5032,6 +5074,14 @@ function accionesCirugia(c, rol) {
   if (['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado) && jefe) {
     a.push(`<button class="btn btn-sm btn-red" onclick="openSuspender(${c.id})">${ICONS.x} Suspender</button>`);
   }
+  // El paciente pudo operarse de urgencia antes de su fecha: el turno se cierra
+  // por anticipación —no por suspensión— y la franja queda libre.
+  if (['pendiente', 'validada', 'confirmada'].includes(c.estado) && !c.urgencia && (jefe || esDueno)) {
+    a.push(`<button class="btn btn-sm btn-outline" onclick="openAnticipar(${c.id})">${ICONS.zap} Resuelta por urgencia</button>`);
+  }
+  if (c.estado === 'anticipada' && jefe) {
+    a.push(`<button class="btn btn-sm btn-outline" onclick="reabrirAnticipada(${c.id})">${ICONS.refresh} Reponer el turno</button>`);
+  }
   if (c.estado === 'realizada' && !c.informe && (jefe || esDueno)) {
     a.push(`<button class="btn btn-sm btn-blue" onclick="openCirugia(${c.id})">${ICONS.fileText} Cargar informe operatorio</button>`);
   }
@@ -5194,6 +5244,460 @@ function confirmSuspender() {
   refreshView();
 }
 
+/* ================= RESOLUCIÓN ANTICIPADA POR URGENCIA =================
+   Un paciente con cirugía programada para el miércoles puede descompensarse el
+   lunes y operarse de urgencia esa misma noche. La cirugía se hizo, pero no en
+   el turno previsto: si nadie cierra ese turno, la franja del miércoles queda
+   ocupada por una operación que no va a ocurrir y el paciente figura dos veces
+   en el sistema.
+
+   No se resuelve con una suspensión. Suspender significa que el turno se cayó
+   por una falla —falta de insumo, paciente no apto, ayuno incumplido— y alimenta
+   la tasa de suspensiones, que es un indicador de calidad. Acá no falló nada:
+   el problema se resolvió antes y mejor. Por eso existe el estado
+   `anticipada`, que:
+     · deja el turno programado con su historia completa y trazable,
+     · lo vincula con la urgencia que efectivamente lo resolvió,
+     · devuelve la franja al bloque, que es capacidad real recuperada,
+     · y no cuenta como suspensión en los indicadores ni en las estadísticas.
+
+   El vínculo se ofrece solo, apenas se carga una urgencia de un paciente con
+   turno pendiente; si nadie responde, un recordatorio insiste hasta que el turno
+   se cierre o se opere. */
+const ESTADOS_EN_CIRCUITO = ['borrador', 'pendiente', 'validada', 'confirmada'];
+
+/* Identidad del paciente para cruzar turnos. El DNI manda; si falta, se compara
+   el nombre normalizado, que alcanza para proponer el cruce (nunca se cierra
+   nada solo: siempre lo confirma una persona). */
+function idPaciente(c) {
+  const dni = String((c && c.paciente && c.paciente.dni) || '').replace(/\D/g, '');
+  if (dni.length >= 6) return 'dni:' + dni;
+  const nom = sinTildes(String((c && c.paciente && c.paciente.nombre) || '')).replace(/\s+/g, ' ').trim();
+  return nom ? 'nom:' + nom : '';
+}
+function turnosDelMismoPaciente(c) {
+  const clave = idPaciente(c);
+  if (!clave) return [];
+  return DB.cirugias.filter((x) => x.id !== c.id && idPaciente(x) === clave);
+}
+/* Turnos programados que una urgencia podría dejar sin objeto: mismo paciente,
+   todavía en circuito, electivos y con fecha igual o posterior a la urgencia. */
+function turnosQueResuelve(urg) {
+  return turnosDelMismoPaciente(urg)
+    .filter((x) => !x.urgencia && ESTADOS_EN_CIRCUITO.includes(x.estado) && String(x.fecha) >= String(urg.fecha))
+    .sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
+}
+/* Urgencias ya cargadas del mismo paciente que podrían haber resuelto el turno. */
+function urgenciasCandidatas(prog) {
+  return turnosDelMismoPaciente(prog)
+    .filter((x) => x.urgencia && ['confirmada', 'en_curso', 'realizada'].includes(x.estado))
+    .sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
+}
+
+/* Cierra el turno programado y libera su franja. `urg` puede ser null cuando la
+   urgencia se resolvió en otro efector o no quedó cargada en la app: en ese caso
+   se exige el detalle escrito, que es lo único que deja constancia. */
+function anticiparTurno(prog, urg, quien, detalle) {
+  prog.liberado = {
+    sala: prog.sala || '', franja: prog.franja || '', diaGrilla: diaDeGrilla(prog),
+    fecha: prog.fecha, hora: prog.horaProg || '', quirofano: prog.quirofano || '', t: nowDT(),
+  };
+  prog.estado = 'anticipada';
+  prog.anticipada = {
+    urgenciaId: urg ? urg.id : null,
+    fechaUrgencia: urg ? urg.fecha : hoyISO(),
+    quirofanoUrgencia: urg ? (urg.quirofano || '') : '',
+    procedimientoUrgencia: urg ? (urg.procedimiento || '') : '',
+    detalle: detalle || '', registradaPor: quien || JEFATURA, t: nowDT(),
+  };
+  // La franja se devuelve al bloque: es el sentido de todo esto.
+  prog.sala = ''; prog.franja = '';
+  pushHist(prog, `Resuelta por urgencia el ${fmtFecha(prog.anticipada.fechaUrgencia)} — se libera la franja del ${fmtFecha(prog.liberado.fecha)} (${prog.liberado.quirofano || 's/d'}, ${prog.liberado.hora || '—'} h)`);
+  upsert('cirugias', prog);
+  if (urg) {
+    urg.resuelveTurno = prog.id;
+    pushHist(urg, `Resuelve por anticipado el turno programado para el ${fmtFecha(prog.liberado.fecha)}`);
+    upsert('cirugias', urg);
+  }
+}
+
+/* Se pregunta apenas se carga la urgencia, que es cuando el dato está fresco y
+   quien lo sabe está delante de la pantalla. */
+function ofrecerAnticipacion(urg) {
+  const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || urg.cirujano || 'Sistema');
+  turnosQueResuelve(urg).forEach((p) => {
+    const msg = `Este paciente ya tiene una cirugía programada:\n\n`
+      + `· ${p.procedimiento}\n`
+      + `· ${fmtFecha(p.fecha)} ${p.horaProg || ''} h — ${p.quirofano || 'sin quirófano'}\n`
+      + `· Estado: ${ESTC[p.estado].label}\n\n`
+      + `¿La urgencia que acaba de cargar resuelve esa misma cirugía?\n\n`
+      + `ACEPTAR: el turno programado se cierra como «resuelta por urgencia», deja de figurar en el parte y la franja del ${fmtFecha(p.fecha)} vuelve a estar disponible para otro paciente.\n\n`
+      + `CANCELAR: los dos turnos siguen vigentes (elija esto si son cirugías distintas).`;
+    if (confirm(msg)) anticiparTurno(p, urg, quien, '');
+  });
+}
+
+let antCirId = null;
+function openAnticipar(id) {
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c) return;
+  antCirId = id;
+  const cand = urgenciasCandidatas(c);
+  $('susp-modal').innerHTML = `
+    <button class="modal-close" onclick="closeAnticipar()" aria-label="Cerrar">✕</button>
+    <h2 style="text-align:left;display:flex;align-items:center;gap:10px">${ico(ICONS.zap, 20)} Cerrar el turno como resuelto por urgencia</h2>
+    <p style="font-size:0.88rem;color:var(--muted);margin:6px 0 16px">${esc(c.procedimiento)} — ${esc((c.paciente && c.paciente.nombre) || 's/d')} · programada para el ${fmtFecha(c.fecha)}${c.horaProg ? ' a las ' + esc(c.horaProg) + ' h' : ''} en ${esc(c.quirofano || 's/d')}.</p>
+    <div class="banner banner-blue" style="margin-bottom:14px">${ICONS.info}
+      <div><strong>No es una suspensión</strong>
+      La cirugía se hizo: se adelantó por urgencia. El turno conserva toda su historia, no computa en la tasa de suspensiones y <b>la franja del ${fmtFecha(c.fecha)} queda liberada</b> para otro paciente.</div></div>
+    <div class="field" style="margin-bottom:14px">
+      <label>¿Qué urgencia resolvió esta cirugía?</label>
+      <select id="ant-urg">
+        ${cand.map((x) => `<option value="${x.id}">${fmtFecha(x.fecha)} · ${esc(x.quirofano || 's/d')} · ${esc(x.procedimiento)} (${ESTC[x.estado].label})</option>`).join('')}
+        <option value="">No figura en el sistema (otro efector, guardia sin carga, etc.)</option>
+      </select>
+      ${cand.length ? '<span class="hint">Se listan las urgencias ya cargadas de este mismo paciente.</span>'
+        : '<span class="hint">Este paciente no tiene ninguna urgencia cargada en la app: describa abajo dónde y cuándo se operó.</span>'}
+    </div>
+    <div class="field" style="margin-bottom:18px">
+      <label>Detalle</label>
+      <textarea id="ant-det" style="min-height:80px" placeholder="Dónde y cuándo se operó, quién lo informó, cualquier dato que permita reconstruirlo después."></textarea>
+      <span class="hint">Obligatorio si la urgencia no figura en el sistema.</span>
+    </div>
+    <div class="form-actions" style="margin-top:0">
+      <button class="btn btn-blue" onclick="confirmAnticipar()">${ICONS.check} Cerrar el turno y liberar la franja</button>
+      <button class="btn btn-outline" onclick="closeAnticipar()">Cancelar</button>
+    </div>
+    <p class="form-note" style="margin-top:14px">${ICONS.info.replace('18', '13')} Si el turno se cierra por error, la Jefatura puede reponerlo desde la ficha de la cirugía.</p>`;
+  $('susp-overlay').classList.add('open');
+}
+function closeAnticipar() { $('susp-overlay').classList.remove('open'); antCirId = null; }
+function confirmAnticipar() {
+  const c = DB.cirugias.find((x) => x.id === antCirId);
+  if (!c) return;
+  const uid = $('ant-urg').value;
+  const det = ($('ant-det').value || '').trim();
+  const urg = uid ? DB.cirugias.find((x) => String(x.id) === String(uid)) : null;
+  if (!urg && !det) { alert('Como la urgencia no figura en el sistema, describa por escrito dónde y cuándo se operó el paciente.'); return; }
+  const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || c.cirujano || 'Sistema');
+  anticiparTurno(c, urg, quien, det);
+  closeAnticipar();
+  refreshView();
+  alert(`Turno cerrado como resuelto por urgencia.\n\nLa franja del ${fmtFecha(c.liberado.fecha)} (${c.liberado.quirofano || 's/d'}, ${c.liberado.hora || '—'} h) vuelve a estar disponible en la grilla.`);
+}
+/* Reponer: si la franja original sigue libre, el turno vuelve a ella; si no,
+   queda sin franja y se le asigna una nueva desde la grilla. */
+function reabrirAnticipada(id) {
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c || !jefe) return;
+  const l = c.liberado || {};
+  const libre = l.sala && l.franja && !turnoEn(l.diaGrilla || l.fecha, l.sala, l.franja);
+  if (!confirm(libre
+    ? `¿Reponer este turno en su franja original (${l.quirofano || 's/d'}, ${l.hora || '—'} h del ${fmtFecha(l.fecha)})?`
+    : 'La franja original ya está ocupada o no quedó registrada.\n\nEl turno vuelve al circuito sin franja asignada: aparecerá como «turno sin franja» y habrá que reubicarlo en la grilla.')) return;
+  if (libre) { c.sala = l.sala; c.franja = l.franja; }
+  c.estado = 'pendiente';
+  delete c.anticipada;
+  pushHist(c, libre ? 'Turno repuesto en su franja original' : 'Turno repuesto en el circuito, sin franja asignada');
+  upsert('cirugias', c);
+  refreshView();
+}
+
+/* ================= PROGRAMACIÓN FUERA DE HORARIO =================
+   Potestad exclusiva del Jefe de Quirófanos y de uso excepcional: cargar una
+   cirugía en una franja que el flujo normal ya cerró —sea porque el bloque de
+   ese día no está habilitado, porque pasó el cierre de solicitudes del día
+   previo o porque faltan menos de las 24 h de anticipación—.
+
+   La excepción nunca es silenciosa. Al guardarse el turno se emite un comunicado
+   urgente dirigido al cirujano que va a operar: le aparece como ventana que no
+   se cierra sin confirmar la lectura, insiste cada diez minutos hasta que la
+   confirme, y le indica que si él no autorizó esa cirugía debe comunicarse con
+   la Jefatura por la solapa Reclamos. Del lado de la Jefatura queda el registro
+   de quién confirmó y cuándo, que es la prueba de que el aviso circuló. */
+let excCtx = null;    // excepción habilitada y todavía sin cargar (una por vez)
+let excForm = { fecha: '', sala: 'Q2', franja: '', email: '', motivo: '', detalle: '' };
+
+function excepcionPara(d, sid, fid) {
+  const e = excCtx;
+  return (e && e.d === d && e.sid === sid && e.fid === fid) ? e : null;
+}
+/* Profesionales que pueden recibir el aviso: sin cuenta activa no hay a quién
+   avisarle, y una excepción sin aviso no es admisible. */
+function excProfesionales() {
+  return DB.usuarios.filter((u) => cuentaAprobada(u))
+    .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es'));
+}
+function excRegistradas() {
+  return DB.cirugias.filter((c) => c.excepcion)
+    .sort((a, b) => String(b.excepcion.fechaHora || '').localeCompare(String(a.excepcion.fechaHora || '')));
+}
+/* Acuse de lectura del aviso, leído del comunicado emitido. */
+function excAcuse(c) {
+  const e = c.excepcion || {};
+  const com = DB.comunicados.find((x) => String(x.id) === String(e.avisoId));
+  if (!com) return { ok: false, sinAviso: true, t: '' };
+  const l = comLecturas(com)[claveMail(e.cirujanoEmail || '')];
+  return { ok: !!l, sinAviso: false, t: l ? l.t : '' };
+}
+function excAcuseTexto(c) {
+  const a = excAcuse(c);
+  if (a.sinAviso) return '<span style="color:var(--red);font-weight:800">el aviso no llegó a emitirse</span>';
+  return a.ok
+    ? `<span style="color:var(--green);font-weight:800">leído y confirmado</span> el ${fmtDT(a.t)}`
+    : '<span style="color:var(--amber);font-weight:800">emitido, sin confirmar</span> — sigue apareciéndole al cirujano hasta que lo confirme';
+}
+/* Excepciones todavía por delante y sin acuse: es lo que la Jefatura debe mirar. */
+function excSinAcuse() {
+  return excRegistradas().filter((c) => String(c.fecha) >= hoyISO() && !excAcuse(c).ok).length;
+}
+
+function excCuando(fechaISO) {
+  const hoy = hoyISO();
+  if (fechaISO === hoy) return 'hoy';
+  if (fechaISO === sumarDias(hoy, 1)) return 'mañana';
+  return 'el ' + fmtDiaLargo(fechaISO);
+}
+/* Texto del aviso. La primera parte es la fórmula fija que fijó la Jefatura; lo
+   que sigue son los datos concretos del turno, para que el cirujano sepa de qué
+   cirugía se trata sin tener que buscarla. */
+function textoAvisoExcepcion(c) {
+  const e = c.excepcion || {};
+  const p = c.paciente || {};
+  return 'ATENCIÓN\n\n'
+    + `Jefatura de Quirófanos le ha coordinado una cirugía a realizarse ${excCuando(c.fecha)} y está fuera del cronograma habitual del flujo de trabajo.\n\n`
+    + 'Comuníquese con Jefatura, mediante la solapa «Reclamos», si usted NO ha autorizado la misma.\n\n'
+    + 'DATOS DEL TURNO\n'
+    + `· Paciente: ${p.nombre || 's/d'}${p.dni ? ' — DNI ' + p.dni : ''}\n`
+    + `· Cirugía: ${c.procedimiento || 's/d'}\n`
+    + `· Diagnóstico: ${c.diagnostico || 's/d'}\n`
+    + `· ${c.quirofano || 's/d'} — ${c.horaProg || '—'} h\n`
+    + `· ${fmtDiaLargo(c.fecha)}\n`
+    + `· Prioridad: P${prioridadEfectiva(c)} — ${PRIOS[prioridadEfectiva(c)].label}\n\n`
+    + 'MOTIVO DE LA EXCEPCIÓN\n'
+    + `· ${e.motivo || 's/d'}\n`
+    + (e.detalle ? `· ${e.detalle}\n` : '')
+    + `\nCoordinada por ${e.autorizadaPor || JEFATURA} el ${fmtDT(e.fechaHora || nowDT())}.`;
+}
+/* Emite el comunicado urgente y lo deja anotado en el turno. */
+function avisarExcepcion(c, reenvio) {
+  const e = c.excepcion;
+  if (!e || !e.cirujanoEmail) return null;
+  const id = 'com' + Date.now();
+  upsert('comunicados', {
+    id,
+    titulo: 'ATENCIÓN — cirugía coordinada por Jefatura fuera del cronograma habitual',
+    texto: textoAvisoExcepcion(c),
+    prioridad: 'urgente',
+    destino: { tipo: 'profesional', valor: e.cirujanoEmail },
+    // Deja de emerger pasado el día de la cirugía; el registro se conserva.
+    vigenteHasta: c.fecha,
+    emitido: nowDT(), emitidoPor: JEFATURA, activo: true, lecturas: {},
+    excepcionTurno: c.id,
+  });
+  e.avisoId = id;
+  e.avisos = (e.avisos || []).concat([{ id, t: nowDT(), reenvio: !!reenvio }]);
+  pushHist(c, reenvio ? 'Reenviado al cirujano el aviso de la excepción' : 'Emitido el aviso obligatorio de la excepción al cirujano');
+  upsert('cirugias', c);
+  return id;
+}
+function excReenviar(id) {
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c || !c.excepcion) return;
+  if (!confirm(`¿Reenviar el aviso a ${c.excepcion.cirujano}?\n\nSe emite un comunicado urgente nuevo, que vuelve a interrumpirle la app hasta que confirme la lectura.`)) return;
+  avisarExcepcion(c, true);
+  renderExcepcion();
+  alert('Aviso reenviado.');
+}
+
+/* ---- Formulario de la excepción ---- */
+function excCapturar() {
+  const g = (id) => ($(id) ? $(id).value : '');
+  excForm = {
+    fecha: g('x-fecha') || excForm.fecha,
+    sala: g('x-sala') || excForm.sala,
+    franja: g('x-franja'),
+    email: g('x-cir'),
+    motivo: g('x-motivo'),
+    detalle: g('x-det'),
+  };
+}
+function excCambio() { excCapturar(); renderExcepcion(); }
+
+/* Por qué esta franja está fuera del flujo normal. Es lo que justifica que la
+   carga pase por acá y no por la grilla. */
+function excEstadoFranja(d, sid, fid) {
+  const s = sala(sid), f = franjaDe(sid, fid);
+  if (!f) return null;
+  const inicio = inicioDeFranja(d, f);
+  const razones = [];
+  if (turnoEn(d, sid, fid)) razones.push('ocupada');
+  if (!turnoHabilitado(d, sid, f.p)) razones.push(s.siempreAbierta ? 'turno cerrado por la Jefatura' : 'bloque no habilitado para ese día y turno');
+  if (!puedeReservar(d, f, false)) razones.push(`menos de ${HORAS_ANTICIPACION} h de anticipación`);
+  if (new Date() > limiteCierre(fechaDeFranja(d, f))) razones.push(`cierre de solicitudes superado (${BLOQUE.cierreSolicitudes} h del día previo)`);
+  return { f, inicio, pasada: inicio.getTime() <= Date.now(), ocupada: !!turnoEn(d, sid, fid), razones };
+}
+
+function excHabilitar() {
+  const err = $('x-error');
+  const fail = (m) => { err.innerHTML = m; err.style.display = 'block'; };
+  excCapturar();
+  const { fecha, sala: sid, franja: fid, email, motivo, detalle } = excForm;
+  if (!fecha) return fail('Elija la fecha de la cirugía.');
+  if (fecha < hoyISO()) return fail('No se puede programar una cirugía en una fecha ya pasada.');
+  if (!sid || !fid) return fail('Elija el quirófano y la franja horaria.');
+  const est = excEstadoFranja(fecha, sid, fid);
+  if (!est) return fail('Esa franja no existe en el quirófano elegido.');
+  if (est.ocupada) return fail('Esa franja ya tiene un turno cargado. Elija otra o suspenda el turno existente.');
+  if (est.pasada) return fail('Esa franja ya comenzó. La excepción sirve para adelantarse al cronograma, no para registrar hacia atrás: si la cirugía ya se hizo, cárguela como urgencia en el Quirófano 1.');
+  const prof = excProfesionales().find((x) => x.email === email);
+  if (!prof) return fail('Elija al cirujano que va a realizar la cirugía: el aviso obligatorio se emite a su cuenta.');
+  if (!motivo) return fail('Indique el motivo de la excepción.');
+  if (!String(detalle).trim()) return fail('Detalle por escrito la razón de la excepción. Queda asentada en el turno y viaja en el aviso al cirujano.');
+  err.style.display = 'none';
+  const f = est.f;
+  const resumen = `${sala(sid).nombre} · ${f.t} h · ${fmtDiaLargo(fechaDeFranja(fecha, f))}`;
+  pedirClave('Programación fuera de horario',
+    `Va a cargar una cirugía fuera del cronograma en ${resumen} y a notificar a ${prof.nombre}. Ingrese nuevamente la clave de Jefatura.`,
+    JEFE_CLAVE, () => {
+      excCtx = {
+        d: fecha, sid, fid, motivo, detalle: String(detalle).trim(),
+        cirujano: { nombre: prof.nombre, email: prof.email, servicio: prof.servicio || '' },
+      };
+      openSlot(fecha, sid, fid);
+    });
+}
+function excCancelarCtx() {
+  excCtx = null;
+  renderExcepcion();
+}
+
+function renderExcepcion() {
+  const hoy = hoyISO();
+  if (!excForm.fecha || excForm.fecha < hoy) excForm.fecha = sumarDias(hoy, 1);
+  if (!SALAS.some((s) => s.id === excForm.sala)) excForm.sala = 'Q2';
+  const d = excForm.fecha, sid = excForm.sala;
+  const s = sala(sid);
+  const profs = excProfesionales();
+  if (!s.franjas.some((f) => f.id === excForm.franja)) excForm.franja = '';
+  const est = excForm.franja ? excEstadoFranja(d, sid, excForm.franja) : null;
+  const lista = excRegistradas();
+  const pendientes = lista.filter((c) => String(c.fecha) >= hoy);
+
+  const opcionFranja = (f) => {
+    const e = excEstadoFranja(d, sid, f.id);
+    const nota = e.ocupada ? 'ocupada'
+      : e.pasada ? 'ya comenzó'
+      : e.razones.length ? e.razones.join(' · ')
+      : 'abierta y en plazo — se puede cargar por la grilla';
+    return `<option value="${f.id}" ${e.ocupada || e.pasada ? 'disabled' : ''} ${excForm.franja === f.id ? 'selected' : ''}>${f.t} h${f.nd ? ' (+1 día)' : ''} — ${nota}</option>`;
+  };
+
+  const fichaExc = (c) => {
+    const a = excAcuse(c);
+    const e = c.excepcion;
+    const futura = String(c.fecha) >= hoy;
+    return `<div class="card">
+      <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:230px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            ${estChip(c)}
+            <span class="${a.ok ? 'badge-ok' : (a.sinAviso ? 'badge-no' : 'badge-pend')}">${a.ok ? 'Aviso confirmado' : (a.sinAviso ? 'Sin aviso emitido' : 'Aviso sin confirmar')}</span>
+            ${futura ? '' : '<span class="badge-pend">Fecha cumplida</span>'}
+          </div>
+          <div class="card-title" style="margin-bottom:2px">${esc(c.procedimiento || 's/d')}</div>
+          <div class="card-sub">${esc((c.paciente && c.paciente.nombre) || 's/d')} · ${esc(c.quirofano || 's/d')} · ${esc(c.horaProg || '—')} h · ${fmtDiaLargo(c.fecha)}</div>
+        </div>
+      </div>
+      <div class="det-row"><b>Cirujano avisado</b> ${esc(e.cirujano)} ${e.cirujanoEmail ? `<small>(${esc(e.cirujanoEmail)})</small>` : ''}</div>
+      <div class="det-row"><b>Motivo</b> ${esc(e.motivo)}${e.detalle ? ' — ' + esc(e.detalle) : ''}</div>
+      <div class="det-row"><b>Coordinada</b> ${fmtDT(e.fechaHora)} por ${esc(e.autorizadaPor || JEFATURA)}</div>
+      <div class="det-row"><b>Aviso</b> ${excAcuseTexto(c)}${(e.avisos || []).length > 1 ? ` · ${(e.avisos || []).length} envíos` : ''}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn btn-sm btn-outline" onclick="openCirugia(${c.id})">${ICONS.eyeSm} Ver la ficha del turno</button>
+        ${a.ok ? '' : `<button class="btn btn-sm btn-outline" onclick="excReenviar(${c.id})">${ICONS.megafono} Reenviar el aviso</button>`}
+        <button class="btn btn-sm btn-outline" onclick="go('comunicados')">${ico(ICONS.megafono, 15)} Ver el comunicado</button>
+      </div>
+    </div>`;
+  };
+
+  $('main').innerHTML = `
+    <div class="page-head">
+      <div class="head-row">
+        <div class="head-icon" style="background:#efe7fd">${ico(ICONS.zap, 22)}</div>
+        <div>
+          <h1 class="page-title">Programación Fuera de Horario</h1>
+          <p class="page-sub">Potestad exclusiva de la Jefatura de Quirófanos — carga excepcional con aviso obligatorio al cirujano</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="banner banner-amber">${ICONS.alertTri}
+      <div><strong>Es una excepción, no una vía alternativa</strong>
+      El flujo normal cierra las listas a las <b>${BLOQUE.cierreSolicitudes} h del día previo</b> y exige <b>${HORAS_ANTICIPACION} h</b> de anticipación; además, los quirófanos 2, 3 y 4 y Endoscopía nacen bloqueados. Esta pantalla es la única llave que abre esas franjas y solo la tiene la Jefatura. Cada uso queda registrado con motivo, fecha, hora y destinatario.</div></div>
+
+    <div class="banner banner-red">${ICONS.megafonoBig}
+      <div><strong>El cirujano se entera siempre</strong>
+      Al guardarse el turno se emite un <b>comunicado urgente</b> dirigido al cirujano: le aparece como ventana que no se cierra sin confirmar la lectura y vuelve cada ${COM_INTERVALO_MIN} minutos hasta que la confirme. El texto le indica que, si él no autorizó la cirugía, se comunique con la Jefatura por la solapa <b>Reclamos</b>.</div></div>
+
+    ${excCtx ? `<div class="banner banner-blue">${ICONS.info}
+      <div><strong>Hay una excepción habilitada y sin cargar</strong>
+      ${esc(sala(excCtx.sid).nombre)} · ${esc((franjaDe(excCtx.sid, excCtx.fid) || {}).t || '')} h · ${fmtDiaLargo(excCtx.d)} — para ${esc(excCtx.cirujano.nombre)}.
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-blue" onclick="openSlot('${excCtx.d}','${excCtx.sid}','${excCtx.fid}')">Continuar la carga</button>
+        <button class="btn btn-sm btn-outline" onclick="excCancelarCtx()">Descartar la habilitación</button>
+      </div></div></div>` : ''}
+
+    ${profs.length ? '' : `<div class="banner banner-red">${ICONS.alertTri}
+      <div><strong>No hay profesionales con cuenta autorizada</strong>
+      La excepción exige avisar al cirujano que va a operar, y para eso necesita su cuenta. Autorice primero las cuentas en la solapa <b>Profesionales</b>.</div></div>`}
+
+    <div class="card">
+      <div class="card-title">Cargar una cirugía fuera del cronograma</div>
+      <div class="card-sub">Elija la franja cerrada, el cirujano que va a operar y el motivo. Después se abre la ficha del turno con los datos del paciente.</div>
+      <div class="form-grid">
+        <div class="field"><label>Fecha de la cirugía *</label>
+          <input type="date" id="x-fecha" value="${d}" min="${hoy}" onchange="excCambio()"></div>
+        <div class="field"><label>Quirófano / sala *</label>
+          <select id="x-sala" onchange="excCambio()">
+            ${SALAS.map((x) => `<option value="${x.id}" ${sid === x.id ? 'selected' : ''}>${esc(x.nombre)}</option>`).join('')}
+          </select></div>
+        <div class="field full"><label>Franja horaria *</label>
+          <select id="x-franja" onchange="excCambio()">
+            <option value="">Seleccionar…</option>
+            ${s.franjas.map(opcionFranja).join('')}
+          </select>
+          <span class="hint">Al lado de cada hora figura por qué está fuera del flujo normal. Las ocupadas y las que ya comenzaron no se pueden elegir.</span></div>
+        ${est ? `<div class="field full"><div class="banner ${est.razones.length ? 'banner-amber' : 'banner-blue'}" style="margin:0">${est.razones.length ? ico(ICONS.lock, 18) : ICONS.info}
+          <div>${est.razones.length
+            ? `<strong>Franja fuera del flujo normal</strong> ${esc(est.razones.join(' · '))}. La cirugía comienza ${humanoRestante(est.inicio - new Date())}.`
+            : `<strong>Esta franja está abierta y en plazo</strong> Puede cargarla por la grilla de Programación Diaria sin usar la excepción. Si la carga igual desde acá, el cirujano recibirá el aviso de todos modos.`}</div></div></div>` : ''}
+        <div class="field full"><label>Cirujano que va a realizar la cirugía *</label>
+          <select id="x-cir" onchange="excCambio()">
+            <option value="">Seleccionar…</option>
+            ${profs.map((p) => `<option value="${esc(p.email)}" ${excForm.email === p.email ? 'selected' : ''}>${esc(p.nombre)} — ${esc(p.servicio || 'sin servicio')}</option>`).join('')}
+          </select>
+          <span class="hint">Solo figuran las cuentas autorizadas: el aviso obligatorio se emite a esa cuenta.</span></div>
+        <div class="field full"><label>Motivo de la excepción *</label>
+          <select id="x-motivo" onchange="excCambio()">
+            <option value="">Seleccionar…</option>
+            ${MOTIVOS_EXCEPCION.map((m) => `<option ${excForm.motivo === m ? 'selected' : ''}>${esc(m)}</option>`).join('')}
+          </select></div>
+        <div class="field full"><label>Detalle de la excepción *</label>
+          <textarea id="x-det" placeholder="Quién la solicitó, por qué no puede esperar al circuito normal y qué se coordinó con el cirujano.">${esc(excForm.detalle)}</textarea>
+          <span class="hint">Este texto viaja en el aviso al cirujano y queda asentado en la ficha del turno.</span></div>
+      </div>
+      <p class="pass-error" id="x-error"></p>
+      <div class="form-actions">
+        <button class="btn btn-red" onclick="excHabilitar()" ${profs.length ? '' : 'disabled'}>${ico(ICONS.key, 16)} Habilitar la carga y avisar al cirujano</button>
+        <p class="form-note">Se pide otra vez la clave de Jefatura. Después se abre la ficha del turno para cargar paciente, diagnóstico y práctica; el aviso sale al guardar.</p>
+      </div>
+    </div>
+
+    <div class="result-count">${lista.length} excepción(es) registrada(s) · ${pendientes.length} con fecha por delante</div>
+    ${lista.length ? lista.map(fichaExc).join('') : '<div class="empty">Todavía no se cargó ninguna cirugía fuera del cronograma. Mientras no haya ninguna, nada de esto altera el flujo de trabajo habitual.</div>'}`;
+}
+
 /* ================= PROGRAMACIÓN (jefe) ================= */
 function renderProgramacion() {
   const n = (est) => DB.cirugias.filter((c) => c.estado === est).length;
@@ -5210,10 +5714,11 @@ function renderProgramacion() {
       { est: 'en_curso', titulo: 'En curso', hint: 'El cierre requiere LVQ de Salida con conteo completo' },
       { est: 'realizada', titulo: 'Realizadas recientes', hint: 'Controlar carga del informe operatorio (≤ 2 h)', limite: 5 },
       { est: 'suspendida', titulo: 'Suspendidas', hint: 'Con causa registrada', limite: 5 },
+      { est: 'anticipada', titulo: 'Resueltas por urgencia', hint: 'Se operaron antes de su fecha: la franja quedó liberada', limite: 5 },
     ];
     cuerpo = grupos.map((g) => {
       let lista = DB.cirugias.filter((c) => c.estado === g.est).sort(ordenPrelacion);
-      if (g.est === 'realizada' || g.est === 'suspendida') lista = lista.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha))).slice(0, g.limite);
+      if (g.limite) lista = lista.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha))).slice(0, g.limite);
       if (!lista.length) return '';
       return `<div class="q-group">
         <div class="q-group-title"><span class="est-dot" style="background:${ESTC[g.est].color};width:12px;height:12px"></span> ${g.titulo} <span style="color:var(--muted);font-weight:500;font-size:0.8rem">· ${g.hint}</span></div>
@@ -5306,6 +5811,10 @@ function openCirugia(id) {
       <div class="det-row"><b>Quirófano</b> ${esc(c.quirofano || '—')}</div>
       <div class="det-row"><b>Cirujano</b> ${esc(c.cirujano)} (${esc(c.servicio)})</div>
       <div class="det-row"><b>Solicitada</b> ${fmtFecha(c.fechaSolicitud)} · ${esperaDias(c)} días de espera</div>
+      ${c.excepcion ? `<div class="det-row"><b>Excepción</b> <span style="color:#7c3aed;font-weight:800">Programada fuera del cronograma por ${esc(c.excepcion.autorizadaPor || JEFATURA)}</span> el ${fmtDT(c.excepcion.fechaHora)} — ${esc(c.excepcion.motivo)}${c.excepcion.detalle ? '. ' + esc(c.excepcion.detalle) : ''}</div>
+      <div class="det-row"><b>Aviso al cirujano</b> ${excAcuseTexto(c)}</div>` : ''}
+      ${c.estado === 'anticipada' && c.anticipada ? `<div class="det-row"><b>Resuelta por urgencia</b> El paciente se operó el ${fmtFecha(c.anticipada.fechaUrgencia || '')}${c.anticipada.quirofanoUrgencia ? ' en ' + esc(c.anticipada.quirofanoUrgencia) : ''}${c.anticipada.procedimientoUrgencia ? ` (${esc(c.anticipada.procedimientoUrgencia)})` : ''}. Registrado por ${esc(c.anticipada.registradaPor || '—')} el ${fmtDT(c.anticipada.t)}.</div>
+      ${c.liberado ? `<div class="det-row"><b>Franja liberada</b> ${esc(c.liberado.quirofano || 's/d')} · ${esc(c.liberado.hora || '—')} h · ${fmtFecha(c.liberado.fecha)}</div>` : ''}` : ''}
       ${authDetalle(c)}
       <div class="det-row"><b>Recursos</b> ${[c.recursos?.arcoC ? 'Arco en C' : '', c.recursos?.implante ? 'Implante: ' + esc(c.recursos.implanteDetalle || 's/d') : '', c.recursos?.hemoderivados ? 'Hemoderivados' : ''].filter(Boolean).join(' · ') || 'Sin recursos especiales'}</div>
       ${c.horaInicioReal ? `<div class="det-row"><b>Inicio real</b> ${fmtDT(c.horaInicioReal)}</div>` : ''}
@@ -7327,7 +7836,7 @@ function slotCard(d, s, f, salaOff) {
     const e = ESTC[c.estado];
     const pe = prioridadEfectiva(c);
     return `<button type="button" class="slot" style="border-left:4px solid ${e.color}" onclick="openSlot('${d}','${s.id}','${f.id}')">
-      ${c.urgencia ? '<span class="slot-urg-tag">URG</span>' : ''}
+      ${c.urgencia || c.excepcion ? `<span class="slot-tags">${c.urgencia ? '<i class="slot-urg-tag">URG</i>' : ''}${c.excepcion ? '<i class="slot-exc-tag" title="Programada por excepción de la Jefatura, fuera del cronograma habitual">EXC</i>' : ''}</span>` : ''}
       <span class="slot-hora">${f.t}${nd}</span>
       <span class="slot-cir">${esc(c.cirujano || 's/d')}</span>
       <span class="slot-pac">${esc(c.paciente?.nombre || 's/d')}</span>
@@ -7394,7 +7903,11 @@ function renderProgDiaria() {
   const d = diaSel;
   const laborable = esLaborable(d);
   const dOn = diaHabilitado(d);
-  const delDia = DB.cirugias.filter((c) => diaDeGrilla(c) === d);
+  const enGrilla = DB.cirugias.filter((c) => diaDeGrilla(c) === d);
+  // Las resueltas por urgencia conservan el día para dejar rastro, pero ya no
+  // ocupan franja: no se cuentan como capacidad usada.
+  const delDia = enGrilla.filter((c) => c.estado !== 'anticipada');
+  const liberadas = enGrilla.filter((c) => c.estado === 'anticipada');
   const ocupadas = delDia.length;
   const capacidad = franjasAbiertas(d);
   const cerradas = salasProgramables().filter((s) => !salaHabilitada(d, s.id));
@@ -7422,6 +7935,12 @@ function renderProgDiaria() {
 
   // Turnos cargados antes de existir la grilla (o con la sala ya retirada del bloque):
   // se listan aparte para que ninguno quede invisible en la programación del día.
+  if (liberadas.length) {
+    cuerpo += `<div class="q-group-title" style="margin-top:20px">${ico(ICONS.zap, 18)} Franjas liberadas por resolución anticipada
+      <span style="color:var(--muted);font-weight:500;font-size:0.8rem">· ${liberadas.length} · el paciente se operó de urgencia antes de esta fecha</span></div>
+      ${liberadas.map((c) => cirCard(c, jefe ? 'jefe' : 'cirujano')).join('')}`;
+  }
+
   const huerfanos = delDia.filter((c) => !c.sala || !c.franja || !SALAS.some((s) => s.id === c.sala));
   if (huerfanos.length) {
     cuerpo += `<div class="q-group-title" style="margin-top:20px">${ICONS.alertTri.replace(/22/g, '18')} Turnos sin franja asignada
@@ -7475,10 +7994,13 @@ function openSlot(d, sid, fid) {
   const c = turnoEn(d, sid, fid);
   const u = usuarioActual();
   const nuevo = !c;
+  // Excepción habilitada por la Jefatura para esta franja: es la única llave
+  // que abre un turno ya cerrado por horario (ver excHabilitar).
+  const exc = excepcionPara(d, sid, fid);
 
   if (nuevo) {
     // El turno cerrado no se programa ni entrando por un enlace directo.
-    if (!turnoHabilitado(d, sid, f.p)) {
+    if (!turnoHabilitado(d, sid, f.p) && !exc) {
       alert(`El turno de ${rotuloTurno(f.p).label.toLowerCase()} de ${s.nombre} está bloqueado para el ${fmtFecha(fechaDeFranja(d, f))}.\n\nEl bloque programado se abre desde la Jefatura de Quirófanos, por día, turno y sala.`);
       return;
     }
@@ -7496,7 +8018,12 @@ function openSlot(d, sid, fid) {
   const ro = puedeEditar ? '' : 'disabled';
   const v = (x, alt) => esc((c && x) || alt || '');
   const eq = (c && c.equipos) || [];
-  const avisoAnticip = (nuevo && !puedeReservar(d, f, false))
+  const avisoAnticip = exc
+    ? `<div class="banner banner-red" style="margin-bottom:14px">${ico(ICONS.zap, 18)}<div><strong>Programación fuera de horario — excepción de la Jefatura</strong>
+        Esta franja está fuera del cronograma habitual y la abre la Jefatura de Quirófanos por excepción.
+        Motivo: <b>${esc(exc.motivo)}</b>. Al guardar, ${esc(exc.cirujano.nombre)} recibe el aviso obligatorio
+        con acuse de lectura y la excepción queda asentada en el turno.</div></div>`
+    : (nuevo && !puedeReservar(d, f, false))
     ? `<div class="banner banner-amber" style="margin-bottom:14px">${ICONS.alertTri.replace(/22/g, '16')}<div>Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.
         ${s.urgencias ? 'Solo puede programarse marcando <b>Urgencia / Emergencia</b>.' : 'Esta sala no admite excepciones: use el Quirófano 1 para urgencias.'}</div></div>` : '';
 
@@ -7541,9 +8068,10 @@ function openSlot(d, sid, fid) {
     <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
       <div class="card-title">Equipo quirúrgico</div>
       <div class="form-grid">
-        <div class="field"><label>Cirujano / especialista *</label><input type="text" id="k-cir" value="${v(c && c.cirujano, u ? u.nombre : '')}" ${ro}></div>
+        <div class="field"><label>Cirujano / especialista *</label><input type="text" id="k-cir" value="${v(c && c.cirujano, exc ? exc.cirujano.nombre : (u ? u.nombre : ''))}" ${ro}>
+          ${exc ? '<span class="hint">Es el profesional al que se le envía el aviso de la excepción.</span>' : ''}</div>
         <div class="field"><label>Servicio / especialidad *</label>
-          <select id="k-serv" ${ro}>${SERVICIOS_HRU.map((x) => `<option ${mismoServicio(c?.servicio || (u && u.servicio), x) ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+          <select id="k-serv" ${ro}>${SERVICIOS_HRU.map((x) => `<option ${mismoServicio(c?.servicio || (exc && exc.cirujano.servicio) || (u && u.servicio), x) ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
         <div class="field"><label>Anestesista</label><input type="text" id="k-anest" value="${v(c && c.anestesista)}" ${ro}></div>
         <div class="field"><label>Tipo de anestesia</label>
           <select id="k-tanest" ${ro}><option value="">Seleccionar…</option>${ANESTESIAS.map((a) => `<option ${c?.anestesia === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
@@ -7601,6 +8129,7 @@ function guardarSlot() {
   const s = sala(sid);
   const f = franjaDe(sid, fid);
   const u = usuarioActual();
+  const exc = excepcionPara(d, sid, fid);
   const paciente = $('k-pac').value.trim();
   const cirujano = $('k-cir').value.trim();
   const diagnostico = $('k-diag').value.trim();
@@ -7633,11 +8162,11 @@ function guardarSlot() {
     alert(bloqueoCuenta(u));
     closeSlot(); go('perfil'); return;
   }
-  if (!existente && !turnoHabilitado(d, sid, f.p)) {
+  if (!existente && !turnoHabilitado(d, sid, f.p) && !exc) {
     alert('Ese turno acaba de bloquearse desde la Jefatura de Quirófanos. Actualice la grilla y elija otra franja.');
     return;
   }
-  if (!existente && !puedeReservar(d, f, urgencia)) {
+  if (!existente && !puedeReservar(d, f, urgencia) && !exc) {
     alert(`Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.\n\nSolo puede programarse marcando "Urgencia / emergencia", y únicamente en el Quirófano 1 o en el quirófano de Obstetricia.`);
     return;
   }
@@ -7660,7 +8189,7 @@ function guardarSlot() {
     },
     obraSocial,
     diagnostico, cie10: $('k-cie').value.trim(), procedimiento, practica, modulo,
-    cirujano, cirujanoEmail: existente ? c.cirujanoEmail : (u ? u.email : ''),
+    cirujano, cirujanoEmail: existente ? c.cirujanoEmail : (exc ? exc.cirujano.email : (u ? u.email : '')),
     servicio: $('k-serv').value,
     anestesista: $('k-anest').value.trim(), anestesia: $('k-tanest').value,
     duracionMin: Number($('k-dur').value || 90),
@@ -7695,13 +8224,33 @@ function guardarSlot() {
   // El cirujano queda inscripto de oficio con el módulo de la práctica; el
   // ayudante y el anestesiólogo se cargan aparte, desde el modal de equipo.
   c.equipo = equipoActualizado(c, modulo);
+  // Excepción de la Jefatura: queda asentada en el turno antes de guardarlo,
+  // porque de ella depende el aviso obligatorio al cirujano.
+  if (!existente && exc) {
+    c.excepcion = {
+      motivo: exc.motivo, detalle: exc.detalle,
+      autorizadaPor: JEFATURA, fechaHora: nowDT(),
+      cirujano: exc.cirujano.nombre, cirujanoEmail: exc.cirujano.email,
+      avisoId: '', avisos: [],
+    };
+    pushHist(c, `Programada por excepción de la Jefatura de Quirófanos, fuera del cronograma habitual — ${exc.motivo}`);
+  }
   if (existente) pushHist(c, 'Turno actualizado');
   upsert('cirugias', c);
+  if (!existente && exc) {
+    excCtx = null;
+    avisarExcepcion(c);   // vuelve a guardar con el id del aviso emitido
+  }
   closeSlot();
   renderProgDiaria();
   // Cerrado el circuito de programación, el paso siguiente es el consentimiento
   // informado: se ofrece de inmediato, con los datos del turno ya volcados.
-  if (!existente) openTurnoOk(c);
+  if (!existente) {
+    // Si el paciente ya tenía turno y esto es una urgencia, se pregunta antes
+    // de nada: de la respuesta depende que la franja programada quede libre.
+    if (c.urgencia) ofrecerAnticipacion(c);
+    openTurnoOk(c);
+  }
 }
 
 /* ---- Confirmación de la programación y salida hacia el consentimiento ---- */
@@ -7718,6 +8267,7 @@ function openTurnoOk(c) {
       · ${fmtDiaLargo(c.fecha)}<br>
       · Paciente: ${esc(c.paciente?.nombre || 's/d')}${c.paciente?.dni ? ` · DNI ${esc(c.paciente.dni)}` : ''}<br>
       · Estado: ${ESTC[c.estado].label} · prioridad P${prioridadEfectiva(c)}${c.urgencia ? ' · <b style="color:var(--red)">URGENCIA</b>' : ''}<br>
+      ${c.excepcion ? `· <b style="color:#7c3aed">Excepción de Jefatura</b> — se emitió el aviso a ${esc(c.excepcion.cirujano)}<br>` : ''}
       · Autorización: ${authExenta(c)
         ? '<b style="color:#5b21b6">no requiere Admisión y Egresos</b> — pasa directo a la Jefatura de Quirófanos'
         : 'pendiente del sector <b>Admisión y Egresos</b>'}
@@ -11124,6 +11674,7 @@ Object.assign(VIEWS, {
   usuarios: renderUsuarios,
   reclamos: renderReclamos,
   comunicados: renderComunicados,
+  excepcion: renderExcepcion,
   acceso: renderAcceso,
   perfil: renderPerfil,
   modulos: renderModulos,
