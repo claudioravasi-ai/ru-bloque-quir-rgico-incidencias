@@ -272,9 +272,10 @@ Borrador → Pendiente → Validada → Confirmada → En curso → Realizada
 
 Reglas que el sistema hace cumplir:
 
-- No se **valida** si faltan verificaciones de Farmacia, Esterilización, Hemoterapia o Anestesiología, o si la HCE
-  no tiene los estudios preoperatorios y el consentimiento.
-- No se **confirma** en el parte sin la autorización de Admisión y Egresos.
+- No se **valida** sin la **autorización de Admisión y Egresos** (salvo las excepciones de más abajo), ni si faltan
+  verificaciones de Farmacia, Esterilización, Hemoterapia o Anestesiología, o si la HCE no tiene los estudios
+  preoperatorios y el consentimiento.
+- No se **confirma** en el parte sin esa misma autorización.
 - No pasa a **en curso** sin la LVQ de Entrada y la Pausa Quirúrgica completas.
 - No **cierra** sin la LVQ de Salida (conteo de gasas e instrumental).
 - Toda **suspensión** exige causa y genera automáticamente una incidencia de categoría D.
@@ -284,6 +285,30 @@ Reglas que el sistema hace cumplir:
 
 P1 Emergencias (incisión < 30 min) · P2 Urgencias diferibles (< 6 h) · P3 Alta complejidad y pediatría ·
 P4 Recursos escasos · P5 Espera > 90 días (automática) · P6 Electiva estándar.
+
+### Autorización de Admisión y Egresos: previa, salvo tres excepciones
+
+La regla general es que **ningún turno electivo se valida sin el visto de Admisión y Egresos**. El freno está en la
+validación, que es el primer paso que da la Jefatura: si el trámite administrativo no está cerrado, el turno no
+avanza y por lo tanto no llega al parte.
+
+Tres situaciones saltean el visto **previo**, porque esperar un trámite administrativo sería poner la burocracia
+por delante del paciente:
+
+| Situación | Cómo se detecta |
+|---|---|
+| Urgencias y emergencias | El turno lleva marcada la casilla *Urgencia / emergencia* |
+| Prioridad **P1** (emergencia) o **P2** (urgencia diferible) | Por la prioridad de prelación, aunque no lleve la marca |
+| Cirugías **programadas fuera de horario por la Jefatura** | El turno nació en la solapa *Programación Fuera de Horario* |
+
+En esos tres casos la autorización **no se elimina: queda diferida**. El turno se valida, se confirma y se opera
+igual, con la autorización marcada como `AUT. DIFERIDA`, y el trámite administrativo se cumplimenta después
+—**incluso con la cirugía ya realizada**— desde el propio turno, con la clave `3340`. Cuando se cierra fuera de
+término, la ficha lo deja escrito: *«trámite regularizado después de la cirugía»*.
+
+Antes, las urgencias se estampaban solas como `AUTORIZADO` y el trámite desaparecía del radar. Ahora sigue
+figurando como pendiente y un recordatorio insiste —también sobre cirugías ya realizadas— hasta que Admisión y
+Egresos lo regularice.
 
 ### La cirugía que se adelantó por urgencia
 
@@ -316,6 +341,23 @@ Si nadie responde en el momento, hay dos redes de seguridad:
 
 La grilla del día muestra aparte las **franjas liberadas por resolución anticipada**, y si el cierre fue un
 error, la Jefatura **repone el turno** en su franja original cuando sigue libre.
+
+---
+
+## Ventanas de la app
+
+Los avisos y las preguntas **no usan los cuadros del navegador**. Un `alert()` o un `confirm()` sale encabezado
+por el nombre del sitio —«claudioravasi-ai.github.io dice…»—, con la tipografía del sistema operativo y el
+aspecto de un error técnico: en una app clínica eso le resta autoridad al mensaje.
+
+Las ventanas propias llevan cabecera de color según el tono del mensaje (informativo, atención, cuidado,
+confirmación, Jefatura), ícono, trama diagonal de fondo, cuerpo sobre fondo texturado, **tipografía distinta a la
+del resto de la app** —el aviso se tiene que leer como una voz aparte— y botones grandes con la acción escrita
+(«Sí, eliminar», «Emitir el comunicado», «Reponer»), no un «Aceptar» genérico.
+
+Son tres: `avisar()` informa, `preguntar()` pide confirmación y `pedirTexto()` reemplaza al `prompt()` del
+navegador con un campo propio y validación —así la baja de una cuenta no se puede registrar sin motivo escrito—.
+Si llegan dos avisos juntos, se encolan en vez de pisarse.
 
 ---
 

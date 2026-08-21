@@ -542,6 +542,84 @@
   .pass-label { font-weight: 600; font-size: 0.88rem; margin-bottom: 7px; display: block; }
   .pass-error { color: var(--red); font-size: 0.83rem; margin: -8px 0 12px; display: none; }
 
+  /* ============ DIÁLOGOS PROPIOS DE LA APP ============
+     Reemplazan a los alert() y confirm() del navegador, que salían con el
+     nombre del sitio arriba («claudioravasi-ai.github.io dice…»), sin identidad
+     y con el aspecto de un error del sistema. Estos llevan la marca del bloque
+     quirúrgico: cabecera de color según el tono del mensaje, tipografía propia
+     y fondo texturado. Viven por encima de todo lo demás (z-index 300) porque
+     pueden aparecer sobre cualquier modal, incluso sobre un comunicado. */
+  .dlg-ov {
+    position: fixed; inset: 0; z-index: 300; padding: 18px;
+    background: rgba(7, 11, 16, 0.7); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+  }
+  .dlg-ov.open { display: flex; }
+  .dlg {
+    width: 100%; max-width: 470px; background: #fff; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    animation: dlgIn 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+    /* Tipografía distinta a la del resto de la app, a propósito: el aviso se
+       tiene que leer como una voz aparte. */
+    font-family: 'Avenir Next', 'Trebuchet MS', 'Segoe UI Semibold', 'Gill Sans', system-ui, sans-serif;
+    max-height: 92vh; display: flex; flex-direction: column;
+  }
+  @keyframes dlgIn { from { opacity: 0; transform: translateY(16px) scale(0.94); } to { opacity: 1; transform: none; } }
+  .dlg-hdr {
+    position: relative; padding: 20px 24px; color: #fff; flex: none;
+    display: flex; align-items: center; gap: 14px;
+    background: linear-gradient(135deg, var(--dlg-c1) 0%, var(--dlg-c2) 100%);
+  }
+  /* Trama diagonal: le da textura a la cabecera sin cargar ninguna imagen. */
+  .dlg-hdr::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: repeating-linear-gradient(125deg, rgba(255,255,255,0.13) 0 9px, transparent 9px 22px);
+  }
+  .dlg-hdr > * { position: relative; z-index: 1; }
+  .dlg-ico {
+    width: 48px; height: 48px; border-radius: 15px; flex: none;
+    background: rgba(255, 255, 255, 0.22); border: 1px solid rgba(255, 255, 255, 0.4);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dlg-k { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.9; }
+  .dlg-t { font-size: 1.14rem; font-weight: 800; line-height: 1.25; margin-top: 2px; letter-spacing: 0.005em; }
+  .dlg-body {
+    padding: 20px 24px; overflow-y: auto; color: #1e242e; font-size: 0.94rem; line-height: 1.6;
+    background-color: var(--dlg-soft);
+    background-image: radial-gradient(rgba(23, 28, 36, 0.055) 1px, transparent 1px);
+    background-size: 15px 15px;
+  }
+  .dlg-body b, .dlg-body strong { font-weight: 800; }
+  .dlg-body .dlg-lista { margin: 10px 0 0; padding-left: 4px; }
+  .dlg-campo { margin-top: 16px; }
+  .dlg-campo label { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; }
+  .dlg-campo input, .dlg-campo textarea {
+    width: 100%; padding: 11px 13px; border: 1.5px solid #cbd5e1; border-radius: 10px;
+    font-family: inherit; font-size: 0.95rem; background: #fff; color: var(--ink);
+  }
+  .dlg-campo textarea { min-height: 84px; resize: vertical; }
+  .dlg-campo input:focus, .dlg-campo textarea:focus { outline: none; border-color: var(--dlg-c1); box-shadow: 0 0 0 3px var(--dlg-ring); }
+  .dlg-err { color: var(--red); font-size: 0.83rem; font-weight: 700; margin-top: 8px; display: none; }
+  .dlg-pie {
+    display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; flex: none;
+    padding: 14px 24px 18px; background: var(--dlg-soft); border-top: 1px solid rgba(23, 28, 36, 0.08);
+  }
+  .dlg-btn {
+    font-family: inherit; font-size: 0.93rem; font-weight: 800; letter-spacing: 0.01em;
+    padding: 11px 20px; border-radius: 11px; border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; transition: transform 0.08s ease, filter 0.15s ease;
+  }
+  .dlg-btn:active { transform: translateY(1px); }
+  .dlg-btn-ok { background: linear-gradient(135deg, var(--dlg-c1), var(--dlg-c2)); color: #fff; box-shadow: 0 6px 16px var(--dlg-ring); }
+  .dlg-btn-ok:hover { filter: brightness(1.07); }
+  .dlg-btn-no { background: #fff; color: #46505f; border: 1.5px solid #cbd5e1; }
+  .dlg-btn-no:hover { background: #f1f5f9; }
+  @media (max-width: 520px) {
+    .dlg-pie { padding: 12px 18px 16px; }
+    .dlg-pie .dlg-btn { flex: 1 1 auto; justify-content: center; }
+    .dlg-hdr, .dlg-body { padding-left: 18px; padding-right: 18px; }
+  }
+
   /* ---- Comunicados de la Jefatura ---- */
   /* El emergente se apoya sobre un fondo más opaco que el resto de los modales:
      es una interrupción deliberada, no una ventana más. */
@@ -3057,7 +3135,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.1.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -3498,13 +3576,14 @@ function pintarConexion() {
 }
 
 /* Al tocar el chip: qué está pasando y, si hay algo trabado, un reintento. */
-function explicarConexion() {
+async function explicarConexion() {
   if (!cloudOn) { alert('Modo local\n\nEsta copia de la app no está conectada a la base compartida: lo que cargue queda solo en este dispositivo.'); return; }
   const n = colaPendiente.length;
   if (!n && conectado) { alert('Sincronizado\n\nTodo lo que cargó en este dispositivo está guardado en la base compartida del hospital y el resto de los equipos ya lo ve.'); return; }
   if (!n) { alert('Sin conexión\n\nEste dispositivo no está llegando a la base compartida. Puede seguir trabajando: lo que cargue se guarda acá y se envía solo al recuperar la señal.'); return; }
   const detalle = colaPendiente.slice(0, 6).map((op) => `· ${COLA_NOMBRES[op.col] || op.col}`).join('\n');
-  if (confirm(`${n} cambio(s) sin enviar\n\nEstos cambios están guardados en ESTE dispositivo pero todavía no llegaron al hospital, así que nadie más los ve:\n\n${detalle}${n > 6 ? `\n· y ${n - 6} más` : ''}\n\n¿Reintentar el envío ahora?`)) {
+  if (await preguntar(`Estos cambios están guardados en ESTE dispositivo pero todavía no llegaron al hospital, así que nadie más los ve:\n\n${detalle}${n > 6 ? `\n· y ${n - 6} más` : ''}\n\n¿Reintentar el envío ahora?`,
+    { titulo: `${n} cambio(s) sin enviar`, tono: 'aviso', si: 'Reintentar ahora', no: 'Más tarde' })) {
     if (!conectado) { alert('Todavía sin conexión.\n\nAcerque el dispositivo a una zona con señal o conéctelo a una red wifi y vuelva a intentar. Los cambios no se pierden.'); return; }
     vaciarCola();
     setTimeout(() => alert(colaPendiente.length
@@ -3951,8 +4030,24 @@ function calcRecordatorios() {
         titulo: c.auth === 'NO AUTORIZADO' ? `Turno NO AUTORIZADO en el parte` : `Turno sin autorización de Admisión`,
         texto: c.auth === 'NO AUTORIZADO'
           ? `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.quirofano}, ${c.horaProg} h). Motivo del rechazo: ${c.authMotivo || 'sin motivo registrado'}.`
-          : `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.quirofano}, ${c.horaProg} h). Sin la autorización de Admisión y Egresos el turno no puede confirmarse en el parte oficial.`,
+          : `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.quirofano}, ${c.horaProg} h). Sin la autorización de Admisión y Egresos la Jefatura no puede validar el turno, así que tampoco llega al parte.`,
         cuando: `Cirugía ${humanoRestante(inicio - ahora)}`,
+      });
+    });
+
+  /* ---- 3 ter. Trámite administrativo diferido, todavía sin regularizar ----
+     Vale también para las cirugías ya realizadas: la excepción libera de pedir
+     la autorización antes, no de dejarla asentada alguna vez. */
+  DB.cirugias.filter((c) => authPendienteDiferida(c) && ['confirmada', 'en_curso', 'realizada'].includes(c.estado))
+    .filter((c) => c.fecha >= sumarDias(hoy, -30))
+    .filter(remMia)
+    .forEach((c) => {
+      const hecha = c.estado === 'realizada';
+      add({
+        key: 'authdif-' + c.id, nivel: hecha && c.fecha < hoy ? 'warn' : 'info', vista: 'grilla', cirugia: c.id,
+        titulo: `Admisión y Egresos sin regularizar — ${c.paciente?.nombre || 's/d'}`,
+        texto: `${c.procedimiento} (${c.quirofano || 's/d'}, ${fmtFecha(c.fecha)}). Salteó la autorización previa por ${authMotivoExencion(c)}${hecha ? ' y la cirugía ya se realizó' : ''}. El trámite administrativo sigue abierto: se cierra desde el propio turno, con la clave de Admisión y Egresos.`,
+        cuando: hecha ? 'Trámite pendiente' : `Cirugía ${fmtFecha(c.fecha)}`,
       });
     });
 
@@ -4213,6 +4308,177 @@ function refreshView() {
   if (view === 'reclamos' && hayTextoCargado()) return;
   go(view, true);
 }
+
+/* ================= DIÁLOGOS PROPIOS DE LA APP =================
+   Los `alert()` y `confirm()` del navegador salían encabezados por el nombre
+   del sitio —«claudioravasi-ai.github.io dice…»—, con la tipografía del sistema
+   operativo y el aspecto de un error técnico. En una app clínica eso resta
+   autoridad al mensaje: el cirujano no distingue un aviso del bloque quirúrgico
+   de un cartel del navegador.
+
+   Estos diálogos son propios: cabecera de color según el tono, ícono, trama de
+   fondo, tipografía distinta a la del resto de la app y botones grandes.
+
+   Cómo se usan:
+     avisar(texto, opciones)     → informa y devuelve una promesa
+     preguntar(texto, opciones)  → devuelve true/false, se usa con `await`
+     pedirTexto(texto, opciones) → devuelve el texto escrito, o null si cancela
+
+   `window.alert` queda apuntando a `avisar`, así que los cincuenta y pico de
+   avisos repartidos por la app pasaron a la ventana nueva sin tocar una línea.
+   `confirm` no se puede reemplazar igual —el del navegador frena la ejecución y
+   el nuestro no—, así que cada pregunta se convirtió a `await preguntar(...)`.
+
+   Los diálogos se encolan: si llega uno mientras otro está abierto, espera su
+   turno en lugar de pisarlo. */
+const DLG_TONOS = {
+  info:     { c1: '#2980d9', c2: '#2fb9c9', soft: '#eef6fd', ring: 'rgba(41,128,217,0.24)',  kicker: 'Aviso',        icono: 'info',        titulo: 'Aviso' },
+  ok:       { c1: '#1fa971', c2: '#4cc79a', soft: '#eefaf4', ring: 'rgba(31,169,113,0.24)',  kicker: 'Listo',        icono: 'checkCircle', titulo: 'Operación registrada' },
+  aviso:    { c1: '#dd8c10', c2: '#f4c04e', soft: '#fdf6e8', ring: 'rgba(221,140,16,0.24)',  kicker: 'Atención',     icono: 'alertTri',    titulo: 'Atención' },
+  peligro:  { c1: '#c62f2f', c2: '#ec6060', soft: '#fdeeee', ring: 'rgba(198,47,47,0.24)',   kicker: 'Cuidado',      icono: 'alertTri',    titulo: 'Confirme la acción' },
+  pregunta: { c1: '#3b53c4', c2: '#7c3aed', soft: '#f1f0fe', ring: 'rgba(93,63,211,0.24)',   kicker: 'Confirmación', icono: 'info',        titulo: '¿Confirma?' },
+  jefatura: { c1: '#0f766e', c2: '#2fb9c9', soft: '#eafaf8', ring: 'rgba(15,118,110,0.24)',  kicker: 'Jefatura de Quirófanos', icono: 'shield', titulo: 'Jefatura de Quirófanos' },
+};
+let dlgEl = null;          // overlay, se crea una sola vez
+let dlgCola = [];          // diálogos esperando turno
+let dlgActivo = null;      // { op, resolver }
+
+/* Texto plano a HTML: respeta los saltos de línea y destaca los renglones que
+   empiezan con «· », que es como está escrita media app. */
+function dlgTexto(t) {
+  return String(t == null ? '' : t).split('\n').map((l) => {
+    const s = esc(l);
+    return /^\s*·\s/.test(l) ? `<span style="display:block;padding-left:2px">${s}</span>` : s;
+  }).join('<br>');
+}
+/* Muchos mensajes ya venían escritos como «Título\n\ncuerpo». Cuando es así, esa
+   primera línea pasa a ser el título del diálogo en vez de repetirse adentro. */
+function dlgPartir(texto) {
+  const t = String(texto == null ? '' : texto);
+  const i = t.indexOf('\n\n');
+  if (i > 0 && i <= 78 && t.slice(0, i).indexOf('\n') < 0) {
+    return { titulo: t.slice(0, i).trim(), cuerpo: t.slice(i + 2).trim() };
+  }
+  return { titulo: '', cuerpo: t };
+}
+
+function dlgNodo() {
+  if (dlgEl) return dlgEl;
+  dlgEl = document.createElement('div');
+  dlgEl.className = 'dlg-ov';
+  dlgEl.id = 'dlg-ov';
+  document.body.appendChild(dlgEl);
+  // En captura, para poder frenar el Escape global: mientras hay un diálogo
+  // arriba, esa tecla le pertenece y no debe cerrar los modales de atrás.
+  document.addEventListener('keydown', (e) => {
+    if (!dlgActivo) return;
+    if (e.key === 'Escape') {
+      e.stopPropagation(); e.preventDefault();
+      dlgCerrar(dlgActivo.op.tipo === 'aviso' ? true : null);
+    } else if (e.key === 'Enter' && dlgActivo.op.tipo !== 'texto') {
+      e.stopPropagation(); e.preventDefault();
+      dlgCerrar(true);
+    }
+  }, true);
+  return dlgEl;
+}
+
+function dlgAbrir(op) {
+  return new Promise((resolver) => {
+    dlgCola.push({ op, resolver });
+    if (!dlgActivo) dlgPintar();
+  });
+}
+function dlgPintar() {
+  const sig = dlgCola.shift();
+  if (!sig) {
+    dlgActivo = null;
+    if (dlgEl) dlgEl.classList.remove('open');
+    return;
+  }
+  dlgActivo = sig;
+  const op = sig.op;
+  const T = DLG_TONOS[op.tono] || DLG_TONOS.info;
+  const ov = dlgNodo();
+  const campo = op.campo;
+  ov.innerHTML = `
+    <div class="dlg" role="dialog" aria-modal="true" style="--dlg-c1:${T.c1};--dlg-c2:${T.c2};--dlg-soft:${T.soft};--dlg-ring:${T.ring}">
+      <div class="dlg-hdr">
+        <div class="dlg-ico">${ico(ICONS[op.icono || T.icono] || ICONS.info, 26)}</div>
+        <div>
+          <div class="dlg-k">${esc(op.kicker || T.kicker)}</div>
+          <div class="dlg-t">${esc(op.titulo || T.titulo)}</div>
+        </div>
+      </div>
+      <div class="dlg-body">
+        ${dlgTexto(op.cuerpo)}
+        ${campo ? `<div class="dlg-campo">
+          ${campo.label ? `<label for="dlg-inp">${esc(campo.label)}</label>` : ''}
+          ${campo.multilinea
+            ? `<textarea id="dlg-inp" placeholder="${esc(campo.placeholder || '')}">${esc(campo.valor || '')}</textarea>`
+            : `<input type="text" id="dlg-inp" placeholder="${esc(campo.placeholder || '')}" value="${esc(campo.valor || '')}">`}
+          <div class="dlg-err" id="dlg-err"></div>
+        </div>` : ''}
+      </div>
+      <div class="dlg-pie">
+        ${op.tipo === 'aviso' ? '' : `<button class="dlg-btn dlg-btn-no" id="dlg-no">${esc(op.no || 'Cancelar')}</button>`}
+        <button class="dlg-btn dlg-btn-ok" id="dlg-si">${esc(op.si || 'Entendido')}</button>
+      </div>
+    </div>`;
+  ov.classList.add('open');
+  const si = $('dlg-si'), no = $('dlg-no'), inp = $('dlg-inp');
+  si.onclick = () => dlgCerrar(true);
+  if (no) no.onclick = () => dlgCerrar(null);
+  if (inp) {
+    setTimeout(() => { inp.focus(); if (inp.select) inp.select(); }, 60);
+    if (!campo.multilinea) inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); dlgCerrar(true); } });
+  } else {
+    setTimeout(() => si.focus(), 60);
+  }
+}
+function dlgCerrar(aceptado) {
+  if (!dlgActivo) return;
+  const { op, resolver } = dlgActivo;
+  let valor;
+  if (op.tipo === 'texto') {
+    const inp = $('dlg-inp');
+    const txt = inp ? inp.value.trim() : '';
+    if (aceptado && op.campo && op.campo.requerido && !txt) {
+      const err = $('dlg-err');
+      if (err) { err.textContent = op.campo.error || 'Este dato es obligatorio.'; err.style.display = 'block'; }
+      if (inp) inp.focus();
+      return;   // no cierra: falta lo que se pidió
+    }
+    valor = aceptado ? txt : null;
+  } else if (op.tipo === 'pregunta') {
+    valor = aceptado === true;
+  } else {
+    valor = true;
+  }
+  dlgActivo = null;
+  resolver(valor);
+  // Encadena el siguiente de la cola, si lo hay.
+  if (dlgCola.length) dlgPintar();
+  else if (dlgEl) dlgEl.classList.remove('open');
+}
+
+/* ---- API pública ---- */
+function avisar(texto, op) {
+  const p = dlgPartir(texto);
+  return dlgAbrir(Object.assign({ tipo: 'aviso', tono: 'info', si: 'Entendido' }, p, op || {}));
+}
+function preguntar(texto, op) {
+  const p = dlgPartir(texto);
+  return dlgAbrir(Object.assign({ tipo: 'pregunta', tono: 'pregunta', si: 'Sí, continuar', no: 'Cancelar' }, p, op || {}));
+}
+function pedirTexto(texto, op) {
+  const p = dlgPartir(texto);
+  return dlgAbrir(Object.assign({ tipo: 'texto', tono: 'pregunta', si: 'Guardar', no: 'Cancelar' }, p, op || {}));
+}
+/* Todo `alert(...)` de la app entra por acá. Se conserva el nombre para no
+   reescribir cincuenta llamadas y para que cualquier aviso futuro herede solo
+   la ventana nueva. */
+window.alert = function (m) { avisar(m); };
 
 /* ================= SIDEBAR ================= */
 function renderSidebar() {
@@ -4772,8 +5038,9 @@ function setFiltro(k, v) {
   renderConfidenciales();
 }
 
-function delIncidencia(id) {
-  if (!confirm('¿Eliminar esta incidencia de forma permanente?')) return;
+async function delIncidencia(id) {
+  if (!await preguntar('Se borra el registro completo de la incidencia y no se puede recuperar.',
+    { titulo: '¿Eliminar la incidencia?', tono: 'peligro', si: 'Sí, eliminar' })) return;
   removeDoc('incidencias', id);
   renderConfidenciales();
 }
@@ -5091,8 +5358,9 @@ function accionesCirugia(c, rol) {
   return a;
 }
 
-function delCirugia(id) {
-  if (!confirm('¿Eliminar esta solicitud de forma permanente?')) return;
+async function delCirugia(id) {
+  if (!await preguntar('Se borra la solicitud quirúrgica y todo su historial. No se puede deshacer.',
+    { titulo: '¿Eliminar la solicitud?', tono: 'peligro', si: 'Sí, eliminar' })) return;
   removeDoc('cirugias', id);
   refreshView();
 }
@@ -5100,6 +5368,16 @@ function delCirugia(id) {
 function validarCirugia(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
+  // Regla general: sin el visto de Admisión y Egresos la Jefatura no valida.
+  // Las urgencias, las P1–P2 y las excepciones de Jefatura están exentas del
+  // visto previo (authOk lo resuelve) y regularizan el trámite después.
+  if (!authOk(c)) {
+    alert('No se puede validar el turno\n\nAdmisión y Egresos todavía no lo autorizó.'
+      + (c.auth === 'NO AUTORIZADO' ? '\n\nDictamen: NO AUTORIZADO. Motivo: ' + (c.authMotivo || 'sin motivo registrado') + '.' : '\n\nEstado actual: pendiente de autorización.')
+      + '\n\nSolicite la autorización desde la grilla de Programación Diaria, en el propio turno.'
+      + '\n\nSolo saltean este paso las urgencias y emergencias, los turnos de prioridad P1 y P2, y las cirugías que la Jefatura programa fuera de horario.');
+    return;
+  }
   const faltan = coordFaltantes(c);
   if (faltan.length) {
     openCirugia(id);
@@ -5323,18 +5601,20 @@ function anticiparTurno(prog, urg, quien, detalle) {
 
 /* Se pregunta apenas se carga la urgencia, que es cuando el dato está fresco y
    quien lo sabe está delante de la pantalla. */
-function ofrecerAnticipacion(urg) {
+async function ofrecerAnticipacion(urg) {
   const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || urg.cirujano || 'Sistema');
-  turnosQueResuelve(urg).forEach((p) => {
+  for (const p of turnosQueResuelve(urg)) {
     const msg = `Este paciente ya tiene una cirugía programada:\n\n`
       + `· ${p.procedimiento}\n`
       + `· ${fmtFecha(p.fecha)} ${p.horaProg || ''} h — ${p.quirofano || 'sin quirófano'}\n`
       + `· Estado: ${ESTC[p.estado].label}\n\n`
       + `¿La urgencia que acaba de cargar resuelve esa misma cirugía?\n\n`
-      + `ACEPTAR: el turno programado se cierra como «resuelta por urgencia», deja de figurar en el parte y la franja del ${fmtFecha(p.fecha)} vuelve a estar disponible para otro paciente.\n\n`
-      + `CANCELAR: los dos turnos siguen vigentes (elija esto si son cirugías distintas).`;
-    if (confirm(msg)) anticiparTurno(p, urg, quien, '');
-  });
+      + `SÍ: el turno programado se cierra como «resuelta por urgencia», deja de figurar en el parte y la franja del ${fmtFecha(p.fecha)} vuelve a estar disponible para otro paciente.\n\n`
+      + `NO: los dos turnos siguen vigentes (elija esto si son cirugías distintas).`;
+    if (await preguntar(msg, { titulo: 'El paciente ya tenía turno', tono: 'aviso', icono: 'zap', si: 'Sí, la resuelve', no: 'No, son distintas' })) {
+      anticiparTurno(p, urg, quien, '');
+    }
+  }
 }
 
 let antCirId = null;
@@ -5387,14 +5667,15 @@ function confirmAnticipar() {
 }
 /* Reponer: si la franja original sigue libre, el turno vuelve a ella; si no,
    queda sin franja y se le asigna una nueva desde la grilla. */
-function reabrirAnticipada(id) {
+async function reabrirAnticipada(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c || !jefe) return;
   const l = c.liberado || {};
   const libre = l.sala && l.franja && !turnoEn(l.diaGrilla || l.fecha, l.sala, l.franja);
-  if (!confirm(libre
-    ? `¿Reponer este turno en su franja original (${l.quirofano || 's/d'}, ${l.hora || '—'} h del ${fmtFecha(l.fecha)})?`
-    : 'La franja original ya está ocupada o no quedó registrada.\n\nEl turno vuelve al circuito sin franja asignada: aparecerá como «turno sin franja» y habrá que reubicarlo en la grilla.')) return;
+  if (!await preguntar(libre
+    ? `El turno vuelve a su franja original: ${l.quirofano || 's/d'}, ${l.hora || '—'} h del ${fmtFecha(l.fecha)}.`
+    : 'La franja original ya está ocupada o no quedó registrada.\n\nEl turno vuelve al circuito sin franja asignada: aparecerá como «turno sin franja» y habrá que reubicarlo en la grilla.',
+    { titulo: 'Reponer el turno', tono: 'jefatura', si: 'Reponer', no: 'Cancelar' })) return;
   if (libre) { c.sala = l.sala; c.franja = l.franja; }
   c.estado = 'pendiente';
   delete c.anticipada;
@@ -5501,10 +5782,11 @@ function avisarExcepcion(c, reenvio) {
   upsert('cirugias', c);
   return id;
 }
-function excReenviar(id) {
+async function excReenviar(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c || !c.excepcion) return;
-  if (!confirm(`¿Reenviar el aviso a ${c.excepcion.cirujano}?\n\nSe emite un comunicado urgente nuevo, que vuelve a interrumpirle la app hasta que confirme la lectura.`)) return;
+  if (!await preguntar(`Se emite un comunicado urgente nuevo para ${c.excepcion.cirujano}, que vuelve a interrumpirle la app hasta que confirme la lectura.`,
+    { titulo: 'Reenviar el aviso', tono: 'jefatura', icono: 'megafono', si: 'Reenviar', no: 'Cancelar' })) return;
   avisarExcepcion(c, true);
   renderExcepcion();
   alert('Aviso reenviado.');
@@ -5924,10 +6206,11 @@ function toggleMuestra(id, idx) {
   upsert('cirugias', c);
   openCirugia(id);
 }
-function delMuestra(id, idx) {
+async function delMuestra(id, idx) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c || !c.muestras || !c.muestras[idx]) return;
-  if (!confirm('¿Eliminar el registro de esta muestra?')) return;
+  if (!await preguntar('Se borra el registro de la muestra enviada a Anatomía Patológica.',
+    { titulo: '¿Eliminar la muestra?', tono: 'peligro', si: 'Sí, eliminar' })) return;
   const m = c.muestras.splice(idx, 1)[0];
   pushHist(c, 'Registro de muestra eliminado: ' + m.tipo);
   upsert('cirugias', c);
@@ -7100,10 +7383,11 @@ function enviarMensajeReclamo(id) {
   renderReclamos();
 }
 
-function cerrarReclamo(id) {
+async function cerrarReclamo(id) {
   const r = DB.reclamos.find((x) => String(x.id) === String(id));
   if (!r || !rolEnReclamo(r)) return;
-  if (!confirm('¿Dar por cerrado este reclamo? Dejarán de emitirse recordatorios. Puede reabrirse después.')) return;
+  if (!await preguntar('Dejarán de emitirse recordatorios por este reclamo. Se puede reabrir en cualquier momento.',
+    { titulo: '¿Dar por cerrado el reclamo?', tono: 'pregunta', si: 'Sí, cerrarlo' })) return;
   r.estado = 'cerrado';
   r.cerradoPor = rolEnReclamo(r) === 'jefatura' ? JEFATURA : (usuarioActual()?.nombre || r.autor);
   r.fechaCierre = nowDT();
@@ -7433,11 +7717,15 @@ function darDeBajaCuenta(id) {
   const u = usuarioPorId(id);
   if (!u) return;
   pedirClave('Jefatura de Quirófanos', `Dar de baja la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, async () => {
-    const motivo = prompt(`Motivo de la baja de ${u.nombre}:\n\n(Queda registrado y se le muestra al profesional cuando intente ingresar.)`, '');
+    const motivo = await pedirTexto(`Queda registrado y se le muestra a ${u.nombre} cuando intente ingresar.`, {
+      titulo: `Baja de ${u.nombre}`, tono: 'peligro', si: 'Dar de baja', no: 'Cancelar',
+      campo: { label: 'Motivo de la baja', multilinea: true, requerido: true,
+        placeholder: 'Ej: cese de funciones, licencia prolongada, sanción vigente…',
+        error: 'La baja exige un motivo escrito.' },
+    });
     if (motivo === null) return;
-    if (!motivo.trim()) { alert('La baja exige un motivo escrito.'); return; }
     u.cuenta = 'baja';
-    u.cuentaMotivo = motivo.trim();
+    u.cuentaMotivo = motivo;
     u.cuentaFecha = nowDT();
     const enviado = await upsert('usuarios', u);
     renderUsuarios();
@@ -7452,10 +7740,11 @@ function eliminarProfesional(id) {
   const u = usuarioPorId(id);
   if (!u) return;
   const suyos = DB.cirugias.filter((c) => c.cirujanoEmail === u.email).length;
-  pedirClave('Jefatura de Quirófanos', `Eliminar definitivamente la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, () => {
-    if (!confirm(`¿Eliminar la cuenta de ${u.nombre} (${u.email})?\n\n` +
-      (suyos ? `Tiene ${suyos} turno(s) cargado(s), que NO se eliminan.\n\n` : '') +
-      'Esta acción no se puede deshacer. Si solo quiere impedirle el acceso, use "Dar de baja".')) return;
+  pedirClave('Jefatura de Quirófanos', `Eliminar definitivamente la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, async () => {
+    if (!await preguntar(`${u.email}\n\n`
+      + (suyos ? `Tiene ${suyos} turno(s) cargado(s), que NO se eliminan.\n\n` : '')
+      + 'Esta acción no se puede deshacer. Si solo quiere impedirle el acceso, use «Dar de baja».',
+      { titulo: `¿Eliminar la cuenta de ${u.nombre}?`, tono: 'peligro', si: 'Sí, eliminar' })) return;
     removeDoc('usuarios', u.id);
     renderUsuarios();
   });
@@ -7501,7 +7790,8 @@ function franjaLibre(d, sid, desde) {
 }
 
 async function cargarDatosPrueba() {
-  if (hayDatosPrueba() && !confirm('Ya hay datos de prueba cargados. ¿Volver a generarlos?\n\nLos anteriores se reemplazan.')) return;
+  if (hayDatosPrueba() && !await preguntar('Los anteriores se reemplazan por un juego nuevo.',
+    { titulo: 'Ya hay datos de prueba cargados', tono: 'aviso', si: 'Volver a generarlos' })) return;
   pedirClave('Jefatura de Quirófanos', 'Cargar los datos de prueba en la base compartida. Ingrese la clave de Jefatura.', JEFE_CLAVE, async () => {
     if (hayDatosPrueba()) quitarDatosPrueba();
     const hash = await hashPass(CLAVE_PRUEBA);
@@ -7597,8 +7887,8 @@ async function cargarDatosPrueba() {
       procedimiento: 'Apendicectomía laparoscópica', modulo: 'B',
       cirujano: sosa.nombre, cirujanoEmail: sosa.email, servicio: 'Cirugía General',
       urgencia: true, prioridad: 2,
-      auth: 'AUTORIZADO', authPor: 'Exento — urgencia / emergencia', authFecha: nowDT(),
-      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Urgencia / emergencia: exenta de la autorización de Admisión y Egresos — pasa a validación de la Jefatura de Quirófanos' }],
+      authDiferida: true,
+      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Exento de la autorización previa de Admisión y Egresos (urgencia / emergencia) — el trámite puede cumplimentarse después, incluso finalizada la cirugía' }],
     }));
     // 5) Emergencia obstétrica: la otra sala que admite urgencias.
     hechos.push(mk(hoy, 'QOBS', 'T5', {
@@ -7609,8 +7899,8 @@ async function cargarDatosPrueba() {
       urgencia: true, prioridad: 1, duracionMin: 60,
       recursos: { arcoC: false, implante: false, implanteDetalle: '', hemoderivados: true },
       coordinacion: { insumos: true, esterilizacion: true, hemoterapia: true, anestesia: true },
-      auth: 'AUTORIZADO', authPor: 'Exento — urgencia / emergencia', authFecha: nowDT(),
-      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Urgencia / emergencia: exenta de la autorización de Admisión y Egresos — pasa a validación de la Jefatura de Quirófanos' }],
+      authDiferida: true,
+      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Exento de la autorización previa de Admisión y Egresos (emergencia) — el trámite puede cumplimentarse después, incluso finalizada la cirugía' }],
     }));
 
     const ok = hechos.filter(Boolean).length;
@@ -7634,8 +7924,9 @@ function borrarDatosPrueba() {
   const nu = DB.usuarios.filter((u) => u.prueba).length;
   const nc = DB.cirugias.filter((c) => c.prueba).length;
   if (!nu && !nc) { alert('No hay datos de prueba cargados.'); return; }
-  pedirClave('Jefatura de Quirófanos', 'Borrar los datos de prueba. Ingrese la clave de Jefatura.', JEFE_CLAVE, () => {
-    if (!confirm(`¿Borrar ${nu} profesional(es) y ${nc} cirugía(s) de prueba de la base compartida?\n\nNo se toca ningún registro real.`)) return;
+  pedirClave('Jefatura de Quirófanos', 'Borrar los datos de prueba. Ingrese la clave de Jefatura.', JEFE_CLAVE, async () => {
+    if (!await preguntar(`Se borran ${nu} profesional(es) y ${nc} cirugía(s) de prueba de la base compartida.\n\nNo se toca ningún registro real.`,
+      { titulo: '¿Borrar los datos de prueba?', tono: 'peligro', si: 'Sí, borrarlos' })) return;
     quitarDatosPrueba();
     renderUsuarios();
     alert('Datos de prueba eliminados. La agenda que se abrió para ellos se conserva: ciérrela desde el panel de Jefatura si no la necesita.');
@@ -7814,19 +8105,44 @@ function onObraChange() {
   if (nueva) setTimeout(() => { const i = $('k-obra-nueva'); if (i) i.focus(); }, 40);
 }
 
-/* Las urgencias y emergencias no pasan por Admisión y Egresos: quedan exentas
-   y van directo a la validación de la Jefatura de Quirófanos. */
-function authExenta(c) { return !!(c && c.urgencia); }
-/* Un turno puede confirmarse en el parte si tiene el visto de Admisión, o si es
-   una urgencia (exenta de ese trámite). */
+/* ---- Autorización de Admisión y Egresos: quién la necesita ANTES ----
+   La regla general es que ningún turno programado se valida sin el visto de
+   Admisión y Egresos. Tres situaciones la saltean, porque esperar un trámite
+   administrativo sería poner la burocracia por delante del paciente:
+
+     · las **urgencias y emergencias** marcadas como tales;
+     · todo turno con **prioridad P1 (emergencia) o P2 (urgencia diferible)**,
+       aunque no lleve la marca de urgencia;
+     · las cirugías que la **Jefatura programa fuera de horario** por excepción.
+
+   En esos tres casos la autorización no se elimina: queda **diferida**. El
+   trámite se puede cumplimentar después —incluso con la cirugía ya realizada—
+   y hasta entonces el turno figura con la autorización pendiente de
+   regularizar, sin que eso frene la validación ni el parte. */
+function authExenta(c) {
+  if (!c) return false;
+  return !!c.urgencia || !!c.excepcion || prioridadEfectiva(c) <= 2;
+}
+/* Por qué este turno saltea la autorización previa (para explicarlo en pantalla). */
+function authMotivoExencion(c) {
+  if (!c) return '';
+  if (c.urgencia) return 'urgencia / emergencia';
+  if (prioridadEfectiva(c) <= 2) return `prioridad P${prioridadEfectiva(c)} — ${PRIOS[prioridadEfectiva(c)].label.toLowerCase()}`;
+  if (c.excepcion) return 'programada fuera de horario por la Jefatura';
+  return '';
+}
+/* Un turno avanza en el circuito si tiene el visto de Admisión o si está exento
+   de pedirlo por anticipado. */
 function authOk(c) { return authExenta(c) || c.auth === 'AUTORIZADO'; }
+/* Trámite administrativo todavía abierto: exento del visto previo, pero sin
+   regularizar. Se puede cerrar en cualquier momento, incluso después de operar. */
+function authPendienteDiferida(c) { return authExenta(c) && c.auth !== 'AUTORIZADO' && c.auth !== 'NO AUTORIZADO'; }
 
 function authChip(c) {
-  if (authExenta(c)) return '<span class="slot-auth auth-exe" title="Urgencia: exenta de la autorización de Admisión y Egresos">SIN AUT. (URG)</span>';
-  if (!c.auth) return '<span class="slot-auth auth-pend">PEND. AUT.</span>';
-  return c.auth === 'AUTORIZADO'
-    ? '<span class="slot-auth auth-ok">AUTORIZADO</span>'
-    : `<span class="slot-auth auth-no" title="${esc(c.authMotivo || 'Sin motivo registrado')}">NO AUTORIZ.</span>`;
+  if (c.auth === 'AUTORIZADO') return '<span class="slot-auth auth-ok">AUTORIZADO</span>';
+  if (c.auth === 'NO AUTORIZADO') return `<span class="slot-auth auth-no" title="${esc(c.authMotivo || 'Sin motivo registrado')}">NO AUTORIZ.</span>`;
+  if (authExenta(c)) return `<span class="slot-auth auth-exe" title="Exenta de la autorización previa (${esc(authMotivoExencion(c))}). El trámite de Admisión y Egresos se puede completar después, incluso finalizada la cirugía.">AUT. DIFERIDA</span>`;
+  return '<span class="slot-auth auth-pend">PEND. AUT.</span>';
 }
 
 function slotCard(d, s, f, salaOff) {
@@ -7982,6 +8298,13 @@ function renderProgDiaria() {
       Cierre de solicitudes <b>${BLOQUE.cierreSolicitudes} h</b> y publicación del parte <b>${BLOQUE.publicacionParte} h</b> del día previo.
       Los turnos se ordenan en el parte por prelación P1–P6.</div></div>
 
+    <div class="banner banner-blue">${ico(ICONS.shield, 18)}
+      <div><strong>Autorización de Admisión y Egresos</strong>
+      Ningún turno electivo se valida sin ella. Quedan exentas del visto <b>previo</b> las <b>urgencias y emergencias</b>,
+      los turnos de <b>prioridad P1 y P2</b> y las cirugías que la <b>Jefatura programa fuera de horario</b>: se validan y entran al parte
+      igual, con la autorización marcada como <b>DIFERIDA</b>, y el trámite administrativo se cumplimenta después
+      —incluso con la cirugía ya realizada— desde el propio turno.</div></div>
+
     ${leyendaEstados()}
     ${cuerpo}`;
 }
@@ -8107,7 +8430,7 @@ function openSlot(d, sid, fid) {
         : '<span style="color:var(--red);font-weight:700">pendiente de generar</span>'}</div>
       <div class="cir-actions" style="margin-top:10px">
         <button class="btn btn-sm btn-outline" onclick="closeSlot();openCirugia(${c.id})">${ICONS.eyeSm} Ver ficha completa (LVQ, coordinación, informe)</button>
-        ${authExenta(c) ? '' : `<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} Autorización de Admisión</button>`}
+        ${c.auth === 'AUTORIZADO' ? '' : `<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${authExenta(c) ? 'Regularizar Admisión y Egresos' : 'Autorización de Admisión'}</button>`}
       <button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">${ico(ICONS.users, 14)} Equipo y módulos</button>
         <button class="btn btn-sm btn-blue" onclick="closeSlot();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir consentimiento' : 'Generar consentimiento informado'}</button>
       </div>
@@ -8124,7 +8447,7 @@ function openSlot(d, sid, fid) {
 }
 function closeSlot() { $('slot-overlay').classList.remove('open'); slotCtx = null; }
 
-function guardarSlot() {
+async function guardarSlot() {
   const { d, sid, fid, hora } = slotCtx;
   const s = sala(sid);
   const f = franjaDe(sid, fid);
@@ -8203,21 +8526,18 @@ function guardarSlot() {
     equipos: [...document.querySelectorAll('.k-eq')].filter((x) => x.checked).map((x) => x.dataset.eq),
     hce: { datos: true, preop: $('k-preop').checked, consentimiento: $('k-consent').checked },
   });
-  // Urgencias y emergencias: no pasan por Admisión y Egresos. Quedan exentas
-  // del trámite administrativo y siguen directo a la validación de la Jefatura.
-  if (c.urgencia && c.authPor !== 'Exento — urgencia / emergencia') {
-    c.auth = 'AUTORIZADO';
-    c.authPor = 'Exento — urgencia / emergencia';
-    c.authMotivo = '';
-    c.authAgente = '';
-    c.authFecha = nowDT();
-    pushHist(c, 'Urgencia / emergencia: exenta de la autorización de Admisión y Egresos — pasa a validación de la Jefatura de Quirófanos');
-  } else if (!c.urgencia && c.authPor === 'Exento — urgencia / emergencia') {
-    // Si se quita la marca de urgencia, el turno vuelve al circuito normal.
-    c.auth = null;
-    c.authPor = '';
-    c.authFecha = '';
-    pushHist(c, 'Se quitó la marca de urgencia: el turno vuelve a requerir autorización de Admisión y Egresos');
+  // Exención de la autorización previa. Antes el turno se estampaba solo como
+  // AUTORIZADO, y así el trámite administrativo desaparecía del radar. Ahora la
+  // autorización queda **diferida**: no frena nada, pero sigue figurando como
+  // pendiente hasta que Admisión y Egresos la regularice —puede hacerlo incluso
+  // con la cirugía ya realizada—.
+  if (c.authPor === 'Exento — urgencia / emergencia' && !authExenta(c)) {
+    // Turnos de la versión anterior a los que se les quitó la marca de urgencia.
+    c.auth = null; c.authPor = ''; c.authFecha = '';
+    pushHist(c, 'Dejó de estar exento: el turno vuelve a requerir la autorización previa de Admisión y Egresos');
+  } else if (authExenta(c) && !c.auth && !c.authDiferida) {
+    c.authDiferida = true;
+    pushHist(c, `Exento de la autorización previa de Admisión y Egresos (${authMotivoExencion(c)}) — el trámite puede cumplimentarse después, incluso finalizada la cirugía`);
   }
   // La pediatría y la alta complejidad se programan en los primeros horarios.
   if (c.paciente.pediatrico && c.prioridad === 6) c.prioridad = 3;
@@ -8248,7 +8568,7 @@ function guardarSlot() {
   if (!existente) {
     // Si el paciente ya tenía turno y esto es una urgencia, se pregunta antes
     // de nada: de la respuesta depende que la franja programada quede libre.
-    if (c.urgencia) ofrecerAnticipacion(c);
+    if (c.urgencia) await ofrecerAnticipacion(c);
     openTurnoOk(c);
   }
 }
@@ -8304,8 +8624,9 @@ function cancelarSlot(id) {
     openSuspender(id);
     return;
   }
-  pedirClave('Cancelar turno', 'Ingrese la clave de autorización para liberar esta franja horaria.', CLAVE_CANCELAR, () => {
-    if (!confirm('¿Confirma cancelar el turno de ' + (c.paciente?.nombre || 's/d') + '?')) return;
+  pedirClave('Cancelar turno', 'Ingrese la clave de autorización para liberar esta franja horaria.', CLAVE_CANCELAR, async () => {
+    if (!await preguntar(`Se elimina el turno de ${c.paciente?.nombre || 's/d'} y la franja queda libre.`,
+      { titulo: '¿Cancelar el turno?', tono: 'peligro', si: 'Sí, cancelarlo', no: 'No' })) return;
     removeDoc('cirugias', id);
     closeSlot();
     renderProgDiaria();
@@ -8319,14 +8640,18 @@ function cancelarSlot(id) {
    corregir para volver a presentarlo. */
 let authCtx = null;
 
+/* El trámite se puede abrir en cualquier momento del circuito. En los turnos
+   exentos —urgencias, P1–P2 y excepciones de Jefatura— sirve para regularizar
+   la autorización después, incluso con la cirugía ya realizada. */
 function pedirAutorizacion(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
-  if (authExenta(c)) {
-    alert('Este turno está marcado como URGENCIA / EMERGENCIA.\n\nLas urgencias no requieren autorización de Admisión y Egresos: pasan directamente a la validación de la Jefatura de Quirófanos.');
-    return;
-  }
-  pedirClave('Autorización — Admisión y Egresos', 'Ingrese la clave del sector de Admisión y Egresos del HRU.', CLAVE_AUTORIZACION, () => openAuth(id));
+  const dif = authExenta(c);
+  pedirClave(dif ? 'Regularizar — Admisión y Egresos' : 'Autorización — Admisión y Egresos',
+    dif
+      ? `Turno exento de la autorización previa (${authMotivoExencion(c)}). El trámite se registra ahora, sin importar en qué estado esté la cirugía. Ingrese la clave del sector de Admisión y Egresos.`
+      : 'Ingrese la clave del sector de Admisión y Egresos del HRU.',
+    CLAVE_AUTORIZACION, () => openAuth(id));
 }
 
 const MOTIVOS_NO_AUT = [
@@ -8433,7 +8758,11 @@ function guardarAuth() {
   c.authAgente = (($('auth-agente') || {}).value || '').trim();
   c.authFecha = nowDT();
   c.authPor = 'Admisión y Egresos';
-  pushHist(c, 'Admisión y Egresos: ' + c.auth + (c.authAgente ? ' (' + c.authAgente + ')' : '') + (c.authMotivo ? ' — Motivo: ' + c.authMotivo : ''));
+  // Deja constancia de que el trámite se cerró después de operar: es
+  // exactamente lo que habilita la excepción, y conviene que quede escrito.
+  c.authDiferidaCerrada = ['en_curso', 'realizada'].includes(c.estado);
+  pushHist(c, 'Admisión y Egresos: ' + c.auth + (c.authAgente ? ' (' + c.authAgente + ')' : '') + (c.authMotivo ? ' — Motivo: ' + c.authMotivo : '')
+    + (c.authDiferidaCerrada ? ' — trámite regularizado con la cirugía ya ' + (c.estado === 'realizada' ? 'realizada' : 'en curso') : ''));
   upsert('cirugias', c);
   closeAuth();
   if ($('slot-overlay').classList.contains('open')) openSlot(diaDeGrilla(c), c.sala, c.franja);
@@ -8441,9 +8770,9 @@ function guardarAuth() {
 }
 /* Bloque reutilizable con el dictamen y —si corresponde— el motivo del rechazo. */
 function authDetalle(c) {
-  if (authExenta(c)) {
-    return `<div class="det-row"><b>Autorización</b> <span style="color:#5b21b6;font-weight:800">NO REQUERIDA — urgencia / emergencia</span><br>
-      <small>Las urgencias saltean Admisión y Egresos y pasan directo a la validación de la Jefatura de Quirófanos.</small></div>`;
+  if (authPendienteDiferida(c)) {
+    return `<div class="det-row"><b>Autorización</b> <span style="color:#5b21b6;font-weight:800">DIFERIDA — ${esc(authMotivoExencion(c))}</span><br>
+      <small>Exenta de la autorización <b>previa</b>: el turno se valida y entra al parte sin esperarla. El trámite de Admisión y Egresos sigue pendiente y se puede cumplimentar en cualquier momento, <b>incluso con la cirugía ya finalizada</b>.</small></div>`;
   }
   const cuando = c.authFecha ? ` · ${fmtDT(c.authFecha)}` : '';
   const quien = c.authAgente ? ` · ${esc(c.authAgente)}` : '';
@@ -8453,7 +8782,7 @@ function authDetalle(c) {
         <div><strong>Motivo del rechazo</strong>${esc(c.authMotivo || 'sin motivo registrado')}</div></div>`;
   }
   if (c.auth === 'AUTORIZADO') {
-    return `<div class="det-row"><b>Autorización</b> <span style="color:var(--green);font-weight:800">AUTORIZADO</span> (Admisión y Egresos${quien})${cuando}</div>`;
+    return `<div class="det-row"><b>Autorización</b> <span style="color:var(--green);font-weight:800">AUTORIZADO</span> (Admisión y Egresos${quien})${cuando}${c.authDiferidaCerrada ? ' · <span style="color:#5b21b6;font-weight:700">trámite regularizado después de la cirugía</span>' : ''}</div>`;
   }
   return '<div class="det-row"><b>Autorización</b> PENDIENTE (Admisión y Egresos)</div>';
 }
@@ -8556,8 +8885,9 @@ function jefAbrirDia(d, modo) {
   openJefaturaDia();
   renderProgDiaria();
 }
-function jefCerrarDia(d) {
-  if (!confirm(`¿Cerrar el bloque programado del ${fmtFecha(d)}?\n\nSe bloquean todos los turnos de los quirófanos 2, 3 y 4 y de Endoscopía. Los turnos ya cargados se conservan.`)) return;
+async function jefCerrarDia(d) {
+  if (!await preguntar(`Se bloquean todos los turnos de los quirófanos 2, 3 y 4 y de Endoscopía. Los turnos ya cargados se conservan.`,
+    { titulo: `¿Cerrar el bloque del ${fmtFecha(d)}?`, tono: 'jefatura', icono: 'lock', si: 'Cerrar el día', no: 'Cancelar' })) return;
   setDiaOn(d, false);
   openJefaturaDia();
   renderProgDiaria();
@@ -8571,20 +8901,22 @@ function jefCopiarAgenda(d, dias, soloHabiles) {
   });
 }
 function jefLimpiarDia(d) {
-  pedirClave('Limpiar programación del día', 'Se eliminarán todos los turnos aún no confirmados del día.', CLAVE_CANCELAR, () => {
+  pedirClave('Limpiar programación del día', 'Se eliminarán todos los turnos aún no confirmados del día.', CLAVE_CANCELAR, async () => {
     const borrables = DB.cirugias.filter((c) => diaDeGrilla(c) === d && ['borrador', 'pendiente', 'validada'].includes(c.estado));
     if (!borrables.length) { alert('No hay turnos cancelables en el día. Los turnos confirmados, en curso o realizados no se eliminan.'); return; }
-    if (!confirm(`¿Eliminar ${borrables.length} turno(s) no confirmado(s) del ${fmtFecha(d)}?`)) return;
+    if (!await preguntar(`Se eliminan ${borrables.length} turno(s) no confirmado(s) del ${fmtFecha(d)}. Los confirmados, en curso y realizados no se tocan.`,
+      { titulo: '¿Limpiar el día?', tono: 'peligro', si: 'Sí, eliminarlos' })) return;
     borrables.forEach((c) => removeDoc('cirugias', c.id));
     closeCirugia();
     renderProgDiaria();
   });
 }
 function jefLimpiarSala(d, sid) {
-  pedirClave('Limpiar sala', 'Se eliminarán los turnos no confirmados de esta sala.', CLAVE_CANCELAR, () => {
+  pedirClave('Limpiar sala', 'Se eliminarán los turnos no confirmados de esta sala.', CLAVE_CANCELAR, async () => {
     const borrables = DB.cirugias.filter((c) => diaDeGrilla(c) === d && c.sala === sid && ['borrador', 'pendiente', 'validada'].includes(c.estado));
     if (!borrables.length) { alert('No hay turnos cancelables en esta sala.'); return; }
-    if (!confirm(`¿Eliminar ${borrables.length} turno(s) de ${sala(sid).nombre}?`)) return;
+    if (!await preguntar(`Se eliminan ${borrables.length} turno(s) no confirmado(s) de ${sala(sid).nombre}.`,
+      { titulo: '¿Limpiar la sala?', tono: 'peligro', si: 'Sí, eliminarlos' })) return;
     borrables.forEach((c) => removeDoc('cirugias', c.id));
     openJefaturaDia();
     renderProgDiaria();
@@ -10069,8 +10401,9 @@ function ciImprimir() {
   if (!ciValido()) return;
   ciImprimirCuerpo(ciDocHTML(ciForm));
 }
-function ciLimpiar() {
-  if (!confirm('¿Limpiar el formulario? No se borra nada del registro guardado.')) return;
+async function ciLimpiar() {
+  if (!await preguntar('Se vacían los campos en pantalla. No se borra nada del registro guardado.',
+    { titulo: '¿Limpiar el formulario?', tono: 'pregunta', si: 'Sí, limpiar' })) return;
   ciForm = { ...CI_VACIO };
   ciEvidencia = 'evidencia';
   renderConsentimientos();
@@ -10099,8 +10432,9 @@ function ciImprimirDelRegistro(id) {
 function ciBorrarDelRegistro(id) {
   const r = DB.consentimientos.find((x) => String(x.id) === String(id));
   if (!r) return;
-  pedirClave('Eliminar consentimiento', 'El consentimiento informado forma parte de la historia clínica. Ingrese la clave de autorización para retirarlo del registro.', CLAVE_CANCELAR, () => {
-    if (!confirm(`¿Eliminar el consentimiento de ${r.paciente || 's/d'} del registro?`)) return;
+  pedirClave('Eliminar consentimiento', 'El consentimiento informado forma parte de la historia clínica. Ingrese la clave de autorización para retirarlo del registro.', CLAVE_CANCELAR, async () => {
+    if (!await preguntar(`Se elimina del registro el consentimiento informado de ${r.paciente || 's/d'}.`,
+      { titulo: '¿Eliminar el consentimiento?', tono: 'peligro', si: 'Sí, eliminar' })) return;
     removeDoc('consentimientos', r.id);
     renderConsentimientos();
   });
@@ -11382,7 +11716,7 @@ function comLecturasPublico(c) {
     .map(([clave, l]) => Object.assign({ clave }, l))
     .sort((a, b) => String(a.t || '').localeCompare(String(b.t || '')));
 }
-function emitirComunicado() {
+async function emitirComunicado() {
   const err = $('c-error');
   const fail = (m) => { err.textContent = m; err.style.display = 'block'; };
   const titulo = $('c-titulo').value.trim();
@@ -11413,7 +11747,8 @@ function emitirComunicado() {
   const insistencia = prioridad === 'urgente'
     ? `Reaparece cada ${COM_INTERVALO_MIN} minutos hasta que cada uno confirme la lectura.`
     : `Se muestra ${COM_PRIOS[prioridad].veces === 1 ? 'una sola vez' : `hasta ${COM_PRIOS[prioridad].veces} veces`}.`;
-  if (!confirm(`¿Emitir el comunicado «${titulo}»?\n\n${aQuienes}\n\n${insistencia}\n\nQueda registrado con su fecha y hora de emisión.`)) return;
+  if (!await preguntar(`${aQuienes}\n\n${insistencia}\n\nQueda registrado con su fecha y hora de emisión.`,
+    { titulo: `¿Emitir «${titulo}»?`, tono: 'jefatura', icono: 'megafono', si: 'Emitir el comunicado', no: 'Revisar antes' })) return;
 
   const c = {
     id: 'com' + Date.now(),
@@ -11449,16 +11784,18 @@ function onDestinoComChange() {
         : 'Cada lectura queda registrada con nombre, servicio y hora exacta.');
   }
 }
-function archivarComunicado(id) {
+async function archivarComunicado(id) {
   const c = comPorId(id);
   if (!c) return;
-  if (!confirm(`Archivar «${c.titulo}»?\n\nDeja de aparecer como ventana emergente. El comunicado y el registro de lecturas se conservan.`)) return;
+  if (!await preguntar('Deja de aparecer como ventana emergente. El comunicado y el registro de lecturas se conservan.',
+    { titulo: `¿Archivar «${c.titulo}»?`, tono: 'jefatura', icono: 'archive', si: 'Archivar' })) return;
   comSetCampo(id, 'activo', false);
 }
-function reabrirComunicado(id) {
+async function reabrirComunicado(id) {
   const c = comPorId(id);
   if (!c) return;
-  if (!confirm(`Reactivar «${c.titulo}»?\n\nVolverá a interrumpir a quienes todavía no confirmaron la lectura.`)) return;
+  if (!await preguntar('Volverá a interrumpir a quienes todavía no confirmaron la lectura.',
+    { titulo: `¿Reactivar «${c.titulo}»?`, tono: 'jefatura', icono: 'megafono', si: 'Reactivar' })) return;
   comSetCampo(id, 'activo', true);
 }
 /* Borrado definitivo. Solo se habilita cuando ya no queda nadie por confirmar
@@ -11471,7 +11808,7 @@ function comSePuedeBorrar(c) {
   const dest = comDestinatarios(c);
   return dest.length > 0 && dest.every((d) => comLeidoPor(c, d.clave));
 }
-function eliminarComunicado(id) {
+async function eliminarComunicado(id) {
   const c = comPorId(id);
   if (!c) return;
   if (!comSePuedeBorrar(c)) {
@@ -11481,7 +11818,8 @@ function eliminarComunicado(id) {
     return;
   }
   const n = Object.keys(comLecturas(c)).length;
-  if (!confirm(`¿Eliminar «${c.titulo}» definitivamente?\n\nSe borra también el registro de las ${n} lectura(s) confirmada(s), que es la constancia de que el aviso circuló. Esto no se puede deshacer.\n\nSi puede llegar a necesitar esa constancia, cancele y descargue antes la planilla.`)) return;
+  if (!await preguntar(`Se borra también el registro de las ${n} lectura(s) confirmada(s), que es la constancia de que el aviso circuló. Esto no se puede deshacer.\n\nSi puede llegar a necesitar esa constancia, cancele y descargue antes la planilla.`,
+    { titulo: `¿Eliminar «${c.titulo}»?`, tono: 'peligro', si: 'Sí, eliminar' })) return;
   removeDoc('comunicados', c.id);
   if (String(comAbierto) === String(c.id)) comAbierto = null;
   renderComunicados();
