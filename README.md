@@ -267,7 +267,7 @@ el menú lateral lleva el contador de turnos futuros sin consentimiento.
 Borrador → Pendiente → Validada → Confirmada → En curso → Realizada
    gris     amarillo      azul       verde      naranja   verde oscuro
                                   ↘ Suspendida (rojo, con causa obligatoria)
-                                  ↘ Resuelta por urgencia (violeta, libera la franja)
+                                  ↘ Resuelta por anticipado (violeta, libera la franja)
 ```
 
 Reglas que el sistema hace cumplir:
@@ -319,17 +319,45 @@ miércoles queda ocupada por una operación que no va a ocurrir y el paciente fi
 **No se resuelve suspendiendo.** Suspender significa que el turno se cayó por una falla —falta de insumo,
 paciente no apto, ayuno incumplido—, exige causa y alimenta la **tasa de suspensiones**, que es un indicador de
 calidad. Acá no falló nada: el problema se resolvió antes y mejor. Por eso hay un estado propio,
-**Resuelta por urgencia**, que:
+**Resuelta por anticipado**, que:
 
 - conserva el turno con toda su historia y lo **vincula con la urgencia** que efectivamente lo resolvió;
 - **devuelve la franja al bloque**, que es capacidad real recuperada, no un asiento contable;
 - **no cuenta como suspensión** en los indicadores ni en las estadísticas, y sale del parte y de la lista de
   espera.
 
-El cruce se ofrece solo, en el momento en que el dato está fresco: **al guardar una urgencia**, la app busca
-turnos en circuito del mismo paciente —por DNI, y si falta, por nombre normalizado— con fecha igual o posterior,
-y pregunta si esa urgencia resuelve esa misma cirugía. Nunca cierra nada por su cuenta: siempre lo confirma una
-persona, porque bien pueden ser dos cirugías distintas.
+El cruce se ofrece solo, en el momento en que el dato está fresco: **al guardar cualquier turno nuevo** —una
+urgencia de la guardia o una cirugía común adelantada a otra fecha—, la app busca turnos en circuito del mismo
+paciente —por DNI, y si falta, por nombre normalizado— con fecha igual o posterior. Que la app pregunte o avise
+depende de quién esté cargando:
+
+| Quién carga el turno nuevo | Qué hace la app |
+|---|---|
+| Una urgencia, sea de quien sea | Pregunta si resuelve el turno posterior |
+| El **mismo cirujano** o el **mismo servicio** del turno posterior | Pregunta si es esa misma cirugía adelantada |
+| **Otro cirujano y otro servicio** | No pregunta: emite una **ALERTA** al cirujano dueño del turno posterior |
+
+Nunca cierra nada por su cuenta: siempre lo confirma una persona, porque bien pueden ser dos cirugías distintas.
+La comparación de servicios ignora tildes y mayúsculas, y dos turnos son «del mismo cirujano» si comparten el
+correo o el nombre.
+
+#### La alerta entre servicios
+
+Que dos servicios operen al mismo paciente en fechas distintas es lo habitual —traumatología el lunes,
+oftalmología el jueves— y preguntar «¿es la misma cirugía?» sería ruido. Pero la primera cirugía **le cambia el
+escenario a la segunda**: ayuno, anestesia ya recibida, recuperación, riesgo acumulado. Enterarse el mismo día no
+es una opción.
+
+Por eso, cuando el turno nuevo es de otro cirujano y de otro servicio, se emite un **comunicado urgente** dirigido
+al cirujano que tiene el turno posterior. Le aparece como ventana que no se cierra sin confirmar la lectura, y
+lleva los datos completos: paciente, **fecha** en que se adelanta, **quirófano**, **servicio** y **cirujano** que
+lo opera, **diagnóstico** y **cirugía** que se le va a practicar, más su propio turno para comparar. Rige hasta la
+fecha de su turno y después deja de emerger.
+
+Quien carga el turno nuevo también se entera, con un aviso en pantalla: es el único que en ese momento puede
+levantar el teléfono si resulta que era la misma cirugía. Si el cirujano del turno posterior no tiene cuenta
+activa, no hay a quién emitirle: queda asentado en el historial del turno y el aviso en pantalla lo dice, para
+que se le avise por otra vía.
 
 Si nadie responde en el momento, hay dos redes de seguridad:
 

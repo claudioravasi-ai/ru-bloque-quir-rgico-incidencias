@@ -1404,7 +1404,7 @@ const ESTC = {
      turno programado ya no tiene objeto. No es una suspensión —no hubo falla de
      proceso ni causa que reportar— y por eso no entra en la tasa de
      suspensiones: la franja simplemente vuelve a estar disponible. */
-  anticipada: { label: 'Resuelta por urgencia', color: '#7c3aed', soft: '#efe7fd', text: '#5b21b6', desc: 'El paciente se operó de urgencia antes de la fecha: la franja quedó liberada' },
+  anticipada: { label: 'Resuelta por anticipado', color: '#7c3aed', soft: '#efe7fd', text: '#5b21b6', desc: 'El paciente se operó antes de la fecha prevista —de urgencia o adelantado—: la franja quedó liberada' },
 };
 
 /* ================= PRIORIZACIÓN AUTOMÁTICA (orden de prelación) ================= */
@@ -5651,12 +5651,30 @@ function turnosDelMismoPaciente(c) {
   if (!clave) return [];
   return DB.cirugias.filter((x) => x.id !== c.id && idPaciente(x) === clave);
 }
-/* Turnos programados que una urgencia podría dejar sin objeto: mismo paciente,
-   todavía en circuito, electivos y con fecha igual o posterior a la urgencia. */
-function turnosQueResuelve(urg) {
-  return turnosDelMismoPaciente(urg)
-    .filter((x) => !x.urgencia && ESTADOS_EN_CIRCUITO.includes(x.estado) && String(x.fecha) >= String(urg.fecha))
+/* Turnos programados que un turno nuevo podría dejar sin objeto: mismo
+   paciente, todavía en circuito, electivos y con fecha igual o posterior. Sirve
+   para una urgencia de la guardia y también para una cirugía común adelantada a
+   otra fecha, que es el caso de la endoscopía o de la cesárea que se corre. */
+function turnosQueResuelve(nuevo) {
+  return turnosDelMismoPaciente(nuevo)
+    .filter((x) => !x.urgencia && ESTADOS_EN_CIRCUITO.includes(x.estado) && String(x.fecha) >= String(nuevo.fecha))
     .sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
+}
+/* ¿Los dos turnos son del mismo responsable? Preguntar «¿este turno reemplaza
+   al otro?» solo tiene sentido entre turnos del mismo cirujano o del mismo
+   servicio: ahí el que carga sabe si es la misma cirugía adelantada. Que dos
+   servicios distintos operen al mismo paciente en fechas distintas es lo
+   habitual —traumatología el lunes, oftalmología el jueves— y preguntarlo sería
+   ruido; ese cruce se resuelve avisando, no cerrando. */
+function mismoResponsable(a, b) {
+  const ma = String(a.cirujanoEmail || '').toLowerCase();
+  const mb = String(b.cirujanoEmail || '').toLowerCase();
+  if (ma && mb && ma === mb) return true;
+  const na = sinTildes(a.cirujano || '').replace(/\s+/g, ' ').trim();
+  const nb = sinTildes(b.cirujano || '').replace(/\s+/g, ' ').trim();
+  if (na && nb && na === nb) return true;
+  const sa = servicioCanonico(a.servicio), sb = servicioCanonico(b.servicio);
+  return !!(sa && sb && sa === sb);
 }
 /* Urgencias ya cargadas del mismo paciente que podrían haber resuelto el turno. */
 function urgenciasCandidatas(prog) {
@@ -5676,6 +5694,9 @@ function anticiparTurno(prog, urg, quien, detalle) {
   prog.estado = 'anticipada';
   prog.anticipada = {
     urgenciaId: urg ? urg.id : null,
+    // `adelanto` es la misma cirugía corrida a otra fecha; `urgencia`, la que
+    // resolvió la guardia. Cambia lo que se lee en la ficha, no el circuito.
+    tipo: urg && !urg.urgencia ? 'adelanto' : 'urgencia',
     fechaUrgencia: urg ? urg.fecha : hoyISO(),
     quirofanoUrgencia: urg ? (urg.quirofano || '') : '',
     procedimientoUrgencia: urg ? (urg.procedimiento || '') : '',
@@ -5683,7 +5704,10 @@ function anticiparTurno(prog, urg, quien, detalle) {
   };
   // La franja se devuelve al bloque: es el sentido de todo esto.
   prog.sala = ''; prog.franja = '';
-  pushHist(prog, `Resuelta por urgencia el ${fmtFecha(prog.anticipada.fechaUrgencia)} — se libera la franja del ${fmtFecha(prog.liberado.fecha)} (${prog.liberado.quirofano || 's/d'}, ${prog.liberado.hora || '—'} h)`);
+  const comoSeResolvio = prog.anticipada.tipo === 'adelanto'
+    ? `Adelantada al ${fmtFecha(prog.anticipada.fechaUrgencia)}`
+    : `Resuelta por urgencia el ${fmtFecha(prog.anticipada.fechaUrgencia)}`;
+  pushHist(prog, `${comoSeResolvio} — se libera la franja del ${fmtFecha(prog.liberado.fecha)} (${prog.liberado.quirofano || 's/d'}, ${prog.liberado.hora || '—'} h)`);
   upsert('cirugias', prog);
   if (urg) {
     urg.resuelveTurno = prog.id;
@@ -5692,22 +5716,117 @@ function anticiparTurno(prog, urg, quien, detalle) {
   }
 }
 
-/* Se pregunta apenas se carga la urgencia, que es cuando el dato está fresco y
-   quien lo sabe está delante de la pantalla. */
-async function ofrecerAnticipacion(urg) {
-  const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || urg.cirujano || 'Sistema');
-  for (const p of turnosQueResuelve(urg)) {
+/* El cruce se ofrece apenas se guarda el turno nuevo, que es cuando el dato
+   está fresco y quien lo sabe está delante de la pantalla. Corre para cualquier
+   turno nuevo, no solo para las urgencias: adelantar una endoscopía o una
+   cesárea a otra fecha deja igual de huérfana la franja posterior.
+
+   Dos caminos, según quién carga:
+     · Urgencia de la guardia, o turno del mismo cirujano o servicio → se
+       pregunta si reemplaza al turno posterior; si sí, la franja se libera.
+     · Otro cirujano y otro servicio → no se pregunta —lo más probable es que
+       sean dos cirugías distintas— pero se le emite una ALERTA al cirujano
+       dueño del turno programado: su paciente se opera antes, otro día y por
+       otro servicio, y eso le cambia el escenario de su propia cirugía. */
+async function ofrecerAnticipacion(nuevo) {
+  const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || nuevo.cirujano || 'Sistema');
+  const avisados = [];
+  for (const p of turnosQueResuelve(nuevo)) {
+    if (!nuevo.urgencia && !mismoResponsable(nuevo, p)) {
+      const a = alertarCruceServicio(p, nuevo, quien);
+      if (a) avisados.push(a);
+      continue;
+    }
+    const esUrg = !!nuevo.urgencia;
     const msg = `Este paciente ya tiene una cirugía programada:\n\n`
       + `· ${p.procedimiento}\n`
       + `· ${fmtFecha(p.fecha)} ${p.horaProg || ''} h — ${p.quirofano || 'sin quirófano'}\n`
+      + `· ${p.servicio || 's/d'} — ${p.cirujano || 's/d'}\n`
       + `· Estado: ${ESTC[p.estado].label}\n\n`
-      + `¿La urgencia que acaba de cargar resuelve esa misma cirugía?\n\n`
-      + `SÍ: el turno programado se cierra como «resuelta por urgencia», deja de figurar en el parte y la franja del ${fmtFecha(p.fecha)} vuelve a estar disponible para otro paciente.\n\n`
+      + (esUrg
+        ? `¿La urgencia que acaba de cargar resuelve esa misma cirugía?\n\n`
+        : `¿El turno que acaba de cargar para el ${fmtFecha(nuevo.fecha)} es esa misma cirugía, adelantada de fecha?\n\n`)
+      + `SÍ: el turno del ${fmtFecha(p.fecha)} se cierra como resuelto por anticipado, deja de figurar en el parte y su franja vuelve a estar disponible para otro paciente.\n\n`
       + `NO: los dos turnos siguen vigentes (elija esto si son cirugías distintas).`;
-    if (await preguntar(msg, { titulo: 'El paciente ya tenía turno', tono: 'aviso', icono: 'zap', si: 'Sí, la resuelve', no: 'No, son distintas' })) {
-      anticiparTurno(p, urg, quien, '');
+    if (await preguntar(msg, {
+      titulo: 'El paciente ya tenía turno', tono: 'aviso', icono: 'zap',
+      si: esUrg ? 'Sí, la resuelve' : 'Sí, es la misma adelantada', no: 'No, son distintas',
+    })) {
+      anticiparTurno(p, nuevo, quien, '');
     }
   }
+  // Quien carga también tiene que saber que salió la alerta: si son la misma
+  // cirugía, es el que puede levantar el teléfono y evitar el doble turno.
+  if (avisados.length) {
+    alert(`Este paciente ya tenía turno programado con otro servicio.\n\n`
+      + avisados.map((a) => `· ${fmtFecha(a.fecha)} — ${a.servicio} — ${a.procedimiento} (${a.cirujano})`).join('\n')
+      + `\n\nSe le emitió una alerta a ${avisados.length === 1 ? avisados[0].cirujano : 'cada cirujano'}: le va a aparecer como ventana que no se cierra sin confirmar la lectura. Los dos turnos siguen vigentes.`);
+  }
+}
+
+/* ---- ALERTA de cruce entre servicios ----
+   El cirujano tiene su paciente programado para el jueves y otro servicio lo
+   opera el lunes. Aunque sean dos cirugías distintas —y casi siempre lo son—
+   la primera le cambia el escenario a la segunda: ayuno, anestesia recibida,
+   recuperación, riesgo acumulado. Enterarse el jueves a la mañana no es una
+   opción, así que el aviso interrumpe: se emite como comunicado urgente
+   dirigido a él, que no se cierra sin confirmar la lectura, y queda la
+   constancia de que se enteró. */
+function textoAlertaCruce(prog, nuevo) {
+  const p = prog.paciente || {};
+  return 'ALERTA\n\n'
+    + `Su paciente tiene turno con usted el ${fmtDiaLargo(prog.fecha)} y va a ser operado antes, el ${fmtDiaLargo(nuevo.fecha)}, por otro servicio.\n\n`
+    + 'PACIENTE\n'
+    + `· ${p.nombre || 's/d'}${p.dni ? ' — DNI ' + p.dni : ''}\n\n`
+    + 'LA CIRUGÍA QUE SE ADELANTA\n'
+    + `· Fecha: ${fmtDiaLargo(nuevo.fecha)} — ${nuevo.horaProg || '—'} h\n`
+    + `· ${nuevo.quirofano || 's/d'}\n`
+    + `· Servicio: ${nuevo.servicio || 's/d'}\n`
+    + `· Cirujano: ${nuevo.cirujano || 's/d'}\n`
+    + `· Diagnóstico: ${nuevo.diagnostico || 's/d'}\n`
+    + `· Cirugía: ${nuevo.procedimiento || 's/d'}\n`
+    + (nuevo.urgencia ? '· Cargada como urgencia / emergencia\n' : '')
+    + '\nEL TURNO QUE USTED TIENE PROGRAMADO\n'
+    + `· Fecha: ${fmtDiaLargo(prog.fecha)} — ${prog.horaProg || '—'} h\n`
+    + `· ${prog.quirofano || 's/d'}\n`
+    + `· Diagnóstico: ${prog.diagnostico || 's/d'}\n`
+    + `· Cirugía: ${prog.procedimiento || 's/d'}\n`
+    + `· Estado: ${ESTC[prog.estado].label}\n\n`
+    + 'QUÉ HACER\n'
+    + '· Si son dos cirugías distintas, no hay nada que corregir: tenga en cuenta la cirugía previa al evaluar el riesgo, el ayuno y la anestesia de la suya.\n'
+    + `· Si se trata de la misma cirugía, ciérrela desde la ficha del turno con el botón «Resuelta por urgencia»: la franja del ${fmtFecha(prog.fecha)} vuelve al bloque.\n`
+    + '· Ante cualquier duda, comuníquese con la Jefatura de Quirófanos por la solapa «Reclamos».';
+}
+function alertarCruceServicio(prog, nuevo, quien) {
+  const mail = String(prog.cirujanoEmail || '').toLowerCase();
+  const dueno = mail && DB.usuarios.find((x) => String(x.email || '').toLowerCase() === mail && cuentaAprobada(x));
+  if (!dueno) {
+    // Sin cuenta activa no hay a quién emitirle: queda asentado en el turno y
+    // se le avisa a quien está cargando, que es el único que puede levantar el
+    // teléfono en ese momento.
+    pushHist(prog, `No se pudo emitir la alerta de cruce a ${prog.cirujano || 's/d'}: no tiene cuenta activa en la app`);
+    upsert('cirugias', prog);
+    alert(`Atención: este paciente ya tiene turno el ${fmtFecha(prog.fecha)} con ${prog.cirujano || 's/d'} (${prog.servicio || 's/d'}) para ${prog.procedimiento || 's/d'}.\n\nNo se le pudo emitir la alerta porque no tiene cuenta activa en la app. Avísele por otra vía o comuníqueselo a la Jefatura de Quirófanos.`);
+    return null;
+  }
+  const id = 'com' + Date.now();
+  upsert('comunicados', {
+    id,
+    titulo: 'ALERTA — su paciente será operado antes por otro servicio',
+    texto: textoAlertaCruce(prog, nuevo),
+    prioridad: 'urgente',
+    destino: { tipo: 'profesional', valor: dueno.email },
+    // Deja de emerger pasada la fecha de su propio turno; el registro se conserva.
+    vigenteHasta: prog.fecha,
+    emitido: nowDT(), emitidoPor: JEFATURA, activo: true, lecturas: {},
+    cruceTurno: prog.id, cruceNuevo: nuevo.id,
+  });
+  prog.avisosCruce = (prog.avisosCruce || []).concat([{ com: id, turno: nuevo.id, t: nowDT() }]);
+  pushHist(prog, `Alerta emitida a ${dueno.nombre}: el paciente se opera el ${fmtFecha(nuevo.fecha)} por ${nuevo.servicio || 's/d'} (${nuevo.procedimiento || 's/d'}), cargada por ${quien || JEFATURA}`);
+  upsert('cirugias', prog);
+  pushHist(nuevo, `Cruce con el turno del ${fmtFecha(prog.fecha)} de ${prog.servicio || 's/d'}: se emitió la alerta a ${dueno.nombre}`);
+  upsert('cirugias', nuevo);
+  return { fecha: prog.fecha, servicio: prog.servicio || 's/d', procedimiento: prog.procedimiento || 's/d', cirujano: dueno.nombre };
 }
 
 let antCirId = null;
@@ -6117,7 +6236,7 @@ function renderProgramacion() {
       { est: 'en_curso', titulo: 'En curso', hint: 'El cierre requiere LVQ de Salida con conteo completo' },
       { est: 'realizada', titulo: 'Realizadas recientes', hint: 'Controlar carga del informe operatorio (≤ 2 h)', limite: 5 },
       { est: 'suspendida', titulo: 'Suspendidas', hint: 'Con causa registrada', limite: 5 },
-      { est: 'anticipada', titulo: 'Resueltas por urgencia', hint: 'Se operaron antes de su fecha: la franja quedó liberada', limite: 5 },
+      { est: 'anticipada', titulo: 'Resueltas por anticipado', hint: 'Se operaron antes de su fecha —de urgencia o adelantadas—: la franja quedó liberada', limite: 5 },
     ];
     cuerpo = grupos.map((g) => {
       let lista = DB.cirugias.filter((c) => c.estado === g.est).sort(ordenPrelacion);
@@ -6216,7 +6335,7 @@ function openCirugia(id) {
       <div class="det-row"><b>Solicitada</b> ${fmtFecha(c.fechaSolicitud)} · ${esperaDias(c)} días de espera</div>
       ${c.excepcion ? `<div class="det-row"><b>Excepción</b> <span style="color:#7c3aed;font-weight:800">Programada fuera del cronograma por ${esc(c.excepcion.autorizadaPor || JEFATURA)}</span> el ${fmtDT(c.excepcion.fechaHora)} — ${esc(c.excepcion.motivo)}${c.excepcion.detalle ? '. ' + esc(c.excepcion.detalle) : ''}</div>
       <div class="det-row"><b>Aviso al cirujano</b> ${excAcuseTexto(c)}</div>` : ''}
-      ${c.estado === 'anticipada' && c.anticipada ? `<div class="det-row"><b>Resuelta por urgencia</b> El paciente se operó el ${fmtFecha(c.anticipada.fechaUrgencia || '')}${c.anticipada.quirofanoUrgencia ? ' en ' + esc(c.anticipada.quirofanoUrgencia) : ''}${c.anticipada.procedimientoUrgencia ? ` (${esc(c.anticipada.procedimientoUrgencia)})` : ''}. Registrado por ${esc(c.anticipada.registradaPor || '—')} el ${fmtDT(c.anticipada.t)}.</div>
+      ${c.estado === 'anticipada' && c.anticipada ? `<div class="det-row"><b>${c.anticipada.tipo === 'adelanto' ? 'Adelantada a otra fecha' : 'Resuelta por urgencia'}</b> El paciente se operó el ${fmtFecha(c.anticipada.fechaUrgencia || '')}${c.anticipada.quirofanoUrgencia ? ' en ' + esc(c.anticipada.quirofanoUrgencia) : ''}${c.anticipada.procedimientoUrgencia ? ` (${esc(c.anticipada.procedimientoUrgencia)})` : ''}. Registrado por ${esc(c.anticipada.registradaPor || '—')} el ${fmtDT(c.anticipada.t)}.</div>
       ${c.liberado ? `<div class="det-row"><b>Franja liberada</b> ${esc(c.liberado.quirofano || 's/d')} · ${esc(c.liberado.hora || '—')} h · ${fmtFecha(c.liberado.fecha)}</div>` : ''}` : ''}
       ${authDetalle(c)}
       <div class="det-row"><b>Recursos</b> ${[c.recursos?.arcoC ? 'Arco en C' : '', c.recursos?.implante ? 'Implante: ' + esc(c.recursos.implanteDetalle || 's/d') : '', c.recursos?.hemoderivados ? 'Hemoderivados' : ''].filter(Boolean).join(' · ') || 'Sin recursos especiales'}</div>
@@ -8725,9 +8844,10 @@ async function guardarSlot() {
   // Cerrado el circuito de programación, el paso siguiente es el consentimiento
   // informado: se ofrece de inmediato, con los datos del turno ya volcados.
   if (!existente) {
-    // Si el paciente ya tenía turno y esto es una urgencia, se pregunta antes
-    // de nada: de la respuesta depende que la franja programada quede libre.
-    if (c.urgencia) await ofrecerAnticipacion(c);
+    // Si el paciente ya tenía turno, se resuelve antes que nada: de eso depende
+    // que la franja posterior quede libre, o que salga la alerta al cirujano
+    // que la tiene programada.
+    await ofrecerAnticipacion(c);
     openTurnoOk(c);
   }
 }
