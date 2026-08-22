@@ -664,6 +664,59 @@
   }
   .com-barra > i { display: block; height: 100%; background: var(--green); border-radius: 99px; transition: width 0.3s ease; }
 
+  /* ============ RENGLONES PLEGABLES ============
+     Los comunicados emitidos, las excepciones ya avisadas y los reclamos
+     cerrados no se borran: se acumulan. Una vez que cumplieron su función ya
+     no hace falta leerlos enteros cada vez que se entra, así que quedan como
+     un renglón —estado, título y fecha— y se despliegan con un clic, con
+     todas las prestaciones de la ficha completa intactas. Lo que todavía
+     espera algo de la Jefatura nunca se pliega. */
+  .fila-lista { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+  /* En una lista mixta —lo pendiente entero, lo cumplido en un renglón— el
+     espaciado lo pone la lista, no el margen propio de cada ficha. */
+  .fila-lista > .card, .fila-lista > .inc-card { margin-bottom: 0; }
+  .fila {
+    display: flex; align-items: center; gap: 11px; width: 100%; text-align: left;
+    background: var(--card); border: 1px solid var(--line); border-radius: 11px;
+    padding: 10px 14px; font-family: inherit; font-size: 0.9rem; color: var(--ink);
+    cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .fila:hover { border-color: #cbd5e1; box-shadow: 0 3px 10px rgba(23, 28, 36, 0.09); }
+  .fila:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .fila-chev { flex: none; display: flex; color: #b3bac2; transition: transform 0.15s ease; }
+  .fila[aria-expanded="true"] .fila-chev { transform: rotate(90deg); }
+  .fila-txt { flex: 1; min-width: 0; }
+  .fila-t {
+    display: block; font-weight: 700; line-height: 1.35;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .fila-s {
+    display: block; color: var(--muted); font-size: 0.79rem; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .fila-est { flex: none; display: flex; align-items: center; gap: 6px; }
+  /* Un pendiente plegado sigue avisando de sí con el filo lateral ámbar. */
+  .fila-pend { border-left: 3px solid var(--amber); }
+  /* La ficha desplegada arranca pegada a su renglón, para que se lea como
+     una sola pieza y no como dos bloques sueltos. */
+  .pleg-abierta { margin-bottom: 10px; }
+  .pleg-abierta .fila { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; }
+  .pleg-body > .card, .pleg-body > .inc-card {
+    margin-bottom: 0; border: 1px solid var(--line); border-top: none;
+    border-radius: 0; box-shadow: none; cursor: default;
+  }
+  .pleg-body > .card:hover, .pleg-body > .inc-card:hover { box-shadow: none; }
+  .pleg-cerrar {
+    display: flex; justify-content: flex-end; padding: 0 16px 12px;
+    background: var(--card); border: 1px solid var(--line); border-top: none;
+    border-radius: 0 0 11px 11px;
+  }
+  @media (max-width: 560px) {
+    .fila { padding: 9px 11px; gap: 8px; }
+    .fila-t { font-size: 0.86rem; }
+    .fila-est .badge-ok, .fila-est .badge-no, .fila-est .badge-pend { font-size: 0.68rem; padding: 3px 8px; }
+  }
+
   /* Detail modal */
   .det-section { margin-bottom: 18px; }
   .det-section h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 8px; }
@@ -3135,7 +3188,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.1.0';
+const APP_VERSION = '3.2.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -3768,6 +3821,46 @@ const attr = (s) => encodeURIComponent(String(s ?? '')).replace(/'/g, '%27');
 /* Las claves de Firebase no admiten . # $ [ ] / — el correo se normaliza igual
    que el id de usuario de la app. */
 const claveMail = (m) => String(m || '').replace(/[.#$[\]/]/g, ',');
+
+/* ---- Renglones plegables ----
+   Comunicados, excepciones ya avisadas y reclamos cerrados se acumulan sin
+   borrarse. Plegados ocupan un renglón —estado, título y fecha— y se abren con
+   un clic: la ficha que se despliega es exactamente la de siempre, con todos
+   sus botones. Se guarda qué está desplegado, no qué está plegado, para que
+   una tanda nueva de avisos no llegue abierta de golpe. */
+const PLEGADOS = { com: new Set(), exc: new Set(), rec: new Set() };
+function plegAbierto(grupo, id) { return PLEGADOS[grupo].has(String(id)); }
+function plegAbrir(grupo, id) { PLEGADOS[grupo].add(String(id)); }
+function plegToggle(grupo, id) {
+  const s = PLEGADOS[grupo], k = String(id);
+  if (s.has(k)) s.delete(k); else s.add(k);
+  // La programación fuera de horario se redibuja entera: sin este rescate se
+  // perdería lo que la Jefatura venía escribiendo en el formulario.
+  if (grupo === 'exc' && typeof excCapturar === 'function' && $('x-fecha')) excCapturar();
+  const render = { com: renderComunicados, exc: renderExcepcion, rec: renderReclamos }[grupo];
+  if (render) render();
+}
+/* Renglón plegado. `titulo` y `sub` llegan ya escapados; `badge` es HTML.
+   `accion` permite que un grupo haga algo más al desplegar —el reclamo cerrado
+   abre además su conversación— sin duplicar el renglón. */
+function filaPleg(o) {
+  return `<button class="fila${o.pendiente ? ' fila-pend' : ''}" aria-expanded="${o.abierto ? 'true' : 'false'}"
+      onclick="${o.accion || `plegToggle('${o.grupo}','${attr(o.id)}')`}" title="${o.abierto ? 'Plegar' : 'Ver el detalle completo'}">
+    <span class="fila-chev">${ico(ICONS.chevron, 16)}</span>
+    <span class="fila-txt"><span class="fila-t">${o.titulo}</span><span class="fila-s">${o.sub}</span></span>
+    <span class="fila-est">${o.badge || ''}</span>
+  </button>`;
+}
+/* Envoltorio completo: renglón + ficha desplegada + pie para volver a plegar. */
+function bloquePleg(o, fichaHTML) {
+  const abierto = plegAbierto(o.grupo, o.id);
+  const fila = filaPleg(Object.assign({}, o, { abierto }));
+  if (!abierto) return fila;
+  return `<div class="pleg-abierta">${fila}
+    <div class="pleg-body">${fichaHTML()}
+      <div class="pleg-cerrar"><button class="btn btn-sm btn-outline" onclick="${o.accion || `plegToggle('${o.grupo}','${attr(o.id)}')`}">Plegar</button></div>
+    </div></div>`;
+}
 function descargarCSV(nombre, filas) {
   const csv = filas.map((f) => f.map((v) => {
     const s = String(v ?? '');
@@ -5875,6 +5968,30 @@ function renderExcepcion() {
     return `<option value="${f.id}" ${e.ocupada || e.pasada ? 'disabled' : ''} ${excForm.franja === f.id ? 'selected' : ''}>${f.t} h${f.nd ? ' (+1 día)' : ''} — ${nota}</option>`;
   };
 
+  /* Una excepción sigue entera mientras espere algo: fecha por delante y aviso
+     sin confirmar. Confirmada, o con la fecha ya cumplida, pasa a un renglón
+     que se despliega en la misma ficha con todos sus botones. */
+  const excPendiente = (c) => String(c.fecha) >= hoy && !excAcuse(c).ok;
+  const excRenglon = (c) => {
+    const a = excAcuse(c);
+    const e = c.excepcion || {};
+    const badge = a.ok
+      ? '<span class="badge-ok">Aviso confirmado</span>'
+      : (a.sinAviso ? '<span class="badge-no">Sin aviso emitido</span>' : '<span class="badge-pend">Aviso sin confirmar</span>');
+    const marcas = [
+      (c.paciente && c.paciente.nombre) || 's/d',
+      `${c.quirofano || 's/d'} · ${c.horaProg || '—'} h`,
+      fmtDiaLargo(c.fecha),
+      esc(e.cirujano || 's/d'),
+    ];
+    return bloquePleg({
+      grupo: 'exc', id: c.id, pendiente: !a.ok,
+      titulo: esc(c.procedimiento || 's/d'),
+      sub: marcas.map((x) => esc(x)).join(' · '),
+      badge,
+    }, () => fichaExc(c));
+  };
+
   const fichaExc = (c) => {
     const a = excAcuse(c);
     const e = c.excepcion;
@@ -5902,6 +6019,9 @@ function renderExcepcion() {
       </div>
     </div>`;
   };
+
+  const abiertas = lista.filter(excPendiente);
+  const cumplidas = lista.filter((c) => !excPendiente(c));
 
   $('main').innerHTML = `
     <div class="page-head">
@@ -5976,8 +6096,9 @@ function renderExcepcion() {
       </div>
     </div>
 
-    <div class="result-count">${lista.length} excepción(es) registrada(s) · ${pendientes.length} con fecha por delante</div>
-    ${lista.length ? lista.map(fichaExc).join('') : '<div class="empty">Todavía no se cargó ninguna cirugía fuera del cronograma. Mientras no haya ninguna, nada de esto altera el flujo de trabajo habitual.</div>'}`;
+    <div class="result-count">${lista.length} excepción(es) registrada(s) · ${pendientes.length} con fecha por delante${cumplidas.length ? ` · ${cumplidas.length} en un renglón, toque para desplegar` : ''}</div>
+    ${lista.length ? `<div class="fila-lista">${abiertas.map(fichaExc).join('')}${cumplidas.map(excRenglon).join('')}</div>`
+      : '<div class="empty">Todavía no se cargó ninguna cirugía fuera del cronograma. Mientras no haya ninguna, nada de esto altera el flujo de trabajo habitual.</div>'}`;
 }
 
 /* ================= PROGRAMACIÓN (jefe) ================= */
@@ -7206,11 +7327,13 @@ function renderReclamos() {
   const propios = reclamosVisibles();
   const aResponder = propios.filter((r) => turnoDeReclamo(r) === rolEnReclamo(r));
   const sinLeer = propios.filter((r) => r.estado !== 'cerrado' && reclamoNoLeidos(r) > 0);
+  const cerrados = propios.filter((r) => r.estado === 'cerrado');
   const permiso = ('Notification' in window) ? Notification.permission : 'unsupported';
   const lista = propios.slice().sort((a, b) => {
     // Primero lo que exige acción de quien mira, después por antigüedad.
-    const pa = (rolEnReclamo(a) && turnoDeReclamo(a) === rolEnReclamo(a) ? 0 : 2) - (reclamoNoLeidos(a) ? 1 : 0);
-    const pb = (rolEnReclamo(b) && turnoDeReclamo(b) === rolEnReclamo(b) ? 0 : 2) - (reclamoNoLeidos(b) ? 1 : 0);
+    // Los cerrados —que van plegados— cierran siempre la lista.
+    const pa = (a.estado === 'cerrado' ? 10 : 0) + (rolEnReclamo(a) && turnoDeReclamo(a) === rolEnReclamo(a) ? 0 : 2) - (reclamoNoLeidos(a) ? 1 : 0);
+    const pb = (b.estado === 'cerrado' ? 10 : 0) + (rolEnReclamo(b) && turnoDeReclamo(b) === rolEnReclamo(b) ? 0 : 2) - (reclamoNoLeidos(b) ? 1 : 0);
     return pa - pb || String(ultimaActividad(b)).localeCompare(String(ultimaActividad(a)));
   });
   $('main').innerHTML = `
@@ -7260,8 +7383,9 @@ function renderReclamos() {
       </div>
     </div>` : ''}
 
-    <div class="result-count">${lista.length} reclamo(s) ${jefe && !u ? 'registrado(s) en el hospital' : 'suyo(s)'}${aResponder.length ? ` · ${aResponder.length} a su cargo` : ''}</div>
-    ${lista.length ? lista.map(reclamoCard).join('') : `<div class="empty">${jefe && !u ? 'No hay reclamos registrados.' : 'Usted no tiene reclamos registrados. Los reclamos de otros profesionales no se muestran acá.'}</div>`}`;
+    <div class="result-count">${lista.length} reclamo(s) ${jefe && !u ? 'registrado(s) en el hospital' : 'suyo(s)'}${aResponder.length ? ` · ${aResponder.length} a su cargo` : ''}${cerrados.length ? ` · ${cerrados.length} cerrado(s) en un renglón, toque para desplegar` : ''}</div>
+    ${lista.length ? `<div class="fila-lista">${lista.map((r) => (r.estado === 'cerrado' ? reclamoRenglon(r) : reclamoCard(r))).join('')}</div>`
+      : `<div class="empty">${jefe && !u ? 'No hay reclamos registrados.' : 'Usted no tiene reclamos registrados. Los reclamos de otros profesionales no se muestran acá.'}</div>`}`;
 }
 
 function ultimaActividad(r) {
@@ -7282,6 +7406,37 @@ function mensajeHTML(m, nuevo) {
   </div>`;
 }
 
+/* Un reclamo cerrado ya no exige nada: queda como renglón y se despliega
+   entero —ficha, hilo y botón de reabrir— con un solo clic. */
+function plegReclamo(id) {
+  if (!reclamoPermitido(id)) { PLEGADOS.rec.delete(String(id)); renderReclamos(); return; }
+  if (plegAbierto('rec', id)) {
+    PLEGADOS.rec.delete(String(id));
+    if (String(reclamoAbierto) === String(id)) reclamoAbierto = null;
+  } else {
+    plegAbrir('rec', id);
+    reclamoAbierto = id;          // desplegar el renglón abre también la conversación
+    marcarReclamoLeido(id);
+  }
+  renderReclamos();
+}
+function reclamoRenglon(r) {
+  // Si algo externo —la campana, un recordatorio, un enlace del banner— pidió
+  // abrir este reclamo, el renglón nace desplegado.
+  if (String(reclamoAbierto) === String(r.id)) plegAbrir('rec', r.id);
+  const nuevos = reclamoNoLeidos(r);
+  const hilo = hiloReclamo(r);
+  const cerrado = r.fechaCierre || ultimaActividad(r);
+  const marcas = [r.autor, r.de, `${hilo.length} mensaje(s)`, `cerrado el ${fmtDT(cerrado)}`];
+  if (r.cerradoPor) marcas.push(`por ${r.cerradoPor}`);
+  return bloquePleg({
+    grupo: 'rec', id: r.id, pendiente: nuevos > 0,
+    accion: `plegReclamo(${JSON.stringify(r.id)})`,
+    titulo: esc(r.asunto),
+    sub: marcas.map((x) => esc(x)).join(' · '),
+    badge: `${nuevos ? `<span class="badge-pend">${nuevos} sin leer</span>` : ''}<span class="chip">Cerrado</span>`,
+  }, () => reclamoCard(r));
+}
 function reclamoCard(r) {
   const rol = rolEnReclamo(r);
   const turno = turnoDeReclamo(r);
@@ -7392,11 +7547,15 @@ async function cerrarReclamo(id) {
   r.cerradoPor = rolEnReclamo(r) === 'jefatura' ? JEFATURA : (usuarioActual()?.nombre || r.autor);
   r.fechaCierre = nowDT();
   upsert('reclamos', r);
+  // Cerrado ya no exige nada: se pliega en su renglón al pie de la lista.
+  PLEGADOS.rec.delete(String(r.id));
+  if (String(reclamoAbierto) === String(r.id)) reclamoAbierto = null;
   renderReclamos();
 }
 function reabrirReclamo(id) {
   const r = DB.reclamos.find((x) => String(x.id) === String(id));
   if (!r || !rolEnReclamo(r)) return;
+  PLEGADOS.rec.delete(String(r.id));  // vuelve a ser una ficha entera
   r.estado = hiloReclamo(r).slice(-1)[0]?.rol === 'autor' ? 'abierto' : 'respondido';
   r.cerradoPor = ''; r.fechaCierre = '';
   upsert('reclamos', r);
@@ -11765,6 +11924,7 @@ async function emitirComunicado() {
   $('c-vigencia').value = '';
   err.style.display = 'none';
   comAbierto = c.id;
+  plegAbrir('com', c.id);  // el recién emitido se muestra abierto, el resto plegado
   renderComunicados();
   alert('Comunicado emitido.\n\nQuienes tengan la app abierta lo verán en el momento; el resto, al entrar. Puede seguir las confirmaciones de lectura en esta misma pantalla.');
 }
@@ -11822,6 +11982,7 @@ async function eliminarComunicado(id) {
     { titulo: `¿Eliminar «${c.titulo}»?`, tono: 'peligro', si: 'Sí, eliminar' })) return;
   removeDoc('comunicados', c.id);
   if (String(comAbierto) === String(c.id)) comAbierto = null;
+  PLEGADOS.com.delete(String(c.id));
   renderComunicados();
 }
 function toggleComunicado(id) {
@@ -11849,6 +12010,44 @@ function exportarLecturas(id) {
   descargarCSV(`comunicado-${String(c.emitido).slice(0, 10)}.csv`, filas);
 }
 
+
+/* Estado de lectura resumido para el renglón plegado: es lo único que la
+   Jefatura necesita ver de un vistazo cuando hay muchos comunicados. */
+function comEstadoFila(c) {
+  const conPadron = comTienePadron(c);
+  const dest = comDestinatarios(c);
+  const lect = comLecturas(c);
+  const leidos = dest.filter((d) => lect[d.clave]).length;
+  const completo = conPadron && dest.length > 0 && leidos === dest.length;
+  const archivado = c.activo === false;
+  if (!conPadron) {
+    const n = comLecturasPublico(c).length;
+    return { badge: `<span class="chip">${n} lectura(s)</span>`, pendiente: false, completo: false };
+  }
+  if (completo) return { badge: '<span class="badge-ok">Leído por todos</span>', pendiente: false, completo: true };
+  return {
+    badge: `<span class="badge-pend">${leidos}/${dest.length} leído</span>`,
+    pendiente: !archivado,
+    completo: false,
+  };
+}
+/* Un comunicado emitido queda como renglón: la ficha entera —barra de lectura,
+   cuerpo, planilla, archivar, eliminar— se despliega al clic. */
+function comRenglon(c) {
+  const P = COM_PRIOS[comPrio(c)];
+  const e = comEstadoFila(c);
+  const archivado = c.activo === false;
+  const vencido = c.vigenteHasta && c.vigenteHasta < hoyISO();
+  const marcas = [P.label, fmtDT(c.emitido), comDestinoLabel(c)];
+  if (archivado) marcas.push('archivado');
+  else if (vencido) marcas.push('vigencia cumplida');
+  return bloquePleg({
+    grupo: 'com', id: c.id, pendiente: e.pendiente,
+    titulo: esc(c.titulo || 'Comunicado'),
+    sub: esc(marcas.join(' · ')),
+    badge: e.badge,
+  }, () => comFicha(c));
+}
 let comAbierto = null;  // id del comunicado con el detalle de lecturas desplegado
 
 function comFicha(c) {
@@ -11991,8 +12190,8 @@ function renderComunicados() {
       </div>
     </div>
 
-    <div class="result-count">${lista.length} comunicado(s) · ${activos.length} vigente(s)</div>
-    ${lista.length ? lista.map(comFicha).join('') : `<div class="empty">Todavía no se emitió ningún comunicado. Mientras no haya ninguno, los profesionales no ven cambio alguno en la app.</div>`}`;
+    <div class="result-count">${lista.length} comunicado(s) · ${activos.length} vigente(s)${lista.length ? ' · toque un renglón para desplegar la ficha completa' : ''}</div>
+    ${lista.length ? `<div class="fila-lista">${lista.map(comRenglon).join('')}</div>` : `<div class="empty">Todavía no se emitió ningún comunicado. Mientras no haya ninguno, los profesionales no ven cambio alguno en la app.</div>`}`;
 }
 
 /* ================= REGISTRO DE VISTAS ================= */

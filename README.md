@@ -667,6 +667,29 @@ primero. Las que quedan sin red se encolan aparte y se reenvían al reconectar.
 
 ---
 
+## Renglones plegables
+
+Comunicados, excepciones y reclamos no se borran: se acumulan. Con el uso, la Jefatura terminaba
+recorriendo pantallas enteras de fichas ya resueltas para llegar a lo que sí exigía algo. La regla
+es una sola: **lo que todavía espera una acción se muestra entero; lo que ya cumplió su función
+queda en un renglón** —estado, título y fecha— que se despliega con un clic en la misma ficha de
+siempre, con todos sus botones.
+
+| Solapa | Se pliega | Sigue entero |
+|---|---|---|
+| Comunicados | todos, vistos o no; el badge dice `3/8 leído` o `Leído por todos` | el que se acaba de emitir, hasta que se lo pliegue |
+| Programación Fuera de Horario | las de aviso confirmado y las de fecha ya cumplida | las de fecha por delante con el aviso sin confirmar |
+| Reclamos | los cerrados, siempre al pie de la lista | abiertos y respondidos |
+
+Un renglón con algo pendiente —lecturas que faltan, un aviso sin confirmar, mensajes sin leer— lleva
+un **filo lateral ámbar**, así se distingue plegado y sin abrirlo. Desplegar un reclamo cerrado abre
+además su conversación, para no pedir dos clics por lo mismo.
+
+Se recuerda qué está desplegado, no qué está plegado: al volver a entrar, todo arranca en renglón y
+una tanda nueva de avisos no llega abierta de golpe.
+
+---
+
 ## Desarrollo local
 
 No hace falta Node ni instalar nada:
