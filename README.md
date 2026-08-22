@@ -110,6 +110,8 @@ Seis salas, cada una con sus franjas horarias:
 | Quirófano de Obstetricia | 08, 10, 12 · 14, 16, 18 | Cesáreas; admite urgencias |
 
 - **Anticipación mínima de 24 h** para turnos electivos. Las urgencias del Quirófano 1 y de Obstetricia la saltean.
+- **Las salas de urgencia van en hora**: el Quirófano 1 y Obstetricia ofrecen únicamente las franjas que
+  todavía no terminaron (ver más abajo).
 - **El bloque programado nace cerrado** (ver más abajo).
 - El parte del día se **imprime o descarga** ordenado por prelación.
 
@@ -193,6 +195,24 @@ ancho, en tres bloques —Turno Mañana, Turno Tarde y **Guardia Nocturna (20:00
 00:00 a 07:00 llevan la marca `+1 día` porque pertenecen a la guardia del día mostrado pero se operan en la
 fecha calendario siguiente.
 
+**Los turnos corren con el reloj.** En las salas que admiten urgencias —Quirófano 1 y Obstetricia— la grilla
+solo ofrece las franjas que todavía no terminaron: a las 14 h quedan disponibles las de las 14 en adelante y
+las anteriores figuran como **«Horario cumplido»**, sin posibilidad de cargar nada. La franja en curso sigue
+disponible hasta que empieza la siguiente —una hora en la guardia, dos en Obstetricia—, porque una urgencia
+que entra a las 14:40 se opera en el turno de las 14. La grilla se repinta **cada minuto** con la hora del
+sistema, sin recargar la página, y el control se repite al guardar: si la hora pasó con el formulario abierto,
+el turno no se carga. En las salas programadas no hace falta —la anticipación de 24 h ya lo cubre—.
+
+**Reapertura excepcional de una franja cumplida.** Una urgencia o una cesárea se opera primero y se anota
+después, y puede pasar que nadie la haya cargado y que la franja ya se haya cerrado sola. Para ese caso —y solo
+para ese— la **Jefatura de Quirófanos** puede pulsar la franja vencida, que le figura como **«Cumplido —
+reabrir»**, e ingresar **su clave** y un **motivo escrito**; recién entonces se abre el formulario, con un aviso
+en rojo que recuerda que es el registro de una cirugía ya realizada y no la programación de una futura. El turno
+queda marcado con la etiqueta **`TARDÍO`** en la grilla, guarda quién lo autorizó, cuándo y por qué
+(`registroTardio`) y lo asienta en su historial. La llave vale **para una sola franja**, no se guarda en la base
+y se descarta al cerrar el formulario: al resto de los profesionales la franja les sigue figurando como
+«Horario cumplido».
+
 Por eso cada turno guarda dos fechas: `fecha` es la fecha real de la cirugía (la que se usa en el parte, los
 recordatorios y los indicadores) y `diaGrilla` es el día en que la franja se dibuja. Coinciden en todo el bloque
 salvo en la madrugada del Quirófano 1. Los identificadores `T1` a `T6` se conservaron en 08, 10, 12, 14, 16 y
@@ -243,8 +263,20 @@ del hospital, listo para firmar.
   Reglamentario 1089/2012).
 - Firma por **representante legal** cuando el paciente es menor de edad o tiene la autonomía disminuida: el
   formulario abre los campos del representante y el documento cambia el bloque de firmas.
-- Salidas: **descarga en Word (.doc)**, **impresión / PDF** y **registro guardado**, compartido con el resto del
-  bloque igual que las demás colecciones.
+- Salidas: **descarga en Word (.doc)**, **impresión / PDF** y **registro guardado** en la base compartida.
+
+### Quién ve el registro
+
+El consentimiento informado integra la historia clínica del paciente y lleva la firma del profesional que lo
+explicó, así que el registro **no es de consulta general**:
+
+| Quien mira | Alcance |
+|---|---|
+| Médico con sesión iniciada | **Solo los consentimientos que generó** (los propios, los que nacieron de un turno suyo y los que lo declaran médico responsable) |
+| Jefatura de Quirófanos (clave `0112`) | **Todos** los consentimientos del bloque quirúrgico |
+
+El filtro no es solo visual: cargar, descargar, imprimir o eliminar un consentimiento ajeno queda rechazado
+con un aviso, y el contador de la solapa cuenta únicamente lo que cada uno puede ver.
 
 ### Del turno al consentimiento
 
@@ -540,10 +572,26 @@ módulo**: sin módulo el turno no se guarda, porque no habría nada que imputar
 
 ### Quién percibe el módulo
 
-El **cirujano** queda inscripto de oficio con el módulo de la práctica. Al terminar de programar, la ventana
-de confirmación **recuerda cargar el cirujano ayudante** —y al anestesiólogo/a si corresponde— con el módulo
-A, B o C que le corresponda a cada uno; se propone el de la cirugía y puede modificarse. El mismo formulario
-está en la ficha del turno (*Equipo y módulos*) y en el detalle de la solapa.
+El módulo **no se elige**: lo fija la práctica del nomenclador y la app lo reparte sola.
+
+| Rol | Módulo |
+|---|---|
+| Cirujano | El de la práctica (**A**, **B** o **C**) |
+| 1er ayudante | Siempre **un escalón por debajo**: A → B, B → C |
+| 1er ayudante de una cirugía **C** | **Ninguno** — el C es el piso de la escala y no admite uno menor |
+| Anestesiólogo/a | **Ninguno** — no percibe módulo quirúrgico |
+
+Una *colecistectomía laparoscópica* es módulo **A**: el cirujano cobra A y su ayudante, B. Ninguno de los dos
+módulos es editable a mano, ni al programar ni después.
+
+En una cirugía de **módulo C** el ayudante **sí se carga** —queda asentado en el equipo, en la ficha y en el
+parte— pero **no percibe módulo**: no aparece en la liquidación ni suma en las estadísticas de módulos.
+
+El **1er ayudante** se elige al programar el turno, en un desplegable con los profesionales dados de alta, con
+la opción de escribir un nombre que no figure y con **«SIN AYUDANTE»** como primera opción. Elegir «SIN
+AYUDANTE» es una declaración, no un campo a medio cargar: la cirugía queda con **un solo módulo**, el del
+cirujano, y la app deja de reclamar el segundo. El mismo control está en la ficha del turno (*Equipo y
+módulos*) por si el ayudante se define o cambia después.
 
 ### Cuándo se imputa
 
@@ -551,8 +599,9 @@ está en la ficha del turno (*Equipo y módulos*) y en el detalle de la solapa.
 en la solapa: aparece recién cuando se cierra el procedimiento con la LVQ de salida. Así la planilla de
 módulos y el parte quirúrgico no pueden contradecirse.
 
-La solapa avisa de dos deudas: cirugías realizadas **sin ayudante cargado** y cirugías realizadas **sin
-práctica del nomenclador** (los turnos anteriores a esta versión). Ambas se resuelven desde el mismo aviso.
+La solapa avisa de dos deudas: cirugías realizadas **sin declarar el 1er ayudante** —ni un nombre ni «SIN
+AYUDANTE»— y cirugías realizadas **sin práctica del nomenclador** (los turnos anteriores a esta versión).
+Ambas se resuelven desde el mismo aviso.
 
 ### Los nombres de los servicios
 

@@ -828,12 +828,17 @@
   /* Etiquetas de la esquina del turno. Van en un contenedor porque un mismo
      turno puede ser urgencia y excepción de Jefatura a la vez. */
   .slot-tags { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; }
-  .slot-urg-tag, .slot-exc-tag {
+  .slot-urg-tag, .slot-exc-tag, .slot-retro-tag {
     font-size: 0.58rem; font-weight: 800; font-style: normal; color: #fff;
     padding: 2px 6px; border-radius: 4px; letter-spacing: 0.04em;
   }
   .slot-urg-tag { background: var(--red); }
   .slot-exc-tag { background: #7c3aed; }
+  .slot-retro-tag { background: #0f766e; }
+  /* Franja cumplida que solo la Jefatura puede reabrir, y franja ya reabierta. */
+  .slot-vencido { border-style: dashed; color: var(--muted); }
+  .slot-vencido:hover { border-color: #0f766e; color: #0f766e; }
+  .slot-retro { border: 1px dashed #0f766e; background: #eafaf8; color: #0f766e; }
   .dia-banner {
     background: #2b2f36; color: #e5e7eb; border-radius: var(--radius);
     padding: 14px 18px; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px;
@@ -1133,6 +1138,14 @@
   .mod-row input, .mod-row select { width: 100%; }
   .mod-rol { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
   @media (max-width: 620px) { .mod-row { grid-template-columns: 1fr; } }
+  /* Módulos que la app asigna sola: se informan, no se editan. */
+  .mod-auto {
+    display: flex; flex-direction: column; gap: 8px; margin-top: 12px;
+    border: 1px dashed var(--line); border-radius: 12px; padding: 12px 14px; background: #fafbfc;
+  }
+  .mod-auto-l { display: flex; align-items: center; gap: 9px; font-size: 0.86rem; line-height: 1.35; }
+  .mod-auto-l svg { flex: none; color: var(--muted); }
+  .mod-auto-off { color: var(--muted); }
   .mod-periodo { display: flex; gap: 6px; flex-wrap: wrap; }
   .mod-per-btn {
     border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 6px 14px;
@@ -3105,8 +3118,17 @@ const MODULOS = {
   C: { label: 'Módulo C', color: '#1fa971', desc: 'Baja complejidad' },
 };
 const MOD_LETRAS = ['A', 'B', 'C'];
-/* Roles que perciben módulo por un acto quirúrgico. */
-const MOD_ROLES = ['Cirujano', '1er Ayudante', 'Anestesiólogo/a'];
+/* Roles que perciben módulo por un acto quirúrgico. El anestesiólogo/a no
+   percibe módulo quirúrgico: su prestación se liquida por otra vía. */
+const MOD_ROLES = ['Cirujano', '1er Ayudante'];
+/* El 1er ayudante percibe siempre un escalón por debajo del cirujano, tal como
+   está fijado en el Nomenclador Modulado 2025: A → B y B → C. El módulo C es el
+   piso de la escala y no admite uno menor: una cirugía C puede llevar ayudante
+   —queda registrado en el equipo— pero a ese ayudante no le corresponde módulo.
+   No es un dato editable: se deriva del módulo de la práctica y por eso en
+   pantalla se muestra, no se elige. */
+const MOD_ESCALA_AYU = { A: 'B', B: 'C', C: '' };
+function moduloAyudante(m) { return MOD_ESCALA_AYU[m] || ''; }
 /* Valores unitarios de referencia. Los actualiza la Dirección Médica desde la
    solapa Módulos y quedan compartidos en la nube para todos los equipos. */
 const MOD_VALORES_DEF = { A: 120000, B: 80000, C: 45000 };
@@ -3188,7 +3210,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.2.0';
+const APP_VERSION = '3.3.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -5305,7 +5327,7 @@ function renderSolicitud() {
 
   const libres = SALAS.map((s) => {
     const fs = s.franjas.filter((f) => turnoHabilitado(d, s.id, f.p)
-      && !turnoEn(d, s.id, f.id) && puedeReservar(d, f, s.urgencias));
+      && !turnoEn(d, s.id, f.id) && !franjaVencida(d, s, f) && puedeReservar(d, f, s.urgencias));
     return fs.length ? { s, fs } : null;
   }).filter(Boolean);
 
@@ -6338,6 +6360,7 @@ function openCirugia(id) {
       ${c.estado === 'anticipada' && c.anticipada ? `<div class="det-row"><b>${c.anticipada.tipo === 'adelanto' ? 'Adelantada a otra fecha' : 'Resuelta por urgencia'}</b> El paciente se operó el ${fmtFecha(c.anticipada.fechaUrgencia || '')}${c.anticipada.quirofanoUrgencia ? ' en ' + esc(c.anticipada.quirofanoUrgencia) : ''}${c.anticipada.procedimientoUrgencia ? ` (${esc(c.anticipada.procedimientoUrgencia)})` : ''}. Registrado por ${esc(c.anticipada.registradaPor || '—')} el ${fmtDT(c.anticipada.t)}.</div>
       ${c.liberado ? `<div class="det-row"><b>Franja liberada</b> ${esc(c.liberado.quirofano || 's/d')} · ${esc(c.liberado.hora || '—')} h · ${fmtFecha(c.liberado.fecha)}</div>` : ''}` : ''}
       ${authDetalle(c)}
+      ${c.registroTardio ? `<div class="det-row"><b>Registro fuera de término</b> la franja de las ${esc(c.horaProg || '')} h ya había vencido y la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} la reabrió el ${esc(c.registroTardio.fechaHora || '')} para asentar esta cirugía — ${esc(c.registroTardio.motivo || '')}</div>` : ''}
       <div class="det-row"><b>Recursos</b> ${[c.recursos?.arcoC ? 'Arco en C' : '', c.recursos?.implante ? 'Implante: ' + esc(c.recursos.implanteDetalle || 's/d') : '', c.recursos?.hemoderivados ? 'Hemoderivados' : ''].filter(Boolean).join(' · ') || 'Sin recursos especiales'}</div>
       ${c.horaInicioReal ? `<div class="det-row"><b>Inicio real</b> ${fmtDT(c.horaInicioReal)}</div>` : ''}
       ${c.horaFinReal ? `<div class="det-row"><b>Fin real</b> ${fmtDT(c.horaFinReal)} · duración real ${diffMin(c.horaInicioReal, c.horaFinReal)} min</div>` : ''}
@@ -6348,8 +6371,8 @@ function openCirugia(id) {
       ${c.modulo
         ? `<div class="det-row"><b>Práctica</b> ${esc(c.procedimiento)}${c.practica ? ` <small>(${esc(c.practica.g)} · ${esc(c.practica.s)})</small>` : ' <small>(fuera del nomenclador)</small>'}</div>
            <div class="det-row"><b>Módulo</b> <span class="mod-pill mod-${c.modulo}">${c.modulo}</span> ${MODULOS[c.modulo].desc}</div>
-           <div class="det-row"><b>Equipo</b> ${equipoDe(c).map((p) => `${esc(p.rol)}: ${esc(p.nombre)} (${p.modulo})`).join(' · ') || 'sin cargar'}</div>
-           ${tieneAyudante(c) ? '' : `<div class="banner banner-amber" style="margin:10px 0 0;padding:10px 14px">${ico(ICONS.alertTri, 16)}<div>Falta cargar el <b>cirujano ayudante</b> y su módulo.</div></div>`}`
+           <div class="det-row"><b>Equipo</b> ${equipoDe(c).map((p) => `${esc(p.rol)}: ${esc(p.nombre)} (${p.modulo || 'sin módulo'})`).join(' · ') || 'sin cargar'}</div>
+           ${ayudanteDefinido(c) ? '' : `<div class="banner banner-amber" style="margin:10px 0 0;padding:10px 14px">${ico(ICONS.alertTri, 16)}<div>Falta declarar el <b>1er ayudante</b> —o dejar constancia de que la cirugía se hizo <b>sin ayudante</b>—.</div></div>`}`
         : `<div class="banner banner-amber" style="margin:0;padding:10px 14px">${ico(ICONS.alertTri, 16)}<div>Sin práctica del nomenclador: esta cirugía no genera módulo para nadie.</div></div>`}
       <div class="det-row" style="color:var(--muted)">Los módulos se imputan en la solapa Módulos Quirúrgicos únicamente cuando la cirugía queda <b>Realizada</b>.</div>
       <div class="cir-actions" style="margin-top:8px">
@@ -8356,6 +8379,60 @@ function turnoEn(d, sid, fid) {
 /* Fecha y hora reales de comienzo de una franja del día `d`. */
 function fechaDeFranja(d, f) { return f && f.nd ? sumarDias(d, f.nd) : d; }
 function inicioDeFranja(d, f) { return new Date(fechaDeFranja(d, f) + 'T' + f.t + ':00'); }
+/* Fin de la franja: arranca donde arranca la siguiente de la misma sala. La
+   guardia del Quirófano 1 va de hora en hora; el resto, de dos en dos. */
+function finDeFranja(d, s, f) {
+  const ini = inicioDeFranja(d, f);
+  const i = s.franjas.findIndex((x) => x.id === f.id);
+  const sig = i >= 0 ? s.franjas[i + 1] : null;
+  if (sig) {
+    const fin = inicioDeFranja(d, sig);
+    if (fin.getTime() > ini.getTime()) return fin;
+  }
+  return new Date(ini.getTime() + (s.guardia24 ? 36e5 : 2 * 36e5));
+}
+/* Salas de urgencia y emergencia: la franja cuya hora ya terminó deja de
+   ofrecerse. La grilla se corre sola con el reloj del sistema —a las 14 h solo
+   quedan disponibles las franjas de las 14 en adelante— y por eso la vista se
+   repinta cada minuto (ver `tickGrilla`). Es una regla de la guardia: en las
+   salas programadas la anticipación de 24 h ya cubre el caso. */
+function franjaVencida(d, s, f) {
+  if (!s.urgencias) return false;
+  return finDeFranja(d, s, f).getTime() <= Date.now();
+}
+
+/* ---- Reapertura excepcional de una franja vencida ----
+   Una urgencia o una cesárea se opera primero y se anota después: puede pasar
+   que nadie la haya cargado y que la franja ya se haya cerrado sola. Para esos
+   casos —y solo para esos— la **Jefatura de Quirófanos** puede reabrir con su
+   clave una franja vencida y registrar ahí la cirugía que efectivamente se
+   hizo. Es una excepción, no el camino habitual: exige la clave, exige un
+   motivo escrito, vale para una sola franja por vez y el turno queda marcado
+   como **registro fuera de término** en la grilla y en su historial.
+   `retroCtx` es esa llave: se guarda en memoria, no en la base, y se descarta
+   al cerrar el formulario. */
+let retroCtx = null;
+function franjaReabierta(d, sid, fid) {
+  return !!retroCtx && retroCtx.d === d && retroCtx.sid === sid && retroCtx.fid === fid;
+}
+function reabrirFranja(d, sid, fid) {
+  if (!jefe) return;
+  const s = sala(sid), f = franjaDe(sid, fid);
+  pedirClave('Reabrir un turno vencido',
+    `${s.nombre} — franja de las ${f.t} h del ${fmtFecha(fechaDeFranja(d, f))}. Es una excepción reservada a la Jefatura de Quirófanos: ingrese su clave.`,
+    JEFE_CLAVE, async () => {
+      const motivo = await pedirTexto('La franja se reabre solo para registrar una cirugía que ya se realizó y no se cargó a tiempo. El motivo queda asentado en el turno y en su historial.', {
+        titulo: 'Registro fuera de término', tono: 'peligro', si: 'Reabrir la franja', no: 'Cancelar',
+        campo: { label: 'Motivo de la reapertura', multilinea: true, requerido: true,
+          placeholder: 'Ej: cesárea de urgencia operada a las 03:10 y no registrada por la guardia…',
+          error: 'La reapertura exige un motivo escrito.' },
+      });
+      if (motivo === null) return;
+      retroCtx = { d, sid, fid, motivo };
+      renderProgDiaria();
+      openSlot(d, sid, fid);
+    });
+}
 function esLaborable(d) { const w = new Date(d + 'T12:00:00').getDay(); return w >= 1 && w <= 5; }
 function fmtDiaLargo(d) {
   const dt = new Date(d + 'T12:00:00');
@@ -8430,7 +8507,7 @@ function slotCard(d, s, f, salaOff) {
     const e = ESTC[c.estado];
     const pe = prioridadEfectiva(c);
     return `<button type="button" class="slot" style="border-left:4px solid ${e.color}" onclick="openSlot('${d}','${s.id}','${f.id}')">
-      ${c.urgencia || c.excepcion ? `<span class="slot-tags">${c.urgencia ? '<i class="slot-urg-tag">URG</i>' : ''}${c.excepcion ? '<i class="slot-exc-tag" title="Programada por excepción de la Jefatura, fuera del cronograma habitual">EXC</i>' : ''}</span>` : ''}
+      ${c.urgencia || c.excepcion || c.registroTardio ? `<span class="slot-tags">${c.urgencia ? '<i class="slot-urg-tag">URG</i>' : ''}${c.excepcion ? '<i class="slot-exc-tag" title="Programada por excepción de la Jefatura, fuera del cronograma habitual">EXC</i>' : ''}${c.registroTardio ? '<i class="slot-retro-tag" title="Cirugía ya realizada, registrada fuera de término por la Jefatura de Quirófanos">TARDÍO</i>' : ''}</span>` : ''}
       <span class="slot-hora">${f.t}${nd}</span>
       <span class="slot-cir">${esc(c.cirujano || 's/d')}</span>
       <span class="slot-pac">${esc(c.paciente?.nombre || 's/d')}</span>
@@ -8446,6 +8523,24 @@ function slotCard(d, s, f, salaOff) {
   if (salaOff) {
     return `<div class="slot slot-libre slot-bloq"><span class="slot-hora">${f.t}${nd}</span>
       <span class="slot-mas">${ICONS.lock.replace('18', '16')}</span><span class="slot-hint">Bloqueado</span></div>`;
+  }
+  if (franjaVencida(d, s, f) && !franjaReabierta(d, s.id, f.id)) {
+    // La Jefatura —y solo ella— puede reabrirla para anotar una cirugía que ya
+    // se hizo y quedó sin registrar.
+    if (jefe) {
+      return `<button type="button" class="slot slot-libre slot-vencido" onclick="reabrirFranja('${d}','${s.id}','${f.id}')"
+        title="Franja cumplida. La Jefatura puede reabrirla, con clave y motivo, para registrar una cirugía ya realizada">
+        <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">${ico(ICONS.lock, 16)}</span>
+        <span class="slot-hint">Cumplido — reabrir</span></button>`;
+    }
+    return `<div class="slot slot-libre slot-bloq" title="La franja ya transcurrió: en la guardia de urgencias solo se programan los horarios que siguen">
+      <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">${ICONS.clockSm.replace('14', '16')}</span>
+      <span class="slot-hint">Horario cumplido</span></div>`;
+  }
+  if (franjaReabierta(d, s.id, f.id)) {
+    return `<button type="button" class="slot slot-libre slot-retro" onclick="openSlot('${d}','${s.id}','${f.id}')">
+      <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">+</span>
+      <span class="slot-hint">Reabierta — registro tardío</span></button>`;
   }
   const reservable = puedeReservar(d, f, false);
   if (!reservable && !s.urgencias) {
@@ -8490,6 +8585,18 @@ function salaCard(d, s) {
     ${s.guardia24 ? `<div class="sala-nota-24">${ICONS.clockSm}<div>Disponibilidad continua de <b>08:00 a 08:00</b> — 24 franjas de una hora, todos los días del año, sábados y domingos incluidos. Destinado principalmente a la organización de cirugías de <b>urgencia y emergencia</b>.</div></div>` : ''}
     ${cuerpo}
   </div>`;
+}
+
+/* La grilla depende del reloj: en las salas de urgencia las franjas vencidas
+   dejan de ofrecerse a medida que avanza la hora. Se repinta cada minuto, y
+   solo si está a la vista el día de hoy y no hay ningún modal abierto —para no
+   borrar un formulario a medio cargar—. */
+let gridTimer = null;
+function tickGrilla() {
+  if (view !== 'grilla' || diaSel !== hoyISO()) return;
+  const abiertos = [...document.querySelectorAll('.overlay.open')].filter((ov) => !esOverlayFijo(ov));
+  if (abiertos.length) return;
+  renderProgDiaria();
 }
 
 function renderProgDiaria() {
@@ -8573,6 +8680,7 @@ function renderProgDiaria() {
       (mañana o tarde) desde la Jefatura de Quirófanos. El Quirófano 1 y Obstetricia no requieren habilitación.
       Anticipación mínima de <b>${HORAS_ANTICIPACION} h</b> para turnos electivos (desde ${anticipacionMinima()}). Las <b>urgencias</b> del Quirófano 1 y de Obstetricia la saltean.
       El <b>Quirófano 1</b> es la sala de guardia: grilla continua de <b>08:00 a 08:00</b>, los siete días de la semana.
+      En esas dos salas la grilla va <b>en hora</b>: las franjas que ya terminaron quedan como <b>«Horario cumplido»</b> y no admiten carga.
       Cierre de solicitudes <b>${BLOQUE.cierreSolicitudes} h</b> y publicación del parte <b>${BLOQUE.publicacionParte} h</b> del día previo.
       Los turnos se ordenan en el parte por prelación P1–P6.</div></div>
 
@@ -8582,6 +8690,13 @@ function renderProgDiaria() {
       los turnos de <b>prioridad P1 y P2</b> y las cirugías que la <b>Jefatura programa fuera de horario</b>: se validan y entran al parte
       igual, con la autorización marcada como <b>DIFERIDA</b>, y el trámite administrativo se cumplimenta después
       —incluso con la cirugía ya realizada— desde el propio turno.</div></div>
+
+    ${jefe ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 18)}
+      <div><strong>Reapertura excepcional de una franja cumplida</strong>
+      Si una urgencia o una cesárea se operó y nadie la cargó a tiempo, la Jefatura puede pulsar esa franja vencida
+      —figura como <b>«Cumplido — reabrir»</b>— e ingresar su clave y el motivo para asentar la cirugía ahí.
+      El turno queda marcado como <b>registro fuera de término</b> en la grilla y en su historial. Es un recurso
+      excepcional, no la vía habitual de programación: la franja se reabre de a una y se vuelve a cerrar al salir.</div></div>` : ''}
 
     ${leyendaEstados()}
     ${cuerpo}`;
@@ -8600,6 +8715,12 @@ function openSlot(d, sid, fid) {
   const exc = excepcionPara(d, sid, fid);
 
   if (nuevo) {
+    // La guardia solo admite las franjas que todavía no terminaron, salvo que
+    // la Jefatura la haya reabierto para un registro fuera de término.
+    if (franjaVencida(d, s, f) && !exc && !franjaReabierta(d, sid, fid)) {
+      alert(`La franja de las ${f.t} h ya transcurrió.\n\nEn la guardia de urgencias solo se programan los horarios que siguen a la hora actual.`);
+      return;
+    }
     // El turno cerrado no se programa ni entrando por un enlace directo.
     if (!turnoHabilitado(d, sid, f.p) && !exc) {
       alert(`El turno de ${rotuloTurno(f.p).label.toLowerCase()} de ${s.nombre} está bloqueado para el ${fmtFecha(fechaDeFranja(d, f))}.\n\nEl bloque programado se abre desde la Jefatura de Quirófanos, por día, turno y sala.`);
@@ -8619,12 +8740,18 @@ function openSlot(d, sid, fid) {
   const ro = puedeEditar ? '' : 'disabled';
   const v = (x, alt) => esc((c && x) || alt || '');
   const eq = (c && c.equipos) || [];
-  const avisoAnticip = exc
+  const retro = franjaReabierta(d, sid, fid);
+  const avisoAnticip = retro
+    ? `<div class="banner banner-red" style="margin-bottom:14px">${ico(ICONS.alertTri, 18)}<div><strong>Franja reabierta por la Jefatura — registro fuera de término</strong>
+        Esta franja ya había transcurrido y se reabrió para asentar una cirugía <b>que ya se realizó</b> y no se cargó a tiempo.
+        Motivo: <b>${esc(retroCtx.motivo)}</b>. El turno queda marcado como registro tardío, con la fecha y la hora reales de la
+        franja, y la excepción se asienta en su historial. No debe usarse para programar una cirugía futura.</div></div>`
+    : exc
     ? `<div class="banner banner-red" style="margin-bottom:14px">${ico(ICONS.zap, 18)}<div><strong>Programación fuera de horario — excepción de la Jefatura</strong>
         Esta franja está fuera del cronograma habitual y la abre la Jefatura de Quirófanos por excepción.
         Motivo: <b>${esc(exc.motivo)}</b>. Al guardar, ${esc(exc.cirujano.nombre)} recibe el aviso obligatorio
         con acuse de lectura y la excepción queda asentada en el turno.</div></div>`
-    : (nuevo && !puedeReservar(d, f, false))
+    : (nuevo && !retro && !puedeReservar(d, f, false))
     ? `<div class="banner banner-amber" style="margin-bottom:14px">${ICONS.alertTri.replace(/22/g, '16')}<div>Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.
         ${s.urgencias ? 'Solo puede programarse marcando <b>Urgencia / Emergencia</b>.' : 'Esta sala no admite excepciones: use el Quirófano 1 para urgencias.'}</div></div>` : '';
 
@@ -8673,10 +8800,12 @@ function openSlot(d, sid, fid) {
           ${exc ? '<span class="hint">Es el profesional al que se le envía el aviso de la excepción.</span>' : ''}</div>
         <div class="field"><label>Servicio / especialidad *</label>
           <select id="k-serv" ${ro}>${SERVICIOS_HRU.map((x) => `<option ${mismoServicio(c?.servicio || (exc && exc.cirujano.servicio) || (u && u.servicio), x) ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+        ${campoAyudante('k-ayu', (ayudanteDe(c || {}) || {}).nombre || '', ro)}
         <div class="field"><label>Anestesista</label><input type="text" id="k-anest" value="${v(c && c.anestesista)}" ${ro}></div>
         <div class="field"><label>Tipo de anestesia</label>
           <select id="k-tanest" ${ro}><option value="">Seleccionar…</option>${ANESTESIAS.map((a) => `<option ${c?.anestesia === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
       </div>
+      <div id="k-ayu-mods"></div>
     </div>
 
     <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
@@ -8702,6 +8831,7 @@ function openSlot(d, sid, fid) {
     ${c ? `<div class="det-section">
       <h4>Circuito del turno</h4>
       <div class="det-row"><b>Estado</b> ${ESTC[c.estado].label} — ${ESTC[c.estado].desc}</div>
+      ${c.registroTardio ? `<div class="det-row"><b>Registro fuera de término</b> asentado por la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} el ${esc(c.registroTardio.fechaHora || '')} sobre una franja ya vencida — ${esc(c.registroTardio.motivo || '')}</div>` : ''}
       ${authDetalle(c)}
       <div class="det-row"><b>Consentimiento informado</b> ${consentimientoDeTurno(c)
         ? `generado el ${esc(consentimientoDeTurno(c).fecha)}`
@@ -8721,9 +8851,16 @@ function openSlot(d, sid, fid) {
       ${!puedeEditar ? `<p class="form-note">El turno ya avanzó en el circuito: los cambios se gestionan desde la ficha completa.</p>` : ''}
     </div>`;
   $('slot-overlay').classList.add('open');
+  eqmModulo = '';
   nomIniciar(c, ro);
+  pintarModEquipo();
 }
-function closeSlot() { $('slot-overlay').classList.remove('open'); slotCtx = null; }
+function closeSlot() {
+  $('slot-overlay').classList.remove('open');
+  slotCtx = null;
+  // La reapertura vale para un solo turno: cerrado el formulario, se descarta.
+  if (retroCtx) { retroCtx = null; if (view === 'grilla') renderProgDiaria(); }
+}
 
 async function guardarSlot() {
   const { d, sid, fid, hora } = slotCtx;
@@ -8755,6 +8892,8 @@ async function guardarSlot() {
     }
     obraSocial = agregarObraSocial(escrita);
   }
+  const ayudante = leerAyudante('k-ayu');
+  const retro = franjaReabierta(d, sid, fid) ? retroCtx.motivo : '';
   const urgEl = $('k-urg');
   const urgencia = !!(urgEl && urgEl.checked);
   const existente = turnoEn(d, sid, fid);
@@ -8763,11 +8902,18 @@ async function guardarSlot() {
     alert(bloqueoCuenta(u));
     closeSlot(); go('perfil'); return;
   }
-  if (!existente && !turnoHabilitado(d, sid, f.p) && !exc) {
+  if (!existente && !turnoHabilitado(d, sid, f.p) && !exc && !retro) {
     alert('Ese turno acaba de bloquearse desde la Jefatura de Quirófanos. Actualice la grilla y elija otra franja.');
     return;
   }
-  if (!existente && !puedeReservar(d, f, urgencia) && !exc) {
+  // La hora pudo pasar con el formulario abierto: la guardia no admite cargar
+  // un turno en una franja que ya terminó —salvo el registro fuera de término
+  // que autorizó la Jefatura—.
+  if (!existente && franjaVencida(d, s, f) && !exc && !retro) {
+    alert(`La franja de las ${hora} h ya transcurrió mientras cargaba el turno.\n\nElija uno de los horarios que siguen en la guardia.`);
+    return;
+  }
+  if (!existente && !puedeReservar(d, f, urgencia) && !exc && !retro) {
     alert(`Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.\n\nSolo puede programarse marcando "Urgencia / emergencia", y únicamente en el Quirófano 1 o en el quirófano de Obstetricia.`);
     return;
   }
@@ -8819,9 +8965,17 @@ async function guardarSlot() {
   }
   // La pediatría y la alta complejidad se programan en los primeros horarios.
   if (c.paciente.pediatrico && c.prioridad === 6) c.prioridad = 3;
-  // El cirujano queda inscripto de oficio con el módulo de la práctica; el
-  // ayudante y el anestesiólogo se cargan aparte, desde el modal de equipo.
-  c.equipo = equipoActualizado(c, modulo);
+  // El cirujano queda inscripto de oficio con el módulo de la práctica y el
+  // ayudante con el escalón inmediato inferior. Si se declaró «SIN AYUDANTE»,
+  // el segundo módulo no se genera.
+  c.equipo = equipoActualizado(c, modulo, ayudante);
+  c.sinAyudante = !ayudante;
+  // Registro fuera de término: la franja ya había pasado y la Jefatura la
+  // reabrió para asentar una cirugía hecha. Queda marcado en el turno.
+  if (!existente && retro) {
+    c.registroTardio = { motivo: retro, autorizadoPor: JEFATURA, fechaHora: nowDT() };
+    pushHist(c, `Registrado fuera de término por la ${JEFATURA} sobre una franja ya vencida — ${retro}`);
+  }
   // Excepción de la Jefatura: queda asentada en el turno antes de guardarlo,
   // porque de ella depende el aviso obligatorio al cirujano.
   if (!existente && exc) {
@@ -8843,7 +8997,12 @@ async function guardarSlot() {
   renderProgDiaria();
   // Cerrado el circuito de programación, el paso siguiente es el consentimiento
   // informado: se ofrece de inmediato, con los datos del turno ya volcados.
-  if (!existente) {
+  if (!existente && retro) {
+    // Es una cirugía ya operada: no hay nada que anticipar ni que confirmar al
+    // cirujano, solo dejarla asentada y encaminarla al parte.
+    await avisar(`Quedó asentada en ${s.nombre}, franja de las ${hora} h del ${fmtFecha(c.fecha)}, como registro fuera de término de la ${JEFATURA}.\n\nSi la cirugía ya se realizó, márquela como Realizada desde su ficha para que entre en el parte quirúrgico y en los módulos.`,
+      { titulo: 'Cirugía registrada fuera de término', tono: 'jefatura' });
+  } else if (!existente) {
     // Si el paciente ya tenía turno, se resuelve antes que nada: de eso depende
     // que la franja posterior quede libre, o que salga la alerta al cirujano
     // que la tiene programada.
@@ -8871,14 +9030,20 @@ function openTurnoOk(c) {
         ? '<b style="color:#5b21b6">no requiere Admisión y Egresos</b> — pasa directo a la Jefatura de Quirófanos'
         : 'pendiente del sector <b>Admisión y Egresos</b>'}
     </div>
-    <div class="banner banner-amber" style="text-align:left;margin:0 0 14px">${ico(ICONS.alertTri, 20)}
-      <div><strong>Falta cargar el cirujano ayudante</strong>
-      La cirugía quedó registrada con <b>módulo ${c.modulo}</b> a nombre de ${esc(c.cirujano)}. Cargue ahora al
-      <b>1er ayudante</b> —y al anestesiólogo/a si corresponde— con el módulo A, B o C que le corresponda.
-      Recuerde que los módulos se imputan en la solapa <b>Módulos Quirúrgicos</b> recién cuando la cirugía
-      se marque como <b>Realizada</b>.</div></div>
-    <button class="btn btn-orange" style="width:100%;justify-content:center;margin-bottom:14px" onclick="closeTurnoOk();openEquipoMod(${c.id})">
-      ${ico(ICONS.userPlus, 16)} Cargar cirujano ayudante y módulos</button>
+    ${tieneAyudante(c)
+      ? `<div class="banner banner-blue" style="text-align:left;margin:0 0 14px">${ico(ICONS.layers, 20)}
+          <div><strong>Módulos asignados</strong>
+          ${equipoDe(c).map((p) => `${esc(p.rol)}: ${esc(p.nombre)} — ${p.modulo ? `<b>módulo ${p.modulo}</b>` : '<b>sin módulo</b> (el C no tiene escalón inferior)'}`).join('<br>')}<br>
+          El del ayudante es el escalón inmediato inferior al del cirujano y lo asigna el nomenclador.
+          Se imputan en la solapa <b>Módulos Quirúrgicos</b> recién cuando la cirugía se marque como
+          <b>Realizada</b>.</div></div>`
+      : `<div class="banner banner-amber" style="text-align:left;margin:0 0 14px">${ico(ICONS.alertTri, 20)}
+          <div><strong>Cirugía sin ayudante</strong>
+          Quedó registrada con <b>módulo ${c.modulo}</b> a nombre de ${esc(c.cirujano)} y sin segundo módulo.
+          Si finalmente opera con un 1er ayudante, cárguelo desde el turno: el módulo que le corresponde
+          se asigna solo.</div></div>
+        <button class="btn btn-orange" style="width:100%;justify-content:center;margin-bottom:14px" onclick="closeTurnoOk();openEquipoMod(${c.id})">
+          ${ico(ICONS.userPlus, 16)} Cargar el 1er ayudante</button>`}
 
     <p class="form-note" style="text-align:center;margin-bottom:14px">
       Falta también el <b>consentimiento informado</b>. Presione aquí para descargarlo: se abrirá la solapa correspondiente
@@ -10602,6 +10767,42 @@ function consentimientoDeTurno(c) {
   return DB.consentimientos.find((x) => String(x.turnoId) === String(c.id)) || null;
 }
 
+/* ---- Alcance del registro de consentimientos ----
+   El consentimiento informado es una pieza de la historia clínica del paciente
+   y lleva la firma del profesional que lo explicó. Cada médico ve, entonces,
+   únicamente los que generó: el registro completo del bloque quirúrgico es de
+   consulta exclusiva de la Jefatura de Quirófanos, que responde por el archivo.
+   Los consentimientos guardados antes de que se registrara el autor se
+   reconocen por el turno del que nacieron o por el nombre del médico. */
+function ciVeTodo() { return !!jefe; }
+function ciEsPropio(r) {
+  const u = usuarioActual();
+  if (!r || !u) return false;
+  const igual = (a, b) => !!a && !!b && String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+  // Lo generó el profesional…
+  if (igual(r.autor, u.email)) return true;
+  // …o nació de un turno suyo —el caso del consentimiento que emite la
+  // Jefatura por el cirujano— …
+  const c = r.turnoId ? DB.cirugias.find((x) => String(x.id) === String(r.turnoId)) : null;
+  if (c && igual(c.cirujanoEmail, u.email)) return true;
+  // …o lleva su nombre como médico responsable.
+  return igual(r.medico, u.nombre);
+}
+function ciPuedeVer(r) { return ciVeTodo() || ciEsPropio(r); }
+function ciRegistroVisible() {
+  return ciVeTodo() ? DB.consentimientos.slice() : DB.consentimientos.filter(ciEsPropio);
+}
+/* Un consentimiento ajeno no se abre, no se baja y no se borra. */
+function ciTraerDelRegistro(id) {
+  const r = DB.consentimientos.find((x) => String(x.id) === String(id));
+  if (!r) return null;
+  if (!ciPuedeVer(r)) {
+    alert('Ese consentimiento informado pertenece a otro profesional. El registro completo del bloque quirúrgico lo consulta la Jefatura de Quirófanos.');
+    return null;
+  }
+  return r;
+}
+
 /* ---- Acciones ---- */
 function ciValido() {
   if (!ciForm.p_nombre.trim() || !ciForm.c_nombre.trim()) {
@@ -10688,7 +10889,7 @@ async function ciLimpiar() {
   renderConsentimientos();
 }
 function ciCargarDelRegistro(id) {
-  const r = DB.consentimientos.find((x) => String(x.id) === String(id));
+  const r = ciTraerDelRegistro(id);
   if (!r) return;
   ciForm = { ...CI_VACIO, ...r.datos };
   ciEvidencia = 'recuperado del registro';
@@ -10697,19 +10898,19 @@ function ciCargarDelRegistro(id) {
   window.scrollTo(0, 0);
 }
 function ciBajarDelRegistro(id) {
-  const r = DB.consentimientos.find((x) => String(x.id) === String(id));
+  const r = ciTraerDelRegistro(id);
   if (!r) return;
   const cuerpo = ciDocHTML({ ...CI_VACIO, ...r.datos });
   const pac = (r.paciente || 'paciente').replace(/[^a-zA-Z0-9áéíóúñÑÁÉÍÓÚ ]/g, '').replace(/\s+/g, '_');
   ciBajarArchivo(cuerpo, `Consentimiento_${pac}_${r.fechaISO || hoyISO()}`);
 }
 function ciImprimirDelRegistro(id) {
-  const r = DB.consentimientos.find((x) => String(x.id) === String(id));
+  const r = ciTraerDelRegistro(id);
   if (!r) return;
   ciImprimirCuerpo(ciDocHTML({ ...CI_VACIO, ...r.datos }));
 }
 function ciBorrarDelRegistro(id) {
-  const r = DB.consentimientos.find((x) => String(x.id) === String(id));
+  const r = ciTraerDelRegistro(id);
   if (!r) return;
   pedirClave('Eliminar consentimiento', 'El consentimiento informado forma parte de la historia clínica. Ingrese la clave de autorización para retirarlo del registro.', CLAVE_CANCELAR, async () => {
     if (!await preguntar(`Se elimina del registro el consentimiento informado de ${r.paciente || 's/d'}.`,
@@ -10736,11 +10937,13 @@ function ciArea(k, label, ayuda) {
 }
 function ciRegistroLista() {
   const q = ciRegQ.toLowerCase();
-  const list = DB.consentimientos
+  const list = ciRegistroVisible()
     .filter((r) => !q || [r.paciente, r.dni, r.procedimiento, r.medico].some((x) => String(x || '').toLowerCase().includes(q)))
     .sort((a, b) => b.id - a.id);
   if (!list.length) {
-    return `<div class="empty">${ciRegQ ? 'Ningún consentimiento coincide con la búsqueda.' : 'Todavía no hay consentimientos guardados. Los que genere desde la programación quedan archivados acá.'}</div>`;
+    return `<div class="empty">${ciRegQ ? 'Ningún consentimiento coincide con la búsqueda.'
+      : (ciVeTodo() ? 'Todavía no hay consentimientos guardados en el bloque quirúrgico.'
+        : 'Todavía no generó ningún consentimiento informado. Los que genere desde la programación quedan archivados acá.')}</div>`;
   }
   return list.map((r) => `
     <div class="ci-reg-card">
@@ -10768,7 +10971,7 @@ function renderConsentimientos() {
   const turno = ciForm.turnoId ? DB.cirugias.find((x) => String(x.id) === String(ciForm.turnoId)) : null;
   const rep = ciFirmaRepresentante();
   const procs = ciProcsDe(ciForm.c_esp);
-  const nReg = DB.consentimientos.length;
+  const nReg = ciRegistroVisible().length;
 
   const cabecera = `
     <div class="page-head">
@@ -10794,8 +10997,17 @@ function renderConsentimientos() {
         <input type="search" placeholder="Buscar por paciente, DNI, cirugía o cirujano…" value="${esc(ciRegQ)}"
           oninput="ciRegQ=this.value;$('ci-reg-list').innerHTML=ciRegistroLista()" style="flex:1;min-width:220px">
       </div>
+      ${ciVeTodo()
+        ? `<div class="banner banner-blue" style="margin-bottom:14px">${ICONS.shield}
+            <div><strong>Registro completo del bloque quirúrgico</strong>
+            Como Jefatura de Quirófanos ve los consentimientos informados de todos los profesionales.
+            Cada médico, en cambio, ve únicamente los que generó.</div></div>`
+        : `<div class="banner banner-blue" style="margin-bottom:14px">${ICONS.shield}
+            <div><strong>Solo sus consentimientos</strong>
+            Este registro muestra únicamente los consentimientos informados que usted generó.
+            El archivo completo del bloque quirúrgico lo consulta la Jefatura de Quirófanos.</div></div>`}
       <div id="ci-reg-list">${ciRegistroLista()}</div>
-      <p class="form-note">El consentimiento informado integra la historia clínica del paciente (Ley 26.529). El registro se comparte con el resto del bloque quirúrgico y se conserva también en este dispositivo.</p>`;
+      <p class="form-note">El consentimiento informado integra la historia clínica del paciente (Ley 26.529). El registro se conserva en la nube del bloque quirúrgico y también en este dispositivo.</p>`;
     return;
   }
 
@@ -10981,22 +11193,117 @@ const money = (n) => '$ ' + Math.round(n || 0).toLocaleString('es-AR');
 function verImportes() { return director && modConfig().mostrarImportes; }
 
 /* ---- Equipo que percibe módulos ---- */
+/* El equipo se deriva del módulo de la práctica, no de lo que alguien haya
+   tipeado: el cirujano lleva el módulo de la cirugía y el ayudante el escalón
+   inmediato inferior. Los anestesiólogos cargados por versiones anteriores se
+   descartan acá, porque el rol dejó de percibir módulo. */
+function ayudanteDe(c) {
+  const eq = Array.isArray(c && c.equipo) ? c.equipo : [];
+  const a = eq.find((p) => p && p.rol === '1er Ayudante' && p.nombre);
+  return a || null;
+}
 function equipoDe(c) {
-  if (Array.isArray(c.equipo) && c.equipo.length) return c.equipo.filter((p) => p && p.nombre && p.modulo);
-  // Turnos cargados antes de esta versión: el cirujano es el único conocido.
-  return c.modulo ? [{ rol: 'Cirujano', nombre: c.cirujano || '', email: c.cirujanoEmail || '', modulo: c.modulo }] : [];
+  if (!c || !c.modulo) return [];
+  const eq = Array.isArray(c.equipo) ? c.equipo : [];
+  const cir = eq.find((p) => p && p.rol === 'Cirujano' && p.nombre);
+  const out = [{
+    rol: 'Cirujano',
+    nombre: (cir && cir.nombre) || c.cirujano || '',
+    email: (cir && cir.email) || c.cirujanoEmail || '',
+    modulo: c.modulo,
+  }];
+  const ayu = ayudanteDe(c);
+  if (ayu) out.push({ rol: '1er Ayudante', nombre: ayu.nombre, email: ayu.email || '', modulo: moduloAyudante(c.modulo) });
+  return out;
 }
-function equipoActualizado(c, modulo) {
-  const previo = Array.isArray(c.equipo) ? c.equipo : [];
-  const resto = previo.filter((p) => p && p.rol !== 'Cirujano');
-  return [{ rol: 'Cirujano', nombre: c.cirujano || '', email: c.cirujanoEmail || '', modulo }].concat(resto);
+/* Deja el equipo en su forma canónica. `ayudante` es el nombre elegido en el
+   formulario: si viene vacío —«SIN AYUDANTE»— el segundo módulo desaparece. */
+function equipoActualizado(c, modulo, ayudante) {
+  const previo = ayudanteDe(c);
+  const nom = ayudante === undefined ? (previo ? previo.nombre : '') : String(ayudante || '').trim();
+  const eq = [{ rol: 'Cirujano', nombre: c.cirujano || '', email: c.cirujanoEmail || '', modulo }];
+  if (nom) eq.push({ rol: '1er Ayudante', nombre: nom, email: (previo && previo.email) || '', modulo: moduloAyudante(modulo) });
+  return eq;
 }
-function tieneAyudante(c) { return equipoDe(c).some((p) => p.rol === '1er Ayudante'); }
-/* Cirugías ya realizadas a las que todavía les falta el ayudante. Es lo que se
-   avisa al programar y lo que muestra el contador de la solapa. */
+function tieneAyudante(c) { return !!ayudanteDe(c); }
+/* El cirujano puede resolver que opera sin ayudante: esa decisión también es un
+   dato cargado, y por eso deja de reclamarse. */
+function ayudanteDefinido(c) { return tieneAyudante(c) || !!(c && c.sinAyudante); }
+/* Cirugías ya realizadas en las que todavía no se dijo si hubo ayudante. Es lo
+   que se avisa al programar y lo que muestra el contador de la solapa. */
 function modulosIncompletos(u) {
-  return DB.cirugias.filter((c) => c.estado === 'realizada' && c.modulo && !tieneAyudante(c)
+  return DB.cirugias.filter((c) => c.estado === 'realizada' && c.modulo && !ayudanteDefinido(c)
     && (!u || c.cirujanoEmail === u.email));
+}
+
+/* ---- Campo del 1er ayudante (formulario del turno y modal de equipo) ----
+   Es un desplegable, no un texto libre: se elige entre los profesionales dados
+   de alta, se puede escribir un nombre que no figure y la primera opción es
+   «SIN AYUDANTE». Elegir «SIN AYUDANTE» no deja el campo a medio cargar: es la
+   declaración de que la cirugía se hace sin segundo cirujano, y con ella el
+   segundo módulo directamente no existe. */
+function campoAyudante(pre, actual, ro) {
+  const nom = String(actual || '').trim();
+  const nombres = [...new Set(DB.usuarios.filter((u) => u && u.nombre && cuentaAprobada(u)).map((u) => u.nombre.trim()))]
+    .sort((a, b) => a.localeCompare(b, 'es'));
+  const enLista = !!nom && nombres.includes(nom);
+  const otro = !!nom && !enLista;
+  return `<div class="field"><label>1er ayudante</label>
+    <select id="${pre}-sel" ${ro || ''} onchange="onAyudanteChange('${pre}')">
+      <option value="" ${!nom ? 'selected' : ''}>— SIN AYUDANTE —</option>
+      ${nombres.map((n) => `<option value="${esc(n)}" ${enLista && n === nom ? 'selected' : ''}>${esc(n)}</option>`).join('')}
+      <option value="__otro__" ${otro ? 'selected' : ''}>Otro profesional — escribir el nombre</option>
+    </select>
+    <div id="${pre}-otro-wrap" style="display:${otro ? 'block' : 'none'};margin-top:6px">
+      <input type="text" id="${pre}-otro" placeholder="Apellido y nombre del cirujano ayudante"
+        value="${esc(otro ? nom : '')}" ${ro || ''} oninput="pintarModEquipo()"></div>
+    <span class="hint">Con «SIN AYUDANTE» la cirugía genera un solo módulo, el del cirujano.</span>
+  </div>`;
+}
+function onAyudanteChange(pre) {
+  const sel = $(pre + '-sel'), wrap = $(pre + '-otro-wrap');
+  if (!sel || !wrap) return;
+  const otro = sel.value === '__otro__';
+  wrap.style.display = otro ? 'block' : 'none';
+  if (otro) setTimeout(() => { const i = $(pre + '-otro'); if (i) i.focus(); }, 40);
+  pintarModEquipo();
+}
+function leerAyudante(pre) {
+  const sel = $(pre + '-sel');
+  if (!sel) return '';
+  if (sel.value === '__otro__') return ((($(pre + '-otro') || {}).value) || '').trim();
+  return String(sel.value || '').trim();
+}
+/* Módulo vigente en el formulario abierto. En el modal de equipo la práctica ya
+   está fijada; en el turno la fija el buscador del nomenclador. */
+let eqmModulo = '';
+function moduloEnPantalla(pre) {
+  if (pre === 'eq-ayu' && eqmModulo) return eqmModulo;
+  return nomLeer().modulo;
+}
+/* Cartel de módulos: no hay nada que elegir, se informa lo que corresponde. */
+function pintarModEquipo() {
+  ['k-ayu', 'eq-ayu'].forEach((pre) => {
+    const cont = $(pre + '-mods');
+    if (!cont) return;
+    const m = moduloEnPantalla(pre);
+    const ayu = leerAyudante(pre);
+    const ma = moduloAyudante(m);
+    const tag = (k) => `<span class="mod-tag mod-${k}">${k}</span>`;
+    if (!m) {
+      cont.innerHTML = `<div class="mod-auto"><div class="mod-auto-l">${ico(ICONS.info, 15)} Elija la práctica: el módulo A, B o C lo fija el nomenclador y no se edita a mano.</div></div>`;
+      return;
+    }
+    cont.innerHTML = `<div class="mod-auto">
+      <div class="mod-auto-l">${tag(m)} <b>Cirujano</b> — módulo ${m}, ${MODULOS[m].desc.toLowerCase()}. Lo fija la práctica del nomenclador.</div>
+      ${!ayu
+        ? `<div class="mod-auto-l mod-auto-off">${ico(ICONS.x, 15)} <b>Sin ayudante</b> — la cirugía no genera un segundo módulo.</div>`
+        : ma
+        ? `<div class="mod-auto-l">${tag(ma)} <b>1er ayudante</b> — módulo ${ma}, un escalón por debajo del cirujano. Se asigna solo.</div>`
+        : `<div class="mod-auto-l mod-auto-off">${ico(ICONS.x, 15)} <b>1er ayudante</b> — queda registrado en el equipo, pero el módulo C no admite uno menor: no le corresponde módulo.</div>`}
+      <div class="mod-auto-l mod-auto-off">${ico(ICONS.x, 15)} <b>Anestesiólogo/a</b> — no percibe módulo quirúrgico.</div>
+    </div>`;
+  });
 }
 
 /* ---- Registro de módulos realizados ---- */
@@ -11006,7 +11313,9 @@ function modulosRegistrados(desde, hasta) {
     if (c.estado !== 'realizada' || !c.modulo) return;      // solo lo efectivamente operado
     const f = c.fecha || '';
     if ((desde && f < desde) || (hasta && f > hasta)) return;
-    equipoDe(c).forEach((p) => filas.push({
+    // El ayudante de una cirugía C figura en el equipo, pero sin módulo: no hay
+    // nada que imputarle.
+    equipoDe(c).filter((p) => p.modulo).forEach((p) => filas.push({
       cir: c, fecha: f, servicio: servicioCanonico(c.servicio) || 'Otro', rol: p.rol,
       nombre: p.nombre, email: p.email || '', modulo: p.modulo,
     }));
@@ -11128,7 +11437,7 @@ function renderModulos() {
   const porServ = agrupar(filas, (f) => f.servicio);
 
   // Cirugías realizadas del alcance a las que les falta el ayudante.
-  const faltantes = DB.cirugias.filter((c) => c.estado === 'realizada' && c.modulo && !tieneAyudante(c)
+  const faltantes = DB.cirugias.filter((c) => c.estado === 'realizada' && c.modulo && !ayudanteDefinido(c)
     && c.fecha >= desde && c.fecha <= hasta
     && (al.todo && !al.servicio ? true : mismoServicio(c.servicio, al.servicio)));
 
@@ -11156,7 +11465,8 @@ function renderModulos() {
       <div><strong>Qué cuenta esta solapa</strong>
       Solo las cirugías marcadas como <b>Realizada</b>. Un turno programado, confirmado o en curso todavía no genera módulo:
       aparece recién cuando se cierra el procedimiento con la Lista de Verificación de salida. El módulo A, B o C lo fija el
-      nomenclador al elegir la práctica; el ayudante y el anestesiólogo los carga el cirujano en la ficha del turno.</div></div>
+      nomenclador al elegir la práctica: el cirujano percibe ese módulo y el 1er ayudante, siempre, el escalón inmediato
+      inferior (A → B, B → C, C → C). Ninguno de los dos se edita a mano y el anestesiólogo/a no percibe módulo quirúrgico.</div></div>
 
     ${al.todo ? '' : `<div class="banner banner-amber">${ico(ICONS.lock, 16)}
       <div><strong>Alcance de su consulta</strong>
@@ -11206,8 +11516,8 @@ function renderModulos() {
     </div>
 
     ${faltantes.length ? `<div class="banner banner-red">${ico(ICONS.alertTri, 20)}
-      <div><strong>${faltantes.length} cirugía(s) realizada(s) sin cirujano ayudante cargado</strong>
-      Sin el ayudante, el módulo del segundo profesional no se imputa. Cárguelo desde cada turno:
+      <div><strong>${faltantes.length} cirugía(s) realizada(s) sin declarar el 1er ayudante</strong>
+      Cárguelo desde cada turno —o deje asentado que se operó «SIN AYUDANTE»—:
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
         ${faltantes.slice(0, 12).map((c) => `<button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">
           ${ico(ICONS.userPlus, 13)} ${fmtFecha(c.fecha)} — ${esc((c.paciente?.nombre || 's/d').split(' ')[0])} · ${esc(c.procedimiento.slice(0, 34))}${c.procedimiento.length > 34 ? '…' : ''}</button>`).join('')}
@@ -11314,9 +11624,9 @@ function modTablaDetalle(filas) {
         <td>${esc(c.servicio || '')}</td>
         <td class="num"><span class="mod-pill mod-${c.modulo}">${c.modulo}</span></td>
         <td>${equipoDe(c).map((p) => `<div style="font-size:0.82rem;margin-bottom:2px">
-              <span class="mod-pill mod-${p.modulo}">${p.modulo}</span> ${esc(p.rol)}: <b>${esc(p.nombre)}</b></div>`).join('')
+              ${p.modulo ? `<span class="mod-pill mod-${p.modulo}">${p.modulo}</span>` : '<span class="mod-pill" style="background:#9ca3af">s/m</span>'} ${esc(p.rol)}: <b>${esc(p.nombre)}</b></div>`).join('')
             || '<span style="color:var(--red)">Sin equipo cargado</span>'}
-          ${tieneAyudante(c) ? '' : '<div style="font-size:0.78rem;color:var(--red);font-weight:700">Falta el 1er ayudante</div>'}</td>
+          ${ayudanteDefinido(c) ? '' : '<div style="font-size:0.78rem;color:var(--red);font-weight:700">Falta declarar el 1er ayudante</div>'}</td>
         <td>${puedeEditar(c) ? `<button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">${ICONS.edit} Equipo</button>` : ''}</td>
       </tr>`).join('')
       : `<tr><td colspan="7"><div class="empty">Sin cirugías realizadas con módulo en el período seleccionado.</div></td></tr>`}
@@ -11395,12 +11705,10 @@ function openEquipoMod(id) {
   // práctica cargada: se elige acá mismo, sin reabrir la grilla.
   const sinPractica = !c.modulo;
   const eq = equipoDe(c);
-  const de = (rol) => eq.find((p) => p.rol === rol) || null;
-  const cir = de('Cirujano'), ayu = de('1er Ayudante'), ane = de('Anestesiólogo/a');
-  const selMod = (idc, val) => `<select id="${idc}">
-      <option value="">— sin módulo —</option>
-      ${MOD_LETRAS.map((k) => `<option value="${k}" ${val === k ? 'selected' : ''}>Módulo ${k} — ${MODULOS[k].desc}</option>`).join('')}
-    </select>`;
+  const cir = eq.find((p) => p.rol === 'Cirujano') || null;
+  const ayu = ayudanteDe(c);
+  // El módulo no se elige: lo fija la práctica. Acá solo se informa.
+  eqmModulo = c.modulo || '';
 
   $('eqm-modal').innerHTML = `
     <button class="modal-close" onclick="closeEquipoMod()" aria-label="Cerrar">✕</button>
@@ -11422,33 +11730,26 @@ function openEquipoMod(id) {
       <div class="nom-sel-txt">${esc(c.procedimiento)}
         <span class="nom-item-sub">${c.practica ? esc(c.practica.g + ' · ' + c.practica.s) : 'Práctica declarada fuera del nomenclador'} — ${esc(c.servicio || '')}</span></div>
     </div>`}
-    <p class="modal-sub" style="text-align:left;margin-bottom:4px">Cada integrante percibe el módulo que se le asigne aquí.
-      Se propone el módulo de la práctica${c.modulo ? ` (<b>${c.modulo}</b>)` : ''} y puede modificarse. Los módulos se imputan
+    <p class="modal-sub" style="text-align:left;margin-bottom:4px">El módulo lo fija la práctica del nomenclador y <b>no se edita</b>:
+      el cirujano percibe el de la cirugía y el 1er ayudante, siempre, el escalón inmediato inferior. Se imputan
       <b>solo cuando la cirugía esté marcada como Realizada</b>${c.estado === 'realizada' ? ' — esta ya lo está.' : `; hoy está <b>${ESTC[c.estado].label}</b>.`}</p>
 
-    <div class="mod-row">
-      <div><div class="mod-rol">Cirujano</div>
+    <div class="form-grid" style="margin-top:8px">
+      <div class="field"><label>Cirujano *</label>
         <input type="text" id="eq-cir-nom" value="${esc((cir && cir.nombre) || c.cirujano || '')}"></div>
-      <div><div class="mod-rol">Módulo</div>${selMod('eq-cir-mod', (cir && cir.modulo) || c.modulo)}</div>
+      ${campoAyudante('eq-ayu', (ayu && ayu.nombre) || '', '')}
     </div>
-    <div class="mod-row">
-      <div><div class="mod-rol">1er Ayudante</div>
-        <input type="text" id="eq-ayu-nom" placeholder="Apellido y nombre del cirujano ayudante" value="${esc((ayu && ayu.nombre) || '')}"></div>
-      <div><div class="mod-rol">Módulo</div>${selMod('eq-ayu-mod', (ayu && ayu.modulo) || c.modulo)}</div>
-    </div>
-    <div class="mod-row">
-      <div><div class="mod-rol">Anestesiólogo/a</div>
-        <input type="text" id="eq-ane-nom" placeholder="Apellido y nombre" value="${esc((ane && ane.nombre) || c.anestesista || '')}"></div>
-      <div><div class="mod-rol">Módulo</div>${selMod('eq-ane-mod', (ane && ane.modulo) || '')}</div>
-    </div>
+    <div id="eq-ayu-mods"></div>
 
-    <p class="form-note">Deje el nombre en blanco si el rol no corresponde: ese integrante no se registra y no genera módulo.</p>
+    <p class="form-note">El anestesiólogo/a no percibe módulo quirúrgico: por eso no figura en este equipo.
+      Su nombre se carga en la ficha del turno, junto al tipo de anestesia.</p>
     <div class="form-actions">
       <button class="btn btn-blue" onclick="guardarEquipoMod(${c.id})">${ico(ICONS.check, 16)} Guardar equipo y módulos</button>
       <button class="btn btn-outline" onclick="closeEquipoMod()">Cancelar</button>
     </div>`;
   $('eqm-overlay').classList.add('open');
   if (sinPractica) nomIniciar(c, '', true);
+  pintarModEquipo();
 }
 function closeEquipoMod() { $('eqm-overlay').classList.remove('open'); }
 function guardarEquipoMod(id) {
@@ -11466,17 +11767,16 @@ function guardarEquipoMod(id) {
     c.modulo = pr.modulo;
     pushHist(c, `Práctica del nomenclador asignada: ${pr.procedimiento} (módulo ${pr.modulo})`);
   }
-  const leer = (rol, pre) => {
-    const nombre = ($(pre + '-nom').value || '').trim();
-    const modulo = $(pre + '-mod').value;
-    return nombre && modulo ? { rol, nombre, email: rol === 'Cirujano' ? (c.cirujanoEmail || '') : '', modulo } : null;
-  };
-  const cir = leer('Cirujano', 'eq-cir');
-  if (!cir) { alert('El cirujano y su módulo son obligatorios.'); return; }
-  const equipo = [cir, leer('1er Ayudante', 'eq-ayu'), leer('Anestesiólogo/a', 'eq-ane')].filter(Boolean);
-  c.equipo = equipo;
-  c.cirujano = cir.nombre;
-  pushHist(c, `Equipo de módulos actualizado (${equipo.map((p) => p.rol + ' ' + p.modulo).join(', ')})`);
+  const nombreCir = ($('eq-cir-nom').value || '').trim();
+  if (!nombreCir) { alert('El nombre del cirujano es obligatorio.'); return; }
+  c.cirujano = nombreCir;
+  const ayudante = leerAyudante('eq-ayu');
+  c.equipo = equipoActualizado(c, c.modulo, ayudante);
+  c.sinAyudante = !ayudante;
+  const equipo = equipoDe(c);
+  pushHist(c, ayudante
+    ? `Equipo de módulos actualizado (${equipo.map((p) => p.rol + ' ' + (p.modulo || 'sin módulo')).join(', ')})`
+    : `Equipo de módulos actualizado (Cirujano ${c.modulo} — declarado sin ayudante)`);
   upsert('cirugias', c);
   closeEquipoMod();
   refreshView();
@@ -11548,9 +11848,6 @@ function nomElegir(i) {
   if (q) q.value = '';
   nomCerrarLista();
   nomPintarSel();
-  // Dentro del modal de equipo, la práctica recién elegida propone su módulo a
-  // quienes todavía no lo tengan asignado.
-  ['eq-cir-mod', 'eq-ayu-mod'].forEach((k) => { if ($(k) && !$(k).value) $(k).value = r.m || ''; });
   // El nomenclador es la fuente del módulo; si además indica otro servicio, se
   // sugiere alinear el turno para que la imputación caiga donde corresponde.
   const sug = servicioDePractica(r);
@@ -11563,6 +11860,8 @@ function nomUsarLibre(c) { nomSel = null; nomLibre = true; nomPintarSel(c); }
 function nomPintarSel(c) {
   const cont = $('k-nomsel');
   if (!cont) return;
+  // Cambió la práctica: cambian los módulos que se informan más abajo.
+  setTimeout(pintarModEquipo, 0);
   const ro = nomRO;
   if (nomSel) {
     cont.innerHTML = `
@@ -11572,7 +11871,7 @@ function nomPintarSel(c) {
           <span class="nom-item-sub">${esc(nomSel.g)} · ${esc(nomSel.s)}${nomSel.m ? ` — ${MODULOS[nomSel.m].label}, ${MODULOS[nomSel.m].desc}` : ''}</span>
           ${!nomSel.m ? `<div style="margin-top:8px;max-width:280px">
              <label style="font-size:0.78rem;font-weight:700">El nomenclador no le asignó módulo — indíquelo</label>
-             <select id="k-modsel" ${ro}>${['', 'A', 'B', 'C'].map((k) => `<option value="${k}">${k ? 'Módulo ' + k : 'Seleccionar…'}</option>`).join('')}</select></div>` : ''}
+             <select id="k-modsel" ${ro} onchange="pintarModEquipo()">${['', 'A', 'B', 'C'].map((k) => `<option value="${k}">${k ? 'Módulo ' + k : 'Seleccionar…'}</option>`).join('')}</select></div>` : ''}
         </div>
         ${ro ? '' : `<button type="button" class="btn btn-sm btn-outline" onclick="nomLimpiar()">${ICONS.x} Cambiar</button>`}
       </div>`;
@@ -11585,7 +11884,7 @@ function nomPintarSel(c) {
           <input type="text" id="k-proclibre" value="${esc((c && !c.practica && c.procedimiento) || '')}" ${ro}
             placeholder="Nombre del procedimiento tal como debe figurar en el parte"></div>
         <div class="field"><label>Módulo que le corresponde *</label>
-          <select id="k-modlibre" ${ro}>${['', 'A', 'B', 'C'].map((k) =>
+          <select id="k-modlibre" ${ro} onchange="pintarModEquipo()">${['', 'A', 'B', 'C'].map((k) =>
             `<option value="${k}" ${c && !c.practica && c.modulo === k ? 'selected' : ''}>${k ? `Módulo ${k} — ${MODULOS[k].desc}` : 'Seleccionar…'}</option>`).join('')}</select></div>
       </div>
       ${ro ? '' : `<button type="button" class="nom-link" onclick="nomLimpiar()">Volver a buscar en el nomenclador</button>`}`;
@@ -12395,6 +12694,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (comTimer) clearInterval(comTimer);
     comTimer = setInterval(revisarComunicados, 60000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) revisarComunicados(); });
+
+    /* Grilla en hora: las franjas vencidas de las salas de urgencia se retiran
+       solas, sin que haya que recargar la página. */
+    if (gridTimer) clearInterval(gridTimer);
+    gridTimer = setInterval(tickGrilla, 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) tickGrilla(); });
   });
 
   // Service worker: abre la app sin conexión y trae sola cada versión publicada.

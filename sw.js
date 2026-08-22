@@ -14,7 +14,7 @@
 /* Al publicar cambios hay que subir esta constante (y APP_VERSION en
    index.html): es lo que hace que los dispositivos ya instalados descarten la
    copia cacheada y estrenen la versión nueva. */
-const VERSION = 'hru-quirofanos-v20';
+const VERSION = 'hru-quirofanos-v21';
 const SHELL = [
   './',
   './index.html',
