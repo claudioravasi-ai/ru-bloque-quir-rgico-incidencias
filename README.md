@@ -342,6 +342,35 @@ Antes, las urgencias se estampaban solas como `AUTORIZADO` y el trámite desapar
 figurando como pendiente y un recordatorio insiste —también sobre cirugías ya realizadas— hasta que Admisión y
 Egresos lo regularice.
 
+### La validación de la Jefatura también se difiere en las urgencias
+
+El mismo razonamiento vale un escalón más arriba. El circuito normal es que la Jefatura de Quirófanos valide
+el turno —repasando la lista de verificación de coordinación: Farmacia, Esterilización, Anestesiología,
+Hemoterapia, estudios preoperatorios y consentimiento— y recién después lo confirme en el parte. Eso funciona
+con la cirugía programada y no funciona con la guardia: **si una urgencia entra a las 2 de la mañana, la
+Jefatura no está**, y el turno no puede quedarse esperándola.
+
+Desde la versión 3.4.0, la **urgencia o emergencia** —la cesárea de urgencia y la endoscopía de urgencia
+entre ellas— y los turnos de **prioridad P1 y P2** están exentos de la validación **previa**: el cirujano
+abre la Lista de Verificación Quirúrgica, opera y cierra el procedimiento cuando termina, sin depender de
+nadie. Es la misma lista de exenciones de Admisión y Egresos, salvo la programación fuera de horario, que
+por definición la hace la Jefatura y por lo tanto no necesita diferirse.
+
+| Antes | Ahora |
+|---|---|
+| La urgencia quedaba en *Pendiente* hasta que la Jefatura validaba y confirmaba | El cirujano ve el botón **Iniciar (LVQ Entrada + Pausa)** apenas se carga el turno |
+| Sin validación no había LVQ, y sin LVQ no había cierre del procedimiento | Opera, cierra con la **LVQ de Salida** y la cirugía entra al parte y a los módulos |
+| — | El turno queda marcado `VALID. DIFERIDA` en la grilla y en su ficha |
+
+La validación **no desaparece: queda diferida**. La Jefatura la cierra después con el botón **Regularizar
+validación** de la ficha, que repasa la lista de verificación de coordinación y deja escrito qué faltaba al
+momento de operar. Mientras tanto, un recordatorio insiste —también sobre cirugías ya realizadas—. Las
+casillas de coordinación siguen editables aunque la cirugía esté *En curso* o *Realizada*, justamente para
+poder regularizarla.
+
+Si la urgencia entra en un horario en que la Jefatura está, **valida como siempre**, antes de operar: los
+botones de *Validar* y *Confirmar en el parte* siguen en su lugar y el circuito completo no cambia.
+
 ### La cirugía que se adelantó por urgencia
 
 Un paciente con cirugía programada para el miércoles puede descompensarse el lunes y operarse esa misma noche
@@ -619,7 +648,31 @@ El alta pasó a ser un **desplegable** con el listado oficial, para que no vuelv
 | Quien mira | Alcance |
 |---|---|
 | Cirujano con sesión iniciada | Únicamente los módulos de **su servicio** |
-| Dirección Médica (clave `9876`) | **Todos** los servicios y profesionales, con filtro por servicio |
+| Dirección Médica (clave `9876`) | **Todos** los servicios y profesionales, con filtro por servicio y por profesional |
+
+### Dar de baja un módulo: la Dirección Médica decide no facturarlo
+
+La Dirección Médica puede resolver que un módulo **no se factura**. Se hace desde la pestaña **Detalle**, con
+el botón *Equipo* de la cirugía: al pie del modal aparece el bloque **Dar de baja el módulo**, que exige el
+**motivo por escrito** —mínimo diez caracteres— porque el motivo es, textualmente, lo que se le manda al
+equipo.
+
+Al confirmar, y **en el acto**, la app emite un aviso al **cirujano** y a su **1er ayudante** con la cirugía,
+el módulo que le correspondía a cada uno y el motivo de la baja. Les aparece como ventana emergente apenas
+entran a la app, igual que un comunicado.
+
+**Ese aviso no lleva acuse.** Ni la Dirección Médica ni la Jefatura de Quirófanos reciben notificación de
+lectura, y el aviso tampoco aparece en la solapa *Comunicados* de la Jefatura: es una decisión de facturación
+entre la Dirección y el equipo que operó, no un comunicado del bloque quirúrgico.
+
+Qué cambia y qué no:
+
+- El módulo **sale de todos los totales** de la solapa, de la liquidación estimada y de las dos planillas.
+- La cirugía, su parte quirúrgico y su historia clínica **no se tocan**.
+- La baja queda listada al pie de la pestaña *Detalle*, con el motivo y la fecha, para que la decisión no sea
+  invisible.
+- Solo la Dirección Médica puede **reponer** el módulo; al hacerlo se emite un segundo aviso, con el mismo
+  criterio de no acusar recibo a nadie.
 
 ### Estadísticas
 
@@ -627,6 +680,23 @@ Período por **día, semana, mes, año** o rango libre, con navegación hacia at
 **por profesional** (cirugías, módulos como cirujano y como ayudante, A/B/C y total), **por servicio** y
 **detalle** cirugía por cirugía con el equipo completo. Más la evolución del período (por día o por mes) y
 el reparto por complejidad. Todo exportable a **CSV**.
+
+### Las dos planillas
+
+El botón *Exportar CSV* baja **la consulta que está en pantalla**, y sale distinta según cómo se haya
+consultado. El desplegable **Profesional** es el que decide cuál de las dos:
+
+| Consulta | Qué trae la planilla |
+|---|---|
+| **Por servicio** (sin profesional elegido) | **Una fila por cirugía.** En el mismo renglón: fecha, paciente, práctica, servicio, módulo de la cirugía, el **cirujano con su módulo** y el **1er ayudante con el suyo**, y —si los importes están habilitados— el valor de cada uno y el total de la cirugía |
+| **Por cirujano** (con un profesional elegido) | **Solo sus renglones**: sus cirugías y sus ayudantías, con el rol, el módulo A, B o C que le tocó a él y el módulo de la cirugía. Nada del resto del equipo |
+
+Las dos cierran con la misma **sumatoria final**: cuántos módulos A, B y C entraron en la franja de datos
+consultada, el valor unitario de cada uno y el **total facturado** del período. Al pie, el período, el
+alcance de la consulta y la fecha de exportación.
+
+Hasta la versión 3.4.0 las dos consultas bajaban prácticamente la misma planilla —el equipo completo, un
+renglón por profesional— y la que se pedía por cirujano no servía para liquidarle a nadie.
 
 **Importes.** La Dirección Médica puede cargar los valores unitarios de A, B y C —quedan guardados en la
 base compartida— y estimar la liquidación del período. Están **ocultos por defecto**: se muestran solo si la

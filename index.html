@@ -3210,7 +3210,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.3.0';
+const APP_VERSION = '3.4.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -4166,6 +4166,22 @@ function calcRecordatorios() {
       });
     });
 
+  /* ---- 3 quater. Validación de Jefatura diferida, todavía sin regularizar ----
+     La urgencia se operó sin el visto previo, que es exactamente lo que la
+     excepción habilita. Lo que no habilita es que nunca quede asentado. */
+  DB.cirugias.filter((c) => jefaturaPendienteDiferida(c) && ['en_curso', 'realizada'].includes(c.estado))
+    .filter((c) => c.fecha >= sumarDias(hoy, -30))
+    .filter(remMia)
+    .forEach((c) => {
+      const hecha = c.estado === 'realizada';
+      add({
+        key: 'jefdif-' + c.id, nivel: hecha && c.fecha < hoy ? 'warn' : 'info', vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
+        titulo: `Validación de Jefatura sin regularizar — ${c.paciente?.nombre || 's/d'}`,
+        texto: `${c.procedimiento} (${c.quirofano || 's/d'}, ${fmtFecha(c.fecha)}). Entró por ${(c.jefaturaDiferida && c.jefaturaDiferida.motivo) || 'urgencia'} y se operó sin la validación previa de la ${JEFATURA}. Repase la lista de verificación de coordinación y cierre el trámite desde la ficha de la cirugía.`,
+        cuando: hecha ? 'Trámite pendiente' : `Cirugía ${fmtFecha(c.fecha)}`,
+      });
+    });
+
   /* ---- 4. Retraso de inicio > 60 min (incidencia D reportable) ---- */
   DB.cirugias.filter((c) => c.estado === 'confirmada' && c.fecha === hoy).filter(remMia).forEach((c) => {
     const prog = new Date(hoy + 'T' + (c.horaProg || '08:00') + ':00');
@@ -4622,7 +4638,7 @@ function renderSidebar() {
   if (jefe) {
     items.push({ sep: 'Jefatura' });
     // Badge: comunicados vigentes que todavía no confirmó todo el padrón.
-    const comSinLeer = DB.comunicados.filter((c) => comVigente(c)
+    const comSinLeer = DB.comunicados.filter((c) => comVigente(c) && !comSinAcuse(c)
       && comDestinatarios(c).some((d) => !comLeidoPor(c, d.clave))).length;
     items.push({ id: 'comunicados', icon: ICONS.megafono, label: 'Comunicados', badge: comSinLeer || null, badgeAmber: true });
     const pend = DB.cirugias.filter((c) => c.estado === 'pendiente' || c.estado === 'validada').length;
@@ -5447,7 +5463,10 @@ function accionesCirugia(c, rol) {
   if (c.estado === 'validada' && jefe) {
     a.push(`<button class="btn btn-sm btn-green" onclick="confirmarCirugia(${c.id})">${ICONS.check} Confirmar en el parte</button>`);
   }
-  if (c.estado === 'confirmada' && (jefe || esDueno)) {
+  // El turno confirmado en el parte arranca con la LVQ. La urgencia que entró
+  // fuera de horario, también: la validación de la Jefatura queda diferida y el
+  // cirujano no espera a nadie para operar.
+  if ((c.estado === 'confirmada' || puedeIniciarSinJefatura(c)) && (jefe || esDueno)) {
     a.push(`<button class="btn btn-sm btn-orange" onclick="openLVQ(${c.id}, 'inicio')">${ICONS.play} Iniciar (LVQ Entrada + Pausa)</button>`);
   }
   if (c.estado === 'en_curso' && (jefe || esDueno)) {
@@ -5463,6 +5482,10 @@ function accionesCirugia(c, rol) {
   }
   if (c.estado === 'anticipada' && jefe) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="reabrirAnticipada(${c.id})">${ICONS.refresh} Reponer el turno</button>`);
+  }
+  // La urgencia se operó sin el visto previo: la Jefatura lo cierra después.
+  if (jefe && jefaturaPendienteDiferida(c)) {
+    a.push(`<button class="btn btn-sm btn-blue" onclick="regularizarJefatura(${c.id})">${ICONS.check} Regularizar validación</button>`);
   }
   if (c.estado === 'realizada' && !c.informe && (jefe || esDueno)) {
     a.push(`<button class="btn btn-sm btn-blue" onclick="openCirugia(${c.id})">${ICONS.fileText} Cargar informe operatorio</button>`);
@@ -5540,6 +5563,11 @@ function openLVQ(id, modo) {
     <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">${modo === 'inicio'
       ? 'Complete la fase de <b>Entrada</b> (antes de la inducción) y la <b>Pausa Quirúrgica</b> (antes de la incisión) para registrar el inicio del procedimiento.'
       : 'Complete la fase de <b>Salida</b> (antes de salir de quirófano) para cerrar el procedimiento. El conteo de gasas e instrumental es obligatorio.'}</p>
+    ${modo === 'inicio' && puedeIniciarSinJefatura(c) ? `<div class="banner banner-amber" style="margin:0 0 14px;padding:10px 14px">${ico(ICONS.zap, 16)}
+      <div><strong>Validación de Jefatura diferida — ${esc(jefaturaMotivoExencion(c))}</strong>
+      Este turno todavía no lo validó la ${esc(JEFATURA)}. Por ser ${esc(jefaturaMotivoExencion(c))} <b>no hace falta esperarla</b>:
+      complete la Lista de Verificación, opere y cierre el procedimiento cuando termine. La validación y la lista de verificación
+      de coordinación quedan pendientes de regularizar y no frenan nada.</div></div>` : ''}
     ${fases.map((f) => `
       <div class="lvq-phase" id="lvq-f-${f}">
         <div class="lvq-head">${ICONS.clipboard.replace('18', '16')} ${LVQ[f].titulo}</div>
@@ -5565,6 +5593,12 @@ function confirmLVQ() {
   c.lvq = c.lvq || {};
   const t = nowDT();
   if (lvqModo === 'inicio') {
+    // Urgencia que arranca sin el visto de la Jefatura: queda escrito que la
+    // validación se difiere, no que no hizo falta.
+    if (['pendiente', 'validada'].includes(c.estado) && jefaturaExenta(c)) {
+      c.jefaturaDiferida = { motivo: jefaturaMotivoExencion(c), desdeEstado: c.estado, t };
+      pushHist(c, `Iniciada sin la validación previa de la ${JEFATURA} (${jefaturaMotivoExencion(c)}) — la validación y la lista de verificación de coordinación quedan diferidas y se regularizan después`);
+    }
     c.lvq.entrada = { done: true, hora: t };
     c.lvq.pausa = { done: true, hora: t };
     c.estado = 'en_curso';
@@ -5588,6 +5622,29 @@ function confirmLVQ() {
   }
 }
 function closeLVQ() { $('lvq-overlay').classList.remove('open'); refreshView(); }
+
+/* La Jefatura cierra después lo que no pudo hacer antes: repasa la lista de
+   verificación de coordinación y deja el turno regularizado. No cambia el
+   estado de la cirugía —ya se operó— ni toca los módulos: lo único que hace es
+   dejar constancia de que la Jefatura tomó conocimiento y qué faltaba. */
+async function regularizarJefatura(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!c || !jefe) return;
+  const faltan = coordFaltantes(c);
+  const motivo = (c.jefaturaDiferida && c.jefaturaDiferida.motivo) || jefaturaMotivoExencion(c) || 'urgencia';
+  if (!await preguntar(
+    `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} · ${fmtFecha(c.fecha)} (${c.quirofano || 's/d'}).\n\n`
+    + `Entró como ${motivo} y se operó sin la validación previa de la ${JEFATURA}.\n\n`
+    + (faltan.length
+      ? `Todavía figuran sin verificar:\n· ${faltan.join('\n· ')}\n\nSe puede regularizar igual —la cirugía ya se hizo— y queda asentado qué faltaba.`
+      : 'La lista de verificación de coordinación está completa.'),
+    { titulo: 'Regularizar la validación de Jefatura', tono: 'jefatura', si: 'Regularizar', no: 'Cancelar' })) return;
+  c.jefaturaRegularizada = { por: JEFATURA, t: nowDT(), faltaban: faltan };
+  pushHist(c, `Validación de la ${JEFATURA} regularizada con la cirugía ya ${c.estado === 'realizada' ? 'realizada' : 'en curso'}`
+    + (faltan.length ? ` — quedaban sin verificar: ${faltan.join('; ')}` : ' — lista de verificación de coordinación completa'));
+  upsert('cirugias', c);
+  refreshView();
+}
 
 /* ================= SUSPENSIÓN ================= */
 let suspCirId = null;
@@ -6360,6 +6417,7 @@ function openCirugia(id) {
       ${c.estado === 'anticipada' && c.anticipada ? `<div class="det-row"><b>${c.anticipada.tipo === 'adelanto' ? 'Adelantada a otra fecha' : 'Resuelta por urgencia'}</b> El paciente se operó el ${fmtFecha(c.anticipada.fechaUrgencia || '')}${c.anticipada.quirofanoUrgencia ? ' en ' + esc(c.anticipada.quirofanoUrgencia) : ''}${c.anticipada.procedimientoUrgencia ? ` (${esc(c.anticipada.procedimientoUrgencia)})` : ''}. Registrado por ${esc(c.anticipada.registradaPor || '—')} el ${fmtDT(c.anticipada.t)}.</div>
       ${c.liberado ? `<div class="det-row"><b>Franja liberada</b> ${esc(c.liberado.quirofano || 's/d')} · ${esc(c.liberado.hora || '—')} h · ${fmtFecha(c.liberado.fecha)}</div>` : ''}` : ''}
       ${authDetalle(c)}
+      ${jefaturaDetalle(c)}
       ${c.registroTardio ? `<div class="det-row"><b>Registro fuera de término</b> la franja de las ${esc(c.horaProg || '')} h ya había vencido y la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} la reabrió el ${esc(c.registroTardio.fechaHora || '')} para asentar esta cirugía — ${esc(c.registroTardio.motivo || '')}</div>` : ''}
       <div class="det-row"><b>Recursos</b> ${[c.recursos?.arcoC ? 'Arco en C' : '', c.recursos?.implante ? 'Implante: ' + esc(c.recursos.implanteDetalle || 's/d') : '', c.recursos?.hemoderivados ? 'Hemoderivados' : ''].filter(Boolean).join(' · ') || 'Sin recursos especiales'}</div>
       ${c.horaInicioReal ? `<div class="det-row"><b>Inicio real</b> ${fmtDT(c.horaInicioReal)}</div>` : ''}
@@ -6383,12 +6441,17 @@ function openCirugia(id) {
     <div class="det-section">
       <h4>Coordinación de áreas (interconexiones)</h4>
       ${['borrador', 'pendiente'].includes(c.estado) && faltan.length ? `<div class="banner banner-amber" style="margin-bottom:10px;padding:10px 14px">${ICONS.info.replace('18','15')}<div>Faltan verificaciones para validar: ${faltan.length}</div></div>` : ''}
+      ${jefaturaPendienteDiferida(c) ? `<div class="banner banner-amber" style="margin-bottom:10px;padding:10px 14px">${ico(ICONS.zap, 16)}
+        <div><strong>Lista de verificación diferida — ${esc(jefaturaMotivoExencion(c) || 'urgencia')}</strong>
+        La cirugía se hizo sin que la ${esc(JEFATURA)} pudiera repasar estas casillas antes: entró fuera del circuito programado.
+        ${faltan.length ? `Quedan ${faltan.length} sin verificar.` : 'Ya están todas verificadas.'} Complete lo que corresponda y cierre el trámite
+        con <b>Regularizar validación</b>.</div></div>` : ''}
       <div class="coord-grid">
         ${COORD_ITEMS.map((it) => {
           const aplica = it.k !== 'hemoterapia' || c.recursos?.hemoderivados;
           const val = !!(c.coordinacion && c.coordinacion[it.k]);
           return `<label class="coord-item" style="${aplica ? '' : 'opacity:0.45'}">
-            <input type="checkbox" ${val ? 'checked' : ''} ${puedeCoordinar && aplica && ['borrador','pendiente','validada'].includes(c.estado) ? '' : 'disabled'} onchange="setCoord(${c.id}, '${it.k}', this.checked)">
+            <input type="checkbox" ${val ? 'checked' : ''} ${puedeCoordinar && aplica && (['borrador','pendiente','validada'].includes(c.estado) || jefaturaPendienteDiferida(c)) ? '' : 'disabled'} onchange="setCoord(${c.id}, '${it.k}', this.checked)">
             <span>${it.label}${aplica ? '' : ' <i>(no aplica)</i>'}</span>
             <span class="who">${it.who}</span>
           </label>`;
@@ -8493,6 +8556,60 @@ function authOk(c) { return authExenta(c) || c.auth === 'AUTORIZADO'; }
    regularizar. Se puede cerrar en cualquier momento, incluso después de operar. */
 function authPendienteDiferida(c) { return authExenta(c) && c.auth !== 'AUTORIZADO' && c.auth !== 'NO AUTORIZADO'; }
 
+/* ---- Validación de la Jefatura de Quirófanos: quién la necesita ANTES ----
+   El circuito normal es que la Jefatura valide el turno —repasando la lista de
+   verificación de coordinación: Farmacia, Esterilización, Anestesiología,
+   Hemoterapia, estudios preoperatorios y consentimiento— y recién después lo
+   confirme en el parte. Eso funciona con la cirugía programada, pero no con la
+   guardia: una urgencia que entra a las 2 de la mañana no puede esperar a que
+   la Jefatura llegue al hospital para que el cirujano pueda operar.
+
+   Por eso las urgencias y emergencias —la cesárea de urgencia y la endoscopía
+   de urgencia entre ellas— y los turnos de prioridad P1 y P2 quedan exentos de
+   la validación **previa**: el cirujano abre la Lista de Verificación
+   Quirúrgica, opera y cierra el procedimiento sin esperar a nadie. La
+   validación de la Jefatura no desaparece: queda **diferida**, igual que la
+   autorización de Admisión y Egresos, y se regulariza después, incluso con la
+   cirugía ya realizada.
+
+   Si la urgencia entra en un horario en que la Jefatura está, valida como
+   siempre: los botones de validar y confirmar en el parte siguen ahí. */
+function jefaturaExenta(c) {
+  if (!c) return false;
+  return !!c.urgencia || prioridadEfectiva(c) <= 2;
+}
+/* Por qué este turno puede arrancar sin el visto previo de la Jefatura. */
+function jefaturaMotivoExencion(c) {
+  if (!c) return '';
+  if (c.urgencia) return 'urgencia / emergencia';
+  if (prioridadEfectiva(c) <= 2) return `prioridad P${prioridadEfectiva(c)} — ${PRIOS[prioridadEfectiva(c)].label.toLowerCase()}`;
+  return '';
+}
+/* El turno se operó sin el visto previo de la Jefatura y nadie lo regularizó
+   todavía. No frena nada: queda a la vista hasta que se cierre. */
+function jefaturaPendienteDiferida(c) { return !!(c && c.jefaturaDiferida) && !(c && c.jefaturaRegularizada); }
+/* ¿Puede el cirujano arrancar sin esperar a la Jefatura? Solo si el turno está
+   exento y todavía no pasó por la validación. */
+function puedeIniciarSinJefatura(c) {
+  return !!c && jefaturaExenta(c) && ['pendiente', 'validada'].includes(c.estado);
+}
+function jefaturaChip(c) {
+  if (!jefaturaPendienteDiferida(c)) return '';
+  return '<span class="slot-auth auth-exe" title="Entró como urgencia y se operó sin la validación previa de la Jefatura de Quirófanos. La validación quedó diferida y se regulariza desde la ficha de la cirugía.">VALID. DIFERIDA</span>';
+}
+/* Bloque de la ficha con el estado de la validación de Jefatura. Devuelve vacío
+   en el turno programado, que sigue el circuito normal y no tiene nada especial
+   que contar. */
+function jefaturaDetalle(c) {
+  if (c && c.jefaturaRegularizada) {
+    const f = c.jefaturaRegularizada.faltaban || [];
+    return `<div class="det-row"><b>Validación de Jefatura</b> <span style="color:var(--green);font-weight:800">REGULARIZADA</span> (${esc(c.jefaturaRegularizada.por || JEFATURA)})${c.jefaturaRegularizada.t ? ' · ' + fmtDT(c.jefaturaRegularizada.t) : ''}${f.length ? `<br><small>Al momento de operar quedaban sin verificar: ${esc(f.join('; '))}.</small>` : ''}</div>`;
+  }
+  if (!jefaturaPendienteDiferida(c)) return '';
+  return `<div class="det-row"><b>Validación de Jefatura</b> <span style="color:#5b21b6;font-weight:800">DIFERIDA — ${esc(c.jefaturaDiferida.motivo || jefaturaMotivoExencion(c))}</span><br>
+    <small>La cirugía entró fuera del circuito programado y se operó sin el visto previo de la ${esc(JEFATURA)}: la lista de verificación de coordinación se repasa después. El trámite se cierra desde esta misma ficha, con el botón <b>Regularizar validación</b>.</small></div>`;
+}
+
 function authChip(c) {
   if (c.auth === 'AUTORIZADO') return '<span class="slot-auth auth-ok">AUTORIZADO</span>';
   if (c.auth === 'NO AUTORIZADO') return `<span class="slot-auth auth-no" title="${esc(c.authMotivo || 'Sin motivo registrado')}">NO AUTORIZ.</span>`;
@@ -8516,6 +8633,7 @@ function slotCard(d, s, f, salaOff) {
         <span class="slot-est" style="background:${e.soft};color:${e.text}">${e.label}</span>
         <span class="slot-prio" style="background:${PRIOS[pe].color}">P${pe}</span>
         ${authChip(c)}
+        ${jefaturaChip(c)}
         ${consentimientoDeTurno(c) ? '<span class="slot-ci ci-ok">CI ✓</span>' : '<span class="slot-ci ci-falta">SIN CI</span>'}
       </span>
     </button>`;
@@ -8691,6 +8809,15 @@ function renderProgDiaria() {
       igual, con la autorización marcada como <b>DIFERIDA</b>, y el trámite administrativo se cumplimenta después
       —incluso con la cirugía ya realizada— desde el propio turno.</div></div>
 
+    <div class="banner banner-blue">${ico(ICONS.zap, 18)}
+      <div><strong>Validación de la Jefatura en las urgencias — también diferida</strong>
+      La <b>urgencia o emergencia</b> —incluidas la <b>cesárea de urgencia</b> y la <b>endoscopía de urgencia</b>— y los turnos de
+      <b>prioridad P1 y P2</b> no esperan la validación de la Jefatura de Quirófanos para operarse: si la cirugía entra a las 2 de la
+      mañana, la Jefatura no está y el turno igual arranca. El cirujano abre la <b>Lista de Verificación Quirúrgica</b>, opera y
+      cierra el procedimiento; el turno queda marcado como <b>VALID. DIFERIDA</b> y la Jefatura repasa después la lista de
+      verificación de coordinación con el botón <b>Regularizar validación</b> de la ficha. Si la urgencia entra en un horario en que
+      la Jefatura está, valida como siempre, antes de operar.</div></div>
+
     ${jefe ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 18)}
       <div><strong>Reapertura excepcional de una franja cumplida</strong>
       Si una urgencia o una cesárea se operó y nadie la cargó a tiempo, la Jefatura puede pulsar esa franja vencida
@@ -8833,6 +8960,7 @@ function openSlot(d, sid, fid) {
       <div class="det-row"><b>Estado</b> ${ESTC[c.estado].label} — ${ESTC[c.estado].desc}</div>
       ${c.registroTardio ? `<div class="det-row"><b>Registro fuera de término</b> asentado por la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} el ${esc(c.registroTardio.fechaHora || '')} sobre una franja ya vencida — ${esc(c.registroTardio.motivo || '')}</div>` : ''}
       ${authDetalle(c)}
+      ${jefaturaDetalle(c)}
       <div class="det-row"><b>Consentimiento informado</b> ${consentimientoDeTurno(c)
         ? `generado el ${esc(consentimientoDeTurno(c).fecha)}`
         : '<span style="color:var(--red);font-weight:700">pendiente de generar</span>'}</div>
@@ -11311,6 +11439,9 @@ function modulosRegistrados(desde, hasta) {
   const filas = [];
   DB.cirugias.forEach((c) => {
     if (c.estado !== 'realizada' || !c.modulo) return;      // solo lo efectivamente operado
+    // Módulo dado de baja por la Dirección Médica: la cirugía se hizo, pero no
+    // se factura. No se imputa a nadie ni suma en ningún total de la solapa.
+    if (moduloDadoDeBaja(c)) return;
     const f = c.fecha || '';
     if ((desde && f < desde) || (hasta && f > hasta)) return;
     // El ayudante de una cirugía C figura en el equipo, pero sin módulo: no hay
@@ -11343,7 +11474,83 @@ function agrupar(filas, clave) {
 }
 function importeDe(g) {
   const v = modConfig().valores;
-  return g.A * v.A + g.B * v.B + g.C * v.C;
+  return (g.A || 0) * v.A + (g.B || 0) * v.B + (g.C || 0) * v.C;
+}
+
+/* ---- Baja de un módulo por la Dirección Médica ----
+   La Dirección puede resolver que un módulo no se factura. La cirugía, su
+   historia y su equipo quedan intactos: lo único que cambia es que ese módulo
+   sale de la liquidación y de todos los totales de la solapa. Exige motivo
+   escrito, porque el motivo es lo que se le manda al equipo. */
+function moduloDadoDeBaja(c) { return !!(c && c.moduloBaja); }
+function cirugiasDadasDeBaja(desde, hasta, servicio) {
+  return DB.cirugias
+    .filter((c) => moduloDadoDeBaja(c) && c.estado === 'realizada' && c.modulo)
+    .filter((c) => (!desde || (c.fecha || '') >= desde) && (!hasta || (c.fecha || '') <= hasta))
+    .filter((c) => !servicio || mismoServicio(c.servicio, servicio))
+    .sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
+}
+/* Los dos profesionales alcanzados por la baja: el cirujano y el 1er ayudante.
+   Se los busca por correo y, si el ayudante se cargó a mano, por nombre. */
+function usuarioDeEquipo(pp) {
+  const mail = String((pp && pp.email) || '').trim().toLowerCase();
+  if (mail) {
+    const u = DB.usuarios.find((x) => String(x.email || '').trim().toLowerCase() === mail && cuentaAprobada(x));
+    if (u) return u;
+  }
+  const nom = sinTildes(pp && pp.nombre).replace(/\s+/g, ' ').trim();
+  if (!nom) return null;
+  return DB.usuarios.find((x) => cuentaAprobada(x) && sinTildes(x.nombre).replace(/\s+/g, ' ').trim() === nom) || null;
+}
+function destinatariosModulo(c) {
+  const out = [];
+  equipoDe(c).forEach((pp) => {
+    const u = usuarioDeEquipo(pp);
+    if (!u || !u.email) return;
+    if (out.some((x) => String(x.email).toLowerCase() === String(u.email).toLowerCase())) return;
+    out.push({ email: u.email, nombre: u.nombre, rol: pp.rol, modulo: pp.modulo || '' });
+  });
+  return out;
+}
+function textoBajaModulo(c, pp, motivo) {
+  return 'La Dirección Médica dio de baja el módulo quirúrgico de esta cirugía: no se factura.\n\n'
+    + 'LA CIRUGÍA\n'
+    + `· ${c.procedimiento || 's/d'}\n`
+    + `· ${fmtFecha(c.fecha)} — ${c.quirofano || 's/d'}\n`
+    + `· Paciente: ${(c.paciente && c.paciente.nombre) || 's/d'}\n`
+    + `· Servicio: ${c.servicio || 's/d'}\n`
+    + `· Módulo de la cirugía: ${c.modulo}\n\n`
+    + 'LO QUE LE CORRESPONDÍA A USTED\n'
+    + `· ${pp.rol}${pp.modulo ? ' — módulo ' + pp.modulo : ' — sin módulo'}\n\n`
+    + 'MOTIVO DE LA BAJA\n'
+    + `${motivo}\n\n`
+    + 'QUÉ SIGNIFICA\n'
+    + '· El módulo deja de figurar en la solapa Módulos Quirúrgicos y no entra en la liquidación del período.\n'
+    + '· La cirugía, su parte quirúrgico y su historia clínica no se modifican.\n'
+    + '· Si no está de acuerdo, puede plantearlo por la solapa «Reclamos».';
+}
+/* El aviso va a los dos profesionales alcanzados y a nadie más. Se emite
+   **sin acuse**: ni la Dirección Médica ni la Jefatura de Quirófanos reciben
+   notificación de lectura, y el aviso no aparece en la solapa Comunicados de la
+   Jefatura. Es una decisión de facturación entre la Dirección y el equipo que
+   operó, no un comunicado del bloque. */
+function avisarBajaModulo(c, motivo) {
+  const emitidos = [];
+  destinatariosModulo(c).forEach((pp, i) => {
+    const id = 'combaja' + Date.now() + '_' + i;
+    upsert('comunicados', {
+      id,
+      titulo: 'Módulo quirúrgico dado de baja por la Dirección Médica',
+      texto: textoBajaModulo(c, pp, motivo),
+      prioridad: 'importante',
+      destino: { tipo: 'profesional', valor: pp.email },
+      emitido: nowDT(), emitidoPor: 'Dirección Médica', activo: true, lecturas: {},
+      sinAcuse: true,        // sin registro de lectura para la Dirección ni para la Jefatura
+      bajaModulo: c.id,
+    });
+    emitidos.push(Object.assign({ com: id }, pp));
+  });
+  return emitidos;
 }
 
 /* ---- Período: día, semana, mes, año o rango libre ---- */
@@ -11352,6 +11559,7 @@ let modAncla = null;      // fecha de referencia del período
 let modDesde = null, modHasta = null;   // solo para el rango libre
 let modTab = 'prof';      // 'prof' | 'servicio' | 'detalle'
 let modServicio = '';     // filtro de servicio (Dirección Médica)
+let modProf = '';         // filtro de profesional: la consulta «por cirujano»
 
 function modRango() {
   const a = modAncla || hoyISO();
@@ -11389,16 +11597,35 @@ function modSetPeriodo(p) { modPeriodo = p; if (!modAncla) modAncla = hoyISO(); 
 /* ---- Alcance: cada cirujano ve su servicio; la Dirección Médica, todo ---- */
 function modAlcance() {
   const u = usuarioActual();
-  if (director) return { todo: true, servicio: modServicio, quien: 'Dirección Médica' };
-  const serv = servicioCanonico(u && u.servicio);
-  return { todo: false, servicio: serv, quien: serv };
+  const base = director
+    ? { todo: true, servicio: modServicio, quien: modServicio || 'todos los servicios' }
+    : (() => { const serv = servicioCanonico(u && u.servicio); return { todo: false, servicio: serv, quien: serv }; })();
+  if (modProf) base.quien = `${modProf} — ${base.quien}`;
+  return base;
 }
-function modFilasVisibles() {
+/* Filas del período dentro del alcance de quien consulta, todavía sin el filtro
+   de profesional: es el universo del que sale el desplegable de profesionales. */
+function modFilasDelAlcance() {
   const [d, h] = modRango();
   const al = modAlcance();
   let filas = modulosRegistrados(d, h);
   if (!al.todo || al.servicio) filas = filas.filter((f) => mismoServicio(f.servicio, al.servicio));
   return filas;
+}
+/* Lo que efectivamente se ve y se exporta. Con un profesional elegido —la
+   consulta «por cirujano»— quedan solo sus renglones: sus cirugías y sus
+   ayudantías, no las del resto del equipo. */
+function modFilasVisibles() {
+  const filas = modFilasDelAlcance();
+  return modProf ? filas.filter((f) => f.nombre === modProf) : filas;
+}
+/* Profesionales con actividad en el período, para el desplegable. Si el elegido
+   no operó en este período se lo conserva igual, para que el filtro no se
+   pierda solo al cambiar de mes. */
+function modProfesionales() {
+  const nombres = [...new Set(modFilasDelAlcance().map((f) => f.nombre).filter(Boolean))];
+  if (modProf && !nombres.includes(modProf)) nombres.push(modProf);
+  return nombres.sort((a, b) => a.localeCompare(b, 'es'));
 }
 
 /* ---- Acceso de la Dirección Médica ---- */
@@ -11414,6 +11641,7 @@ function openDirectorModal() {
 function directorLogout() {
   director = false;
   modServicio = '';
+  modProf = '';
   sessionStorage.removeItem('hru_director');
   cerrarComunicado();  // sin identidad no hay a quién registrarle la lectura
   go(usuarioActual() ? 'modulos' : 'panel');
@@ -11438,6 +11666,7 @@ function renderModulos() {
 
   // Cirugías realizadas del alcance a las que les falta el ayudante.
   const faltantes = DB.cirugias.filter((c) => c.estado === 'realizada' && c.modulo && !ayudanteDefinido(c)
+    && !moduloDadoDeBaja(c)
     && c.fecha >= desde && c.fecha <= hasta
     && (al.todo && !al.servicio ? true : mismoServicio(c.servicio, al.servicio)));
 
@@ -11445,6 +11674,11 @@ function renderModulos() {
   const sinPractica = DB.cirugias.filter((c) => c.estado === 'realizada' && !c.modulo
     && c.fecha >= desde && c.fecha <= hasta
     && (al.todo && !al.servicio ? true : mismoServicio(c.servicio, al.servicio)));
+
+  // Módulos que la Dirección Médica dejó fuera de la facturación. No suman en
+  // ningún total, pero tienen que verse en algún lado: si no, la baja sería
+  // invisible y no habría cómo deshacerla.
+  const bajas = cirugiasDadasDeBaja(desde, hasta, al.servicio);
 
   const barras = modEvolucion(filas, desde, hasta);
   const maxBarra = Math.max(1, ...barras.map((b) => b.T));
@@ -11458,15 +11692,32 @@ function renderModulos() {
           <p class="page-sub">Nomenclador Modulado 2025 · ${al.todo ? (al.servicio ? esc(al.servicio) : 'todos los servicios') : esc(al.servicio)} — ${modTituloPeriodo()}</p>
         </div>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="exportarModulos()">${ICONS.download} Exportar CSV</button>
+      <button class="btn btn-outline btn-sm" onclick="exportarModulos()">${ICONS.download} Exportar CSV ${modProf ? 'por profesional' : 'por servicio'}</button>
     </div>
 
     <div class="banner banner-blue">${ICONS.info}
       <div><strong>Qué cuenta esta solapa</strong>
       Solo las cirugías marcadas como <b>Realizada</b>. Un turno programado, confirmado o en curso todavía no genera módulo:
       aparece recién cuando se cierra el procedimiento con la Lista de Verificación de salida. El módulo A, B o C lo fija el
-      nomenclador al elegir la práctica: el cirujano percibe ese módulo y el 1er ayudante, siempre, el escalón inmediato
-      inferior (A → B, B → C, C → C). Ninguno de los dos se edita a mano y el anestesiólogo/a no percibe módulo quirúrgico.</div></div>
+      nomenclador al elegir la práctica: el cirujano percibe ese módulo y el 1er ayudante el escalón inmediato inferior
+      (A → B, B → C). El <b>módulo C no genera módulo para el ayudante</b>: la cirugía puede hacerse con ayudante o sin él,
+      pero no hay escalón por debajo de C, así que el ayudante queda registrado en el equipo y no percibe módulo.
+      Ninguno de los dos se edita a mano y el anestesiólogo/a no percibe módulo quirúrgico.</div></div>
+
+    <div class="banner banner-blue">${ICONS.download}
+      <div><strong>Las dos planillas</strong>
+      El botón <b>Exportar CSV</b> baja la consulta que está en pantalla, y sale distinta según cómo se consulte.
+      <b>Por servicio</b> —sin profesional elegido— es <b>una fila por cirugía</b>: en el mismo renglón van el cirujano con su
+      módulo y el 1er ayudante con el suyo. <b>Por cirujano</b> —eligiendo un profesional en el desplegable— salen <b>solo sus
+      renglones</b>: sus cirugías y sus ayudantías, con el módulo A, B o C que le tocó a él y nada del resto del equipo.
+      Las dos cierran con la <b>sumatoria de módulos A, B y C y el total facturado</b> del período consultado.</div></div>
+
+    ${director ? `<div class="banner banner-amber">${ico(ICONS.shield, 18)}
+      <div><strong>Baja de un módulo — solo Dirección Médica</strong>
+      Desde la pestaña <b>Detalle</b>, con el botón <b>Equipo</b> de cada cirugía, la Dirección Médica puede <b>dar de baja</b> un
+      módulo para que no se facture, escribiendo el motivo. En el acto se le emite un aviso al <b>cirujano</b> y a su
+      <b>1er ayudante</b> con ese motivo; ni la Dirección Médica ni la Jefatura de Quirófanos reciben notificación de lectura.
+      El módulo dado de baja sale de todos los totales y de las planillas, y queda listado al pie del Detalle.</div></div>` : ''}
 
     ${al.todo ? '' : `<div class="banner banner-amber">${ico(ICONS.lock, 16)}
       <div><strong>Alcance de su consulta</strong>
@@ -11489,10 +11740,16 @@ function renderModulos() {
             <button class="est-preset" onclick="modAncla=hoyISO();renderModulos()">Hoy</button>
           </div>`}
       ${al.todo ? `<div class="field" style="min-width:220px"><label>Servicio</label>
-        <select onchange="modServicio=this.value;renderModulos()">
+        <select onchange="modServicio=this.value;modProf='';renderModulos()">
           <option value="">Todos los servicios</option>
           ${SERVICIOS_HRU.map((s) => `<option ${modServicio === s ? 'selected' : ''}>${s}</option>`).join('')}
         </select></div>` : ''}
+      <div class="field" style="min-width:240px"><label>Profesional</label>
+        <select onchange="modProf=this.value;renderModulos()">
+          <option value="">Todos los profesionales</option>
+          ${modProfesionales().map((n) => `<option value="${attr(n)}" ${modProf === n ? 'selected' : ''}>${esc(n)}</option>`).join('')}
+        </select>
+        <span class="hint">Elegido un profesional, la consulta y la planilla muestran solo sus cirugías y sus ayudantías.</span></div>
     </div>
 
     <div class="kpi-grid">
@@ -11542,7 +11799,7 @@ function renderModulos() {
 
     ${modTab === 'prof' ? modTablaProf(porProf, conImportes, u) : ''}
     ${modTab === 'servicio' ? modTablaServ(porServ, conImportes) : ''}
-    ${modTab === 'detalle' ? modTablaDetalle(filas) : ''}
+    ${modTab === 'detalle' ? modTablaDetalle(filas) + modTablaBajas(bajas) : ''}
 
     <div class="charts" style="margin-top:18px">
       <div class="chart-card">
@@ -11633,6 +11890,33 @@ function modTablaDetalle(filas) {
     </tbody></table></div>`;
 }
 
+/* Los módulos dados de baja por la Dirección Médica, al pie del detalle. Están
+   fuera de todos los totales: esta tabla existe para que la decisión quede a la
+   vista y para que la Dirección pueda reponerlos. */
+function modTablaBajas(bajas) {
+  if (!bajas.length) return '';
+  return `<div class="card" style="margin-top:18px;border:1px solid #f0c9c9;box-shadow:none">
+    <div class="card-title" style="color:var(--red);margin-bottom:2px">${ico(ICONS.alertTri, 16)} ${bajas.length} módulo(s) dado(s) de baja por la Dirección Médica</div>
+    <div class="card-sub">No se facturan y no entran en ninguno de los totales de arriba ni en las planillas. La cirugía y su
+      historia clínica quedan intactas. ${director ? 'Para reponer un módulo, ábralo y use «Reponer el módulo».' : 'Solo la Dirección Médica puede dejar la baja sin efecto.'}</div>
+    <div class="tbl-wrap" style="margin-top:10px"><table class="tbl" style="min-width:900px">
+      <thead><tr><th>Fecha</th><th>Paciente</th><th>Práctica</th><th>Servicio</th><th class="num">Módulo</th>
+        <th>Equipo</th><th>Motivo de la baja</th><th></th></tr></thead>
+      <tbody>${bajas.map((c) => `
+        <tr style="background:#fdf7f7">
+          <td>${fmtFecha(c.fecha)}</td>
+          <td>${esc(c.paciente?.nombre || 's/d')}</td>
+          <td>${esc(c.procedimiento)}</td>
+          <td>${esc(c.servicio || '')}</td>
+          <td class="num"><span class="mod-pill" style="background:#9ca3af">${esc(c.modulo)}</span></td>
+          <td>${equipoDe(c).map((pp) => `<div style="font-size:0.82rem">${esc(pp.rol)}: <b>${esc(pp.nombre)}</b>${pp.modulo ? ' (' + esc(pp.modulo) + ')' : ''}</div>`).join('') || '—'}</td>
+          <td><div style="font-size:0.82rem">${esc(c.moduloBaja.motivo || 'sin motivo registrado')}</div>
+            <small>${fmtDT(c.moduloBaja.t)}</small></td>
+          <td>${director ? `<button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">${ICONS.edit} Abrir</button>` : ''}</td>
+        </tr>`).join('')}
+      </tbody></table></div></div>`;
+}
+
 function modPanelDireccion(cfg) {
   return `<div class="card" style="margin-top:18px">
     <div class="card-title">${ico(ICONS.shield, 16)} Dirección Médica — valores del nomenclador</div>
@@ -11674,20 +11958,102 @@ function modEvolucion(filas, desde, hasta) {
   return arr;
 }
 
+/* ================= PLANILLAS DE MÓDULOS =================
+   Son dos, y salen distintas porque las preguntas son distintas:
+
+     · **Por servicio** (sin profesional elegido): una fila por cirugía. En ese
+       único renglón van el cirujano con su módulo y el 1er ayudante con el
+       suyo, que es como se lee una liquidación de servicio.
+     · **Por cirujano** (con un profesional elegido): solo los renglones de ese
+       profesional —sus cirugías y sus ayudantías, con el módulo A, B o C que le
+       tocó a él— y nada del resto del equipo.
+
+   Las dos terminan igual: la sumatoria de módulos A, B y C y el total
+   facturado de la franja de datos consultada. */
 function exportarModulos() {
+  return modProf ? exportarModulosPorProfesional() : exportarModulosPorServicio();
+}
+
+/* Sumatoria final, común a las dos planillas. `filas` son renglones de módulo
+   —uno por profesional imputado—, que es lo que se cuenta y lo que se factura. */
+function modBloqueTotales(filas, conImportes, cfg, etiqueta) {
+  const t = { A: 0, B: 0, C: 0 };
+  filas.forEach((f) => { t[f.modulo] = (t[f.modulo] || 0) + 1; });
+  const T = t.A + t.B + t.C;
+  const out = [[], [etiqueta]];
+  MOD_LETRAS.forEach((k) => out.push(
+    [`Módulos ${k} — ${MODULOS[k].desc}`, t[k]].concat(conImportes ? [cfg.valores[k], t[k] * cfg.valores[k]] : [])));
+  out.push(['TOTAL DE MÓDULOS', T].concat(conImportes ? ['', importeDe(t)] : []));
+  if (!conImportes) out.push(['Valor facturado', 'Los importes están ocultos: la Dirección Médica los habilita desde la solapa Módulos Quirúrgicos.']);
+  return out;
+}
+function modPieCSV(desde, hasta) {
+  return [[], [`Período ${desde} a ${hasta}`, `Alcance: ${modAlcance().quien}`, `Exportado ${nowDT().replace('T', ' ')}`]];
+}
+/* Nombre de archivo sin tildes ni espacios: se abre en cualquier máquina. */
+function modArchivo(txt) {
+  return sinTildes(txt).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'consulta';
+}
+
+/* ---- Planilla por servicio: una fila por cirugía ---- */
+function exportarModulosPorServicio() {
   const [desde, hasta] = modRango();
   const conImportes = verImportes();
   const cfg = modConfig();
-  const filas = [['Fecha', 'Paciente', 'DNI', 'Práctica', 'Capítulo', 'Sección', 'Servicio',
-    'Módulo de la cirugía', 'Rol', 'Profesional', 'Módulo del profesional'].concat(conImportes ? ['Valor unitario'] : [])];
-  modFilasVisibles().forEach((f) => filas.push([
+  const visibles = modFilasVisibles();
+  // Una sola aparición por cirugía, en el orden en que se ven en pantalla.
+  const porCx = [];
+  const vistas = {};
+  visibles.forEach((f) => { if (!vistas[f.cir.id]) { vistas[f.cir.id] = true; porCx.push(f.cir); } });
+
+  const filas = [['Fecha', 'Paciente', 'DNI', 'Práctica del nomenclador', 'Capítulo', 'Sección', 'Servicio',
+    'Módulo de la cirugía', 'Cirujano', 'Módulo del cirujano', '1er Ayudante', 'Módulo del ayudante']
+    .concat(conImportes ? ['Valor del cirujano', 'Valor del ayudante', 'Total de la cirugía'] : [])];
+
+  porCx.forEach((c) => {
+    const eq = equipoDe(c);
+    const cir = eq.find((pp) => pp.rol === 'Cirujano') || { nombre: c.cirujano || '', modulo: '' };
+    const ayu = eq.find((pp) => pp.rol === '1er Ayudante') || null;
+    const vCir = cir.modulo ? cfg.valores[cir.modulo] : 0;
+    const vAyu = ayu && ayu.modulo ? cfg.valores[ayu.modulo] : 0;
+    filas.push([
+      c.fecha, c.paciente?.nombre || '', c.paciente?.dni || '', c.procedimiento || '',
+      c.practica?.g || 'Fuera del nomenclador', c.practica?.s || '', servicioCanonico(c.servicio) || c.servicio || '',
+      c.modulo, cir.nombre || '', cir.modulo || '',
+      ayu ? ayu.nombre : (c.sinAyudante ? 'SIN AYUDANTE' : 'Sin declarar'),
+      ayu ? (ayu.modulo || 'Sin módulo — el C no admite uno menor') : '',
+    ].concat(conImportes ? [vCir, vAyu, vCir + vAyu] : []));
+  });
+
+  filas.push(...modBloqueTotales(visibles, conImportes, cfg,
+    `TOTALES DEL PERÍODO — ${porCx.length} cirugía(s) · ${modAlcance().quien}`));
+  filas.push(...modPieCSV(desde, hasta));
+  descargarCSV(`hru-modulos-servicio-${modArchivo(modServicio || 'todos')}-${desde}_${hasta}.csv`, filas);
+}
+
+/* ---- Planilla por cirujano: solo sus cirugías y sus ayudantías ---- */
+function exportarModulosPorProfesional() {
+  const [desde, hasta] = modRango();
+  const conImportes = verImportes();
+  const cfg = modConfig();
+  const visibles = modFilasVisibles();
+
+  const filas = [['Fecha', 'Paciente', 'DNI', 'Práctica del nomenclador', 'Capítulo', 'Sección', 'Servicio',
+    'Intervino como', 'Módulo que percibe', 'Módulo de la cirugía']
+    .concat(conImportes ? ['Valor facturado'] : [])];
+
+  visibles.forEach((f) => filas.push([
     f.fecha, f.cir.paciente?.nombre || '', f.cir.paciente?.dni || '', f.cir.procedimiento || '',
     f.cir.practica?.g || 'Fuera del nomenclador', f.cir.practica?.s || '', f.servicio,
-    f.cir.modulo, f.rol, f.nombre, f.modulo,
+    f.rol, f.modulo, f.cir.modulo,
   ].concat(conImportes ? [cfg.valores[f.modulo]] : [])));
-  filas.push([]);
-  filas.push([`Período ${desde} a ${hasta}`, `Alcance: ${modAlcance().quien}`, `Exportado ${nowDT().replace('T', ' ')}`]);
-  descargarCSV(`hru-modulos-${desde}_${hasta}.csv`, filas);
+
+  const comoCir = visibles.filter((f) => f.rol === 'Cirujano').length;
+  const comoAyu = visibles.filter((f) => f.rol === '1er Ayudante').length;
+  filas.push(...modBloqueTotales(visibles, conImportes, cfg,
+    `TOTALES DEL PERÍODO — ${modProf}: ${comoCir} cirugía(s) como cirujano y ${comoAyu} ayudantía(s)`));
+  filas.push(...modPieCSV(desde, hasta));
+  descargarCSV(`hru-modulos-profesional-${modArchivo(modProf)}-${desde}_${hasta}.csv`, filas);
 }
 
 /* ================= MODAL: EQUIPO Y MÓDULOS DE UNA CIRUGÍA ================= */
@@ -11719,6 +12085,11 @@ function openEquipoMod(id) {
         <div style="font-size:0.82rem;color:var(--muted)">${esc(c.procedimiento)} · ${fmtFecha(c.fecha)} — ${esc(c.paciente?.nombre || 's/d')}</div>
       </div>
     </div>
+    ${moduloDadoDeBaja(c) && !director ? `
+      <div class="banner banner-red" style="margin:0 0 12px">${ico(ICONS.alertTri, 18)}
+        <div><strong>Módulo dado de baja por la Dirección Médica — no se factura</strong>
+        ${esc(c.moduloBaja.motivo || 'sin motivo registrado')}
+        <div style="margin-top:4px;font-size:0.8rem">${fmtDT(c.moduloBaja.t)}. La baja la deja sin efecto únicamente la Dirección Médica.</div></div></div>` : ''}
     ${sinPractica ? `
       <div class="banner banner-amber" style="margin:0 0 12px">${ico(ICONS.alertTri, 18)}
         <div><strong>Esta cirugía todavía no tiene práctica del nomenclador</strong>
@@ -11731,7 +12102,8 @@ function openEquipoMod(id) {
         <span class="nom-item-sub">${c.practica ? esc(c.practica.g + ' · ' + c.practica.s) : 'Práctica declarada fuera del nomenclador'} — ${esc(c.servicio || '')}</span></div>
     </div>`}
     <p class="modal-sub" style="text-align:left;margin-bottom:4px">El módulo lo fija la práctica del nomenclador y <b>no se edita</b>:
-      el cirujano percibe el de la cirugía y el 1er ayudante, siempre, el escalón inmediato inferior. Se imputan
+      el cirujano percibe el de la cirugía y el 1er ayudante el escalón inmediato inferior (A → B, B → C; el C no tiene
+      escalón por debajo, así que el ayudante de una cirugía C no percibe módulo). Se imputan
       <b>solo cuando la cirugía esté marcada como Realizada</b>${c.estado === 'realizada' ? ' — esta ya lo está.' : `; hoy está <b>${ESTC[c.estado].label}</b>.`}</p>
 
     <div class="form-grid" style="margin-top:8px">
@@ -11746,12 +12118,108 @@ function openEquipoMod(id) {
     <div class="form-actions">
       <button class="btn btn-blue" onclick="guardarEquipoMod(${c.id})">${ico(ICONS.check, 16)} Guardar equipo y módulos</button>
       <button class="btn btn-outline" onclick="closeEquipoMod()">Cancelar</button>
-    </div>`;
+    </div>
+    ${director && c.modulo ? bloqueBajaModulo(c) : ''}`;
   $('eqm-overlay').classList.add('open');
   if (sinPractica) nomIniciar(c, '', true);
   pintarModEquipo();
 }
 function closeEquipoMod() { $('eqm-overlay').classList.remove('open'); }
+
+/* ---- Dar de baja el módulo (solo Dirección Médica) ----
+   Vive al pie del modal de equipo y módulos, que es donde la Dirección llega
+   desde la pestaña «Detalle». Pide el motivo por escrito porque el motivo es,
+   textualmente, lo que se le manda al cirujano y a su ayudante. */
+function bloqueBajaModulo(c) {
+  if (moduloDadoDeBaja(c)) {
+    const b = c.moduloBaja;
+    return `<div class="banner banner-red" style="margin:16px 0 0">${ico(ICONS.alertTri, 20)}
+      <div><strong>Módulo dado de baja por la Dirección Médica — no se factura</strong>
+      ${esc(b.motivo || 'sin motivo registrado')}
+      <div style="margin-top:6px;font-size:0.8rem">Dado de baja el ${fmtDT(b.t)}${(b.avisados || []).length
+        ? ` · Aviso emitido a ${esc((b.avisados || []).join(' y '))}`
+        : ' · <b>Sin aviso emitido</b>: ningún integrante del equipo tiene cuenta activa en la app'}</div>
+      <div style="margin-top:10px"><button class="btn btn-sm btn-outline" onclick="reponerModulo(${c.id})">${ico(ICONS.refresh, 14)} Reponer el módulo y volver a facturarlo</button></div></div></div>`;
+  }
+  return `<div class="card" style="margin:16px 0 0;border:1px solid #f0c9c9;background:#fdf7f7;box-shadow:none">
+    <div class="card-title" style="margin-bottom:2px;color:var(--red)">${ico(ICONS.alertTri, 16)} Dar de baja el módulo — Dirección Médica</div>
+    <div class="card-sub">El módulo deja de facturarse: no se imputa al cirujano ni al 1er ayudante y sale de todos los totales
+      de la solapa y de las planillas. La cirugía, su parte quirúrgico y su historia clínica no se tocan. Al confirmar, la app
+      emite <b>en el acto</b> un aviso al cirujano y al 1er ayudante con el motivo escrito acá. Ni usted ni la Jefatura de
+      Quirófanos reciben notificación de lectura de ese aviso.</div>
+    <div class="field" style="margin-top:10px"><label>Motivo de la baja *</label>
+      <textarea id="baja-mot" style="min-height:82px" placeholder="Por qué este módulo no se factura. Es el texto que van a leer el cirujano y su ayudante."></textarea>
+      <span class="hint">Obligatorio, mínimo 10 caracteres: el aviso a los profesionales se emite con este texto.</span></div>
+    <div class="form-actions" style="margin-top:10px">
+      <button class="btn btn-red" onclick="darDeBajaModulo(${c.id})">${ico(ICONS.x, 16)} Dar de baja y avisar al equipo</button>
+    </div></div>`;
+}
+
+async function darDeBajaModulo(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!c) return;
+  if (!director) { alert('Dar de baja un módulo es una decisión de la Dirección Médica.'); return; }
+  if (!c.modulo) { alert('Esta cirugía todavía no tiene módulo asignado: no hay nada que dar de baja.'); return; }
+  const motivo = (($('baja-mot') || {}).value || '').trim();
+  if (motivo.length < 10) { alert('Escriba el motivo de la baja.\n\nEs el texto que van a leer el cirujano y el 1er ayudante, así que tiene que explicarse solo.'); return; }
+  const dest = destinatariosModulo(c);
+  if (!await preguntar(
+    `${c.procedimiento} — ${(c.paciente && c.paciente.nombre) || 's/d'} · ${fmtFecha(c.fecha)} (módulo ${c.modulo}).\n\n`
+    + 'El módulo deja de facturarse y sale de todos los totales del período.\n\n'
+    + (dest.length
+      ? `Se emite el aviso, en el acto, a: ${dest.map((d) => `${d.nombre} (${d.rol})`).join(' y ')}.`
+      : 'Ningún integrante del equipo tiene cuenta activa en la app: la baja queda asentada, pero el aviso hay que darlo por otra vía.'),
+    { titulo: '¿Dar de baja el módulo?', tono: 'peligro', si: 'Sí, dar de baja y avisar', no: 'Cancelar' })) return;
+  const avisados = avisarBajaModulo(c, motivo);
+  c.moduloBaja = {
+    motivo, por: 'Dirección Médica', t: nowDT(),
+    modulo: c.modulo,
+    avisados: avisados.map((a) => `${a.nombre} (${a.rol})`),
+    comunicados: avisados.map((a) => a.com),
+  };
+  pushHist(c, `Módulo ${c.modulo} dado de baja por la Dirección Médica — no se factura. Motivo: ${motivo}`
+    + (avisados.length ? ` — aviso emitido a ${avisados.map((a) => a.nombre).join(' y ')}` : ' — sin cuentas activas a las que avisar'));
+  upsert('cirugias', c);
+  closeEquipoMod();
+  refreshView();
+  await avisar(avisados.length
+    ? `El módulo ya no se factura y sale de los totales del período.\n\nEl aviso salió a ${avisados.map((a) => `${a.nombre} (${a.rol})`).join(' y ')}: les aparece como ventana emergente apenas entren a la app.`
+    : 'El módulo ya no se factura y sale de los totales del período.\n\nNo se pudo emitir el aviso: ningún integrante del equipo tiene cuenta activa en la app. Comuníqueselo por otra vía.',
+    { titulo: 'Módulo dado de baja', tono: 'aviso' });
+}
+
+/* La baja se puede deshacer: el módulo vuelve a facturarse. El aviso ya emitido
+   no se borra —circuló y quedó leído—, así que se emite uno nuevo diciendo que
+   se repuso, con el mismo criterio: sin acuse para nadie. */
+async function reponerModulo(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!c || !moduloDadoDeBaja(c)) return;
+  if (!director) { alert('Reponer un módulo dado de baja es una decisión de la Dirección Médica.'); return; }
+  if (!await preguntar(`${c.procedimiento} — ${(c.paciente && c.paciente.nombre) || 's/d'} · ${fmtFecha(c.fecha)}.\n\nEl módulo ${c.modulo} vuelve a facturarse y a contar en los totales del período. Se avisa al cirujano y al 1er ayudante.`,
+    { titulo: '¿Reponer el módulo?', tono: 'jefatura', si: 'Reponer y avisar', no: 'Cancelar' })) return;
+  const motivoPrevio = c.moduloBaja.motivo || '';
+  destinatariosModulo(c).forEach((pp, i) => {
+    upsert('comunicados', {
+      id: 'comalta' + Date.now() + '_' + i,
+      titulo: 'Módulo quirúrgico repuesto por la Dirección Médica',
+      texto: 'La Dirección Médica dejó sin efecto la baja del módulo de esta cirugía: vuelve a facturarse.\n\n'
+        + `· ${c.procedimiento || 's/d'}\n· ${fmtFecha(c.fecha)} — ${c.quirofano || 's/d'}\n`
+        + `· Paciente: ${(c.paciente && c.paciente.nombre) || 's/d'}\n`
+        + `· ${pp.rol}${pp.modulo ? ' — módulo ' + pp.modulo : ' — sin módulo'}\n\n`
+        + (motivoPrevio ? `La baja se había fundado en: ${motivoPrevio}\n\n` : '')
+        + 'El módulo vuelve a figurar en la solapa Módulos Quirúrgicos y en la liquidación del período.',
+      prioridad: 'informativo',
+      destino: { tipo: 'profesional', valor: pp.email },
+      emitido: nowDT(), emitidoPor: 'Dirección Médica', activo: true, lecturas: {},
+      sinAcuse: true, bajaModulo: c.id,
+    });
+  });
+  pushHist(c, `Baja del módulo ${c.modulo} dejada sin efecto por la Dirección Médica — vuelve a facturarse`);
+  delete c.moduloBaja;
+  upsert('cirugias', c);
+  closeEquipoMod();
+  refreshView();
+}
 function guardarEquipoMod(id) {
   const c = DB.cirugias.find((x) => String(x.id) === String(id));
   if (!c) return;
@@ -12047,9 +12515,16 @@ function comPendientes() {
     .sort((a, b) => (COM_PRIOS[comPrio(a)].orden - COM_PRIOS[comPrio(b)].orden)
       || String(a.emitido || '').localeCompare(String(b.emitido || '')));
 }
-/* Los que la Jefatura ve en su solapa, del más nuevo al más viejo. */
+/* Los que la Jefatura ve en su solapa, del más nuevo al más viejo.
+   Los avisos **sin acuse** —hoy, la baja de un módulo que resuelve la Dirección
+   Médica— quedan fuera a propósito: la Jefatura de Quirófanos no es parte de esa
+   decisión, así que no le corresponde ni verlos ni leer quién los leyó. Y como
+   nadie los lista, tampoco vuelve a la Dirección Médica ninguna notificación de
+   lectura: el aviso llega al cirujano y a su ayudante, y ahí termina. */
+function comSinAcuse(c) { return !!(c && c.sinAcuse); }
 function comTodosOrdenados() {
-  return DB.comunicados.slice().sort((a, b) => String(b.emitido || '').localeCompare(String(a.emitido || '')));
+  return DB.comunicados.filter((c) => !comSinAcuse(c))
+    .sort((a, b) => String(b.emitido || '').localeCompare(String(a.emitido || '')));
 }
 
 /* ---- Escritura de la lectura ----
