@@ -3210,7 +3210,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.4.1';
+const APP_VERSION = '3.4.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11692,7 +11692,7 @@ function renderModulos() {
           <p class="page-sub">Nomenclador Modulado 2025 · ${al.todo ? (al.servicio ? esc(al.servicio) : 'todos los servicios') : esc(al.servicio)} — ${modTituloPeriodo()}</p>
         </div>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="exportarModulos()">${ICONS.download} Exportar CSV ${modProf ? 'por profesional' : 'por servicio'}</button>
+      <button class="btn btn-outline btn-sm" onclick="exportarModulos()">${ICONS.download} Exportar CSV ${modProf ? 'de ' + esc(modProf) : (modTab === 'prof' ? 'por profesional' : 'por servicio')}</button>
     </div>
 
     <div class="banner banner-blue">${ICONS.info}
@@ -11706,11 +11706,12 @@ function renderModulos() {
 
     <div class="banner banner-blue">${ICONS.download}
       <div><strong>Las dos planillas</strong>
-      El botón <b>Exportar CSV</b> baja la consulta que está en pantalla, y sale distinta según cómo se consulte.
-      <b>Por servicio</b> —sin profesional elegido— es <b>una fila por cirugía</b>: en el mismo renglón van el cirujano con su
-      módulo y el 1er ayudante con el suyo. <b>Por cirujano</b> —eligiendo un profesional en el desplegable— salen <b>solo sus
-      renglones</b>: sus cirugías y sus ayudantías, con el módulo A, B o C que le tocó a él y nada del resto del equipo.
-      Las dos cierran con la <b>sumatoria de módulos A, B y C y el total facturado</b> del período consultado.</div></div>
+      El botón <b>Exportar CSV</b> baja la consulta que está en pantalla, y la pestaña decide cuál de las dos sale.
+      Desde <b>Por servicio</b> o <b>Detalle</b> es <b>una fila por cirugía</b>: en el mismo renglón van el cirujano con su módulo
+      y el 1er ayudante con el suyo. Desde <b>Por profesional</b> sale <b>agrupada por profesional</b>: un bloque por cada uno
+      —sus cirugías y sus ayudantías, con el módulo A, B o C que le tocó a él— y al pie de cada bloque su <b>subtotal</b> de
+      módulos A, B y C y lo que se le factura. Si además elige un profesional en el desplegable, la planilla trae ese bloque
+      solo. Las dos cierran con la <b>sumatoria total del período consultado</b>.</div></div>
 
     ${director ? `<div class="banner banner-amber">${ico(ICONS.shield, 18)}
       <div><strong>Baja de un módulo — solo Dirección Médica</strong>
@@ -11971,7 +11972,7 @@ function modEvolucion(filas, desde, hasta) {
    Las dos terminan igual: la sumatoria de módulos A, B y C y el total
    facturado de la franja de datos consultada. */
 function exportarModulos() {
-  return modProf ? exportarModulosPorProfesional() : exportarModulosPorServicio();
+  return (modProf || modTab === 'prof') ? exportarModulosPorProfesional() : exportarModulosPorServicio();
 }
 
 /* Sumatoria final, común a las dos planillas. `filas` son renglones de módulo
@@ -12038,22 +12039,42 @@ function exportarModulosPorProfesional() {
   const cfg = modConfig();
   const visibles = modFilasVisibles();
 
-  const filas = [['Fecha', 'Paciente', 'DNI', 'Práctica del nomenclador', 'Capítulo', 'Sección', 'Servicio',
+  // Un bloque por profesional, en el mismo orden en que se lo ve en pantalla:
+  // primero el que más módulos hizo. Cada bloque cierra con su propio subtotal,
+  // que es lo que se le liquida a esa persona.
+  const grupos = agrupar(visibles, (f) => f.nombre);
+
+  const filas = [['Profesional', 'Servicio del profesional', 'Fecha', 'Paciente', 'DNI',
+    'Práctica del nomenclador', 'Capítulo', 'Sección', 'Servicio de la cirugía',
     'Intervino como', 'Módulo que percibe', 'Módulo de la cirugía']
     .concat(conImportes ? ['Valor facturado'] : [])];
 
-  visibles.forEach((f) => filas.push([
-    f.fecha, f.cir.paciente?.nombre || '', f.cir.paciente?.dni || '', f.cir.procedimiento || '',
-    f.cir.practica?.g || 'Fuera del nomenclador', f.cir.practica?.s || '', f.servicio,
-    f.rol, f.modulo, f.cir.modulo,
-  ].concat(conImportes ? [cfg.valores[f.modulo]] : [])));
+  grupos.forEach((g) => {
+    const suyas = visibles.filter((f) => f.nombre === g.nombre);
+    filas.push([]);
+    filas.push([`PROFESIONAL: ${g.nombre}`, g.servicioPrinc || '',
+      `${g.nCirugias} cirugía(s) en el período`,
+      `${g.cir} como cirujano`, `${g.ayu} como 1er ayudante`]);
+    suyas.forEach((f) => filas.push([
+      g.nombre, g.servicioPrinc || '',
+      f.fecha, f.cir.paciente?.nombre || '', f.cir.paciente?.dni || '', f.cir.procedimiento || '',
+      f.cir.practica?.g || 'Fuera del nomenclador', f.cir.practica?.s || '', f.servicio,
+      f.rol, f.modulo, f.cir.modulo,
+    ].concat(conImportes ? [cfg.valores[f.modulo]] : [])));
+    filas.push(...modBloqueTotales(suyas, conImportes, cfg,
+      `SUBTOTAL ${g.nombre} — ${g.cir} cirugía(s) como cirujano y ${g.ayu} ayudantía(s)`));
+  });
 
-  const comoCir = visibles.filter((f) => f.rol === 'Cirujano').length;
-  const comoAyu = visibles.filter((f) => f.rol === '1er Ayudante').length;
-  filas.push(...modBloqueTotales(visibles, conImportes, cfg,
-    `TOTALES DEL PERÍODO — ${modProf}: ${comoCir} cirugía(s) como cirujano y ${comoAyu} ayudantía(s)`));
+  if (!grupos.length) filas.push([], ['Sin módulos registrados en el período consultado.']);
+
+  // El total general solo tiene sentido cuando hay más de un profesional: con
+  // uno solo repetiría, palabra por palabra, el subtotal de arriba.
+  if (grupos.length > 1) {
+    filas.push(...modBloqueTotales(visibles, conImportes, cfg,
+      `TOTAL GENERAL DEL PERÍODO — ${grupos.length} profesional(es) · ${modAlcance().quien}`));
+  }
   filas.push(...modPieCSV(desde, hasta));
-  descargarCSV(`hru-modulos-profesional-${modArchivo(modProf)}-${desde}_${hasta}.csv`, filas);
+  descargarCSV(`hru-modulos-profesional-${modArchivo(modProf || modServicio || 'todos')}-${desde}_${hasta}.csv`, filas);
 }
 
 /* ================= MODAL: EQUIPO Y MÓDULOS DE UNA CIRUGÍA ================= */

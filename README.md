@@ -683,20 +683,46 @@ el reparto por complejidad. Todo exportable a **CSV**.
 
 ### Las dos planillas
 
-El botón *Exportar CSV* baja **la consulta que está en pantalla**, y sale distinta según cómo se haya
-consultado. El desplegable **Profesional** es el que decide cuál de las dos:
+El botón *Exportar CSV* baja **la consulta que está en pantalla**, y **la pestaña decide cuál de las dos
+sale**:
 
-| Consulta | Qué trae la planilla |
+| Pestaña | Qué trae la planilla |
 |---|---|
-| **Por servicio** (sin profesional elegido) | **Una fila por cirugía.** En el mismo renglón: fecha, paciente, práctica, servicio, módulo de la cirugía, el **cirujano con su módulo** y el **1er ayudante con el suyo**, y —si los importes están habilitados— el valor de cada uno y el total de la cirugía |
-| **Por cirujano** (con un profesional elegido) | **Solo sus renglones**: sus cirugías y sus ayudantías, con el rol, el módulo A, B o C que le tocó a él y el módulo de la cirugía. Nada del resto del equipo |
+| **Por servicio** o **Detalle** | **Una fila por cirugía.** En el mismo renglón: fecha, paciente, práctica, servicio, módulo de la cirugía, el **cirujano con su módulo** y el **1er ayudante con el suyo**, y —si los importes están habilitados— el valor de cada uno y el total de la cirugía |
+| **Por profesional** | **Agrupada por profesional**: un bloque por cada uno, con sus cirugías y sus ayudantías, el rol, el módulo A, B o C que le tocó a él y el módulo de la cirugía. Nada del resto del equipo en sus renglones |
 
-Las dos cierran con la misma **sumatoria final**: cuántos módulos A, B y C entraron en la franja de datos
-consultada, el valor unitario de cada uno y el **total facturado** del período. Al pie, el período, el
+En la planilla agrupada, **cada bloque cierra con su propio subtotal**: módulos A, B y C del profesional y lo
+que se le factura en el período. Los bloques salen en el mismo orden que la tabla de pantalla —primero quien
+más módulos hizo— y al final va el **total general** de todos los profesionales:
+
+```
+PROFESIONAL: Claudio Ravasi;Cirugía General;2 cirugía(s) en el período;2 como cirujano;0 como 1er ayudante
+Claudio Ravasi;…;2026-08-12;…;Cirujano;A;A;102000
+Claudio Ravasi;…;2026-08-12;…;Cirujano;A;A;102000
+
+SUBTOTAL Claudio Ravasi — 2 cirugía(s) como cirujano y 0 ayudantía(s)
+Módulos A — Alta complejidad;2;102000;204000
+…
+TOTAL DE MÓDULOS;2;;204000
+
+PROFESIONAL: Eiriz;…
+```
+
+El desplegable **Profesional** ya no elige la planilla, solo la **acota**: elegido uno, la agrupada trae ese
+bloque solo, que es lo que sirve para liquidarle a esa persona. El total general se omite cuando hay un solo
+profesional, porque repetiría el subtotal palabra por palabra.
+
+Las dos planillas cierran con la misma **sumatoria final**: cuántos módulos A, B y C entraron en la franja de
+datos consultada, el valor unitario de cada uno y el **total facturado** del período. Al pie, el período, el
 alcance de la consulta y la fecha de exportación.
 
 Hasta la versión 3.4.0 las dos consultas bajaban prácticamente la misma planilla —el equipo completo, un
 renglón por profesional— y la que se pedía por cirujano no servía para liquidarle a nadie.
+
+> **Cuidado con el nombre del ayudante.** La planilla agrupa por **nombre**, así que un mismo profesional
+> escrito de dos formas distintas —`Eiriz` en un turno y `Eiriz Cristian` en otro— sale como **dos bloques**
+> y sus módulos quedan partidos. Cargá siempre el 1er ayudante desde el **desplegable** del formulario, que
+> toma el nombre del padrón, y reservá el texto libre para quien todavía no tiene cuenta.
 
 **Importes.** La Dirección Médica puede cargar los valores unitarios de A, B y C —quedan guardados en la
 base compartida— y estimar la liquidación del período. Están **ocultos por defecto**: se muestran solo si la
