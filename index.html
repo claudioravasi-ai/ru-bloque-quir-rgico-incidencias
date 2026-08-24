@@ -839,6 +839,66 @@
     padding: 8px 12px; background: #e8f1fb; border-radius: 10px; margin-bottom: 8px;
   }
   .ci-serv-n { margin-left: auto; font-weight: 600; font-size: 0.74rem; color: #40699c; }
+
+  /* ---- Guía de la programación: una sola tarjeta, cinco temas por color ---- */
+  .guia {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px 16px 12px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(23,28,36,0.07);
+  }
+  .guia-top { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; }
+  .guia-ico {
+    width: 34px; height: 34px; flex: none; border-radius: 10px; display: grid; place-items: center;
+    background: var(--blue-soft); color: #1d4f8c;
+  }
+  .guia-h { min-width: 0; }
+  .guia-t { font-weight: 800; font-size: 0.95rem; line-height: 1.2; }
+  .guia-s { font-size: 0.76rem; color: var(--muted); }
+  .guia-btn {
+    margin-left: auto; flex: none; border: 1px solid var(--line); background: transparent;
+    border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 0.76rem; font-weight: 700;
+    color: var(--muted); cursor: pointer; white-space: nowrap;
+  }
+  .guia-btn:hover { border-color: #cbd5e1; color: #334155; }
+  .guia-car { font-size: 0.7rem; }
+
+  .guia-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 9px; }
+  .guia-it {
+    border-left: 3px solid var(--gc); border-radius: 0 9px 9px 0;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--gc) 7%, transparent), transparent 70%);
+    padding: 9px 12px;
+  }
+  .gi-t {
+    display: flex; align-items: center; gap: 6px; color: var(--gc);
+    font-weight: 800; font-size: 0.79rem; margin-bottom: 3px;
+  }
+  .gi-t svg { flex: none; }
+  .gi-b { font-size: 0.78rem; line-height: 1.45; color: #475569; }
+
+  .guia-est {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+    margin-top: 12px; padding-top: 11px; border-top: 1px dashed var(--line);
+  }
+  .guia-est-l {
+    font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--muted); margin-right: 3px;
+  }
+  .guia-chip {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700;
+    color: #475569; background: #f4f6f9; border-radius: 999px; padding: 3px 9px; cursor: default;
+  }
+  .gc-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+
+  .guia-det { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .gd-b {
+    border-left: 3px solid var(--gc); padding: 2px 0 2px 11px; margin-bottom: 11px;
+    font-size: 0.81rem; line-height: 1.55; color: #475569;
+  }
+  .gd-b:last-child { margin-bottom: 0; }
+  .gd-b b { color: var(--gc); }
+  @media (max-width: 560px) {
+    .guia-btn { padding: 4px 9px; font-size: 0.72rem; }
+    .guia-grid { grid-template-columns: 1fr; }
+  }
   .slot-nd {
     margin-left: 5px; font-size: 0.56rem; font-weight: 800; letter-spacing: 0.03em;
     background: #ede9fe; color: #5b21b6; padding: 1px 5px; border-radius: 4px; vertical-align: middle;
@@ -9280,10 +9340,8 @@ function renderProgDiaria() {
   }
   if (!dOn) {
     cuerpo += `<div class="dia-banner">${ICONS.lock}<div><b>${fmtDiaLargo(d)} — bloque programado cerrado.</b>
-      Las seis salas nacen bloqueadas todos los días —el Quirófano 1 y Obstetricia incluidos—: las abre la
-      <b>Jefatura de Quirófanos</b> con su clave, por turno y por sala. Lo único que no se cierra nunca es el
-      <b>turno de urgencia de la hora en curso</b> del Quirófano 1, de Endoscopía y de Obstetricia.
-      ${jefe ? '' : ' Si necesita operar este día, solicítelo a la Jefatura.'}</div>
+      ${jefe ? 'Ábralo por sala y por turno desde el panel de Jefatura.' : 'Si necesita operar este día, solicítelo a la Jefatura.'}
+      El <b>turno de urgencia de cada hora</b> sigue disponible.</div>
       ${jefe ? `<button class="btn btn-sm btn-teal" style="margin-left:auto;flex:none" onclick="openJefaturaDia()">${ico(ICONS.key, 14)} Abrir el día</button>` : ''}</div>`;
   } else if (cerradas.length) {
     cuerpo += `<div class="dia-banner">${ICONS.lock}<div>Día abierto parcialmente: ${cerradas.length} de ${salasProgramables().length} salas
@@ -9333,50 +9391,99 @@ function renderProgDiaria() {
       </div>
     </div>
 
-    <div class="banner banner-blue">${ICONS.clockSm.replace('14', '18')}
-      <div><strong>Reglas de programación</strong>
-      El bloque programado está <b>cerrado por defecto</b>: las <b>seis salas</b> se habilitan por turno (mañana o tarde) desde la
-      Jefatura de Quirófanos, con la misma grilla de 08 a 20 h. Anticipación mínima de <b>${HORAS_ANTICIPACION} h</b> para turnos
-      electivos (desde ${anticipacionMinima()}).
-      Cierre de solicitudes <b>${BLOQUE.cierreSolicitudes} h</b> y publicación del parte <b>${BLOQUE.publicacionParte} h</b> del día previo.
-      Los turnos se ordenan en el parte por prelación P1–P6.</div></div>
-
-    <div class="banner banner-red">${ico(ICONS.zap, 18)}
-      <div><strong>Turno de urgencia de la hora en curso</strong>
-      Aparte de la grilla programada, el <b>Quirófano 1</b> (cirugías), la <b>Sala de Endoscopía</b> (endoscopías) y el
-      <b>Quirófano de Obstetricia</b> (cesáreas) ofrecen <b>un turno libre de urgencia en la hora que corre</b>, las 24 horas del día,
-      de lunes a lunes, esté la sala abierta o cerrada y sea o no día hábil. Al cumplirse la hora ese turno desaparece y aparece el de
-      la hora siguiente; si en esa hora se anotó una intervención, queda a la vista en el día con las reglas de siempre y se ofrece otro
-      turno libre en la misma hora. La urgencia <b>saltea la anticipación de ${HORAS_ANTICIPACION} h</b> y se marca sola como urgencia.
-      ${jefe ? 'Si una urgencia se operó y nadie la cargó, la Jefatura la registra fuera de término desde el botón del propio bloque.' : ''}</div></div>
-
-    <div class="banner banner-blue">${ico(ICONS.shield, 18)}
-      <div><strong>Aceptación de Admisión y Egresos</strong>
-      Ningún turno programado se valida sin ella, y para que Admisión dictamine el turno tiene que llevar el <b>apto anestésico</b>,
-      los <b>estudios preoperatorios</b> y el <b>consentimiento generado y guardado</b>. Quedan exentas del visto <b>previo</b> solo las
-      <b>urgencias y emergencias</b> y los turnos de <b>prioridad P1 y P2</b>: se operan igual, con la aceptación marcada como
-      <b>DIFERIDA</b>, y el trámite se cumplimenta después —incluso con la cirugía ya operada—. Hasta que se cumplimente, el caso
-      no queda finalizado.</div></div>
-
-    <div class="banner banner-blue">${ico(ICONS.zap, 18)}
-      <div><strong>Validación de la Jefatura en las urgencias — también diferida</strong>
-      La <b>urgencia o emergencia</b> —incluidas la <b>cesárea de urgencia</b> y la <b>endoscopía de urgencia</b>— y los turnos de
-      <b>prioridad P1 y P2</b> no esperan la validación de la Jefatura de Quirófanos para operarse: si la cirugía entra a las 2 de la
-      mañana, la Jefatura no está y el turno igual arranca. El cirujano abre la <b>Lista de Verificación Quirúrgica</b>, opera y
-      cierra el procedimiento; el turno queda marcado como <b>VALID. DIFERIDA</b> y la Jefatura repasa después la lista de
-      verificación de coordinación con el botón <b>Regularizar validación</b> de la ficha. Si la urgencia entra en un horario en que
-      la Jefatura está, valida como siempre, antes de operar.</div></div>
-
-    ${jefe ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 18)}
-      <div><strong>Reapertura excepcional de una franja cumplida</strong>
-      Si una urgencia o una cesárea se operó y nadie la cargó a tiempo, la Jefatura puede pulsar esa franja vencida
-      —figura como <b>«Cumplido — reabrir»</b>— e ingresar su clave y el motivo para asentar la cirugía ahí.
-      El turno queda marcado como <b>registro fuera de término</b> en la grilla y en su historial. Es un recurso
-      excepcional, no la vía habitual de programación: la franja se reabre de a una y se vuelve a cerrar al salir.</div></div>` : ''}
-
-    ${leyendaEstados()}
+    ${guiaProgramacion()}
     ${cuerpo}`;
 }
+/* ================= GUÍA DE LA PROGRAMACIÓN =================
+   Antes había cuatro carteles seguidos con la explicación completa del
+   circuito. Era información correcta y necesaria, pero puesta así nadie la
+   leía: media pantalla de texto corrido antes de llegar a la grilla.
+
+   Ahora es una sola tarjeta con cinco temas, uno por color, de una línea cada
+   uno —lo que hay que saber para operar el día— y el texto completo detrás de
+   «Ver el detalle», para quien lo necesite. No se perdió nada: se ordenó. */
+let guiaAbierta = false;
+function toggleGuia() { guiaAbierta = !guiaAbierta; renderProgDiaria(); }
+
+const GUIA_TEMAS = [
+  { c: '#0e7490', ico: 'lock',     t: 'El bloque nace cerrado',
+    b: 'Las seis salas amanecen bloqueadas. Las abre la <b>Jefatura</b>, sala por sala y turno por turno.' },
+  { c: '#c62f2f', ico: 'zap',      t: 'Urgencias, las 24 horas',
+    b: 'Quirófano 1, Endoscopía y Obstetricia tienen <b>un turno libre en la hora que corre</b>, siempre.' },
+  { c: '#b45309', ico: 'shield',   t: '1º Admisión y Egresos',
+    b: 'Con <b>apto anestésico, preoperatorios y consentimiento</b>, Admisión acepta. Sin eso el turno no avanza.' },
+  { c: '#166b4a', ico: 'check',    t: '2º Jefatura de Quirófanos',
+    b: 'Valida lo pedido —arco en C, prótesis—, el turno <b>entra al parte</b> y se habilita la foja de LVQ.' },
+  { c: '#1d4f8c', ico: 'clockSm',  t: 'Plazos',
+    b: `<b>${HORAS_ANTICIPACION} h</b> de anticipación para lo electivo. Solicitudes hasta las <b>${BLOQUE.cierreSolicitudes}</b> y parte a las <b>${BLOQUE.publicacionParte}</b> del día previo.` },
+];
+
+function guiaProgramacion() {
+  return `<div class="guia">
+    <div class="guia-top">
+      <span class="guia-ico">${ico(ICONS.info, 20)}</span>
+      <div class="guia-h">
+        <div class="guia-t">Cómo funciona la programación</div>
+        <div class="guia-s">Cinco reglas y los estados del turno</div>
+      </div>
+      <button type="button" class="guia-btn" onclick="toggleGuia()">
+        ${guiaAbierta ? 'Ocultar el detalle' : 'Ver el detalle'} <span class="guia-car">${guiaAbierta ? '▴' : '▾'}</span>
+      </button>
+    </div>
+
+    <div class="guia-grid">
+      ${GUIA_TEMAS.map((g) => `<div class="guia-it" style="--gc:${g.c}">
+        <div class="gi-t">${ico(ICONS[g.ico] || ICONS.info, 15)} ${g.t}</div>
+        <div class="gi-b">${g.b}</div>
+      </div>`).join('')}
+    </div>
+
+    <div class="guia-est">
+      <span class="guia-est-l">Estados del turno</span>
+      ${Object.keys(ESTC).map((k) => `<span class="guia-chip" title="${esc(ESTC[k].desc)}">
+        <span class="gc-dot" style="background:${ESTC[k].color}"></span>${ESTC[k].label}</span>`).join('')}
+    </div>
+
+    ${guiaAbierta ? `<div class="guia-det">
+      <div class="gd-b" style="--gc:#0e7490"><b>El bloque nace cerrado.</b>
+        Las seis salas se habilitan por turno —mañana o tarde— desde la Jefatura de Quirófanos, todas con la misma
+        grilla de 08 a 20 h. Los turnos ya cargados no se pierden si después se cierra la franja.</div>
+
+      <div class="gd-b" style="--gc:#c62f2f"><b>Turno de urgencia de la hora en curso.</b>
+        Aparte de la grilla programada, el <b>Quirófano 1</b> (cirugías), la <b>Sala de Endoscopía</b> (endoscopías) y el
+        <b>Quirófano de Obstetricia</b> (cesáreas) ofrecen un turno libre de urgencia en la hora que corre, las 24 horas,
+        de lunes a lunes, esté la sala abierta o cerrada y sea o no día hábil. Al cumplirse la hora ese turno desaparece y
+        aparece el de la hora siguiente; si en esa hora se anotó una intervención, queda a la vista en el día y se ofrece
+        otro turno libre en la misma hora. La urgencia saltea la anticipación de ${HORAS_ANTICIPACION} h y se marca sola
+        como urgencia.${jefe ? ' Si una urgencia se operó y nadie la cargó, la Jefatura la registra fuera de término desde el botón del propio bloque.' : ''}</div>
+
+      <div class="gd-b" style="--gc:#b45309"><b>Aceptación de Admisión y Egresos.</b>
+        Ningún turno programado se valida sin ella, y para que Admisión dictamine el turno tiene que llevar el apto
+        anestésico, los estudios preoperatorios y el consentimiento generado y guardado. Quedan exentas del visto
+        <b>previo</b> solo las urgencias y emergencias y los turnos de prioridad P1 y P2: se operan igual, con la
+        aceptación marcada como <b>DIFERIDA</b>, y el trámite se cumplimenta después —incluso con la cirugía ya operada—.
+        Hasta que se cumplimente, el caso no queda finalizado.</div>
+
+      <div class="gd-b" style="--gc:#166b4a"><b>Validación de la Jefatura — diferida en las urgencias.</b>
+        La urgencia o emergencia —cesárea y endoscopía de urgencia incluidas— y los turnos P1 y P2 no esperan a la
+        Jefatura para operarse: si la cirugía entra a las 2 de la mañana, la Jefatura no está y el turno igual arranca.
+        El cirujano abre la Lista de Verificación Quirúrgica, opera y cierra el procedimiento; el turno queda marcado como
+        <b>VALID. DIFERIDA</b> y la Jefatura repasa después la lista de coordinación con <b>Regularizar validación</b>.
+        Si la urgencia entra en horario en que la Jefatura está, valida como siempre, antes de operar.</div>
+
+      <div class="gd-b" style="--gc:#1d4f8c"><b>Plazos y orden del parte.</b>
+        Anticipación mínima de ${HORAS_ANTICIPACION} h para turnos electivos (desde ${anticipacionMinima()}).
+        Cierre de solicitudes ${BLOQUE.cierreSolicitudes} h y publicación del parte ${BLOQUE.publicacionParte} h del día
+        previo. Los turnos se ordenan en el parte por prelación P1–P6.</div>
+
+      ${jefe ? `<div class="gd-b" style="--gc:#7c3aed"><b>Reapertura excepcional de una franja cumplida.</b>
+        Si una urgencia o una cesárea se operó y nadie la cargó a tiempo, la Jefatura reabre esa franja con su clave y un
+        motivo escrito, y asienta ahí la cirugía. Queda marcada como <b>registro fuera de término</b> en la grilla y en su
+        historial. Es un recurso excepcional: se reabre de a una y se vuelve a cerrar al salir.</div>` : ''}
+    </div>` : ''}
+  </div>`;
+}
+
 function setDia(v) { diaSel = v; renderProgDiaria(); }
 function moverDia(n) { diaSel = sumarDias(diaSel || hoyISO(), n); renderProgDiaria(); }
 

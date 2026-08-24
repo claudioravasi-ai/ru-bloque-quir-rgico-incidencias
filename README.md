@@ -640,6 +640,26 @@ comparten la computadora del quirófano cada uno mantiene su propia lista.
 
 ---
 
+## La guía de la Programación Diaria
+
+Las reglas del bloque ocupaban cuatro carteles seguidos arriba de la grilla: media pantalla de texto corrido
+antes de ver un solo turno. Información correcta y necesaria, puesta de una forma que nadie iba a leer.
+
+Desde la versión 3.6.0 es **una sola tarjeta** con cinco temas, uno por color y de una línea cada uno:
+
+| Color | Tema | Lo que dice |
+|---|---|---|
+| Petróleo | El bloque nace cerrado | Las abre la Jefatura, sala por sala y turno por turno |
+| Rojo | Urgencias, las 24 horas | Un turno libre en la hora que corre, siempre |
+| Ámbar | 1º Admisión y Egresos | Apto anestésico, preoperatorios y consentimiento, o el turno no avanza |
+| Verde | 2º Jefatura de Quirófanos | Valida, el turno entra al parte y se habilita la foja de LVQ |
+| Azul | Plazos | 24 h de anticipación, solicitudes 13:00, parte 14:00 |
+
+Debajo, los nueve **estados del turno** como fichas de color en una sola fila. Y el texto completo de las
+cuatro reglas —el que estaba antes, sin recortar— detrás del botón **Ver el detalle**, para quien lo necesite.
+
+---
+
 ## Programación Quirúrgica — el circuito en pocas líneas
 
 La solapa que ve la Jefatura muestra el circuito completo como **una línea por estado**: el color del estado,
