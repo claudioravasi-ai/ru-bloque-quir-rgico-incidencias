@@ -788,6 +788,57 @@
     background: #fff8f8; border-bottom: 1px solid var(--line);
     font-size: 0.78rem; color: #7a3b3b; line-height: 1.45;
   }
+  /* Turno rodante de urgencia: se despega de la grilla programada porque no
+     pertenece a ella —no lo abre ni lo cierra nadie y se corre con el reloj—. */
+  .urg-bloque {
+    margin: 4px -14px -12px; padding: 12px 14px 14px;
+    background: #fff7f7; border-top: 2px dashed #f0c6c6;
+  }
+  .urg-hdr {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-size: 0.74rem; font-weight: 800; color: #a12c2c;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
+  }
+  .urg-hdr .uh-t { font-weight: 600; letter-spacing: 0; text-transform: none; color: #7a3b3b; }
+  .urg-nota { font-size: 0.74rem; color: #7a3b3b; line-height: 1.45; margin-bottom: 10px; }
+  .slot-urg { border: 1px dashed #d98a8a; background: #fffdfd; }
+  .slot-urg:hover { border-color: var(--red); }
+  .slot-urg .slot-hora { color: #a12c2c; }
+  .urg-retro { margin-top: 10px; }
+
+  /* Acordeón del circuito: una línea por estado y el detalle a un clic. */
+  .q-acc-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .q-acc {
+    width: 100%; display: flex; align-items: center; gap: 10px; text-align: left;
+    padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px;
+    background: var(--card); cursor: pointer; font: inherit; transition: border-color .12s, box-shadow .12s;
+  }
+  .q-acc:hover { border-color: #cbd5e1; box-shadow: 0 1px 6px rgba(15,23,42,0.06); }
+  .q-acc.on { border-color: #cbd5e1; box-shadow: 0 1px 6px rgba(15,23,42,0.06); }
+  .q-acc.vacio { opacity: 0.5; cursor: default; box-shadow: none; }
+  .q-acc-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .q-acc-lbl { font-weight: 800; font-size: 0.92rem; flex: none; }
+  .q-acc-hint {
+    color: var(--muted); font-size: 0.78rem; line-height: 1.35; flex: 1 1 auto;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .q-acc-n {
+    flex: none; min-width: 26px; text-align: center; font-weight: 800; font-size: 0.8rem;
+    padding: 2px 8px; border-radius: 999px; background: #eef2f7; color: #334155;
+  }
+  .q-acc-car { flex: none; color: var(--muted); font-size: 0.8rem; transition: transform .15s; }
+  .q-acc.on .q-acc-car { transform: rotate(180deg); }
+  .q-acc-body { padding: 4px 0 10px; }
+  @media (max-width: 720px) { .q-acc-hint { display: none; } }
+
+  /* Archivo de consentimientos: Servicio › Profesional › fichas. */
+  .ci-serv { margin-bottom: 18px; }
+  .ci-serv-hdr {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-size: 0.82rem; font-weight: 800; color: #1d4f8c;
+    padding: 8px 12px; background: #e8f1fb; border-radius: 10px; margin-bottom: 8px;
+  }
+  .ci-serv-n { margin-left: auto; font-weight: 600; font-size: 0.74rem; color: #40699c; }
   .slot-nd {
     margin-left: 5px; font-size: 0.56rem; font-weight: 800; letter-spacing: 0.03em;
     background: #ede9fe; color: #5b21b6; padding: 1px 5px; border-radius: 4px; vertical-align: middle;
@@ -1411,7 +1462,12 @@ const ESTC = {
   validada:   { label: 'Validada',   color: '#2980d9', soft: '#e3eefb', text: '#1d4f8c', desc: 'Aprobada por áreas técnicas; espera confirmación de jefatura' },
   confirmada: { label: 'Confirmada', color: '#1fa971', soft: '#dcf5ea', text: '#166b4a', desc: 'Turno oficial en el parte quirúrgico' },
   en_curso:   { label: 'En curso',   color: '#f97316', soft: '#ffedd5', text: '#b45309', desc: 'Procedimiento registrado en tiempo real' },
-  realizada:  { label: 'Realizada',  color: '#0e6b47', soft: '#cdeadd', text: '#0e6b47', desc: 'Procedimiento finalizado y cerrado' },
+  /* El procedimiento terminó en el quirófano, pero el caso todavía no está
+     cerrado: puede faltar el parte quirúrgico y, en la urgencia operada fuera
+     de horario, la aceptación de Admisión y Egresos y la validación de la
+     Jefatura. Mientras esté acá NO computa en estadísticas ni en módulos. */
+  realizada:  { label: 'Operada — pendiente de cierre', color: '#0d9488', soft: '#ccfbf1', text: '#0f766e', desc: 'Terminó en el quirófano; falta el parte quirúrgico y/o la aceptación de Admisión y la validación de la Jefatura' },
+  finalizada: { label: 'Finalizada', color: '#0e6b47', soft: '#cdeadd', text: '#0e6b47', desc: 'Caso cerrado: LVQ completa, parte quirúrgico cargado y ambas validaciones asentadas. Computa en estadísticas y módulos' },
   suspendida: { label: 'Suspendida', color: '#d94848', soft: '#fbe5e5', text: '#a12c2c', desc: 'Con causa registrada obligatoria' },
   /* El paciente se operó de urgencia antes de la fecha prevista, así que el
      turno programado ya no tiene objeto. No es una suspensión —no hubo falla de
@@ -1492,43 +1548,90 @@ const FRANJAS_QX = [
   { id: 'T1', t: '08:00', p: 'M' }, { id: 'T2', t: '10:00', p: 'M' }, { id: 'T3', t: '12:00', p: 'M' },
   { id: 'T4', t: '14:00', p: 'T' }, { id: 'T5', t: '16:00', p: 'T' }, { id: 'T6', t: '18:00', p: 'T' },
 ];
-/* Quirófano 1 — guardia de urgencias y emergencias. A diferencia del resto del
-   bloque, su jornada no va de 08 a 20 h: cubre las 24 horas corridas de 08:00 a
-   08:00 del día siguiente, todos los días del año, sábados y domingos incluidos.
-   Las franjas de 00:00 a 07:00 llevan `nd: 1` porque pertenecen a la guardia del
-   día mostrado pero ocurren en la fecha calendario siguiente.
-   Los identificadores T1–T6 se conservan en 08, 10, 12, 14, 16 y 18 h para que
-   los turnos cargados con la grilla anterior sigan apareciendo en su franja. */
-const FRANJAS_Q1 = (() => {
-  const HEREDADOS = { '08:00': 'T1', '10:00': 'T2', '12:00': 'T3', '14:00': 'T4', '16:00': 'T5', '18:00': 'T6' };
-  const out = [];
-  for (let i = 0; i < 24; i++) {
-    const abs = 8 + i;                       // 8, 9, … 31
-    const h = abs % 24;                      // hora del reloj
-    const nd = abs >= 24 ? 1 : 0;            // 00:00–07:00 caen en el día siguiente
-    const t = String(h).padStart(2, '0') + ':00';
-    const p = nd || h >= 20 ? 'N' : (h < 14 ? 'M' : 'T');
-    out.push({ id: HEREDADOS[t] || ('H' + String(h).padStart(2, '0')), t, p, nd });
+/* ---- Turno rodante de urgencia ----
+   La programación diaria es una cosa y la guardia es otra. Las salas que
+   reciben urgencias —Quirófano 1 para las cirugías, la Sala de Endoscopía para
+   las endoscopías y el Quirófano de Obstetricia para las cesáreas— tienen su
+   grilla programada igual que el resto del bloque, cerrada por defecto, y
+   además ofrecen **un turno libre de urgencia en la hora que corre**, las 24
+   horas del día, de lunes a lunes.
+
+   Ese turno no está en ninguna lista fija: se sintetiza a partir de la hora del
+   reloj. A las 18 h aparece el turno de las 18; a las 19 desaparece y aparece
+   el de las 19. Si en esa hora se anota una urgencia, el turno queda ocupado y
+   se ofrece otro libre en la misma hora, para que la guardia nunca se quede sin
+   dónde anotar. Los turnos ocupados siguen visibles en el día para siempre.
+
+   El identificador es `U` + la hora, y `_2`, `_3`… para el segundo y siguientes
+   de esa misma hora: U18, U18_2, U18_3. */
+const RE_FRANJA_URG = /^U(\d{2})(?:_(\d+))?$/;
+function esFranjaUrgencia(fid) { return RE_FRANJA_URG.test(String(fid || '')); }
+function franjaUrgencia(fid) {
+  const m = RE_FRANJA_URG.exec(String(fid || ''));
+  if (!m) return null;
+  const h = Number(m[1]);
+  if (!(h >= 0 && h <= 23)) return null;
+  return { id: fid, t: String(h).padStart(2, '0') + ':00', p: 'U', urg: true, hora: h, orden: Number(m[2] || 1) };
+}
+function idFranjaUrgencia(h, n) { return 'U' + String(h).padStart(2, '0') + (n > 1 ? '_' + n : ''); }
+/* Turnos de urgencia que se muestran en una sala un día dado: los que ya tienen
+   una cirugía anotada —de cualquier hora— y, solo si el día es hoy, el turno
+   libre de la hora que corre. */
+function franjasUrgenciaVisibles(d, s) {
+  if (!s || !s.urgHoraria) return [];
+  const ids = [];
+  DB.cirugias.forEach((c) => {
+    if (diaDeGrilla(c) === d && c.sala === s.id && esFranjaUrgencia(c.franja) && ids.indexOf(c.franja) < 0) ids.push(c.franja);
+  });
+  if (d === hoyISO()) {
+    const h = new Date().getHours();
+    let n = 1;
+    while (turnoEn(d, s.id, idFranjaUrgencia(h, n))) n++;
+    const libre = idFranjaUrgencia(h, n);
+    if (ids.indexOf(libre) < 0) ids.push(libre);
   }
-  return out;
-})();
+  return ids.map(franjaUrgencia).filter(Boolean)
+    .sort((a, b) => a.hora - b.hora || a.orden - b.orden);
+}
+/* Cómo se llama la urgencia en cada sala. */
+function rotuloUrgencia(s) {
+  if (s.tipo === 'endo') return { titulo: 'Endoscopías de urgencia', corto: 'endoscopía de urgencia' };
+  if (s.tipo === 'obs') return { titulo: 'Cesáreas de urgencia', corto: 'cesárea de urgencia' };
+  return { titulo: 'Cirugías de urgencia y emergencia', corto: 'cirugía de urgencia' };
+}
+
 const FRANJAS_ENDO = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']
   .map((t, i) => ({ id: 'E' + (i + 1), t, p: t < '14:00' ? 'M' : 'T' }));
 
 const SALAS = [
-  /* `siempreAbierta`: salas que no nacen bloqueadas. El Quirófano 1 es la
-     guardia y no se cierra nunca; Obstetricia atiende cesáreas, así que queda
-     abierto salvo que la Jefatura lo cierre a propósito. El resto del bloque
-     arranca cerrado todos los días y lo abre la Jefatura turno por turno. */
-  { id: 'Q1', nombre: 'Quirófano 1', tipo: 'qx', urgencias: true, guardia24: true, siempreAbierta: true, franjas: FRANJAS_Q1, etiqueta: 'URGENCIAS · 24 H', clase: 'badge-urg' },
-  { id: 'Q2', nombre: 'Quirófano 2', tipo: 'qx', urgencias: false, franjas: FRANJAS_QX },
-  { id: 'Q3', nombre: 'Quirófano 3', tipo: 'qx', urgencias: false, franjas: FRANJAS_QX },
-  { id: 'Q4', nombre: 'Quirófano 4', tipo: 'qx', urgencias: false, franjas: FRANJAS_QX },
-  { id: 'END', nombre: 'Sala de Endoscopía Digestiva', tipo: 'endo', urgencias: false, franjas: FRANJAS_ENDO, etiqueta: 'ENDOSCOPÍA', clase: 'badge-endo' },
-  { id: 'QOBS', nombre: 'Quirófano de Obstetricia — Cesáreas', tipo: 'obs', urgencias: true, siempreAbierta: true, franjas: FRANJAS_QX, etiqueta: 'OBSTETRICIA', clase: 'badge-obs' },
+  /* Todo el bloque programado nace cerrado y lo abre la Jefatura turno por
+     turno, el Quirófano 1 y Obstetricia incluidos: en la grilla de programación
+     son una sala más. Lo que las distingue es `urgHoraria`, el turno libre de
+     urgencia que se ofrece en la hora que corre, las 24 horas, al margen de que
+     la sala esté abierta o cerrada para lo programado. */
+  { id: 'Q1', nombre: 'Quirófano 1', tipo: 'qx', urgHoraria: true, franjas: FRANJAS_QX, etiqueta: 'URGENCIAS', clase: 'badge-urg' },
+  { id: 'Q2', nombre: 'Quirófano 2', tipo: 'qx', franjas: FRANJAS_QX },
+  { id: 'Q3', nombre: 'Quirófano 3', tipo: 'qx', franjas: FRANJAS_QX },
+  { id: 'Q4', nombre: 'Quirófano 4', tipo: 'qx', franjas: FRANJAS_QX },
+  { id: 'END', nombre: 'Sala de Endoscopía Digestiva', tipo: 'endo', urgHoraria: true, franjas: FRANJAS_ENDO, etiqueta: 'ENDOSCOPÍA', clase: 'badge-endo' },
+  { id: 'QOBS', nombre: 'Quirófano de Obstetricia — Cesáreas', tipo: 'obs', urgHoraria: true, franjas: FRANJAS_QX, etiqueta: 'OBSTETRICIA', clase: 'badge-obs' },
 ];
 const sala = (id) => SALAS.find((s) => s.id === id) || SALAS[0];
-const franjaDe = (salaId, fid) => sala(salaId).franjas.find((f) => f.id === fid) || null;
+/* Además de las franjas fijas de cada sala resuelve las de urgencia —que se
+   sintetizan de la hora— y las heredadas `H00`–`H23` de la grilla de 24 h que
+   tenía el Quirófano 1 antes, para que ningún turno viejo quede sin ubicación. */
+const franjaDe = (salaId, fid) => {
+  const fija = sala(salaId).franjas.find((f) => f.id === fid);
+  if (fija) return fija;
+  const urg = franjaUrgencia(fid);
+  if (urg) return urg;
+  const m = /^H(\d{2})$/.exec(String(fid || ''));
+  if (m) {
+    const h = Number(m[1]);
+    return { id: fid, t: String(h).padStart(2, '0') + ':00', p: h >= 20 || h < 8 ? 'N' : (h < 14 ? 'M' : 'T'), heredada: true };
+  }
+  return null;
+};
 
 /* Claves operativas (control del lado del cliente: ordena la operación diaria,
    no sustituye una autenticación real del servidor). */
@@ -3141,11 +3244,32 @@ const MOD_VALORES_DEF = { A: 120000, B: 80000, C: 45000 };
    puntuación, espacios de más y palabras de enlace («y», «de», «la»): así
    «Traumatologia» y «Traumatología y Ortopedia» son el mismo servicio. */
 const SERV_ENLACES = ['y', 'e', 'de', 'del', 'la', 'el', 'los', 'las'];
+/* Abreviaturas de pizarra: en el hospital se escribe «CIRUGIA GRAL», «TRAUMA»
+   o «CX PLAST». Se expanden antes de comparar, porque «gral» no es prefijo de
+   «general» y sin esto quedaban como servicios distintos. */
+const SERV_ABREV = {
+  gral: 'general', gen: 'general', cx: 'cirugia', cir: 'cirugia',
+  trauma: 'traumatologia', traumato: 'traumatologia', ortop: 'ortopedia', traum: 'traumatologia',
+  gine: 'ginecologia', gineco: 'ginecologia', obst: 'obstetricia', toco: 'obstetricia',
+  oftalmo: 'oftalmologia', oft: 'oftalmologia', uro: 'urologia',
+  neuro: 'neurocirugia', neurocx: 'neurocirugia',
+  ped: 'pediatrica', pedia: 'pediatrica', pediatria: 'pediatrica',
+  cardio: 'cardiovascular', cardiovasc: 'cardiovascular', cv: 'cardiovascular',
+  plast: 'plastica', plas: 'plastica', rep: 'reparadora',
+  endo: 'endoscopia', dig: 'digestiva', digest: 'digestiva',
+  orl: 'orl', otorrino: 'orl',
+};
 function servicioTokens(s) {
   return sinTildes(String(s || ''))
     .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)
-    .filter((w) => w && SERV_ENLACES.indexOf(w) < 0);
+    .filter((w) => w && SERV_ENLACES.indexOf(w) < 0)
+    .map((w) => SERV_ABREV[w] || w);
+}
+/* Dos palabras del nombre de un servicio se consideran la misma si una empieza
+   con la otra: «traumatolog» y «traumatologia», «ortoped» y «ortopedia». */
+function tokEncaja(a, b) {
+  return a === b || (a.length >= 4 && b.length >= 4 && (a.indexOf(b) === 0 || b.indexOf(a) === 0));
 }
 /* Sinónimos de uso corriente en el hospital que no comparten ninguna palabra
    con el nombre del listado oficial. */
@@ -3167,12 +3291,65 @@ function servicioCanonico(s) {
   // «traumatologia» → «Traumatología y Ortopedia»; «cirugia», a cuatro, no.
   const cand = SERVICIOS_HRU.filter((x) => {
     const o = servicioTokens(x);
-    return o.every((w) => t.indexOf(w) >= 0) || t.every((w) => o.indexOf(w) >= 0);
+    return o.every((w) => t.some((y) => tokEncaja(w, y))) || t.every((w) => o.some((y) => tokEncaja(w, y)));
   });
   return cand.length === 1 ? cand[0] : String(s || '').trim();
 }
 const claveServicio = (s) => servicioTokens(servicioCanonico(s)).join(' ');
 const mismoServicio = (a, b) => claveServicio(a) === claveServicio(b);
+
+/* ---- Identidad del profesional ----
+   El nombre del cirujano se escribe a mano en cada turno, en cada consentimiento
+   y en cada equipo quirúrgico. Así conviven «Dr. Hugo Díaz», «hugo diaz»,
+   «DIAZ, HUGO» y «Hugo Díaz» —la misma persona— y, comparados con ===, la
+   producción de un cirujano aparecía repartida en cuatro filas de estadísticas
+   y de módulos.
+
+   Mismo criterio que con los servicios: se ignoran tildes, mayúsculas,
+   puntuación, tratamientos («Dr.», «Dra.», «Lic.») y el orden de las palabras.
+   Un nombre incompleto vale si señala a un solo profesional registrado:
+   «Díaz» → «Dr. Hugo Díaz» si es el único Díaz del hospital. El rótulo que se
+   muestra es siempre el de la ficha del profesional, que es el bien escrito. */
+const PROF_TRATAMIENTOS = ['dr', 'dra', 'doctor', 'doctora', 'prof', 'lic', 'md', 'sr', 'sra'];
+function profesionalTokens(n) {
+  return sinTildes(String(n || ''))
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w && PROF_TRATAMIENTOS.indexOf(w) < 0)
+    .sort();
+}
+/* Caché: se resuelve una vez por nombre y se descarta si cambia el padrón. */
+let PROF_CANON = {}, PROF_CANON_GEN = -1;
+function profesionalCanonico(n) {
+  const t = profesionalTokens(n);
+  if (!t.length) return String(n || '').trim();
+  if (PROF_CANON_GEN !== DB.usuarios.length) { PROF_CANON = {}; PROF_CANON_GEN = DB.usuarios.length; }
+  const k = t.join(' ');
+  if (PROF_CANON[k]) return PROF_CANON[k];
+  const padron = DB.usuarios.map((u) => u.nombre).filter(Boolean);
+  const exacto = padron.find((x) => profesionalTokens(x).join(' ') === k);
+  let out;
+  if (exacto) out = exacto;
+  else {
+    // Nombre incompleto o con una palabra de más: vale si apunta a uno solo.
+    const cand = padron.filter((x) => {
+      const o = profesionalTokens(x);
+      return o.every((w) => t.indexOf(w) >= 0) || t.every((w) => o.indexOf(w) >= 0);
+    });
+    out = cand.length === 1 ? cand[0] : String(n || '').replace(/\s+/g, ' ').trim();
+  }
+  PROF_CANON[k] = out;
+  return out;
+}
+const claveProfesional = (n) => profesionalTokens(profesionalCanonico(n)).join(' ');
+const mismoProfesional = (a, b) => !!claveProfesional(a) && claveProfesional(a) === claveProfesional(b);
+/* Apellido a efectos de ordenar alfabéticamente: la última palabra del nombre
+   tal como está escrito, descartados los tratamientos. */
+function apellidoDe(nombre) {
+  const partes = String(nombre || '').trim().split(/\s+/)
+    .filter((x) => PROF_TRATAMIENTOS.indexOf(sinTildes(x).replace(/\./g, '')) < 0);
+  return sinTildes(partes.length ? partes[partes.length - 1] : String(nombre || ''));
+}
 
 /* Búsqueda sin tildes y por palabras sueltas: «hernia ing» encuentra
    «hernia inguinal en adultos (no complicadas) unilateral». */
@@ -3210,7 +3387,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.4.2';
+const APP_VERSION = '3.6.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -3756,7 +3933,7 @@ function diasDelMes(ym) {
    cada día hábil. */
 function horasDisponiblesMes(ym) {
   const jornada = BLOQUE.horaCierre - BLOQUE.horaApertura;
-  return SALAS.reduce((h, s) => h + (s.guardia24 ? diasDelMes(ym) * 24 : diasHabilesMes(ym) * jornada), 0);
+  return SALAS.reduce((h) => h + diasHabilesMes(ym) * jornada, 0);
 }
 function diasHabilesMes(ym) {
   const [y, m] = ym.split('-').map(Number);
@@ -3797,7 +3974,7 @@ function ordenPrelacion(a, b) {
     || String(a.fechaSolicitud || '').localeCompare(String(b.fechaSolicitud || ''));
 }
 function estChip(c) {
-  const e = ESTC[c.estado];
+  const e = ESTC[estadoVisible(c)];
   return `<span class="est-chip" style="background:${e.soft};color:${e.text}"><span class="est-dot" style="background:${e.color}"></span>${e.label}</span>`;
 }
 function prioChip(c) {
@@ -3810,6 +3987,20 @@ function prioChip(c) {
   return html;
 }
 function lvqCompleta(c, fase) { return !!(c.lvq && c.lvq[fase] && c.lvq[fase].done); }
+/* ---- Cuándo se puede abrir la foja de verificación ----
+   El día de la cirugía y no antes. Se admite también el día de grilla del
+   turno, que es el mismo día salvo en la madrugada del Quirófano 1 —una
+   cirugía de las 01:00 pertenece a la guardia que empezó el día anterior—, y
+   cualquier día posterior, para la LVQ que se completa fuera de término o para
+   el registro tardío que autoriza la Jefatura. */
+function lvqHabilitada(c) {
+  if (!c || !c.fecha) return true;
+  const hoy = hoyISO();
+  return hoy >= String(c.fecha) || hoy === String(diaDeGrilla(c));
+}
+function lvqMotivoBloqueo(c) {
+  return `La foja de verificación se habilita el día de la cirugía.\n\n${c.procedimiento} — ${c.paciente?.nombre || 's/d'}\nProgramada para el ${fmtFecha(c.fecha)}${c.horaProg ? ' a las ' + c.horaProg + ' h' : ''}.\n\nHoy es ${fmtFecha(hoyISO())}: todavía no puede completarse.`;
+}
 function pushHist(c, accion) {
   c.historial = c.historial || [];
   c.historial.push({ t: nowDT(), a: accion });
@@ -3823,6 +4014,85 @@ function coordFaltantes(c) {
   if (!c.hce?.preop) faltan.push('HCE: estudios preoperatorios incompletos');
   if (!c.hce?.consentimiento) faltan.push('HCE: consentimiento informado sin registrar');
   return faltan;
+}
+
+/* ================= REQUISITOS PARA ENTRAR A ADMISIÓN Y EGRESOS =================
+   El turno programado no llega al mostrador de Admisión con la carpeta vacía.
+   Antes de que Admisión acepte o rechace, el cirujano tiene que haber dejado
+   asentado el apto anestésico, los estudios preoperatorios y el consentimiento
+   informado generado y guardado en su historial. Sin eso el trámite no abre.
+
+   La urgencia no pasa por acá: opera primero y regulariza después. */
+function requisitosAdmision(c) {
+  const f = [];
+  if (!c) return f;
+  if (!c.coordinacion?.anestesia) f.push('Evaluación pre-anestésica aprobada (apto anestésico)');
+  if (!c.hce?.preop) f.push('Estudios preoperatorios completos y verificados en la HCE');
+  if (!consentimientoDeTurno(c)) f.push('Consentimiento informado generado y guardado en el historial del cirujano');
+  else if (!c.hce?.consentimiento) f.push('Consentimiento informado firmado y registrado en la HCE');
+  return f;
+}
+
+/* ================= CIERRE DEL CASO =================
+   Una cirugía termina en dos tiempos.
+
+   Primero el quirófano: las tres etapas de la Lista de Verificación —Entrada,
+   Pausa y Salida— y el parte quirúrgico cargado.
+
+   Después el circuito administrativo: la aceptación de Admisión y Egresos y la
+   validación de la Jefatura de Quirófanos.
+
+   En la cirugía programada el circuito administrativo ya se cumplió ANTES de
+   operar, así que el caso se cierra solo apenas se guarda el parte quirúrgico.
+   En la urgencia de la madrugada no hay nadie de Admisión ni de Jefatura en el
+   hospital: el cirujano opera y cierra la LVQ igual, pero el caso queda en
+   «Operada — pendiente de cierre» hasta que las dos validaciones se asienten.
+   Recién entonces pasa a FINALIZADA, y recién entonces computa en las
+   estadísticas y en los módulos quirúrgicos. */
+const EST_OPERADA = ['realizada', 'finalizada'];
+function operada(c) { return !!c && EST_OPERADA.includes(c.estado); }
+
+/* Qué le falta a un caso ya operado para poder cerrarse. */
+function cierreFaltantes(c) {
+  const f = [];
+  if (!c) return f;
+  if (!lvqCompleta(c, 'entrada') || !lvqCompleta(c, 'pausa')) f.push('Lista de Verificación Quirúrgica: faltan las etapas de Entrada y Pausa');
+  if (!lvqCompleta(c, 'salida')) f.push('Lista de Verificación Quirúrgica: falta la etapa de Salida (conteo de gasas e instrumental)');
+  if (!c.informe) f.push('Parte quirúrgico (informe operatorio) sin cargar');
+  if (c.auth === 'NO AUTORIZADO') f.push('Admisión y Egresos: dictamen NO AUTORIZADO sin rectificar');
+  else if (c.auth !== 'AUTORIZADO') f.push('Admisión y Egresos: aceptación pendiente');
+  if (jefaturaPendienteDiferida(c)) f.push('Jefatura de Quirófanos: validación diferida sin regularizar');
+  return f;
+}
+/* Caso cerrado. Se calcula, no se cree: sirve también para los turnos viejos
+   que quedaron guardados como «realizada» antes de que existiera el cierre. */
+function cirugiaCerrada(c) { return operada(c) && !cierreFaltantes(c).length; }
+/* Estado que se muestra en pantalla, para que el rótulo y el cómputo digan lo
+   mismo incluso en esos turnos viejos. */
+function estadoVisible(c) {
+  if (!c) return 'borrador';
+  return (c.estado === 'realizada' && cirugiaCerrada(c)) ? 'finalizada' : c.estado;
+}
+/* Único lugar donde el caso se cierra o se reabre. Se llama después de cada
+   paso que puede completar el cierre —parte quirúrgico, dictamen de Admisión,
+   regularización de la Jefatura— y devuelve true si el estado cambió.
+   El que llama es el que guarda. */
+function revisarCierre(c) {
+  if (!c) return false;
+  const faltan = cierreFaltantes(c);
+  if (c.estado === 'realizada' && !faltan.length) {
+    c.estado = 'finalizada';
+    c.cierre = { t: nowDT() };
+    pushHist(c, 'Caso cerrado — LVQ completa, parte quirúrgico cargado, aceptación de Admisión y Egresos y validación de la Jefatura asentadas. La cirugía queda FINALIZADA y computa en estadísticas y módulos');
+    return true;
+  }
+  if (c.estado === 'finalizada' && faltan.length) {
+    c.estado = 'realizada';
+    c.cierre = null;
+    pushHist(c, 'Caso reabierto — dejó de cumplir un requisito de cierre: ' + faltan.join('; '));
+    return true;
+  }
+  return false;
 }
 /* Minutos de quirófano de una cirugía: se prefiere el tiempo real medido y, si
    no está cargado, la duración estimada de la solicitud. */
@@ -4118,7 +4388,7 @@ function calcRecordatorios() {
      Es la red de seguridad del cierre por anticipación: si nadie vinculó la
      urgencia con el turno programado, la franja quedaría ocupada por una
      cirugía que no se va a hacer y el paciente figuraría dos veces. */
-  DB.cirugias.filter((c) => c.urgencia && ['confirmada', 'en_curso', 'realizada'].includes(c.estado) && !c.resuelveTurno)
+  DB.cirugias.filter((c) => c.urgencia && ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado) && !c.resuelveTurno)
     .forEach((urg) => {
       turnosQueResuelve(urg).filter(remMia).forEach((p) => {
         const inicio = new Date(p.fecha + 'T' + (p.horaProg || '08:00') + ':00');
@@ -4153,11 +4423,11 @@ function calcRecordatorios() {
   /* ---- 3 ter. Trámite administrativo diferido, todavía sin regularizar ----
      Vale también para las cirugías ya realizadas: la excepción libera de pedir
      la autorización antes, no de dejarla asentada alguna vez. */
-  DB.cirugias.filter((c) => authPendienteDiferida(c) && ['confirmada', 'en_curso', 'realizada'].includes(c.estado))
+  DB.cirugias.filter((c) => authPendienteDiferida(c) && ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado))
     .filter((c) => c.fecha >= sumarDias(hoy, -30))
     .filter(remMia)
     .forEach((c) => {
-      const hecha = c.estado === 'realizada';
+      const hecha = operada(c);
       add({
         key: 'authdif-' + c.id, nivel: hecha && c.fecha < hoy ? 'warn' : 'info', vista: 'grilla', cirugia: c.id,
         titulo: `Admisión y Egresos sin regularizar — ${c.paciente?.nombre || 's/d'}`,
@@ -4169,16 +4439,35 @@ function calcRecordatorios() {
   /* ---- 3 quater. Validación de Jefatura diferida, todavía sin regularizar ----
      La urgencia se operó sin el visto previo, que es exactamente lo que la
      excepción habilita. Lo que no habilita es que nunca quede asentado. */
-  DB.cirugias.filter((c) => jefaturaPendienteDiferida(c) && ['en_curso', 'realizada'].includes(c.estado))
+  DB.cirugias.filter((c) => jefaturaPendienteDiferida(c) && ['en_curso', 'realizada', 'finalizada'].includes(c.estado))
     .filter((c) => c.fecha >= sumarDias(hoy, -30))
     .filter(remMia)
     .forEach((c) => {
-      const hecha = c.estado === 'realizada';
+      const hecha = operada(c);
       add({
         key: 'jefdif-' + c.id, nivel: hecha && c.fecha < hoy ? 'warn' : 'info', vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
         titulo: `Validación de Jefatura sin regularizar — ${c.paciente?.nombre || 's/d'}`,
         texto: `${c.procedimiento} (${c.quirofano || 's/d'}, ${fmtFecha(c.fecha)}). Entró por ${(c.jefaturaDiferida && c.jefaturaDiferida.motivo) || 'urgencia'} y se operó sin la validación previa de la ${JEFATURA}. Repase la lista de verificación de coordinación y cierre el trámite desde la ficha de la cirugía.`,
         cuando: hecha ? 'Trámite pendiente' : `Cirugía ${fmtFecha(c.fecha)}`,
+      });
+    });
+
+  /* ---- 3 quinquies. Caso operado que no termina de cerrarse ----
+     La cirugía se hizo, pero el caso sigue abierto: falta el parte quirúrgico,
+     la aceptación de Admisión o la validación de la Jefatura. Mientras siga
+     así no se archiva ni computa en las estadísticas ni en los módulos, que es
+     justamente lo que nadie quiere descubrir a fin de mes. */
+  DB.cirugias.filter((c) => c.estado === 'realizada' && !cirugiaCerrada(c))
+    .filter((c) => c.fecha >= sumarDias(hoy, -60))
+    .filter(remMia)
+    .forEach((c) => {
+      const pend = cierreFaltantes(c);
+      const dias = Math.max(0, diasEntre(c.fecha, hoy));
+      add({
+        key: 'cierre-' + c.id, nivel: dias >= 2 ? 'crit' : 'warn', vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
+        titulo: `Cirugía sin cerrar — ${c.paciente?.nombre || 's/d'}`,
+        texto: `${c.procedimiento} (${c.quirofano || 's/d'}, ${fmtFecha(c.fecha)}). Se operó pero el caso no está finalizado. Falta: ${pend.join('; ')}. Hasta que se cierre no computa en las estadísticas ni en los módulos quirúrgicos.`,
+        cuando: dias ? `Operada hace ${dias} día(s)` : 'Operada hoy',
       });
     });
 
@@ -4216,14 +4505,14 @@ function calcRecordatorios() {
     const limite = new Date(fin.getTime() + 2 * 36e5);
     add({
       key: 'informe-' + c.id, nivel: ahora > limite ? 'crit' : 'warn', vista: mio ? 'mis' : 'programacion', cirugia: c.id,
-      titulo: ahora > limite ? `Informe operatorio fuera de plazo` : `Informe operatorio pendiente`,
-      texto: `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.cirujano}). Meta institucional: carga en menos de 2 horas tras la cirugía.`,
+      titulo: ahora > limite ? `Parte quirúrgico fuera de plazo` : `Parte quirúrgico pendiente`,
+      texto: `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.cirujano}). Quedó sin parte quirúrgico y por eso el caso no se cierra. Meta institucional: carga en menos de 2 horas tras la cirugía.`,
       cuando: `Plazo ${humanoRestante(limite - ahora)}`,
     });
   });
 
   /* ---- 7. Anatomía Patológica: muestras sin envío confirmado ---- */
-  DB.cirugias.filter((c) => ['realizada', 'en_curso'].includes(c.estado) && (c.muestras || []).some((m) => !m.enviada))
+  DB.cirugias.filter((c) => ['realizada', 'finalizada', 'en_curso'].includes(c.estado) && (c.muestras || []).some((m) => !m.enviada))
     .forEach((c) => {
       const pend = (c.muestras || []).filter((m) => !m.enviada);
       const congelacion = pend.some((m) => m.tipo && m.tipo.indexOf('congelación') >= 0);
@@ -4791,7 +5080,7 @@ function renderPanel() {
   const total = DB.incidencias.length;
   const por = (e) => DB.incidencias.filter((i) => i.estado === e).length;
   const hoy = hoyISO();
-  const cirHoy = DB.cirugias.filter((c) => c.fecha === hoy && ['confirmada', 'en_curso', 'realizada'].includes(c.estado)).length;
+  const cirHoy = DB.cirugias.filter((c) => c.fecha === hoy && ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado)).length;
   const enCurso = DB.cirugias.filter((c) => c.estado === 'en_curso').length;
   const pendVal = DB.cirugias.filter((c) => ['pendiente', 'validada'].includes(c.estado)).length;
   const suspMes = DB.cirugias.filter((c) => c.estado === 'suspendida' && (c.fecha || '').startsWith(mesActual())).length;
@@ -5235,7 +5524,7 @@ function renderParte() {
   const f = parteFecha;
   const publicado = partePublicado(f) || jefe;
   const lista = DB.cirugias
-    .filter((c) => c.fecha === f && ['confirmada', 'en_curso', 'realizada', 'suspendida'].includes(c.estado))
+    .filter((c) => c.fecha === f && ['confirmada', 'en_curso', 'realizada', 'finalizada', 'suspendida'].includes(c.estado))
     .sort(ordenPrelacion);
 
   let contenido;
@@ -5343,7 +5632,7 @@ function renderSolicitud() {
 
   const libres = SALAS.map((s) => {
     const fs = s.franjas.filter((f) => turnoHabilitado(d, s.id, f.p)
-      && !turnoEn(d, s.id, f.id) && !franjaVencida(d, s, f) && puedeReservar(d, f, s.urgencias));
+      && !turnoEn(d, s.id, f.id) && !franjaVencida(d, s, f) && puedeReservar(d, f, false));
     return fs.length ? { s, fs } : null;
   }).filter(Boolean);
 
@@ -5457,9 +5746,16 @@ function accionesCirugia(c, rol) {
       : `<button class="btn btn-sm btn-outline" onclick="go('solicitud')">${ICONS.edit} Elegir franja</button>`);
     a.push(`<button class="btn btn-sm btn-red" onclick="delCirugia(${c.id})">${ICONS.trash} Eliminar</button>`);
   }
-  if (c.estado === 'pendiente' && jefe) {
-    a.push(`<button class="btn btn-sm btn-blue" onclick="validarCirugia(${c.id})">${ICONS.check} Validar</button>`);
+  // El circuito de la programada tiene un orden y el botón lo respeta: mientras
+  // Admisión y Egresos no acepte, lo único que se ofrece es su trámite; recién
+  // con la aceptación aparece la validación de la Jefatura.
+  if (c.estado === 'pendiente' && jefe && !authOk(c)) {
+    a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} 1º Aceptación de Admisión y Egresos</button>`);
   }
+  if (c.estado === 'pendiente' && jefe && authOk(c)) {
+    a.push(`<button class="btn btn-sm btn-green" onclick="validarCirugia(${c.id})">${ICONS.check} Validar y confirmar en el parte</button>`);
+  }
+  // Turnos de la versión anterior, que quedaron detenidos en «Validada».
   if (c.estado === 'validada' && jefe) {
     a.push(`<button class="btn btn-sm btn-green" onclick="confirmarCirugia(${c.id})">${ICONS.check} Confirmar en el parte</button>`);
   }
@@ -5469,8 +5765,11 @@ function accionesCirugia(c, rol) {
   if ((c.estado === 'confirmada' || puedeIniciarSinJefatura(c)) && (jefe || esDueno)) {
     a.push(`<button class="btn btn-sm btn-orange" onclick="openLVQ(${c.id}, 'inicio')">${ICONS.play} Iniciar (LVQ Entrada + Pausa)</button>`);
   }
+  // Terminado el procedimiento, el cirujano completa la Salida del check-list
+  // —que incluye el parte quirúrgico— y con eso la cirugía se cierra y queda
+  // finalizada sola. La Jefatura no interviene.
   if (c.estado === 'en_curso' && (jefe || esDueno)) {
-    a.push(`<button class="btn btn-sm btn-darkgreen" onclick="openLVQ(${c.id}, 'salida')">${ICONS.flag} Finalizar (LVQ Salida)</button>`);
+    a.push(`<button class="btn btn-sm btn-darkgreen" onclick="openLVQ(${c.id}, 'salida')">${ICONS.flag} Finalizar (LVQ Salida + parte)</button>`);
   }
   if (['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado) && jefe) {
     a.push(`<button class="btn btn-sm btn-red" onclick="openSuspender(${c.id})">${ICONS.x} Suspender</button>`);
@@ -5482,6 +5781,11 @@ function accionesCirugia(c, rol) {
   }
   if (c.estado === 'anticipada' && jefe) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="reabrirAnticipada(${c.id})">${ICONS.refresh} Reponer el turno</button>`);
+  }
+  // Caso ya operado al que le falta el dictamen de Admisión y Egresos: el
+  // trámite se cierra desde la propia tarjeta, sin ir a buscarlo a la grilla.
+  if (jefe && operada(c) && c.auth !== 'AUTORIZADO') {
+    a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${c.auth === 'NO AUTORIZADO' ? 'Rectificar dictamen de Admisión' : 'Regularizar Admisión y Egresos'}</button>`);
   }
   // La urgencia se operó sin el visto previo: la Jefatura lo cierra después.
   if (jefe && jefaturaPendienteDiferida(c)) {
@@ -5503,27 +5807,34 @@ async function delCirugia(id) {
   refreshView();
 }
 
+/* La validación de la Jefatura y la confirmación en el parte son un solo acto:
+   la Jefatura repasa que esté todo lo que el cirujano pidió —arco en C,
+   prótesis, implantes, hemoderivados, instrumental, apto anestésico— y, si
+   está, el turno entra al parte quirúrgico de programados en ese mismo
+   momento. Es ahí donde se le habilita la foja de LVQ al cirujano. */
 function validarCirugia(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
-  // Regla general: sin el visto de Admisión y Egresos la Jefatura no valida.
-  // Las urgencias, las P1–P2 y las excepciones de Jefatura están exentas del
-  // visto previo (authOk lo resuelve) y regularizan el trámite después.
+  // Primero Admisión y Egresos, después la Jefatura. Sin la aceptación de
+  // Admisión el turno no se valida ni entra al parte. Solo saltean este paso
+  // las urgencias y emergencias, que regularizan el trámite después.
   if (!authOk(c)) {
-    alert('No se puede validar el turno\n\nAdmisión y Egresos todavía no lo autorizó.'
-      + (c.auth === 'NO AUTORIZADO' ? '\n\nDictamen: NO AUTORIZADO. Motivo: ' + (c.authMotivo || 'sin motivo registrado') + '.' : '\n\nEstado actual: pendiente de autorización.')
-      + '\n\nSolicite la autorización desde la grilla de Programación Diaria, en el propio turno.'
-      + '\n\nSolo saltean este paso las urgencias y emergencias, los turnos de prioridad P1 y P2, y las cirugías que la Jefatura programa fuera de horario.');
+    alert('No se puede validar el turno\n\nAdmisión y Egresos todavía no lo aceptó.'
+      + (c.auth === 'NO AUTORIZADO' ? '\n\nDictamen: NO AUTORIZADO. Motivo: ' + (c.authMotivo || 'sin motivo registrado') + '.' : '\n\nEstado actual: pendiente de aceptación.')
+      + '\n\nSolicite la aceptación desde la grilla de Programación Diaria, en el propio turno.'
+      + '\n\nSolo saltean este paso las urgencias y emergencias y los turnos de prioridad P1 y P2, que la regularizan después.');
     return;
   }
   const faltan = coordFaltantes(c);
   if (faltan.length) {
     openCirugia(id);
-    setTimeout(() => alert('No se puede validar: faltan verificaciones de coordinación.\n\n· ' + faltan.join('\n· ') + '\n\nComplete las verificaciones en el detalle de la cirugía.'), 100);
+    setTimeout(() => alert('No se puede validar: falta verificar lo que pidió el cirujano.\n\n· ' + faltan.join('\n· ') + '\n\nComplete las verificaciones en el detalle de la cirugía.'), 100);
     return;
   }
-  c.estado = 'validada';
-  pushHist(c, 'Validada por áreas técnicas (Farmacia, Esterilización, Anestesiología' + (c.recursos?.hemoderivados ? ', Hemoterapia' : '') + ')');
+  c.estado = 'confirmada';
+  pushHist(c, 'Validada por la ' + JEFATURA + ': verificado lo solicitado por el cirujano (Farmacia, Esterilización, Anestesiología'
+    + (c.recursos?.hemoderivados ? ', Hemoterapia' : '') + (c.recursos?.arcoC ? ', arco en C' : '') + (c.recursos?.implante ? ', implante/prótesis' : '')
+    + ') — CONFIRMADA en el parte quirúrgico de programados; queda habilitada la Lista de Verificación Quirúrgica para el día de la cirugía');
   upsert('cirugias', c);
   refreshView();
 }
@@ -5549,6 +5860,8 @@ let lvqCirId = null, lvqModo = null;
 function openLVQ(id, modo) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
+  // La foja no se abre antes del día de la cirugía.
+  if (!lvqHabilitada(c)) { alert(lvqMotivoBloqueo(c)); return; }
   lvqCirId = id; lvqModo = modo;
   const fases = modo === 'inicio' ? ['entrada', 'pausa'] : ['salida'];
   $('lvq-modal').innerHTML = `
@@ -5562,12 +5875,13 @@ function openLVQ(id, modo) {
     </div>
     <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">${modo === 'inicio'
       ? 'Complete la fase de <b>Entrada</b> (antes de la inducción) y la <b>Pausa Quirúrgica</b> (antes de la incisión) para registrar el inicio del procedimiento.'
-      : 'Complete la fase de <b>Salida</b> (antes de salir de quirófano) para cerrar el procedimiento. El conteo de gasas e instrumental es obligatorio.'}</p>
+      : 'Complete la fase de <b>Salida</b> (antes de salir de quirófano) y el <b>parte quirúrgico</b>. El conteo de gasas e instrumental es obligatorio. Al confirmar, la cirugía se cierra y queda <b>finalizada</b>.'}</p>
     ${modo === 'inicio' && puedeIniciarSinJefatura(c) ? `<div class="banner banner-amber" style="margin:0 0 14px;padding:10px 14px">${ico(ICONS.zap, 16)}
       <div><strong>Validación de Jefatura diferida — ${esc(jefaturaMotivoExencion(c))}</strong>
       Este turno todavía no lo validó la ${esc(JEFATURA)}. Por ser ${esc(jefaturaMotivoExencion(c))} <b>no hace falta esperarla</b>:
-      complete la Lista de Verificación, opere y cierre el procedimiento cuando termine. La validación y la lista de verificación
-      de coordinación quedan pendientes de regularizar y no frenan nada.</div></div>` : ''}
+      complete la Lista de Verificación, opere y cargue el parte quirúrgico cuando termine. Lo que sí queda pendiente es el
+      <b>cierre del caso</b>: la aceptación de Admisión y Egresos y la validación de la ${esc(JEFATURA)} se regularizan después y,
+      hasta que estén, la cirugía no se archiva ni computa en estadísticas ni en módulos.</div></div>` : ''}
     ${fases.map((f) => `
       <div class="lvq-phase" id="lvq-f-${f}">
         <div class="lvq-head">${ICONS.clipboard.replace('18', '16')} ${LVQ[f].titulo}</div>
@@ -5575,9 +5889,22 @@ function openLVQ(id, modo) {
         ${LVQ[f].items.map((it, i) => `
           <label class="lvq-item"><input type="checkbox" class="lvq-chk" data-fase="${f}" onchange="checkLVQReady()"> ${it}</label>`).join('')}
       </div>`).join('')}
+    ${modo === 'salida' ? `
+      <div class="lvq-phase" id="lvq-parte">
+        <div class="lvq-head">${ICONS.fileText.replace('18', '16')} Parte quirúrgico (informe operatorio)</div>
+        <div class="lvq-resp">Responsable: cirujano — obligatorio para cerrar el procedimiento</div>
+        <div class="field" style="margin-top:8px">
+          <textarea id="lvq-informe" style="min-height:120px" oninput="checkLVQReady()"
+            placeholder="Describa el procedimiento realizado, hallazgos, técnica, complicaciones, muestras enviadas a Anatomía Patológica...">${esc((c.informe && c.informe.texto) || '')}</textarea>
+        </div>
+      </div>
+      ${cierreFaltantesPrevios(c).length ? `<div class="banner banner-amber" style="margin:0 0 14px;padding:10px 14px">${ico(ICONS.alertTri, 16)}
+        <div><strong>La cirugía no va a quedar finalizada todavía</strong>
+        Al confirmar, el procedimiento se cierra, pero el caso queda <b>pendiente de cierre</b> porque falta:<br>· ${cierreFaltantesPrevios(c).map(esc).join('<br>· ')}<br>
+        Se regulariza después y ahí sí pasa a finalizada.</div></div>` : ''}` : ''}
     <div class="form-actions" style="margin-top:14px">
       <button class="btn ${modo === 'inicio' ? 'btn-orange' : 'btn-darkgreen'}" id="lvq-confirm" disabled onclick="confirmLVQ()">
-        ${modo === 'inicio' ? ICONS.play + ' Confirmar LVQ e iniciar procedimiento' : ICONS.flag + ' Confirmar LVQ y cerrar procedimiento'}
+        ${modo === 'inicio' ? ICONS.play + ' Confirmar LVQ e iniciar procedimiento' : ICONS.flag + ' Confirmar Salida, cerrar y finalizar'}
       </button>
       <p class="form-note">Todos los ítems deben verificarse en voz alta con el equipo presente.</p>
     </div>`;
@@ -5585,7 +5912,21 @@ function openLVQ(id, modo) {
 }
 function checkLVQReady() {
   const chks = [...document.querySelectorAll('.lvq-chk')];
-  $('lvq-confirm').disabled = !chks.every((c) => c.checked);
+  const inf = $('lvq-informe');
+  const parteOk = !inf || inf.value.trim().length >= 10;
+  $('lvq-confirm').disabled = !chks.every((c) => c.checked) || !parteOk;
+}
+/* Lo que le faltaría al caso para cerrarse una vez completada la Salida y el
+   parte. En la programada no falta nada —por eso se finaliza sola—; en la
+   urgencia quedan la aceptación de Admisión y la validación de la Jefatura. */
+function cierreFaltantesPrevios(c) {
+  if (!c) return [];
+  const f = [];
+  if (c.auth === 'NO AUTORIZADO') f.push('Admisión y Egresos: dictamen NO AUTORIZADO sin rectificar');
+  else if (c.auth !== 'AUTORIZADO') f.push('Admisión y Egresos: aceptación pendiente');
+  if (jefaturaExenta(c) && ['pendiente', 'validada'].includes(c.estado)) f.push(`Validación de la ${JEFATURA} (diferida por ${jefaturaMotivoExencion(c)})`);
+  else if (jefaturaPendienteDiferida(c)) f.push(`Validación de la ${JEFATURA}: diferida, sin regularizar`);
+  return f;
 }
 function confirmLVQ() {
   const c = DB.cirugias.find((x) => x.id === lvqCirId);
@@ -5605,17 +5946,33 @@ function confirmLVQ() {
     c.horaInicioReal = t;
     pushHist(c, 'LVQ Entrada y Pausa completadas — inicio del procedimiento');
   } else {
+    // El parte quirúrgico se escribe en esta misma ventana: la Salida no se
+    // confirma sin él.
+    const texto = (($('lvq-informe') || {}).value || '').trim();
+    if (texto) {
+      c.informe = { texto, fechaHora: t };
+      pushHist(c, 'Parte quirúrgico (informe operatorio) cargado y cerrado por el cirujano junto con la LVQ de Salida');
+    }
     c.lvq.salida = { done: true, hora: t };
     c.estado = 'realizada';
     c.horaFinReal = t;
-    pushHist(c, 'LVQ Salida completada (conteo verificado) — procedimiento finalizado');
+    pushHist(c, 'LVQ Salida completada (conteo verificado) — procedimiento cerrado');
   }
+  // La Salida cierra el caso sola. En la cirugía programada no falta nada más y
+  // queda FINALIZADA en el acto, sin que la Jefatura intervenga; en la urgencia
+  // operada fuera de horario quedan pendientes la aceptación de Admisión y la
+  // validación de la Jefatura, y hasta que se regularicen no se finaliza.
+  const cerro = lvqModo === 'salida' ? revisarCierre(c) : false;
+  const pend = cierreFaltantes(c);
   upsert('cirugias', c);
   closeLVQ();
   if (lvqModo === 'salida') {
     setTimeout(() => {
       openCirugia(c.id);
-      setTimeout(() => alert('Procedimiento cerrado. Recuerde cargar el informe operatorio dentro de las 2 horas (meta de cumplimiento ≥ 95 %).'), 100);
+      setTimeout(() => alert(cerro
+        ? 'Procedimiento cerrado.\n\nLa cirugía queda FINALIZADA y ya computa en las estadísticas y en los módulos quirúrgicos.'
+        : 'Procedimiento cerrado.\n\nLa cirugía todavía NO está finalizada. Falta:\n\n· ' + pend.join('\n· ')
+          + '\n\nHasta que se regularice no se archiva ni computa en estadísticas ni en módulos.'), 100);
     }, 100);
   } else {
     refreshView();
@@ -5640,10 +5997,15 @@ async function regularizarJefatura(id) {
       : 'La lista de verificación de coordinación está completa.'),
     { titulo: 'Regularizar la validación de Jefatura', tono: 'jefatura', si: 'Regularizar', no: 'Cancelar' })) return;
   c.jefaturaRegularizada = { por: JEFATURA, t: nowDT(), faltaban: faltan };
-  pushHist(c, `Validación de la ${JEFATURA} regularizada con la cirugía ya ${c.estado === 'realizada' ? 'realizada' : 'en curso'}`
+  pushHist(c, `Validación de la ${JEFATURA} regularizada con la cirugía ya ${operada(c) ? 'operada' : 'en curso'}`
     + (faltan.length ? ` — quedaban sin verificar: ${faltan.join('; ')}` : ' — lista de verificación de coordinación completa'));
+  // Si era lo último que faltaba, el caso se cierra acá mismo.
+  const cerro = revisarCierre(c);
+  const pend = cierreFaltantes(c);
   upsert('cirugias', c);
   refreshView();
+  if (cerro) setTimeout(() => alert('Validación regularizada.\n\nLa cirugía queda FINALIZADA y ya computa en las estadísticas y en los módulos quirúrgicos.'), 120);
+  else if (operada(c) && pend.length) setTimeout(() => alert('Validación regularizada.\n\nEl caso sigue sin cerrarse. Falta:\n\n· ' + pend.join('\n· ')), 120);
 }
 
 /* ================= SUSPENSIÓN ================= */
@@ -5758,7 +6120,7 @@ function mismoResponsable(a, b) {
 /* Urgencias ya cargadas del mismo paciente que podrían haber resuelto el turno. */
 function urgenciasCandidatas(prog) {
   return turnosDelMismoPaciente(prog)
-    .filter((x) => x.urgencia && ['confirmada', 'en_curso', 'realizada'].includes(x.estado))
+    .filter((x) => x.urgencia && ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(x.estado))
     .sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
 }
 
@@ -6105,7 +6467,7 @@ function excEstadoFranja(d, sid, fid) {
   const inicio = inicioDeFranja(d, f);
   const razones = [];
   if (turnoEn(d, sid, fid)) razones.push('ocupada');
-  if (!turnoHabilitado(d, sid, f.p)) razones.push(s.siempreAbierta ? 'turno cerrado por la Jefatura' : 'bloque no habilitado para ese día y turno');
+  if (!turnoHabilitado(d, sid, f.p)) razones.push('bloque no habilitado para ese día y turno');
   if (!puedeReservar(d, f, false)) razones.push(`menos de ${HORAS_ANTICIPACION} h de anticipación`);
   if (new Date() > limiteCierre(fechaDeFranja(d, f))) razones.push(`cierre de solicitudes superado (${BLOQUE.cierreSolicitudes} h del día previo)`);
   return { f, inicio, pasada: inicio.getTime() <= Date.now(), ocupada: !!turnoEn(d, sid, fid), razones };
@@ -6300,32 +6662,60 @@ function renderExcepcion() {
 }
 
 /* ================= PROGRAMACIÓN (jefe) ================= */
+/* Grupos del circuito, en el orden en que ocurren. Cada uno es una línea y el
+   detalle se despliega al pulsarla: la Jefatura ve el estado del bloque entero
+   de un vistazo y entra solo a lo que le interesa. */
+const PROG_GRUPOS = [
+  { est: 'borrador',   hint: 'Iniciadas por el cirujano, todavía sin enviar al circuito' },
+  { est: 'pendiente',  hint: '1º Admisión y Egresos acepta; 2º la Jefatura valida y confirma en el parte' },
+  { est: 'validada',   hint: 'Turnos de la versión anterior: al confirmar entran al parte oficial' },
+  { est: 'confirmada', hint: 'En el parte quirúrgico, con la foja de LVQ habilitada al cirujano' },
+  { est: 'en_curso',   hint: 'Procedimiento iniciado: cierra con la LVQ de Salida y el parte quirúrgico' },
+  { est: 'realizada',  hint: 'Operadas sin cerrar: falta regularizar Admisión y Jefatura. No computan' },
+  { est: 'finalizada', hint: 'Caso cerrado: computa en estadísticas y en módulos quirúrgicos' },
+  { est: 'suspendida', hint: 'Con causa registrada e incidencia de categoría D automática' },
+  { est: 'anticipada', hint: 'El paciente se operó antes de su fecha: la franja quedó liberada' },
+];
+/* Estados terminales: se listan por fecha, del más reciente al más viejo. Los
+   que siguen en circuito van por orden de prelación. */
+const PROG_TERMINALES = ['finalizada', 'suspendida', 'anticipada', 'realizada'];
+let progAbierto = {};
+function progToggle(est) {
+  progAbierto[est] = !progAbierto[est];
+  renderProgramacion();
+}
+function progLista(est) {
+  const l = DB.cirugias.filter((c) => estadoVisible(c) === est);
+  return PROG_TERMINALES.indexOf(est) >= 0
+    ? l.sort((a, b) => String(b.fecha || '').localeCompare(String(a.fecha || '')))
+    : l.sort(ordenPrelacion);
+}
+
 function renderProgramacion() {
-  const n = (est) => DB.cirugias.filter((c) => c.estado === est).length;
   const tabs = [
     { id: 'flujo', label: 'Flujo de trabajo' },
     { id: 'todas', label: 'Todas' },
   ];
   let cuerpo = '';
   if (progTab === 'flujo') {
-    const grupos = [
-      { est: 'pendiente', titulo: 'Pendientes de validación', hint: 'Verificar coordinación de áreas antes de validar' },
-      { est: 'validada', titulo: 'Validadas — esperan confirmación de jefatura', hint: 'Al confirmar entran al parte oficial' },
-      { est: 'confirmada', titulo: 'Confirmadas en el parte', hint: 'El inicio requiere LVQ de Entrada y Pausa' },
-      { est: 'en_curso', titulo: 'En curso', hint: 'El cierre requiere LVQ de Salida con conteo completo' },
-      { est: 'realizada', titulo: 'Realizadas recientes', hint: 'Controlar carga del informe operatorio (≤ 2 h)', limite: 5 },
-      { est: 'suspendida', titulo: 'Suspendidas', hint: 'Con causa registrada', limite: 5 },
-      { est: 'anticipada', titulo: 'Resueltas por anticipado', hint: 'Se operaron antes de su fecha —de urgencia o adelantadas—: la franja quedó liberada', limite: 5 },
-    ];
-    cuerpo = grupos.map((g) => {
-      let lista = DB.cirugias.filter((c) => c.estado === g.est).sort(ordenPrelacion);
-      if (g.limite) lista = lista.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha))).slice(0, g.limite);
-      if (!lista.length) return '';
-      return `<div class="q-group">
-        <div class="q-group-title"><span class="est-dot" style="background:${ESTC[g.est].color};width:12px;height:12px"></span> ${g.titulo} <span style="color:var(--muted);font-weight:500;font-size:0.8rem">· ${g.hint}</span></div>
-        ${lista.map((c) => cirCard(c, 'jefe')).join('')}
+    const total = DB.cirugias.length;
+    cuerpo = `<div class="q-acc-list">${PROG_GRUPOS.map((g) => {
+      const e = ESTC[g.est];
+      const lista = progLista(g.est);
+      const abierto = !!progAbierto[g.est] && lista.length > 0;
+      return `<div>
+        <button type="button" class="q-acc ${abierto ? 'on' : ''} ${lista.length ? '' : 'vacio'}"
+          ${lista.length ? `onclick="progToggle('${g.est}')"` : 'disabled'}>
+          <span class="q-acc-dot" style="background:${e.color}"></span>
+          <span class="q-acc-lbl">${e.label}</span>
+          <span class="q-acc-hint">${g.hint}</span>
+          <span class="q-acc-n" style="${lista.length ? `background:${e.soft};color:${e.text}` : ''}">${lista.length}</span>
+          <span class="q-acc-car">${lista.length ? '▾' : ''}</span>
+        </button>
+        ${abierto ? `<div class="q-acc-body">${lista.map((c) => cirCard(c, 'jefe')).join('')}</div>` : ''}
       </div>`;
-    }).join('') || '<div class="empty">No hay solicitudes en el circuito.</div>';
+    }).join('')}</div>
+    ${total ? '' : '<div class="empty">No hay solicitudes cargadas en el bloque.</div>'}`;
   } else {
     const lista = DB.cirugias
       .filter((c) => !progEstado || c.estado === progEstado)
@@ -6347,16 +6737,13 @@ function renderProgramacion() {
         <div class="head-icon">${ICONS.clipboard}</div>
         <div>
           <h1 class="page-title">Programación Quirúrgica</h1>
-          <p class="page-sub">Circuito completo: Borrador → Pendiente → Validada → Confirmada → En curso → Realizada</p>
+          <p class="page-sub">Programadas: Borrador → Pendiente (Admisión y Egresos) → Validada por la Jefatura y confirmada en el parte → LVQ (Entrada · Pausa · Salida) → Parte quirúrgico → <b>Finalizada</b>.
+            Urgencias: se operan primero y la aceptación de Admisión y la validación de la Jefatura se regularizan después; hasta entonces el caso no se cierra.</p>
         </div>
       </div>
     </div>
-    ${leyendaEstados()}
     <div class="tabs">
       ${tabs.map((t) => `<button class="tab ${progTab === t.id ? 'active' : ''}" onclick="progTab='${t.id}';renderProgramacion()">${t.label}</button>`).join('')}
-      <span class="tab" style="cursor:default;border-style:dashed">Pendientes <span class="n">${n('pendiente')}</span></span>
-      <span class="tab" style="cursor:default;border-style:dashed">Validadas <span class="n">${n('validada')}</span></span>
-      <span class="tab" style="cursor:default;border-style:dashed">Confirmadas <span class="n">${n('confirmada')}</span></span>
     </div>
     ${cuerpo}`;
 }
@@ -6368,10 +6755,31 @@ function openCirugia(id) {
   const u = usuarioActual();
   const esDueno = u && c.cirujanoEmail === u.email;
   const puedeCoordinar = jefe;
-  const puedeInforme = (jefe || esDueno) && c.estado === 'realizada';
-  const puedeMuestras = (jefe || esDueno) && ['confirmada', 'en_curso', 'realizada'].includes(c.estado);
+  // El parte quirúrgico se escribe dentro de la LVQ de Salida. Acá se puede
+  // adelantar mientras la cirugía está en curso, o completar el de un turno
+  // viejo que quedó sin él.
+  const puedeInforme = (jefe || esDueno) && (c.estado === 'en_curso' || c.estado === 'realizada');
+  const puedeMuestras = (jefe || esDueno) && ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado);
   const pe = prioridadEfectiva(c);
   const faltan = coordFaltantes(c);
+
+  // Estado del cierre del caso: qué falta para que la cirugía quede finalizada
+  // y empiece a computar en las estadísticas y en los módulos.
+  let cierreHTML = '';
+  if (operada(c)) {
+    const pendCierre = cierreFaltantes(c);
+    cierreHTML = pendCierre.length
+      ? `<div class="det-section"><h4>Cierre del caso — pendiente</h4>
+          <div class="banner banner-amber" style="margin:0">${ico(ICONS.alertTri, 16)}
+            <div><strong>La cirugía se operó pero todavía NO está finalizada</strong>
+            Falta:<br>· ${pendCierre.map(esc).join('<br>· ')}<br><br>
+            Hasta que se complete, el caso no se archiva ni computa en las estadísticas ni en los módulos quirúrgicos.</div></div></div>`
+      : `<div class="det-section"><h4>Cierre del caso</h4>
+          <div class="banner banner-green" style="margin:0">${ico(ICONS.check, 16)}
+            <div><strong>Caso finalizado</strong>
+            LVQ completa en sus tres etapas, parte quirúrgico cargado, aceptación de Admisión y Egresos y validación de la ${esc(JEFATURA)} asentadas.
+            La cirugía computa en las estadísticas y en los módulos quirúrgicos.</div></div></div>`;
+  }
 
   let informeHTML = '';
   if (c.informe) {
@@ -6380,12 +6788,14 @@ function openCirugia(id) {
       <div class="det-desc">${esc(c.informe.texto)}</div>
       <div class="det-row" style="margin-top:6px"><b>Cargado</b> ${fmtDT(c.informe.fechaHora)}${min !== null ? ` · ${min <= 120 ? `<span style="color:var(--green);font-weight:700">dentro del plazo de 2 h (${min} min)</span>` : `<span style="color:var(--red);font-weight:700">fuera del plazo de 2 h (${Math.round(min / 60 * 10) / 10} h)</span>`}` : ''}</div></div>`;
   } else if (puedeInforme) {
-    informeHTML = `<div class="det-section"><h4>Informe operatorio — pendiente</h4>
-      <div class="banner banner-amber" style="margin-bottom:12px">${ICONS.clockSm.replace('14', '16')}<div>Meta institucional: informe cargado en <b>≤ 2 horas</b> tras la cirugía (cumplimiento ≥ 95 %).${c.horaFinReal ? ` Fin del procedimiento: ${fmtDT(c.horaFinReal)}.` : ''}</div></div>
+    informeHTML = `<div class="det-section"><h4>Parte quirúrgico (informe operatorio)${c.estado === 'en_curso' ? '' : ' — pendiente'}</h4>
+      <div class="banner banner-amber" style="margin-bottom:12px">${ICONS.clockSm.replace('14', '16')}<div>${c.estado === 'en_curso'
+        ? 'El parte se completa dentro de la <b>LVQ de Salida</b>, que es la que cierra la cirugía. Acá puede adelantarlo: lo escrito aparece ya cargado en esa ventana.'
+        : `Meta institucional: parte cargado en <b>≤ 2 horas</b> tras la cirugía (cumplimiento ≥ 95 %).${c.horaFinReal ? ` Fin del procedimiento: ${fmtDT(c.horaFinReal)}.` : ''} <b>Al guardarlo se cierra el caso</b>, salvo que falte regularizar Admisión o la Jefatura.`}</div></div>
       <div class="field"><textarea id="inf-texto" placeholder="Describa el procedimiento realizado, hallazgos, técnica, complicaciones, muestras enviadas a Anatomía Patológica..."></textarea></div>
-      <button class="btn btn-blue" style="margin-top:12px" onclick="guardarInforme(${c.id})">${ICONS.fileText} Guardar informe operatorio</button></div>`;
-  } else if (c.estado === 'realizada') {
-    informeHTML = `<div class="det-section"><h4>Informe operatorio</h4><div class="banner banner-red" style="margin:0">${ICONS.alertTri.replace('22','16').replace('22','16')}<div>Informe pendiente de carga por el cirujano.</div></div></div>`;
+      <button class="btn btn-blue" style="margin-top:12px" onclick="guardarInforme(${c.id})">${ICONS.fileText} ${c.estado === 'en_curso' ? 'Guardar el borrador del parte' : 'Guardar parte quirúrgico y cerrar'}</button></div>`;
+  } else if (operada(c)) {
+    informeHTML = `<div class="det-section"><h4>Parte quirúrgico</h4><div class="banner banner-red" style="margin:0">${ICONS.alertTri.replace('22','16').replace('22','16')}<div>Parte quirúrgico pendiente de carga por el cirujano. Sin él, el caso no se cierra.</div></div></div>`;
   }
 
   $('cir-modal').innerHTML = `
@@ -6492,6 +6902,7 @@ function openCirugia(id) {
     ${c.suspension ? `<div class="det-section"><h4>Suspensión</h4>
       <div class="banner banner-red" style="margin:0">${ICONS.alertTri.replace('22','16').replace('22','16')}<div><strong>${esc(c.suspension.causa)}</strong>${esc(c.suspension.detalle || '')}<br><span style="font-size:0.78rem">${fmtDT(c.suspension.fechaHora)}</span></div></div></div>` : ''}
 
+    ${cierreHTML}
     ${informeHTML}
 
     ${c.historial?.length ? `<div class="det-section"><h4>Historial</h4>
@@ -6548,17 +6959,28 @@ function guardarInforme(id) {
   const texto = $('inf-texto').value.trim();
   if (!c || !texto) { alert('Escriba el informe operatorio.'); return; }
   c.informe = { texto, fechaHora: nowDT() };
-  pushHist(c, 'Informe operatorio cargado');
+  pushHist(c, 'Parte quirúrgico (informe operatorio) cargado y cerrado por el cirujano');
+  // Con el parte cargado el caso se cierra solo, salvo que todavía falte la
+  // aceptación de Admisión o la validación de la Jefatura —la urgencia de la
+  // madrugada—, que quedan pendientes de regularizar.
+  const cerro = revisarCierre(c);
+  const faltan = cierreFaltantes(c);
   upsert('cirugias', c);
   openCirugia(id);
+  setTimeout(() => {
+    if (cerro) alert('Parte quirúrgico guardado.\n\nLa cirugía queda FINALIZADA y ya computa en las estadísticas y en los módulos quirúrgicos.');
+    else if (faltan.length) alert('Parte quirúrgico guardado.\n\nLa cirugía todavía NO está finalizada. Falta:\n\n· ' + faltan.join('\n· ')
+      + '\n\nHasta que se regularice no se cierra ni computa en estadísticas ni en módulos.');
+  }, 120);
 }
 
 /* ================= INDICADORES DE GESTIÓN (KPIs) ================= */
 function calcKPIs(ym) {
   const delMes = DB.cirugias.filter((c) => (c.fecha || '').startsWith(ym));
-  const realizadas = delMes.filter((c) => c.estado === 'realizada');
+  // Solo lo cerrado computa: la urgencia operada sin regularizar todavía no.
+  const realizadas = delMes.filter(cirugiaCerrada);
   const suspendidas = delMes.filter((c) => c.estado === 'suspendida');
-  const programadas = delMes.filter((c) => ['confirmada', 'en_curso', 'realizada', 'suspendida'].includes(c.estado));
+  const programadas = delMes.filter((c) => ['confirmada', 'en_curso', 'realizada', 'finalizada', 'suspendida'].includes(c.estado));
 
   // 1) Utilización del bloque: minutos operados / minutos disponibles
   const minOperados = realizadas.reduce((s, c) => {
@@ -6596,8 +7018,12 @@ function calcKPIs(ym) {
   const causas = {};
   suspendidas.forEach((c) => { const k = c.suspension?.causa || 'Sin causa registrada'; causas[k] = (causas[k] || 0) + 1; });
 
+  // Operadas del mes que todavía no cerraron: no entran en ningún indicador,
+  // pero se muestran para que la diferencia no aparezca como quirófano ocioso.
+  const sinCerrar = delMes.filter((c) => c.estado === 'realizada' && !cirugiaCerrada(c)).length;
+
   return {
-    utilizacion, tasaSusp, turnover, cumplInforme,
+    utilizacion, tasaSusp, turnover, cumplInforme, sinCerrar,
     realizadas: realizadas.length, suspendidas: suspendidas.length, programadas: programadas.length,
     minOperados, minDisponibles, turnovers: turnovers.length, conInforme: conInforme.length, enPlazo, causas,
   };
@@ -6640,12 +7066,15 @@ function renderKPIs() {
       <input type="month" value="${kpiMes}" onchange="kpiMes=this.value;renderKPIs()">
     </div>
 
-    ${sinDatos ? `<div class="banner banner-amber">${ICONS.info}<div><strong>Sin actividad registrada en el mes seleccionado</strong>Los indicadores se calculan sobre las cirugías confirmadas, realizadas y suspendidas del período.</div></div>` : ''}
+    ${sinDatos ? `<div class="banner banner-amber">${ICONS.info}<div><strong>Sin actividad registrada en el mes seleccionado</strong>Los indicadores se calculan sobre las cirugías confirmadas, finalizadas y suspendidas del período.</div></div>` : ''}
+    ${k.sinCerrar ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 18)}<div><strong>${k.sinCerrar} cirugía(s) operada(s) sin cerrar</strong>
+      Se operaron en el mes pero todavía no están finalizadas: falta el parte quirúrgico y/o regularizar la aceptación de Admisión y Egresos o la validación de la ${esc(JEFATURA)}.
+      <b>No computan en ninguno de estos indicadores</b> hasta que se cierren. Se resuelven desde Programación Quirúrgica, en el grupo «Operadas — pendientes de cierre».</div></div>` : ''}
 
     <div class="kpi-grid">
       ${kpiCard('Tasa de utilización del bloque', ICONS.chart.replace('18', '15'),
         k.utilizacion.toFixed(1) + ' %',
-        `${Math.round(k.minOperados / 60)} h operadas sobre ${Math.round(k.minDisponibles / 60)} h disponibles (${SALAS.length - SALAS.filter((s) => s.guardia24).length} salas × ${BLOQUE.horaCierre - BLOQUE.horaApertura} h × ${diasHabilesMes(kpiMes)} días hábiles, más el Quirófano 1 con 24 h × ${diasDelMes(kpiMes)} días)`,
+        `${Math.round(k.minOperados / 60)} h operadas sobre ${Math.round(k.minDisponibles / 60)} h disponibles (${SALAS.length} salas × ${BLOQUE.horaCierre - BLOQUE.horaApertura} h × ${diasHabilesMes(kpiMes)} días hábiles)`,
         k.utilizacion >= 75, '≥ 75 %', k.utilizacion, 75)}
 
       ${kpiCard('Tasa de suspensiones', ICONS.x.replace('14', '15'),
@@ -6679,7 +7108,7 @@ function renderKPIs() {
         <div class="card-sub">Cirugías realizadas en el período</div>
         ${(() => {
           const porServ = {};
-          DB.cirugias.filter((c) => (c.fecha || '').startsWith(kpiMes) && c.estado === 'realizada')
+          DB.cirugias.filter((c) => (c.fecha || '').startsWith(kpiMes) && cirugiaCerrada(c))
             .forEach((c) => { porServ[c.servicio] = (porServ[c.servicio] || 0) + 1; });
           const arr = Object.entries(porServ).sort((a, b) => b[1] - a[1]);
           const mx = arr.length ? arr[0][1] : 1;
@@ -6758,17 +7187,22 @@ function estGrupoVacio(nombre) {
 function calcEstadisticas(clave) {
   const [desde, hasta] = estRango();
   const G = {};
+  // Se agrupa por la clave canónica —sin tildes, sin mayúsculas, sin
+  // tratamientos y admitiendo el nombre incompleto— y se rotula con el nombre
+  // bien escrito. Así un mismo cirujano no aparece repartido en cuatro filas.
   const grupo = (c) => {
-    const k = (clave === 'servicio' ? c.servicio : c.cirujano) || 'Sin asignar';
-    const g = G[k] || (G[k] = estGrupoVacio(k));
-    if (c.servicio) g.servicios[c.servicio] = (g.servicios[c.servicio] || 0) + 1;
+    const bruto = (clave === 'servicio' ? c.servicio : c.cirujano) || '';
+    const nombre = (clave === 'servicio' ? servicioCanonico(bruto) : profesionalCanonico(bruto)) || 'Sin asignar';
+    const k = (clave === 'servicio' ? claveServicio(bruto) : claveProfesional(bruto)) || '__sin_asignar__';
+    const g = G[k] || (G[k] = estGrupoVacio(nombre));
+    if (c.servicio) { const sv = servicioCanonico(c.servicio); g.servicios[sv] = (g.servicios[sv] || 0) + 1; }
     if (c.cirujanoEmail) g.mails[c.cirujanoEmail] = true;
     return g;
   };
 
   DB.cirugias
     .filter((c) => c.fecha && c.fecha >= desde && c.fecha <= hasta)
-    .filter((c) => ['confirmada', 'en_curso', 'realizada', 'suspendida'].includes(c.estado))
+    .filter((c) => ['confirmada', 'en_curso', 'realizada', 'finalizada', 'suspendida'].includes(c.estado))
     .forEach((c) => {
       const g = grupo(c);
       g.programadas++;
@@ -6779,7 +7213,7 @@ function calcEstadisticas(clave) {
         g.causas[causa] = (g.causas[causa] || 0) + 1;
         return;
       }
-      if (c.estado !== 'realizada') return;
+      if (!cirugiaCerrada(c)) return;
       g.realizadas++;
       g.minutos += minutosCirugia(c);
       if (prioridadEfectiva(c) <= 2) g.urgencias++;
@@ -6944,7 +7378,7 @@ function estVisibles(clave) {
   if (!estTodoElBloque()) arr = arr.filter(estDeSuServicio);
   if (clave === 'cirujano') {
     if (estServicio) arr = arr.filter((g) => g.servicioPrinc === estServicio || g.servicios[estServicio]);
-    if (!estTodoElBloque()) arr = arr.filter((g) => u && (g.nombre === u.nombre || g.mails[u.email]));
+    if (!estTodoElBloque()) arr = arr.filter((g) => u && (mismoProfesional(g.nombre, u.nombre) || g.mails[u.email]));
   }
   return arr;
 }
@@ -7048,7 +7482,7 @@ function estTipoAlcanza(c) {
   if (alc === 'hospital') return true;
   const u = usuarioActual();
   if (!u) return false;
-  if (alc === 'propio') return (c.cirujanoEmail && c.cirujanoEmail === u.email) || c.cirujano === u.nombre;
+  if (alc === 'propio') return (c.cirujanoEmail && c.cirujanoEmail === u.email) || mismoProfesional(c.cirujano, u.nombre);
   return mismoServicio(c.servicio, u.servicio);
 }
 
@@ -7056,10 +7490,10 @@ function estTipoAlcanza(c) {
    plantel con nombre y apellido; el profesional ve su propia barra y el resto
    de su servicio agrupado, igual que en la solapa "Por cirujano". */
 function estTipoNombreCirujano(c) {
-  const nombre = c.cirujano || 'Sin cirujano';
+  const nombre = profesionalCanonico(c.cirujano) || 'Sin cirujano';
   if (estTodoElBloque()) return nombre;
   const u = usuarioActual();
-  const propio = !!u && ((c.cirujanoEmail && c.cirujanoEmail === u.email) || c.cirujano === u.nombre);
+  const propio = !!u && ((c.cirujanoEmail && c.cirujanoEmail === u.email) || mismoProfesional(c.cirujano, u.nombre));
   return propio ? nombre : 'Otros profesionales del servicio';
 }
 
@@ -7068,7 +7502,7 @@ function calcPorTipo() {
   const T = {};
   DB.cirugias
     .filter((c) => c.fecha && c.fecha >= desde && c.fecha <= hasta)
-    .filter((c) => ['confirmada', 'en_curso', 'realizada', 'suspendida'].includes(c.estado))
+    .filter((c) => ['confirmada', 'en_curso', 'realizada', 'finalizada', 'suspendida'].includes(c.estado))
     .filter(estTipoAlcanza)
     .forEach((c) => {
       const k = tipoDeCirugia(c);
@@ -7082,14 +7516,14 @@ function calcPorTipo() {
       // para que el cuadro coincida con la letra que muestra la ficha del turno.
       if (c.modulo) t.modulos[c.modulo] = (t.modulos[c.modulo] || 0) + 1;
       if (c.estado === 'suspendida') { t.suspendidas++; return; }
-      if (c.estado !== 'realizada') return;
+      if (!cirugiaCerrada(c)) return;
       t.realizadas++;
       t.minutos += minutosCirugia(c);
       // Servicio y cirujano se cuentan sobre lo efectivamente realizado: es lo
       // que sostiene el porcentaje de la torta.
-      const serv = c.servicio || 'Sin servicio';
+      const serv = servicioCanonico(c.servicio) || 'Sin servicio';
       t.servicios[serv] = (t.servicios[serv] || 0) + 1;
-      t.cirujanosReales[c.cirujano || 'Sin cirujano'] = true;
+      t.cirujanosReales[profesionalCanonico(c.cirujano) || 'Sin cirujano'] = true;
       const cir = estTipoNombreCirujano(c);
       t.cirujanos[cir] = (t.cirujanos[cir] || 0) + 1;
     });
@@ -7350,12 +7784,19 @@ function renderEstadisticas() {
       </div>
     </div>
 
+    ${(() => {
+      // Lo operado que todavía no cerró no entra en ninguna de estas cifras.
+      const sc = DB.cirugias.filter((c) => c.fecha >= desde && c.fecha <= hasta && c.estado === 'realizada' && !cirugiaCerrada(c)).length;
+      return sc ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 18)}<div><strong>${sc} cirugía(s) operada(s) sin cerrar en el período</strong>
+        Todavía no están finalizadas —falta el parte quirúrgico y/o regularizar la aceptación de Admisión y Egresos o la validación de la ${esc(JEFATURA)}— y por eso
+        <b>no se cuentan acá</b>. Al cerrarse se incorporan solas a estas estadísticas y al registro de módulos.</div></div>` : '';
+    })()}
     ${todoElBloque ? '' : `<div class="banner banner-green">${ICONS.steth.replace('14', '18')}
       <div><strong>Alcance de esta solapa</strong>
       Usted ve su propia producción y la de su servicio${servPropio ? ` (<b>${esc(servPropio)}</b>)` : ''}. Las cifras de los demás servicios y el rendimiento individual de cada colega los consultan el Jefe de Quirófanos y la Dirección Médica.</div></div>`}
 
     <div class="kpi-grid">
-      <div class="kpi"><div class="kpi-label">${ICONS.check} Cirugías realizadas</div>
+      <div class="kpi"><div class="kpi-label">${ICONS.check} Cirugías finalizadas</div>
         <div class="kpi-val">${tot.realizadas}</div>
         <div class="kpi-meta">${tot.programadas} llegaron al parte en el período${todoElBloque ? '' : ' en su servicio'}</div></div>
       <div class="kpi"><div class="kpi-label">${ICONS.clockSm} Horas de quirófano</div>
@@ -7400,7 +7841,7 @@ function renderEstadisticas() {
         </tr></thead>
         <tbody>
           ${visibles.length
-            ? visibles.map((g) => estFila(g, clave, !!(u && (g.nombre === u.nombre || (clave === 'cirujano' && g.mails[u.email]))), maxReal)).join('')
+            ? visibles.map((g) => estFila(g, clave, !!(u && (mismoProfesional(g.nombre, u.nombre) || (clave === 'cirujano' && g.mails[u.email]))), maxReal)).join('')
             : `<tr><td colspan="${EST_COLUMNAS.length + 1}"><div class="empty">Sin actividad registrada en el período seleccionado.</div></td></tr>`}
         </tbody>
       </table>
@@ -8141,7 +8582,66 @@ function cardDatosPrueba() {
       ${hayDatosPrueba() ? `<button class="btn btn-red" onclick="borrarDatosPrueba()">${ico(ICONS.trash, 16)} Borrar todos los datos de prueba</button>` : ''}
     </div>
     <p class="form-note" style="margin-top:10px">Los profesionales de prueba ingresan con su correo y la contraseña <b>${CLAVE_PRUEBA}</b>.</p>
+  </div>
+  ${cardPuestaEnCero()}`;
+}
+
+/* ================= PUESTA EN CERO DE LA BASE =================
+   Antes de empezar con pacientes reales hay que vaciar lo que se cargó
+   probando. Borra el movimiento operativo —cirugías, incidencias, reclamos,
+   consentimientos y comunicados— y **no toca** las cuentas de los
+   profesionales, la agenda de días habilitados ni el listado de obras
+   sociales, que es trabajo que conviene conservar.
+
+   Es irreversible y alcanza a todas las computadoras: por eso pide la clave de
+   Jefatura y además que se escriba la palabra completa. */
+const COLS_PUESTA_EN_CERO = ['cirugias', 'incidencias', 'reclamos', 'consentimientos', 'comunicados'];
+function conteoPuestaEnCero() {
+  return COLS_PUESTA_EN_CERO.reduce((o, col) => { o[col] = (DB[col] || []).length; o.total += o[col]; return o; }, { total: 0 });
+}
+function cardPuestaEnCero() {
+  const n = conteoPuestaEnCero();
+  return `<div class="card" style="margin-top:18px;border:1px solid #f0c6c6">
+    <div class="card-title" style="color:var(--red)">Puesta en cero de la base</div>
+    <div class="card-sub">Vaciar el movimiento operativo antes de arrancar con pacientes reales</div>
+    <div class="banner banner-red" style="margin:0 0 12px">${ico(ICONS.alertTri, 18)}
+      <div><strong>Se borra en todas las computadoras y no se puede deshacer</strong>
+      Hoy hay ${n.cirugias} cirugía(s), ${n.incidencias} incidencia(s), ${n.reclamos} reclamo(s),
+      ${n.consentimientos} consentimiento(s) y ${n.comunicados} comunicado(s).
+      <b>No se tocan</b> las cuentas de los profesionales, la agenda de días habilitados ni el listado de obras sociales.</div></div>
+    <div class="cir-actions" style="margin:0">
+      <button class="btn btn-red" ${n.total ? '' : 'disabled'} onclick="puestaEnCero()">${ico(ICONS.trash, 16)} Vaciar la base y empezar de cero</button>
+    </div>
+    <p class="form-note" style="margin-top:10px">Conviene hacerlo <b>antes</b> de dar de alta a los médicos y de cerrar las reglas de la base de datos.</p>
   </div>`;
+}
+async function puestaEnCero() {
+  if (!jefe) return;
+  const n = conteoPuestaEnCero();
+  if (!n.total) { alert('La base ya está vacía: no hay cirugías, incidencias, reclamos, consentimientos ni comunicados.'); return; }
+  pedirClave('Jefatura de Quirófanos',
+    `Se van a borrar ${n.total} registro(s) de la base compartida. Ingrese la clave de Jefatura.`,
+    JEFE_CLAVE, async () => {
+      const palabra = await pedirTexto(
+        `Se borran ${n.cirugias} cirugía(s), ${n.incidencias} incidencia(s), ${n.reclamos} reclamo(s), ${n.consentimientos} consentimiento(s) y ${n.comunicados} comunicado(s) de todas las computadoras.\n\n`
+        + 'Las cuentas de los profesionales, la agenda y las obras sociales se conservan.\n\n'
+        + 'Para confirmar, escriba la palabra VACIAR.', {
+          titulo: '¿Vaciar la base del bloque quirúrgico?', tono: 'peligro', si: 'Vaciar la base', no: 'Cancelar',
+          campo: { label: 'Escriba VACIAR', placeholder: 'VACIAR', requerido: true, error: 'Escriba VACIAR para confirmar.' },
+        });
+      if (palabra === null) return;
+      if (String(palabra).trim().toUpperCase() !== 'VACIAR') { alert('No se borró nada: la palabra de confirmación no coincide.'); return; }
+      let borrados = 0;
+      COLS_PUESTA_EN_CERO.forEach((col) => {
+        (DB[col] || []).slice().forEach((x) => { removeDoc(col, x.id); borrados++; });
+      });
+      // Los recordatorios leídos y los estados de pantalla apuntan a registros
+      // que ya no existen: se descartan para que no queden avisos fantasma.
+      try { localStorage.removeItem(REM_LEIDOS_KEY); } catch (e) {}
+      progAbierto = {}; ciAbierto = {};
+      refreshView();
+      alert(`Base vaciada: ${borrados} registro(s) borrados.\n\nQuedan intactas las cuentas de los profesionales, la agenda de días habilitados y el listado de obras sociales.\n\nYa puede dar de alta a los médicos y cerrar las reglas de Firebase.`);
+    });
 }
 
 /* Primera franja de la sala que no tenga turno cargado ese día. */
@@ -8357,16 +8857,17 @@ function turnosDeSala(s) {
   return TURNOS_BLOQUE.map((t) => t.p).filter((p) => s.franjas.some((f) => f.p === p));
 }
 /* Salas que la Jefatura abre y cierra (las de acceso permanente no cuentan). */
-const salasProgramables = () => SALAS.filter((s) => !s.siempreAbierta);
+/* Salas que la Jefatura abre y cierra. Desde la versión 3.6.0 son todas: el
+   Quirófano 1 y Obstetricia dejaron de estar siempre abiertos y su
+   disponibilidad de guardia pasó al turno rodante de urgencia. */
+const salasProgramables = () => SALAS.slice();
 
 function agendaDia(d) { return DB.agenda.find((a) => a.id === d) || null; }
 function cfgSala(d, sid) { const a = agendaDia(d); return (a && a.salas && a.salas[sid]) || null; }
 function diaHabilitado(d) { const a = agendaDia(d); return !!(a && a.on === true); }
 function turnoHabilitado(d, sid, p) {
-  const s = sala(sid);
-  if (s.guardia24) return true;                       // la guardia nunca se cierra
+  if (p === 'U') return true;   // el turno de urgencia de la hora no se cierra nunca
   const cfg = cfgSala(d, sid);
-  if (s.siempreAbierta) return !cfg || cfg[p] !== false;
   return !!(diaHabilitado(d) && cfg && cfg[p] === true);
 }
 function salaHabilitada(d, sid) {
@@ -8452,7 +8953,7 @@ function finDeFranja(d, s, f) {
     const fin = inicioDeFranja(d, sig);
     if (fin.getTime() > ini.getTime()) return fin;
   }
-  return new Date(ini.getTime() + (s.guardia24 ? 36e5 : 2 * 36e5));
+  return new Date(ini.getTime() + (f.urg ? 36e5 : 2 * 36e5));   // la urgencia dura la hora
 }
 /* Salas de urgencia y emergencia: la franja cuya hora ya terminó deja de
    ofrecerse. La grilla se corre sola con el reloj del sistema —a las 14 h solo
@@ -8460,7 +8961,7 @@ function finDeFranja(d, s, f) {
    repinta cada minuto (ver `tickGrilla`). Es una regla de la guardia: en las
    salas programadas la anticipación de 24 h ya cubre el caso. */
 function franjaVencida(d, s, f) {
-  if (!s.urgencias) return false;
+  if (!f || !f.urg) return false;   // solo el turno rodante de urgencia se vence
   return finDeFranja(d, s, f).getTime() <= Date.now();
 }
 
@@ -8523,30 +9024,34 @@ function onObraChange() {
   if (nueva) setTimeout(() => { const i = $('k-obra-nueva'); if (i) i.focus(); }, 40);
 }
 
-/* ---- Autorización de Admisión y Egresos: quién la necesita ANTES ----
-   La regla general es que ningún turno programado se valida sin el visto de
-   Admisión y Egresos. Tres situaciones la saltean, porque esperar un trámite
-   administrativo sería poner la burocracia por delante del paciente:
+/* ---- Aceptación de Admisión y Egresos: quién la necesita ANTES ----
+   La regla general es que ningún turno programado se valida sin la aceptación
+   de Admisión y Egresos. Lo único que la saltea es lo que no puede esperar un
+   trámite administrativo sin poner la burocracia por delante del paciente:
 
      · las **urgencias y emergencias** marcadas como tales;
      · todo turno con **prioridad P1 (emergencia) o P2 (urgencia diferible)**,
-       aunque no lleve la marca de urgencia;
-     · las cirugías que la **Jefatura programa fuera de horario** por excepción.
+       aunque no lleve la marca de urgencia.
 
-   En esos tres casos la autorización no se elimina: queda **diferida**. El
-   trámite se puede cumplimentar después —incluso con la cirugía ya realizada—
-   y hasta entonces el turno figura con la autorización pendiente de
-   regularizar, sin que eso frene la validación ni el parte. */
+   La **excepción de horario de la Jefatura** no está en esa lista: que un turno
+   se programe fuera del cronograma habitual cambia *cuándo* se opera, no el
+   circuito de aprobación. Si esa cirugía es programada, sigue la ruta de las
+   programadas —Admisión primero, Jefatura después—; si es de urgencia, sigue la
+   ruta de las urgencias, porque lleva la marca de urgencia o la prioridad P1/P2.
+
+   En los casos exentos la aceptación no se elimina: queda **diferida**. El
+   trámite se cumplimenta después —incluso con la cirugía ya operada— y hasta
+   entonces el turno figura pendiente de regularizar. Lo que no frena es el
+   quirófano; lo que sí frena es el cierre del caso. */
 function authExenta(c) {
   if (!c) return false;
-  return !!c.urgencia || !!c.excepcion || prioridadEfectiva(c) <= 2;
+  return !!c.urgencia || prioridadEfectiva(c) <= 2;
 }
-/* Por qué este turno saltea la autorización previa (para explicarlo en pantalla). */
+/* Por qué este turno saltea la aceptación previa (para explicarlo en pantalla). */
 function authMotivoExencion(c) {
   if (!c) return '';
   if (c.urgencia) return 'urgencia / emergencia';
   if (prioridadEfectiva(c) <= 2) return `prioridad P${prioridadEfectiva(c)} — ${PRIOS[prioridadEfectiva(c)].label.toLowerCase()}`;
-  if (c.excepcion) return 'programada fuera de horario por la Jefatura';
   return '';
 }
 /* Un turno avanza en el circuito si tiene el visto de Admisión o si está exento
@@ -8607,7 +9112,7 @@ function jefaturaDetalle(c) {
   }
   if (!jefaturaPendienteDiferida(c)) return '';
   return `<div class="det-row"><b>Validación de Jefatura</b> <span style="color:#5b21b6;font-weight:800">DIFERIDA — ${esc(c.jefaturaDiferida.motivo || jefaturaMotivoExencion(c))}</span><br>
-    <small>La cirugía entró fuera del circuito programado y se operó sin el visto previo de la ${esc(JEFATURA)}: la lista de verificación de coordinación se repasa después. El trámite se cierra desde esta misma ficha, con el botón <b>Regularizar validación</b>.</small></div>`;
+    <small>La cirugía entró fuera del circuito programado y se operó sin el visto previo de la ${esc(JEFATURA)}: la lista de verificación de coordinación se repasa después. El trámite se cierra desde esta misma ficha, con el botón <b>Regularizar validación</b>. Hasta entonces el caso no queda finalizado ni computa en estadísticas ni en módulos.</small></div>`;
 }
 
 function authChip(c) {
@@ -8660,15 +9165,15 @@ function slotCard(d, s, f, salaOff) {
       <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">+</span>
       <span class="slot-hint">Reabierta — registro tardío</span></button>`;
   }
-  const reservable = puedeReservar(d, f, false);
-  if (!reservable && !s.urgencias) {
+  const reservable = puedeReservar(d, f, !!f.urg);
+  if (!reservable && !f.urg) {
     return `<div class="slot slot-libre slot-bloq" title="Se programa con ${HORAS_ANTICIPACION} h de anticipación (desde ${anticipacionMinima()})">
       <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">${ICONS.clockSm.replace('14', '16')}</span>
       <span class="slot-hint">&lt; ${HORAS_ANTICIPACION} h</span></div>`;
   }
-  return `<button type="button" class="slot slot-libre" onclick="openSlot('${d}','${s.id}','${f.id}')">
+  return `<button type="button" class="slot slot-libre ${f.urg ? 'slot-urg' : ''}" onclick="openSlot('${d}','${s.id}','${f.id}')">
     <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">+</span>
-    <span class="slot-hint">${!reservable && s.urgencias ? 'Solo urgencia' : 'Disponible'}</span></button>`;
+    <span class="slot-hint">${f.urg ? 'Anotar urgencia' : 'Disponible'}</span></button>`;
 }
 
 /* Bloque de franjas de un turno. El bloqueo ya no es de sala entera: cada turno
@@ -8684,25 +9189,63 @@ function periodoBloque(d, s, p, clase) {
     <div class="${clase || 'franjas-row'}">${fs.map((f) => slotCard(d, s, f, off)).join('')}</div>`;
 }
 
+/* Bloque de urgencia de una sala: el turno libre de la hora que corre más los
+   turnos de urgencia del día que ya tienen una cirugía anotada. Va aparte de la
+   grilla programada porque no se abre ni se cierra: está siempre. */
+function urgenciaBloque(d, s) {
+  if (!s.urgHoraria) return '';
+  const fs = franjasUrgenciaVisibles(d, s);
+  const r = rotuloUrgencia(s);
+  const esHoy = d === hoyISO();
+  const clase = s.tipo === 'endo' ? 'franjas-endo' : 'franjas-row';
+  return `<div class="urg-bloque">
+    <div class="urg-hdr">${ico(ICONS.zap, 14)} ${r.titulo}
+      <span class="uh-t">${esHoy ? 'turno libre de la hora en curso' : 'lo anotado ese día'}</span>
+      <span class="turno-estado">${esHoy ? 'ABIERTO 24 H' : ''}</span></div>
+    <div class="urg-nota">${esHoy
+      ? `Se ofrece <b>un turno libre en la hora que corre</b>, las 24 horas, de lunes a lunes, con la sala abierta o cerrada. Al cumplirse la hora el turno desaparece y aparece el de la hora siguiente; si se anota una ${esc(r.corto)}, queda a la vista en el día y se ofrece otro turno libre en la misma hora.`
+      : `El turno de urgencia solo se ofrece en el día de hoy, en la hora que corre. Acá figuran únicamente las de este día que se anotaron.`}</div>
+    ${fs.length ? `<div class="${clase}">${fs.map((f) => slotCard(d, s, f, false)).join('')}</div>`
+      : '<div class="empty" style="padding:14px">Sin urgencias anotadas este día.</div>'}
+    ${jefe ? `<div class="urg-retro"><button class="btn btn-sm btn-outline" onclick="registrarUrgenciaTardia('${d}','${s.id}')">${ico(ICONS.clockSm, 14)} Registrar una ${esc(r.corto)} de una hora ya cumplida</button></div>` : ''}
+  </div>`;
+}
+
 function salaCard(d, s) {
   const turnos = turnosDeSala(s);
   const abiertos = turnos.filter((p) => turnoHabilitado(d, s.id, p));
   const off = !abiertos.length;
-  const clase = s.tipo === 'endo' ? 'franjas-endo' : (s.guardia24 ? 'franjas-row franjas-24' : 'franjas-row');
-  const cuerpo = `<div class="franjas-wrap">${turnos.map((p) => periodoBloque(d, s, p, clase)).join('')}</div>`;
-  const estado = s.guardia24 ? 'GUARDIA PERMANENTE'
-    : off ? 'BLOQUEADA'
+  const clase = s.tipo === 'endo' ? 'franjas-endo' : 'franjas-row';
+  const cuerpo = `<div class="franjas-wrap">${turnos.map((p) => periodoBloque(d, s, p, clase)).join('')}${urgenciaBloque(d, s)}</div>`;
+  const estado = off ? 'BLOQUEADA'
     : abiertos.length === turnos.length ? 'ABIERTA'
     : 'SOLO ' + abiertos.map((p) => rotuloTurno(p).label.toUpperCase()).join(' Y ');
-  return `<div class="sala-card ${off ? 'off' : ''} ${s.guardia24 ? 'sala-24' : ''}">
+  return `<div class="sala-card ${off ? 'off' : ''}">
     <div class="sala-hdr">
       <h3>${esc(s.nombre)}</h3>
       ${s.etiqueta ? `<span class="badge-sala ${s.clase}">${s.etiqueta}</span>` : ''}
       <span class="sala-estado ${off ? 'off' : ''}"><span class="sd"></span>${estado}</span>
     </div>
-    ${s.guardia24 ? `<div class="sala-nota-24">${ICONS.clockSm}<div>Disponibilidad continua de <b>08:00 a 08:00</b> — 24 franjas de una hora, todos los días del año, sábados y domingos incluidos. Destinado principalmente a la organización de cirugías de <b>urgencia y emergencia</b>.</div></div>` : ''}
     ${cuerpo}
   </div>`;
+}
+
+/* Una urgencia se opera primero y se anota después: puede que nadie la haya
+   cargado y que la hora ya se haya cumplido. La Jefatura elige la hora, pone su
+   clave y el motivo, y el turno queda marcado como registro fuera de término. */
+async function registrarUrgenciaTardia(d, sid) {
+  if (!jefe) return;
+  const s = sala(sid), r = rotuloUrgencia(s);
+  const hora = await pedirTexto(`${s.nombre} — ${fmtDiaLargo(d)}. Indique la hora en que se realizó la ${r.corto} (0 a 23).`, {
+    titulo: 'Registrar una urgencia ya realizada', tono: 'jefatura', si: 'Continuar', no: 'Cancelar',
+    campo: { label: 'Hora del procedimiento (0–23)', placeholder: 'Ej: 3', requerido: true, error: 'Escriba la hora, de 0 a 23.' },
+  });
+  if (hora === null) return;
+  const h = Number(String(hora).trim().replace(/[^0-9]/g, ''));
+  if (!(h >= 0 && h <= 23)) { alert('La hora tiene que ser un número de 0 a 23.'); return; }
+  let n = 1;
+  while (turnoEn(d, sid, idFranjaUrgencia(h, n))) n++;
+  reabrirFranja(d, sid, idFranjaUrgencia(h, n));
 }
 
 /* La grilla depende del reloj: en las salas de urgencia las franjas vencidas
@@ -8733,13 +9276,13 @@ function renderProgDiaria() {
 
   let cuerpo = '';
   if (!laborable) {
-    cuerpo = `<div class="dia-banner">${ICONS.alertTri.replace(/22/g, '18')}<div>${fmtDiaLargo(d)} — día no laborable (fin de semana). En el resto del bloque solo se registran urgencias y emergencias; el <b>Quirófano 1 mantiene su grilla completa de 24 h</b>.</div></div>`;
+    cuerpo = `<div class="dia-banner">${ICONS.alertTri.replace(/22/g, '18')}<div>${fmtDiaLargo(d)} — día no laborable (fin de semana). La grilla programada se abre solo por excepción; el <b>turno de urgencia de cada hora sigue disponible</b> en el Quirófano 1, en Endoscopía y en Obstetricia.</div></div>`;
   }
   if (!dOn) {
     cuerpo += `<div class="dia-banner">${ICONS.lock}<div><b>${fmtDiaLargo(d)} — bloque programado cerrado.</b>
-      Los quirófanos 2, 3 y 4 y la Sala de Endoscopía nacen bloqueados todos los días: los abre la
-      <b>Jefatura de Quirófanos</b> con su clave, por turno y por sala. El <b>Quirófano 1</b> (guardia de urgencias)
-      y el <b>Quirófano de Obstetricia</b> (cesáreas) siguen disponibles.
+      Las seis salas nacen bloqueadas todos los días —el Quirófano 1 y Obstetricia incluidos—: las abre la
+      <b>Jefatura de Quirófanos</b> con su clave, por turno y por sala. Lo único que no se cierra nunca es el
+      <b>turno de urgencia de la hora en curso</b> del Quirófano 1, de Endoscopía y de Obstetricia.
       ${jefe ? '' : ' Si necesita operar este día, solicítelo a la Jefatura.'}</div>
       ${jefe ? `<button class="btn btn-sm btn-teal" style="margin-left:auto;flex:none" onclick="openJefaturaDia()">${ico(ICONS.key, 14)} Abrir el día</button>` : ''}</div>`;
   } else if (cerradas.length) {
@@ -8747,10 +9290,8 @@ function renderProgDiaria() {
       siguen bloqueadas (${cerradas.map((s) => esc(s.nombre)).join(', ')}).</div>
       ${jefe ? `<button class="btn btn-sm btn-teal" style="margin-left:auto;flex:none" onclick="openJefaturaDia()">${ico(ICONS.key, 14)} Habilitar</button>` : ''}</div>`;
   }
-  // La guardia de 24 h va a lo ancho: son 24 franjas y no entran en media columna.
-  cuerpo += SALAS.filter((s) => s.guardia24).map((s) => `<div style="margin-bottom:16px">${salaCard(d, s)}</div>`).join('');
-  cuerpo += `<div class="salas-grid">${SALAS.filter((s) => s.tipo === 'qx' && !s.guardia24).map((s) => salaCard(d, s)).join('')}</div>`;
-  cuerpo += SALAS.filter((s) => s.tipo !== 'qx' && !s.guardia24).map((s) => `<div style="margin-bottom:16px">${salaCard(d, s)}</div>`).join('');
+  cuerpo += `<div class="salas-grid">${SALAS.filter((s) => s.tipo === 'qx').map((s) => salaCard(d, s)).join('')}</div>`;
+  cuerpo += SALAS.filter((s) => s.tipo !== 'qx').map((s) => `<div style="margin-bottom:16px">${salaCard(d, s)}</div>`).join('');
 
   // Turnos cargados antes de existir la grilla (o con la sala ya retirada del bloque):
   // se listan aparte para que ninguno quede invisible en la programación del día.
@@ -8794,20 +9335,28 @@ function renderProgDiaria() {
 
     <div class="banner banner-blue">${ICONS.clockSm.replace('14', '18')}
       <div><strong>Reglas de programación</strong>
-      El bloque programado está <b>cerrado por defecto</b>: los quirófanos 2, 3 y 4 y Endoscopía se habilitan por turno
-      (mañana o tarde) desde la Jefatura de Quirófanos. El Quirófano 1 y Obstetricia no requieren habilitación.
-      Anticipación mínima de <b>${HORAS_ANTICIPACION} h</b> para turnos electivos (desde ${anticipacionMinima()}). Las <b>urgencias</b> del Quirófano 1 y de Obstetricia la saltean.
-      El <b>Quirófano 1</b> es la sala de guardia: grilla continua de <b>08:00 a 08:00</b>, los siete días de la semana.
-      En esas dos salas la grilla va <b>en hora</b>: las franjas que ya terminaron quedan como <b>«Horario cumplido»</b> y no admiten carga.
+      El bloque programado está <b>cerrado por defecto</b>: las <b>seis salas</b> se habilitan por turno (mañana o tarde) desde la
+      Jefatura de Quirófanos, con la misma grilla de 08 a 20 h. Anticipación mínima de <b>${HORAS_ANTICIPACION} h</b> para turnos
+      electivos (desde ${anticipacionMinima()}).
       Cierre de solicitudes <b>${BLOQUE.cierreSolicitudes} h</b> y publicación del parte <b>${BLOQUE.publicacionParte} h</b> del día previo.
       Los turnos se ordenan en el parte por prelación P1–P6.</div></div>
 
+    <div class="banner banner-red">${ico(ICONS.zap, 18)}
+      <div><strong>Turno de urgencia de la hora en curso</strong>
+      Aparte de la grilla programada, el <b>Quirófano 1</b> (cirugías), la <b>Sala de Endoscopía</b> (endoscopías) y el
+      <b>Quirófano de Obstetricia</b> (cesáreas) ofrecen <b>un turno libre de urgencia en la hora que corre</b>, las 24 horas del día,
+      de lunes a lunes, esté la sala abierta o cerrada y sea o no día hábil. Al cumplirse la hora ese turno desaparece y aparece el de
+      la hora siguiente; si en esa hora se anotó una intervención, queda a la vista en el día con las reglas de siempre y se ofrece otro
+      turno libre en la misma hora. La urgencia <b>saltea la anticipación de ${HORAS_ANTICIPACION} h</b> y se marca sola como urgencia.
+      ${jefe ? 'Si una urgencia se operó y nadie la cargó, la Jefatura la registra fuera de término desde el botón del propio bloque.' : ''}</div></div>
+
     <div class="banner banner-blue">${ico(ICONS.shield, 18)}
-      <div><strong>Autorización de Admisión y Egresos</strong>
-      Ningún turno electivo se valida sin ella. Quedan exentas del visto <b>previo</b> las <b>urgencias y emergencias</b>,
-      los turnos de <b>prioridad P1 y P2</b> y las cirugías que la <b>Jefatura programa fuera de horario</b>: se validan y entran al parte
-      igual, con la autorización marcada como <b>DIFERIDA</b>, y el trámite administrativo se cumplimenta después
-      —incluso con la cirugía ya realizada— desde el propio turno.</div></div>
+      <div><strong>Aceptación de Admisión y Egresos</strong>
+      Ningún turno programado se valida sin ella, y para que Admisión dictamine el turno tiene que llevar el <b>apto anestésico</b>,
+      los <b>estudios preoperatorios</b> y el <b>consentimiento generado y guardado</b>. Quedan exentas del visto <b>previo</b> solo las
+      <b>urgencias y emergencias</b> y los turnos de <b>prioridad P1 y P2</b>: se operan igual, con la aceptación marcada como
+      <b>DIFERIDA</b>, y el trámite se cumplimenta después —incluso con la cirugía ya operada—. Hasta que se cumplimente, el caso
+      no queda finalizado.</div></div>
 
     <div class="banner banner-blue">${ico(ICONS.zap, 18)}
       <div><strong>Validación de la Jefatura en las urgencias — también diferida</strong>
@@ -8880,7 +9429,7 @@ function openSlot(d, sid, fid) {
         con acuse de lectura y la excepción queda asentada en el turno.</div></div>`
     : (nuevo && !retro && !puedeReservar(d, f, false))
     ? `<div class="banner banner-amber" style="margin-bottom:14px">${ICONS.alertTri.replace(/22/g, '16')}<div>Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.
-        ${s.urgencias ? 'Solo puede programarse marcando <b>Urgencia / Emergencia</b>.' : 'Esta sala no admite excepciones: use el Quirófano 1 para urgencias.'}</div></div>` : '';
+        ${s.urgHoraria ? `Si es una ${rotuloUrgencia(s).corto}, no hace falta excepción: use el turno de urgencia de la hora en curso.` : 'Si es una urgencia, use el turno de urgencia del Quirófano 1, de Endoscopía o de Obstetricia.'}</div></div>` : '';
 
   $('slot-modal').innerHTML = `
     <button class="modal-close" onclick="closeSlot()" aria-label="Cerrar">✕</button>
@@ -8915,8 +9464,10 @@ function openSlot(d, sid, fid) {
         ${campoPractica(c, ro)}
       </div>
       <div style="margin-top:12px">
+        <label class="check-row"><input type="checkbox" id="k-preanest" ${c?.coordinacion?.anestesia ? 'checked' : ''} ${ro}> Evaluación pre-anestésica aprobada — apto anestésico registrado en la HCE</label>
         <label class="check-row"><input type="checkbox" id="k-preop" ${c?.hce?.preop ? 'checked' : ''} ${ro}> Estudios preoperatorios completos y verificados en la HCE</label>
         <label class="check-row"><input type="checkbox" id="k-consent" ${c?.hce?.consentimiento ? 'checked' : ''} ${ro}> Consentimiento informado firmado y registrado en la HCE</label>
+        <p class="form-note" style="margin-top:6px">Los tres son requisito para que <b>Admisión y Egresos</b> dictamine sobre el turno programado. El consentimiento, además, tiene que estar <b>generado y guardado</b> en el historial del cirujano: se descarga al terminar de programar.</p>
       </div>
     </div>
 
@@ -8947,7 +9498,7 @@ function openSlot(d, sid, fid) {
         <label class="check-row"><input type="checkbox" id="k-implante" ${c?.recursos?.implante ? 'checked' : ''} ${ro} onchange="$('k-impdet-wrap').style.display=this.checked?'flex':'none'"> Requiere implante / prótesis (verificación con Farmacia 48–72 h antes)</label>
         <div class="field" id="k-impdet-wrap" style="display:${c?.recursos?.implante ? 'flex' : 'none'};max-width:420px;margin:4px 0 0 26px"><input type="text" id="k-impdet" placeholder="Detalle del implante" value="${v(c && c.recursos?.implanteDetalle)}" ${ro}></div>
         <label class="check-row"><input type="checkbox" id="k-hemo" ${c?.recursos?.hemoderivados ? 'checked' : ''} ${ro}> Requiere reserva de hemoderivados (Hemoterapia)</label>
-        ${s.urgencias ? `<label class="check-row" style="color:var(--red);font-weight:700"><input type="checkbox" id="k-urg" ${c?.urgencia ? 'checked' : ''} ${ro}> Urgencia / emergencia — saltea la anticipación de ${HORAS_ANTICIPACION} h</label>` : ''}
+        ${f && f.urg ? `<label class="check-row" style="color:var(--red);font-weight:700"><input type="checkbox" id="k-urg" checked disabled> Urgencia / emergencia — turno de guardia de las ${f.t} h: saltea la anticipación de ${HORAS_ANTICIPACION} h</label>` : ''}
       </div>
       <div class="field full" style="margin-top:12px"><label>Equipamiento especial</label>
         <div class="coord-grid">
@@ -9022,8 +9573,10 @@ async function guardarSlot() {
   }
   const ayudante = leerAyudante('k-ayu');
   const retro = franjaReabierta(d, sid, fid) ? retroCtx.motivo : '';
+  // La urgencia la define la franja: el turno rodante de la hora es siempre
+  // urgencia y la casilla está marcada y bloqueada.
   const urgEl = $('k-urg');
-  const urgencia = !!(urgEl && urgEl.checked);
+  const urgencia = !!f.urg || !!(urgEl && urgEl.checked);
   const existente = turnoEn(d, sid, fid);
   // La cuenta pudo darse de baja mientras el modal estaba abierto.
   if (!existente && u && !jefe && !cuentaAprobada(u)) {
@@ -9078,6 +9631,11 @@ async function guardarSlot() {
     equipos: [...document.querySelectorAll('.k-eq')].filter((x) => x.checked).map((x) => x.dataset.eq),
     hce: { datos: true, preop: $('k-preop').checked, consentimiento: $('k-consent').checked },
   });
+  // El apto anestésico que declara el cirujano es la misma casilla que después
+  // repasa la Jefatura en la lista de verificación de coordinación: una sola
+  // verdad, cargada por quien la tiene primero.
+  c.coordinacion = c.coordinacion || { insumos: false, esterilizacion: false, hemoterapia: false, anestesia: false };
+  c.coordinacion.anestesia = !!($('k-preanest') || {}).checked;
   // Exención de la autorización previa. Antes el turno se estampaba solo como
   // AUTORIZADO, y así el trámite administrativo desaparecía del radar. Ahora la
   // autorización queda **diferida**: no frena nada, pero sigue figurando como
@@ -9186,7 +9744,7 @@ function closeTurnoOk() { $('cxok-overlay').classList.remove('open'); }
 function cancelarSlot(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
-  if (['en_curso', 'realizada'].includes(c.estado)) {
+  if (['en_curso', 'realizada', 'finalizada'].includes(c.estado)) {
     alert('No se puede cancelar un turno en curso o ya realizado. Si corresponde, registre la incidencia correspondiente.');
     return;
   }
@@ -9213,12 +9771,22 @@ function cancelarSlot(id) {
 let authCtx = null;
 
 /* El trámite se puede abrir en cualquier momento del circuito. En los turnos
-   exentos —urgencias, P1–P2 y excepciones de Jefatura— sirve para regularizar
+   exentos —urgencias y emergencias, P1 y P2— sirve para regularizar
    la autorización después, incluso con la cirugía ya realizada. */
 function pedirAutorizacion(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
   const dif = authExenta(c);
+  // Turno programado: la carpeta llega completa o no llega. La urgencia entra
+  // igual, porque regulariza después.
+  if (!dif && !operada(c)) {
+    const falta = requisitosAdmision(c);
+    if (falta.length) {
+      alert('El turno todavía no está en condiciones de pasar por Admisión y Egresos.\n\nFalta:\n\n· ' + falta.join('\n· ')
+        + '\n\nEl cirujano debe completarlo desde el propio turno antes de que Admisión dictamine.');
+      return;
+    }
+  }
   pedirClave(dif ? 'Regularizar — Admisión y Egresos' : 'Autorización — Admisión y Egresos',
     dif
       ? `Turno exento de la autorización previa (${authMotivoExencion(c)}). El trámite se registra ahora, sin importar en qué estado esté la cirugía. Ingrese la clave del sector de Admisión y Egresos.`
@@ -9332,9 +9900,11 @@ function guardarAuth() {
   c.authPor = 'Admisión y Egresos';
   // Deja constancia de que el trámite se cerró después de operar: es
   // exactamente lo que habilita la excepción, y conviene que quede escrito.
-  c.authDiferidaCerrada = ['en_curso', 'realizada'].includes(c.estado);
-  pushHist(c, 'Admisión y Egresos: ' + c.auth + (c.authAgente ? ' (' + c.authAgente + ')' : '') + (c.authMotivo ? ' — Motivo: ' + c.authMotivo : '')
-    + (c.authDiferidaCerrada ? ' — trámite regularizado con la cirugía ya ' + (c.estado === 'realizada' ? 'realizada' : 'en curso') : ''));
+  c.authDiferidaCerrada = ['en_curso', 'realizada', 'finalizada'].includes(c.estado);
+  pushHist(c, 'Admisión y Egresos: ' + (c.auth === 'AUTORIZADO' ? 'ACEPTADA' : c.auth) + (c.authAgente ? ' (' + c.authAgente + ')' : '') + (c.authMotivo ? ' — Motivo: ' + c.authMotivo : '')
+    + (c.authDiferidaCerrada ? ' — trámite regularizado con la cirugía ya operada' : ''));
+  // Si era lo último que faltaba, el caso se cierra acá mismo.
+  revisarCierre(c);
   upsert('cirugias', c);
   closeAuth();
   if ($('slot-overlay').classList.contains('open')) openSlot(diaDeGrilla(c), c.sala, c.franja);
@@ -9344,7 +9914,7 @@ function guardarAuth() {
 function authDetalle(c) {
   if (authPendienteDiferida(c)) {
     return `<div class="det-row"><b>Autorización</b> <span style="color:#5b21b6;font-weight:800">DIFERIDA — ${esc(authMotivoExencion(c))}</span><br>
-      <small>Exenta de la autorización <b>previa</b>: el turno se valida y entra al parte sin esperarla. El trámite de Admisión y Egresos sigue pendiente y se puede cumplimentar en cualquier momento, <b>incluso con la cirugía ya finalizada</b>.</small></div>`;
+      <small>Exenta de la aceptación <b>previa</b>: el turno se valida y entra al parte sin esperarla. El trámite de Admisión y Egresos sigue pendiente y se cumplimenta en cualquier momento, <b>incluso con la cirugía ya operada</b>. Mientras no se cierre, el caso no queda finalizado ni computa en estadísticas ni en módulos.</small></div>`;
   }
   const cuando = c.authFecha ? ` · ${fmtDT(c.authFecha)}` : '';
   const quien = c.authAgente ? ` · ${esc(c.authAgente)}` : '';
@@ -9371,12 +9941,10 @@ function openJefaturaDia() {
 
   const filaSala = (s) => {
     const turnos = turnosDeSala(s);
-    const fijo = s.guardia24;
     // Mismo rótulo que la grilla: «abierta» a secas confundiría cuando solo
     // está abierto uno de los dos turnos.
     const abiertos = turnos.filter((p) => turnoHabilitado(d, s.id, p));
-    const rotulo = fijo ? 'GUARDIA PERMANENTE 08–08'
-      : !abiertos.length ? 'BLOQUEADA'
+    const rotulo = !abiertos.length ? 'BLOQUEADA'
       : abiertos.length === turnos.length ? 'ABIERTA — MAÑANA Y TARDE'
       : 'SOLO ' + abiertos.map((p) => rotuloTurno(p).label.toUpperCase()).join(' Y ');
     return `<div class="jefatura-row">
@@ -9384,17 +9952,15 @@ function openJefaturaDia() {
         <div class="jn">${esc(s.nombre)}</div>
         <div style="font-size:0.76rem;font-weight:800;color:${abiertos.length ? 'var(--green)' : 'var(--red)'}">
           ${rotulo}</div>
-        ${s.siempreAbierta && !fijo ? '<div class="hint">Cesáreas: abierta salvo cierre expreso</div>' : ''}
+        ${s.urgHoraria ? `<div class="hint">${esc(rotuloUrgencia(s).titulo)}: turno de la hora siempre abierto</div>` : ''}
       </div>
       <div class="jb">
-        ${fijo
-          ? '<span class="hint" style="max-width:190px;text-align:right">La guardia de urgencias no se cierra</span>'
-          : turnos.map((p) => {
-              const on = turnoHabilitado(d, s.id, p);
-              return `<button class="btn btn-sm ${on ? 'btn-green' : 'btn-outline'}" onclick="jefToggleTurno('${d}','${s.id}','${p}')">
-                ${on ? ico(ICONS.check, 13) : ico(ICONS.lock, 13)} ${rotuloTurno(p).label}</button>`;
-            }).join('')}
-        ${fijo ? '' : `<button class="btn btn-sm btn-red" onclick="jefLimpiarSala('${d}','${s.id}')">Limpiar</button>`}
+        ${turnos.map((p) => {
+          const on = turnoHabilitado(d, s.id, p);
+          return `<button class="btn btn-sm ${on ? 'btn-green' : 'btn-outline'}" onclick="jefToggleTurno('${d}','${s.id}','${p}')">
+            ${on ? ico(ICONS.check, 13) : ico(ICONS.lock, 13)} ${rotuloTurno(p).label}</button>`;
+        }).join('')}
+        <button class="btn btn-sm btn-red" onclick="jefLimpiarSala('${d}','${s.id}')">Limpiar</button>
       </div>
     </div>`;
   };
@@ -9410,13 +9976,14 @@ function openJefaturaDia() {
     <div class="banner ${dOn ? 'banner-green' : 'banner-amber'}" style="margin-bottom:14px">
       ${dOn ? ico(ICONS.checkCircle, 20) : ico(ICONS.lock, 20)}
       <div><strong>${dOn ? `Día abierto — ${abiertas} de ${prog.length} salas habilitadas` : 'Día cerrado'}</strong>
-      Los quirófanos 2, 3 y 4 y la Sala de Endoscopía nacen bloqueados todos los días. El Quirófano 1 (guardia)
-      y el Quirófano de Obstetricia (cesáreas) no requieren habilitación.</div></div>
+      Las seis salas nacen bloqueadas todos los días, el Quirófano 1 y Obstetricia incluidos. Lo único que no se
+      habilita —porque no se cierra nunca— es el turno de urgencia de la hora en curso del Quirófano 1, de
+      Endoscopía y de Obstetricia.</div></div>
 
     <div class="det-section"><h4>Abrir el día completo</h4>
       <div class="jefatura-row">
-        <div style="min-width:170px"><div class="jn">Todas las salas programables</div>
-          <div class="hint">Quirófanos 2, 3 y 4 y Endoscopía</div></div>
+        <div style="min-width:170px"><div class="jn">Todas las salas</div>
+          <div class="hint">Los seis quirófanos y la Sala de Endoscopía</div></div>
         <div class="jb">
           <button class="btn btn-sm btn-teal" onclick="jefAbrirDia('${d}','MT')">${ico(ICONS.key, 13)} Mañana y tarde</button>
           <button class="btn btn-sm btn-outline" onclick="jefAbrirDia('${d}','M')">Solo mañana</button>
@@ -10888,7 +11455,7 @@ function ciPendientesDe(u) {
   if (!u) return 0;
   const hoy = hoyISO();
   return DB.cirugias.filter((c) => c.cirujanoEmail === u.email && (c.fecha || '') >= hoy
-    && !['suspendida', 'realizada'].includes(c.estado) && !consentimientoDeTurno(c)).length;
+    && !['suspendida', 'realizada', 'finalizada'].includes(c.estado) && !consentimientoDeTurno(c)).length;
 }
 function consentimientoDeTurno(c) {
   if (!c) return null;
@@ -11063,6 +11630,19 @@ function ciArea(k, label, ayuda) {
     ${ayuda ? `<span class="hint">${ayuda}</span>` : ''}
   </div>`;
 }
+/* ---- Identidad del profesional que firmó el consentimiento ----
+   El registro guarda el nombre escrito en el formulario y, si el médico estaba
+   logueado, su correo. Con el correo se llega a la ficha del profesional y de
+   ahí al servicio al que pertenece, que es como la Jefatura quiere leer el
+   archivo: primero el servicio, después el médico. */
+function ciMedicoDe(r) {
+  const u = (r.autor && DB.usuarios.find((x) => x.email === r.autor))
+    || DB.usuarios.find((x) => x.nombre && r.medico && mismoProfesional(x.nombre, r.medico))
+    || null;
+  const nombre = (u && u.nombre) || profesionalCanonico(r.medico) || 'Sin profesional identificado';
+  const serv = (u && u.servicio) || r.especialidad || '';
+  return { nombre, servicio: servicioCanonico(serv) || 'Sin servicio asignado' };
+}
 function ciRegistroLista() {
   const q = ciRegQ.toLowerCase();
   const list = ciRegistroVisible()
@@ -11073,6 +11653,16 @@ function ciRegistroLista() {
       : (ciVeTodo() ? 'Todavía no hay consentimientos guardados en el bloque quirúrgico.'
         : 'Todavía no generó ningún consentimiento informado. Los que genere desde la programación quedan archivados acá.')}</div>`;
   }
+  // La Jefatura ve el archivo completo: se agrupa por servicio y, dentro de
+  // cada servicio, por profesional en orden alfabético de apellido. Cada
+  // médico se despliega a un clic. El médico ve solo lo suyo, en lista simple.
+  if (ciVeTodo()) return ciRegistroAgrupado(list);
+  return ciFichas(list);
+}
+
+/* Las fichas propiamente dichas. Se usan tal cual en la lista simple del médico
+   y dentro de cada profesional en el archivo agrupado de la Jefatura. */
+function ciFichas(list) {
   return list.map((r) => `
     <div class="ci-reg-card">
       <div class="ci-reg-top">
@@ -11089,6 +11679,57 @@ function ciRegistroLista() {
         <button class="btn btn-sm btn-red" onclick="ciBorrarDelRegistro('${r.id}')">${ICONS.trash} Eliminar</button>
       </div>
     </div>`).join('');
+}
+
+/* Registro del bloque agrupado: Servicio › Profesional (por apellido) › fichas. */
+function ciRegistroAgrupado(list) {
+  // Servicio y profesional se agrupan por su clave canónica: «Cirugia General»
+  // y «Cirugía General» son el mismo servicio, y «hugo diaz» y «Dr. Hugo Díaz»
+  // el mismo médico. El rótulo que se muestra es el bien escrito.
+  const servicios = {}, rotulo = {}, rotuloM = {};
+  list.forEach((r) => {
+    const m = ciMedicoDe(r);
+    const k = claveServicio(m.servicio) || sinTildes(m.servicio).trim();
+    if (!rotulo[k] || m.servicio.length > rotulo[k].length) rotulo[k] = m.servicio;
+    const km = claveProfesional(m.nombre) || sinTildes(m.nombre).trim();
+    if (!rotuloM[km] || m.nombre.length > rotuloM[km].length) rotuloM[km] = m.nombre;
+    const sv = servicios[k] || (servicios[k] = {});
+    (sv[km] = sv[km] || []).push(r);
+  });
+  const buscando = !!ciRegQ;
+  return Object.keys(servicios).sort((a, b) => (rotulo[a] || a).localeCompare(rotulo[b] || b, 'es'))
+    .map((sv) => {
+      const medicos = Object.keys(servicios[sv]).sort((a, b) => {
+        const na = rotuloM[a] || a, nb = rotuloM[b] || b;
+        return apellidoDe(na).localeCompare(apellidoDe(nb), 'es') || na.localeCompare(nb, 'es');
+      });
+      const total = medicos.reduce((n, m) => n + servicios[sv][m].length, 0);
+      return `<div class="ci-serv">
+        <div class="ci-serv-hdr">${ico(ICONS.layers, 15)} ${esc(rotulo[sv] || sv)}
+          <span class="ci-serv-n">${medicos.length} profesional(es) · ${total} consentimiento(s)</span></div>
+        <div class="q-acc-list">${medicos.map((m) => {
+          const fichas = servicios[sv][m];
+          const clave = sv + '|' + m;
+          const abierto = buscando || !!ciAbierto[clave];
+          return `<div>
+            <button type="button" class="q-acc ${abierto ? 'on' : ''}" onclick="ciToggleMedico('${attr(clave)}')">
+              <span class="q-acc-dot" style="background:#2980d9"></span>
+              <span class="q-acc-lbl">${esc(rotuloM[m] || m)}</span>
+              <span class="q-acc-hint">último: ${esc((fichas[0] && fichas[0].fecha) || '')}</span>
+              <span class="q-acc-n">${fichas.length}</span>
+              <span class="q-acc-car">▾</span>
+            </button>
+            ${abierto ? `<div class="q-acc-body">${ciFichas(fichas)}</div>` : ''}
+          </div>`;
+        }).join('')}</div>
+      </div>`;
+    }).join('');
+}
+let ciAbierto = {};
+function ciToggleMedico(clave) {
+  const k = decodeURIComponent(clave);   // viaja codificada en el onclick
+  ciAbierto[k] = !ciAbierto[k];
+  $('ci-reg-list').innerHTML = ciRegistroLista();
 }
 
 function renderConsentimientos() {
@@ -11360,7 +12001,7 @@ function ayudanteDefinido(c) { return tieneAyudante(c) || !!(c && c.sinAyudante)
 /* Cirugías ya realizadas en las que todavía no se dijo si hubo ayudante. Es lo
    que se avisa al programar y lo que muestra el contador de la solapa. */
 function modulosIncompletos(u) {
-  return DB.cirugias.filter((c) => c.estado === 'realizada' && c.modulo && !ayudanteDefinido(c)
+  return DB.cirugias.filter((c) => cirugiaCerrada(c) && c.modulo && !ayudanteDefinido(c)
     && (!u || c.cirujanoEmail === u.email));
 }
 
@@ -11438,7 +12079,7 @@ function pintarModEquipo() {
 function modulosRegistrados(desde, hasta) {
   const filas = [];
   DB.cirugias.forEach((c) => {
-    if (c.estado !== 'realizada' || !c.modulo) return;      // solo lo efectivamente operado
+    if (!cirugiaCerrada(c) || !c.modulo) return;            // solo lo operado Y cerrado
     // Módulo dado de baja por la Dirección Médica: la cirugía se hizo, pero no
     // se factura. No se imputa a nadie ni suma en ningún total de la solapa.
     if (moduloDadoDeBaja(c)) return;
@@ -11448,7 +12089,7 @@ function modulosRegistrados(desde, hasta) {
     // nada que imputarle.
     equipoDe(c).filter((p) => p.modulo).forEach((p) => filas.push({
       cir: c, fecha: f, servicio: servicioCanonico(c.servicio) || 'Otro', rol: p.rol,
-      nombre: p.nombre, email: p.email || '', modulo: p.modulo,
+      nombre: profesionalCanonico(p.nombre) || p.nombre, email: p.email || '', modulo: p.modulo,
     }));
   });
   return filas.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
@@ -11485,7 +12126,7 @@ function importeDe(g) {
 function moduloDadoDeBaja(c) { return !!(c && c.moduloBaja); }
 function cirugiasDadasDeBaja(desde, hasta, servicio) {
   return DB.cirugias
-    .filter((c) => moduloDadoDeBaja(c) && c.estado === 'realizada' && c.modulo)
+    .filter((c) => moduloDadoDeBaja(c) && cirugiaCerrada(c) && c.modulo)
     .filter((c) => (!desde || (c.fecha || '') >= desde) && (!hasta || (c.fecha || '') <= hasta))
     .filter((c) => !servicio || mismoServicio(c.servicio, servicio))
     .sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
@@ -11665,13 +12306,13 @@ function renderModulos() {
   const porServ = agrupar(filas, (f) => f.servicio);
 
   // Cirugías realizadas del alcance a las que les falta el ayudante.
-  const faltantes = DB.cirugias.filter((c) => c.estado === 'realizada' && c.modulo && !ayudanteDefinido(c)
+  const faltantes = DB.cirugias.filter((c) => cirugiaCerrada(c) && c.modulo && !ayudanteDefinido(c)
     && !moduloDadoDeBaja(c)
     && c.fecha >= desde && c.fecha <= hasta
     && (al.todo && !al.servicio ? true : mismoServicio(c.servicio, al.servicio)));
 
   // Realizadas del alcance que todavía no tienen práctica del nomenclador.
-  const sinPractica = DB.cirugias.filter((c) => c.estado === 'realizada' && !c.modulo
+  const sinPractica = DB.cirugias.filter((c) => cirugiaCerrada(c) && !c.modulo
     && c.fecha >= desde && c.fecha <= hasta
     && (al.todo && !al.servicio ? true : mismoServicio(c.servicio, al.servicio)));
 
@@ -11754,7 +12395,7 @@ function renderModulos() {
     </div>
 
     <div class="kpi-grid">
-      <div class="kpi"><div class="kpi-label">${ICONS.check} Cirugías realizadas</div>
+      <div class="kpi"><div class="kpi-label">${ICONS.check} Cirugías finalizadas</div>
         <div class="kpi-val">${nCx}</div>
         <div class="kpi-meta">Con práctica del nomenclador cargada</div></div>
       <div class="kpi"><div class="kpi-label">${ico(ICONS.layers, 15)} Módulos generados</div>
@@ -11835,7 +12476,7 @@ function modTablaProf(grupos, conImportes, u) {
       <th class="num">A</th><th class="num">B</th><th class="num">C</th><th class="num">Total</th>
       ${conImportes ? '<th class="num">Importe estimado</th>' : ''}</tr></thead>
     <tbody>${grupos.length ? grupos.map((g) => `
-      <tr${u && g.nombre === u.nombre ? ' style="background:var(--blue-soft)"' : ''}>
+      <tr${u && mismoProfesional(g.nombre, u.nombre) ? ' style="background:var(--blue-soft)"' : ''}>
         <td><b>${esc(g.nombre)}</b></td>
         <td>${esc(g.servicioPrinc)}</td>
         <td class="num">${g.nCirugias}</td>
@@ -12125,7 +12766,8 @@ function openEquipoMod(id) {
     <p class="modal-sub" style="text-align:left;margin-bottom:4px">El módulo lo fija la práctica del nomenclador y <b>no se edita</b>:
       el cirujano percibe el de la cirugía y el 1er ayudante el escalón inmediato inferior (A → B, B → C; el C no tiene
       escalón por debajo, así que el ayudante de una cirugía C no percibe módulo). Se imputan
-      <b>solo cuando la cirugía esté marcada como Realizada</b>${c.estado === 'realizada' ? ' — esta ya lo está.' : `; hoy está <b>${ESTC[c.estado].label}</b>.`}</p>
+      <b>solo cuando la cirugía esté FINALIZADA</b> —operada, con el parte quirúrgico cargado y con la aceptación de Admisión y la
+      validación de la Jefatura asentadas—${cirugiaCerrada(c) ? ' — esta ya lo está.' : `; hoy está <b>${ESTC[estadoVisible(c)].label}</b>.`}</p>
 
     <div class="form-grid" style="margin-top:8px">
       <div class="field"><label>Cirujano *</label>

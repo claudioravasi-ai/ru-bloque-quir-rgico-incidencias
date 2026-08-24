@@ -102,30 +102,53 @@ Agregando `?local=1` a la URL la app corre sin nube, con datos de demostración
 
 Seis salas, cada una con sus franjas horarias:
 
-| Sala | Franjas | Observaciones |
+| Sala | Franjas programadas | Turno de urgencia |
 |---|---|---|
-| Quirófano 1 | **24 franjas de una hora, de 08:00 a 08:00** | Sala de **guardia**: urgencias y emergencias, todos los días del año |
-| Quirófano 2, 3 y 4 | 08, 10, 12 (mañana) · 14, 16, 18 (tarde) | Solo turnos programados |
-| Sala de Endoscopía Digestiva | 08:00 a 17:00, cada hora | 10 franjas |
-| Quirófano de Obstetricia | 08, 10, 12 · 14, 16, 18 | Cesáreas; admite urgencias |
+| Quirófano 1 | 08, 10, 12 (mañana) · 14, 16, 18 (tarde) | **Sí** — cirugías de urgencia y emergencia |
+| Quirófano 2, 3 y 4 | 08, 10, 12 · 14, 16, 18 | No |
+| Sala de Endoscopía Digestiva | 08:00 a 17:00, cada hora (10 franjas) | **Sí** — endoscopías de urgencia |
+| Quirófano de Obstetricia | 08, 10, 12 · 14, 16, 18 | **Sí** — cesáreas de urgencia |
 
-- **Anticipación mínima de 24 h** para turnos electivos. Las urgencias del Quirófano 1 y de Obstetricia la saltean.
-- **Las salas de urgencia van en hora**: el Quirófano 1 y Obstetricia ofrecen únicamente las franjas que
-  todavía no terminaron (ver más abajo).
-- **El bloque programado nace cerrado** (ver más abajo).
+- **Anticipación mínima de 24 h** para turnos electivos. El turno de urgencia la saltea.
+- **El bloque programado nace cerrado**, las seis salas por igual (ver más abajo).
 - El parte del día se **imprime o descarga** ordenado por prelación.
+
+### El turno rodante de urgencia
+
+Desde la versión 3.6.0 la programación diaria y la guardia son dos cosas separadas y se ven separadas.
+
+La **grilla programada** es igual en las seis salas: de 08 a 20 h, cerrada por defecto, y la abre la Jefatura
+turno por turno. El Quirófano 1 dejó de tener su grilla especial de 24 franjas de 08:00 a 08:00.
+
+La **guardia** pasó a ser un bloque aparte dentro de la misma sala: el Quirófano 1, la Sala de Endoscopía y el
+Quirófano de Obstetricia ofrecen **un turno libre de urgencia en la hora que corre**, las 24 horas del día, de
+lunes a lunes, esté la sala abierta o cerrada y sea o no día hábil. Cada sala ofrece el suyo y solo el suyo:
+cirugías de urgencia en el Quirófano 1, endoscopías de urgencia en Endoscopía y cesáreas de urgencia en
+Obstetricia.
+
+| Situación | Qué muestra la grilla |
+|---|---|
+| Son las 18:00 | Un turno libre de las **18:00** en cada una de las tres salas |
+| Dan las 19:00 | El de las 18 desaparece y aparece el de las **19:00** |
+| A las 18:20 se anota una urgencia | El turno de las 18 queda ocupado **y aparece otro libre de las 18**, para la siguiente |
+| A las 19:00, con una urgencia anotada a las 18 | La de las 18 **sigue a la vista** en el día, con las reglas de siempre |
+| Se mira el día de ayer | Solo las urgencias que se anotaron; el turno libre no existe fuera de la hora en curso |
+| Se mira mañana | No hay turno de urgencia: esa hora todavía no ocurrió |
+
+El turno de urgencia **se marca solo como urgencia** —la casilla aparece tildada y bloqueada—, saltea la
+anticipación de 24 h y entra al circuito de urgencias: se opera primero y la aceptación de Admisión y la
+validación de la Jefatura se regularizan después.
+
+Si una urgencia se operó y nadie la cargó a tiempo, la **Jefatura** la registra fuera de término desde el botón
+del propio bloque: indica la hora, pone su clave `0112` y el motivo, y el turno queda marcado como **registro
+fuera de término**.
 
 ### El bloque nace cerrado
 
-Desde la versión 2.4, **todos los días, los quirófanos 2, 3 y 4 y la Sala de Endoscopía aparecen bloqueados**,
-turno de mañana y turno de tarde. Nadie puede programar ahí hasta que la **Jefatura de Quirófanos** lo abra.
-
-Dos salas quedan fuera de la llave:
-
-| Sala | Estado |
-|---|---|
-| Quirófano 1 — guardia de urgencias | Abierto siempre, 08:00 a 08:00. **No se puede cerrar** |
-| Quirófano de Obstetricia — cesáreas | Abierto por defecto; la Jefatura puede cerrarlo expresamente |
+**Todos los días, las seis salas aparecen bloqueadas**, turno de mañana y turno de tarde. Nadie puede programar
+ahí hasta que la **Jefatura de Quirófanos** lo abra. Desde la versión 3.6.0 el Quirófano 1 y el Quirófano de
+Obstetricia también: dejaron de estar siempre abiertos, porque su disponibilidad de guardia pasó al turno
+rodante de urgencia, que no se cierra nunca y no necesita habilitación.
 
 **La llave es el turno, no la sala.** La Jefatura abre mañana y tarde por separado, sala por sala, desde
 *Programación Diaria → Jefatura*:
@@ -265,6 +288,16 @@ del hospital, listo para firmar.
   formulario abre los campos del representante y el documento cambia el bloque de firmas.
 - Salidas: **descarga en Word (.doc)**, **impresión / PDF** y **registro guardado** en la base compartida.
 
+### El archivo de la Jefatura: por servicio y por médico
+
+El médico ve una lista simple con lo suyo. La **Jefatura**, que ve el archivo completo del bloque, lo ve
+agrupado en dos niveles: primero el **servicio** y, dentro de cada uno, cada **profesional en orden alfabético
+de apellido**, con el total de consentimientos y la fecha del último. Cada médico se despliega a un clic.
+
+Servicios y nombres se agrupan con el criterio único descrito más arriba, así que «Cirugia General» y «Cirugía
+General» son un solo servicio y «ana alvarez» y «Dra. Ana Álvarez» un solo profesional. Con la búsqueda activa
+los grupos se abren solos.
+
 ### Quién ve el registro
 
 El consentimiento informado integra la historia clínica del paciente y lleva la firma del profesional que lo
@@ -295,48 +328,108 @@ el menú lateral lleva el contador de turnos futuros sin consentimiento.
 
 ## Circuito del turno (código de colores)
 
+### Cirugías, endoscopías y cesáreas PROGRAMADAS
+
 ```
-Borrador → Pendiente → Validada → Confirmada → En curso → Realizada
-   gris     amarillo      azul       verde      naranja   verde oscuro
-                                  ↘ Suspendida (rojo, con causa obligatoria)
-                                  ↘ Resuelta por anticipado (violeta, libera la franja)
+Borrador → Pendiente → Confirmada → En curso → Operada, pendiente de cierre → Finalizada
+   gris     amarillo      verde      naranja            verde agua              verde oscuro
+                       ↘ Suspendida (rojo, con causa obligatoria)
+                       ↘ Resuelta por anticipado (violeta, libera la franja)
 ```
 
-Reglas que el sistema hace cumplir:
+El orden es uno solo y el sistema no deja saltearlo:
 
-- No se **valida** sin la **autorización de Admisión y Egresos** (salvo las excepciones de más abajo), ni si faltan
-  verificaciones de Farmacia, Esterilización, Hemoterapia o Anestesiología, o si la HCE no tiene los estudios
-  preoperatorios y el consentimiento.
-- No se **confirma** en el parte sin esa misma autorización.
+1. **El cirujano programa.** Tiene que estar logueado y con la cuenta **autorizada por la Jefatura de
+   Quirófanos**, y el turno tiene que llevar el **apto anestésico**, los **estudios preoperatorios** y el
+   **consentimiento informado generado y guardado** en su historial (queda vinculado al turno por `turnoId`).
+2. **Admisión y Egresos acepta o rechaza.** Con la carpeta incompleta el trámite **no se abre**: la app
+   enumera lo que falta y no muestra el formulario de dictamen. Con la aceptación el turno queda `AUTORIZADO`.
+3. **La Jefatura de Quirófanos valida y confirma en el parte, en un solo acto.** Repasa que esté todo lo que
+   pidió el cirujano —arco en C, prótesis o implantes, hemoderivados, instrumental procesado, evaluación
+   pre-anestésica— y al validar el turno **entra al parte quirúrgico de programados**. Mientras Admisión no
+   acepte, el único botón que ofrece la tarjeta es el de su trámite: la validación ni siquiera aparece.
+4. **Recién ahí se le habilita la foja de LVQ al cirujano**, y **solo el día de la cirugía**: antes de esa
+   fecha no se abre. Entrada y Pausa Quirúrgica para iniciar; Salida —con el conteo de gasas e instrumental—
+   para terminar.
+5. **La Salida cierra y finaliza la cirugía, sola.** La ventana de Salida incluye el **parte quirúrgico**, que
+   es obligatorio para confirmarla: al confirmar, la cirugía pasa a **FINALIZADA** en el acto, queda guardada
+   en la base en tiempo real y **ya computa** en estadísticas y módulos. **La Jefatura no interviene**: no hay
+   ningún visto bueno posterior en la cirugía programada.
+
+Otras reglas que el sistema hace cumplir:
+
+- No se **valida** si faltan verificaciones de Farmacia, Esterilización, Hemoterapia o Anestesiología, o si la
+  HCE no tiene los estudios preoperatorios y el consentimiento.
+- La **foja de LVQ no se abre antes del día de la cirugía**. Se admite el día de grilla del turno —que es el
+  mismo día salvo en la madrugada del Quirófano 1, donde una cirugía de las 01:00 pertenece a la guardia que
+  empezó el día anterior— y cualquier día posterior, para la LVQ completada fuera de término o el registro
+  tardío que autoriza la Jefatura.
 - No pasa a **en curso** sin la LVQ de Entrada y la Pausa Quirúrgica completas.
-- No **cierra** sin la LVQ de Salida (conteo de gasas e instrumental).
+- No termina el procedimiento sin la LVQ de Salida (conteo de gasas e instrumental) **y el parte quirúrgico
+  escrito en esa misma ventana**.
 - Toda **suspensión** exige causa y genera automáticamente una incidencia de categoría D.
 - Pasado el cierre de las 13:00 solo ingresan emergencias y urgencias diferibles (P1–P2).
+
+### Cirugías, endoscopías y cesáreas de URGENCIA o EMERGENCIA
+
+A las 3 de la mañana no hay nadie de Admisión y Egresos ni de la Jefatura en el hospital, y el paciente no
+puede esperar a que los haya. Por eso la urgencia **invierte el orden, no lo elimina**:
+
+```
+Pendiente → (LVQ Entrada + Pausa) → En curso → (LVQ Salida + parte) → Operada, pendiente de cierre
+                                                                                  ↓
+                                    + aceptación de Admisión + validación de Jefatura (diferidas)
+                                                                                  ↓
+                                                                             Finalizada
+```
+
+La ventana de Salida avisa de antemano que el caso va a quedar pendiente y por qué, para que nadie crea que
+con cerrar el procedimiento ya está todo.
+
+El cirujano abre la Lista de Verificación, opera y la cierra con el parte quirúrgico, sin esperar a nadie.
+Pero la cirugía **no queda archivada ni cerrada**: permanece en **«Operada — pendiente de cierre»** hasta que
+Admisión y Egresos asiente su aceptación y la Jefatura regularice su validación. **Hasta entonces no computa
+en las estadísticas ni en los módulos**, y tanto los KPIs como las estadísticas muestran cuántas cirugías
+operadas quedaron sin cerrar, para que la diferencia no se lea como quirófano ocioso.
+
+Una vez asentadas las dos, el caso pasa solo a **FINALIZADA** y cuenta como cualquier otra.
+
+### Programación fuera de horario por excepción de la Jefatura
+
+No es un circuito aparte: **el turno sigue la lógica que le corresponde por su naturaleza**. Si es programado,
+Admisión primero y Jefatura después; si es de urgencia o emergencia, se opera primero y se regulariza después.
+Que la Jefatura haya abierto una franja fuera del cronograma habitual cambia **cuándo** se opera, no el
+circuito de aprobación.
 
 ### Prioridad de prelación
 
 P1 Emergencias (incisión < 30 min) · P2 Urgencias diferibles (< 6 h) · P3 Alta complejidad y pediatría ·
 P4 Recursos escasos · P5 Espera > 90 días (automática) · P6 Electiva estándar.
 
-### Autorización de Admisión y Egresos: previa, salvo tres excepciones
+### Aceptación de Admisión y Egresos: previa, salvo la urgencia
 
-La regla general es que **ningún turno electivo se valida sin el visto de Admisión y Egresos**. El freno está en la
-validación, que es el primer paso que da la Jefatura: si el trámite administrativo no está cerrado, el turno no
-avanza y por lo tanto no llega al parte.
+La regla general es que **ningún turno programado se valida sin la aceptación de Admisión y Egresos**. El freno
+está en la validación, que es el paso de la Jefatura: si el trámite administrativo no está cerrado, el turno no
+avanza y por lo tanto no llega al parte. Y para que el trámite se abra, el cirujano tiene que haber dejado el
+apto anestésico, los estudios preoperatorios y el consentimiento generado y guardado.
 
-Tres situaciones saltean el visto **previo**, porque esperar un trámite administrativo sería poner la burocracia
+Dos situaciones saltean el visto **previo**, porque esperar un trámite administrativo sería poner la burocracia
 por delante del paciente:
 
 | Situación | Cómo se detecta |
 |---|---|
 | Urgencias y emergencias | El turno lleva marcada la casilla *Urgencia / emergencia* |
 | Prioridad **P1** (emergencia) o **P2** (urgencia diferible) | Por la prioridad de prelación, aunque no lleve la marca |
-| Cirugías **programadas fuera de horario por la Jefatura** | El turno nació en la solapa *Programación Fuera de Horario* |
 
-En esos tres casos la autorización **no se elimina: queda diferida**. El turno se valida, se confirma y se opera
-igual, con la autorización marcada como `AUT. DIFERIDA`, y el trámite administrativo se cumplimenta después
-—**incluso con la cirugía ya realizada**— desde el propio turno, con la clave `3340`. Cuando se cierra fuera de
-término, la ficha lo deja escrito: *«trámite regularizado después de la cirugía»*.
+La **programación fuera de horario por excepción de la Jefatura** ya no está en esa lista: desde la versión
+3.5.0 sigue el circuito que le corresponde por su naturaleza —programada o urgente—, porque la excepción es de
+horario, no de aprobación.
+
+En los dos casos exentos la autorización **no se elimina: queda diferida**. El turno se valida, se confirma y se
+opera igual, con la autorización marcada como `AUT. DIFERIDA`, y el trámite se cumplimenta después —**incluso
+con la cirugía ya operada**— desde el propio turno, con la clave `3340`. Cuando se cierra fuera de término, la
+ficha lo deja escrito: *«trámite regularizado después de la cirugía»*. Lo que la exención **no** habilita es
+cerrar el caso sin ella: mientras el dictamen falte, la cirugía queda en *Operada — pendiente de cierre*.
 
 Antes, las urgencias se estampaban solas como `AUTORIZADO` y el trámite desaparecía del radar. Ahora sigue
 figurando como pendiente y un recordatorio insiste —también sobre cirugías ya realizadas— hasta que Admisión y
@@ -359,8 +452,9 @@ por definición la hace la Jefatura y por lo tanto no necesita diferirse.
 | Antes | Ahora |
 |---|---|
 | La urgencia quedaba en *Pendiente* hasta que la Jefatura validaba y confirmaba | El cirujano ve el botón **Iniciar (LVQ Entrada + Pausa)** apenas se carga el turno |
-| Sin validación no había LVQ, y sin LVQ no había cierre del procedimiento | Opera, cierra con la **LVQ de Salida** y la cirugía entra al parte y a los módulos |
+| Sin validación no había LVQ, y sin LVQ no había cierre del procedimiento | Opera, cierra con la **LVQ de Salida** y carga el parte quirúrgico sin esperar a nadie |
 | — | El turno queda marcado `VALID. DIFERIDA` en la grilla y en su ficha |
+| La cirugía entraba a los módulos y a las estadísticas apenas se cerraba el procedimiento | Queda en *Operada — pendiente de cierre* y **no computa** hasta que Admisión y la Jefatura regularicen |
 
 La validación **no desaparece: queda diferida**. La Jefatura la cierra después con el botón **Regularizar
 validación** de la ficha, que repasa la lista de verificación de coordinación y deja escrito qué faltaba al
@@ -368,8 +462,34 @@ momento de operar. Mientras tanto, un recordatorio insiste —también sobre cir
 casillas de coordinación siguen editables aunque la cirugía esté *En curso* o *Realizada*, justamente para
 poder regularizarla.
 
-Si la urgencia entra en un horario en que la Jefatura está, **valida como siempre**, antes de operar: los
-botones de *Validar* y *Confirmar en el parte* siguen en su lugar y el circuito completo no cambia.
+Si la urgencia entra en un horario en que la Jefatura está, **valida como siempre**, antes de operar: el botón
+*Validar y confirmar en el parte* sigue en su lugar y el circuito completo no cambia.
+
+### El cierre del caso
+
+Desde la versión 3.5.0 la cirugía termina en dos tiempos y el estado lo dice con todas las letras. **Operada —
+pendiente de cierre** significa que el procedimiento terminó en el quirófano pero el caso sigue abierto;
+**Finalizada**, que está cerrado. Para cerrarse hacen falta las cuatro cosas:
+
+| Requisito | Quién lo cumple | Cuándo |
+|---|---|---|
+| LVQ completa en sus tres etapas (Entrada, Pausa, Salida) | Equipo quirúrgico | El día de la cirugía |
+| Parte quirúrgico (informe operatorio) | Cirujano | Dentro de la ventana de Salida |
+| Aceptación de Admisión y Egresos (`AUTORIZADO`) | Admisión y Egresos, clave `3340` | **Antes** en la programada; después en la urgencia |
+| Validación de la Jefatura de Quirófanos | Jefatura, clave `0112` | **Antes** en la programada; regularizada después en la urgencia |
+
+En la **cirugía programada las dos últimas ya están cumplidas antes de operar**, así que al confirmar la
+Salida la cirugía se finaliza sola y la Jefatura no tiene nada que hacer. El estado *Operada — pendiente de
+cierre* queda reservado, en la práctica, para las **urgencias y emergencias**.
+
+El cierre es **automático**: apenas se cumple lo último que faltaba —la Salida en la programada, la
+regularización en la urgencia— el caso pasa a *Finalizada* y queda asentado en su historial. Si más tarde algo
+lo invalida —por ejemplo, un dictamen de Admisión que pasa a `NO AUTORIZADO`— el caso **se reabre** y vuelve a
+quedar pendiente, también con constancia.
+
+Mientras tanto, la ficha del turno muestra un recuadro con lo que falta, la solapa **Programación Quirúrgica**
+tiene el grupo *Operadas — pendientes de cierre* con su contador, y los **Indicadores** y las **Estadísticas**
+avisan cuántas cirugías operadas quedaron fuera del cómputo por no estar cerradas.
 
 ### La cirugía que se adelantó por urgencia
 
@@ -433,6 +553,33 @@ error, la Jefatura **repone el turno** en su franja original cuando sigue libre.
 
 ---
 
+## Un mismo nombre escrito de mil maneras
+
+El servicio y el nombre del cirujano se escriben a mano en cada turno, en cada consentimiento y en cada equipo
+quirúrgico. En la base conviven «Cirugía General», «Cirugia General», «CIRUGIA GRAL» y «CX General», y también
+«Dr. Hugo Díaz», «hugo diaz», «DIAZ, HUGO» y «Díaz». Comparados con `===`, la producción de un mismo cirujano
+aparecía repartida en cuatro filas de estadísticas y de módulos, y un servicio se contaba dos veces.
+
+Desde la versión 3.6.0 hay un solo criterio, y vale para **estadísticas, módulos, consentimientos, reclamos,
+comunicados y la ficha del turno**:
+
+| Se ignora | Ejemplo |
+|---|---|
+| Tildes | `Cirugía` = `Cirugia` |
+| Mayúsculas | `CIRUGIA GRAL` = `cirugia gral` |
+| Puntuación y espacios de más | `Cirugia  gral.` = `Cirugía General` |
+| Palabras de enlace | `Traumatología y Ortopedia` = `Traumatologia Ortopedia` |
+| Tratamientos | `Dr. Hugo Díaz` = `Hugo Díaz` |
+| El orden de las palabras | `DIAZ, HUGO` = `Hugo Díaz` |
+| Abreviaturas de uso corriente | `gral`→general, `trauma`→traumatología, `cx`→cirugía, `gineco`→ginecología, `cardio`→cardiovascular… |
+| Nombres incompletos | `traumatologia` → **Traumatología y Ortopedia**; `Díaz` → **Dr. Hugo Díaz**, si es el único Díaz del padrón |
+
+El nombre incompleto vale **solo si señala a uno**: `cirugia` a secas apunta a cuatro servicios, así que queda
+como se escribió. El rótulo que se muestra es siempre el bien escrito —el del listado oficial de servicios o el
+de la ficha del profesional—, no el que se tipeó en el turno.
+
+---
+
 ## Ventanas de la app
 
 Los avisos y las preguntas **no usan los cuadros del navegador**. Un `alert()` o un `confirm()` sale encabezado
@@ -493,6 +640,35 @@ comparten la computadora del quirófano cada uno mantiene su propia lista.
 
 ---
 
+## Programación Quirúrgica — el circuito en pocas líneas
+
+La solapa que ve la Jefatura muestra el circuito completo como **una línea por estado**: el color del estado,
+su nombre, una explicación breve y el número de cirugías. Un clic despliega las fichas de ese estado; otro las
+vuelve a cerrar. Los estados sin cirugías quedan atenuados y no se abren.
+
+Los nueve estados, en el orden en que ocurren: **Borrador · Pendiente · Validada · Confirmada · En curso ·
+Operada — pendiente de cierre · Finalizada · Suspendida · Resuelta por anticipado.** Los tres últimos y las
+operadas se listan por fecha, de la más reciente a la más vieja; los que siguen en circuito, por orden de
+prelación P1–P6.
+
+---
+
+## Puesta en cero de la base
+
+En *Profesionales*, debajo de los datos de prueba, la Jefatura tiene **Puesta en cero de la base**: vacía el
+movimiento operativo para arrancar con pacientes reales.
+
+| Se borra | Se conserva |
+|---|---|
+| Cirugías, incidencias, reclamos, consentimientos y comunicados | Cuentas de los profesionales, agenda de días habilitados y listado de obras sociales |
+
+Es irreversible y alcanza a todas las computadoras, así que pide **dos confirmaciones**: la clave `0112` y
+escribir la palabra **VACIAR**. Si la palabra no coincide, no se borra nada.
+
+Conviene hacerlo **antes** de dar de alta a los médicos y de cerrar las reglas de Firebase.
+
+---
+
 ## Indicadores de gestión
 
 | KPI | Meta |
@@ -517,7 +693,7 @@ nomenclador). Las dos primeras comparten las mismas columnas ordenables:
 
 | Columna | Cómo se calcula |
 |---|---|
-| Realizadas · Suspendidas · % suspensión | Sobre las cirugías que llegaron al parte (confirmadas, en curso, realizadas y suspendidas) |
+| Realizadas · Suspendidas · % suspensión | Sobre las cirugías que llegaron al parte. «Realizadas» cuenta solo las **finalizadas**: las operadas sin cerrar se avisan aparte y no entran |
 | Horas de quirófano | Tiempo real medido entre inicio y fin; si no está cargado, la duración estimada de la solicitud |
 | % del bloque | Participación de cada equipo en las horas totales del período |
 | Duración media | Minutos por cirugía realizada |
@@ -624,9 +800,11 @@ módulos*) por si el ayudante se define o cambia después.
 
 ### Cuándo se imputa
 
-**Solo cuando la cirugía está marcada como Realizada.** Un turno programado, confirmado o en curso no figura
-en la solapa: aparece recién cuando se cierra el procedimiento con la LVQ de salida. Así la planilla de
-módulos y el parte quirúrgico no pueden contradecirse.
+**Solo cuando la cirugía está FINALIZADA** —operada, con el parte quirúrgico cargado y con la aceptación de
+Admisión y la validación de la Jefatura asentadas—. Un turno programado, confirmado, en curso o pendiente de
+cierre no figura
+en la solapa: aparece recién cuando el caso queda cerrado. Así la planilla de módulos y el parte quirúrgico
+no pueden contradecirse, y ninguna urgencia se factura antes de que Admisión y la Jefatura la hayan visto.
 
 La solapa avisa de dos deudas: cirugías realizadas **sin declarar el 1er ayudante** —ni un nombre ni «SIN
 AYUDANTE»— y cirugías realizadas **sin práctica del nomenclador** (los turnos anteriores a esta versión).
