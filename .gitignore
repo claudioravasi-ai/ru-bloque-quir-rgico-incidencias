@@ -1,0 +1,16 @@
+# Basura del sistema
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Respaldos y temporales
+*.bak
+*~
+index.RESPALDO-*.html
+
+# Herramientas locales de desarrollo
+.claude/
