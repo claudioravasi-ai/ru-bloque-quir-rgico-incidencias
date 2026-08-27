@@ -1,6 +1,6 @@
 ====================================================================
   HRU QUIRÓFANOS — QUÉ SUBIR A GITHUB Y CÓMO
-  Versión 3.8.1 · 26 de agosto de 2026
+  Versión 3.9.0 · 26 de agosto de 2026
 ====================================================================
 
 Repositorio:
@@ -30,13 +30,12 @@ y si se sube por error tampoco molesta.)
   icon-512.png ............. ícono
   icon-maskable-512.png .... ícono
   libro-blanco-quirofanos-hru.pdf ... manual institucional
+                             (NO cambió; se incluye para no errarle)
 
   DOCUMENTACIÓN (no afecta el funcionamiento)
   ----------------------------------------------------------------
-  README.md ................ documentación técnica del repositorio,
-                             ahora con las secciones de las versiones
-                             3.7.0, 3.8.0 y 3.8.1
-  HRU-Quirofanos-Manual-Funcional-v3.8.1.docx ... manual para los
+  README.md ................ documentación técnica del repositorio
+  HRU-Quirofanos-Manual-Funcional-v3.9.0.docx ... manual para los
                              médicos cirujanos
 
   ARCHIVO OCULTO — OJO
@@ -65,9 +64,7 @@ PASO 2 — Abrir el cargador de archivos
 PASO 3 — Arrastrar los archivos
   Abra esta carpeta SUBIR-GITHUB en el Finder.
   Seleccione todo (Cmd + A) y arrástrelo a la zona que dice
-  "Drag files here to add them to your repository". Si prefiere, deje
-  afuera este LEEME-PRIMERO.txt: no cumple ninguna función en el
-  servidor.
+  "Drag files here to add them to your repository".
 
   IMPORTANTE: arrastre LOS ARCHIVOS, no la carpeta. Si arrastra la
   carpeta entera, GitHub crea una subcarpeta llamada SUBIR-GITHUB y
@@ -79,7 +76,7 @@ PASO 3 — Arrastrar los archivos
 PASO 4 — Escribir el mensaje del cambio
   En "Commit changes", en el campo de arriba, escriba:
 
-     Turno provisional y acuse de los botones (v3.8.1)
+     El turno se asocia a una cuenta profesional (v3.9.0)
 
   Deje marcada la opción "Commit directly to the main branch".
 
@@ -116,9 +113,6 @@ index.RESPALDO-*.html
 
     d) "Commit changes".
 
-  (Este archivo no afecta el funcionamiento de la app: solo evita
-  que se suban copias de seguridad y basura del sistema.)
-
 PASO 7 — Esperar la publicación
   En la solapa "Actions" del repositorio va a ver el trabajo de
   publicación corriendo. Cuando termine con un tilde verde —suele
@@ -126,51 +120,57 @@ PASO 7 — Esperar la publicación
 
 
 --------------------------------------------------------------------
-CÓMO COMPROBAR QUE SE ACTUALIZÓ
+QUÉ HACER APENAS SE PUBLIQUE  (importante)
 --------------------------------------------------------------------
 
-1. Abra https://claudioravasi-ai.github.io/ru-bloque-quir-rgico-incidencias/
-2. Vaya al Panel y baje hasta el pie de la pantalla.
-3. Tiene que decir:   Versión 3.8.1
-4. Si todavía dice una anterior, es la copia guardada en el
-   dispositivo. Cierre la app del todo y vuelva a abrirla; si es un
-   celular con la app instalada en la pantalla de inicio, ciérrela
-   desde el multitarea. La app avisa cuando hay versión nueva y la
-   estrena cuando usted lo acepta: nunca se recarga sola mientras
-   tenga un formulario a medio escribir.
+1. Abra la app y verifique que el pie del Panel diga: Versión 3.9.0
 
-5. Prueba rápida de la corrección de esta versión: entre a
-   Recordatorios y apriete "Actualizar". Solo ese botón tiene que
-   ponerse verde. "Marcar todo como visto" debe quedarse como está.
+2. Entre con la CLAVE DE JEFATURA (0112) y vaya a
+   "Programación Quirúrgica". Arriba va a ver un cartel ámbar:
+
+     "2 turno(s) sin profesional asociado"
+
+   Son los dos turnos viejos que quedaron sin dueño:
+     · Carlos Guglielmi — 12 ago 2026
+     · Ravasi (su turno del viernes 28/08)
+
+   Apriete "Asignar" en cada uno. La app propone la cuenta que
+   coincide por nombre; confirme.
+
+3. Salga de Jefatura, entre con su cuenta y vaya a
+   "Mis Solicitudes": el turno del 28/08 ya tiene que aparecer.
 
 
 --------------------------------------------------------------------
 QUÉ CAMBIÓ EN ESTA VERSIÓN
 --------------------------------------------------------------------
 
-3.8.1 — CORRECCIÓN. En Recordatorios, "Marcar todo como visto" se
-  ponía verde cada vez que no quedaban avisos pendientes, y como
-  "Actualizar" repinta la pantalla, el verde aparecía justo al
-  apretar el otro botón: parecía que se apretaba solo. Ahora el
-  verde señala un clic y nunca un estado. Cuando no queda nada por
-  hacer, el botón queda deshabilitado y en gris, con el rótulo
-  "Todo visto". De paso se corrigió que ese mismo botón no llegaba a
-  pintarse al presionarlo, por un doble repintado de la vista.
+3.9.0 — EL DUEÑO DEL TURNO. Un turno se asocia a una CUENTA, no a un
+  nombre escrito a mano. De ese vínculo dependen los recordatorios de
+  la cirugía, "Mis Solicitudes" y el control de consentimientos.
+  · Cuando carga la Jefatura, el cirujano se ELIGE DEL PADRÓN: el
+    campo de texto pasó a ser un desplegable de cuentas activas y el
+    turno no se guarda sin elegir una. Antes, todo lo que cargaba la
+    Jefatura quedaba huérfano y ese cirujano no recibía ningún aviso
+    de su propia cirugía.
+  · Los turnos ya cargados se reparan: la ficha avisa cuando está
+    huérfano y la Programación Quirúrgica los lista a todos.
+  · El turno que la Jefatura carga en nombre de otro NO nace
+    provisional: el cirujano no está frente a la pantalla y no puede
+    guardar el consentimiento, así que la franja no se le libera.
 
-3.8.0 — El turno programado nace PROVISIONAL. Al terminar de
-  cargarlo, la única salida es "Continuar con el consentimiento
-  informado". La franja se confirma cuando el cirujano GUARDA el
-  consentimiento, y eso es además lo que habilita el paso por
-  Admisión y Egresos. Si sale sin guardarlo, la app avisa y libera
-  la franja: el turno queda en Borrador, con todos los datos, en
-  "Mis Solicitudes". Red de seguridad: 60 minutos.
-  Las urgencias, emergencias y los turnos P1 y P2 quedan EXENTOS.
+3.8.1 — Corrección: en Recordatorios, "Marcar todo como visto" se
+  ponía verde cada vez que no quedaban avisos pendientes y parecía
+  apretarse solo. Ahora el verde señala un clic, nunca un estado.
 
-3.7.0 — Carteles informativos plegables en Recordatorios, Reclamos y
-  Módulos. Botones con acuse de color. Los recordatorios vistos
-  desaparecen de la pantalla y de la campana. Consentimientos con
-  diseño simétrico, documento de 12 apartados, catálogo ampliado a
-  113 procedimientos, código de verificación, registro de solo
-  lectura y tablero de turnos sin consentimiento para la Jefatura.
+3.8.0 — El turno programado del cirujano nace PROVISIONAL: la franja
+  se confirma cuando GUARDA el consentimiento informado. Si sale sin
+  guardarlo, la franja vuelve al bloque y el turno queda en Borrador
+  con todos los datos. Urgencias y P1/P2 exentas.
+
+3.7.0 — Carteles plegables, botones con acuse de color, recordatorios
+  vistos que desaparecen, consentimientos con diseño simétrico,
+  documento de 12 apartados, catálogo de 113 procedimientos, código
+  de verificación y tablero de turnos sin consentimiento.
 
 ====================================================================

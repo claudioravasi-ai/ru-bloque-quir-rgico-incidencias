@@ -343,6 +343,47 @@ bajarlo. El consentimiento guardado queda **vinculado al turno** (`turnoId`), ma
 la HCE de esa cirugía y se anota en su historial. En la grilla, cada turno muestra el chip `CI ✓` o `SIN CI`, y
 el menú lateral lleva el contador de turnos futuros sin consentimiento.
 
+### El dueño del turno: por qué importa el correo y no el nombre
+
+`cirujanoEmail` no es un dato administrativo. Es lo que dirige **los recordatorios** de la cirugía, lo que arma
+**«Mis Solicitudes»** y lo que cuenta los **consentimientos que le faltan** a cada profesional. Un turno sin ese
+correo queda **huérfano**: existe, se opera, factura y entra en las estadísticas, pero su cirujano no recibe
+ningún aviso sobre él —ni el retraso, ni el informe operatorio, ni las muestras sin enviar— y no lo ve en su
+propia lista. Todo eso queda solo en manos de la Jefatura.
+
+El campo se llenaba con la sesión de quien cargaba el turno:
+
+```js
+cirujanoEmail: existente ? c.cirujanoEmail : (exc ? exc.cirujano.email : (u ? u.email : '')),
+```
+
+Así, **todo lo que cargaba la Jefatura nacía huérfano**: trabaja con su clave, sin sesión de cirujano, y el
+nombre del profesional se escribía a mano en un campo de texto libre. Los módulos igual se imputaban bien
+—agrupan por nombre, no por correo—, de modo que el problema no se notaba hasta que un cirujano preguntaba por
+qué no veía su turno.
+
+Desde la versión 3.9.0, **cuando no hay cirujano logueado el profesional se elige del padrón** (`campoCirujano`):
+el campo de texto pasa a ser un desplegable de cuentas activas y el turno no se guarda sin elegir una. Es el
+mismo criterio que ya usaba la **programación fuera de horario**, donde el cirujano se elige de la lista
+justamente para poder emitirle el aviso obligatorio. Al elegirlo, el servicio del turno lo sigue solo.
+
+### Reparar un turno huérfano
+
+Los turnos cargados antes de este cambio siguen sin dueño, así que la Jefatura tiene cómo asignarlos:
+
+- La **ficha de la cirugía** muestra un aviso ámbar cuando el turno está huérfano, explica qué avisos se está
+  perdiendo el cirujano y ofrece el botón **«Asignar al profesional»**.
+- La vista **Programación Quirúrgica** lista todos los huérfanos del bloque de una vez, para no tener que
+  encontrarlos abriendo ficha por ficha.
+- El desplegable llega con la **coincidencia por nombre ya propuesta** (`duenoProbable`), pero solo cuando es
+  inequívoca: dos homónimos no se resuelven solos y hay que elegir a mano.
+- Asignar **no modifica ningún otro dato** del turno —ni la fecha, ni la franja, ni el estado, ni los módulos— y
+  queda asentado en el historial con quién lo asignó y a nombre de quién figuraba antes.
+
+> Cuidado al escribir el desplegable: `attr()` hace *percent-encoding* para interpolar dentro de un `onclick`.
+> Para el `value` de un `<option>` va `esc()`, o el correo llega como `nombre%40dominio.com`, deja de coincidir
+> con el de la cuenta y la reparación falla en silencio.
+
 ### El turno nace provisional: la franja se gana con el consentimiento
 
 Programar un turno **nunca exigió** el consentimiento informado. Las barreras estaban más adelante
@@ -371,6 +412,11 @@ libera la franja de otro profesional**.
 > **Exentas las urgencias, las emergencias y los turnos P1 y P2** (`authExenta`), igual que lo están de la
 > aceptación previa de Admisión y de la validación de la Jefatura, y también el registro fuera de término, que
 > asienta una cirugía ya realizada. Un quirófano no puede condicionar una urgencia a un trámite.
+>
+> **Y el turno que carga la Jefatura en nombre de otro tampoco nace provisional**: el cirujano no está frente a
+> la pantalla y no puede guardar el consentimiento, así que liberarle la franja a los 60 minutos sería castigar
+> a quien no hizo nada. Ese turno queda firme y el consentimiento se le reclama por la vía normal —el aviso del
+> menú lateral y el tablero de la Jefatura—, que para eso existen.
 
 El conteo de capacidad de la grilla pasó a ser `c.estado !== 'anticipada' && c.sala`: sin sala no hay franja
 tomada, sea cual sea el estado. El tablero de la Jefatura y el contador del menú lateral excluyen `borrador` y
@@ -1206,4 +1252,4 @@ Después abrí `http://127.0.0.1:8777/` (o `http://127.0.0.1:8777/?local=1` para
 | `sw.js` | Service worker: apertura sin conexión y actualización automática |
 | `icon-*.png` | Iconos de instalación (192, 512 y maskable) |
 | `libro-blanco-quirofanos-hru.pdf` | Manual de Organización y Funcionamiento del bloque quirúrgico |
-| `HRU-Quirofanos-Manual-Funcional-v3.8.1.docx` | Manual funcional para los médicos cirujanos: recorrido paso a paso del cirujano, la Jefatura y la Dirección Médica |
+| `HRU-Quirofanos-Manual-Funcional-v3.9.0.docx` | Manual funcional para los médicos cirujanos: recorrido paso a paso del cirujano, la Jefatura y la Dirección Médica |

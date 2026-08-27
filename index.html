@@ -1510,6 +1510,11 @@
   <div class="modal modal-white" id="civer-modal"></div>
 </div>
 
+<!-- Modal: asignar un turno huérfano a un profesional del padrón -->
+<div class="overlay" id="dueno-overlay">
+  <div class="modal modal-white" id="dueno-modal"></div>
+</div>
+
 <!-- Modal: turno de la grilla -->
 <div class="overlay" id="slot-overlay">
   <div class="modal modal-white" id="slot-modal" style="max-width:760px;"></div>
@@ -3578,7 +3583,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.8.1';
+const APP_VERSION = '3.9.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -6676,12 +6681,200 @@ function excepcionPara(d, sid, fid) {
   const e = excCtx;
   return (e && e.d === d && e.sid === sid && e.fid === fid) ? e : null;
 }
-/* Profesionales que pueden recibir el aviso: sin cuenta activa no hay a quién
-   avisarle, y una excepción sin aviso no es admisible. */
-function excProfesionales() {
+/* ================= EL DUEÑO DEL TURNO =================
+   `cirujanoEmail` no es un dato administrativo: es lo que dirige los
+   recordatorios de la cirugía, lo que arma «Mis Solicitudes» y lo que cuenta
+   los consentimientos que le faltan a cada profesional. Un turno sin ese
+   correo queda huérfano: existe, se opera y factura, pero su cirujano no
+   recibe ningún aviso sobre él y no lo ve en su propia lista.
+
+   El campo se llenaba con la sesión de quien cargaba el turno, así que todo lo
+   que cargaba la Jefatura —que trabaja con su clave, sin sesión de cirujano—
+   nacía huérfano, con el nombre escrito a mano y sin correo. Por eso, cuando
+   no hay cirujano logueado, el profesional se elige del padrón: el mismo
+   criterio que ya usaba la programación fuera de horario, donde el cirujano se
+   elige de la lista justamente para poder emitirle el aviso obligatorio. */
+function profesionalesActivos() {
   return DB.usuarios.filter((u) => cuentaAprobada(u))
     .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es'));
 }
+/* La cuenta que corresponde a un turno huérfano, deducida del nombre escrito.
+   Solo devuelve algo si hay UNA sola coincidencia: dos homónimos no se
+   resuelven solos. */
+function duenoProbable(c) {
+  if (!c || c.cirujanoEmail) return null;
+  const cand = profesionalesActivos().filter((u) => mismoProfesional(c.cirujano, u.nombre));
+  return cand.length === 1 ? cand[0] : null;
+}
+function turnoHuerfano(c) { return !!c && !c.cirujanoEmail; }
+
+/* El campo «Cirujano» del formulario del turno.
+
+   Con sesión de cirujano —o cuando el turno viene de una excepción, que ya
+   eligió al profesional del padrón— sigue siendo el campo de texto de siempre.
+
+   Sin sesión de cirujano, es decir cuando carga la Jefatura, pasa a ser un
+   desplegable de cuentas activas. Es lo único que garantiza que el turno nazca
+   con dueño y que los avisos de esa cirugía le lleguen a alguien. Si el turno
+   ya existía y estaba huérfano, el desplegable llega con la coincidencia por
+   nombre ya propuesta: sirve además para repararlo.
+
+   Si no hubiera ninguna cuenta activa en el padrón no se puede elegir a nadie,
+   así que se vuelve al campo de texto antes que dejar a la Jefatura sin poder
+   cargar el turno. */
+function campoCirujano(c, u, exc, ro) {
+  const conSesion = !!u || !!exc;
+  const padron = profesionalesActivos();
+  if (conSesion || !padron.length) {
+    return `<div class="field"><label>Cirujano / especialista *</label>
+      <input type="text" id="k-cir" value="${esc((c && c.cirujano) || (exc ? exc.cirujano.nombre : (u ? u.nombre : '')) || '')}" ${ro}>
+      ${exc ? '<span class="hint">Es el profesional al que se le envía el aviso de la excepción.</span>'
+        : (!padron.length ? '<span class="hint">No hay cuentas profesionales activas en el padrón: el turno va a quedar sin dueño y sus avisos, solo en manos de la Jefatura.</span>' : '')}</div>`;
+  }
+  const actual = String((c && c.cirujanoEmail) || (duenoProbable(c) || {}).email || '').toLowerCase();
+  return `<div class="field"><label>Cirujano / especialista *</label>
+    <select id="k-cir-sel" ${ro} onchange="cirujanoElegido(this)">
+      <option value="">— Elegir el profesional —</option>
+      ${padron.map((p) => `<option value="${esc(p.email)}" data-nombre="${esc(p.nombre)}" data-serv="${esc(p.servicio || '')}"
+        ${String(p.email).toLowerCase() === actual ? 'selected' : ''}>${esc(p.nombre)}${p.servicio ? ' — ' + esc(p.servicio) : ''}</option>`).join('')}
+    </select>
+    <span class="hint">${turnoHuerfano(c) && duenoProbable(c)
+      ? `Este turno figura a nombre de <b>${esc(c.cirujano || 's/d')}</b> pero no está asociado a ninguna cuenta, así que su cirujano no recibe los avisos. Se propone la coincidencia por nombre: confírmela para repararlo.`
+      : 'Se elige del padrón para que los recordatorios de esta cirugía le lleguen al cirujano. Un turno sin profesional identificado queda solo en manos de la Jefatura.'}</span>
+  </div>`;
+}
+/* Elegido el profesional, el servicio del turno lo sigue: son el mismo dato. */
+function cirujanoElegido(sel) {
+  const op = sel.selectedOptions && sel.selectedOptions[0];
+  const serv = op && op.dataset ? op.dataset.serv : '';
+  const ss = $('k-serv');
+  if (!serv || !ss) return;
+  const i = [...ss.options].findIndex((o) => mismoServicio(o.value || o.textContent, serv));
+  if (i >= 0) ss.selectedIndex = i;
+}
+
+/* ================= TURNO HUÉRFANO: AVISO Y REPARACIÓN =================
+   Un turno sin `cirujanoEmail` no está roto a la vista —se opera, se factura y
+   entra en las estadísticas— pero su cirujano no recibe ningún recordatorio de
+   él, no lo ve en «Mis Solicitudes» y no le cuenta en el control de
+   consentimientos faltantes. El problema es silencioso, así que lo primero es
+   hacerlo visible en la ficha; lo segundo, poder repararlo sin tocar la base.
+
+   La reparación la hace la Jefatura, que es quien puede saber de quién es el
+   turno, y la app propone la coincidencia por nombre cuando es inequívoca. */
+function avisoTurnoHuerfano(c) {
+  const probable = duenoProbable(c);
+  return `<div class="banner banner-amber" style="margin:8px 0">${ico(ICONS.alertTri, 18)}
+    <div><strong>Turno sin profesional asociado</strong>
+    Figura a nombre de <b>${esc(c.cirujano || 's/d')}</b>, pero no está vinculado a ninguna cuenta de la app.
+    Por eso <b>su cirujano no recibe los recordatorios de esta cirugía</b> —ni el retraso, ni el informe
+    operatorio, ni las muestras sin enviar—, no la ve en «Mis Solicitudes» y no le cuenta en el control de
+    consentimientos. Todos esos avisos quedan solo en manos de la ${JEFATURA}.
+    ${probable ? `<div style="margin-top:6px">Coincide con la cuenta de <b>${esc(probable.nombre)}</b> (${esc(probable.email)}).</div>` : ''}
+    ${jefe ? `<div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="openAsignarDueno(${c.id})">
+        ${ico(ICONS.userPlus, 15)} Asignar al profesional</button></div>`
+      : '<div style="margin-top:6px">La Jefatura de Quirófanos puede asignarlo desde esta misma ficha.</div>'}
+    </div></div>`;
+}
+
+/* Listado de los turnos huérfanos del bloque, para que la Jefatura no tenga
+   que encontrarlos abriendo ficha por ficha. Solo se muestra si hay alguno. */
+function turnosHuerfanos() {
+  return DB.cirugias.filter((c) => turnoHuerfano(c) && !operada(c) && c.estado !== 'anticipada')
+    .sort((a, b) => String(a.fecha || '').localeCompare(String(b.fecha || '')));
+}
+function bannerTurnosHuerfanos() {
+  if (!jefe) return '';
+  const l = turnosHuerfanos();
+  if (!l.length) return '';
+  return `<div class="banner banner-amber">${ico(ICONS.alertTri, 20)}
+    <div><strong>${l.length} turno(s) sin profesional asociado</strong>
+    Están cargados a nombre de un cirujano escrito a mano, pero no vinculados a ninguna cuenta: <b>esos
+    profesionales no reciben los recordatorios de sus cirugías</b> y no las ven en «Mis Solicitudes».
+    Asígnelos para que los avisos lleguen a quien tiene que actuar.
+    <div style="margin-top:8px">${l.map((c) => {
+      const p = duenoProbable(c);
+      return `<div style="margin-top:6px">· <b>${esc(c.cirujano || 's/d')}</b> — ${esc(c.procedimiento || 's/d')},
+        ${esc(c.paciente?.nombre || 's/d')} · ${fmtFecha(c.fecha)}${c.quirofano ? ' · ' + esc(c.quirofano) : ''}
+        ${p ? `<small>(coincide con ${esc(p.nombre)})</small>` : '<small>(sin coincidencia clara de nombre)</small>'}
+        <button class="btn btn-sm btn-blue" style="margin-left:6px" onclick="openAsignarDueno(${c.id})">Asignar</button></div>`;
+    }).join('')}</div></div></div>`;
+}
+
+let duenoCtx = null;
+function openAsignarDueno(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!c || !jefe) return;
+  const padron = profesionalesActivos();
+  if (!padron.length) {
+    alert('No hay cuentas profesionales activas en el padrón.\n\nPara asignarle el turno a un cirujano, primero hay que autorizarle la cuenta desde la solapa Profesionales.');
+    return;
+  }
+  duenoCtx = c.id;
+  const probable = duenoProbable(c);
+  $('dueno-modal').innerHTML = `
+    <button class="modal-close" onclick="closeAsignarDueno()" aria-label="Cerrar">✕</button>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div class="head-icon" style="background:#e8f4fb">${ico(ICONS.userPlus, 22)}</div>
+      <div style="min-width:0">
+        <div style="font-weight:800;font-size:1.06rem">Asignar el turno a un profesional</div>
+        <div style="font-size:0.82rem;color:var(--muted)">${esc(c.procedimiento || 's/d')} — ${esc(c.paciente?.nombre || 's/d')} · ${fmtFecha(c.fecha)}${c.horaProg ? ' · ' + esc(c.horaProg) + ' h' : ''}</div>
+      </div>
+    </div>
+    <p class="form-note" style="margin-bottom:12px">El turno figura a nombre de <b>${esc(c.cirujano || 's/d')}</b>, escrito a mano.
+    Al asociarlo a una cuenta, el profesional empieza a recibir los recordatorios de esta cirugía y la ve en
+    «Mis Solicitudes». No cambia nada del turno: ni la fecha, ni la franja, ni el estado, ni los módulos.</p>
+    <div class="field full">
+      <label>Profesional</label>
+      <select id="dueno-sel">
+        <option value="">— Elegir el profesional —</option>
+        ${padron.map((p) => `<option value="${esc(p.email)}" data-nombre="${esc(p.nombre)}"
+          ${probable && p.email === probable.email ? 'selected' : ''}>${esc(p.nombre)}${p.servicio ? ' — ' + esc(p.servicio) : ''}</option>`).join('')}
+      </select>
+      <span class="hint">${probable
+        ? 'Viene propuesto por coincidencia de nombre. Verifíquelo antes de confirmar.'
+        : 'El nombre escrito no coincide con ninguna cuenta activa, o coincide con más de una: elija usted cuál corresponde.'}</span>
+    </div>
+    <div class="form-actions" style="margin-top:14px">
+      <button class="btn btn-blue" onclick="guardarDueno()">${ico(ICONS.check, 15)} Asignar el turno</button>
+      <button class="btn btn-outline" onclick="closeAsignarDueno()">Cancelar</button>
+    </div>`;
+  $('dueno-overlay').classList.add('open');
+}
+function closeAsignarDueno() {
+  $('dueno-overlay').classList.remove('open');
+  $('dueno-modal').innerHTML = '';
+  duenoCtx = null;
+}
+async function guardarDueno() {
+  const c = DB.cirugias.find((x) => String(x.id) === String(duenoCtx));
+  const sel = $('dueno-sel');
+  if (!c || !sel) return;
+  const email = String(sel.value || '');
+  if (!email) { alert('Elija el profesional al que corresponde el turno.'); return; }
+  const op = sel.selectedOptions[0];
+  const nombre = String((op && op.dataset && op.dataset.nombre) || '').trim();
+  const previo = c.cirujano || 's/d';
+  if (!await preguntar(
+    `${c.procedimiento || 'La cirugía'} — ${c.paciente?.nombre || 's/d'}\n`
+    + `${c.quirofano || 's/d'}, ${c.horaProg || '—'} h del ${fmtFecha(c.fecha)}.\n\n`
+    + `El turno queda asociado a ${nombre} (${email}).\n\n`
+    + 'Desde ese momento el profesional recibe los recordatorios de esta cirugía y la ve en «Mis Solicitudes». '
+    + 'No se modifica ningún otro dato del turno.',
+    { titulo: '¿Asignar el turno?', tono: 'jefatura', si: 'Sí, asignar', no: 'Cancelar' })) return;
+  c.cirujanoEmail = email;
+  if (nombre) c.cirujano = nombre;
+  pushHist(c, `Turno asignado a ${nombre} (${email}) por la ${JEFATURA} — figuraba a nombre de «${previo}» sin cuenta asociada, `
+    + 'así que sus recordatorios quedaban solo en la Jefatura y no aparecía en «Mis Solicitudes» del cirujano');
+  upsert('cirugias', c);
+  closeAsignarDueno();
+  refreshView();
+  alert(`Turno asignado a ${nombre}.\n\nYa recibe los recordatorios de esta cirugía y la ve en «Mis Solicitudes».`);
+}
+
+/* Profesionales que pueden recibir el aviso: sin cuenta activa no hay a quién
+   avisarle, y una excepción sin aviso no es admisible. */
+function excProfesionales() { return profesionalesActivos(); }
 function excRegistradas() {
   return DB.cirugias.filter((c) => c.excepcion)
     .sort((a, b) => String(b.excepcion.fechaHora || '').localeCompare(String(a.excepcion.fechaHora || '')));
@@ -7062,6 +7255,7 @@ function renderProgramacion() {
         </div>
       </div>
     </div>
+    ${bannerTurnosHuerfanos()}
     <div class="tabs">
       ${tabs.map((t) => `<button class="tab ${progTab === t.id ? 'active' : ''}" onclick="progTab='${t.id}';renderProgramacion()">${t.label}</button>`).join('')}
     </div>
@@ -7140,7 +7334,8 @@ function openCirugia(id) {
       <h4>Programación</h4>
       <div class="det-row"><b>Fecha y hora</b> ${fmtFecha(c.fecha)} · ${c.horaProg || '—'} h · ${c.duracionMin || '?'} min estimados</div>
       <div class="det-row"><b>Quirófano</b> ${esc(c.quirofano || '—')}</div>
-      <div class="det-row"><b>Cirujano</b> ${esc(c.cirujano)} (${esc(c.servicio)})</div>
+      <div class="det-row"><b>Cirujano</b> ${esc(c.cirujano)} (${esc(c.servicio)})${c.cirujanoEmail ? ` <small>${esc(c.cirujanoEmail)}</small>` : ''}</div>
+      ${turnoHuerfano(c) && !operada(c) ? avisoTurnoHuerfano(c) : ''}
       <div class="det-row"><b>Solicitada</b> ${fmtFecha(c.fechaSolicitud)} · ${esperaDias(c)} días de espera</div>
       ${c.excepcion ? `<div class="det-row"><b>Excepción</b> <span style="color:#7c3aed;font-weight:800">Programada fuera del cronograma por ${esc(c.excepcion.autorizadaPor || JEFATURA)}</span> el ${fmtDT(c.excepcion.fechaHora)} — ${esc(c.excepcion.motivo)}${c.excepcion.detalle ? '. ' + esc(c.excepcion.detalle) : ''}</div>
       <div class="det-row"><b>Aviso al cirujano</b> ${excAcuseTexto(c)}</div>` : ''}
@@ -9847,8 +10042,7 @@ function openSlot(d, sid, fid) {
     <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
       <div class="card-title">Equipo quirúrgico</div>
       <div class="form-grid">
-        <div class="field"><label>Cirujano / especialista *</label><input type="text" id="k-cir" value="${v(c && c.cirujano, exc ? exc.cirujano.nombre : (u ? u.nombre : ''))}" ${ro}>
-          ${exc ? '<span class="hint">Es el profesional al que se le envía el aviso de la excepción.</span>' : ''}</div>
+        ${campoCirujano(c, u, exc, ro)}
         <div class="field"><label>Servicio / especialidad *</label>
           <select id="k-serv" ${ro}>${SERVICIOS_HRU.map((x) => `<option ${mismoServicio(c?.servicio || (exc && exc.cirujano.servicio) || (u && u.servicio), x) ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
         ${campoAyudante('k-ayu', (ayudanteDe(c || {}) || {}).nombre || '', ro)}
@@ -9921,7 +10115,21 @@ async function guardarSlot() {
   const u = usuarioActual();
   const exc = excepcionPara(d, sid, fid);
   const paciente = $('k-pac').value.trim();
-  const cirujano = $('k-cir').value.trim();
+  // El cirujano viene del campo de texto o del desplegable del padrón, según
+  // quién esté cargando el turno. `cirEmailElegido` es lo que le da dueño.
+  const selCir = $('k-cir-sel');
+  const opCir = selCir && selCir.selectedOptions && selCir.selectedOptions[0];
+  const cirEmailElegido = selCir ? String(selCir.value || '') : '';
+  const cirujano = selCir
+    ? String((opCir && opCir.dataset && opCir.dataset.nombre) || '').trim()
+    : $('k-cir').value.trim();
+  if (selCir && !cirEmailElegido) {
+    alert('Elija el profesional en el desplegable «Cirujano / especialista».\n\n'
+      + 'El turno tiene que quedar asociado a una cuenta: de ese vínculo dependen los recordatorios de la cirugía, '
+      + 'la lista «Mis Solicitudes» del profesional y el control de los consentimientos que le faltan.\n\n'
+      + 'Si el cirujano no figura en la lista, primero hay que autorizarle la cuenta desde Profesionales.');
+    return;
+  }
   const diagnostico = $('k-diag').value.trim();
   const { procedimiento, modulo, practica } = nomLeer();
   if (!paciente || !cirujano || !diagnostico || !procedimiento) {
@@ -9979,6 +10187,8 @@ async function guardarSlot() {
     coordinacion: { insumos: false, esterilizacion: false, hemoterapia: false, anestesia: false },
     estado: 'pendiente',
   };
+  // Se guarda antes de pisarlo: cambiar el dueño de un turno se asienta.
+  const duenoPrevio = existente ? String(c.cirujanoEmail || '') : '';
   Object.assign(c, {
     sala: sid, franja: fid, quirofano: s.nombre,
     // `fecha` es siempre la fecha calendario real de la cirugía; `diaGrilla` es
@@ -9990,7 +10200,10 @@ async function guardarSlot() {
     },
     obraSocial,
     diagnostico, cie10: $('k-cie').value.trim(), procedimiento, practica, modulo,
-    cirujano, cirujanoEmail: existente ? c.cirujanoEmail : (exc ? exc.cirujano.email : (u ? u.email : '')),
+    cirujano,
+    // Lo elegido en el padrón manda: es la única vía por la que un turno cargado
+    // por la Jefatura queda con dueño, y también la que repara uno huérfano.
+    cirujanoEmail: cirEmailElegido || (existente ? c.cirujanoEmail : (exc ? exc.cirujano.email : (u ? u.email : ''))),
     servicio: $('k-serv').value,
     anestesista: $('k-anest').value.trim(), anestesia: $('k-tanest').value,
     duracionMin: Number($('k-dur').value || 90),
@@ -10046,11 +10259,22 @@ async function guardarSlot() {
     };
     pushHist(c, `Programada por excepción de la Jefatura de Quirófanos, fuera del cronograma habitual — ${exc.motivo}`);
   }
+  if (existente && cirEmailElegido && cirEmailElegido !== duenoPrevio) {
+    pushHist(c, duenoPrevio
+      ? `Turno reasignado a ${cirujano} (${cirEmailElegido})`
+      : `Turno asignado a ${cirujano} (${cirEmailElegido}) — hasta ahora no tenía profesional asociado, así que sus recordatorios quedaban solo en manos de la ${JEFATURA} y no figuraba en «Mis Solicitudes» del cirujano`);
+  }
   if (existente) pushHist(c, 'Turno actualizado');
   // Turno programado nuevo: nace provisional hasta que se guarde el
   // consentimiento informado. La urgencia y el registro fuera de término no
   // pasan por acá —operan o ya operaron—.
-  if (!existente && !retro && !authExenta(c)) {
+  // Solo el turno que carga el propio cirujano nace provisional. Cuando lo carga
+  // la Jefatura en nombre de otro, el cirujano no está frente a la pantalla y no
+  // puede guardar el consentimiento: liberarle la franja a los 60 minutos sería
+  // castigar a quien no hizo nada. Ese turno queda firme y el consentimiento se
+  // le reclama por la vía normal —el aviso del menú lateral y el tablero de la
+  // Jefatura—, que para eso existen.
+  if (!existente && !retro && !authExenta(c) && u) {
     c.ciProvisional = { desde: nowDT() };
     pushHist(c, `Turno provisional: la franja se confirma al guardar el consentimiento informado (plazo ${CI_PROVISIONAL_MIN} min)`);
   }
