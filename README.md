@@ -15,11 +15,12 @@ El repositorio puede llamarse como quieras: todas las rutas son relativas, así 
 `usuario.github.io/<cualquier-nombre>/` sin tocar una línea de código.
 
 1. Creá un repositorio nuevo en GitHub (por ejemplo `hru-bloque-quirurgico`), **público**.
-2. Subí estos cinco archivos a la raíz del repositorio:
+2. Subí estos siete archivos a la raíz del repositorio:
    - `index.html`
    - `manifest.webmanifest`
    - `sw.js`
    - `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`
+   - `libro-blanco-quirofanos-hru.pdf` (el service worker lo precarga para consultarlo sin conexión)
 3. En el repositorio: **Settings → Pages → Source: Deploy from a branch → Branch: `main` / `(root)` → Save**.
 4. A los pocos minutos queda publicada en `https://<usuario>.github.io/<nombre-del-repo>/`.
 
@@ -277,15 +278,33 @@ subir `VERSION` en `sw.js`.
 Solapa propia (`#consentimientos`) que genera el **consentimiento informado quirúrgico** del HRU con membrete
 del hospital, listo para firmar.
 
-- **86 procedimientos en 14 especialidades** con el contenido clínico precargado: descripción, complicaciones y
-  consecuencias, alternativas terapéuticas y la cita del consenso en que se apoya (HerniaSurge/EHS, SAGES, WSES,
-  ASCRS, ATA, NCCN, ASGE/ESGE, AAOS, ACOG/FIGO, EAU, AAO, AAO-HNS, ESVS, NASS, ABA/ISBI, entre otros).
-  Todo el texto es **editable**: el documento final lo redacta el cirujano y lo adecua al caso (Lex Artis Ad-Hoc).
+- **113 procedimientos en 14 especialidades** con el contenido clínico precargado: descripción de la técnica,
+  beneficios esperados, riesgos y complicaciones propias, alternativas terapéuticas con las consecuencias de no
+  tratarse, preparación previa y cuidados posteriores, y la cita del consenso en que se apoya (HerniaSurge/EHS,
+  SAGES, WSES, ASCRS, ATA, NCCN, ASGE/ESGE, AAOS, ACOG/FIGO, EAU, AAO, AAO-HNS, ESVS, NASS, ABA/ISBI, entre
+  otros) junto con el **marco legal argentino** que corresponde a cada caso. Todo el texto es **editable**: el
+  documento final lo redacta el cirujano y lo adecua al caso (Lex Artis Ad-Hoc).
+- Los **riesgos generales de todo acto quirúrgico y anestésico** salieron del texto de cada patología y se
+  imprimen una sola vez, como párrafo propio (`CI_RIESGOS_GENERALES`), igual que los cuidados generales
+  (`CI_CUIDADOS_GENERALES`). Así el texto específico de cada procedimiento dice lo que le pasa a **esa** cirugía
+  y no a todas, y las redacciones no se contradicen entre sí.
+- Apartado propio para los **riesgos personalizados del paciente** —cardiopatía, diabetes, obesidad,
+  anticoagulación, EPOC, edad, cirugías previas—, que es el que la jurisprudencia argentina exige individualizar
+  y el que distingue un consentimiento válido de un formulario genérico.
+- El documento tiene **doce apartados**. Los que quedan vacíos **no se imprimen** y la numeración se recalcula
+  sola (`ciNum`), de modo que nunca aparece un título sin contenido debajo y los consentimientos guardados antes
+  de esta versión siguen renderizando bien.
 - El documento incluye siempre la **cláusula de modificación de la técnica intraoperatoria**, la **declaración de
-  consentimiento**, un bloque de **revocación** con su firma y el pie legal de la **Ley 26.529** (y su Decreto
-  Reglamentario 1089/2012).
+  consentimiento**, un bloque de **revocación** con su firma y el pie legal (**Ley 26.529**, su modificatoria
+  **26.742** y el **Decreto 1089/2012**; **Ley 17.132** arts. 19 inc. 3 y 20; **Código Civil y Comercial** arts.
+  26 y 51 a 59; **Ley 25.326** sobre datos sensibles; y, donde corresponde, **25.929**, **26.130**, **25.673**,
+  **26.061** y **26.657**).
 - Firma por **representante legal** cuando el paciente es menor de edad o tiene la autonomía disminuida: el
   formulario abre los campos del representante y el documento cambia el bloque de firmas.
+- **Código de verificación** impreso al pie (`HRU-XXXXXXX-XXXXXXX`), calculado con el paciente, su documento, el
+  procedimiento, la fecha de la cirugía y la matrícula del profesional. No es una firma digital ni la reemplaza:
+  es una **huella de cotejo** que permite comprobar meses después que el papel firmado que está en la historia
+  clínica es el mismo documento que quedó registrado en el archivo del bloque.
 - Salidas: **descarga en Word (.doc)**, **impresión / PDF** y **registro guardado** en la base compartida.
 
 ### El archivo de la Jefatura: por servicio y por médico
@@ -323,6 +342,67 @@ botón para descargar el consentimiento: abre la solapa con todo completo, para 
 bajarlo. El consentimiento guardado queda **vinculado al turno** (`turnoId`), marca el ítem de consentimiento en
 la HCE de esa cirugía y se anota en su historial. En la grilla, cada turno muestra el chip `CI ✓` o `SIN CI`, y
 el menú lateral lleva el contador de turnos futuros sin consentimiento.
+
+### El turno nace provisional: la franja se gana con el consentimiento
+
+Programar un turno **nunca exigió** el consentimiento informado. Las barreras estaban más adelante
+—`requisitosAdmision`, que no deja abrir el trámite de Admisión y Egresos sin el documento guardado y la casilla
+de la HCE, y `coordFaltantes`, que impide a la Jefatura validar sin ella—, así que una franja podía quedar tomada
+durante días con la carpeta vacía y el hueco recién aparecía cuando Admisión frenaba el trámite, casi encima de
+la fecha de la cirugía.
+
+Desde la versión 3.8.0 el turno programado **nace provisional** (`c.ciProvisional`). Al terminar de cargarlo, la
+ventana «Su cirugía se programó correctamente» **pierde la cruz de cerrar y el botón «Más tarde»**: la única
+salida es **Continuar con el consentimiento informado**. La franja se confirma cuando el cirujano lo **guarda**
+—guardarlo significa que lo completó y se lo entregó al paciente—, y ese guardado es además lo que habilita el
+paso por Admisión y Egresos.
+
+Si sale del generador sin guardarlo, la app se lo advierte y, si confirma, **libera la franja**. Liberar no es
+borrar: `liberarTurnoProvisional` copia el idiom de la cirugía resuelta por anticipado —guarda `c.liberado` y
+**vacía `sala` y `franja`**, que es lo que devuelve el horario al bloque porque `turnoEn()` busca por `sala`—,
+pasa el turno a **Borrador** y conserva todo lo cargado. El cirujano lo retoma desde «Mis Solicitudes» y elige
+otro horario sin volver a tipear nada.
+
+Como red de seguridad, `barrerTurnosProvisionales()` corre en cada ronda de recordatorios y libera las franjas
+provisionales que pasaron los `CI_PROVISIONAL_MIN` (60 minutos), por si el navegador se cerró sin pasar por el
+aviso. Solo toca los turnos propios de quien está mirando, o todos si es la Jefatura: **ningún dispositivo ajeno
+libera la franja de otro profesional**.
+
+> **Exentas las urgencias, las emergencias y los turnos P1 y P2** (`authExenta`), igual que lo están de la
+> aceptación previa de Admisión y de la validación de la Jefatura, y también el registro fuera de término, que
+> asienta una cirugía ya realizada. Un quirófano no puede condicionar una urgencia a un trámite.
+
+El conteo de capacidad de la grilla pasó a ser `c.estado !== 'anticipada' && c.sala`: sin sala no hay franja
+tomada, sea cual sea el estado. El tablero de la Jefatura y el contador del menú lateral excluyen `borrador` y
+`anticipada` por el mismo motivo.
+
+### Registros guardados: solo lectura
+
+Un consentimiento archivado **no se edita**. Se lee en un visor propio y se descarga en PDF, nada más. Lo que se
+firmó es lo que quedó archivado; para corregirlo o ampliarlo se emite uno nuevo desde el turno, y los dos quedan
+con su fecha. **Retirar un consentimiento del archivo quedó reservado a la Jefatura de Quirófanos**, que responde
+por la custodia documental, y sigue pidiendo clave.
+
+### Turnos sin consentimiento — el tablero inverso de la Jefatura
+
+Tercera pestaña de la solapa, visible solo para la Jefatura. En lugar de mostrar lo que existe, muestra **lo que
+falta**: las cirugías programadas de hoy en adelante que todavía no tienen consentimiento, agrupadas por servicio
+y por cirujano, ordenadas por la fecha en que se operan y coloreadas por la urgencia del plazo (rojo el mismo día
+o el siguiente, ámbar hasta tres días). Un turno sale de la lista en el momento en que su consentimiento se
+guarda. Es la misma cuenta que ve cada cirujano como aviso en su menú lateral: no hay dos verdades sobre el mismo
+turno.
+
+### El cruce con el Nomenclador Modulado 2025
+
+La práctica que el cirujano elige al programar —la que fija el módulo A, B o C— es la que ahora trae el texto del
+consentimiento. `ciSugerirProc(esp, texto, practica)` puntúa contra la práctica del nomenclador (con peso doble),
+su subgrupo y el nombre escrito a mano, y del lado del catálogo compara contra el rótulo, el nombre completo y el
+campo `nom`, que lleva los términos con que el nomenclador nombra esa misma cirugía. Un dato cargado una vez
+resuelve dos problemas que en cualquier otro sistema son dos formularios distintos.
+
+Casos que antes fallaban y ahora resuelven bien: escribir solo «RTU» no encontraba nada y ahora trae la
+resección transuretral de próstata; «cirugía de oído» traía el consentimiento de **senos paranasales** y ahora
+trae el de tubos de ventilación.
 
 ---
 
@@ -623,13 +703,15 @@ y a la Jefatura.
 
 ### Visto
 
-Marcar un recordatorio como **visto** lo silencia por la jornada: deja de contar en la campana, queda
-atenuado al final de su grupo y no vuelve a saltar como notificación del dispositivo. Abrir el aviso
-—tocar «Ver», «Ir» o «Abrir»— también lo da por visto.
+Marcar un recordatorio como **visto** lo **retira de la pantalla y de la campana** en el acto, descontando uno
+del número. Abrir el aviso —tocar «Ver», «Ir» o «Abrir»— hace lo mismo: entrar a la cirugía, al reclamo o a la
+sección que lo originó **es** haberlo mirado. Hasta la versión 3.6.0 el aviso se quedaba atenuado al final de su
+grupo; ahora desaparece, y los ya mirados quedan contados al pie de la lista, desplegables con un clic
+(`remVerVistos`).
 
-No lo borra, y es deliberado: un recordatorio no es un mensaje, se recalcula a partir del estado real y
-existe mientras exista el problema que lo origina. Si al día siguiente sigue sin resolverse, **vuelve a
-contar**. Así un informe operatorio sin cargar no se puede silenciar para siempre con un clic.
+No lo borra, y es deliberado: un recordatorio no es un mensaje, se recalcula a partir del estado real y existe
+mientras exista el problema que lo origina. Si al día siguiente sigue sin resolverse, **vuelve a contar**. Así un
+informe operatorio sin cargar no se puede silenciar para siempre con un clic.
 
 La marca se guarda por dispositivo y lleva el correo de quien la puso, de modo que si dos profesionales
 comparten la computadora del quirófano cada uno mantiene su propia lista.
@@ -637,6 +719,50 @@ comparten la computadora del quirófano cada uno mantiene su propia lista.
 > Las notificaciones del sistema se emiten mientras la app está abierta (incluso en segundo plano o
 > instalada). Para avisos con la app cerrada haría falta un servidor de push (Firebase Cloud Messaging),
 > que hoy no forma parte de esta versión.
+
+---
+
+## Carteles plegables y acuse de los botones
+
+Dos cambios de interfaz de la versión 3.7.0 que afectan a casi todas las pantallas.
+
+### Los carteles entran resumidos
+
+Recordatorios, Reclamos y Módulos abrían con tres o cuatro carteles explicativos desplegados: información
+correcta, pero que el cirujano ya leyó la primera vez y que a partir de la segunda le tapa lo que vino a mirar.
+Ahora cada cartel entra como **un renglón con el título y una síntesis** y se abre solo si lo tocan
+(`bannerPlegable(id, tono, icono, titulo, resumen, cuerpo)` + `bnrToggle`). Lo que queda desplegado se guarda por
+dispositivo en `hruq_banners_abiertos_v1`: el que los quiere abiertos los deja abiertos.
+
+Quedan **siempre desplegados** los carteles que no son explicaciones sino avisos accionables: los reclamos que
+esperan respuesta, los que tienen mensajes sin leer y el aviso de alcance de la consulta en Módulos, que es una
+restricción de acceso.
+
+### El verde nunca es un estado
+
+Varias acciones no cambian nada visible de inmediato —actualizar la lista de recordatorios cuando no cambió nada,
+marcar todo como visto, pedir el permiso de notificaciones— y el profesional apretaba sin saber si el clic había
+entrado. `btnHecho(el, texto, tono, ms)` pinta el botón en **verde** si la función hizo lo suyo y en **ámbar** si
+el sistema la rechazó, y le cambia el rótulo unos segundos. El acuse es de la función, no del cursor: se dispara
+cuando la acción terminó.
+
+> **El verde señala un clic, nunca un estado.** En una versión intermedia «Marcar todo como visto» se quedaba
+> verde mientras no hubiera avisos pendientes, como confirmación permanente. Estaba mal: cualquier repintado de la
+> vista —apretar «Actualizar», por ejemplo— lo mostraba verde sin que nadie lo hubiera tocado, y se leía como que
+> el botón se había apretado solo. Para decir que no queda nada por hacer alcanza con **deshabilitarlo y cambiarle
+> el rótulo**.
+
+Las vistas que se repintan enteras plantean un problema propio: el botón que el profesional apretó deja de
+existir antes de poder pintarse. Por eso el acuse se anota en una variable (`remAcuse`, `ciAcuse`) y lo aplica el
+render sobre el **botón nuevo**. La trampa es llamar al render **dos veces** —una desde la función que hace el
+trabajo y otra desde la que la invoca—: el segundo repintado borra el acuse recién puesto. Es el error que
+tuvieron «Actualizar» y «Marcar todo como visto», y por eso ambas terminan en `if (view !== 'recordatorios')`.
+
+### El permiso de notificaciones ya no expulsa de la pantalla
+
+`pedirPermisoNotif(btn)` se dispara desde Recordatorios y desde Reclamos, y antes terminaba siempre en
+`renderRecordatorios()`: quien lo apretaba desde Reclamos era arrastrado a otra pantalla sin haber pedido irse.
+Ahora acusa recibo en el propio botón y repinta con `refreshView()` la vista en la que está parado el usuario.
 
 ---
 
@@ -1080,3 +1206,4 @@ Después abrí `http://127.0.0.1:8777/` (o `http://127.0.0.1:8777/?local=1` para
 | `sw.js` | Service worker: apertura sin conexión y actualización automática |
 | `icon-*.png` | Iconos de instalación (192, 512 y maskable) |
 | `libro-blanco-quirofanos-hru.pdf` | Manual de Organización y Funcionamiento del bloque quirúrgico |
+| `HRU-Quirofanos-Manual-Funcional-v3.8.1.docx` | Manual funcional para los médicos cirujanos: recorrido paso a paso del cirujano, la Jefatura y la Dirección Médica |

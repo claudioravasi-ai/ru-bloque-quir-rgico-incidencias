@@ -1,0 +1,176 @@
+====================================================================
+  HRU QUIRÓFANOS — QUÉ SUBIR A GITHUB Y CÓMO
+  Versión 3.8.1 · 26 de agosto de 2026
+====================================================================
+
+Repositorio:
+  https://github.com/claudioravasi-ai/ru-bloque-quir-rgico-incidencias
+
+App publicada:
+  https://claudioravasi-ai.github.io/ru-bloque-quir-rgico-incidencias/
+
+
+--------------------------------------------------------------------
+QUÉ HAY EN ESTA CARPETA
+--------------------------------------------------------------------
+
+Los 9 archivos de abajo son TODO lo que la app necesita. No hay
+subcarpetas: todos van sueltos, en la raíz del repositorio.
+(Este LEEME-PRIMERO.txt es solo para usted: no hace falta subirlo,
+y si se sube por error tampoco molesta.)
+
+  IMPRESCINDIBLES (si falta uno, la app no anda o no se actualiza)
+  ----------------------------------------------------------------
+  index.html ............... la aplicación entera (1,1 MB)
+  sw.js .................... el que hace que los celulares y las
+                             computadoras ya instaladas descarten la
+                             copia vieja y estrenen esta versión
+  manifest.webmanifest ..... datos de instalación de la app
+  icon-192.png ............. ícono
+  icon-512.png ............. ícono
+  icon-maskable-512.png .... ícono
+  libro-blanco-quirofanos-hru.pdf ... manual institucional
+
+  DOCUMENTACIÓN (no afecta el funcionamiento)
+  ----------------------------------------------------------------
+  README.md ................ documentación técnica del repositorio,
+                             ahora con las secciones de las versiones
+                             3.7.0, 3.8.0 y 3.8.1
+  HRU-Quirofanos-Manual-Funcional-v3.8.1.docx ... manual para los
+                             médicos cirujanos
+
+  ARCHIVO OCULTO — OJO
+  ----------------------------------------------------------------
+  .gitignore ............... el Finder NO lo muestra porque empieza
+                             con punto. Ver el PASO 6.
+
+Lo que NO está acá y NO hay que subir: los archivos
+"index.RESPALDO-*.html" (son las copias de seguridad, pesan mucho y
+no sirven en el servidor), ".DS_Store" y la carpeta ".claude".
+
+
+--------------------------------------------------------------------
+PASO A PASO PARA SUBIRLO DESDE LA WEB
+--------------------------------------------------------------------
+
+PASO 1 — Abrir el repositorio
+  Entre a
+  https://github.com/claudioravasi-ai/ru-bloque-quir-rgico-incidencias
+  e inicie sesión con su cuenta.
+
+PASO 2 — Abrir el cargador de archivos
+  Arriba a la derecha del listado de archivos, botón verde
+  "Add file"  ->  "Upload files".
+
+PASO 3 — Arrastrar los archivos
+  Abra esta carpeta SUBIR-GITHUB en el Finder.
+  Seleccione todo (Cmd + A) y arrástrelo a la zona que dice
+  "Drag files here to add them to your repository". Si prefiere, deje
+  afuera este LEEME-PRIMERO.txt: no cumple ninguna función en el
+  servidor.
+
+  IMPORTANTE: arrastre LOS ARCHIVOS, no la carpeta. Si arrastra la
+  carpeta entera, GitHub crea una subcarpeta llamada SUBIR-GITHUB y
+  la app queda publicada en la dirección equivocada.
+
+  Los archivos que ya existen se reemplazan solos por los nuevos.
+  GitHub no le va a preguntar nada.
+
+PASO 4 — Escribir el mensaje del cambio
+  En "Commit changes", en el campo de arriba, escriba:
+
+     Turno provisional y acuse de los botones (v3.8.1)
+
+  Deje marcada la opción "Commit directly to the main branch".
+
+PASO 5 — Confirmar
+  Botón verde "Commit changes".
+  La subida tarda un momento: index.html pesa 1,1 MB y el PDF 1,3 MB.
+
+PASO 6 — El archivo .gitignore (solo si no se subió)
+  Como empieza con punto, el Finder lo oculta y puede que no entre
+  en el arrastre del PASO 3. Para verificarlo, mire el listado de
+  archivos del repositorio: si ".gitignore" no aparece o no dice
+  "index.RESPALDO-*.html" adentro, háganlo así:
+
+    a) "Add file" -> "Create new file"
+    b) En el nombre escriba exactamente:   .gitignore
+    c) Pegue este contenido:
+
+# Basura del sistema
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Respaldos y temporales
+*.bak
+*~
+index.RESPALDO-*.html
+
+# Herramientas locales de desarrollo
+.claude/
+
+    d) "Commit changes".
+
+  (Este archivo no afecta el funcionamiento de la app: solo evita
+  que se suban copias de seguridad y basura del sistema.)
+
+PASO 7 — Esperar la publicación
+  En la solapa "Actions" del repositorio va a ver el trabajo de
+  publicación corriendo. Cuando termine con un tilde verde —suele
+  tardar entre 1 y 3 minutos— la app nueva ya está en línea.
+
+
+--------------------------------------------------------------------
+CÓMO COMPROBAR QUE SE ACTUALIZÓ
+--------------------------------------------------------------------
+
+1. Abra https://claudioravasi-ai.github.io/ru-bloque-quir-rgico-incidencias/
+2. Vaya al Panel y baje hasta el pie de la pantalla.
+3. Tiene que decir:   Versión 3.8.1
+4. Si todavía dice una anterior, es la copia guardada en el
+   dispositivo. Cierre la app del todo y vuelva a abrirla; si es un
+   celular con la app instalada en la pantalla de inicio, ciérrela
+   desde el multitarea. La app avisa cuando hay versión nueva y la
+   estrena cuando usted lo acepta: nunca se recarga sola mientras
+   tenga un formulario a medio escribir.
+
+5. Prueba rápida de la corrección de esta versión: entre a
+   Recordatorios y apriete "Actualizar". Solo ese botón tiene que
+   ponerse verde. "Marcar todo como visto" debe quedarse como está.
+
+
+--------------------------------------------------------------------
+QUÉ CAMBIÓ EN ESTA VERSIÓN
+--------------------------------------------------------------------
+
+3.8.1 — CORRECCIÓN. En Recordatorios, "Marcar todo como visto" se
+  ponía verde cada vez que no quedaban avisos pendientes, y como
+  "Actualizar" repinta la pantalla, el verde aparecía justo al
+  apretar el otro botón: parecía que se apretaba solo. Ahora el
+  verde señala un clic y nunca un estado. Cuando no queda nada por
+  hacer, el botón queda deshabilitado y en gris, con el rótulo
+  "Todo visto". De paso se corrigió que ese mismo botón no llegaba a
+  pintarse al presionarlo, por un doble repintado de la vista.
+
+3.8.0 — El turno programado nace PROVISIONAL. Al terminar de
+  cargarlo, la única salida es "Continuar con el consentimiento
+  informado". La franja se confirma cuando el cirujano GUARDA el
+  consentimiento, y eso es además lo que habilita el paso por
+  Admisión y Egresos. Si sale sin guardarlo, la app avisa y libera
+  la franja: el turno queda en Borrador, con todos los datos, en
+  "Mis Solicitudes". Red de seguridad: 60 minutos.
+  Las urgencias, emergencias y los turnos P1 y P2 quedan EXENTOS.
+
+3.7.0 — Carteles informativos plegables en Recordatorios, Reclamos y
+  Módulos. Botones con acuse de color. Los recordatorios vistos
+  desaparecen de la pantalla y de la campana. Consentimientos con
+  diseño simétrico, documento de 12 apartados, catálogo ampliado a
+  113 procedimientos, código de verificación, registro de solo
+  lectura y tablero de turnos sin consentimiento para la Jefatura.
+
+====================================================================
