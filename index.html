@@ -1492,7 +1492,7 @@
     <button class="modal-close" onclick="closeJefeModal()" aria-label="Cerrar">✕</button>
     <div class="modal-shield"><span id="shield-slot"></span></div>
     <h2>Acceso Jefatura</h2>
-    <p class="modal-sub">Ingrese la clave del Jefe de Quirófanos para acceder a la gestión completa del bloque quirúrgico.</p>
+    <p class="modal-sub">Ingrese el correo y la contraseña de la cuenta de Jefatura de Quirófanos.</p>
     <label class="pass-label" for="jefe-pass">Clave de acceso</label>
     <div class="pass-wrap">
       <input type="password" id="jefe-pass" autocomplete="off">
@@ -1593,18 +1593,6 @@
 </div>
 
 <!-- Modal: clave operativa (cancelación / autorización) -->
-<div class="overlay" id="clave-overlay">
-  <div class="modal">
-    <button class="modal-close" onclick="closeClave()" aria-label="Cerrar">✕</button>
-    <div class="modal-shield"><span id="clave-slot"></span></div>
-    <h2 id="clave-titulo">Clave</h2>
-    <p class="modal-sub" id="clave-desc"></p>
-    <label class="pass-label" for="clave-inp">Clave de acceso</label>
-    <div class="pass-wrap"><input type="password" id="clave-inp" autocomplete="off" inputmode="numeric"></div>
-    <p class="pass-error" id="clave-err">Clave incorrecta. Intente nuevamente.</p>
-    <button class="btn btn-teal" onclick="validarClave()">Confirmar</button>
-  </div>
-</div>
 
 <!-- Modal: comunicado emergente de la Jefatura de Quirófanos.
      No se cierra con Escape, con el botón atrás ni tocando el fondo: la única
@@ -1717,7 +1705,6 @@ const CATS = {
 };
 const ESTADOS = ['Pendiente', 'En Revisión', 'Resuelta'];
 const ESTADO_COLOR = { 'Pendiente': 'var(--amber)', 'En Revisión': 'var(--blue)', 'Resuelta': 'var(--green)' };
-const JEFE_CLAVE = '0112'; // Clave del Jefe de Quirófanos — cambiar aquí
 
 /* ================= ESTADOS DE CIRUGÍA (código de colores) ================= */
 const ESTC = {
@@ -1899,9 +1886,6 @@ const franjaDe = (salaId, fid) => {
 
 /* Claves operativas (control del lado del cliente: ordena la operación diaria,
    no sustituye una autenticación real del servidor). */
-const CLAVE_CANCELAR = '2358';      // cancelar un turno programado
-const CLAVE_AUTORIZACION = '3340';  // Admisión y Egresos: autorizar el turno
-const CLAVE_DIRECTOR = '9876';      // Dirección Médica: módulos de todo el hospital
 
 /* Anticipación mínima para programar un turno electivo (las urgencias la saltean). */
 const HORAS_ANTICIPACION = 24;
@@ -7257,7 +7241,7 @@ function excHabilitar() {
   const f = est.f;
   const resumen = `${sala(sid).nombre} · ${f.t} h · ${fmtDiaLargo(fechaDeFranja(fecha, f))}`;
   pedirJefatura('Programación fuera de horario',
-    `Va a cargar una cirugía fuera del cronograma en ${resumen} y a notificar a ${prof.nombre}. Ingrese nuevamente la clave de Jefatura.`, () => {
+    `Va a cargar una cirugía fuera del cronograma en ${resumen} y a notificar a ${prof.nombre}. Confirme nuevamente con la credencial de Jefatura.`, () => {
       excCtx = {
         d: fecha, sid, fid, motivo, detalle: String(detalle).trim(),
         cirujano: { nombre: prof.nombre, email: prof.email, servicio: prof.servicio || '' },
@@ -7415,7 +7399,7 @@ function renderExcepcion() {
       <p class="pass-error" id="x-error"></p>
       <div class="form-actions">
         <button class="btn btn-red" onclick="excHabilitar()" ${profs.length ? '' : 'disabled'}>${ico(ICONS.key, 16)} Habilitar la carga y avisar al cirujano</button>
-        <p class="form-note">Se pide otra vez la clave de Jefatura. Después se abre la ficha del turno para cargar paciente, diagnóstico y práctica; el aviso sale al guardar.</p>
+        <p class="form-note">Se pide otra vez la credencial de Jefatura. Después se abre la ficha del turno para cargar paciente, diagnóstico y práctica; el aviso sale al guardar.</p>
       </div>
     </div>
 
@@ -9254,9 +9238,9 @@ function renderUsuarios() {
 }
 
 /* ---- Acciones de la Jefatura sobre una cuenta ----
-   Todas piden la clave 0112 aunque la sesión de Jefatura ya esté abierta: dar de
-   baja a un cirujano lo deja fuera del sistema y no puede salir de un clic
-   distraído en una terminal compartida del quirófano. */
+   Todas vuelven a pedir la credencial de Jefatura aunque la sesión ya esté
+   abierta: dar de baja a un cirujano lo deja fuera del sistema y no puede salir
+   de un clic distraído en una terminal compartida del quirófano. */
 function usuarioPorId(id) { return DB.usuarios.find((u) => String(u.id) === String(id)) || null; }
 
 /* Coletilla honesta para las acciones que cambian quién puede trabajar: si el
@@ -9272,7 +9256,7 @@ function autorizarCuenta(id) {
   const u = usuarioPorId(id);
   if (!u) return;
   const alta = estadoCuenta(u) === 'baja';
-  pedirJefatura('Jefatura de Quirófanos', `${alta ? 'Reactivar' : 'Autorizar'} la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, async () => {
+  pedirJefatura('Jefatura de Quirófanos', `${alta ? 'Reactivar' : 'Autorizar'} la cuenta de ${u.nombre}. Confirme con la credencial de Jefatura.`, async () => {
     u.cuenta = 'aprobado';
     u.cuentaMotivo = '';
     u.cuentaFecha = nowDT();
@@ -9290,7 +9274,7 @@ function autorizarCuenta(id) {
 function darDeBajaCuenta(id) {
   const u = usuarioPorId(id);
   if (!u) return;
-  pedirJefatura('Jefatura de Quirófanos', `Dar de baja la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, async () => {
+  pedirJefatura('Jefatura de Quirófanos', `Dar de baja la cuenta de ${u.nombre}. Confirme con la credencial de Jefatura.`, async () => {
     const motivo = await pedirTexto(`Queda registrado y se le muestra a ${u.nombre} cuando intente ingresar.`, {
       titulo: `Baja de ${u.nombre}`, tono: 'peligro', si: 'Dar de baja', no: 'Cancelar',
       campo: { label: 'Motivo de la baja', multilinea: true, requerido: true,
@@ -9314,7 +9298,7 @@ function eliminarProfesional(id) {
   const u = usuarioPorId(id);
   if (!u) return;
   const suyos = DB.cirugias.filter((c) => c.cirujanoEmail === u.email).length;
-  pedirJefatura('Jefatura de Quirófanos', `Eliminar definitivamente la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, async () => {
+  pedirJefatura('Jefatura de Quirófanos', `Eliminar definitivamente la cuenta de ${u.nombre}. Confirme con la credencial de Jefatura.`, async () => {
     if (!await preguntar(`${u.email}\n\n`
       + (suyos ? `Tiene ${suyos} turno(s) cargado(s), que NO se eliminan.\n\n` : '')
       + 'Esta acción no se puede deshacer. Si solo quiere impedirle el acceso, use «Dar de baja».',
@@ -9389,7 +9373,7 @@ async function puestaEnCero() {
   const n = conteoPuestaEnCero();
   if (!n.total) { alert('La base ya está vacía: no hay cirugías, incidencias, reclamos, consentimientos ni comunicados.'); return; }
   pedirJefatura('Jefatura de Quirófanos',
-    `Se van a borrar ${n.total} registro(s) de la base compartida. Ingrese la clave de Jefatura.`, async () => {
+    `Se van a borrar ${n.total} registro(s) de la base compartida. Confirme con la credencial de Jefatura.`, async () => {
       const palabra = await pedirTexto(
         `Se borran ${n.cirugias} cirugía(s), ${n.incidencias} incidencia(s), ${n.reclamos} reclamo(s), ${n.consentimientos} consentimiento(s) y ${n.comunicados} comunicado(s) de todas las computadoras.\n\n`
         + 'Las cuentas de los profesionales, la agenda y las obras sociales se conservan.\n\n'
@@ -9424,7 +9408,7 @@ function franjaLibre(d, sid, desde) {
 async function cargarDatosPrueba() {
   if (hayDatosPrueba() && !await preguntar('Los anteriores se reemplazan por un juego nuevo.',
     { titulo: 'Ya hay datos de prueba cargados', tono: 'aviso', si: 'Volver a generarlos' })) return;
-  pedirJefatura('Jefatura de Quirófanos', 'Cargar los datos de prueba en la base compartida. Ingrese la clave de Jefatura.', async () => {
+  pedirJefatura('Jefatura de Quirófanos', 'Cargar los datos de prueba en la base compartida. Confirme con la credencial de Jefatura.', async () => {
     if (hayDatosPrueba()) quitarDatosPrueba();
     const hash = await hashPass(CLAVE_PRUEBA);
     const hoy = hoyISO();
@@ -9556,7 +9540,7 @@ function borrarDatosPrueba() {
   const nu = DB.usuarios.filter((u) => u.prueba).length;
   const nc = DB.cirugias.filter((c) => c.prueba).length;
   if (!nu && !nc) { alert('No hay datos de prueba cargados.'); return; }
-  pedirJefatura('Jefatura de Quirófanos', 'Borrar los datos de prueba. Ingrese la clave de Jefatura.', async () => {
+  pedirJefatura('Jefatura de Quirófanos', 'Borrar los datos de prueba. Confirme con la credencial de Jefatura.', async () => {
     if (!await preguntar(`Se borran ${nu} profesional(es) y ${nc} cirugía(s) de prueba de la base compartida.\n\nNo se toca ningún registro real.`,
       { titulo: '¿Borrar los datos de prueba?', tono: 'peligro', si: 'Sí, borrarlos' })) return;
     quitarDatosPrueba();
@@ -10224,7 +10208,7 @@ function openSlot(d, sid, fid) {
       alert(`El turno de ${rotuloTurno(f.p).label.toLowerCase()} de ${s.nombre} está bloqueado para el ${fmtFecha(fechaDeFranja(d, f))}.\n\nEl bloque programado se abre desde la Jefatura de Quirófanos, por día, turno y sala.`);
       return;
     }
-    if (!u && !jefe) { alert('Para programar un turno debe ingresar con su correo institucional (Acceso Profesional) o con la clave de Jefatura.'); go('acceso'); return; }
+    if (!u && !jefe) { alert('Para programar un turno debe ingresar con su correo institucional (Acceso Profesional) o con la credencial de Jefatura.'); go('acceso'); return; }
     // La autorización de la Jefatura va antes que la documentación: sin ella la
     // cuenta no programa aunque tenga todos los papeles al día.
     if (u && !jefe && !cuentaAprobada(u)) { alert(bloqueoCuenta(u)); go('perfil'); return; }
@@ -10914,7 +10898,7 @@ function authDetalle(c) {
 
 /* ---- Panel de jefatura del día: abrir el bloque turno por turno ----
    El bloque nace cerrado, así que este panel es la única llave. Se llega con la
-   sesión de Jefatura, que ya exigió la clave 0112; las acciones que alcanzan a
+   sesión de Jefatura, que ya exigió su credencial; las acciones que alcanzan a
    varios días la vuelven a pedir. */
 function openJefaturaDia() {
   const d = diaSel || hoyISO();
@@ -10984,7 +10968,7 @@ function openJefaturaDia() {
 
     <div class="det-section"><h4>Repetir esta configuración</h4>
       <p class="form-note" style="margin:0 0 10px">Copia lo abierto hoy a los días siguientes, para no repetir la
-      habilitación uno por uno. Pide la clave de Jefatura porque alcanza a varias fechas.</p>
+      habilitación uno por uno. Pide la credencial de Jefatura porque alcanza a varias fechas.</p>
       <div class="jb" style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-sm btn-outline" onclick="jefCopiarAgenda('${d}',7,true)">Próximos 7 días hábiles</button>
         <button class="btn btn-sm btn-outline" onclick="jefCopiarAgenda('${d}',30,true)">Próximos 30 días hábiles</button>
@@ -11015,7 +10999,7 @@ async function jefCerrarDia(d) {
   renderProgDiaria();
 }
 function jefCopiarAgenda(d, dias, soloHabiles) {
-  pedirJefatura('Repetir la habilitación', `Se copiará lo que está abierto el ${fmtFecha(d)} a los próximos ${dias} días ${soloHabiles ? 'hábiles' : 'corridos'}. Ingrese la clave de Jefatura.`, () => {
+  pedirJefatura('Repetir la habilitación', `Se copiará lo que está abierto el ${fmtFecha(d)} a los próximos ${dias} días ${soloHabiles ? 'hábiles' : 'corridos'}. Confirme con la credencial de Jefatura.`, () => {
     const n = copiarAgendaA(d, dias, soloHabiles);
     alert(n ? `Habilitación copiada a ${n} día(s).` : 'No hay nada que copiar: este día todavía no tiene ninguna habilitación cargada.');
     openJefaturaDia();
@@ -11051,9 +11035,9 @@ function jefLimpiarSala(d, sid) {
    el caso comprueba contra Firebase (los tres roles) o contra la contraseña
    del propio cirujano, que ya existía y nunca estuvo en el código.
 
-   Mientras dure la transición acepta también la clave anterior, dejando el
-   campo del correo vacío. Ese atajo desaparece cuando se retiren las
-   constantes, en el último paso de la migración. */
+   Desde la versión 3.11.0 no hay ninguna clave escrita en este archivo. Lo
+   que antes eran cuatro números compartidos —y visibles para cualquiera que
+   mirara el código— son ahora cuentas verificadas por Firebase. */
 let credCB = null;
 
 function pedirCredencial(cfg) {
@@ -11093,16 +11077,12 @@ async function confirmarCredencial() {
 
   const mail = $('cred-mail').value.trim();
 
-  // Caso 2: atajo de transición con la clave anterior y el correo vacío.
-  if (!mail && cfg.claveLegado && clave === cfg.claveLegado) {
-    const cb = cfg.onOk; closeCredencial(); await cb('legado'); return;
-  }
   if (!mail) return credError('Escriba el correo de la cuenta.');
   if (!cloudOn || typeof firebase === 'undefined' || !firebase.auth) {
     return credError('Sin nube: la credencial no se puede verificar en este momento.');
   }
 
-  // Caso 3: credencial de rol, contra Firebase.
+  // Caso 2: credencial de rol, contra Firebase.
   $('cred-btn').disabled = true;
   $('cred-btn').textContent = 'Verificando…';
   try {
@@ -11121,15 +11101,15 @@ async function confirmarCredencial() {
 /* Atajos por rol, para no repetir la configuración en cada llamada. */
 function pedirJefatura(titulo, desc, onOk, sesion) {
   pedirCredencial({ titulo, desc, rol: 'jefatura', nombreRol: 'la Jefatura de Quirófanos',
-    claveLegado: JEFE_CLAVE, sesion: !!sesion, onOk });
+    sesion: !!sesion, onOk });
 }
 function pedirDireccion(titulo, desc, onOk) {
   pedirCredencial({ titulo, desc, rol: 'direccion', nombreRol: 'la Dirección Médica',
-    claveLegado: CLAVE_DIRECTOR, onOk });
+    onOk });
 }
 function pedirAdmision(titulo, desc, onOk) {
   pedirCredencial({ titulo, desc, rol: 'admision', nombreRol: 'Admisión y Egresos',
-    claveLegado: CLAVE_AUTORIZACION, onOk });
+    onOk });
 }
 /* Cancelar un turno lo puede hacer la Jefatura o el cirujano dueño del turno.
    Cada uno confirma con lo suyo: no hay más una clave que compartan todos. */
@@ -11140,29 +11120,6 @@ function confirmarCancelacion(titulo, desc, onOk) {
   pedirCredencial({ titulo, desc: desc + ' Confirme con su propia contraseña.', propia: true, onOk });
 }
 
-let claveCB = null;
-function pedirClave(titulo, desc, esperada, onOk) {
-  claveCB = { esperada, onOk };
-  $('clave-titulo').textContent = titulo;
-  $('clave-desc').textContent = desc;
-  $('clave-inp').value = '';
-  $('clave-err').style.display = 'none';
-  $('clave-overlay').classList.add('open');
-  setTimeout(() => $('clave-inp').focus(), 60);
-}
-function closeClave() { $('clave-overlay').classList.remove('open'); claveCB = null; }
-function validarClave() {
-  if (!claveCB) return;
-  if ($('clave-inp').value === claveCB.esperada) {
-    const cb = claveCB.onOk;
-    closeClave();
-    cb();
-  } else {
-    $('clave-err').style.display = 'block';
-    $('clave-inp').value = '';
-    $('clave-inp').focus();
-  }
-}
 
 /* ---- Parte quirúrgico imprimible del día ---- */
 function imprimirParte(d) {
@@ -13457,7 +13414,7 @@ function ciBorrarDelRegistro(id) {
   }
   const r = ciTraerDelRegistro(id);
   if (!r) return;
-  pedirJefatura('Eliminar consentimiento', 'El consentimiento informado forma parte de la historia clínica. Ingrese la clave de autorización para retirarlo del registro.', async () => {
+  pedirJefatura('Eliminar consentimiento', 'El consentimiento informado forma parte de la historia clínica. Confirme con la credencial de Jefatura para retirarlo del registro.', async () => {
     if (!await preguntar(`Se elimina del registro el consentimiento informado de ${r.paciente || 's/d'}.`,
       { titulo: '¿Eliminar el consentimiento?', tono: 'peligro', si: 'Sí, eliminar' })) return;
     removeDoc('consentimientos', r.id);
@@ -15953,9 +15910,10 @@ document.addEventListener('DOMContentLoaded', () => {
   $('ingresar-icon').innerHTML = ICONS.shield.replace('18', '15').replace('18', '15');
   $('hamburger').innerHTML = ICONS.menu;
   $('bell-ico').innerHTML = ICONS.bell;
-  $('clave-slot').innerHTML = ICONS.shieldCheck;
   $('cred-slot').innerHTML = ICONS.shieldCheck;
-  $('clave-inp').addEventListener('keydown', (e) => { if (e.key === 'Enter') validarClave(); });
+  // Enter confirma, como hacía la ventana de clave que esto reemplazó.
+  ['cred-mail', 'cred-clave'].forEach((id) => $(id).addEventListener('keydown',
+    (e) => { if (e.key === 'Enter') { e.preventDefault(); confirmarCredencial(); } }));
   $('install-ico').innerHTML = ICONS.download;
   $('libro-ico').innerHTML = ICONS.book;
 
