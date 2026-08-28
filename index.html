@@ -601,6 +601,10 @@
     display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px;
   }
   .overlay.open { display: flex; }
+  /* La credencial se pide DESDE adentro de otra ventana —Admisión dictamina con
+     el turno abierto a la vista— así que tiene que pintarse por encima de ella.
+     Queda por debajo del comunicado obligatorio (200) y de los diálogos (300). */
+  #cred-overlay { z-index: 150; }
   .modal {
     background: #a9ecd3; border-radius: 18px; padding: 30px 34px;
     width: 100%; max-width: 420px; position: relative;
@@ -6321,8 +6325,8 @@ function accionesCirugia(c, rol) {
   // El circuito de la programada tiene un orden y el botón lo respeta: mientras
   // Admisión y Egresos no acepte, lo único que se ofrece es su trámite; recién
   // con la aceptación aparece la validación de la Jefatura.
-  if (c.estado === 'pendiente' && jefe && !authOk(c)) {
-    a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} 1º Aceptación de Admisión y Egresos</button>`);
+  if (c.estado === 'pendiente' && jefe) {
+    a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${!c.auth ? '1º Aceptación de Admisión y Egresos' : authBotonTexto(c)}</button>`);
   }
   if (c.estado === 'pendiente' && jefe && authOk(c)) {
     a.push(`<button class="btn btn-sm btn-green" onclick="validarCirugia(${c.id})">${ICONS.check} Validar y confirmar en el parte</button>`);
@@ -6356,8 +6360,8 @@ function accionesCirugia(c, rol) {
   }
   // Caso ya operado al que le falta el dictamen de Admisión y Egresos: el
   // trámite se cierra desde la propia tarjeta, sin ir a buscarlo a la grilla.
-  if (jefe && operada(c) && c.auth !== 'AUTORIZADO') {
-    a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${c.auth === 'NO AUTORIZADO' ? 'Rectificar dictamen de Admisión' : 'Regularizar Admisión y Egresos'}</button>`);
+  if (jefe && operada(c)) {
+    a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${authBotonTexto(c)}</button>`);
   }
   // La urgencia se operó sin el visto previo: la Jefatura lo cierra después.
   if (jefe && jefaturaPendienteDiferida(c)) {
@@ -10334,7 +10338,7 @@ function openSlot(d, sid, fid) {
         : '<span style="color:var(--red);font-weight:700">pendiente de generar</span>'}</div>
       <div class="cir-actions" style="margin-top:10px">
         <button class="btn btn-sm btn-outline" onclick="closeSlot();openCirugia(${c.id})">${ICONS.eyeSm} Ver ficha completa (LVQ, coordinación, informe)</button>
-        ${c.auth === 'AUTORIZADO' ? '' : `<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${authExenta(c) ? 'Regularizar Admisión y Egresos' : 'Autorización de Admisión'}</button>`}
+        <button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${authBotonTexto(c)}</button>
       <button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">${ico(ICONS.users, 14)} Equipo y módulos</button>
         <button class="btn btn-sm btn-blue" onclick="closeSlot();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir consentimiento' : 'Generar consentimiento informado'}</button>
       </div>
@@ -10733,10 +10737,27 @@ function pedirAutorizacion(id) {
       return;
     }
   }
-  pedirAdmision(dif ? 'Regularizar — Admisión y Egresos' : 'Autorización — Admisión y Egresos',
-    dif
-      ? `Turno exento de la autorización previa (${authMotivoExencion(c)}). El trámite se registra ahora, sin importar en qué estado esté la cirugía. Ingrese la clave del sector de Admisión y Egresos.`
-      : 'Ingrese la clave del sector de Admisión y Egresos del HRU.', () => openAuth(id));
+  const yaHay = !!c.auth;
+  const credencial = 'Ingrese el correo y la contraseña del sector de Admisión y Egresos del HRU.';
+  pedirAdmision(
+    yaHay ? 'Rectificar — Admisión y Egresos'
+      : (dif ? 'Regularizar — Admisión y Egresos' : 'Autorización — Admisión y Egresos'),
+    yaHay
+      ? `El turno ya tiene dictamen ${c.auth}. Va a modificarlo, y el cambio queda asentado con su nombre y la fecha. ${credencial}`
+      : (dif
+        ? `Turno exento de la autorización previa (${authMotivoExencion(c)}). El trámite se registra ahora, sin importar en qué estado esté la cirugía. ${credencial}`
+        : credencial),
+    () => openAuth(id));
+}
+
+/* Texto del botón de Admisión y Egresos según en qué punto está el trámite.
+   El dictamen dejó de ser un final: se puede volver a entrar, con credencial,
+   para rectificarlo los días siguientes. Cada cambio queda asentado en el
+   historial del turno con quién lo hizo y cuándo. */
+function authBotonTexto(c) {
+  if (c.auth === 'AUTORIZADO') return 'Modificar dictamen de Admisión';
+  if (c.auth === 'NO AUTORIZADO') return 'Rectificar dictamen de Admisión';
+  return authExenta(c) ? 'Regularizar Admisión y Egresos' : 'Autorización de Admisión';
 }
 
 const MOTIVOS_NO_AUT = [
@@ -10771,6 +10792,11 @@ function openAuth(id) {
       · Estado actual: <b>${esc(c.auth || 'PENDIENTE')}</b>
     </div>
 
+    ${c.auth ? `<div class="desc-aviso" style="margin-bottom:12px">
+      <b>Este turno ya tiene dictamen registrado: ${esc(c.auth)}.</b><br>
+      ${c.authAgente ? 'Lo dictaminó ' + esc(c.authAgente) + (c.authFecha ? ' el ' + esc(c.authFecha) : '') + '. ' : ''}Lo que registre ahora lo reemplaza, y el cambio queda asentado en el historial del turno.
+    </div>` : ''}
+
     <div class="field" style="margin-bottom:12px">
       <label>Dictamen</label>
       <label class="check-row"><input type="radio" name="auth-r" value="1" ${c.auth === 'AUTORIZADO' ? 'checked' : ''} onchange="onAuthOpcion()"><span><b>1 — AUTORIZADO</b> · el turno puede confirmarse en el parte oficial</span></label>
@@ -10794,8 +10820,9 @@ function openAuth(id) {
     </div>
 
     <div class="field" style="margin-bottom:6px">
-      <label>Agente que dictamina (opcional)</label>
+      <label>Agente que dictamina *</label>
       <input type="text" id="auth-agente" placeholder="Apellido y nombre del administrativo" value="${esc(c.authAgente || '')}">
+      <span class="hint">Obligatorio. Queda asentado en el historial del turno junto con la fecha y la hora del dictamen.</span>
     </div>
 
     <p class="pass-error" id="auth-err" style="margin:6px 0 0"></p>
@@ -10838,15 +10865,26 @@ function guardarAuth() {
     err.style.display = 'block';
     return;
   }
+  const agente = (($('auth-agente') || {}).value || '').trim();
+  if (agente.length < 3) {
+    err.textContent = 'Escriba el apellido y nombre del agente que dictamina: el dictamen no se registra sin responsable.';
+    err.style.display = 'block';
+    return;
+  }
+  // Se guarda qué había antes para poder asentar la rectificación en el
+  // historial: en un dictamen administrativo importa tanto el cambio como
+  // quién lo hizo y desde qué estado.
+  const anterior = c.auth || '';
   c.auth = op === '1' ? 'AUTORIZADO' : 'NO AUTORIZADO';
   c.authMotivo = op === '2' ? motivo : '';
-  c.authAgente = (($('auth-agente') || {}).value || '').trim();
+  c.authAgente = agente;
   c.authFecha = nowDT();
   c.authPor = 'Admisión y Egresos';
   // Deja constancia de que el trámite se cerró después de operar: es
   // exactamente lo que habilita la excepción, y conviene que quede escrito.
   c.authDiferidaCerrada = ['en_curso', 'realizada', 'finalizada'].includes(c.estado);
-  pushHist(c, 'Admisión y Egresos: ' + (c.auth === 'AUTORIZADO' ? 'ACEPTADA' : c.auth) + (c.authAgente ? ' (' + c.authAgente + ')' : '') + (c.authMotivo ? ' — Motivo: ' + c.authMotivo : '')
+  pushHist(c, 'Admisión y Egresos: ' + (anterior && anterior !== c.auth ? 'RECTIFICA ' + anterior + ' → ' : '')
+    + (c.auth === 'AUTORIZADO' ? 'ACEPTADA' : c.auth) + (c.authAgente ? ' (' + c.authAgente + ')' : '') + (c.authMotivo ? ' — Motivo: ' + c.authMotivo : '')
     + (c.authDiferidaCerrada ? ' — trámite regularizado con la cirugía ya operada' : ''));
   // Si era lo último que faltaba, el caso se cierra acá mismo.
   revisarCierre(c);
