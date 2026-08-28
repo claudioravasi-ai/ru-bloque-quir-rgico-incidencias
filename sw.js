@@ -14,7 +14,7 @@
 /* Al publicar cambios hay que subir esta constante (y APP_VERSION en
    index.html): es lo que hace que los dispositivos ya instalados descarten la
    copia cacheada y estrenen la versión nueva. */
-const VERSION = 'hru-quirofanos-v30';
+const VERSION = 'hru-quirofanos-v31';
 const SHELL = [
   './',
   './index.html',
@@ -24,6 +24,8 @@ const SHELL = [
   './icon-maskable-512.png',
   // Manual institucional: se precarga para poder consultarlo sin conexión.
   './libro-blanco-quirofanos-hru.pdf',
+  // Manual funcional de la plataforma: mismo criterio, se consulta sin red.
+  './manual-funcional-hru-quirofanos.pdf',
 ];
 
 /* A propósito no se llama a skipWaiting() acá: el worker nuevo queda en espera

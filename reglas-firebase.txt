@@ -1,0 +1,79 @@
+REGLAS DE SEGURIDAD PARA LA REALTIME DATABASE DE HRU QUIRÓFANOS
+===============================================================
+
+Proyecto de Firebase: incidencias-hru
+Base:                 https://incidencias-hru-default-rtdb.firebaseio.com
+
+Estado al 28 de agosto de 2026: la base está ABIERTA. Se comprobó que responde
+a una consulta sin credencial ninguna desde fuera del hospital. Cualquiera que
+conozca la dirección puede leerla, y como la app escribía sin identificarse,
+también puede escribirla y borrarla.
+
+Lo que hay adentro son consentimientos informados, incidencias confidenciales,
+el padrón de profesionales y las cirugías con datos filiatorios del paciente.
+La app le promete al usuario, en el pie del menú, que las incidencias son
+confidenciales. Hasta que estas reglas se apliquen, esa promesa no se sostiene
+a nivel de la base.
+
+Datos de salud: Ley 25.326 de Protección de Datos Personales y Ley 26.529 de
+Derechos del Paciente.
+
+
+--------------------------------------------------------------------
+EL ORDEN IMPORTA
+--------------------------------------------------------------------
+Si se cierran las reglas ANTES de publicar la app con el pase, todos los
+dispositivos quedan sin sincronizar hasta que actualicen. El orden correcto es:
+
+  1. Activar el proveedor Anónimo en la consola (Authentication).
+  2. Publicar en GitHub el index.html que pide el pase.
+  3. Recién entonces pegar las reglas de acá abajo.
+
+Entre el paso 1 y el paso 3 la app funciona igual, con reglas abiertas o
+cerradas: si el pase no sale, sigue trabajando contra la copia local.
+
+
+--------------------------------------------------------------------
+LAS REGLAS
+--------------------------------------------------------------------
+Se pegan en:
+   Consola de Firebase -> Build -> Realtime Database -> pestaña "Reglas"
+
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null"
+  }
+}
+
+Van en la raíz porque en esta app las ocho colecciones cuelgan de la raíz:
+incidencias, cirugias, usuarios, reclamos, agenda, consentimientos, config y
+comunicados. No hace falta ningún ".indexOn": la app no hace consultas
+ordenadas ni filtradas, se suscribe a cada colección entera.
+
+
+--------------------------------------------------------------------
+HASTA DÓNDE LLEGA ESTO
+--------------------------------------------------------------------
+El pase anónimo frena el acceso casual: el que encuentra la dirección de la
+base y prueba a ver qué sale. NO frena a alguien decidido, porque la
+configuración de Firebase viaja en el código de la página y con ella se puede
+pedir un pase anónimo.
+
+Es el primer cerrojo, no el definitivo. El definitivo es el inicio de sesión
+real contra Firebase, con una cuenta por profesional, y reglas que además
+comprueben QUIÉN es el que escribe. Es el mismo camino que quedó pendiente en
+AFAAR.
+
+
+--------------------------------------------------------------------
+RECOMENDACIONES ADICIONALES
+--------------------------------------------------------------------
+1. Restringir la clave de API por dominio, en:
+   Google Cloud Console -> APIs y servicios -> Credenciales -> Restricciones
+   de referente HTTP. Dejar solo el dominio donde se publica la app.
+
+2. Descargar un respaldo JSON de la base ANTES de tocar las reglas.
+   Realtime Database -> los tres puntos -> "Exportar JSON".
+
+3. Revisar en Authentication -> Users que no se acumulen pases anónimos viejos.
