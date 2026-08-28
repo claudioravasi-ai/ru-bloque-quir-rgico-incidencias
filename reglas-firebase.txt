@@ -4,40 +4,115 @@ REGLAS DE SEGURIDAD PARA LA REALTIME DATABASE DE HRU QUIRÓFANOS
 Proyecto de Firebase: incidencias-hru
 Base:                 https://incidencias-hru-default-rtdb.firebaseio.com
 
-Estado al 28 de agosto de 2026: la base está ABIERTA. Se comprobó que responde
-a una consulta sin credencial ninguna desde fuera del hospital. Cualquiera que
-conozca la dirección puede leerla, y como la app escribía sin identificarse,
-también puede escribirla y borrarla.
 
-Lo que hay adentro son consentimientos informados, incidencias confidenciales,
-el padrón de profesionales y las cirugías con datos filiatorios del paciente.
-La app le promete al usuario, en el pie del menú, que las incidencias son
-confidenciales. Hasta que estas reglas se apliquen, esa promesa no se sostiene
-a nivel de la base.
+--------------------------------------------------------------------
+HISTORIA
+--------------------------------------------------------------------
+28/08/2026 — La base estaba ABIERTA: respondía a cualquiera que conociera la
+dirección, sin credencial. Se cerró con pase anónimo (".read"/".write":
+"auth != null") y la app pasó a pedir ese pase sola al abrirse.
 
-Datos de salud: Ley 25.326 de Protección de Datos Personales y Ley 26.529 de
-Derechos del Paciente.
+28/08/2026 — Segunda etapa. Los tres roles del bloque (Jefatura, Dirección
+Médica y Admisión y Egresos) dejan de abrirse con claves numéricas escritas en
+el código —que eran legibles por cualquiera que mirara la página— y pasan a ser
+cuentas de Firebase con correo y contraseña. Las reglas de abajo son las que
+corresponden a esa etapa.
 
 
 --------------------------------------------------------------------
 EL ORDEN IMPORTA
 --------------------------------------------------------------------
-Si se cierran las reglas ANTES de publicar la app con el pase, todos los
-dispositivos quedan sin sincronizar hasta que actualicen. El orden correcto es:
+  1. Crear las tres cuentas en Authentication (proveedor Correo/contraseña).
+  2. Cargar el nodo `roles` desde la consola, con el correo de cada rol.
+  3. Publicar en GitHub el index.html que pide credencial.
+  4. Probar los tres ingresos en la app publicada.
+  5. Recién entonces pegar estas reglas.
 
-  1. Activar el proveedor Anónimo en la consola (Authentication).
-  2. Publicar en GitHub el index.html que pide el pase.
-  3. Recién entonces pegar las reglas de acá abajo.
-
-Entre el paso 1 y el paso 3 la app funciona igual, con reglas abiertas o
-cerradas: si el pase no sale, sigue trabajando contra la copia local.
+Hasta el paso 5 la app funciona con las reglas anteriores. Si se cierran antes
+de publicar, los dispositivos dejan de sincronizar hasta que actualicen.
 
 
 --------------------------------------------------------------------
 LAS REGLAS
 --------------------------------------------------------------------
-Se pegan en:
-   Consola de Firebase -> Build -> Realtime Database -> pestaña "Reglas"
+Consola de Firebase -> Build -> Realtime Database -> pestaña "Reglas"
+
+{
+  "rules": {
+    "cirugias":        { ".read": "auth != null", "$id": { ".write": "auth != null" } },
+    "usuarios":        { ".read": "auth != null", "$id": { ".write": "auth != null" } },
+    "reclamos":        { ".read": "auth != null", "$id": { ".write": "auth != null" } },
+    "agenda":          { ".read": "auth != null", "$id": { ".write": "auth != null" } },
+    "consentimientos": { ".read": "auth != null", "$id": { ".write": "auth != null" } },
+    "config":          { ".read": "auth != null", "$id": { ".write": "auth != null" } },
+    "comunicados":     { ".read": "auth != null", "$id": { ".write": "auth != null" } },
+
+    "incidencias": {
+      ".read": "auth.token.email === root.child('roles/jefatura').val()",
+      "$id": { ".write": "auth != null" }
+    },
+
+    "roles": {
+      "$rol": {
+        ".read": "auth.token.email === data.val()",
+        ".write": false
+      }
+    }
+  }
+}
+
+
+--------------------------------------------------------------------
+POR QUÉ ESTÁN ESCRITAS ASÍ
+--------------------------------------------------------------------
+NO hay ".read" en la raíz, y es a propósito. En la Realtime Database los
+permisos CASCADEAN hacia abajo y no se pueden revocar: si la raíz dijera
+".read": "auth != null", todo lo de abajo quedaría legible y la restricción de
+"incidencias" no serviría de nada. Por eso el permiso se da colección por
+colección.
+
+"incidencias" es la única que se restringe de verdad: la escribe cualquiera con
+pase —un cirujano tiene que poder informar una incidencia— pero solo la LEE la
+cuenta de Jefatura. Es lo que sostiene la promesa que la app le hace al usuario
+en el pie del menú.
+
+"roles" no se lee ni se escribe desde la app. Cada rol solo puede leer SU
+propia línea, y solo si ya es esa persona ("auth.token.email === data.val()"):
+así el nodo no le filtra a nadie los correos de Jefatura y Dirección. Se
+escribe únicamente a mano desde la consola, que es lo que impide que alguien se
+autoascienda desde adentro de la aplicación.
+
+El ".write" va por hijo ("$id") y no por colección: la app siempre escribe de a
+un documento, así que nadie puede borrar una colección entera de un saque.
+
+
+--------------------------------------------------------------------
+HASTA DÓNDE LLEGA ESTA ETAPA
+--------------------------------------------------------------------
+Los cirujanos siguen entrando con su propia contraseña, comprobada en el
+navegador contra el hash guardado en "usuarios". No tienen identidad de
+Firebase. Por lo tanto:
+
+  - Las incidencias confidenciales quedan realmente cerradas a la Jefatura.
+  - Las cirugías, los consentimientos y el padrón siguen siendo legibles por
+    cualquiera que consiga un pase anónimo, y el pase anónimo lo puede pedir
+    cualquiera con la configuración que viaja en la página.
+
+Cerrar eso exige que cada cirujano tenga también cuenta de Firebase. Es la
+etapa siguiente, y obliga a que los profesionales ya registrados vuelvan a
+establecer su contraseña una vez.
+
+Dirección Médica y Admisión y Egresos verifican su credencial contra Firebase
+pero no dejan sesión abierta, porque Firebase admite una identidad por vez y la
+app permite tener Jefatura y Dirección abiertas a la vez. Su alcance, entonces,
+lo sigue definiendo la interfaz y no las reglas. Lo que sí se terminó es la
+clave compartida escrita en el código.
+
+
+--------------------------------------------------------------------
+SI ALGO SALE MAL
+--------------------------------------------------------------------
+Volver a las reglas de la etapa anterior deja todo funcionando en un minuto:
 
 {
   "rules": {
@@ -46,34 +121,18 @@ Se pegan en:
   }
 }
 
-Van en la raíz porque en esta app las ocho colecciones cuelgan de la raíz:
-incidencias, cirugias, usuarios, reclamos, agenda, consentimientos, config y
-comunicados. No hace falta ningún ".indexOn": la app no hace consultas
-ordenadas ni filtradas, se suscribe a cada colección entera.
-
-
---------------------------------------------------------------------
-HASTA DÓNDE LLEGA ESTO
---------------------------------------------------------------------
-El pase anónimo frena el acceso casual: el que encuentra la dirección de la
-base y prueba a ver qué sale. NO frena a alguien decidido, porque la
-configuración de Firebase viaja en el código de la página y con ella se puede
-pedir un pase anónimo.
-
-Es el primer cerrojo, no el definitivo. El definitivo es el inicio de sesión
-real contra Firebase, con una cuenta por profesional, y reglas que además
-comprueben QUIÉN es el que escribe. Es el mismo camino que quedó pendiente en
-AFAAR.
-
 
 --------------------------------------------------------------------
 RECOMENDACIONES ADICIONALES
 --------------------------------------------------------------------
-1. Restringir la clave de API por dominio, en:
-   Google Cloud Console -> APIs y servicios -> Credenciales -> Restricciones
-   de referente HTTP. Dejar solo el dominio donde se publica la app.
+1. Exportar el JSON de la base antes de tocar las reglas.
+   Realtime Database -> Datos -> los tres puntos -> "Exportar JSON".
 
-2. Descargar un respaldo JSON de la base ANTES de tocar las reglas.
-   Realtime Database -> los tres puntos -> "Exportar JSON".
+2. Restringir la clave de API por dominio, en Google Cloud Console -> APIs y
+   servicios -> Credenciales -> Restricciones de referente HTTP.
 
-3. Revisar en Authentication -> Users que no se acumulen pases anónimos viejos.
+3. La cuenta de Google dueña del proyecto es la llave maestra: verificación en
+   dos pasos, recuperación personal, y un segundo propietario designado.
+
+4. Datos de salud: Ley 25.326 de Protección de Datos Personales y Ley 26.529 de
+   Derechos del Paciente.

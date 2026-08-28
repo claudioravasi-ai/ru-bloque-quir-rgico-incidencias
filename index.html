@@ -1499,6 +1499,25 @@
   </div>
 </div>
 
+<!-- Modal: credencial de rol (Jefatura, Dirección Médica, Admisión y Egresos)
+     Reemplaza a las claves numéricas que vivían escritas en este archivo. -->
+<div class="overlay" id="cred-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCredencial()" aria-label="Cerrar">✕</button>
+    <div class="modal-shield"><span id="cred-slot"></span></div>
+    <h2 id="cred-titulo">Credencial</h2>
+    <p class="modal-sub" id="cred-desc"></p>
+    <div id="cred-mail-wrap">
+      <label class="pass-label" for="cred-mail">Correo</label>
+      <div class="pass-wrap"><input type="email" id="cred-mail" autocomplete="username" inputmode="email"></div>
+    </div>
+    <label class="pass-label" for="cred-clave">Contraseña</label>
+    <div class="pass-wrap"><input type="password" id="cred-clave" autocomplete="current-password"></div>
+    <p class="pass-error" id="cred-err"></p>
+    <button class="btn btn-teal" id="cred-btn" onclick="confirmarCredencial()">Confirmar</button>
+  </div>
+</div>
+
 <!-- Modal: detalle incidencia -->
 <div class="overlay" id="det-overlay">
   <div class="modal modal-white" id="det-modal"></div>
@@ -3628,7 +3647,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.10.0';
+const APP_VERSION = '3.11.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -3854,6 +3873,7 @@ const refs = {};
 const forceLocal = new URLSearchParams(location.search).has('local');
 const cloudOn = !forceLocal && typeof firebase !== 'undefined' && !!FIREBASE_CONFIG.databaseURL;
 let conectado = false;      // hay enlace vivo con Firebase
+let nubeLista = false;      // la app ya se abrió (primer dato o guarda vencida)
 let colaPendiente = [];     // escrituras esperando reconexión
 
 function ordenarInc(arr) {
@@ -3954,6 +3974,104 @@ async function seedLocal(col) {
   }
   return [];
 }
+/* ================= IDENTIDAD DE ROL =================
+   Hasta la versión 3.10.0 los tres roles del bloque —Jefatura, Dirección
+   Médica y Admisión y Egresos— se abrían con una clave numérica escrita en
+   este mismo archivo. Como el navegador recibe el archivo entero para poder
+   ejecutarlo, esas claves eran legibles por cualquiera que abriera la app y
+   mirara el código: no eran secretas, solo parecían serlo.
+
+   Ahora cada rol es una cuenta de verdad de Firebase, con correo y contraseña
+   que verifica el servidor de Google. En este archivo no queda ninguna clave.
+
+   Quién es cada rol NO se decide acá sino en la base, en el nodo `roles`, que
+   solo se escribe desde la consola de Firebase. Ninguna pantalla de la app lo
+   toca, así que nadie puede autoascenderse desde adentro. Y se guarda por
+   CORREO y no por identificador interno: si alguna vez hay que borrar y
+   recrear una cuenta, el identificador cambia pero el correo no, y no se
+   rompe nada.
+
+   Los cirujanos quedan fuera de este cambio: siguen entrando con su propia
+   contraseña, que ellos eligen y que nunca estuvo en el código. */
+const ROLES = ['jefatura', 'direccion', 'admision'];
+
+/* Preguntarle a la base si este correo es el de tal rol.
+   Con las reglas cerradas, `roles/<rol>` solo se deja leer a quien ya es ese
+   rol: el permiso denegado ES la respuesta «no sos vos», y así el nodo no
+   filtra los correos de Jefatura y Dirección a cualquiera que mire. */
+async function rolDelCorreo(correo) {
+  const mail = String(correo || '').trim().toLowerCase();
+  if (!mail || typeof firebase === 'undefined') return null;
+  for (const rol of ROLES) {
+    try {
+      const snap = await firebase.database().ref('roles/' + rol).once('value');
+      if (String(snap.val() || '').trim().toLowerCase() === mail) return rol;
+    } catch (e) { /* permiso denegado: no es este rol, se sigue con el próximo */ }
+  }
+  return null;
+}
+
+/* Traducción de los códigos de Firebase a algo que se pueda leer en una
+   pantalla de quirófano a las tres de la mañana. */
+function motivoFallo(e) {
+  const c = (e && e.code) || '';
+  if (c === 'auth/invalid-credential' || c === 'auth/wrong-password' || c === 'auth/user-not-found') {
+    return 'Correo o contraseña incorrectos.';
+  }
+  if (c === 'auth/invalid-email') return 'El correo no está bien escrito.';
+  if (c === 'auth/too-many-requests') return 'Demasiados intentos fallidos. Espere unos minutos.';
+  if (c === 'auth/network-request-failed') return 'Sin conexión: no se pudo verificar la credencial.';
+  if (c === 'auth/operation-not-allowed') return 'El acceso por correo todavía no está habilitado en la consola de Firebase.';
+  return 'No se pudo verificar la credencial' + (c ? ' (' + c + ').' : '.');
+}
+
+/* ---- Verificador aparte ----
+   Admisión y Egresos autoriza un turno pasando por la computadora donde esté
+   abierta la app, escribe su credencial y se va. No debe quedarle la sesión
+   abierta ni pisar la de quien estaba trabajando ahí. Firebase tiene un solo
+   usuario por aplicación, así que se levanta una SEGUNDA aplicación, solo para
+   comprobar credenciales, que no toca la sesión principal. */
+let appVerificadora = null;
+function authVerificador() {
+  if (!appVerificadora) {
+    appVerificadora = firebase.initializeApp(FIREBASE_CONFIG, 'verificador');
+  }
+  return appVerificadora.auth();
+}
+
+/* Comprueba una credencial contra Firebase y devuelve el rol, sin dejar
+   sesión abierta y sin tocar la que ya había. */
+async function verificarCredencial(correo, clave) {
+  const auth = authVerificador();
+  const cred = await auth.signInWithEmailAndPassword(String(correo).trim(), clave);
+  const rol = await rolDelCorreo(cred.user.email);
+  try { await auth.signOut(); } catch (e) {}
+  return rol;
+}
+
+/* Abre sesión de verdad en la aplicación principal: la usan Jefatura y
+   Dirección, porque necesitan que las reglas de la base los reconozcan para
+   poder leer lo que solo ellos pueden leer. */
+async function entrarComoRol(correo, clave) {
+  const cred = await firebase.auth().signInWithEmailAndPassword(String(correo).trim(), clave);
+  const rol = await rolDelCorreo(cred.user.email);
+  if (!rol) {
+    // Credencial válida pero sin rol asignado en la base: no se le deja la
+    // sesión abierta, porque sería una identidad sin permisos dando vueltas.
+    try { await firebase.auth().signOut(); } catch (e) {}
+    await identificarseEnLaNube();
+  }
+  return rol;
+}
+
+/* Al cerrar la sesión de un rol se vuelve al pase anónimo: la app tiene que
+   seguir funcionando para el cirujano y para quien entra sin identificarse. */
+async function volverAlPaseAnonimo() {
+  try { await firebase.auth().signOut(); } catch (e) {}
+  await identificarseEnLaNube();
+  resuscribir();
+}
+
 /* ================= PASE DE LA NUBE =================
    La base de datos deja de estar abierta a cualquiera que conozca su
    dirección. Con las reglas cerradas (".read"/".write": "auth != null") toda
@@ -4028,42 +4146,71 @@ async function initStore(onReady) {
   }); } catch (e) {}
 
   let pending = COLS.length;
-  let ready = false;
-  const listo = () => { if (!ready) { ready = true; onReady(); } };
+  const listo = () => { if (!nubeLista) { nubeLista = true; onReady(); } };
   // Si la nube no responde en 6 s, se arranca con los datos locales.
   const guarda = setTimeout(() => { pending = 0; listo(); }, 6000);
 
   // Con las reglas cerradas, suscribirse sin pase vuelve como «permiso
   // denegado». Se pide primero el pase y recién entonces se escucha la base.
-  identificarseEnLaNube().then(() => COLS.forEach((col) => {
-    refs[col] = firebase.database().ref(col);
-    let first = true;
-    refs[col].on('value', (snap) => {
-      const val = snap.val();
-      if (!val) {
-        // Solo las incidencias se siembran en la nube (comportamiento original);
-        // el resto de las colecciones comienza vacío en producción.
-        if (first && col === 'incidencias') SEED.forEach((s) => refs[col].child(s.id).set(s));
-        DB[col] = col === 'incidencias' ? ordenarInc(SEED.slice()) : [];
-      } else {
-        DB[col] = Object.values(val).filter(Boolean);
-        if (col === 'incidencias') ordenarInc(DB[col]);
-      }
-      saveLocal(col); // espejo local de cada snapshot
-      // Si la guarda de arranque ya venció (nube lenta, pase demorado), este
-      // primer dato llega con la app abierta: hay que pintarlo igual.
-      if (first) { first = false; if (--pending === 0) { clearTimeout(guarda); listo(); } else if (ready) refreshView(); }
-      // Un comunicado recién emitido llega por este mismo canal: se revisa acá
-      // para que emerja en el momento, sin esperar la ronda del minuto.
-      else if (ready) { refreshView(); revisarRecordatorios(); revisarComunicados(); }
-    }, () => {
-      // Sin permiso o sin conexión: se conserva lo que ya está en memoria/local.
-      refs[col] = null;
-      conectado = false;
-      pintarConexion();
-      if (first) { first = false; if (--pending === 0) { clearTimeout(guarda); listo(); } }
-    });
-  }));
+  identificarseEnLaNube().then(() => COLS.forEach((col) => suscribirCol(col, () => {
+    if (--pending === 0) { clearTimeout(guarda); listo(); }
+  })));
+}
+
+/* Deja de escuchar una colección. */
+function soltarCol(col) {
+  if (refs[col]) { try { refs[col].off(); } catch (e) {} }
+  refs[col] = null;
+}
+
+/* Escucha una colección en vivo. `alPrimero` se llama una sola vez, con la
+   primera respuesta (o con el primer rechazo), y solo lo usa el arranque para
+   saber cuándo puede abrirse la app. */
+function suscribirCol(col, alPrimero) {
+  soltarCol(col);
+  const ref = firebase.database().ref(col);
+  refs[col] = ref;
+  let first = true;
+  ref.on('value', (snap) => {
+    const val = snap.val();
+    if (!val) {
+      // Solo las incidencias se siembran en la nube (comportamiento original);
+      // el resto de las colecciones comienza vacío en producción.
+      if (first && col === 'incidencias') SEED.forEach((x) => ref.child(x.id).set(x));
+      DB[col] = col === 'incidencias' ? ordenarInc(SEED.slice()) : [];
+    } else {
+      DB[col] = Object.values(val).filter(Boolean);
+      if (col === 'incidencias') ordenarInc(DB[col]);
+    }
+    saveLocal(col); // espejo local de cada snapshot
+    if (first) {
+      first = false;
+      if (alPrimero) alPrimero();
+      // Si la app ya estaba abierta —nube lenta, o resuscripción por cambio de
+      // rol— este primer dato llega tarde: hay que pintarlo igual.
+      else if (nubeLista) refreshView();
+    }
+    // Un comunicado recién emitido llega por este mismo canal: se revisa acá
+    // para que emerja en el momento, sin esperar la ronda del minuto.
+    else if (nubeLista) { refreshView(); revisarRecordatorios(); revisarComunicados(); }
+  }, (err) => {
+    // «Permiso denegado» NO es una caída de la red: es una colección que este
+    // rol no tiene por qué leer. La app sigue conectada y sincronizando el
+    // resto. Avisar «Sin conexión» acá sería mentirle al quirófano.
+    const denegado = err && (err.code === 'PERMISSION_DENIED'
+      || /permission[_ ]denied/i.test(String(err.message || '')));
+    refs[col] = null;
+    if (!denegado) { conectado = false; pintarConexion(); }
+    if (first) { first = false; if (alPrimero) alPrimero(); }
+  });
+}
+
+/* Vuelve a escuchar todo. Se usa al entrar o salir de un rol: las reglas
+   dependen de quién está identificado, así que lo que antes se negaba puede
+   ahora permitirse, y al revés. */
+function resuscribir() {
+  if (!cloudOn || typeof firebase === 'undefined' || !firebase.apps.length) return;
+  COLS.forEach((col) => suscribirCol(col, null));
 }
 /* Devuelve una promesa que dice si el cambio quedó confirmado en la nube
    (true) o solamente guardado en este dispositivo, a la espera de red (false).
@@ -7105,9 +7252,8 @@ function excHabilitar() {
   err.style.display = 'none';
   const f = est.f;
   const resumen = `${sala(sid).nombre} · ${f.t} h · ${fmtDiaLargo(fechaDeFranja(fecha, f))}`;
-  pedirClave('Programación fuera de horario',
-    `Va a cargar una cirugía fuera del cronograma en ${resumen} y a notificar a ${prof.nombre}. Ingrese nuevamente la clave de Jefatura.`,
-    JEFE_CLAVE, () => {
+  pedirJefatura('Programación fuera de horario',
+    `Va a cargar una cirugía fuera del cronograma en ${resumen} y a notificar a ${prof.nombre}. Ingrese nuevamente la clave de Jefatura.`, () => {
       excCtx = {
         d: fecha, sid, fid, motivo, detalle: String(detalle).trim(),
         cirujano: { nombre: prof.nombre, email: prof.email, servicio: prof.servicio || '' },
@@ -9122,7 +9268,7 @@ function autorizarCuenta(id) {
   const u = usuarioPorId(id);
   if (!u) return;
   const alta = estadoCuenta(u) === 'baja';
-  pedirClave('Jefatura de Quirófanos', `${alta ? 'Reactivar' : 'Autorizar'} la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, async () => {
+  pedirJefatura('Jefatura de Quirófanos', `${alta ? 'Reactivar' : 'Autorizar'} la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, async () => {
     u.cuenta = 'aprobado';
     u.cuentaMotivo = '';
     u.cuentaFecha = nowDT();
@@ -9140,7 +9286,7 @@ function autorizarCuenta(id) {
 function darDeBajaCuenta(id) {
   const u = usuarioPorId(id);
   if (!u) return;
-  pedirClave('Jefatura de Quirófanos', `Dar de baja la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, async () => {
+  pedirJefatura('Jefatura de Quirófanos', `Dar de baja la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, async () => {
     const motivo = await pedirTexto(`Queda registrado y se le muestra a ${u.nombre} cuando intente ingresar.`, {
       titulo: `Baja de ${u.nombre}`, tono: 'peligro', si: 'Dar de baja', no: 'Cancelar',
       campo: { label: 'Motivo de la baja', multilinea: true, requerido: true,
@@ -9164,7 +9310,7 @@ function eliminarProfesional(id) {
   const u = usuarioPorId(id);
   if (!u) return;
   const suyos = DB.cirugias.filter((c) => c.cirujanoEmail === u.email).length;
-  pedirClave('Jefatura de Quirófanos', `Eliminar definitivamente la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, async () => {
+  pedirJefatura('Jefatura de Quirófanos', `Eliminar definitivamente la cuenta de ${u.nombre}. Ingrese la clave de Jefatura.`, async () => {
     if (!await preguntar(`${u.email}\n\n`
       + (suyos ? `Tiene ${suyos} turno(s) cargado(s), que NO se eliminan.\n\n` : '')
       + 'Esta acción no se puede deshacer. Si solo quiere impedirle el acceso, use «Dar de baja».',
@@ -9238,9 +9384,8 @@ async function puestaEnCero() {
   if (!jefe) return;
   const n = conteoPuestaEnCero();
   if (!n.total) { alert('La base ya está vacía: no hay cirugías, incidencias, reclamos, consentimientos ni comunicados.'); return; }
-  pedirClave('Jefatura de Quirófanos',
-    `Se van a borrar ${n.total} registro(s) de la base compartida. Ingrese la clave de Jefatura.`,
-    JEFE_CLAVE, async () => {
+  pedirJefatura('Jefatura de Quirófanos',
+    `Se van a borrar ${n.total} registro(s) de la base compartida. Ingrese la clave de Jefatura.`, async () => {
       const palabra = await pedirTexto(
         `Se borran ${n.cirugias} cirugía(s), ${n.incidencias} incidencia(s), ${n.reclamos} reclamo(s), ${n.consentimientos} consentimiento(s) y ${n.comunicados} comunicado(s) de todas las computadoras.\n\n`
         + 'Las cuentas de los profesionales, la agenda y las obras sociales se conservan.\n\n'
@@ -9275,7 +9420,7 @@ function franjaLibre(d, sid, desde) {
 async function cargarDatosPrueba() {
   if (hayDatosPrueba() && !await preguntar('Los anteriores se reemplazan por un juego nuevo.',
     { titulo: 'Ya hay datos de prueba cargados', tono: 'aviso', si: 'Volver a generarlos' })) return;
-  pedirClave('Jefatura de Quirófanos', 'Cargar los datos de prueba en la base compartida. Ingrese la clave de Jefatura.', JEFE_CLAVE, async () => {
+  pedirJefatura('Jefatura de Quirófanos', 'Cargar los datos de prueba en la base compartida. Ingrese la clave de Jefatura.', async () => {
     if (hayDatosPrueba()) quitarDatosPrueba();
     const hash = await hashPass(CLAVE_PRUEBA);
     const hoy = hoyISO();
@@ -9407,7 +9552,7 @@ function borrarDatosPrueba() {
   const nu = DB.usuarios.filter((u) => u.prueba).length;
   const nc = DB.cirugias.filter((c) => c.prueba).length;
   if (!nu && !nc) { alert('No hay datos de prueba cargados.'); return; }
-  pedirClave('Jefatura de Quirófanos', 'Borrar los datos de prueba. Ingrese la clave de Jefatura.', JEFE_CLAVE, async () => {
+  pedirJefatura('Jefatura de Quirófanos', 'Borrar los datos de prueba. Ingrese la clave de Jefatura.', async () => {
     if (!await preguntar(`Se borran ${nu} profesional(es) y ${nc} cirugía(s) de prueba de la base compartida.\n\nNo se toca ningún registro real.`,
       { titulo: '¿Borrar los datos de prueba?', tono: 'peligro', si: 'Sí, borrarlos' })) return;
     quitarDatosPrueba();
@@ -9417,30 +9562,36 @@ function borrarDatosPrueba() {
 }
 
 /* ================= ACCESO JEFE ================= */
+/* La Jefatura es el único rol que abre SESIÓN de verdad en Firebase: es el que
+   necesita que las reglas de la base lo reconozcan para leer las incidencias
+   confidenciales. Dirección y Admisión verifican su credencial y no dejan
+   sesión abierta, porque Firebase admite una sola identidad por vez y la app
+   permite tener Jefatura y Dirección abiertas a la vez. */
 function openJefeModal() {
-  $('jefe-pass').value = '';
-  $('pass-error').style.display = 'none';
-  $('jefe-overlay').classList.add('open');
-  setTimeout(() => $('jefe-pass').focus(), 50);
+  pedirJefatura(
+    'Acceso Jefatura',
+    'Ingrese el correo y la contraseña de la cuenta de Jefatura de Quirófanos.',
+    async () => {
+      jefe = true;
+      sessionStorage.setItem('hru_jefe', '1');
+      // Con la identidad nueva cambian los permisos: hay que volver a escuchar
+      // la base para que aparezca lo que antes estaba negado.
+      resuscribir();
+      go('programacion');
+    },
+    true);
 }
 function closeJefeModal() { $('jefe-overlay').classList.remove('open'); }
-function tryJefeLogin() {
-  if ($('jefe-pass').value === JEFE_CLAVE) {
-    jefe = true;
-    sessionStorage.setItem('hru_jefe', '1');
-    closeJefeModal();
-    go('programacion');
-  } else {
-    $('pass-error').style.display = 'block';
-    $('jefe-pass').value = '';
-    $('jefe-pass').focus();
-  }
-}
-function jefeLogout() {
+/* Se conserva el nombre porque lo llama el botón del modal anterior. */
+function tryJefeLogin() { openJefeModal(); }
+async function jefeLogout() {
   jefe = false;
   sessionStorage.removeItem('hru_jefe');
   if (['confidenciales', 'programacion', 'kpis', 'usuarios', 'comunicados'].includes(view)) view = 'panel';
   go(view);
+  // Se suelta la identidad de Jefatura y se vuelve al pase anónimo, para que la
+  // app siga funcionando para el cirujano y para quien entra sin sesión.
+  await volverAlPaseAnonimo();
 }
 
 /* ================= PROGRAMACIÓN DIARIA (GRILLA DE TURNOS) =================
@@ -9601,9 +9752,8 @@ function franjaReabierta(d, sid, fid) {
 function reabrirFranja(d, sid, fid) {
   if (!jefe) return;
   const s = sala(sid), f = franjaDe(sid, fid);
-  pedirClave('Reabrir un turno vencido',
-    `${s.nombre} — franja de las ${f.t} h del ${fmtFecha(fechaDeFranja(d, f))}. Es una excepción reservada a la Jefatura de Quirófanos: ingrese su clave.`,
-    JEFE_CLAVE, async () => {
+  pedirJefatura('Reabrir un turno vencido',
+    `${s.nombre} — franja de las ${f.t} h del ${fmtFecha(fechaDeFranja(d, f))}. Es una excepción reservada a la Jefatura de Quirófanos: ingrese su clave.`, async () => {
       const motivo = await pedirTexto('La franja se reabre solo para registrar una cirugía que ya se realizó y no se cargó a tiempo. El motivo queda asentado en el turno y en su historial.', {
         titulo: 'Registro fuera de término', tono: 'peligro', si: 'Reabrir la franja', no: 'Cancelar',
         campo: { label: 'Motivo de la reapertura', multilinea: true, requerido: true,
@@ -10548,7 +10698,9 @@ function cancelarSlot(id) {
     openSuspender(id);
     return;
   }
-  pedirClave('Cancelar turno', 'Ingrese la clave de autorización para liberar esta franja horaria.', CLAVE_CANCELAR, async () => {
+  // Lo puede hacer la Jefatura o el cirujano dueño del turno: cada uno
+  // confirma con su propia credencial.
+  confirmarCancelacion('Cancelar turno', 'Se libera esta franja horaria.', async () => {
     if (!await preguntar(`Se elimina el turno de ${c.paciente?.nombre || 's/d'} y la franja queda libre.`,
       { titulo: '¿Cancelar el turno?', tono: 'peligro', si: 'Sí, cancelarlo', no: 'No' })) return;
     removeDoc('cirugias', id);
@@ -10581,11 +10733,10 @@ function pedirAutorizacion(id) {
       return;
     }
   }
-  pedirClave(dif ? 'Regularizar — Admisión y Egresos' : 'Autorización — Admisión y Egresos',
+  pedirAdmision(dif ? 'Regularizar — Admisión y Egresos' : 'Autorización — Admisión y Egresos',
     dif
       ? `Turno exento de la autorización previa (${authMotivoExencion(c)}). El trámite se registra ahora, sin importar en qué estado esté la cirugía. Ingrese la clave del sector de Admisión y Egresos.`
-      : 'Ingrese la clave del sector de Admisión y Egresos del HRU.',
-    CLAVE_AUTORIZACION, () => openAuth(id));
+      : 'Ingrese la clave del sector de Admisión y Egresos del HRU.', () => openAuth(id));
 }
 
 const MOTIVOS_NO_AUT = [
@@ -10826,7 +10977,7 @@ async function jefCerrarDia(d) {
   renderProgDiaria();
 }
 function jefCopiarAgenda(d, dias, soloHabiles) {
-  pedirClave('Repetir la habilitación', `Se copiará lo que está abierto el ${fmtFecha(d)} a los próximos ${dias} días ${soloHabiles ? 'hábiles' : 'corridos'}. Ingrese la clave de Jefatura.`, JEFE_CLAVE, () => {
+  pedirJefatura('Repetir la habilitación', `Se copiará lo que está abierto el ${fmtFecha(d)} a los próximos ${dias} días ${soloHabiles ? 'hábiles' : 'corridos'}. Ingrese la clave de Jefatura.`, () => {
     const n = copiarAgendaA(d, dias, soloHabiles);
     alert(n ? `Habilitación copiada a ${n} día(s).` : 'No hay nada que copiar: este día todavía no tiene ninguna habilitación cargada.');
     openJefaturaDia();
@@ -10834,7 +10985,7 @@ function jefCopiarAgenda(d, dias, soloHabiles) {
   });
 }
 function jefLimpiarDia(d) {
-  pedirClave('Limpiar programación del día', 'Se eliminarán todos los turnos aún no confirmados del día.', CLAVE_CANCELAR, async () => {
+  pedirJefatura('Limpiar programación del día', 'Se eliminarán todos los turnos aún no confirmados del día.', async () => {
     const borrables = DB.cirugias.filter((c) => diaDeGrilla(c) === d && ['borrador', 'pendiente', 'validada'].includes(c.estado));
     if (!borrables.length) { alert('No hay turnos cancelables en el día. Los turnos confirmados, en curso o realizados no se eliminan.'); return; }
     if (!await preguntar(`Se eliminan ${borrables.length} turno(s) no confirmado(s) del ${fmtFecha(d)}. Los confirmados, en curso y realizados no se tocan.`,
@@ -10845,7 +10996,7 @@ function jefLimpiarDia(d) {
   });
 }
 function jefLimpiarSala(d, sid) {
-  pedirClave('Limpiar sala', 'Se eliminarán los turnos no confirmados de esta sala.', CLAVE_CANCELAR, async () => {
+  pedirJefatura('Limpiar sala', 'Se eliminarán los turnos no confirmados de esta sala.', async () => {
     const borrables = DB.cirugias.filter((c) => diaDeGrilla(c) === d && c.sala === sid && ['borrador', 'pendiente', 'validada'].includes(c.estado));
     if (!borrables.length) { alert('No hay turnos cancelables en esta sala.'); return; }
     if (!await preguntar(`Se eliminan ${borrables.length} turno(s) no confirmado(s) de ${sala(sid).nombre}.`,
@@ -10857,6 +11008,100 @@ function jefLimpiarSala(d, sid) {
 }
 
 /* ---- Modal de clave genérico ---- */
+/* ================= PEDIR CREDENCIAL =================
+   Una sola ventana para todo lo que antes pedía una clave compartida. Según
+   el caso comprueba contra Firebase (los tres roles) o contra la contraseña
+   del propio cirujano, que ya existía y nunca estuvo en el código.
+
+   Mientras dure la transición acepta también la clave anterior, dejando el
+   campo del correo vacío. Ese atajo desaparece cuando se retiren las
+   constantes, en el último paso de la migración. */
+let credCB = null;
+
+function pedirCredencial(cfg) {
+  credCB = cfg;
+  $('cred-titulo').textContent = cfg.titulo;
+  $('cred-desc').textContent = cfg.desc;
+  $('cred-mail').value = cfg.correo || '';
+  $('cred-clave').value = '';
+  $('cred-err').style.display = 'none';
+  $('cred-mail-wrap').style.display = cfg.propia ? 'none' : '';
+  $('cred-btn').disabled = false;
+  $('cred-btn').textContent = 'Confirmar';
+  $('cred-overlay').classList.add('open');
+  setTimeout(() => (cfg.propia || cfg.correo ? $('cred-clave') : $('cred-mail')).focus(), 60);
+}
+function closeCredencial() { $('cred-overlay').classList.remove('open'); credCB = null; }
+function credError(msg) {
+  const e = $('cred-err');
+  e.textContent = msg;
+  e.style.display = 'block';
+  $('cred-btn').disabled = false;
+  $('cred-btn').textContent = 'Confirmar';
+}
+async function confirmarCredencial() {
+  if (!credCB) return;
+  const cfg = credCB;
+  const clave = $('cred-clave').value;
+  if (!clave) return credError('Escriba la contraseña.');
+
+  // Caso 1: el cirujano confirma con su propia contraseña.
+  if (cfg.propia) {
+    const u = usuarioActual();
+    if (!u) return credError('No hay sesión de profesional abierta.');
+    if (await hashPass(clave) !== u.passHash) return credError('Contraseña incorrecta.');
+    const cb = cfg.onOk; closeCredencial(); await cb('propia'); return;
+  }
+
+  const mail = $('cred-mail').value.trim();
+
+  // Caso 2: atajo de transición con la clave anterior y el correo vacío.
+  if (!mail && cfg.claveLegado && clave === cfg.claveLegado) {
+    const cb = cfg.onOk; closeCredencial(); await cb('legado'); return;
+  }
+  if (!mail) return credError('Escriba el correo de la cuenta.');
+  if (!cloudOn || typeof firebase === 'undefined' || !firebase.auth) {
+    return credError('Sin nube: la credencial no se puede verificar en este momento.');
+  }
+
+  // Caso 3: credencial de rol, contra Firebase.
+  $('cred-btn').disabled = true;
+  $('cred-btn').textContent = 'Verificando…';
+  try {
+    const rol = cfg.sesion
+      ? await entrarComoRol(mail, clave)
+      : await verificarCredencial(mail, clave);
+    if (rol !== cfg.rol) return credError('Esa cuenta no es la de ' + cfg.nombreRol + '.');
+    const cb = cfg.onOk;
+    closeCredencial();
+    await cb(rol);
+  } catch (e) {
+    credError(motivoFallo(e));
+  }
+}
+
+/* Atajos por rol, para no repetir la configuración en cada llamada. */
+function pedirJefatura(titulo, desc, onOk, sesion) {
+  pedirCredencial({ titulo, desc, rol: 'jefatura', nombreRol: 'la Jefatura de Quirófanos',
+    claveLegado: JEFE_CLAVE, sesion: !!sesion, onOk });
+}
+function pedirDireccion(titulo, desc, onOk) {
+  pedirCredencial({ titulo, desc, rol: 'direccion', nombreRol: 'la Dirección Médica',
+    claveLegado: CLAVE_DIRECTOR, onOk });
+}
+function pedirAdmision(titulo, desc, onOk) {
+  pedirCredencial({ titulo, desc, rol: 'admision', nombreRol: 'Admisión y Egresos',
+    claveLegado: CLAVE_AUTORIZACION, onOk });
+}
+/* Cancelar un turno lo puede hacer la Jefatura o el cirujano dueño del turno.
+   Cada uno confirma con lo suyo: no hay más una clave que compartan todos. */
+function confirmarCancelacion(titulo, desc, onOk) {
+  if (jefe) return pedirJefatura(titulo, desc + ' Confirme con la credencial de Jefatura.', onOk);
+  const u = usuarioActual();
+  if (!u) { alert('Para cancelar un turno hay que tener la sesión abierta.'); return; }
+  pedirCredencial({ titulo, desc: desc + ' Confirme con su propia contraseña.', propia: true, onOk });
+}
+
 let claveCB = null;
 function pedirClave(titulo, desc, esperada, onOk) {
   claveCB = { esperada, onOk };
@@ -13174,7 +13419,7 @@ function ciBorrarDelRegistro(id) {
   }
   const r = ciTraerDelRegistro(id);
   if (!r) return;
-  pedirClave('Eliminar consentimiento', 'El consentimiento informado forma parte de la historia clínica. Ingrese la clave de autorización para retirarlo del registro.', CLAVE_CANCELAR, async () => {
+  pedirJefatura('Eliminar consentimiento', 'El consentimiento informado forma parte de la historia clínica. Ingrese la clave de autorización para retirarlo del registro.', async () => {
     if (!await preguntar(`Se elimina del registro el consentimiento informado de ${r.paciente || 's/d'}.`,
       { titulo: '¿Eliminar el consentimiento?', tono: 'peligro', si: 'Sí, eliminar' })) return;
     removeDoc('consentimientos', r.id);
@@ -14158,7 +14403,7 @@ function modProfesionales() {
 
 /* ---- Acceso de la Dirección Médica ---- */
 function openDirectorModal() {
-  pedirClave('Dirección Médica', 'Los módulos de todos los servicios y de todos los profesionales son de consulta exclusiva de la Dirección Médica. Ingrese la clave.', CLAVE_DIRECTOR, () => {
+  pedirDireccion('Dirección Médica', 'Los módulos de todos los servicios y de todos los profesionales son de consulta exclusiva de la Dirección Médica. Ingrese el correo y la contraseña de la cuenta de Dirección.', () => {
     director = true;
     sessionStorage.setItem('hru_director', '1');
     go('modulos');
@@ -15671,6 +15916,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('hamburger').innerHTML = ICONS.menu;
   $('bell-ico').innerHTML = ICONS.bell;
   $('clave-slot').innerHTML = ICONS.shieldCheck;
+  $('cred-slot').innerHTML = ICONS.shieldCheck;
   $('clave-inp').addEventListener('keydown', (e) => { if (e.key === 'Enter') validarClave(); });
   $('install-ico').innerHTML = ICONS.download;
   $('libro-ico').innerHTML = ICONS.book;
