@@ -1151,6 +1151,14 @@
   .rem-visto-btn svg { width: 13px; height: 13px; }
   .rem.rem-leido { opacity: 0.55; border-left-color: var(--line) !important; }
   .rem.rem-leido:hover { opacity: 0.85; }
+  /* Aviso marcado como visto fuera de la pantalla de Recordatorios —en el Panel
+     o en el desplegable de la campana—: se retira a la vista, con un
+     desvanecido corto para que se entienda que el clic surtió efecto. */
+  .rem.rem-saliendo { animation: remSalir 0.24s ease forwards; pointer-events: none; }
+  @keyframes remSalir {
+    from { opacity: 1; transform: none; }
+    to { opacity: 0; transform: translateX(18px); }
+  }
   .rem-visto {
     font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
     color: var(--green); background: var(--green-soft); border-radius: 5px;
@@ -1641,6 +1649,8 @@ const ICONS = {
   send: I('<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>', 16),
   key: I('<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/>', 15),
   bell: I('<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>', 16),
+  volumen: I('<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 4.9a10 10 0 0 1 0 14.2"/>', 15),
+  volumenOff: I('<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/>', 15),
   info: I('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>', 18),
   clipboard: I('<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>'),
   chart: I('<path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8" rx="1"/><rect x="12" y="6" width="3" height="12" rx="1"/><rect x="17" y="13" width="3" height="5" rx="1"/>'),
@@ -3635,7 +3645,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.11.0';
+const APP_VERSION = '3.11.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -4775,16 +4785,134 @@ function guardarLeidos() {
 }
 function remEsLeido(r) { return remLeidos[remClaveLector() + '|' + r.key] === hoyISO(); }
 function remSinLeer() { return remLista.filter((r) => !remEsLeido(r)); }
+/* Un aviso marcado como visto tiene que irse de la pantalla en el acto, esté
+   donde esté. La vista Recordatorios se repinta entera —ahí el aviso pasa al
+   pie de «los que ya miró»—, pero en el Panel y en el desplegable de la campana
+   no había repintado: el número rojo bajaba y el cartel se quedaba puesto hasta
+   que uno cambiaba de sección y volvía. Ahora la tarjeta se retira sola. */
+function remRetirarTarjetas(cards) {
+  if (!cards.length) { remRefrescarPantallas(); return; }
+  cards.forEach((el) => el.classList.add('rem-saliendo'));
+  setTimeout(() => { cards.forEach((el) => el.remove()); remRefrescarPantallas(); }, 240);
+}
+function remTarjetasDe(key) {
+  const k = String(key).replace(/["\\]/g, '\\$&');
+  return [...document.querySelectorAll('.rem[data-remkey="' + k + '"]')];
+}
+/* Repinta lo que quedó descolocado tras retirar una tarjeta: el bloque del
+   Panel —que además asciende el siguiente aviso pendiente y corrige el «N sin
+   ver»— y el desplegable de la campana, si está abierto. */
+function remRefrescarPantallas() {
+  const cont = $('panel-rem');
+  if (cont) {
+    const html = panelRecordatorios();
+    if (!html) { cont.remove(); }
+    else {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      if (tmp.firstElementChild) cont.replaceWith(tmp.firstElementChild);
+    }
+  }
+  const ov = $('rem-overlay');
+  if (ov && ov.classList.contains('open')) pintarPopRecordatorios();
+}
 function marcarRemLeido(key, silencioso) {
   remLeidos[remClaveLector() + '|' + key] = hoyISO();
   guardarLeidos();
-  if (!silencioso) { pintarCampana(); if (view === 'recordatorios') renderRecordatorios(); }
+  if (silencioso) return;
+  pintarCampana();
+  if (view === 'recordatorios') { renderRecordatorios(); return; }
+  remRetirarTarjetas(remTarjetasDe(key));
 }
 function marcarTodosRemLeidos() {
   remLista.forEach((r) => { remLeidos[remClaveLector() + '|' + r.key] = hoyISO(); });
   guardarLeidos();
   pintarCampana();
-  if (view === 'recordatorios') renderRecordatorios();
+  if (view === 'recordatorios') { renderRecordatorios(); return; }
+  remRetirarTarjetas([...document.querySelectorAll('.rem[data-remkey]:not(.rem-leido)')]);
+}
+
+/* ================= AVISO SONORO AL ABRIR LA APP =================
+   Quien abre la app —logueado, sin loguear, la Jefatura o cualquier
+   profesional— y tiene avisos automáticos sin ver escucha un tono corto, una
+   sola vez por apertura. No reemplaza a la campana: solo hace que nadie entre
+   sin enterarse de que hay algo esperando.
+
+   El tono se sintetiza en el navegador (WebAudio): no hay archivo de sonido que
+   descargar, así que también funciona con la app instalada y sin conexión.
+
+   Los navegadores no dejan sonar antes de que la persona toque la pantalla. Si
+   el primer intento queda bloqueado, el aviso queda armado y suena en el primer
+   toque o tecla, sin volver a sonar después. */
+const SONO_PREF_KEY = 'hruq_sonido_avisos_v1';
+const SONO_VENTANA_MS = 120000;   // margen de apertura: la nube puede tardar
+const sonoDesde = Date.now();
+let sonoHecho = false;
+let sonoArmado = false;
+
+function sonidoAvisosOn() {
+  try { return localStorage.getItem(SONO_PREF_KEY) !== 'off'; } catch (e) { return true; }
+}
+function remToggleSonido(btn) {
+  const nuevo = sonidoAvisosOn() ? 'off' : 'on';
+  try { localStorage.setItem(SONO_PREF_KEY, nuevo); } catch (e) {}
+  // Al activarlo se oye el tono de muestra: eso ya cuenta como el aviso del día.
+  if (nuevo === 'on') { sonoHecho = true; tocarAvisoSonoro(); }
+  if (btn) btnHecho(btn, nuevo === 'on' ? 'Sonido activado' : 'Sonido silenciado', nuevo === 'on' ? null : 'off', 2000);
+  setTimeout(() => { if (view === 'recordatorios') renderRecordatorios(); }, 2000);
+}
+/* Dos notas ascendentes, cortas y sin estridencia: se oye en un pasillo de
+   quirófano sin sobresaltar a nadie. Devuelve si el dispositivo dejó sonar. */
+function tocarAvisoSonoro() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return Promise.resolve(false);
+  let ctx;
+  try { ctx = new AC(); } catch (e) { return Promise.resolve(false); }
+  const emitir = () => {
+    const t0 = ctx.currentTime + 0.02;
+    [[880, 0], [1174.66, 0.17]].forEach(([hz, d]) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(hz, t0 + d);
+      g.gain.setValueAtTime(0.0001, t0 + d);
+      g.gain.exponentialRampToValueAtTime(0.18, t0 + d + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.42);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t0 + d); o.stop(t0 + d + 0.45);
+    });
+    setTimeout(() => { try { ctx.close(); } catch (e) {} }, 1400);
+  };
+  let r;
+  try { r = ctx.resume ? ctx.resume() : null; } catch (e) { r = null; }
+  return Promise.resolve(r).catch(() => {}).then(() => {
+    if (ctx.state !== 'running') { try { ctx.close(); } catch (e) {} return false; }
+    emitir();
+    return true;
+  });
+}
+function armarSonidoPorGesto() {
+  if (sonoArmado) return;
+  sonoArmado = true;
+  const evs = ['pointerdown', 'keydown', 'touchstart'];
+  const alTocar = () => {
+    evs.forEach((ev) => document.removeEventListener(ev, alTocar, true));
+    sonoArmado = false;
+    sonarAvisosPendientes(true);   // el gesto vale aunque la ventana ya se cerró
+  };
+  evs.forEach((ev) => document.addEventListener(ev, alTocar, true));
+}
+/* Se llama al abrir y en las rondas del primer par de minutos: si los datos de
+   la nube llegan tarde, el aviso igual se escucha una sola vez. */
+function sonarAvisosPendientes(porGesto) {
+  if (sonoHecho || !sonidoAvisosOn()) return;
+  if (!porGesto && Date.now() - sonoDesde > SONO_VENTANA_MS) return;
+  if (!remSinLeer().length) return;
+  sonoHecho = true;
+  tocarAvisoSonoro().then((ok) => {
+    if (ok) return;
+    sonoHecho = false;      // el dispositivo lo bloqueó: se espera un gesto
+    armarSonidoPorGesto();
+  });
 }
 function humanoRestante(ms) {
   const neg = ms < 0;
@@ -5176,6 +5304,8 @@ function revisarRecordatorios() {
   pintarCampana();
   if (view === 'recordatorios') renderRecordatorios();
   notificarCriticos();
+  // Tono de apertura: suena una sola vez, y solo si al entrar había algo sin ver.
+  sonarAvisosPendientes();
 }
 function pintarCampana() {
   const badge = $('bell-badge');
@@ -5628,12 +5758,15 @@ function panelRecordatorios() {
   if (!pend.length) return '';
   const crit = pend.filter((r) => r.nivel === 'crit');
   const top = (crit.length ? crit : pend).slice(0, 3);
-  return `
+  // El bloque va envuelto y con nombre propio: al marcar un aviso como visto se
+  // repinta solo este pedazo del Panel, sin tocar el resto de la pantalla.
+  return `<div id="panel-rem">
     <div class="q-group-title">${ICONS.bellRing} Recordatorios activos
       <span style="color:var(--muted);font-weight:500;font-size:0.8rem">· ${pend.length} sin ver${crit.length ? ` · ${crit.length} crítico(s)` : ''}</span>
     </div>
     ${top.map(remCard).join('')}
-    ${pend.length > top.length ? `<button class="btn btn-outline btn-sm" style="margin-bottom:22px" onclick="go('recordatorios')">${ICONS.list} Ver los ${pend.length} recordatorios</button>` : '<div style="height:12px"></div>'}`;
+    ${pend.length > top.length ? `<button class="btn btn-outline btn-sm" style="margin-bottom:22px" onclick="go('recordatorios')">${ICONS.list} Ver los ${pend.length} recordatorios</button>` : '<div style="height:12px"></div>'}
+  </div>`;
 }
 
 function renderPanel() {
@@ -11189,7 +11322,7 @@ function remCard(r) {
   // Abrir el aviso es leerlo: ir a la cirugía o a la sección ya lo da por visto,
   // y por eso el aviso se retira de la pantalla y de la campana al instante.
   const ver = `marcarRemLeido('${k}');closeRecordatorios();`;
-  return `<div class="rem ${r.nivel}${leido ? ' rem-leido' : ''}">
+  return `<div class="rem ${r.nivel}${leido ? ' rem-leido' : ''}" data-remkey="${k}">
     <div class="rem-ico">${ico}</div>
     <div class="rem-body">
       <div class="rem-title">${esc(r.titulo)}${leido ? ' <span class="rem-visto">visto</span>' : ''}</div>
@@ -11284,6 +11417,8 @@ function renderRecordatorios() {
         <button class="btn btn-outline btn-sm" id="rem-btn-todo" ${nSin ? '' : 'disabled'}
           onclick="remMarcarTodo(this)">${ICONS.check} ${nSin ? 'Marcar todo como visto' : 'Todo visto'}</button>
         <button class="btn btn-outline btn-sm" id="rem-btn-refresh" onclick="remActualizar()">${ICONS.refresh} Actualizar</button>
+        <button class="btn btn-outline btn-sm" id="rem-btn-sonido" onclick="remToggleSonido(this)"
+          title="Tono corto al abrir la app cuando hay avisos sin ver">${sonidoAvisosOn() ? ICONS.volumen : ICONS.volumenOff} ${sonidoAvisosOn() ? 'Sonido al abrir: sí' : 'Sonido al abrir: no'}</button>
       </div>
     </div>
 
@@ -11321,7 +11456,16 @@ function renderRecordatorios() {
 
 function openRecordatorios() {
   revisarRecordatorios();
-  $('rem-modal').innerHTML = `
+  pintarPopRecordatorios();
+  $('rem-overlay').classList.add('open');
+}
+/* El contenido del desplegable se pinta aparte: así, al marcar un aviso como
+   visto desde la campana, la lista se rehace en el lugar —el aviso se va y el
+   conteo baja— sin cerrar ni reabrir el desplegable. */
+function pintarPopRecordatorios() {
+  const m = $('rem-modal');
+  if (!m) return;
+  m.innerHTML = `
     <button class="modal-close" onclick="closeRecordatorios()" aria-label="Cerrar">✕</button>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
       <div class="head-icon" style="background:#e8f4fb">${ICONS.bellRing}</div>
@@ -11332,7 +11476,6 @@ function openRecordatorios() {
     </div>
     ${bloquesRecordatorios()}
     <button class="btn btn-blue" style="width:100%;justify-content:center;margin-top:8px" onclick="closeRecordatorios();go('recordatorios')">${ICONS.list} Ver todos los plazos</button>`;
-  $('rem-overlay').classList.add('open');
 }
 function closeRecordatorios() { $('rem-overlay').classList.remove('open'); }
 
