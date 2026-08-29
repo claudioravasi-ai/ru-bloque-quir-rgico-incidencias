@@ -3645,7 +3645,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.11.1';
+const APP_VERSION = '3.11.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -4846,7 +4846,7 @@ function marcarTodosRemLeidos() {
    toque o tecla, sin volver a sonar después. */
 const SONO_PREF_KEY = 'hruq_sonido_avisos_v1';
 const SONO_VENTANA_MS = 120000;   // margen de apertura: la nube puede tardar
-const sonoDesde = Date.now();
+let sonoDesde = Date.now();   // se reinicia cuando entra alguien nuevo
 let sonoHecho = false;
 let sonoArmado = false;
 
@@ -5297,6 +5297,35 @@ function calcRecordatorios() {
   return R;
 }
 
+/* ================= CAMBIO DE IDENTIDAD =================
+   Los recordatorios se calculan para quien está mirando: el cirujano ve los de
+   sus propios turnos, la Jefatura los de todo el bloque y quien entra sin
+   identificarse solo los del ciclo de programación. La marca de «visto»
+   también es de cada uno, porque la clave del lector lleva su correo.
+
+   Por eso, cada vez que alguien se identifica o se va, la lista se recalcula
+   entera. Antes no se hacía: el que acababa de entrar seguía mirando los avisos
+   del anterior, el menú lateral y la campana mostraban números distintos —el
+   menú se repinta en cada pantalla y la campana no— y el Panel no le mostraba
+   nada de lo suyo hasta que tocaba la campana, que era lo único que recalculaba.
+
+   `entra` distingue a quien se identifica de quien se va: para el primero esto
+   es una apertura de la app, así que si tiene avisos sin ver le suena el tono
+   una vez, igual que a quien abre la app desde cero. */
+function cambioDeIdentidad(entra) {
+  // El desplegable de la campana puede haber quedado abierto con los avisos del
+  // anterior: se cierra antes de recalcular, no vaya a quedar a la vista.
+  closeRecordatorios();
+  remLista = calcRecordatorios();
+  pintarCampana();
+  if (entra) {
+    sonoHecho = false;
+    sonoDesde = Date.now();
+    sonarAvisosPendientes();
+  }
+  if (view === 'recordatorios') renderRecordatorios();
+}
+
 function revisarRecordatorios() {
   // Antes de recalcular: las franjas provisionales vencidas vuelven al bloque.
   barrerTurnosProvisionales();
@@ -5308,6 +5337,16 @@ function revisarRecordatorios() {
   sonarAvisosPendientes();
 }
 function pintarCampana() {
+  pintarBadgesAvisos();
+  renderSidebar();
+}
+/* Pinta solamente los números —la campana del encabezado y la barra inferior—.
+   Va separado del menú lateral a propósito: `go()` lo llama en cada navegación,
+   de modo que el número de la campana no pueda quedar desfasado del que muestra
+   el menú de la izquierda. Los dos salen de la misma cuenta y en el mismo
+   instante; antes el menú se repintaba en cada pantalla y la campana no, y por
+   eso uno marcaba avisos pendientes y la otra quedaba apagada. */
+function pintarBadgesAvisos() {
   const badge = $('bell-badge');
   if (!badge) return;
   // La campana cuenta lo que falta mirar, no lo que existe: los ya leídos
@@ -5321,7 +5360,6 @@ function pintarCampana() {
   badge.style.background = crit ? 'var(--red)' : 'var(--amber)';
   const bn = $('bn-badge-rec');
   if (bn) { bn.style.display = n ? 'block' : 'none'; bn.textContent = n > 9 ? '9+' : String(n); }
-  renderSidebar();
 }
 function notificarCriticos() {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
@@ -5704,6 +5742,8 @@ function go(v, silencioso) {
   const t = $('topbar-title');
   if (t) t.textContent = TITULOS[v] || 'HRU Quirófanos';
   renderSidebar();
+  // La campana, con la misma cuenta que acaba de usar el menú lateral.
+  pintarBadgesAvisos();
   (VIEWS[v] || VIEWS.panel)();
   if (!silencioso) {
     // Ruta en el hash: habilita los accesos directos del icono instalado,
@@ -9160,6 +9200,7 @@ async function doLogin() {
     return;
   }
   sessionStorage.setItem('hru_user', u.email);
+  cambioDeIdentidad(true);   // los avisos pasan a ser los de sus turnos
   if (!cuentaAprobada(u)) {
     alert('Su cuenta está PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos.\n\nPuede consultar la grilla y completar su documentación, pero no programar cirugías hasta que la Jefatura la autorice.');
   }
@@ -9195,6 +9236,7 @@ async function doAlta() {
   };
   upsert('usuarios', u);
   sessionStorage.setItem('hru_user', u.email);
+  cambioDeIdentidad(true);
   alert('Cuenta creada correctamente.\n\nSu acceso queda PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos: hasta que la Jefatura lo habilite no podrá programar cirugías.\n\nMientras tanto, complete su documentación de habilitación en Mi Perfil.');
   go('perfil');
 }
@@ -9202,6 +9244,7 @@ async function doAlta() {
 function userLogout() {
   sessionStorage.removeItem('hru_user');
   cerrarComunicado();  // sin identidad no hay a quién registrarle la lectura
+  cambioDeIdentidad(false);   // se va con sus avisos: quedan los del ciclo
   go('panel');
 }
 
@@ -9698,6 +9741,7 @@ function openJefeModal() {
       // Con la identidad nueva cambian los permisos: hay que volver a escuchar
       // la base para que aparezca lo que antes estaba negado.
       resuscribir();
+      cambioDeIdentidad(true);   // la Jefatura ve los avisos de todo el bloque
       go('programacion');
     },
     true);
@@ -9709,6 +9753,7 @@ async function jefeLogout() {
   jefe = false;
   sessionStorage.removeItem('hru_jefe');
   if (['confidenciales', 'programacion', 'kpis', 'usuarios', 'comunicados'].includes(view)) view = 'panel';
+  cambioDeIdentidad(false);
   go(view);
   // Se suelta la identidad de Jefatura y se vuelve al pase anónimo, para que la
   // app siga funcionando para el cirujano y para quien entra sin sesión.
@@ -14544,6 +14589,7 @@ function openDirectorModal() {
   pedirDireccion('Dirección Médica', 'Los módulos de todos los servicios y de todos los profesionales son de consulta exclusiva de la Dirección Médica. Ingrese el correo y la contraseña de la cuenta de Dirección.', () => {
     director = true;
     sessionStorage.setItem('hru_director', '1');
+    cambioDeIdentidad(true);
     go('modulos');
     // Recién ahora hay identidad de lectura: pueden esperarla comunicados.
     setTimeout(revisarComunicados, 400);
@@ -14555,6 +14601,7 @@ function directorLogout() {
   modProf = '';
   sessionStorage.removeItem('hru_director');
   cerrarComunicado();  // sin identidad no hay a quién registrarle la lectura
+  cambioDeIdentidad(false);
   go(usuarioActual() ? 'modulos' : 'panel');
 }
 
