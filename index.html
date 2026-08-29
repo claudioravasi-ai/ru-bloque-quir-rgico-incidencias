@@ -3645,7 +3645,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.11.2';
+const APP_VERSION = '3.11.3';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -3996,13 +3996,24 @@ const ROLES = ['jefatura', 'direccion', 'admision'];
 /* Preguntarle a la base si este correo es el de tal rol.
    Con las reglas cerradas, `roles/<rol>` solo se deja leer a quien ya es ese
    rol: el permiso denegado ES la respuesta «no sos vos», y así el nodo no
-   filtra los correos de Jefatura y Dirección a cualquiera que mire. */
-async function rolDelCorreo(correo) {
+   filtra los correos de Jefatura y Dirección a cualquiera que mire.
+
+   `app` es la aplicación de Firebase con cuya identidad hay que preguntar, y
+   NO es un detalle: la pregunta la tiene que hacer la sesión donde se acaba de
+   verificar la credencial. Dirección y Admisión se comprueban en la aplicación
+   verificadora —la que no deja sesión abierta—, así que si se preguntaba con la
+   aplicación principal, que anda con el pase anónimo, la base contestaba
+   «permiso denegado» a las tres líneas y el rol volvía vacío. Resultado: la
+   credencial era correcta y la app igual respondía que esa cuenta no era la de
+   la Dirección Médica. Nadie podía entrar. */
+async function rolDelCorreo(correo, app) {
   const mail = String(correo || '').trim().toLowerCase();
   if (!mail || typeof firebase === 'undefined') return null;
+  let db;
+  try { db = (app || firebase).database(); } catch (e) { return null; }
   for (const rol of ROLES) {
     try {
-      const snap = await firebase.database().ref('roles/' + rol).once('value');
+      const snap = await db.ref('roles/' + rol).once('value');
       if (String(snap.val() || '').trim().toLowerCase() === mail) return rol;
     } catch (e) { /* permiso denegado: no es este rol, se sigue con el próximo */ }
   }
@@ -4042,7 +4053,9 @@ function authVerificador() {
 async function verificarCredencial(correo, clave) {
   const auth = authVerificador();
   const cred = await auth.signInWithEmailAndPassword(String(correo).trim(), clave);
-  const rol = await rolDelCorreo(cred.user.email);
+  // Con la identidad recién verificada, y antes de soltarla: es la única que
+  // tiene permiso para leer su propia línea del nodo `roles`.
+  const rol = await rolDelCorreo(cred.user.email, appVerificadora);
   try { await auth.signOut(); } catch (e) {}
   return rol;
 }
@@ -11267,7 +11280,15 @@ async function confirmarCredencial() {
     const rol = cfg.sesion
       ? await entrarComoRol(mail, clave)
       : await verificarCredencial(mail, clave);
-    if (rol !== cfg.rol) return credError('Esa cuenta no es la de ' + cfg.nombreRol + '.');
+    if (rol !== cfg.rol) {
+      // Se distingue el caso «es otro rol» del caso «la contraseña entró pero la
+      // cuenta no figura en el nodo `roles`»: el segundo no se arregla probando
+      // otra clave, se arregla cargando el correo en la base.
+      return credError(rol
+        ? 'Esa cuenta es la de otro rol, no la de ' + cfg.nombreRol + '.'
+        : 'La contraseña es correcta, pero esta cuenta no figura como ' + cfg.nombreRol
+          + ' en el nodo «roles» de la base.');
+    }
     const cb = cfg.onOk;
     closeCredencial();
     await cb(rol);
