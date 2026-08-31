@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#16191f">
+<meta name="theme-color" content="#0f172a">
 <meta name="description" content="Plataforma centralizada de gestión quirúrgica, endoscópica y de incidencias del Hospital Regional Ushuaia.">
 <title>HRU Quirófanos — Gestión Quirúrgica e Incidencias</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -70,6 +70,16 @@
   /* La barra lateral es una columna flex con scroll propio: sin flex-shrink: 0
      sus bloques se comprimen en pantallas bajas en lugar de dejar scrollear. */
   .sidebar > * { flex-shrink: 0; }
+  /* Solo existe en escritorio: en el teléfono el menú se abre y se cierra con
+     la hamburguesa de la barra superior, como siempre. */
+  .rail-pin {
+    display: none; align-self: flex-start; align-items: center; justify-content: center;
+    width: 40px; height: 40px; margin-bottom: 6px;
+    background: none; border: none; border-radius: 10px; cursor: pointer;
+    color: #cbd5e1; font-family: inherit;
+  }
+  .rail-pin:hover { background: #1b2537; color: #fff; }
+  .app.pin .rail-pin { background: rgba(45,212,191,0.14); color: #5eead4; }
   .brand { display: flex; align-items: center; gap: 12px; padding: 6px 8px 20px; border-bottom: 1px solid var(--sidebar-border); }
   .brand-icon {
     width: 42px; height: 42px; border-radius: 11px;
@@ -1180,6 +1190,78 @@
     padding: 10px 16px; font-family: inherit; font-weight: 700; font-size: 0.87rem; cursor: pointer;
   }
 
+
+  /* ============ MENÚ LATERAL PLEGADO (riel) ============
+     En escritorio la barra vive como un riel de 68 px con los iconos, y se
+     abre sola al pasar el mouse o al llegar con el tabulador. Se abre
+     SUPERPUESTA al contenido: si empujara la página, todo saltaría de lugar
+     cada vez que el mouse roza el borde. La hamburguesa la deja anclada y esa
+     decisión se recuerda en el navegador. En el teléfono no cambia nada: sigue
+     valiendo el cajón de siempre. */
+  @media (min-width: 901px) {
+    .app.rail .sidebar {
+      position: fixed; top: 0; left: 0; z-index: 70;
+      width: 68px; min-width: 68px; padding: 18px 10px;
+      overflow: hidden;
+      /* Cierre corto y sin espera: al retirar el mouse el menú tiene que
+         devolver el contenido enseguida, no acompañar al cursor. */
+      transition: width 0.1s ease, padding 0.1s ease;
+    }
+    /* El retardo de apertura evita que la barra se despliegue sola cada vez
+       que el mouse cruza el borde izquierdo camino a otra cosa. */
+    .app.rail .sidebar:hover, .app.rail .sidebar:focus-within {
+      width: 275px; min-width: 275px; padding: 18px 14px;
+      overflow-y: auto;
+      box-shadow: 7px 0 28px rgba(15,23,42,0.30);
+      /* Al abrir sí conviene la espera: evita que el menú se despliegue solo
+         cada vez que el cursor cruza el borde izquierdo camino a otra cosa. */
+      transition: width 0.18s ease 0.14s, padding 0.18s ease 0.14s;
+    }
+    .app.rail.pin .sidebar {
+      width: 275px; min-width: 275px; padding: 18px 14px;
+      overflow-y: auto; box-shadow: none;
+      border-right: 1px solid var(--sidebar-border);
+    }
+    .app.rail .main-col { margin-left: 68px; transition: margin-left 0.18s ease; }
+    .app.rail.pin .main-col { margin-left: 275px; }
+    /* Sin el menú ocupando lugar fijo, la página respira más ancho. */
+    .app.rail .main { max-width: 1400px; }
+    /* El botón de las tres líneas vive DENTRO del menú, como un elemento más
+       de la columna. En la barra superior no servía: esa barra abre su propio
+       contexto de apilamiento (z-index: 50), así que el botón quedaba SIEMPRE
+       por debajo del menú desplegado (z-index: 70) y no había forma de volver
+       a plegarlo. Acá, siendo parte del menú, se ve en los tres estados. */
+    .app.rail .rail-pin { display: inline-flex; }
+
+    /* ---- Estado plegado: sobreviven los iconos ---- */
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .brand { justify-content: center; padding: 6px 0 16px; }
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .brand > div,
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .libro-txt,
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .nav-sub,
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .jefe-session,
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .confidential-note,
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .nav-chev { display: none; }
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .libro-btn { justify-content: center; padding: 11px 0; }
+    /* El rótulo de cada botón es un nodo de texto suelto, sin span propio: se
+       apaga con font-size y se le devuelve tamaño a lo que sí debe verse. */
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .nav-btn,
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .nav-group-btn,
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .jefe-access {
+      font-size: 0; gap: 0; justify-content: center; padding: 12px 0; position: relative;
+    }
+    /* La badge numérica pasa a ser un punto: plegado o no, el aviso se ve. */
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .nav-badge {
+      position: absolute; top: 7px; right: 13px; margin: 0;
+      width: 9px; height: 9px; padding: 0; border-radius: 50%;
+      font-size: 0; border: 2px solid var(--sidebar);
+    }
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .nav-sep {
+      font-size: 0; padding: 0; height: 1px; margin: 9px 12px;
+      background: var(--sidebar-border);
+    }
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .sidebar-bottom { gap: 4px; }
+  }
+
   /* ============ RESPONSIVE ============ */
   @media (max-width: 900px) {
     .hamburger { display: inline-flex; }
@@ -1372,6 +1454,9 @@
   @media (print) {
     .sidebar, .topbar, .bottomnav, .drawer-backdrop, .cir-actions, .inc-actions { display: none !important; }
     .main { padding: 0; max-width: 100%; }
+    /* Sin el riel en la hoja, el contenido no puede seguir corrido 68 px. */
+    .app.rail .main-col, .app.rail.pin .main-col { margin-left: 0; }
+    .app.rail .main { max-width: 100%; }
     body { background: #fff; }
     .inc-card, .card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
   }
@@ -1448,12 +1533,102 @@
   }
   .mod-cifra .n { font-size: 1.5rem; font-weight: 800; line-height: 1.1; }
   .mod-cifra .l { font-size: 0.76rem; color: var(--muted); font-weight: 600; }
+
+  /* ==================================================================
+     TEMA · "Clínico sobrio"
+     Capa de pintura al final de la hoja: le gana por orden a las reglas de
+     arriba sin tocarlas. No cambia una sola función de la app.
+     ================================================================== */
+  :root {
+    --bg: #eef2f6;
+    --sidebar: #0f172a;
+    --sidebar-card: #1b2537;
+    --sidebar-border: #243146;
+    --blue: #1d4ed8;
+    --blue-dark: #1a44be;
+    --teal: #0d9488;
+    --ink: #0f172a;
+    --muted: #5b6674;
+    --line: #dde3ea;
+    --radius: 12px;
+  }
+  body { -webkit-font-smoothing: antialiased; }
+
+  /* ---- Barra superior: blanca, con el nombre de la vista siempre visible.
+     Plegado el menú, ese título es la única señal de dónde está parado uno. */
+  .topbar {
+    /* Opaca y sin desenfoque a propósito: el `backdrop-filter` convertía a la
+       barra en el marco de referencia de todo lo posicionado en fijo dentro de
+       ella, y el botón del menú terminaba corrido 68 px. */
+    background: #fff;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    border-bottom: 1px solid var(--line);
+    padding: 11px 28px; padding-top: calc(11px + env(safe-area-inset-top));
+  }
+  .topbar-title { display: block; font-size: 0.98rem; letter-spacing: -0.01em; }
+  .top-btn { background: #fff; border: 1px solid var(--line); box-shadow: none; }
+  .top-btn:hover { background: #f6f8fb; border-color: #c9d3de; }
+  .top-badge { border-color: #fff; }
+  .hamburger { background: #fff; border: 1px solid var(--line); box-shadow: none; }
+  .hamburger:hover { background: #f6f8fb; border-color: #c9d3de; }
+  .conn { background: #f1f5f9; color: #47566b; border: 1px solid var(--line); }
+  .conn.alerta { background: #fff3d6; color: #7a4c05; border-color: #f0c264; }
+
+  /* ---- Menú lateral: la solapa activa se marca con una barra, no con un
+     bloque de color que compite con las badges. ---- */
+  .nav-btn { border-radius: 8px; font-size: 0.9rem; }
+  .nav-btn:hover { background: #1b2537; }
+  .nav-btn.active {
+    background: rgba(45,212,191,0.10); color: #5eead4;
+    box-shadow: inset 3px 0 0 var(--teal);
+  }
+  .nav-sub-btn:hover { background: #1b2537; }
+  .brand-icon { background: linear-gradient(135deg, #0d9488, #22d3ee); }
+  .jefe-session { background: #16233a; border-color: #2b3f5e; }
+  .libro-btn:hover { box-shadow: 0 10px 24px rgba(13,148,136,0.38); }
+  /* Barra de scroll fina: con el menú desplegado sobre el contenido, la barra
+     gruesa del sistema se comía el borde del panel. */
+  .sidebar::-webkit-scrollbar { width: 8px; }
+  .sidebar::-webkit-scrollbar-thumb { background: #33415a; border-radius: 99px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+
+  /* ---- Superficies: borde fino en lugar de sombra difusa. Con muchas
+     tarjetas juntas la sombra ensucia; el borde ordena. ---- */
+  .kpi, .chart-card, .tbl-wrap, .rem, .inc-card, .sala-card, .guia, .dia-bar {
+    box-shadow: none; border: 1px solid var(--line);
+  }
+  .rem { border-left-width: 4px; }
+  .tbl th { background: #f8fafc; }
+  .btn-outline { border-color: var(--line); }
+  .btn-teal { background: var(--teal); }
+  .tab { border-color: #cbd5e1; }
+  /* El aviso de confidencialidad es permanente: en verde saturado gritaba más
+     que las alertas del día. */
+  .banner-green { background: #eff8f4; border-color: #cfe8dd; }
+
+  /* ---- Encabezado de página: menos aire, más contenido a la vista ---- */
+  .main { padding: 26px 32px 60px; }
+  .page-head { margin-bottom: 18px; }
+  .page-title { font-size: 1.55rem; }
+  .page-sub { color: var(--muted); font-size: 0.9rem; }
+  .head-icon { background: #e6f6f4; color: var(--teal); border-color: #c9ece7; }
+
+  /* ---- Foco visible: la app se maneja con teclado en el office ---- */
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
+  .sidebar :focus-visible { outline-color: #5eead4; }
+
+  @media (max-width: 900px) {
+    .topbar { padding: 9px 14px; padding-top: calc(9px + env(safe-area-inset-top)); }
+    .main { padding: 18px 14px 96px; }
+  }
+
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app rail" id="app">
   <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
   <aside class="sidebar" id="sidebar">
+    <button class="rail-pin" id="rail-pin" onclick="togglePin()" aria-label="Fijar el menú"></button>
     <div class="brand">
       <div class="brand-icon" id="i-activity"></div>
       <div>
@@ -3645,7 +3820,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.11.3';
+const APP_VERSION = '3.12.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -5773,6 +5948,15 @@ function vistaDelHash() {
 }
 
 /* ---- Cajón lateral (móvil) y navegación inferior ---- */
+/* Escritorio: deja el menú anclado abierto o lo devuelve al riel de iconos.
+   La decisión se recuerda, porque es una preferencia de trabajo y no algo que
+   convenga volver a tomar en cada turno. */
+function togglePin() {
+  const fijo = $('app').classList.toggle('pin');
+  $('rail-pin').setAttribute('aria-label', fijo ? 'Soltar el menú' : 'Fijar el menú');
+  try { localStorage.setItem('hru_menu_fijo', fijo ? '1' : '0'); } catch (e) {}
+}
+
 function toggleDrawer() {
   const s = $('sidebar'), b = $('drawer-backdrop');
   const abierto = s.classList.toggle('open');
@@ -14160,6 +14344,16 @@ const DESCARGAS = [
     guarda: 'las fichas y los controles',
   },
   {
+    id: 'app-neuroactiva',
+    tipo: 'app',
+    icono: 'activity',
+    publica: true,
+    nombre: 'NeuroActiva',
+    sub: 'Rehabilitación cognitivo-lingüística post-ACV',
+    url: 'https://claudioravasi-ai.github.io/nuroactiva/',
+    guarda: 'los ejercicios y el avance del paciente',
+  },
+  {
     id: 'doc-manual',
     tipo: 'doc',
     icono: 'book',
@@ -16120,6 +16314,14 @@ document.addEventListener('DOMContentLoaded', () => {
   $('shield-slot').innerHTML = ICONS.shieldCheck;
   $('ingresar-icon').innerHTML = ICONS.shield.replace('18', '15').replace('18', '15');
   $('hamburger').innerHTML = ICONS.menu;
+  $('rail-pin').innerHTML = ICONS.menu;
+  // El menú vuelve anclado si así se dejó la última vez.
+  try {
+    if (localStorage.getItem('hru_menu_fijo') === '1') {
+      $('app').classList.add('pin');
+      $('rail-pin').setAttribute('aria-label', 'Soltar el menú');
+    }
+  } catch (e) {}
   $('bell-ico').innerHTML = ICONS.bell;
   $('cred-slot').innerHTML = ICONS.shieldCheck;
   // Enter confirma, como hacía la ventana de clave que esto reemplazó.
