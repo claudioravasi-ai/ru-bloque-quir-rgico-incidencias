@@ -1534,97 +1534,1190 @@
   .mod-cifra .n { font-size: 1.5rem; font-weight: 800; line-height: 1.1; }
   .mod-cifra .l { font-size: 0.76rem; color: var(--muted); font-weight: 600; }
 
+
   /* ==================================================================
-     TEMA · "Clínico sobrio"
-     Capa de pintura al final de la hoja: le gana por orden a las reglas de
-     arriba sin tocarlas. No cambia una sola función de la app.
+     APARIENCIA · cuatro temas que elige cada usuario
+     ------------------------------------------------------------------
+     El tema vive en `body[data-tema]` y lo cambia el botón «Apariencia» de la
+     barra superior, al lado del chip de sincronización. La elección se guarda
+     en el navegador de cada uno: dos personas pueden usar la misma app con
+     distinta piel, y ninguna le cambia nada a la otra.
+
+     La hoja está armada en cuatro capas, de arriba abajo:
+
+       1. PALETAS      · cada tema es una ficha de variables, nada más.
+       2. CROMO COMÚN  · las reglas, escritas UNA vez con esas variables.
+       3. RECUADRO     · lo único que cada tema dibuja distinto.
+       4. ESCALA Y     · el orden de urgencia de los avisos y la interacción
+          INTERACCIÓN    de cada pantalla, iguales en los cuatro temas.
+
+     Ninguna regla de acá cambia una función de la app: cambia cómo se ve y
+     cuándo se muestra cada cosa.
      ================================================================== */
-  :root {
+  /* ---------- 1. PALETAS ---------- */
+
+  /* Clínico sobrio — borde fino */
+  body[data-tema="sobrio"] {
+    /* Fondo, papel y tinta */
+    --esquema: light;
     --bg: #eef2f6;
+    --card: #ffffff;
+    --ink: #0f172a;
+    --muted: #5b6674;
+    --txt-suave: #475569;
+    --placeholder: #94a3b8;
+    --line: #dde3ea;
+    --line-fuerte: #c9d3de;
+    --line-suave: #eef1f4;
+    /* Superficies: 1 la que flota, 2 la de segundo plano, 3 la apagada */
+    --sup1: #ffffff;
+    --sup2: #f8fafc;
+    --sup3: #f1f5f9;
+    --fila-hover: #f4f8fb;
+    /* Menú lateral */
     --sidebar: #0f172a;
     --sidebar-card: #1b2537;
     --sidebar-border: #243146;
+    --nav-hover: #1b2537;
+    --nav-act-bg: rgba(45,212,191,0.10);
+    --nav-act-txt: #5eead4;
+    --nav-act-barra: #0d9488;
+    --nav-radio: 8px;
+    --brand-1: #0d9488;
+    --brand-2: #22d3ee;
+    --jefe-bg: #16233a;
+    --scroll-pulgar: #33415a;
+    --libro-sombra: rgba(13,148,136,0.38);
+    /* Familias de color con su texto y su línea */
     --blue: #1d4ed8;
     --blue-dark: #1a44be;
+    --blue-soft: #e3eefb;
+    --blue-txt: #1d4f8c;
+    --blue-linea: #c8dcf3;
     --teal: #0d9488;
-    --ink: #0f172a;
-    --muted: #5b6674;
-    --line: #dde3ea;
+    --green: #1fa971;
+    --green-soft: #dcf5ea;
+    --green-txt: #166b4a;
+    --green-linea: #b9e8d2;
+    --amber: #f0a92e;
+    --amber-soft: #fdf3dd;
+    --amber-txt: #92600a;
+    --amber-linea: #f3ddb0;
+    --red: #d94848;
+    --red-soft: #fbe5e5;
+    --red-txt: #7c2d2d;
+    --red-linea: #f3c8c8;
+    --naranja: #e07b39;
+    --naranja-soft: #fce3cf;
+    --naranja-txt: #8a4210;
+    --naranja-linea: #f2cdad;
+    --amarillo: #d4a017;
+    --amarillo-soft: #fbf1c6;
+    --amarillo-txt: #7a5c05;
+    --amarillo-linea: #ebd89a;
+    --violeta: #7c3aed;
+    --violeta-soft: #ede9fe;
+    --decision: #5d3fd3;
+    --decision-soft: #f1f0fe;
+    /* Piezas sueltas */
     --radius: 12px;
+    --dlg-radio: 16px;
+    --filete: #eef2f6;
+    --topbar-bg: #ffffff;
+    --modal-bg: #a9ecd3;
+    --modal-line: #93e2c4;
+    --head-ico-bg: #e6f6f4;
+    --head-ico-txt: #0d9488;
+    --head-ico-line: #c9ece7;
+    --tab-act-bg: #0f172a;
+    --tab-act-txt: #ffffff;
+    --acento: #1d4ed8;
+    --foco: #1d4ed8;
+    --foco-oscuro: #5eead4;
+    --pie-pegado: rgba(255,255,255,0.94);
+    --velo: rgba(10,14,12,0.66);
+    --velo-fuerte: rgba(7,11,16,0.70);
+    --barra-oscura: #171c24;
+    /* Los seis tonos de los diálogos: la ventana de aviso sigue al tema */
+    --t-info-1: #2980d9;
+    --t-info-2: #2fb9c9;
+    --t-info-s: #eef6fd;
+    --t-info-r: rgba(41,128,217,0.24);
+    --t-ok-1: #1fa971;
+    --t-ok-2: #4cc79a;
+    --t-ok-s: #eefaf4;
+    --t-ok-r: rgba(31,169,113,0.24);
+    --t-aviso-1: #dd8c10;
+    --t-aviso-2: #f4c04e;
+    --t-aviso-s: #fdf6e8;
+    --t-aviso-r: rgba(221,140,16,0.24);
+    --t-peligro-1: #c62f2f;
+    --t-peligro-2: #ec6060;
+    --t-peligro-s: #fdeeee;
+    --t-peligro-r: rgba(198,47,47,0.24);
+    --t-pregunta-1: #3b53c4;
+    --t-pregunta-2: #7c3aed;
+    --t-pregunta-s: #f1f0fe;
+    --t-pregunta-r: rgba(93,63,211,0.24);
+    --t-jefatura-1: #0f766e;
+    --t-jefatura-2: #2fb9c9;
+    --t-jefatura-s: #eafaf8;
+    --t-jefatura-r: rgba(15,118,110,0.24);
   }
-  body { -webkit-font-smoothing: antialiased; }
 
-  /* ---- Barra superior: blanca, con el nombre de la vista siempre visible.
-     Plegado el menú, ese título es la única señal de dónde está parado uno. */
-  .topbar {
+  /* Acero quirúrgico — doble filete */
+  body[data-tema="acero"] {
+    /* Acero frío para el papel, verde de quirófano para lo que avanza y
+     petróleo para lo que se toca. La gama del instrumental: nada le compite
+     al rojo de la urgencia. */
+    --esquema: light;
+    --bg: #e7edf0;
+    --card: #ffffff;
+    --ink: #14222a;
+    --muted: #596b75;
+    --txt-suave: #41535d;
+    --placeholder: #8ea1ac;
+    --line: #d0dbe1;
+    --line-fuerte: #b3c4cd;
+    --line-suave: #e6edf0;
+    --sup1: #ffffff;
+    --sup2: #eef4f7;
+    --sup3: #e3ebef;
+    --fila-hover: #e9f1f4;
+    --sidebar: #14252d;
+    --sidebar-card: #1e3540;
+    --sidebar-border: #2a4854;
+    --nav-hover: #1e3540;
+    --nav-act-bg: rgba(47,191,162,0.12);
+    --nav-act-txt: #7ee3cd;
+    --nav-act-barra: #2fbfa2;
+    --nav-radio: 7px;
+    --brand-1: #16806a;
+    --brand-2: #2aa5c4;
+    --jefe-bg: #1a303a;
+    --scroll-pulgar: #2f4d59;
+    --libro-sombra: rgba(22,128,106,0.36);
+    --blue: #1a6d8a;
+    --blue-dark: #145a73;
+    --blue-soft: #e0edf2;
+    --blue-txt: #175d76;
+    --blue-linea: #bcd8e2;
+    --teal: #16806a;
+    --green: #16806a;
+    --green-soft: #e0f0eb;
+    --green-txt: #0f6b57;
+    --green-linea: #bfe2d8;
+    --amber: #bd7a12;
+    --amber-soft: #faefda;
+    --amber-txt: #8a5a08;
+    --amber-linea: #e6cb96;
+    --red: #ad3838;
+    --red-soft: #f7e6e6;
+    --red-txt: #8c2626;
+    --red-linea: #e3bcbc;
+    --naranja: #c26a1e;
+    --naranja-soft: #fae2cd;
+    --naranja-txt: #8f4a0d;
+    --naranja-linea: #e8c7a4;
+    --amarillo: #b8940f;
+    --amarillo-soft: #f8eec2;
+    --amarillo-txt: #7c5f04;
+    --amarillo-linea: #e2d295;
+    --violeta: #6d4bb8;
+    --violeta-soft: #ece7f8;
+    --decision: #3d57a0;
+    --decision-soft: #e6eaf5;
+    --radius: 8px;
+    --dlg-radio: 10px;
+    --filete: #e3ebee;
+    --topbar-bg: #ffffff;
+    --modal-bg: #ffffff;
+    --modal-line: #d0dbe1;
+    --head-ico-bg: #e0f0eb;
+    --head-ico-txt: #16806a;
+    --head-ico-line: #bfe2d8;
+    --tab-act-bg: #14252d;
+    --tab-act-txt: #ffffff;
+    --acento: #1a6d8a;
+    --foco: #1a6d8a;
+    --foco-oscuro: #7ee3cd;
+    --pie-pegado: rgba(255,255,255,0.94);
+    --velo: rgba(8,20,26,0.68);
+    --velo-fuerte: rgba(6,16,21,0.74);
+    --barra-oscura: #14252d;
+    --t-info-1: #1a6d8a;
+    --t-info-2: #2aa5c4;
+    --t-info-s: #eaf3f7;
+    --t-info-r: rgba(26,109,138,0.24);
+    --t-ok-1: #16806a;
+    --t-ok-2: #35b295;
+    --t-ok-s: #e9f5f1;
+    --t-ok-r: rgba(22,128,106,0.24);
+    --t-aviso-1: #bd7a12;
+    --t-aviso-2: #e5a83e;
+    --t-aviso-s: #fbf3e3;
+    --t-aviso-r: rgba(189,122,18,0.24);
+    --t-peligro-1: #ad3838;
+    --t-peligro-2: #d76a6a;
+    --t-peligro-s: #fbeded;
+    --t-peligro-r: rgba(173,56,56,0.26);
+    --t-pregunta-1: #3d57a0;
+    --t-pregunta-2: #6d63c4;
+    --t-pregunta-s: #eef0f9;
+    --t-pregunta-r: rgba(61,87,160,0.24);
+    --t-jefatura-1: #145a73;
+    --t-jefatura-2: #2aa5c4;
+    --t-jefatura-s: #e8f3f7;
+    --t-jefatura-r: rgba(20,90,115,0.24);
+  }
+
+  /* Papel clínico — filete de tinta */
+  body[data-tema="papel"] {
+    /* El bloque sigue siendo un lugar de papeles: parte, consentimiento,
+     lista de verificación. Fondo de papel cálido, tinta índigo para lo que se
+     firma y terracota para el sello. Con la luz blanca del office cansa menos
+     que el celeste frío, y el rojo resalta más sobre crema que sobre gris. */
+    --esquema: light;
+    --bg: #f1ece1;
+    --card: #fffdf8;
+    --ink: #241f18;
+    --muted: #6d6455;
+    --txt-suave: #57503f;
+    --placeholder: #9c927e;
+    --line: #ded5c4;
+    --line-fuerte: #c8bda6;
+    --line-suave: #ece4d5;
+    --sup1: #fffdf8;
+    --sup2: #f5efe3;
+    --sup3: #ece5d7;
+    --fila-hover: #f3ece0;
+    --sidebar: #2a251d;
+    --sidebar-card: #372f25;
+    --sidebar-border: #473d30;
+    --nav-hover: #372f25;
+    --nav-act-bg: rgba(201,154,82,0.16);
+    --nav-act-txt: #e8cfa4;
+    --nav-act-barra: #c99a52;
+    --nav-radio: 4px;
+    --brand-1: #97552a;
+    --brand-2: #c99a52;
+    --jefe-bg: #322b21;
+    --scroll-pulgar: #4c4235;
+    --libro-sombra: rgba(151,85,42,0.34);
+    --blue: #3f4ea3;
+    --blue-dark: #35438c;
+    --blue-soft: #e9eaf5;
+    --blue-txt: #37418a;
+    --blue-linea: #c7cbe6;
+    --teal: #97552a;
+    --green: #4c7a53;
+    --green-soft: #e9efe6;
+    --green-txt: #3c6544;
+    --green-linea: #c5d7c2;
+    --amber: #a8730f;
+    --amber-soft: #f8eed7;
+    --amber-txt: #7d5406;
+    --amber-linea: #ddc189;
+    --red: #a83226;
+    --red-soft: #f8e7e4;
+    --red-txt: #88261c;
+    --red-linea: #e2bab3;
+    --naranja: #b4601f;
+    --naranja-soft: #f7dfc6;
+    --naranja-txt: #8c470f;
+    --naranja-linea: #dfc0a0;
+    --amarillo: #a8850c;
+    --amarillo-soft: #f5ebbe;
+    --amarillo-txt: #7a5f04;
+    --amarillo-linea: #dcca8e;
+    --violeta: #6b4fa0;
+    --violeta-soft: #efe9f7;
+    --decision: #6b4fa0;
+    --decision-soft: #efe9f7;
+    --radius: 5px;
+    --dlg-radio: 6px;
+    --filete: #c3c8e4;
+    --topbar-bg: #fffdf8;
+    --modal-bg: #fffdf8;
+    --modal-line: #ded5c4;
+    --head-ico-bg: #f3e6d8;
+    --head-ico-txt: #97552a;
+    --head-ico-line: #e0c9b0;
+    --tab-act-bg: #2a251d;
+    --tab-act-txt: #fffdf8;
+    --acento: #3f4ea3;
+    --foco: #3f4ea3;
+    --foco-oscuro: #d9b98a;
+    --pie-pegado: rgba(255,253,248,0.95);
+    --velo: rgba(38,30,20,0.66);
+    --velo-fuerte: rgba(30,24,16,0.74);
+    --barra-oscura: #2a251d;
+    --t-info-1: #3f4ea3;
+    --t-info-2: #6a76c4;
+    --t-info-s: #eef0fa;
+    --t-info-r: rgba(63,78,163,0.22);
+    --t-ok-1: #4c7a53;
+    --t-ok-2: #78a67f;
+    --t-ok-s: #eef5ec;
+    --t-ok-r: rgba(76,122,83,0.22);
+    --t-aviso-1: #a8730f;
+    --t-aviso-2: #d3a034;
+    --t-aviso-s: #fbf3e0;
+    --t-aviso-r: rgba(168,115,15,0.24);
+    --t-peligro-1: #a83226;
+    --t-peligro-2: #d0604f;
+    --t-peligro-s: #fbeae7;
+    --t-peligro-r: rgba(168,50,38,0.26);
+    --t-pregunta-1: #6b4fa0;
+    --t-pregunta-2: #9a7bc9;
+    --t-pregunta-s: #f2ecfa;
+    --t-pregunta-r: rgba(107,79,160,0.22);
+    --t-jefatura-1: #97552a;
+    --t-jefatura-2: #c99a52;
+    --t-jefatura-s: #faf0e3;
+    --t-jefatura-r: rgba(151,85,42,0.24);
+  }
+
+  /* Guardia nocturna — filo iluminado */
+  body[data-tema="noche"] {
+    /* El Quirófano 1 está de guardia las veinticuatro horas y buena parte de
+     la app se usa de madrugada, con la sala a media luz. Una pantalla blanca a
+     las cuatro de la mañana encandila y deja al ojo sin adaptación para volver
+     al campo. Acá se invierte la hoja: carbón azulado, texto claro y un solo
+     acento luminoso. Sobre oscuro, el rojo y el ámbar del aviso saltan más. */
+    --esquema: dark;
+    --bg: #0d1317;
+    --card: #161f26;
+    --ink: #e3ecf2;
+    --muted: #90a4b1;
+    --txt-suave: #b0c2cd;
+    --placeholder: #6a7c88;
+    --line: #26343d;
+    --line-fuerte: #33454f;
+    --line-suave: #1e2a33;
+    --sup1: #1c272f;
+    --sup2: #1c272f;
+    --sup3: #131c22;
+    --fila-hover: #1e2b35;
+    --sidebar: #080d11;
+    --sidebar-card: #17222b;
+    --sidebar-border: #253440;
+    --nav-hover: #17222b;
+    --nav-act-bg: rgba(53,198,224,0.12);
+    --nav-act-txt: #7fdcee;
+    --nav-act-barra: #35c6e0;
+    --nav-radio: 9px;
+    --brand-1: #14a08d;
+    --brand-2: #35c6e0;
+    --jefe-bg: #14202a;
+    --scroll-pulgar: #2b3d4a;
+    --libro-sombra: rgba(20,160,141,0.34);
+    --blue: #2f80b8;
+    --blue-dark: #2a6f9f;
+    --blue-soft: #112a3b;
+    --blue-txt: #8ec4e6;
+    --blue-linea: #1d4260;
+    --teal: #14a08d;
+    --green: #23a06e;
+    --green-soft: #0f2b21;
+    --green-txt: #5fd3a4;
+    --green-linea: #1c5340;
+    --amber: #d59a2c;
+    --amber-soft: #2f2512;
+    --amber-txt: #f0c169;
+    --amber-linea: #6b5320;
+    --red: #e05a5a;
+    --red-soft: #351b1b;
+    --red-txt: #f19a9a;
+    --red-linea: #6b3535;
+    --naranja: #e08a3c;
+    --naranja-soft: #382614;
+    --naranja-txt: #f2ae72;
+    --naranja-linea: #6d4c22;
+    --amarillo: #d9c04a;
+    --amarillo-soft: #332f15;
+    --amarillo-txt: #ecd97e;
+    --amarillo-linea: #6b6026;
+    --violeta: #b3a4f5;
+    --violeta-soft: #221c3d;
+    --decision: #8a7bf0;
+    --decision-soft: #1d1b3c;
+    --radius: 13px;
+    --dlg-radio: 16px;
+    --filete: #26343d;
+    --topbar-bg: #101820;
+    --modal-bg: #161f26;
+    --modal-line: #26343d;
+    --head-ico-bg: #10302c;
+    --head-ico-txt: #14a08d;
+    --head-ico-line: #1c4a44;
+    --tab-act-bg: #35c6e0;
+    --tab-act-txt: #06222a;
+    --acento: #35c6e0;
+    --foco: #35c6e0;
+    --foco-oscuro: #35c6e0;
+    --pie-pegado: rgba(22,31,38,0.94);
+    --velo: rgba(2,6,9,0.74);
+    --velo-fuerte: rgba(2,6,9,0.82);
+    --barra-oscura: #1d2831;
+    --t-info-1: #2f80b8;
+    --t-info-2: #35c6e0;
+    --t-info-s: #12222c;
+    --t-info-r: rgba(53,198,224,0.26);
+    --t-ok-1: #1c8a5f;
+    --t-ok-2: #35c48c;
+    --t-ok-s: #10241d;
+    --t-ok-r: rgba(35,160,110,0.26);
+    --t-aviso-1: #b8801f;
+    --t-aviso-2: #e0ae45;
+    --t-aviso-s: #241d10;
+    --t-aviso-r: rgba(213,154,44,0.26);
+    --t-peligro-1: #b83f3f;
+    --t-peligro-2: #e07070;
+    --t-peligro-s: #251515;
+    --t-peligro-r: rgba(224,90,90,0.30);
+    --t-pregunta-1: #5a4bc4;
+    --t-pregunta-2: #8a7bf0;
+    --t-pregunta-s: #191830;
+    --t-pregunta-r: rgba(138,123,240,0.26);
+    --t-jefatura-1: #0f766e;
+    --t-jefatura-2: #14a08d;
+    --t-jefatura-s: #10241f;
+    --t-jefatura-r: rgba(20,160,141,0.26);
+  }
+
+  /* El navegador necesita saber de qué lado está para pintar el calendario
+     del campo de fecha, las listas desplegables y la barra de scroll. */
+  body[data-tema="sobrio"] { color-scheme: light; }
+  body[data-tema="acero"] { color-scheme: light; }
+  body[data-tema="papel"] { color-scheme: light; }
+  body[data-tema="noche"] { color-scheme: dark; }
+
+  /* ---------- 2. CROMO COMÚN ----------
+     Las reglas de abajo son las mismas para los cuatro temas: lo que cambia es
+     el valor de las variables. Buena parte reemplaza colores que estaban
+     escritos a mano en la hoja (#fff, #f8fafc, #374151…): mientras vivieran
+     como literales no había forma de que la app tuviera un modo oscuro. */
+
+  /* Ni los <button> ni los <input> heredan el color del texto: el navegador les
+     pone su negro de sistema. Casi toda la app les da color propio; estos tres
+     son los que no lo tenían —la tarjeta de categoría, el acordeón del circuito
+     y la franja de la grilla—, y sobre el tema oscuro quedaban en tinta
+     invisible. La regla es al ras: cualquier botón de color la sigue ganando.
+     No se pone `button { color: inherit }` a secas justamente por eso: dejaba
+     sin su letra blanca a los botones azules, rojos y verdes. */
+  body[data-tema] .cat-card, body[data-tema] .q-acc, body[data-tema] .slot,
+  body[data-tema] input, body[data-tema] select, body[data-tema] textarea { color: var(--ink); }
+  /* La tilde de las listas de verificación toma el acento del tema. */
+  body[data-tema] input[type="checkbox"], body[data-tema] input[type="radio"] { accent-color: var(--acento); }
+  body[data-tema] { -webkit-font-smoothing: antialiased; background: var(--bg); color: var(--ink); }
+
+  /* ---- Barra superior ---- */
+  body[data-tema] .topbar {
     /* Opaca y sin desenfoque a propósito: el `backdrop-filter` convertía a la
        barra en el marco de referencia de todo lo posicionado en fijo dentro de
        ella, y el botón del menú terminaba corrido 68 px. */
-    background: #fff;
+    background: var(--topbar-bg);
     -webkit-backdrop-filter: none; backdrop-filter: none;
     border-bottom: 1px solid var(--line);
     padding: 11px 28px; padding-top: calc(11px + env(safe-area-inset-top));
   }
-  .topbar-title { display: block; font-size: 0.98rem; letter-spacing: -0.01em; }
-  .top-btn { background: #fff; border: 1px solid var(--line); box-shadow: none; }
-  .top-btn:hover { background: #f6f8fb; border-color: #c9d3de; }
-  .top-badge { border-color: #fff; }
-  .hamburger { background: #fff; border: 1px solid var(--line); box-shadow: none; }
-  .hamburger:hover { background: #f6f8fb; border-color: #c9d3de; }
-  .conn { background: #f1f5f9; color: #47566b; border: 1px solid var(--line); }
-  .conn.alerta { background: #fff3d6; color: #7a4c05; border-color: #f0c264; }
-
-  /* ---- Menú lateral: la solapa activa se marca con una barra, no con un
-     bloque de color que compite con las badges. ---- */
-  .nav-btn { border-radius: 8px; font-size: 0.9rem; }
-  .nav-btn:hover { background: #1b2537; }
-  .nav-btn.active {
-    background: rgba(45,212,191,0.10); color: #5eead4;
-    box-shadow: inset 3px 0 0 var(--teal);
+  /* Plegado el menú, el título de la vista es la única señal de dónde se está. */
+  body[data-tema] .topbar-title { display: block; font-size: 0.98rem; color: var(--ink); }
+  body[data-tema] .top-btn, body[data-tema] .hamburger {
+    background: var(--sup1); border: 1px solid var(--line); color: var(--ink); box-shadow: none;
   }
-  .nav-sub-btn:hover { background: #1b2537; }
-  .brand-icon { background: linear-gradient(135deg, #0d9488, #22d3ee); }
-  .jefe-session { background: #16233a; border-color: #2b3f5e; }
-  .libro-btn:hover { box-shadow: 0 10px 24px rgba(13,148,136,0.38); }
+  body[data-tema] .top-btn:hover, body[data-tema] .hamburger:hover {
+    background: var(--sup2); border-color: var(--line-fuerte);
+  }
+  body[data-tema] .top-badge { border-color: var(--topbar-bg); }
+  body[data-tema] .conn { background: var(--sup2); color: var(--muted); border: 1px solid var(--line); }
+  body[data-tema] .conn.alerta { background: var(--amber-soft); color: var(--amber-txt); border-color: var(--amber-linea); }
+
+  /* ---- Menú lateral ---- */
+  body[data-tema] .nav-btn { border-radius: var(--nav-radio); font-size: 0.9rem; }
+  body[data-tema] .nav-btn:hover, body[data-tema] .nav-sub-btn:hover { background: var(--nav-hover); }
+  /* La solapa activa se marca con una barra al canto, no con un bloque de
+     color que compite con las badges de aviso. */
+  body[data-tema] .nav-btn.active {
+    background: var(--nav-act-bg); color: var(--nav-act-txt);
+    box-shadow: inset 3px 0 0 var(--nav-act-barra);
+  }
+  body[data-tema] .brand-icon { background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); }
+  body[data-tema] .jefe-session { background: var(--jefe-bg); border-color: var(--sidebar-border); }
+  body[data-tema] .libro-btn:hover { box-shadow: 0 10px 24px var(--libro-sombra); }
   /* Barra de scroll fina: con el menú desplegado sobre el contenido, la barra
      gruesa del sistema se comía el borde del panel. */
-  .sidebar::-webkit-scrollbar { width: 8px; }
-  .sidebar::-webkit-scrollbar-thumb { background: #33415a; border-radius: 99px; }
-  .sidebar::-webkit-scrollbar-track { background: transparent; }
-
-  /* ---- Superficies: borde fino en lugar de sombra difusa. Con muchas
-     tarjetas juntas la sombra ensucia; el borde ordena. ---- */
-  .kpi, .chart-card, .tbl-wrap, .rem, .inc-card, .sala-card, .guia, .dia-bar {
-    box-shadow: none; border: 1px solid var(--line);
-  }
-  .rem { border-left-width: 4px; }
-  .tbl th { background: #f8fafc; }
-  .btn-outline { border-color: var(--line); }
-  .btn-teal { background: var(--teal); }
-  .tab { border-color: #cbd5e1; }
-  /* El aviso de confidencialidad es permanente: en verde saturado gritaba más
-     que las alertas del día. */
-  .banner-green { background: #eff8f4; border-color: #cfe8dd; }
+  body[data-tema] .sidebar::-webkit-scrollbar { width: 8px; }
+  body[data-tema] .sidebar::-webkit-scrollbar-thumb { background: var(--scroll-pulgar); border-radius: 99px; }
+  body[data-tema] .sidebar::-webkit-scrollbar-track { background: transparent; }
+  body[data-tema] .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .nav-badge { border-color: var(--sidebar); }
+  body[data-tema] .bottomnav { background: var(--sidebar); border-top: 1px solid var(--sidebar-border); }
+  /* La solapa activa de la barra inferior usaba el color de marca del tema, que
+     sobre el fondo oscuro del menú apenas se despegaba. Va con el mismo tono
+     claro que ya usa la solapa activa del menú lateral. */
+  body[data-tema] .bn-btn.active { color: var(--nav-act-txt); }
 
   /* ---- Encabezado de página: menos aire, más contenido a la vista ---- */
-  .main { padding: 26px 32px 60px; }
-  .page-head { margin-bottom: 18px; }
-  .page-title { font-size: 1.55rem; }
-  .page-sub { color: var(--muted); font-size: 0.9rem; }
-  .head-icon { background: #e6f6f4; color: var(--teal); border-color: #c9ece7; }
+  body[data-tema] .main { padding: 26px 32px 60px; }
+  body[data-tema] .page-head { margin-bottom: 18px; }
+  body[data-tema] .page-title { font-size: 1.55rem; }
+  body[data-tema] .page-sub { color: var(--muted); font-size: 0.9rem; }
+  body[data-tema] .head-icon { background: var(--head-ico-bg); color: var(--head-ico-txt); border-color: var(--head-ico-line); }
 
-  /* ---- Foco visible: la app se maneja con teclado en el office ---- */
-  :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
-  .sidebar :focus-visible { outline-color: #5eead4; }
+  /* ---- Campos, botones y pastillas ---- */
+  body[data-tema] .field input, body[data-tema] .field textarea, body[data-tema] .field select,
+  body[data-tema] .dlg-campo input, body[data-tema] .dlg-campo textarea,
+  body[data-tema] .pass-wrap input, body[data-tema] .search-box input,
+  body[data-tema] .toolbar select, body[data-tema] .toolbar input[type="date"],
+  body[data-tema] .toolbar input[type="month"], body[data-tema] .dia-bar input[type=date],
+  body[data-tema] .est-toolbar input[type=date], body[data-tema] .mod-row input,
+  body[data-tema] .mod-row select {
+    background: var(--sup1); border: 1px solid var(--line-fuerte); color: var(--ink); box-shadow: none;
+  }
+  body[data-tema] .field input:disabled, body[data-tema] .field select:disabled,
+  body[data-tema] .field textarea:disabled { background: var(--sup3); color: var(--muted); }
+  body[data-tema] ::placeholder { color: var(--placeholder); opacity: 1; }
+  body[data-tema] .btn-outline { background: var(--sup1); border-color: var(--line-fuerte); color: var(--ink); }
+  body[data-tema] .btn-outline:hover { background: var(--sup2); }
+  body[data-tema] .btn-gray { background: var(--sup2); color: var(--ink); }
+  body[data-tema] .btn-teal { background: var(--teal); }
+  body[data-tema] .tab { background: var(--sup1); border-color: var(--line-fuerte); color: var(--ink); }
+  body[data-tema] .tab.active { background: var(--tab-act-bg); color: var(--tab-act-txt); border-color: var(--tab-act-bg); }
+  body[data-tema] .chip { background: var(--sup2); border-color: var(--line); color: var(--ink); }
+  body[data-tema] .est-preset, body[data-tema] .mod-per-btn { background: var(--sup1); border-color: var(--line); color: var(--ink); }
+  body[data-tema] .q-acc-n, body[data-tema] .guia-chip { background: var(--sup2); color: var(--txt-suave); }
+  body[data-tema] .dia-nav { background: var(--sup2); color: var(--ink); }
+  body[data-tema] .dia-nav:hover { background: var(--sup3); }
+  body[data-tema] .guia-btn { border-color: var(--line); color: var(--muted); }
+  body[data-tema] .guia-btn:hover { border-color: var(--acento); color: var(--acento); }
+  body[data-tema] .rem-go { color: var(--blue); border-color: var(--line); }
+  body[data-tema] .rem-go:hover { background: var(--blue-soft); }
+  body[data-tema] .rem-visto-btn { border-color: var(--line); color: var(--muted); }
+  body[data-tema] .nom-link { color: var(--blue); }
+
+  /* ---- Superficies de segundo plano ---- */
+  body[data-tema] .sala-hdr { background: var(--sup2); border-bottom-color: var(--line); }
+  body[data-tema] .tbl th { background: var(--sup2); color: var(--muted); border-bottom-color: var(--line); }
+  body[data-tema] .tbl td { border-bottom-color: var(--line-suave); }
+  body[data-tema] .tbl tr.clic:hover td { background: var(--fila-hover); }
+  body[data-tema] .tbl tr.propia td { background: var(--blue-soft); }
+  body[data-tema] .tbl-tipo tbody tr:nth-child(even) td { background: var(--sup3); }
+  body[data-tema] .tbl-tipo tr.clic:hover td { background: var(--fila-hover); }
+  body[data-tema] .tbl-tipo .dato-sec, body[data-tema] .tbl-tipo .tipo-serv { color: var(--txt-suave); }
+  body[data-tema] .tbl-tipo .dato-nulo { color: var(--muted); }
+  body[data-tema] .com-cuerpo, body[data-tema] .ci-acciones,
+  body[data-tema] .pdf-acc, body[data-tema] .pdf-nota { background: var(--sup2); border-color: var(--line); }
+  body[data-tema] .pdf-visor { background: var(--sup3); }
+  body[data-tema] .mod-auto { background: var(--sup2); border-color: var(--line); }
+  body[data-tema] .bar-track, body[data-tema] .est-mini, body[data-tema] .com-barra { background: var(--sup2); }
+  body[data-tema] .req-row, body[data-tema] .jefatura-row,
+  body[data-tema] .com-lect-row { border-bottom-color: var(--line-suave); }
+  body[data-tema] .hist { border-left-color: var(--line); }
+  body[data-tema] .modal { background: var(--modal-bg); border: 1px solid var(--modal-line); }
+  /* Los modales «blancos» —fichas, archivo, comunicado— van sobre el papel del
+     tema, no sobre el fondo de los modales de credencial. */
+  body[data-tema] .modal-white { background: var(--card); border-color: var(--line); }
+  body[data-tema] .modal-shield { background: var(--blue-soft); color: var(--blue-txt); }
+  body[data-tema] .modal-sub, body[data-tema] .modal-close { color: var(--muted); }
+  body[data-tema] .guia-ico { background: var(--blue-soft); color: var(--blue-txt); }
+  /* Los cinco renglones de la guía colgaban de un filo de 3 px a la izquierda.
+     Pasan a marco parejo de un pelo, del mismo color: el código de color se
+     conserva y no queda ningún lado más grueso que otro. */
+  body[data-tema] .guia-it {
+    border: 1px solid color-mix(in srgb, var(--gc) 45%, transparent);
+    border-radius: 9px;
+  }
+
+  body[data-tema] .install-card { background: linear-gradient(135deg, var(--brand-1), var(--brand-2)); }
+  body[data-tema] .install-card button { background: var(--sup1); color: var(--brand-1); }
+  body[data-tema] .update-bar { background: var(--barra-oscura); border: 1px solid var(--line); }
+  body[data-tema] .overlay, body[data-tema] .drawer-backdrop { background: var(--velo); }
+  body[data-tema] .dlg-ov { background: var(--velo-fuerte); }
+  body[data-tema] .cat-card { background: var(--card); border-color: var(--line); }
+  body[data-tema] .cat-card:hover { border-color: var(--line-fuerte); }
+  body[data-tema] .cat-desc, body[data-tema] .empty,
+  body[data-tema] .result-count { color: var(--muted); }
+  body[data-tema] .rem-text, body[data-tema] .inc-desc, body[data-tema] .gi-b,
+  body[data-tema] .gd-b, body[data-tema] .restricted-text { color: var(--txt-suave); }
+  body[data-tema] .msg-head .quien, body[data-tema] .desc-pasos b { color: var(--ink); }
+  body[data-tema] .rem-vistos-pie, body[data-tema] .guia-est, body[data-tema] .guia-det {
+    /* Antes eran punteadas. Una línea llena separa igual y no parece un borde
+       a medio dibujar. */
+    border-top: 1px solid var(--line);
+  }
+  body[data-tema] .mod-auto { border-style: solid; }
+  body[data-tema] .success-icon { background: var(--green-soft); color: var(--green-txt); }
+  body[data-tema] .notify-list { background: var(--green-soft); border-color: var(--green-linea); color: var(--green-txt); }
+  body[data-tema] .lvq-phase.done { background: var(--green-soft); border-color: var(--green-linea); }
+  body[data-tema] .restricted { background: var(--sup2); border-color: var(--line); }
+  body[data-tema] .restricted-title { color: var(--red-txt); }
+  body[data-tema] .ci-serv-hdr { background: var(--blue-soft); color: var(--blue-txt); }
+  body[data-tema] .ci-serv-n { color: var(--blue-txt); }
+  body[data-tema] .desc-aviso { background: var(--amber-soft); border-color: var(--amber-linea); }
+  body[data-tema] .desc-aviso b { color: var(--amber-txt); }
+
+  /* ---- Las cinco familias de estado, con su texto y su línea ----
+     Cada par «fondo suave + texto» estaba escrito a mano en diez lugares. Acá
+     se resuelve una vez y cada tema pone sus valores, que es lo que permite
+     que en el tema oscuro no quede letra negra sobre fondo negro. */
+  body[data-tema] .banner-blue, body[data-tema] .cat-info.diferido,
+  body[data-tema] .msg.jefatura, body[data-tema] .chip-estado-En\ Revisión,
+  body[data-tema] .badge-endo {
+    background: var(--blue-soft); border-color: var(--blue-linea); color: var(--blue-txt);
+  }
+  body[data-tema] .banner-amber, body[data-tema] .chip-estado-Pendiente,
+  body[data-tema] .badge-pend, body[data-tema] .auth-pend,
+  body[data-tema] .est-pill.mid, body[data-tema] .alert90 {
+    background: var(--amber-soft); border-color: var(--amber-linea); color: var(--amber-txt);
+  }
+  body[data-tema] .banner-red, body[data-tema] .cat-info.urgente,
+  body[data-tema] .badge-no, body[data-tema] .auth-no, body[data-tema] .est-pill.bad,
+  body[data-tema] .kpi-bad, body[data-tema] .turno-de, body[data-tema] .badge-urg,
+  body[data-tema] .plazo-urgente {
+    background: var(--red-soft); border-color: var(--red-linea); color: var(--red-txt);
+  }
+  body[data-tema] .banner-green, body[data-tema] .cat-info.nearmiss,
+  body[data-tema] .chip-estado-Resuelta, body[data-tema] .badge-ok,
+  body[data-tema] .auth-ok, body[data-tema] .ci-ok, body[data-tema] .est-pill.ok,
+  body[data-tema] .kpi-ok, body[data-tema] .rem-visto {
+    background: var(--green-soft); border-color: var(--green-linea); color: var(--green-txt);
+  }
+  body[data-tema] .slot-nd, body[data-tema] .ci-falta, body[data-tema] .auth-exe,
+  body[data-tema] .badge-obs {
+    background: var(--violeta-soft); color: var(--violeta);
+  }
+  body[data-tema] .plazo-diferido { background: var(--blue-soft); color: var(--blue-txt); }
+  body[data-tema] .rem.crit .rem-ico { background: var(--red-soft); color: var(--red-txt); }
+  body[data-tema] .rem.warn .rem-ico { background: var(--amber-soft); color: var(--amber-txt); }
+  body[data-tema] .rem.info .rem-ico { background: var(--blue-soft); color: var(--blue-txt); }
+
+  /* ---- La grilla del día ---- */
+  body[data-tema] .slot { background: var(--card); }
+  body[data-tema] .slot-libre { background: var(--sup2); border-color: var(--line-fuerte); color: var(--muted); }
+  body[data-tema] .slot-libre:hover { background: var(--green-soft); border-color: var(--green); color: var(--green-txt); }
+  body[data-tema] .slot-bloq { background: var(--sup3); }
+  body[data-tema] .slot-pac { color: var(--txt-suave); }
+  body[data-tema] .slot-vencido:hover { border-color: var(--teal); color: var(--teal); }
+  body[data-tema] .slot-retro { background: var(--green-soft); border-color: var(--green-linea); color: var(--green-txt); }
+  /* La sala de guardia y el turno rodante de urgencia se tiñen de rojo, pero
+     apenas: son áreas grandes y el `--red-soft` a pleno las volvía un cartel. */
+  body[data-tema] .sala-24 { border-color: var(--red-linea); }
+  body[data-tema] .sala-24 .sala-hdr,
+  body[data-tema] .sala-nota-24,
+  body[data-tema] .urg-bloque { background: color-mix(in srgb, var(--red-soft) 60%, var(--card)); }
+  body[data-tema] .sala-nota-24 { color: var(--red-txt); border-bottom-color: var(--line); }
+  /* Antes el turno rodante colgaba de una línea punteada y gruesa. Va llena y
+     de un pelo: lo que lo despega de la grilla programada es el fondo rosado,
+     no el grosor de la línea. */
+  body[data-tema] .urg-bloque { border-top: 1px solid var(--red-linea); }
+  body[data-tema] .urg-hdr { color: var(--red-txt); }
+  body[data-tema] .urg-hdr .uh-t, body[data-tema] .urg-nota { color: var(--red-txt); }
+  body[data-tema] .slot-urg { background: var(--card); border-color: var(--red-linea); }
+  body[data-tema] .slot-urg:hover { border-color: var(--red); }
+  body[data-tema] .slot-urg .slot-hora { color: var(--red-txt); }
+  /* «Abierto / Cerrado» del turno: el verde y el rojo plenos sobre blanco
+     quedaban en el límite de lo legible; van con el tono de texto de cada
+     familia, que es el que está calculado para leerse. */
+  body[data-tema] .turno-estado, body[data-tema] .sala-estado { color: var(--green-txt); }
+  body[data-tema] .turno-estado.off, body[data-tema] .sala-estado.off { color: var(--red-txt); }
+  body[data-tema] .dia-banner { background: var(--barra-oscura); color: #eef2f6; }
+
+  /* ---- Los diálogos propios de la app ---- */
+  body[data-tema] .dlg { background: var(--card); }
+  body[data-tema] .dlg-body { color: var(--ink); }
+  body[data-tema] .dlg-pie { border-top-color: var(--line); }
+  body[data-tema] .dlg-btn-no { background: var(--sup1); color: var(--ink); border-color: var(--line-fuerte); }
+  body[data-tema] .dlg-btn-no:hover { background: var(--sup2); }
+
+  /* ---- Los gráficos ----
+     Se dibujan en SVG con los colores escritos en el atributo, que es la única
+     forma de alcanzarlos desde la hoja: por selector de atributo. */
+  body[data-tema] .chart-card svg text { fill: var(--muted); }
+  body[data-tema] .chart-card svg text[fill="#171c24"] { fill: var(--ink); }
+  body[data-tema] .chart-card svg text[fill="#4b5563"] { fill: var(--txt-suave); }
+  body[data-tema] .chart-card svg line[stroke="#d8dde3"] { stroke: var(--line); }
+  body[data-tema] .chart-card svg circle[stroke="#e5e7eb"] { stroke: var(--sup2); }
 
   @media (max-width: 900px) {
-    .topbar { padding: 9px 14px; padding-top: calc(9px + env(safe-area-inset-top)); }
-    .main { padding: 18px 14px 96px; }
+    body[data-tema] .topbar { padding: 9px 14px; padding-top: calc(9px + env(safe-area-inset-top)); }
+    body[data-tema] .main { padding: 18px 14px 96px; }
+  }
+  /* ---------- 3. EL RECUADRO DE CADA TEMA ----------
+     Los avisos NO llevan ninguno de estos marcos: el suyo lo define el
+     orden de urgencia, que viene enseguida. */
+
+  /* «Clínico sobrio» · borde fino
+     Con veinte tarjetas juntas la sombra difusa ensucia; el filete ordena. */
+  body[data-tema="sobrio"] .card,
+  body[data-tema="sobrio"] .kpi,
+  body[data-tema="sobrio"] .stat,
+  body[data-tema="sobrio"] .chart-card,
+  body[data-tema="sobrio"] .tbl-wrap,
+  body[data-tema="sobrio"] .inc-card,
+  body[data-tema="sobrio"] .sala-card,
+  body[data-tema="sobrio"] .guia,
+  body[data-tema="sobrio"] .dia-bar,
+  body[data-tema="sobrio"] .lvq-phase,
+  body[data-tema="sobrio"] .modal-white:not(.com-modal) {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: none;
+  }
+  body[data-tema="sobrio"] .q-acc,
+  body[data-tema="sobrio"] .fila,
+  body[data-tema="sobrio"] .mod-cifra,
+  body[data-tema="sobrio"] .msg,
+  body[data-tema="sobrio"] .det-desc,
+  body[data-tema="sobrio"] .slot,
+  body[data-tema="sobrio"] .cat-card {
+    border: 1px solid var(--line); border-radius: 10px; box-shadow: none;
+  }
+  body[data-tema="sobrio"] .inc-card:hover { box-shadow: 0 3px 12px rgba(15,23,42,0.10); }
+  body[data-tema="sobrio"] .fila:hover, body[data-tema="sobrio"] .q-acc:not(.vacio):hover {
+    border-color: var(--line-fuerte); box-shadow: 0 2px 10px rgba(15,23,42,0.09);
+  }
+
+  /* «Acero quirúrgico» · doble filete
+     Un borde exterior de un pelo y, tres píxeles adentro, una segunda línea
+     apenas insinuada. Es el marco del instrumental: define el límite sin
+     sombra difusa. Las dos líneas se dibujan con sombras interiores, así que
+     no ocupan lugar y no mueven nada de sitio. */
+  body[data-tema="acero"] .card,
+  body[data-tema="acero"] .kpi,
+  body[data-tema="acero"] .stat,
+  body[data-tema="acero"] .chart-card,
+  body[data-tema="acero"] .tbl-wrap,
+  body[data-tema="acero"] .inc-card,
+  body[data-tema="acero"] .sala-card,
+  body[data-tema="acero"] .guia,
+  body[data-tema="acero"] .dia-bar,
+  body[data-tema="acero"] .lvq-phase,
+  body[data-tema="acero"] .modal-white:not(.com-modal) {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: inset 0 0 0 3px var(--card), inset 0 0 0 4px var(--filete);
+  }
+  body[data-tema="acero"] .q-acc,
+  body[data-tema="acero"] .fila,
+  body[data-tema="acero"] .mod-cifra,
+  body[data-tema="acero"] .msg,
+  body[data-tema="acero"] .det-desc,
+  body[data-tema="acero"] .slot,
+  body[data-tema="acero"] .cat-card {
+    border: 1px solid var(--line); border-radius: 7px; box-shadow: none;
+  }
+  body[data-tema="acero"] .inc-card:hover {
+    box-shadow: inset 0 0 0 3px var(--card), inset 0 0 0 4px var(--filete), 0 3px 12px rgba(20,34,42,0.10);
+  }
+  body[data-tema="acero"] .fila:hover, body[data-tema="acero"] .q-acc:not(.vacio):hover {
+    border-color: var(--acento); box-shadow: 0 2px 10px rgba(20,34,42,0.10);
+  }
+
+  /* «Papel clínico» · filete de tinta
+     Cada ventana es una ficha de archivo: esquinas casi rectas y un marco de
+     tinta de 2 px, parejo en los cuatro lados. Sin sombras: el papel no flota,
+     se apila. (Antes el marco llevaba una pestaña más gruesa arriba, como la
+     banda de color del lomo de una carpeta; se sacó porque un lado más grueso
+     que los otros se lee como un borde mal terminado.) */
+  body[data-tema="papel"] .card,
+  body[data-tema="papel"] .kpi,
+  body[data-tema="papel"] .stat,
+  body[data-tema="papel"] .chart-card,
+  body[data-tema="papel"] .tbl-wrap,
+  body[data-tema="papel"] .inc-card,
+  body[data-tema="papel"] .sala-card,
+  body[data-tema="papel"] .guia,
+  body[data-tema="papel"] .dia-bar,
+  body[data-tema="papel"] .lvq-phase,
+  body[data-tema="papel"] .modal-white:not(.com-modal) {
+    background: var(--card); border: 2px solid var(--filete);
+    border-radius: var(--radius); box-shadow: none;
+  }
+  body[data-tema="papel"] .q-acc,
+  body[data-tema="papel"] .fila,
+  body[data-tema="papel"] .mod-cifra,
+  body[data-tema="papel"] .msg,
+  body[data-tema="papel"] .det-desc,
+  body[data-tema="papel"] .slot,
+  body[data-tema="papel"] .cat-card {
+    border: 1px solid var(--line-fuerte); border-radius: 4px; box-shadow: none;
+  }
+  body[data-tema="papel"] .btn { border-radius: 5px; }
+  body[data-tema="papel"] .btn-sm, body[data-tema="papel"] .chip,
+  body[data-tema="papel"] .field input, body[data-tema="papel"] .field textarea,
+  body[data-tema="papel"] .field select { border-radius: 4px; }
+  body[data-tema="papel"] .inc-card:hover { border-color: var(--acento); box-shadow: none; }
+  body[data-tema="papel"] .fila:hover, body[data-tema="papel"] .q-acc:not(.vacio):hover {
+    border-color: var(--acento); box-shadow: none;
+  }
+
+  /* «Guardia nocturna» · filo iluminado
+     Sobre fondo oscuro un borde gris no alcanza a separar dos superficies. Acá
+     cada ventana lleva el filete MÁS un aro de luz de un píxel por dentro,
+     parejo en los cuatro lados, y se apoya en una sombra profunda. Lo que se
+     puede tocar enciende el filo en cian. */
+  body[data-tema="noche"] .card,
+  body[data-tema="noche"] .kpi,
+  body[data-tema="noche"] .stat,
+  body[data-tema="noche"] .chart-card,
+  body[data-tema="noche"] .tbl-wrap,
+  body[data-tema="noche"] .inc-card,
+  body[data-tema="noche"] .sala-card,
+  body[data-tema="noche"] .guia,
+  body[data-tema="noche"] .dia-bar,
+  body[data-tema="noche"] .lvq-phase,
+  body[data-tema="noche"] .modal-white:not(.com-modal) {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), 0 10px 26px rgba(0,0,0,0.38);
+  }
+  body[data-tema="noche"] .q-acc,
+  body[data-tema="noche"] .fila,
+  body[data-tema="noche"] .mod-cifra,
+  body[data-tema="noche"] .msg,
+  body[data-tema="noche"] .det-desc,
+  body[data-tema="noche"] .slot,
+  body[data-tema="noche"] .cat-card {
+    border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.035);
+  }
+  body[data-tema="noche"] .inc-card:hover, body[data-tema="noche"] .fila:hover,
+  body[data-tema="noche"] .q-acc:not(.vacio):hover,
+  body[data-tema="noche"] .slot:not(.slot-bloq):hover {
+    border-color: color-mix(in srgb, var(--acento) 55%, var(--line));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06),
+                0 0 0 1px color-mix(in srgb, var(--acento) 30%, transparent),
+                0 10px 26px rgba(0,0,0,0.45);
+  }
+  /* Un puñado de colores viaja escrito en el atributo `style` de la etiqueta y
+     a eso solo se llega con !important. Es el único lugar donde se usa, y es al
+     solo efecto de que no quede texto oscuro sobre fondo oscuro. */
+  body[data-tema="noche"] [style*="color:#5b21b6"],
+  body[data-tema="noche"] [style*="color:#7c3aed"],
+  body[data-tema="noche"] [style*="color:#8b5cf6"] { color: var(--violeta) !important; }
+  body[data-tema="noche"] [style*="background:#e8f4fb"] { background: var(--blue-soft) !important; border-color: var(--blue-linea) !important; }
+  body[data-tema="noche"] [style*="background:#efe7fd"] { background: var(--violeta-soft) !important; }
+  body[data-tema="noche"] [style*="background:#fdf7f7"] { background: var(--red-soft) !important; border-color: var(--red-linea) !important; }
+  body[data-tema="noche"] [style*="border-color:#f3c8c8"] { border-color: var(--red-linea) !important; }
+  /* Los cinco colores de la guía de la programación y del detalle del circuito
+     viajan escritos en el atributo `style` de cada renglón. Sobre carbón, esos
+     tonos de fondo blanco no se leen: se los sube de brillo, sin tocar el
+     significado de cada uno. */
+  body[data-tema="noche"] [style*="--gc:#0e7490"] { --gc: #4bc3dd !important; }
+  body[data-tema="noche"] [style*="--gc:#c62f2f"] { --gc: #ef8a8a !important; }
+  body[data-tema="noche"] [style*="--gc:#b45309"] { --gc: #e5ac4e !important; }
+  body[data-tema="noche"] [style*="--gc:#166b4a"] { --gc: #5fd3a4 !important; }
+  body[data-tema="noche"] [style*="--gc:#1d4f8c"] { --gc: #8ec4e6 !important; }
+  body[data-tema="noche"] [style*="--gc:#7c3aed"] { --gc: #b3a4f5 !important; }
+
+  /* ---------- 4. EL SEMÁFORO DE URGENCIA DE LOS AVISOS ----------
+     Todo lo que interrumpe —diálogos, recordatorios, comunicados obligatorios
+     de la Jefatura y carteles de pantalla— se pinta el FONDO con uno de cuatro
+     colores, y ese color dice solo, sin leer una palabra, qué hay que hacer:
+
+       ROJO      Hay que resolverlo ahora.
+                 Confirmaciones de acciones destructivas, avisos críticos,
+                 comunicados urgentes de la Jefatura, incidencias de reporte
+                 inmediato.
+       NARANJA   Tiene plazo y el plazo corre.
+                 Avisos de atención, recordatorios por vencer, comunicados
+                 importantes.
+       AMARILLO  Espera una decisión suya.
+                 Preguntas de confirmación y todo lo que firma la Jefatura.
+       VERDE     Vía libre: no hay nada que hacer.
+                 Información, operaciones registradas, avisos ya vistos.
+
+     El marco acompaña al fondo con el mismo color, PAREJO en los cuatro lados:
+     ningún canto más grueso que otro. El grosor apenas escalona —2,5 px el
+     rojo, 1 px el verde— y solo el rojo suma un halo. Son señales de refuerzo:
+     quien no distinga los colores todavía lee el orden en el grosor.
+
+     La cabecera de color del diálogo NO cambia: sigue diciendo quién habla
+     (la Jefatura, una confirmación, un error). El fondo dice cuán urgente es.
+     Son dos preguntas distintas y se contestan por separado. */
+
+  /* ---- ROJO · hay que resolverlo ahora ---- */
+  body[data-tema] .dlg-t-peligro,
+  body[data-tema] .rem.crit,
+  body[data-tema] .com-modal.p-urgente,
+  body[data-tema] .banner-red,
+  body[data-tema] .cat-info.urgente {
+    --u-c: var(--red); --u-fondo: var(--red-soft); --u-txt: var(--red-txt);
+    --u-w: 2.5px; --u-h: 4px;
+  }
+  /* ---- NARANJA · tiene plazo y el plazo corre ---- */
+  body[data-tema] .dlg-t-aviso,
+  body[data-tema] .rem.warn,
+  body[data-tema] .com-modal.p-importante,
+  body[data-tema] .banner-amber {
+    --u-c: var(--naranja); --u-fondo: var(--naranja-soft); --u-txt: var(--naranja-txt);
+    --u-w: 2px; --u-h: 0px;
+  }
+  /* ---- AMARILLO · espera una decisión suya ---- */
+  body[data-tema] .dlg-t-pregunta,
+  body[data-tema] .dlg-t-jefatura {
+    --u-c: var(--amarillo); --u-fondo: var(--amarillo-soft); --u-txt: var(--amarillo-txt);
+    --u-w: 1.5px; --u-h: 0px;
+  }
+  /* ---- VERDE · vía libre ---- */
+  body[data-tema] .dlg-t-info,
+  body[data-tema] .dlg-t-ok,
+  body[data-tema] .rem.info,
+  body[data-tema] .rem.rem-leido,
+  body[data-tema] .com-modal.p-informativo,
+  body[data-tema] .banner-blue,
+  body[data-tema] .banner-green,
+  body[data-tema] .cat-info.diferido,
+  body[data-tema] .cat-info.nearmiss {
+    --u-c: var(--green); --u-fondo: var(--green-soft); --u-txt: var(--green-txt);
+    --u-w: 1px; --u-h: 0px;
+  }
+
+  /* ---- La ventana del aviso ---- */
+  body[data-tema] .dlg {
+    background: var(--u-fondo, var(--card));
+    border: var(--u-w, 1px) solid var(--u-c, var(--green));
+    border-radius: var(--dlg-radio);
+    box-shadow: 0 26px 70px rgba(0,0,0,0.42),
+                0 0 0 var(--u-h, 0px) color-mix(in srgb, var(--u-c, var(--green)) 26%, transparent);
+  }
+  /* El cuerpo y el pie toman el mismo fondo: la ventana es de un color solo,
+     que es lo que la hace legible de un vistazo desde el otro lado del office. */
+  body[data-tema] .dlg-body, body[data-tema] .dlg-pie {
+    background-color: var(--u-fondo, var(--card));
+    color: var(--ink);
+  }
+  body[data-tema] .dlg-pie { border-top-color: color-mix(in srgb, var(--u-c, var(--green)) 30%, transparent); }
+  body[data-tema] .dlg-btn-no { background: var(--card); border-color: color-mix(in srgb, var(--u-c, var(--green)) 40%, var(--line)); }
+  body[data-tema] .dlg-btn-ok { box-shadow: 0 6px 16px color-mix(in srgb, var(--u-c, var(--green)) 30%, transparent); }
+  body[data-tema] .dlg-campo input, body[data-tema] .dlg-campo textarea { background: var(--card); }
+
+  /* Solo el rojo late, y únicamente si el sistema no pidió menos movimiento. */
+  @media (prefers-reduced-motion: no-preference) {
+    body[data-tema] .dlg-t-peligro { animation: uLat 2.4s ease-in-out 0.4s infinite; }
+  }
+  @keyframes uLat {
+    0%, 100% { box-shadow: 0 26px 70px rgba(0,0,0,0.42), 0 0 0 4px color-mix(in srgb, var(--u-c) 26%, transparent); }
+    50%      { box-shadow: 0 26px 70px rgba(0,0,0,0.42), 0 0 0 9px color-mix(in srgb, var(--u-c) 10%, transparent); }
+  }
+
+  /* ---- Los recordatorios ---- */
+  body[data-tema] .rem, body[data-tema] #rem-modal .rem {
+    background: var(--u-fondo, var(--card));
+    border: var(--u-w, 1px) solid var(--u-c, var(--green));
+    border-radius: var(--radius);
+    box-shadow: 0 0 0 var(--u-h, 0px) color-mix(in srgb, var(--u-c, var(--green)) 16%, transparent);
+  }
+  /* Sobre un fondo del mismo color, el icono necesita despegarse. */
+  body[data-tema] .rem .rem-ico {
+    background: color-mix(in srgb, var(--u-c) 20%, transparent);
+    color: var(--u-txt);
+  }
+  body[data-tema] .rem .rem-go, body[data-tema] .rem .rem-visto-btn {
+    background: var(--card); border-color: color-mix(in srgb, var(--u-c) 35%, var(--line));
+  }
+
+  /* ---- El comunicado obligatorio de la Jefatura ---- */
+  body[data-tema] .com-modal {
+    background: var(--u-fondo, var(--card));
+    border: var(--u-w, 1px) solid var(--u-c, var(--green));
+    box-shadow: 0 0 0 var(--u-h, 0px) color-mix(in srgb, var(--u-c, var(--green)) 26%, transparent);
+  }
+  /* El texto del comunicado se lee sobre papel, no sobre el color del semáforo. */
+  body[data-tema] .com-modal .com-cuerpo { background: var(--card); border-color: color-mix(in srgb, var(--u-c) 30%, var(--line)); }
+
+  /* ---- Los carteles de pantalla ---- */
+  body[data-tema] .banner, body[data-tema] .cat-info {
+    background-color: var(--u-fondo, var(--card));
+    border: var(--u-w, 1px) solid color-mix(in srgb, var(--u-c, var(--green)) 55%, transparent);
+    color: var(--u-txt, var(--ink));
+  }
+
+  /* ---------- 5. LA INTERACCIÓN DE CADA PANTALLA ----------
+     `go()` deja escrita la vista activa en `body[data-vista]`, así que cada
+     pantalla puede insistir con lo suyo y callarse lo demás. No se agregó ni se
+     quitó una sola acción: lo que cambia es cuándo y cuánto se ve cada una. */
+
+  /* ---- Base: el foco del teclado nunca se pierde ---- */
+  body[data-tema] :focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; border-radius: 6px; }
+  body[data-tema] .sidebar :focus-visible { outline-color: var(--foco-oscuro); }
+  body[data-tema] .btn { transition: filter 0.15s, transform 0.1s, box-shadow 0.15s; }
+  body[data-tema] .btn:hover { transform: translateY(-1px); }
+  body[data-tema] .btn:active { transform: translateY(1px); }
+  /* Lo que se puede tocar lo dice el cursor, sin tener que probarlo. */
+  body[data-tema] .kpi, body[data-tema] .inc-card, body[data-tema] .fila,
+  body[data-tema] .q-acc:not(.vacio), body[data-tema] .slot:not(.slot-bloq),
+  body[data-tema] .tbl tr.clic { cursor: pointer; }
+  /* Un renglón de lista siempre adelanta a dónde lleva. */
+  body[data-tema] .fila .fila-chev, body[data-tema] .inc-card .chev { transition: transform 0.15s ease, color 0.15s ease; }
+  body[data-tema] .fila:hover .fila-chev, body[data-tema] .inc-card:hover .chev { transform: translateX(3px); color: var(--acento); }
+  body[data-tema] .inc-card, body[data-tema] .fila, body[data-tema] .q-acc {
+    transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+  }
+  body[data-tema] .inc-card:hover, body[data-tema] .fila:hover { transform: translateY(-1px); }
+  body[data-tema] .tab { transition: background 0.14s, color 0.14s, border-color 0.14s, transform 0.1s; }
+  body[data-tema] .tab:hover { transform: translateY(-1px); }
+  body[data-tema] .nav-btn { transition: background 0.13s ease, box-shadow 0.13s ease, padding-left 0.13s ease; }
+  body[data-tema] .nav-btn:not(.active):hover { padding-left: 15px; }
+  /* Un ancla nunca queda debajo de la barra superior pegajosa. */
+  body[data-tema] .card, body[data-tema] .kpi, body[data-tema] .inc-card,
+  body[data-tema] .sala-card { scroll-margin-top: 80px; }
+
+  /* ---- PANEL y RECORDATORIOS · el aviso empuja a resolverlo ----
+     Las dos pantallas de avisos comparten la regla: la tarjeta se corre al
+     pasar por encima y sus dos botones —ir al asunto y darlo por visto— pasan
+     de discretos a evidentes solo cuando hacen falta. */
+  body[data-tema][data-vista="panel"] .rem,
+  body[data-tema][data-vista="recordatorios"] .rem { transition: transform 0.14s ease, box-shadow 0.14s ease; }
+  body[data-tema][data-vista="panel"] .rem:hover,
+  body[data-tema][data-vista="recordatorios"] .rem:hover,
+  body[data-tema][data-vista="panel"] .rem:focus-within,
+  body[data-tema][data-vista="recordatorios"] .rem:focus-within { transform: translateX(3px); }
+  body[data-tema][data-vista="panel"] .rem-acciones,
+  body[data-tema][data-vista="recordatorios"] .rem-acciones { transition: opacity 0.15s ease; }
+  @media (hover: hover) and (min-width: 901px) {
+    body[data-tema][data-vista="panel"] .rem:not(:hover):not(:focus-within) .rem-acciones,
+    body[data-tema][data-vista="recordatorios"] .rem:not(:hover):not(:focus-within) .rem-acciones { opacity: 0.6; }
+  }
+  body[data-tema][data-vista="panel"] .rem:hover .rem-visto-btn,
+  body[data-tema][data-vista="recordatorios"] .rem:hover .rem-visto-btn { border-color: var(--green); color: var(--green); }
+  /* El aviso crítico sin ver respira hasta que alguien lo atiende. */
+  @media (prefers-reduced-motion: no-preference) {
+    body[data-tema][data-vista="panel"] .rem.crit:not(.rem-leido),
+    body[data-tema][data-vista="recordatorios"] .rem.crit:not(.rem-leido) { animation: uResp 2.6s ease-in-out infinite; }
+  }
+  @keyframes uResp {
+    0%, 100% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--red) 16%, transparent); }
+    50%      { box-shadow: 0 0 0 9px color-mix(in srgb, var(--red)  5%, transparent); }
+  }
+
+  /* ---- PROGRAMACIÓN DIARIA · la grilla guía la mano ----
+     La sala en la que se está trabajando se despega del resto, la fila del
+     turno se aclara y la franja libre deja de parecer una casilla vacía para
+     parecer lo que es: un lugar donde se agenda. */
+  body[data-tema][data-vista="grilla"] .sala-card { transition: border-color 0.15s, box-shadow 0.15s; }
+  body[data-tema][data-vista="grilla"] .sala-card:hover,
+  body[data-tema][data-vista="grilla"] .sala-card:focus-within {
+    border-color: var(--acento);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--acento) 15%, transparent);
+  }
+  @media (hover: hover) and (min-width: 901px) {
+    body[data-tema][data-vista="grilla"] .franjas-row:hover .slot:not(:hover),
+    body[data-tema][data-vista="grilla"] .franjas-endo:hover .slot:not(:hover) { opacity: 0.62; transition: opacity 0.15s ease; }
+  }
+  body[data-tema][data-vista="grilla"] .slot-libre { cursor: copy; }
+  body[data-tema][data-vista="grilla"] .slot-libre .slot-mas { transition: transform 0.15s ease; }
+  body[data-tema][data-vista="grilla"] .slot-libre:hover .slot-mas { transform: scale(1.35); }
+  body[data-tema][data-vista="grilla"] .slot-libre:hover {
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--green) 45%, transparent);
+  }
+  body[data-tema][data-vista="grilla"] .slot-bloq:hover { opacity: 0.7; }
+  body[data-tema][data-vista="grilla"] .slot-urg:hover {
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--red) 45%, transparent);
+  }
+
+  /* ---- FORMULARIOS · se ilumina el campo en el que se está ----
+     Cargar una incidencia o una solicitud es una fila larga de casillas.
+     Mientras se escribe en una, las demás bajan medio tono y el rótulo de la
+     activa se pinta: uno siempre sabe dónde está parado. Y la botonera queda
+     pegada al pie, para no tener que ir a buscar «Guardar». */
+  body[data-tema][data-vista="nueva"] .form-grid:focus-within .field:not(:focus-within),
+  body[data-tema][data-vista="solicitud"] .form-grid:focus-within .field:not(:focus-within),
+  body[data-tema][data-vista="consentimientos"] .form-grid:focus-within .field:not(:focus-within) {
+    opacity: 0.72; transition: opacity 0.15s ease;
+  }
+  body[data-tema] .field label { transition: color 0.15s ease; }
+  body[data-tema] .field:focus-within label, body[data-tema] .field:focus-within .hint { color: var(--acento); }
+  body[data-tema] .field input:focus, body[data-tema] .field textarea:focus, body[data-tema] .field select:focus {
+    border-color: var(--acento); box-shadow: 0 0 0 3px color-mix(in srgb, var(--acento) 20%, transparent);
+  }
+  @media (min-width: 901px) {
+    body[data-tema][data-vista="nueva"] .card > .form-actions,
+    body[data-tema][data-vista="solicitud"] .card > .form-actions {
+      position: sticky; bottom: 0; z-index: 2;
+      margin: 26px -26px -24px; padding: 16px 26px;
+      background: var(--pie-pegado); border-top: 1px solid var(--line);
+      border-radius: 0 0 var(--radius) var(--radius);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    }
+  }
+  /* Las tarjetas de categoría: la elegida se aparta del resto. */
+  body[data-tema][data-vista="nueva"] .cat-card { transition: transform 0.14s ease, border-color 0.14s, box-shadow 0.14s; }
+  body[data-tema][data-vista="nueva"] .cat-card:hover,
+  body[data-tema][data-vista="nueva"] .cat-card.selected { transform: translateY(-2px); }
+
+  /* ---- LISTAS Y TABLAS · el renglón bajo el dedo se ve ---- */
+  body[data-tema][data-vista="usuarios"] .tbl tr td { transition: background 0.12s ease; }
+  body[data-tema][data-vista="usuarios"] .tbl tr:hover td { background: var(--fila-hover); }
+
+  /* ---- INDICADORES Y ESTADÍSTICAS · la cifra fuera de meta se marca ----
+     En una pantalla de doce cifras, la que está mal es la única que importa: se
+     le pone el recuadro del orden 2, el mismo de los avisos de atención. */
+  body[data-tema][data-vista="kpis"] .kpi,
+  body[data-tema][data-vista="panel"] .kpi { transition: transform 0.14s ease, box-shadow 0.14s ease; }
+  body[data-tema][data-vista="kpis"] .kpi:hover,
+  body[data-tema][data-vista="panel"] .kpi:hover { transform: translateY(-2px); }
+  body[data-tema][data-vista="kpis"] .kpi:has(.kpi-bad),
+  body[data-tema][data-vista="panel"] .kpi:has(.kpi-bad) {
+    border-color: color-mix(in srgb, var(--amber) 55%, var(--line));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 14%, transparent);
+  }
+  body[data-tema] .est-preset { transition: border-color 0.14s, color 0.14s, background 0.14s; }
+  body[data-tema] .est-preset:hover { background: color-mix(in srgb, var(--acento) 10%, transparent); border-color: var(--acento); }
+
+  /* ---- PERFIL · el requisito que falta salta a la vista ---- */
+  body[data-tema][data-vista="perfil"] .req-row { transition: background 0.12s ease; }
+  body[data-tema][data-vista="perfil"] .req-row:hover { background: var(--fila-hover); }
+  body[data-tema][data-vista="perfil"] .req-row:has(.badge-no) { box-shadow: inset 3px 0 0 var(--red); padding-left: 10px; }
+
+  /* ---------- 6. EL BOTÓN DE APARIENCIA ----------
+     Vive en la barra superior, al lado del chip de sincronización. Se prueba en
+     vivo: al pasar por encima de una opción la app se pinta entera con ese
+     tema, y al salir del menú vuelve a la elegida. Recién el clic la guarda. */
+  body[data-tema] .tema-wrap { position: relative; display: inline-flex; }
+  body[data-tema] .tema-menu {
+    position: absolute; top: calc(100% + 9px); right: 0; z-index: 60;
+    width: 306px; max-width: calc(100vw - 24px);
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 7px;
+    box-shadow: 0 18px 44px rgba(0,0,0,0.22);
+    display: none;
+  }
+  body[data-tema] .tema-menu.open { display: block; }
+  body[data-tema] .tema-tit {
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); padding: 7px 10px 8px;
+  }
+  body[data-tema] .tema-op {
+    display: flex; align-items: flex-start; gap: 11px; width: 100%; text-align: left;
+    background: none; border: 1px solid transparent; border-radius: 9px;
+    padding: 10px 11px; cursor: pointer; font-family: inherit; color: var(--ink);
+    transition: background 0.12s, border-color 0.12s;
+  }
+  body[data-tema] .tema-op:hover, body[data-tema] .tema-op:focus-visible { background: var(--sup2); border-color: var(--line); }
+  body[data-tema] .tema-op.on { border-color: var(--acento); background: color-mix(in srgb, var(--acento) 9%, transparent); }
+  body[data-tema] .tema-muestra { flex: none; display: flex; flex-direction: column; width: 34px; border-radius: 7px; overflow: hidden; border: 1px solid var(--line); }
+  body[data-tema] .tema-muestra i { height: 9px; }
+  body[data-tema] .tema-txt { min-width: 0; flex: 1; }
+  body[data-tema] .tema-n { font-weight: 700; font-size: 0.89rem; line-height: 1.25; display: flex; align-items: center; gap: 7px; }
+  body[data-tema] .tema-d { font-size: 0.77rem; color: var(--muted); line-height: 1.4; margin-top: 2px; }
+  body[data-tema] .tema-ok { flex: none; color: var(--acento); display: none; }
+  body[data-tema] .tema-op.on .tema-ok { display: inline-flex; }
+  body[data-tema] .tema-pie {
+    font-size: 0.72rem; color: var(--muted); line-height: 1.45;
+    padding: 9px 11px 5px; border-top: 1px solid var(--line); margin-top: 5px;
+  }
+  @media (max-width: 900px) {
+    body[data-tema] .tema-menu { position: fixed; top: auto; right: 12px; left: 12px; width: auto; max-width: none; }
   }
 
 </style>
 </head>
-<body>
+<body data-tema="sobrio">
+<!-- La apariencia guardada se aplica antes de pintar nada: si esperara al
+     arranque de la app, quien eligió «Guardia nocturna» vería un fogonazo
+     blanco en cada apertura. -->
+<script>try{var t=localStorage.getItem('hru_tema');if(/^(sobrio|acero|papel|noche)$/.test(t))document.body.dataset.tema=t;}catch(e){}</script>
 <div class="app rail" id="app">
   <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
   <aside class="sidebar" id="sidebar">
@@ -1654,6 +2747,13 @@
       <div class="topbar-title" id="topbar-title">Panel</div>
       <div class="topbar-spacer"></div>
       <span class="conn" id="conn-chip" onclick="explicarConexion()" title="Estado de la sincronización"><span class="dotc"></span><span id="conn-text">Conectado</span></span>
+      <div class="tema-wrap">
+        <button class="top-btn" id="tema-btn" onclick="toggleTemaMenu(event)"
+                aria-haspopup="true" aria-expanded="false" aria-label="Apariencia">
+          <span id="tema-ico"></span><span class="lbl" id="tema-lbl">Apariencia</span>
+        </button>
+        <div class="tema-menu" id="tema-menu" role="menu" aria-label="Apariencia"></div>
+      </div>
       <button class="top-btn" id="install-btn" style="display:none" onclick="promptInstall()" aria-label="Instalar aplicación"><span id="install-ico"></span><span class="lbl">Instalar</span></button>
       <button class="top-btn" id="bell-btn" onclick="openRecordatorios()" aria-label="Recordatorios"><span id="bell-ico"></span><span class="lbl">Recordatorios</span><span class="top-badge" id="bell-badge" style="display:none">0</span></button>
     </header>
@@ -1809,6 +2909,7 @@ const ICONS = {
   eyeSm: I('<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>', 16),
   checkCircle: I('<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>', 22),
   check: I('<path d="M20 6 9 17l-5-5"/>', 14),
+  paleta: I('<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>', 17),
   x: I('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>', 14),
   search: I('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>', 16),
   trash: I('<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>', 14),
@@ -3820,7 +4921,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.12.0';
+const APP_VERSION = '3.13.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -5631,13 +6732,16 @@ function refreshView() {
 
    Los diálogos se encolan: si llega uno mientras otro está abierto, espera su
    turno en lugar de pisarlo. */
+/* Los colores ya no van escritos acá: cada tono apunta a las variables del
+   tema activo, así la ventana de aviso se repinta sola al cambiar de
+   apariencia, sin tocar una línea de este archivo. */
 const DLG_TONOS = {
-  info:     { c1: '#2980d9', c2: '#2fb9c9', soft: '#eef6fd', ring: 'rgba(41,128,217,0.24)',  kicker: 'Aviso',        icono: 'info',        titulo: 'Aviso' },
-  ok:       { c1: '#1fa971', c2: '#4cc79a', soft: '#eefaf4', ring: 'rgba(31,169,113,0.24)',  kicker: 'Listo',        icono: 'checkCircle', titulo: 'Operación registrada' },
-  aviso:    { c1: '#dd8c10', c2: '#f4c04e', soft: '#fdf6e8', ring: 'rgba(221,140,16,0.24)',  kicker: 'Atención',     icono: 'alertTri',    titulo: 'Atención' },
-  peligro:  { c1: '#c62f2f', c2: '#ec6060', soft: '#fdeeee', ring: 'rgba(198,47,47,0.24)',   kicker: 'Cuidado',      icono: 'alertTri',    titulo: 'Confirme la acción' },
-  pregunta: { c1: '#3b53c4', c2: '#7c3aed', soft: '#f1f0fe', ring: 'rgba(93,63,211,0.24)',   kicker: 'Confirmación', icono: 'info',        titulo: '¿Confirma?' },
-  jefatura: { c1: '#0f766e', c2: '#2fb9c9', soft: '#eafaf8', ring: 'rgba(15,118,110,0.24)',  kicker: 'Jefatura de Quirófanos', icono: 'shield', titulo: 'Jefatura de Quirófanos' },
+  info:     { c1: 'var(--t-info-1)',     c2: 'var(--t-info-2)',     soft: 'var(--t-info-s)',     ring: 'var(--t-info-r)',     kicker: 'Aviso',        icono: 'info',        titulo: 'Aviso' },
+  ok:       { c1: 'var(--t-ok-1)',       c2: 'var(--t-ok-2)',       soft: 'var(--t-ok-s)',       ring: 'var(--t-ok-r)',       kicker: 'Listo',        icono: 'checkCircle', titulo: 'Operación registrada' },
+  aviso:    { c1: 'var(--t-aviso-1)',    c2: 'var(--t-aviso-2)',    soft: 'var(--t-aviso-s)',    ring: 'var(--t-aviso-r)',    kicker: 'Atención',     icono: 'alertTri',    titulo: 'Atención' },
+  peligro:  { c1: 'var(--t-peligro-1)',  c2: 'var(--t-peligro-2)',  soft: 'var(--t-peligro-s)',  ring: 'var(--t-peligro-r)',  kicker: 'Cuidado',      icono: 'alertTri',    titulo: 'Confirme la acción' },
+  pregunta: { c1: 'var(--t-pregunta-1)', c2: 'var(--t-pregunta-2)', soft: 'var(--t-pregunta-s)', ring: 'var(--t-pregunta-r)', kicker: 'Confirmación', icono: 'info',        titulo: '¿Confirma?' },
+  jefatura: { c1: 'var(--t-jefatura-1)', c2: 'var(--t-jefatura-2)', soft: 'var(--t-jefatura-s)', ring: 'var(--t-jefatura-r)', kicker: 'Jefatura de Quirófanos', icono: 'shield', titulo: 'Jefatura de Quirófanos' },
 };
 let dlgEl = null;          // overlay, se crea una sola vez
 let dlgCola = [];          // diálogos esperando turno
@@ -5702,7 +6806,7 @@ function dlgPintar() {
   const ov = dlgNodo();
   const campo = op.campo;
   ov.innerHTML = `
-    <div class="dlg" role="dialog" aria-modal="true" style="--dlg-c1:${T.c1};--dlg-c2:${T.c2};--dlg-soft:${T.soft};--dlg-ring:${T.ring}">
+    <div class="dlg dlg-t-${DLG_TONOS[op.tono] ? op.tono : 'info'}" role="dialog" aria-modal="true" style="--dlg-c1:${T.c1};--dlg-c2:${T.c2};--dlg-soft:${T.soft};--dlg-ring:${T.ring}">
       <div class="dlg-hdr">
         <div class="dlg-ico">${ico(ICONS[op.icono || T.icono] || ICONS.info, 26)}</div>
         <div>
@@ -5779,6 +6883,106 @@ function pedirTexto(texto, op) {
    reescribir cincuenta llamadas y para que cualquier aviso futuro herede solo
    la ventana nueva. */
 window.alert = function (m) { avisar(m); };
+
+/* ================= APARIENCIA =================
+   Cuatro pieles para la misma app. La elige cada usuario desde el botón de la
+   barra superior, al lado del chip de sincronización, y queda guardada en SU
+   navegador: dos personas pueden trabajar con distinta apariencia sobre los
+   mismos datos, y ninguna le cambia nada a la otra.
+
+   Todo el peso está en la hoja de estilo: acá solo se escribe qué tema vale
+   —`body[data-tema]`— y se dibuja el menú. No hay una sola decisión de datos.
+
+   La prueba en vivo funciona así: pasar por encima de una opción pinta la app
+   entera con ese tema, salir del menú devuelve la elegida y recién el clic la
+   guarda. Nadie tiene que confirmar nada para ver cómo queda. */
+const TEMAS = {
+  sobrio:   { nombre: 'Clínico sobrio', desc: 'El de siempre. Pizarra y verde azulado sobre gris claro.',
+              barra: '#0f172a', muestras: ['#0f172a', '#1d4ed8', '#0d9488', '#f0a92e', '#d94848'] },
+  acero:    { nombre: 'Acero quirúrgico', desc: 'Acero frío y verde de quirófano. Recuadro de doble filete.',
+              barra: '#14252d', muestras: ['#14252d', '#1a6d8a', '#16806a', '#bd7a12', '#ad3838'] },
+  papel:    { nombre: 'Papel clínico', desc: 'Papel cálido y tinta índigo. Marco de filete de tinta.',
+              barra: '#2a251d', muestras: ['#2a251d', '#3f4ea3', '#97552a', '#a8730f', '#a83226'] },
+  noche:    { nombre: 'Guardia nocturna', desc: 'Pantalla oscura para el turno de 24 h. Recuadro de filo iluminado.',
+              barra: '#080d11', muestras: ['#080d11', '#35c6e0', '#14a08d', '#d59a2c', '#e05a5a'] },
+};
+const TEMA_BASE = 'sobrio';
+let temaElegido = TEMA_BASE;
+
+function temaValido(t) { return Object.prototype.hasOwnProperty.call(TEMAS, t) ? t : TEMA_BASE; }
+
+/* `provisorio` es la prueba en vivo: pinta, pero no toca lo guardado. */
+function aplicarTema(id, provisorio) {
+  const t = temaValido(id);
+  document.body.dataset.tema = t;
+  // La barra del sistema del teléfono acompaña al tema.
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', TEMAS[t].barra);
+  if (provisorio) return;
+  temaElegido = t;
+  try { localStorage.setItem('hru_tema', t); } catch (e) {}
+  pintarTemaMenu();
+}
+
+function pintarTemaMenu() {
+  const m = $('tema-menu');
+  if (!m) return;
+  m.innerHTML = '<div class="tema-tit">Apariencia</div>'
+    + Object.keys(TEMAS).map((k) => {
+      const t = TEMAS[k];
+      const on = k === temaElegido;
+      return `<button class="tema-op${on ? ' on' : ''}" role="menuitemradio" aria-checked="${on}"
+          onclick="elegirTema('${k}')" onmouseenter="aplicarTema('${k}', true)" onfocus="aplicarTema('${k}', true)">
+        <span class="tema-muestra">${t.muestras.map((c) => `<i style="background:${c}"></i>`).join('')}</span>
+        <span class="tema-txt">
+          <span class="tema-n">${esc(t.nombre)}<span class="tema-ok">${ICONS.check}</span></span>
+          <span class="tema-d">${esc(t.desc)}</span>
+        </span>
+      </button>`;
+    }).join('')
+    + '<div class="tema-pie">Se prueba con solo pasar por encima. Lo que elija queda guardado en este dispositivo y no le cambia la apariencia a nadie más.</div>';
+  const lbl = $('tema-lbl');
+  if (lbl) lbl.textContent = TEMAS[temaElegido].nombre;
+  const btn = $('tema-btn');
+  if (btn) btn.setAttribute('title', 'Apariencia: ' + TEMAS[temaElegido].nombre);
+}
+
+function toggleTemaMenu(e) {
+  if (e) e.stopPropagation();
+  const m = $('tema-menu');
+  if (!m) return;
+  if (m.classList.contains('open')) { cerrarTemaMenu(); return; }
+  pintarTemaMenu();
+  m.classList.add('open');
+  $('tema-btn').setAttribute('aria-expanded', 'true');
+}
+
+function cerrarTemaMenu() {
+  const m = $('tema-menu');
+  if (!m || !m.classList.contains('open')) return;
+  m.classList.remove('open');
+  $('tema-btn').setAttribute('aria-expanded', 'false');
+  // Deshace cualquier prueba en vivo que haya quedado a mitad de camino.
+  aplicarTema(temaElegido, true);
+}
+
+function elegirTema(k) { aplicarTema(k); cerrarTemaMenu(); }
+
+function initTema() {
+  let guardado = TEMA_BASE;
+  try { guardado = temaValido(localStorage.getItem('hru_tema')); } catch (e) {}
+  aplicarTema(guardado);
+  const m = $('tema-menu');
+  if (m) m.addEventListener('mouseleave', () => {
+    if (m.classList.contains('open')) aplicarTema(temaElegido, true);
+  });
+  // Se cierra al tocar afuera o con Escape, como cualquier menú.
+  document.addEventListener('click', (ev) => {
+    if (ev.target && ev.target.closest && ev.target.closest('.tema-wrap')) return;
+    cerrarTemaMenu();
+  });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') cerrarTemaMenu(); });
+}
 
 /* ================= SIDEBAR ================= */
 function renderSidebar() {
@@ -5926,6 +7130,10 @@ function go(v, silencioso) {
   // nominal completo queda reservado a la Jefatura dentro de la propia vista.
   if (v === 'estadisticas' && !usuarioActual() && !jefe && !director) { v = 'acceso'; }
   view = v;
+  /* La vista activa queda escrita en el <body>. Es lo único que hace falta
+     para que cada pantalla module su propia interacción desde la hoja de
+     estilo, sin una línea de lógica nueva. */
+  try { document.body.dataset.vista = v; } catch (e) {}
   closeDrawer();
   const t = $('topbar-title');
   if (t) t.textContent = TITULOS[v] || 'HRU Quirófanos';
@@ -16328,6 +17536,8 @@ document.addEventListener('DOMContentLoaded', () => {
   ['cred-mail', 'cred-clave'].forEach((id) => $(id).addEventListener('keydown',
     (e) => { if (e.key === 'Enter') { e.preventDefault(); confirmarCredencial(); } }));
   $('install-ico').innerHTML = ICONS.download;
+  $('tema-ico').innerHTML = ICONS.paleta;
+  initTema();
   $('libro-ico').innerHTML = ICONS.book;
 
   const toggle = $('pass-toggle');
