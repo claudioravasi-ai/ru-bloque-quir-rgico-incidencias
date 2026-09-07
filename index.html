@@ -1021,9 +1021,11 @@
     align-items: center; justify-content: center; text-align: center;
     background: #f7fafc; border-style: dashed; border-color: #cbd5e1; color: var(--muted);
   }
-  .slot-libre:hover { background: #eef6f2; border-color: var(--green); color: var(--green); }
+  .slot-libre:not(.slot-bloq):hover { background: #eef6f2; border-color: var(--green); color: var(--green); }
   .slot-bloq { background: #f1f3f5; border-style: dashed; cursor: not-allowed; opacity: 0.7; }
-  .slot-bloq:hover { transform: none; box-shadow: none; }
+  /* La franja cerrada nunca se pinta de verde ni levanta: al pasar por encima
+     dice que no, con el cursor prohibido y un borde rojo apagado. */
+  .slot-bloq:hover { transform: none; box-shadow: none; background: #f6eeee; border-color: #d98a8a; color: #a12c2c; }
   .slot-hora { font-size: 0.72rem; font-weight: 800; color: var(--blue); letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
   .slot-mas { font-size: 1.5rem; line-height: 1; font-weight: 300; }
   .slot-hint { font-size: 0.66rem; font-weight: 700; }
@@ -1031,6 +1033,19 @@
   .slot-pac { font-size: 0.73rem; color: #4b5563; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .slot-cx { font-size: 0.7rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .slot-chips { display: flex; gap: 4px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
+  /* ---- Lo que falta, dicho en la casilla ----
+     La grilla de un día tiene decenas de turnos y nadie los abre uno por uno
+     para saber cuál está frenado. El renglón se lee solo: ámbar mientras falte
+     algo, rojo si hay un rechazo que trabar, verde cuando no espera nada. */
+  .slot-falta {
+    display: flex; align-items: flex-start; gap: 4px; margin-top: 5px;
+    font-size: 0.62rem; font-weight: 700; line-height: 1.25; text-align: left;
+    padding: 3px 6px; border-radius: 6px;
+    background: var(--amber-soft); color: #92600a;
+  }
+  .slot-falta svg { flex: none; margin-top: 1px; }
+  .slot-falta.grave { background: var(--red-soft); color: var(--red); }
+  .slot-falta.ok { background: var(--green-soft); color: #166b4a; }
   .slot-est { font-size: 0.62rem; font-weight: 800; padding: 2px 7px; border-radius: 99px; }
   .slot-prio { font-size: 0.62rem; font-weight: 800; padding: 2px 7px; border-radius: 99px; color: #fff; }
   .slot-auth { font-size: 0.6rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; }
@@ -2195,9 +2210,13 @@
   /* ---- La grilla del día ---- */
   body[data-tema] .slot { background: var(--card); }
   body[data-tema] .slot-libre { background: var(--sup2); border-color: var(--line-fuerte); color: var(--muted); }
-  body[data-tema] .slot-libre:hover { background: var(--green-soft); border-color: var(--green); color: var(--green-txt); }
+  body[data-tema] .slot-libre:not(.slot-bloq):hover { background: var(--green-soft); border-color: var(--green); color: var(--green-txt); }
   body[data-tema] .slot-bloq { background: var(--sup3); }
+  body[data-tema] .slot-bloq:hover { background: var(--red-soft); border-color: var(--red-linea); color: var(--red-txt); }
   body[data-tema] .slot-pac { color: var(--txt-suave); }
+  body[data-tema] .slot-falta { background: var(--amber-soft); color: var(--amber-txt); }
+  body[data-tema] .slot-falta.grave { background: var(--red-soft); color: var(--red-txt); }
+  body[data-tema] .slot-falta.ok { background: var(--green-soft); color: var(--green-txt); }
   body[data-tema] .slot-vencido:hover { border-color: var(--teal); color: var(--teal); }
   body[data-tema] .slot-retro { background: var(--green-soft); border-color: var(--green-linea); color: var(--green-txt); }
   /* La sala de guardia y el turno rodante de urgencia se tiñen de rojo, pero
@@ -2605,13 +2624,20 @@
     body[data-tema][data-vista="grilla"] .franjas-row:hover .slot:not(:hover),
     body[data-tema][data-vista="grilla"] .franjas-endo:hover .slot:not(:hover) { opacity: 0.62; transition: opacity 0.15s ease; }
   }
-  body[data-tema][data-vista="grilla"] .slot-libre { cursor: copy; }
-  body[data-tema][data-vista="grilla"] .slot-libre .slot-mas { transition: transform 0.15s ease; }
-  body[data-tema][data-vista="grilla"] .slot-libre:hover .slot-mas { transform: scale(1.35); }
-  body[data-tema][data-vista="grilla"] .slot-libre:hover {
+  body[data-tema][data-vista="grilla"] .slot-libre:not(.slot-bloq) { cursor: copy; }
+  body[data-tema][data-vista="grilla"] .slot-libre:not(.slot-bloq) .slot-mas { transition: transform 0.15s ease; }
+  body[data-tema][data-vista="grilla"] .slot-libre:not(.slot-bloq):hover .slot-mas { transform: scale(1.35); }
+  body[data-tema][data-vista="grilla"] .slot-libre:not(.slot-bloq):hover {
     box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--green) 45%, transparent);
   }
-  body[data-tema][data-vista="grilla"] .slot-bloq:hover { opacity: 0.7; }
+  /* La franja cerrada comparte el dibujo de la libre, pero no su promesa: el
+     cursor de agregar no la toca y el paso por encima la deja en rojo apagado. */
+  body[data-tema][data-vista="grilla"] .slot-bloq,
+  body[data-tema][data-vista="grilla"] .slot-bloq:hover { cursor: not-allowed; }
+  body[data-tema][data-vista="grilla"] .slot-bloq:hover {
+    opacity: 0.7;
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--red) 30%, transparent);
+  }
   body[data-tema][data-vista="grilla"] .slot-urg:hover {
     box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--red) 45%, transparent);
   }
@@ -4921,7 +4947,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.13.0';
+const APP_VERSION = '3.13.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -5775,16 +5801,54 @@ function requisitosAdmision(c) {
 const EST_OPERADA = ['realizada', 'finalizada'];
 function operada(c) { return !!c && EST_OPERADA.includes(c.estado); }
 
-/* Qué le falta a un caso ya operado para poder cerrarse. */
-function cierreFaltantes(c) {
+/* Qué le falta a un caso ya operado para poder cerrarse, en dos formatos: la
+   etiqueta corta que entra en la casilla de la grilla y la frase entera para el
+   emergente y para los avisos. */
+function faltantesCierre(c) {
   const f = [];
   if (!c) return f;
-  if (!lvqCompleta(c, 'entrada') || !lvqCompleta(c, 'pausa')) f.push('Lista de Verificación Quirúrgica: faltan las etapas de Entrada y Pausa');
-  if (!lvqCompleta(c, 'salida')) f.push('Lista de Verificación Quirúrgica: falta la etapa de Salida (conteo de gasas e instrumental)');
-  if (!c.informe) f.push('Parte quirúrgico (informe operatorio) sin cargar');
-  if (c.auth === 'NO AUTORIZADO') f.push('Admisión y Egresos: dictamen NO AUTORIZADO sin rectificar');
-  else if (c.auth !== 'AUTORIZADO') f.push('Admisión y Egresos: aceptación pendiente');
-  if (jefaturaPendienteDiferida(c)) f.push('Jefatura de Quirófanos: validación diferida sin regularizar');
+  if (!lvqCompleta(c, 'entrada') || !lvqCompleta(c, 'pausa')) f.push({ corto: 'LVQ entrada y pausa', largo: 'Lista de Verificación Quirúrgica: faltan las etapas de Entrada y Pausa' });
+  if (!lvqCompleta(c, 'salida')) f.push({ corto: 'LVQ salida', largo: 'Lista de Verificación Quirúrgica: falta la etapa de Salida (conteo de gasas e instrumental)' });
+  if (!c.informe) f.push({ corto: 'parte quirúrgico', largo: 'Parte quirúrgico (informe operatorio) sin cargar' });
+  if (c.auth === 'NO AUTORIZADO') f.push({ corto: 'Admisión rechazó', largo: 'Admisión y Egresos: dictamen NO AUTORIZADO sin rectificar', grave: true });
+  else if (c.auth !== 'AUTORIZADO') f.push({ corto: 'aceptación de Admisión', largo: 'Admisión y Egresos: aceptación pendiente' });
+  if (jefaturaPendienteDiferida(c)) f.push({ corto: 'validación de Jefatura', largo: 'Jefatura de Quirófanos: validación diferida sin regularizar' });
+  return f;
+}
+function cierreFaltantes(c) { return faltantesCierre(c).map((x) => x.largo); }
+
+/* ---- Lo que le falta al turno, esté donde esté del circuito ----
+   El estado dice en qué punto está la cirugía; no dice qué la está frenando.
+   Para eso hay que abrir la ficha, y la grilla de un día tiene decenas de
+   turnos: nadie los abre uno por uno. Esta función responde esa pregunta de una
+   sola manera para toda la aplicación —antes de operar y después—, así el
+   rótulo de la casilla, el emergente y la ficha nunca se contradicen.
+
+   El orden no es caprichoso: es el del circuito real. Primero lo que tiene que
+   reunir el cirujano (apto anestésico, preoperatorios, consentimiento), porque
+   sin eso el trámite de Admisión ni siquiera abre; después la aceptación de
+   Admisión y Egresos; después las verificaciones de coordinación que repasa la
+   Jefatura, y al final su confirmación en el parte. Se lee de arriba hacia
+   abajo y se sabe de quién es la pelota. */
+function pendientesTurno(c) {
+  if (!c) return [];
+  // Caso cerrado, suspendido o resuelto por anticipado: no hay nada que esperar.
+  if (['finalizada', 'suspendida', 'anticipada'].includes(c.estado)) return [];
+  if (operada(c)) return faltantesCierre(c);
+  const f = [];
+  if (c.estado === 'borrador') f.push({ corto: 'enviar la solicitud', largo: 'La solicitud sigue en borrador: el cirujano todavía no la envió al circuito' });
+  if (!c.coordinacion?.anestesia) f.push({ corto: 'apto anestésico', largo: 'Anestesiología: evaluación pre-anestésica pendiente' });
+  if (!c.hce?.preop) f.push({ corto: 'preoperatorios', largo: 'HCE: estudios preoperatorios incompletos' });
+  if (!consentimientoDeTurno(c)) f.push({ corto: 'consentimiento', largo: 'Consentimiento informado sin generar' });
+  else if (!c.hce?.consentimiento) f.push({ corto: 'CI en la HCE', largo: 'HCE: consentimiento informado sin registrar' });
+  if (c.auth === 'NO AUTORIZADO') f.push({ corto: 'Admisión rechazó', largo: 'Admisión y Egresos: dictamen NO AUTORIZADO — ' + (c.authMotivo || 'sin motivo registrado'), grave: true });
+  else if (c.auth !== 'AUTORIZADO') f.push(authExenta(c)
+    ? { corto: 'Admisión (diferida)', largo: 'Admisión y Egresos: trámite diferido por ' + authMotivoExencion(c) + ', todavía sin regularizar' }
+    : { corto: 'aceptación de Admisión', largo: 'Admisión y Egresos: aceptación pendiente' });
+  if (!c.coordinacion?.insumos) f.push({ corto: 'Farmacia', largo: 'Farmacia: implantes/insumos sin verificar' });
+  if (!c.coordinacion?.esterilizacion) f.push({ corto: 'Esterilización', largo: 'Esterilización: instrumental sin confirmar' });
+  if (c.recursos?.hemoderivados && !c.coordinacion?.hemoterapia) f.push({ corto: 'Hemoterapia', largo: 'Hemoterapia: hemoderivados sin reservar' });
+  if (!['confirmada', 'en_curso'].includes(c.estado) && !jefaturaExenta(c)) f.push({ corto: 'confirmación de Jefatura', largo: 'Jefatura de Quirófanos: falta validar y confirmar el turno en el parte quirúrgico' });
   return f;
 }
 /* Caso cerrado. Se calcula, no se cree: sirve también para los turnos viejos
@@ -11462,6 +11526,29 @@ function authChip(c) {
   return '<span class="slot-auth auth-pend">PEND. AUT.</span>';
 }
 
+/* ---- El renglón de pendientes de la casilla ----
+   Entran las dos etiquetas que caben y el resto se cuenta; el detalle completo
+   viaja en el emergente, para que la grilla se lea de un vistazo y la ficha
+   quede para cuando hay que hacer algo, no para averiguar qué falta. */
+function slotPendientes(c) {
+  const p = pendientesTurno(c);
+  if (!p.length) {
+    // Un caso cerrado, suspendido o resuelto por anticipado ya lo dice su
+    // propio estado: no necesita que le repitan que no espera nada.
+    if (['finalizada', 'suspendida', 'anticipada'].includes(estadoVisible(c))) return '';
+    return `<span class="slot-falta ok">${ico(ICONS.check, 11)} <span>Sin pendientes</span></span>`;
+  }
+  const grave = p.some((x) => x.grave);
+  // Un rechazo se ve siempre, aunque en el circuito venga último: es lo que
+  // traba de verdad. El resto conserva el orden del circuito.
+  const orden = [...p].sort((x, y) => (y.grave ? 1 : 0) - (x.grave ? 1 : 0));
+  const vis = orden.slice(0, 2).map((x) => x.corto);
+  const resto = orden.length - vis.length;
+  const detalle = 'Falta para avanzar:\n' + p.map((x) => '· ' + x.largo).join('\n');
+  return `<span class="slot-falta${grave ? ' grave' : ''}" title="${esc(detalle)}">
+    ${ico(ICONS.alertTri, 11)} <span>Falta: ${esc(vis.join(' · '))}${resto ? ` <b>+${resto}</b>` : ''}</span></span>`;
+}
+
 function slotCard(d, s, f, salaOff) {
   const c = turnoEn(d, s.id, f.id);
   const nd = f.nd ? '<span class="slot-nd" title="Corresponde a la madrugada del día siguiente">+1 día</span>' : '';
@@ -11477,14 +11564,14 @@ function slotCard(d, s, f, salaOff) {
       <span class="slot-chips">
         <span class="slot-est" style="background:${e.soft};color:${e.text}">${e.label}</span>
         <span class="slot-prio" style="background:${PRIOS[pe].color}">P${pe}</span>
-        ${authChip(c)}
-        ${jefaturaChip(c)}
-        ${consentimientoDeTurno(c) ? '<span class="slot-ci ci-ok">CI ✓</span>' : '<span class="slot-ci ci-falta">SIN CI</span>'}
+        ${c.auth === 'AUTORIZADO' || c.auth === 'NO AUTORIZADO' ? authChip(c) : ''}
+        ${consentimientoDeTurno(c) ? '<span class="slot-ci ci-ok">CI ✓</span>' : ''}
       </span>
+      ${slotPendientes(c)}
     </button>`;
   }
   if (salaOff) {
-    return `<div class="slot slot-libre slot-bloq"><span class="slot-hora">${f.t}${nd}</span>
+    return `<div class="slot slot-libre slot-bloq" title="Turno bloqueado: la franja no se puede otorgar. La abre la Jefatura de Quirófanos, por día, turno y sala."><span class="slot-hora">${f.t}${nd}</span>
       <span class="slot-mas">${ICONS.lock.replace('18', '16')}</span><span class="slot-hint">Bloqueado</span></div>`;
   }
   if (franjaVencida(d, s, f) && !franjaReabierta(d, s.id, f.id)) {
