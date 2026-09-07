@@ -4947,7 +4947,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.13.1';
+const APP_VERSION = '3.13.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11526,6 +11526,26 @@ function authChip(c) {
   return '<span class="slot-auth auth-pend">PEND. AUT.</span>';
 }
 
+/* ---- El globito del turno ----
+   El detalle de lo que falta vivía en el renglón ámbar, una franja de quince
+   píxeles: había que apuntarle con el mouse para verlo. Ahora cuelga del turno
+   entero, así que alcanza con pasar por encima en cualquier parte de la
+   casilla. Y contesta siempre, incluso cuando no falta nada: un turno cerrado o
+   suspendido también tiene que poder decir en qué quedó sin que haya que
+   abrirlo, que es justamente lo que uno mira en los días ya pasados. */
+function slotTitulo(c) {
+  const est = estadoVisible(c);
+  const e = ESTC[est] || ESTC.borrador;
+  const cab = e.label + (c.paciente?.nombre ? ' · ' + c.paciente.nombre : '');
+  const p = pendientesTurno(c);
+  if (p.length) return cab + '\n\nFalta para avanzar:\n' + p.map((x) => '· ' + x.largo).join('\n');
+  if (est === 'suspendida') return cab + '\n\nSuspendida: ' + (c.suspension?.causa || 'sin causa registrada')
+    + (c.suspension?.detalle ? ' — ' + c.suspension.detalle : '') + '\nLa franja no espera nada más.';
+  if (est === 'anticipada') return cab + '\n\n' + e.desc + '.\nLa franja no espera nada más.';
+  if (est === 'finalizada') return cab + '\n\nCaso cerrado: Lista de Verificación completa, parte quirúrgico cargado y las dos validaciones asentadas.\nNo falta nada.';
+  return cab + '\n\nSin pendientes: el turno tiene todo lo que necesita para avanzar.';
+}
+
 /* ---- El renglón de pendientes de la casilla ----
    Entran las dos etiquetas que caben y el resto se cuenta; el detalle completo
    viaja en el emergente, para que la grilla se lea de un vistazo y la ficha
@@ -11544,8 +11564,7 @@ function slotPendientes(c) {
   const orden = [...p].sort((x, y) => (y.grave ? 1 : 0) - (x.grave ? 1 : 0));
   const vis = orden.slice(0, 2).map((x) => x.corto);
   const resto = orden.length - vis.length;
-  const detalle = 'Falta para avanzar:\n' + p.map((x) => '· ' + x.largo).join('\n');
-  return `<span class="slot-falta${grave ? ' grave' : ''}" title="${esc(detalle)}">
+  return `<span class="slot-falta${grave ? ' grave' : ''}">
     ${ico(ICONS.alertTri, 11)} <span>Falta: ${esc(vis.join(' · '))}${resto ? ` <b>+${resto}</b>` : ''}</span></span>`;
 }
 
@@ -11555,7 +11574,7 @@ function slotCard(d, s, f, salaOff) {
   if (c) {
     const e = ESTC[c.estado];
     const pe = prioridadEfectiva(c);
-    return `<button type="button" class="slot" style="border-left:4px solid ${e.color}" onclick="openSlot('${d}','${s.id}','${f.id}')">
+    return `<button type="button" class="slot" style="border-left:4px solid ${e.color}" title="${esc(slotTitulo(c))}" onclick="openSlot('${d}','${s.id}','${f.id}')">
       ${c.urgencia || c.excepcion || c.registroTardio ? `<span class="slot-tags">${c.urgencia ? '<i class="slot-urg-tag">URG</i>' : ''}${c.excepcion ? '<i class="slot-exc-tag" title="Programada por excepción de la Jefatura, fuera del cronograma habitual">EXC</i>' : ''}${c.registroTardio ? '<i class="slot-retro-tag" title="Cirugía ya realizada, registrada fuera de término por la Jefatura de Quirófanos">TARDÍO</i>' : ''}</span>` : ''}
       <span class="slot-hora">${f.t}${nd}</span>
       <span class="slot-cir">${esc(c.cirujano || 's/d')}</span>
