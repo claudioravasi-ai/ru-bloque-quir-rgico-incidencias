@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
 <meta name="description" content="Plataforma centralizada de gestión quirúrgica, endoscópica y de incidencias del Hospital Regional Ushuaia.">
+<!-- Herramienta de trabajo interna del hospital: accesible para quien tenga el
+     enlace, pero fuera de los buscadores. El tablero abierto de actividad
+     semanal no debe aparecer en una búsqueda del nombre del hospital. -->
+<meta name="robots" content="noindex, nofollow">
 <title>HRU Quirófanos — Gestión Quirúrgica e Incidencias</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
@@ -2737,6 +2741,28 @@
     body[data-tema] .tema-menu { position: fixed; top: auto; right: 12px; left: 12px; width: auto; max-width: none; }
   }
 
+  /* ---- Tablero público de la semana ---- */
+  .est-pub-grid {
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  }
+  .est-pub-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px 14px; }
+  .est-pub-anillo { position: relative; width: 96px; height: 96px; }
+  .est-pub-num {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 1.7rem; font-weight: 800; letter-spacing: -0.02em;
+  }
+  .est-pub-label { margin-top: 12px; font-weight: 600; font-size: 0.95rem; line-height: 1.3; }
+  .est-pub-pct { margin-top: 4px; font-size: 0.8rem; color: var(--muted); }
+  @media (max-width: 560px) {
+    .est-pub-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .est-pub-card { padding: 16px 8px; }
+    .est-pub-anillo { width: 76px; height: 76px; }
+    .est-pub-anillo svg { width: 76px; height: 76px; }
+    .est-pub-num { font-size: 1.35rem; }
+    .est-pub-label { font-size: 0.84rem; }
+  }
+
 </style>
 </head>
 <body data-tema="sobrio">
@@ -4947,7 +4973,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.13.2';
+const APP_VERSION = '3.14.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -5169,7 +5195,35 @@ const LOCAL_KEYS = { incidencias: 'hruq_incidencias_v1', cirugias: 'hruq_cirugia
 const LEGACY_KEYS = { incidencias: 'hru_incidencias_v2', cirugias: 'hru_cirugias_v1', usuarios: 'hru_usuarios_v1', reclamos: 'hru_reclamos_v1', agenda: '', consentimientos: '', config: '', comunicados: '' };
 const QUEUE_KEY = 'hruq_cola_v1';
 const DB = { incidencias: [], cirugias: [], usuarios: [], reclamos: [], agenda: [], consentimientos: [], config: [], comunicados: [] };
-const refs = {};
+const refs = {};      // la referencia de cada colección: es con la que se ESCRIBE
+const escuchas = {};  // lo que se ESCUCHA, que en `cirugias` es una consulta acotada
+
+/* ---- Ventana de sincronización en vivo ----
+   `cirugias` es la única colección que crece sin techo: cada turno deja además
+   historial y cambios de estado. Escucharla entera significaba que, al año, un
+   cambio de estado reenviaba doce meses de turnos a cada uno de los cincuenta
+   dispositivos conectados.
+
+   La ventana es deliberadamente generosa —450 días hacia atrás— porque el
+   rango más largo que ofrece la pantalla de estadísticas es de doce meses: así
+   ninguna cifra cambia por haber acotado, que es el riesgo que había que
+   evitar. Lo que se gana es que la colección en vivo deja de crecer para
+   siempre y se estabiliza en algo más de un año de actividad.
+
+   Esto mitiga el problema, no lo elimina: `on('value')` sigue reenviando la
+   ventana completa ante cada cambio. Suscribirse solo al día y traer el resto
+   por consulta puntual exige reescribir las pantallas de estadísticas, KPIs y
+   módulos, y es un trabajo aparte.
+
+   `consentimientos` NO se acota: su campo `fecha` no es ISO sino texto local
+   («10/8/2026, 6:08:10 p. m.»), así que compararlo por rango los haría
+   desaparecer a todos. Si algún día se acota, hay que usar `fechaISO`. */
+const SYNC_DIAS_ATRAS = 450;
+const SYNC_DIAS_ADELANTE = 365;
+function ventanaSync() {
+  const hoy = hoyISO();
+  return { desde: sumarDias(hoy, -SYNC_DIAS_ATRAS), hasta: sumarDias(hoy, SYNC_DIAS_ADELANTE) };
+}
 const forceLocal = new URLSearchParams(location.search).has('local');
 const cloudOn = !forceLocal && typeof firebase !== 'undefined' && !!FIREBASE_CONFIG.databaseURL;
 let conectado = false;      // hay enlace vivo con Firebase
@@ -5465,14 +5519,19 @@ async function initStore(onReady) {
 
   // Con las reglas cerradas, suscribirse sin pase vuelve como «permiso
   // denegado». Se pide primero el pase y recién entonces se escucha la base.
-  identificarseEnLaNube().then(() => COLS.forEach((col) => suscribirCol(col, () => {
-    if (--pending === 0) { clearTimeout(guarda); listo(); }
-  })));
+  identificarseEnLaNube().then(() => {
+    COLS.forEach((col) => suscribirCol(col, () => {
+      if (--pending === 0) { clearTimeout(guarda); listo(); }
+    }));
+    // Los seis contadores del tablero abierto: nodo aparte, sin datos de nadie.
+    suscribirEstadisticasPublicas();
+  });
 }
 
 /* Deja de escuchar una colección. */
 function soltarCol(col) {
-  if (refs[col]) { try { refs[col].off(); } catch (e) {} }
+  if (escuchas[col]) { try { escuchas[col].off(); } catch (e) {} }
+  escuchas[col] = null;
   refs[col] = null;
 }
 
@@ -5482,9 +5541,17 @@ function soltarCol(col) {
 function suscribirCol(col, alPrimero) {
   soltarCol(col);
   const ref = firebase.database().ref(col);
+  // La referencia es siempre la de la colección: `upsert` escribe con
+  // `refs[col].child(id)`, y una consulta acotada no tiene `.child()`.
   refs[col] = ref;
+  let escucha = ref;
+  if (col === 'cirugias') {
+    const v = ventanaSync();
+    escucha = ref.orderByChild('fecha').startAt(v.desde).endAt(v.hasta);
+  }
+  escuchas[col] = escucha;
   let first = true;
-  ref.on('value', (snap) => {
+  escucha.on('value', (snap) => {
     const val = snap.val();
     if (!val) {
       // Solo las incidencias se siembran en la nube (comportamiento original);
@@ -6267,6 +6334,104 @@ function sonarAvisosPendientes(porGesto) {
     armarSonidoPorGesto();
   });
 }
+
+/* ================= AVISO HABLADO DE LA VÍSPERA =================
+   Desde las 20 h, la app le dice en voz alta al cirujano que al día siguiente
+   opera. Habla una sola vez por jornada: la marca vive en `hruq_voz_dicho_v1`,
+   con el mismo criterio que `remNotificados`.
+
+   Tres decisiones deliberadas:
+   · NO se pronuncian nombres de pacientes ni procedimientos. La app se usa en
+     pasillos, vestuarios y colectivos; decir en voz alta a quién se opera sería
+     soltar un dato de salud a quien pase al lado. Se dice cuántas cirugías hay
+     y a qué hora es la primera, que es lo que el cirujano necesita oír.
+   · Comparte la perilla del tono de aviso (`sonidoAvisosOn`): quien silenció la
+     app no espera que además le hable.
+   · Solo habla de turnos con dueño (`cirujanoEmail`), nunca de los ajenos.
+
+   Los navegadores móviles no dejan sonar nada hasta que la persona toca la
+   pantalla. Si la voz sale bloqueada NO se marca como dicha y se rearma con el
+   primer gesto, igual que hace `tocarAvisoSonoro`. */
+const VOZ_DICHO_KEY = 'hruq_voz_dicho_v1';
+const VOZ_HORA_DESDE = 20;
+const VOZ_FEMENINAS_ES = ['mónica', 'monica', 'helena', 'laura', 'marisol', 'esperanza', 'sabina', 'lucía', 'lucia'];
+let vozArmada = false;
+let vozDicho = (() => {
+  try { return JSON.parse(localStorage.getItem(VOZ_DICHO_KEY) || '{}'); } catch (e) { return {}; }
+})();
+function guardarVozDicho() {
+  // Se poda al guardar: solo interesa lo dicho hoy, y así la clave no crece.
+  const hoy = hoyISO();
+  Object.keys(vozDicho).forEach((k) => { if (vozDicho[k] !== hoy) delete vozDicho[k]; });
+  try { localStorage.setItem(VOZ_DICHO_KEY, JSON.stringify(vozDicho)); } catch (e) {}
+}
+/* El catálogo de voces cambia con cada sistema operativo, así que se va de lo
+   más específico a lo más general y nunca se da por sentado que haya alguna. */
+function vozElegida() {
+  let vs = [];
+  try { vs = window.speechSynthesis.getVoices() || []; } catch (e) { return null; }
+  const es = vs.filter((v) => /^es/i.test(v.lang || ''));
+  if (!es.length) return null;
+  const esES = es.filter((v) => /^es[-_]ES/i.test(v.lang || ''));
+  const porNombre = (l) => l.find((v) => VOZ_FEMENINAS_ES.some((n) => (v.name || '').toLowerCase().includes(n)));
+  return porNombre(esES) || porNombre(es) || esES[0] || es[0];
+}
+/* Devuelve si el dispositivo dejó hablar. Dos segundos sin arrancar se toman
+   como bloqueo: no hay evento que lo avise. */
+function decirEnVoz(texto) {
+  if (!('speechSynthesis' in window) || !sonidoAvisosOn()) return Promise.resolve(false);
+  return new Promise((resolve) => {
+    let ss, u;
+    try {
+      ss = window.speechSynthesis;
+      ss.cancel();                 // nunca dos voces encimadas
+      u = new SpeechSynthesisUtterance(texto);
+    } catch (e) { return resolve(false); }
+    const v = vozElegida();
+    if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = 'es-ES'; }
+    u.rate = 0.92;                 // pausada: se pidió que fuera suave
+    u.pitch = 1.05;
+    u.volume = 0.9;
+    let cerrado = false;
+    const cerrar = (ok) => { if (!cerrado) { cerrado = true; resolve(ok); } };
+    u.onstart = () => cerrar(true);
+    u.onerror = () => cerrar(false);
+    setTimeout(() => cerrar(false), 2000);
+    try { ss.speak(u); } catch (e) { cerrar(false); }
+  });
+}
+function armarVozPorGesto() {
+  if (vozArmada) return;
+  vozArmada = true;
+  const evs = ['pointerdown', 'keydown', 'touchstart'];
+  const alTocar = () => {
+    evs.forEach((ev) => document.removeEventListener(ev, alTocar, true));
+    vozArmada = false;
+    avisarVozVispera();
+  };
+  evs.forEach((ev) => document.addEventListener(ev, alTocar, true));
+}
+/* Toma el aviso de la víspera de la lista ya calculada —el que trae `voz`— y
+   lo pronuncia si todavía no se dijo hoy. */
+function avisarVozVispera() {
+  const r = (remLista || []).find((x) => x.voz);
+  if (!r || vozDicho[r.key] === hoyISO()) return;
+  decirEnVoz(r.voz).then((ok) => {
+    if (!ok) { armarVozPorGesto(); return; }   // el dispositivo lo frenó: se reintenta con el primer toque
+    vozDicho[r.key] = hoyISO();
+    guardarVozDicho();
+  });
+}
+/* «08:00» leído por un sintetizador sale como «cero ocho cero cero». */
+function horaEnPalabras(hhmm) {
+  const p = String(hhmm || '').split(':');
+  const h = parseInt(p[0], 10), m = parseInt(p[1] || '0', 10);
+  if (isNaN(h)) return String(hhmm || '');
+  const franja = h < 12 ? ' de la mañana' : (h < 20 ? ' de la tarde' : ' de la noche');
+  const h12 = (h % 12) === 0 ? 12 : (h % 12);   // «20 de la noche» no lo dice nadie
+  return h12 + (m ? ' y ' + m : '') + franja;
+}
+
 function humanoRestante(ms) {
   const neg = ms < 0;
   let m = Math.round(Math.abs(ms) / 60000);
@@ -6325,6 +6490,30 @@ function calcRecordatorios() {
           ? `El parte del ${fmtFecha(manana)} ya debía estar publicado (${BLOQUE.publicacionParte} h). Confirme o suspenda los turnos pendientes.`
           : `El parte del ${fmtFecha(manana)} se publica hoy a las ${BLOQUE.publicacionParte} h. Quedan turnos en circuito de validación.`,
         cuando: `Hoy ${BLOQUE.publicacionParte} h`,
+      });
+    }
+  }
+
+  /* ---- 1 bis. La víspera: desde las 20 h se avisa lo de mañana ----
+     Solo al dueño del turno y solo de noche: es el aviso para irse a dormir
+     sabiendo a qué hora hay que estar. Lleva `voz`, que es lo que se pronuncia
+     —sin nombres de pacientes— y lo que `avisarVozVispera` sale a buscar. */
+  if (u && ahora.getHours() >= VOZ_HORA_DESDE) {
+    const mias = DB.cirugias
+      .filter((c) => c.fecha === manana && c.sala
+        && ['pendiente', 'validada', 'confirmada'].includes(c.estado)
+        && c.cirujanoEmail && c.cirujanoEmail === u.email)
+      .sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+    if (mias.length) {
+      const n = mias.length;
+      const primera = mias[0].horaProg || '08:00';
+      const cuantas = n === 1 ? 'una cirugía programada' : `${n} cirugías programadas`;
+      add({
+        key: 'vispera-' + manana, nivel: 'warn', vista: 'programacion',
+        titulo: `Mañana opera — ${n} ${n === 1 ? 'cirugía' : 'cirugías'}`,
+        texto: `Tiene ${cuantas} para el ${fmtFecha(manana)}. La primera, a las ${primera} h.`,
+        cuando: `Primera a las ${primera} h`,
+        voz: `${String(u.nombre || '').trim()}, buenas noches. Le recuerdo que mañana tiene ${cuantas}. La primera, a las ${horaEnPalabras(primera)}.`,
       });
     }
   }
@@ -6688,6 +6877,10 @@ function revisarRecordatorios() {
   notificarCriticos();
   // Tono de apertura: suena una sola vez, y solo si al entrar había algo sin ver.
   sonarAvisosPendientes();
+  // Y desde las 20 h, el aviso hablado de lo que se opera mañana.
+  avisarVozVispera();
+  // Los seis contadores del tablero abierto, si cambiaron.
+  publicarEstadisticasSemana();
 }
 function pintarCampana() {
   pintarBadgesAvisos();
@@ -7061,6 +7254,11 @@ function renderSidebar() {
     { id: 'recordatorios', icon: ICONS.bellRing, label: 'Recordatorios', badge: nRem || null, badgeAmber: !nCrit },
     { id: 'nueva', icon: ICONS.filePlus, label: 'Nueva Incidencia' },
   ];
+  // Tablero abierto de la semana. Solo mientras no hay nadie identificado: al
+  // entrar a una cuenta lo reemplaza la solapa de estadísticas propias.
+  if (!u && !jefe && !director) {
+    items.push({ id: 'estpublicas', icon: ICONS.pieChart, label: 'Estadísticas' });
+  }
   const recl = reclamosPendientes();
   if (u) {
     items.push({ sep: 'Cirujano' });
@@ -7150,7 +7348,8 @@ const TITULOS = {
   perfil: 'Mi Perfil', programacion: 'Programación', confidenciales: 'Incidencias Confidenciales',
   kpis: 'Indicadores', usuarios: 'Profesionales', acceso: 'Acceso Profesional',
   comunicados: 'Comunicados', excepcion: 'Programación Fuera de Horario',
-  estadisticas: 'Estadísticas Quirúrgicas', consentimientos: 'Consentimientos Médicos Informados',
+  estadisticas: 'Estadísticas Quirúrgicas', estpublicas: 'Estadísticas',
+  consentimientos: 'Consentimientos Médicos Informados',
   modulos: 'Módulos Quirúrgicos',
 };
 /* ---- Guarda de salida del generador de consentimientos ----
@@ -10110,6 +10309,125 @@ function seccionTipoCirugia() {
     ${sel ? tipoDetalle(sel) : ''}`;
 }
 
+/* ================= ESTADÍSTICAS PÚBLICAS DE LA SEMANA =================
+   Tablero abierto, sin sesión: lo ve cualquiera que entre a la app.
+
+   La regla que lo gobierna: NO lee las cirugías. Lee un nodo aparte,
+   `publico/semana`, que tiene seis contadores y nada más — ni un paciente, ni
+   un cirujano, ni un diagnóstico. Es lo único de la base con lectura abierta,
+   y es lo que permite que el resto se cierre sin dejar afuera esta pantalla.
+
+   Quién escribe esos seis números: cualquier dispositivo con sesión, en la
+   ronda del minuto, y solo cuando el resultado cambió (`estPubUltimo`). Cuando
+   haya Cloud Functions esto pasa al servidor y los clientes dejan de escribirlo.
+
+   Solo cuenta cirugías REALIZADAS: es actividad cumplida, no programación. */
+const EST_PUB_REF = 'publico/semana';
+const EST_PUB_GRUPOS = [
+  { k: 'cx_prog',   label: 'Cirugías programadas',    color: 'var(--cat-d)' },
+  { k: 'cx_urg',    label: 'Cirugías de urgencia',    color: 'var(--cat-a)' },
+  { k: 'endo_prog', label: 'Endoscopías programadas', color: 'var(--cat-c)' },
+  { k: 'endo_urg',  label: 'Endoscopías de urgencia', color: 'var(--cat-b)' },
+  { k: 'ces_prog',  label: 'Cesáreas programadas',    color: 'var(--cat-e)' },
+  { k: 'ces_urg',   label: 'Cesáreas de urgencia',    color: 'var(--cat-f)' },
+];
+let estPublicas = null;     // lo último leído del nodo abierto
+let estPubUltimo = '';      // lo último escrito, para no reescribir igual
+
+/* Lunes a domingo de la semana que corre. */
+function semanaEnCurso() {
+  const hoy = hoyISO();
+  const dow = (new Date(hoy + 'T12:00:00').getDay() + 6) % 7;   // 0 = lunes
+  return { desde: sumarDias(hoy, -dow), hasta: sumarDias(hoy, 6 - dow) };
+}
+function grupoDeSala(sala) {
+  if (sala === 'END') return 'endo';
+  if (sala === 'QOBS') return 'ces';
+  return ['Q1', 'Q2', 'Q3', 'Q4'].includes(sala) ? 'cx' : null;
+}
+function contarSemanaPublica() {
+  const { desde, hasta } = semanaEnCurso();
+  const z = { desde, hasta, cx_prog: 0, cx_urg: 0, endo_prog: 0, endo_urg: 0, ces_prog: 0, ces_urg: 0 };
+  DB.cirugias.forEach((c) => {
+    if (c.estado !== 'realizada' || !c.fecha || c.fecha < desde || c.fecha > hasta) return;
+    const g = grupoDeSala(c.sala);
+    if (g) z[g + (c.urgencia ? '_urg' : '_prog')]++;
+  });
+  return z;
+}
+/* Escribe los seis números. Solo lo hace quien tiene identidad: el visitante
+   anónimo lee y no escribe, que es justamente lo que dirán las reglas. */
+function publicarEstadisticasSemana() {
+  if (!cloudOn || !conectado || typeof firebase === 'undefined') return;
+  if (!usuarioActual() && !jefe && !director) return;
+  const z = contarSemanaPublica();
+  const firma = JSON.stringify(z);
+  if (firma === estPubUltimo) return;
+  estPubUltimo = firma;
+  try { firebase.database().ref(EST_PUB_REF).set(Object.assign({ actualizado: ahoraServidor() }, z)); } catch (e) {}
+}
+function suscribirEstadisticasPublicas() {
+  if (!cloudOn || typeof firebase === 'undefined') return;
+  try {
+    firebase.database().ref(EST_PUB_REF).on('value', (s) => {
+      estPublicas = s.val();
+      if (view === 'estpublicas') renderEstPublicas();
+    }, () => {});
+  } catch (e) {}
+}
+/* Anillo de proporción. Con r = 15.9155 la circunferencia vale ~100, así que el
+   dasharray se escribe directamente en porcentaje. */
+function estDonut(pct, color) {
+  const p = Math.max(0, Math.min(100, pct));
+  return `<svg viewBox="0 0 42 42" width="96" height="96" role="img">
+    <circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--line)" stroke-width="3.6"></circle>
+    <circle cx="21" cy="21" r="15.9155" fill="none" stroke="${color}" stroke-width="3.6"
+            stroke-dasharray="${p.toFixed(1)} ${(100 - p).toFixed(1)}" stroke-dashoffset="25"
+            stroke-linecap="round" transform="rotate(-90 21 21)"></circle>
+  </svg>`;
+}
+function renderEstPublicas() {
+  // Sin nube todavía, se muestra lo que se pueda calcular acá mismo.
+  const d = estPublicas || (DB.cirugias.length ? contarSemanaPublica() : null);
+  const { desde, hasta } = semanaEnCurso();
+  const total = d ? EST_PUB_GRUPOS.reduce((s, g) => s + (Number(d[g.k]) || 0), 0) : 0;
+  const tarjetas = EST_PUB_GRUPOS.map((g) => {
+    const n = d ? (Number(d[g.k]) || 0) : 0;
+    const pct = total ? (n * 100 / total) : 0;
+    return `<div class="card est-pub-card">
+      <div class="est-pub-anillo">
+        ${estDonut(pct, g.color)}
+        <div class="est-pub-num">${n}</div>
+      </div>
+      <div class="est-pub-label">${g.label}</div>
+      <div class="est-pub-pct">${total ? pct.toFixed(0) + '% del total' : 'sin registros'}</div>
+    </div>`;
+  }).join('');
+  $('main').innerHTML = `
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Actividad de la semana</h1>
+        <p class="page-sub">Cirugías realizadas del ${fmtFecha(desde)} al ${fmtFecha(hasta)} — Hospital Regional Ushuaia</p>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+        <div style="font-size:2.6rem;font-weight:800;line-height:1">${total}</div>
+        <div style="color:var(--muted)">
+          ${total === 1 ? 'intervención realizada' : 'intervenciones realizadas'} en la semana en curso.
+          Se actualiza sola a medida que el bloque cierra cada parte.
+        </div>
+      </div>
+    </div>
+    <div class="est-pub-grid">${tarjetas}</div>
+    <div class="card" style="margin-top:16px;color:var(--muted);font-size:0.88rem">
+      ${ICONS.info.replace('18', '14')}
+      Cifras agregadas de actividad cumplida. <b>No incluyen ningún dato de pacientes</b> ni de
+      profesionales. Los turnos programados y no operados no se cuentan.
+      ${d && d.actualizado ? `<br>Última actualización: ${fmtDT(new Date(d.actualizado).toISOString().slice(0, 16))}` : ''}
+    </div>`;
+}
+
 function renderEstadisticas() {
   const u = usuarioActual();
   const [desde, hasta] = estRango();
@@ -10652,22 +10970,126 @@ function renderAcceso() {
       </div>`}`;
 }
 
+/* ================= IDENTIDAD REAL DEL PROFESIONAL =================
+   Hasta la 3.14.0 el cirujano no existía para Firebase: su contraseña se
+   comparaba contra un hash dentro del navegador, que es una cerradura de la
+   interfaz y no de la base. Por eso las reglas solo podían pedir `auth != null`
+   —el pase anónimo que consigue cualquiera— y las cirugías quedaban legibles
+   desde fuera del hospital.
+
+   Ahora cada profesional tiene cuenta de Firebase, y la migración es
+   transparente: cuando entra con la contraseña de siempre, y SOLO después de
+   que el hash la valida, se le crea la cuenta con esa misma clave. No tiene que
+   re-establecer nada ni enterarse de nada.
+
+   El orden importa y no conviene invertirlo: si se creara la cuenta antes de
+   validar el hash, cualquiera podría escribir el correo de un colega con una
+   contraseña inventada y quedarse con su identidad. */
+function entrarFirebase(mail, clave) {
+  if (!cloudOn || typeof firebase === 'undefined' || !firebase.auth) return Promise.resolve({ ok: false, motivo: 'sin-nube' });
+  let auth;
+  try { auth = firebase.auth(); } catch (e) { return Promise.resolve({ ok: false, motivo: 'sin-nube' }); }
+  return auth.signInWithEmailAndPassword(mail, clave)
+    .then(() => ({ ok: true }))
+    .catch((e) => ({ ok: false, motivo: (e && e.code) || 'error' }));
+}
+/* Entra si la cuenta ya existe; la crea si todavía no, y en ese caso manda el
+   correo de verificación. Solo se la llama con una contraseña ya validada. */
+async function crearOEntrarFirebase(mail, clave) {
+  const r = await entrarFirebase(mail, clave);
+  if (r.ok) return { ok: true, creada: false };
+  if (r.motivo !== 'auth/user-not-found') return r;
+  try {
+    const cred = await firebase.auth().createUserWithEmailAndPassword(mail, clave);
+    try { await cred.user.sendEmailVerification(); } catch (e) {}
+    return { ok: true, creada: true };
+  } catch (e) {
+    return { ok: false, motivo: (e && e.code) || 'error' };
+  }
+}
+/* Deja asentado que este profesional ya tiene identidad propia. A partir de
+   acá su contraseña la custodia Firebase y el hash local deja de mandar. */
+function marcarMigrado(u) {
+  if (u.fbAuth) return;
+  u.fbAuth = true;
+  u.fbAuthFecha = nowDT();
+  upsert('usuarios', u);
+}
+
+/* Espera a que el padrón llegue de la nube después de un cambio de identidad.
+   Hace falta porque con las reglas cerradas `usuarios` no se lee con el pase
+   anónimo: recién al entrar con cuenta propia aparece. */
+function esperarUsuario(mail, ms) {
+  const hasta = Date.now() + (ms || 4000);
+  return new Promise((res) => {
+    const mirar = () => {
+      const u = DB.usuarios.find((x) => String(x.email || '').toLowerCase() === mail);
+      if (u) return res(u);
+      if (Date.now() > hasta) return res(null);
+      setTimeout(mirar, 200);
+    };
+    mirar();
+  });
+}
+
 async function doLogin() {
   const mail = $('l-mail').value.trim().toLowerCase();
   const pass = $('l-pass').value;
-  const u = DB.usuarios.find((x) => x.email.toLowerCase() === mail);
-  const h = await hashPass(pass);
-  if (!u || u.passHash !== h) {
-    $('login-error').textContent = 'Correo o contraseña incorrectos.';
+  let u = DB.usuarios.find((x) => String(x.email || '').toLowerCase() === mail);
+  const fallar = (m) => {
+    $('login-error').textContent = m;
     $('login-error').style.display = 'block';
-    return;
+  };
+
+  /* Con las reglas cerradas, quien todavía no tiene identidad no ve el padrón,
+     así que no encontrarlo acá NO significa que no exista. Se prueba la
+     credencial contra Firebase y, si entra, se espera a que el padrón llegue.
+     Sin esto, el profesional que no hubiera migrado antes de cerrar las reglas
+     quedaba afuera para siempre. */
+  let yaAutenticado = false;
+  if (!u) {
+    const r = await entrarFirebase(mail, pass);
+    if (!r.ok) {
+      if (r.motivo === 'auth/too-many-requests') return fallar('Demasiados intentos fallidos. Espere unos minutos y vuelva a probar.');
+      return fallar('Correo o contraseña incorrectos.');
+    }
+    yaAutenticado = true;
+    resuscribir();
+    u = await esperarUsuario(mail, 5000);
+    if (!u) {
+      await volverAlPaseAnonimo();   // no se le deja identidad a quien no está en el padrón
+      return fallar('Su credencial es correcta, pero su legajo no aparece en el padrón. Comuníquese con la Jefatura de Quirófanos.');
+    }
+    marcarMigrado(u);
   }
   if (estadoCuenta(u) === 'baja') {
-    $('login-error').textContent = 'Su cuenta fue dada de baja por la Jefatura de Quirófanos'
-      + motivoCuenta(u) + ' Comuníquese con la Jefatura de Quirófanos.';
-    $('login-error').style.display = 'block';
-    return;
+    // Si ya se abrió sesión de Firebase para poder consultarlo, se suelta: una
+    // cuenta dada de baja no puede quedarse con permiso de lectura sobre la base.
+    if (yaAutenticado) await volverAlPaseAnonimo();
+    return fallar('Su cuenta fue dada de baja por la Jefatura de Quirófanos'
+      + motivoCuenta(u) + ' Comuníquese con la Jefatura de Quirófanos.');
   }
+
+  if (yaAutenticado) {
+    // La credencial ya se verificó contra Firebase más arriba.
+  } else if (u.fbAuth) {
+    // Ya migrado: la contraseña la custodia Firebase y es la única que vale.
+    const r = await entrarFirebase(mail, pass);
+    if (!r.ok) {
+      if (r.motivo === 'sin-nube') return fallar('Sin conexión con la nube: su contraseña no se puede verificar en este momento.');
+      if (r.motivo === 'auth/too-many-requests') return fallar('Demasiados intentos fallidos. Espere unos minutos y vuelva a probar.');
+      return fallar('Correo o contraseña incorrectos.');
+    }
+  } else {
+    // Sin migrar: manda el hash de siempre, y recién si valida se crea la cuenta.
+    if (!u.passHash || u.passHash !== await hashPass(pass)) return fallar('Correo o contraseña incorrectos.');
+    const r = await crearOEntrarFirebase(mail, pass);
+    if (r.ok) marcarMigrado(u);
+    // Si la nube no respondió, entra igual: la migración espera al próximo ingreso.
+  }
+  // Con identidad nueva cambian los permisos: hay que volver a escuchar la base
+  // para que aparezca lo que antes estaba negado.
+  resuscribir();
   sessionStorage.setItem('hru_user', u.email);
   cambioDeIdentidad(true);   // los avisos pasan a ser los de sus turnos
   if (!cuentaAprobada(u)) {
@@ -10691,6 +11113,18 @@ async function doAlta() {
   if (p1.length < 6) return fail('La contraseña debe tener al menos 6 caracteres.');
   if (p1 !== p2) return fail('Las contraseñas no coinciden.');
   if (DB.usuarios.some((u) => u.email.toLowerCase() === mail)) return fail('Ya existe una cuenta con ese correo.');
+
+  /* La identidad se crea PRIMERO, en Firebase, y recién después se guarda el
+     profesional. Si se hiciera al revés y Firebase rechazara el alta —correo ya
+     tomado por otra app del proyecto, contraseña débil, sin red—, quedaría un
+     profesional en el padrón sin identidad con la que entrar. */
+  const fb = await crearOEntrarFirebase(mail, p1);
+  if (!fb.ok && fb.motivo !== 'sin-nube') {
+    if (fb.motivo === 'auth/email-already-in-use') return fail('Ese correo ya tiene una cuenta. Ingrese con su contraseña o comuníquese con la Jefatura.');
+    if (fb.motivo === 'auth/weak-password') return fail('La contraseña es demasiado débil. Use al menos 6 caracteres, con letras y números.');
+    if (fb.motivo === 'auth/invalid-email') return fail('Ingrese un correo válido.');
+    return fail('No se pudo crear la cuenta en este momento. Reintente en unos minutos.');
+  }
   const u = {
     id: mail.replace(/[.#$/\[\]]/g, ','),
     email: mail, nombre, dni, servicio: serv,
@@ -10702,19 +11136,27 @@ async function doAlta() {
     // Toda alta queda a la espera del visto de la Jefatura de Quirófanos.
     cuenta: 'pendiente', cuentaMotivo: '', cuentaFecha: nowDT(),
     passHash: await hashPass(p1), creado: hoyISO(),
+    // Nace con identidad propia salvo que el alta se haya hecho sin red.
+    fbAuth: !!fb.ok, fbAuthFecha: fb.ok ? nowDT() : '',
   };
   upsert('usuarios', u);
+  resuscribir();
   sessionStorage.setItem('hru_user', u.email);
   cambioDeIdentidad(true);
-  alert('Cuenta creada correctamente.\n\nSu acceso queda PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos: hasta que la Jefatura lo habilite no podrá programar cirugías.\n\nMientras tanto, complete su documentación de habilitación en Mi Perfil.');
+  alert('Cuenta creada correctamente.'
+    + (fb.creada ? '\n\nLe enviamos un correo a ' + mail + ' para verificar la dirección. Reviselo —puede estar en Correo no deseado— y confirme el enlace: es el correo al que van a llegarle los avisos del bloque.' : '')
+    + '\n\nSu acceso queda PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos: hasta que la Jefatura lo habilite no podrá programar cirugías.\n\nMientras tanto, complete su documentación de habilitación en Mi Perfil.');
   go('perfil');
 }
 
-function userLogout() {
+async function userLogout() {
   sessionStorage.removeItem('hru_user');
   cerrarComunicado();  // sin identidad no hay a quién registrarle la lectura
   cambioDeIdentidad(false);   // se va con sus avisos: quedan los del ciclo
   go('panel');
+  // Se suelta la identidad del profesional y se vuelve al pase anónimo, para
+  // que la app siga abriendo y el tablero público se siga viendo.
+  await volverAlPaseAnonimo();
 }
 
 /* ================= MI PERFIL / HABILITACIÓN ================= */
@@ -17612,6 +18054,7 @@ Object.assign(VIEWS, {
   confidenciales: renderConfidenciales,
   kpis: renderKPIs,
   estadisticas: renderEstadisticas,
+  estpublicas: renderEstPublicas,
   consentimientos: renderConsentimientos,
   usuarios: renderUsuarios,
   reclamos: renderReclamos,
