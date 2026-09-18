@@ -566,7 +566,9 @@
   .est-pill.bad { background: var(--red-soft); color: var(--red); }
 
   /* Hilo de reclamos */
-  .msg { border-radius: 12px; padding: 13px 16px; margin-bottom: 10px; font-size: 0.9rem; line-height: 1.55; border: 1px solid var(--line); background: #f8fafc; }
+  /* Mismo caso que `.det-desc`: en tema oscuro los mensajes quedaban en blanco
+     sobre blanco. */
+  .msg { border-radius: 12px; padding: 13px 16px; margin-bottom: 10px; font-size: 0.9rem; line-height: 1.55; border: 1px solid var(--line); background: var(--sup2, #f8fafc); color: var(--ink); }
   .msg.jefatura { background: var(--blue-soft); border-color: #c8dcf3; }
   .msg.nuevo { box-shadow: 0 0 0 3px rgba(240,169,46,0.28); }
   .msg-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
@@ -828,7 +830,10 @@
   .det-section h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 8px; }
   .det-row { display: flex; gap: 8px; font-size: 0.9rem; padding: 4px 0; }
   .det-row b { min-width: 150px; font-weight: 600; }
-  .det-desc { background: #f8fafc; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; font-size: 0.9rem; line-height: 1.6; }
+  /* El fondo va por variable y el color se fija: con el fondo claro escrito a
+     mano, el tema oscuro dejaba texto claro sobre papel blanco —contraste 1.14,
+     ilegible— en el desglose de cada incidencia. */
+  .det-desc { background: var(--sup2, #f8fafc); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; font-size: 0.9rem; line-height: 1.6; }
 
   /* Success */
   .success-icon { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 16px; background: var(--green-soft); color: var(--green); display: flex; align-items: center; justify-content: center; }
@@ -4973,7 +4978,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.14.0';
+const APP_VERSION = '3.14.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10943,6 +10948,7 @@ function renderAcceso() {
         <p class="pass-error" id="login-error" style="margin:8px 0 0">Correo o contraseña incorrectos.</p>
         <div class="form-actions" style="margin-top:18px">
           <button class="btn btn-blue" onclick="doLogin()">${ICONS.key} Ingresar</button>
+          <button class="btn btn-outline" onclick="recuperarClave(this)">¿Olvidó su contraseña?</button>
         </div>
         ${!cloudOn ? `<p class="form-note" style="margin-top:14px">${ICONS.info.replace('18','13')} Modo local de demostración: <b>demo@hru.gob.ar</b> / <b>demo123</b></p>` : ''}
       </div>` : `
@@ -11016,6 +11022,30 @@ function marcarMigrado(u) {
   upsert('usuarios', u);
 }
 
+/* Restablecer la contraseña por correo. Hace falta desde que la contraseña la
+   custodia Firebase y no un hash de la base: la Jefatura ya no puede mirarla ni
+   reponerla a mano, y sin esto un profesional que la olvida queda afuera.
+   Firebase no dice si la dirección existe —protección contra enumeración de
+   correos— así que el aviso es el mismo en los dos casos, a propósito. */
+async function recuperarClave(btn) {
+  const mail = $('l-mail').value.trim().toLowerCase();
+  const err = $('login-error');
+  const fallar = (m) => { err.textContent = m; err.style.display = 'block'; };
+  if (!mail) return fallar('Escriba primero su correo y después toque «¿Olvidó su contraseña?».');
+  if (!cloudOn || typeof firebase === 'undefined' || !firebase.auth) {
+    return fallar('Sin conexión con la nube: el correo no se puede enviar en este momento.');
+  }
+  err.style.display = 'none';
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+  try {
+    await firebase.auth().sendPasswordResetEmail(mail);
+    alert('Si ' + mail + ' corresponde a una cuenta del sistema, le acabamos de enviar un enlace para establecer una contraseña nueva.\n\nRevise también la carpeta de Correo no deseado. El enlace vence en una hora.');
+  } catch (e) {
+    fallar('No se pudo enviar el correo. Revise la dirección e intente otra vez.');
+  }
+  if (btn) { btn.disabled = false; btn.textContent = '¿Olvidó su contraseña?'; }
+}
+
 /* Espera a que el padrón llegue de la nube después de un cambio de identidad.
    Hace falta porque con las reglas cerradas `usuarios` no se lee con el pase
    anónimo: recién al entrar con cuenta propia aparece. */
@@ -11057,8 +11087,17 @@ async function doLogin() {
     resuscribir();
     u = await esperarUsuario(mail, 5000);
     if (!u) {
+      /* La contraseña es correcta pero no hay legajo: le pasa a quien ya tenía
+         identidad de una etapa anterior y todavía no se dio de alta en el
+         padrón. No es un rechazo, es un alta a medio hacer: se lo lleva a
+         completarla con el correo puesto. Si usa la misma contraseña, el alta
+         entra por `signIn` y la cuenta le queda vinculada sin más trámite. */
       await volverAlPaseAnonimo();   // no se le deja identidad a quien no está en el padrón
-      return fallar('Su credencial es correcta, pero su legajo no aparece en el padrón. Comuníquese con la Jefatura de Quirófanos.');
+      accesoTab = 'alta';
+      renderAcceso();
+      setTimeout(() => { const c = $('a-mail'); if (c) { c.value = mail; c.focus(); } }, 60);
+      alert('Su contraseña es correcta, pero todavía no tiene legajo en el padrón del bloque.\n\nComplete la solicitud de alta con sus datos. Use la MISMA contraseña con la que acaba de intentar entrar y su cuenta queda vinculada sola.');
+      return;
     }
     marcarMigrado(u);
   }
@@ -11120,9 +11159,17 @@ async function doAlta() {
      profesional en el padrón sin identidad con la que entrar. */
   const fb = await crearOEntrarFirebase(mail, p1);
   if (!fb.ok && fb.motivo !== 'sin-nube') {
-    if (fb.motivo === 'auth/email-already-in-use') return fail('Ese correo ya tiene una cuenta. Ingrese con su contraseña o comuníquese con la Jefatura.');
+    /* Caso frecuente y confuso: el correo YA tiene identidad en el sistema
+       —de una etapa anterior, o de un alta previa— pero la contraseña escrita
+       acá no es la de esa cuenta. El alta no puede seguir, y decirle solamente
+       «no se pudo» lo deja sin salida: lo que necesita es restablecerla. */
+    if (['auth/email-already-in-use', 'auth/wrong-password', 'auth/invalid-credential',
+         'auth/invalid-login-credentials'].includes(fb.motivo)) {
+      return fail('Ese correo ya tiene una cuenta en el sistema. Si es suya, vaya a «Ingresar» y entre con su contraseña; si no la recuerda, use «¿Olvidó su contraseña?» y le llegará un enlace para ponerle una nueva.');
+    }
     if (fb.motivo === 'auth/weak-password') return fail('La contraseña es demasiado débil. Use al menos 6 caracteres, con letras y números.');
     if (fb.motivo === 'auth/invalid-email') return fail('Ingrese un correo válido.');
+    if (fb.motivo === 'auth/too-many-requests') return fail('Demasiados intentos. Espere unos minutos y vuelva a probar.');
     return fail('No se pudo crear la cuenta en este momento. Reintente en unos minutos.');
   }
   const u = {
