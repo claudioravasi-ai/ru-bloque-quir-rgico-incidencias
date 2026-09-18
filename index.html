@@ -2746,6 +2746,89 @@
     body[data-tema] .tema-menu { position: fixed; top: auto; right: 12px; left: 12px; width: auto; max-width: none; }
   }
 
+  /* ---- El lema: portada del ingreso y bienvenida ----
+     La foto va recortada a los rostros y el lema se escribe como texto, no
+     dentro de la imagen: así lo leen los lectores de pantalla y se adapta a los
+     cuatro temas. El pie de la foto se funde con el fondo de cada tema —en
+     «Guardia nocturna» el blanco del original encandilaba— y de noche la foto
+     se apaga un poco, con el mismo criterio de ese tema. Sin rayita separadora:
+     nada de líneas a medio largo. */
+  .lema-hero {
+    margin: 0 0 20px; max-width: 720px; border-radius: var(--radius); overflow: hidden;
+    background: var(--card); border: 1px solid var(--line);
+  }
+  .lema-foto { position: relative; height: 240px; }
+  /* La foto se desvanece ella misma (máscara) en vez de taparla con una capa
+     encima: con una capa, cuando la pantalla escala la página —zoom de Windows
+     al 125 %, el propio navegador— la capa queda una fracción de píxel más
+     corta y asoma la última fila de la foto como una rayita gris. */
+  .lema-foto img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center 35%; display: block;
+    -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 92%);
+            mask-image: linear-gradient(to bottom, #000 40%, transparent 92%);
+  }
+  .lema {
+    position: relative; margin: -38px 0 0; padding: 0 22px 22px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .lema-kicker {
+    font-family: Georgia, 'Times New Roman', serif; text-transform: uppercase;
+    letter-spacing: 0.3em; font-size: 1.12rem; color: var(--ink);
+  }
+  .lema-frase {
+    font-family: Georgia, 'Times New Roman', serif; text-transform: uppercase;
+    letter-spacing: 0.18em; font-size: 0.78rem; line-height: 1.7; color: var(--ink); margin-top: 6px;
+  }
+  .lema-sub {
+    font-family: Georgia, 'Times New Roman', serif; font-style: italic;
+    font-size: 0.95rem; line-height: 1.5; color: var(--muted); margin-top: 14px;
+  }
+  body[data-tema="noche"] .lema-foto img,
+  body[data-tema="noche"] .bienvenida-foto img { filter: brightness(0.8) saturate(0.9); }
+  @media (max-width: 560px) {
+    .lema-foto { height: 180px; }
+    .lema-kicker { font-size: 1rem; }
+    .lema-frase { font-size: 0.72rem; letter-spacing: 0.14em; }
+  }
+
+  /* Bienvenida: una sola vez, al terminar el alta. A pantalla completa en el
+     teléfono, ventana grande en la computadora. */
+  /* Fondo de tarjeta y no el de ventana (`--modal-bg`, que en «Clínico sobrio»
+     es verde menta): la foto se funde hacia este color, y si no coinciden queda
+     un corte a la altura del lema. Por eso el selector lleva `body[data-tema]`:
+     tiene que ganarle a la regla de ventana de cada tema. */
+  .modal.bienvenida,
+  body[data-tema] .modal.bienvenida {
+    max-width: 540px; padding: 0; overflow: hidden;
+    background: var(--card); color: var(--ink); border: 1px solid var(--line);
+  }
+  .bienvenida-foto { position: relative; height: 300px; }
+  .bienvenida-foto img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center 35%; display: block;
+    -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 92%);
+            mask-image: linear-gradient(to bottom, #000 45%, transparent 92%);
+  }
+  .bienvenida-cuerpo { position: relative; margin-top: -40px; padding: 0 28px 28px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+  .bienvenida-cuerpo h2 { margin-top: 22px; font-size: 1.2rem; line-height: 1.35; color: var(--ink); }
+  .bienvenida-cuerpo .btn { margin-top: 18px; min-width: 200px; }
+  @media (max-width: 560px) {
+    #bienvenida-overlay { padding: 0; }
+    .modal.bienvenida,
+    body[data-tema] .modal.bienvenida { max-width: none; width: 100%; height: 100%; border-radius: 0; border: none; overflow-y: auto; }
+    .bienvenida-foto { height: 46vh; }
+  }
+
+  /* ---- Selector de varios servicios ---- */
+  .serv-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .serv-chips:empty { display: none; }
+  .serv-chip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 5px 6px 5px 11px;
+    border-radius: 99px; border: 1px solid var(--line);
+    background: var(--sup2, #f1f5f9); color: var(--ink); font-size: 0.86rem; font-weight: 600;
+  }
+  .serv-chip small { color: var(--muted); font-weight: 500; }
+  .serv-chip button { border: none; background: none; cursor: pointer; color: var(--muted); font-size: 0.85rem; padding: 0 4px; }
+
   /* ---- Tablero público de la semana ---- */
   .est-pub-grid {
     display: grid; gap: 14px;
@@ -2885,6 +2968,32 @@
     <div class="pass-wrap"><input type="password" id="clave-nueva2" autocomplete="new-password" onkeydown="if(event.key==='Enter')guardarCambioClave()"></div>
     <p class="pass-error" id="clave-err"></p>
     <button class="btn btn-teal" id="clave-btn" onclick="guardarCambioClave()">Cambiar contraseña</button>
+  </div>
+</div>
+
+<div class="overlay" id="bienvenida-overlay" style="z-index:170">
+  <div class="modal bienvenida" role="dialog" aria-modal="true" aria-labelledby="bienvenida-titulo">
+    <div class="bienvenida-foto"><img src="equipo-quirurgico.jpg" width="960" height="577" decoding="async"
+      alt="Un equipo quirúrgico, con gorros y barbijos, mira hacia arriba desde el quirófano"></div>
+    <div class="bienvenida-cuerpo">
+      <span class="lema-kicker">En honor a</span>
+      <span class="lema-frase">quienes dedican su vida a salvar otras</span>
+      <span class="lema-sub">Su vocación deja una huella eterna en nuestras vidas.</span>
+      <h2 id="bienvenida-titulo">Le damos la bienvenida al Bloque Quirúrgico del Hospital Regional Ushuaia.</h2>
+      <button class="btn btn-teal" onclick="cerrarBienvenida()">Comenzar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="servedit-overlay">
+  <div class="modal" style="max-width:520px;text-align:left">
+    <button class="modal-close" onclick="cerrarEditarServicios()" aria-label="Cerrar">✕</button>
+    <h2 style="text-align:center">Servicios del profesional</h2>
+    <p class="modal-sub" id="servedit-nombre" style="text-align:center"></p>
+    <p class="modal-sub" style="text-align:left">El primero de la lista es el principal. Cada cirugía se cuenta en el servicio que se eligió al programarla, así que las ya cargadas no cambian.</p>
+    <div id="servedit-cuerpo"></div>
+    <p class="pass-error" id="servedit-err"></p>
+    <button class="btn btn-teal" style="width:100%;margin-top:14px" onclick="guardarEditarServicios()">Guardar servicios</button>
   </div>
 </div>
 
@@ -4898,20 +5007,202 @@ const SERV_SINONIMOS = {
   tocoginecologia: 'Obstetricia',
 };
 const SERV_CANON = {};      // clave normalizada → nombre oficial
+/* ---- Servicios agregados por los profesionales ----
+   Viven en `config`, documento `servicios`: { lista: [{ nombre, alias, unidoA,
+   revisado, alta, por }] }. `alias` guarda los nombres anteriores de un
+   servicio que la Jefatura corrigió, y `unidoA` marca el que se fundió con otro:
+   así un dato viejo, escrito con el nombre anterior, sigue cayendo en el
+   servicio correcto aunque no se lo haya reescrito. */
+function servDoc() { return DB.config.find((x) => String(x.id) === 'servicios') || null; }
+let servDinCache = { doc: undefined, val: null };
+function servDinamicos() {
+  const doc = servDoc();
+  if (servDinCache.doc === doc && servDinCache.val) return servDinCache.val;
+  const claves = {}, lista = [];
+  ((doc && doc.lista) || []).forEach((s) => {
+    if (!s || !s.nombre) return;
+    const destino = s.unidoA || s.nombre;
+    claves[servicioTokens(s.nombre).join(' ')] = destino;
+    (s.alias || []).forEach((a) => { claves[servicioTokens(a).join(' ')] = destino; });
+    if (!s.unidoA) lista.push(s.nombre);
+  });
+  servDinCache = { doc, val: { claves, lista } };
+  return servDinCache.val;
+}
+/* Todos los servicios elegibles: los del hospital más los agregados.
+   «Otro» sigue existiendo por los datos viejos, pero en los formularios deja de
+   ser un servicio y pasa a ser la puerta para escribir uno que no figura. */
+function serviciosCatalogo() {
+  return SERVICIOS_HRU.filter((s) => s !== 'Otro').concat(servDinamicos().lista);
+}
+/* Servicios a los que puede corresponder un nombre escrito a mano. */
+function serviciosCandidatos(s) {
+  const t = servicioTokens(s);
+  if (!t.length) return [];
+  return SERVICIOS_HRU.concat(servDinamicos().lista).filter((x) => {
+    const o = servicioTokens(x);
+    return o.every((w) => t.some((y) => tokEncaja(w, y))) || t.every((w) => o.some((y) => tokEncaja(w, y)));
+  });
+}
 function servicioCanonico(s) {
   const t = servicioTokens(s);
   if (!t.length) return '';
   const k = t.join(' ');
   if (SERV_CANON[k]) return SERV_CANON[k];
   if (SERV_SINONIMOS[k]) return SERV_SINONIMOS[k];
+  const din = servDinamicos();
+  if (din.claves[k]) return din.claves[k];
   // Nombre incompleto o de más: vale si señala a un solo servicio del listado.
   // «traumatologia» → «Traumatología y Ortopedia»; «cirugia», a cuatro, no.
-  const cand = SERVICIOS_HRU.filter((x) => {
-    const o = servicioTokens(x);
-    return o.every((w) => t.some((y) => tokEncaja(w, y))) || t.every((w) => o.some((y) => tokEncaja(w, y)));
-  });
+  const cand = serviciosCandidatos(s);
   return cand.length === 1 ? cand[0] : String(s || '').trim();
 }
+
+/* ---- Un servicio que no figura: ¿es de verdad nuevo? ----
+   Devuelve { nombre, nuevo } o, si lo escrito puede ser varios servicios de la
+   lista, { ambiguo: [...] } para que la persona elija. Eso último es lo que
+   impide que «cirugía» a secas se agregue como un servicio más y parta en dos
+   las estadísticas de Cirugía General. */
+function resolverServicioEscrito(texto) {
+  const limpio = String(texto || '').replace(/\s+/g, ' ').trim();
+  if (!limpio || servicioTokens(limpio).length === 0) return null;
+  const cand = serviciosCandidatos(limpio);
+  if (cand.length > 1) return { ambiguo: cand.filter((x) => x !== 'Otro') };
+  const canon = servicioCanonico(limpio);
+  const existente = serviciosCatalogo().find((x) => servicioTokens(x).join(' ') === servicioTokens(canon).join(' '));
+  if (existente) return { nombre: existente, nuevo: false };
+  if (/^otros?$/i.test(sinTildes(limpio))) return null;
+  return { nombre: prolijarServicio(limpio), nuevo: true };
+}
+/* Mayúsculas, conectores y tildes de las palabras médicas más comunes. Lo que
+   no se pueda deducir con seguridad lo corrige la Jefatura después. */
+const SERV_TILDES = {
+  cirugia: 'cirugía', plastica: 'plástica', toracica: 'torácica', pediatrica: 'pediátrica',
+  estetica: 'estética', bariatrica: 'bariátrica', cardiaca: 'cardíaca', oncologica: 'oncológica',
+  ginecologica: 'ginecológica', periferica: 'periférica', torax: 'tórax', oido: 'oído',
+  hepatica: 'hepática', biliopancreatica: 'biliopancreática', raquidea: 'raquídea', clinica: 'clínica',
+};
+const SERV_MINUSC = ['de', 'del', 'la', 'las', 'los', 'el', 'y', 'e', 'en', 'con', 'para', 'a', 'o'];
+function prolijarServicio(texto) {
+  const limpio = String(texto).replace(/\s+/g, ' ').trim();
+  // Escrito todo en mayúsculas no dice nada de siglas: «CIRUGÍA DE CABEZA Y
+  // CUELLO» no tiene ninguna, y tomar «DE» o «Y» por siglas lo dejaba torcido.
+  const todoMayus = limpio === limpio.toUpperCase();
+  return limpio.split(' ').map((w, i) => {
+    let p = w.toLowerCase();
+    const base = sinTildes(p);
+    if (i > 0 && SERV_MINUSC.includes(base)) return p;
+    // Una sigla escrita en mayúsculas en medio de texto normal se respeta: ORL, UTI.
+    if (!todoMayus && w.length <= 4 && w === w.toUpperCase() && /[A-ZÁÉÍÓÚÑ]/.test(w)) return w;
+    if (SERV_TILDES[base]) p = SERV_TILDES[base];
+    else p = p.replace(/logia$/, 'logía').replace(/grafia$/, 'grafía').replace(/scopia$/, 'scopía')
+      .replace(/tomia$/, 'tomía').replace(/patia$/, 'patía').replace(/iatria$/, 'iatría');
+    if (i > 0 && SERV_MINUSC.includes(base)) return p;
+    return p.charAt(0).toUpperCase() + p.slice(1);
+  }).join(' ');
+}
+function registrarServicioNuevo(nombre, por) {
+  const doc = servDoc();
+  const lista = ((doc && doc.lista) || []).map((s) => Object.assign({}, s));
+  const k = servicioTokens(nombre).join(' ');
+  if (lista.some((s) => servicioTokens(s.nombre).join(' ') === k)) return;
+  lista.push({ nombre, alias: [], revisado: false, alta: nowDT(), por: por || '' });
+  // Objeto nuevo, no el mismo mutado: así la caché de `servDinamicos` se entera.
+  upsert('config', { id: 'servicios', lista, actualizado: nowDT() });
+}
+
+/* ---- Los servicios de un profesional ----
+   Desde la 3.15.0 un profesional puede pertenecer a varios servicios
+   (`u.servicios`, el primero es el principal). `u.servicio` se sigue
+   escribiendo con el principal para todo lo que todavía lee un solo servicio.
+   Lo que se cuenta por servicio es la CIRUGÍA (`c.servicio`, que se elige al
+   programar entre los servicios del profesional): así la producción de un
+   cirujano que además hace endoscopías se reparte sola entre los dos. */
+function serviciosDe(u) {
+  if (!u) return [];
+  const base = Array.isArray(u.servicios) && u.servicios.length ? u.servicios : (u.servicio ? [u.servicio] : []);
+  const out = [];
+  base.forEach((s) => {
+    const c = servicioCanonico(s);
+    if (c && !out.some((x) => mismoServicio(x, c))) out.push(c);
+  });
+  return out;
+}
+function serviciosTexto(u) { return serviciosDe(u).join(' · ') || 'sin servicio'; }
+
+/* ---- Selector de servicios (alta del profesional y edición de la Jefatura) ----
+   Se eligen de la lista uno o varios; «Otro» abre un campo para escribir uno que
+   no figura, que pasa por `resolverServicioEscrito` antes de aceptarse. El estado
+   vive en `servPick[clave]` y sobrevive a un repintado de la pantalla. */
+const servPick = {};
+function servPickerHTML(key, inicial, reiniciar) {
+  if (reiniciar || !servPick[key]) servPick[key] = { sel: (inicial || []).slice(), nuevos: [] };
+  return `<div class="serv-pick">
+    <div class="serv-chips" id="sp-${key}-chips"></div>
+    <select id="sp-${key}-sel" onchange="servPickElegir('${key}', this)">
+      <option value="">${servPick[key].sel.length ? 'Agregar otro servicio…' : 'Seleccionar…'}</option>
+      ${serviciosCatalogo().map((s) => `<option value="${esc(s)}">${esc(s)}</option>`).join('')}
+      <option value="__otro">Otro (no figura en la lista)…</option>
+    </select>
+    <div id="sp-${key}-otro" style="display:none;margin-top:8px">
+      <div style="display:flex;gap:8px">
+        <input type="text" id="sp-${key}-txt" placeholder="Escriba el nombre del servicio" style="flex:1"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();servPickOtro('${key}')}">
+        <button class="btn btn-outline" type="button" onclick="servPickOtro('${key}')">Agregar</button>
+      </div>
+    </div>
+    <span class="hint" id="sp-${key}-nota"></span>
+  </div>`;
+}
+function servPickPintar(key) {
+  const st = servPick[key], box = $('sp-' + key + '-chips');
+  if (!st || !box) return;
+  box.innerHTML = st.sel.map((s, i) => `<span class="serv-chip">${esc(s)}${i === 0 && st.sel.length > 1 ? ' <small>principal</small>' : ''}${st.nuevos.includes(s) ? ' <small>nuevo</small>' : ''}<button type="button" onclick="servPickQuitar('${key}', ${i})" aria-label="Quitar ${esc(s)}">✕</button></span>`).join('');
+  const sel = $('sp-' + key + '-sel');
+  if (sel && sel.options[0]) sel.options[0].textContent = st.sel.length ? 'Agregar otro servicio…' : 'Seleccionar…';
+}
+function servPickNota(key, html) { const n = $('sp-' + key + '-nota'); if (n) n.innerHTML = html || ''; }
+function servPickSumar(key, nombre, nuevo) {
+  const st = servPick[key];
+  if (st.sel.some((x) => mismoServicio(x, nombre))) { servPickNota(key, `<b>${esc(nombre)}</b> ya está elegido.`); return false; }
+  st.sel.push(nombre);
+  if (nuevo) st.nuevos.push(nombre);
+  servPickPintar(key);
+  return true;
+}
+function servPickElegir(key, sel) {
+  const v = sel.value;
+  sel.value = '';
+  servPickNota(key, '');
+  if (v === '__otro') {
+    $('sp-' + key + '-otro').style.display = '';
+    setTimeout(() => $('sp-' + key + '-txt').focus(), 30);
+    return;
+  }
+  if (v) servPickSumar(key, v, false);
+}
+function servPickOtro(key) {
+  const inp = $('sp-' + key + '-txt');
+  const r = resolverServicioEscrito(inp.value);
+  if (!r) { servPickNota(key, 'Escriba el nombre del servicio.'); return; }
+  if (r.ambiguo) {
+    servPickNota(key, `«${esc(inp.value.trim())}» puede ser ${r.ambiguo.map((x) => `<b>${esc(x)}</b>`).join(', ')}. Elija el que corresponda en la lista de arriba.`);
+    return;
+  }
+  if (!servPickSumar(key, r.nombre, r.nuevo)) return;
+  inp.value = '';
+  $('sp-' + key + '-otro').style.display = 'none';
+  servPickNota(key, r.nuevo
+    ? `Se agrega a la lista como <b>${esc(r.nombre)}</b>. La Jefatura puede corregir cómo quedó escrito.`
+    : `Ese servicio ya figura en la lista como <b>${esc(r.nombre)}</b>: se usa ese nombre.`);
+}
+function servPickQuitar(key, i) {
+  const st = servPick[key];
+  const [q] = st.sel.splice(i, 1);
+  st.nuevos = st.nuevos.filter((x) => x !== q);
+  servPickPintar(key);
+}
+function esDeSusServicios(u, serv) { return serviciosDe(u).some((s) => mismoServicio(s, serv)); }
 const claveServicio = (s) => servicioTokens(servicioCanonico(s)).join(' ');
 const mismoServicio = (a, b) => claveServicio(a) === claveServicio(b);
 
@@ -5004,7 +5295,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.14.2';
+const APP_VERSION = '3.15.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -7381,7 +7672,7 @@ function renderSidebar() {
   if (u) {
     bottom += `<div class="jefe-session">
       <div class="jefe-session-name">${ICONS.steth.replace('14', '16')} ${esc(u.nombre)}</div>
-      <div class="jefe-session-sub">${esc(u.servicio)} · ${habilitacion(u).ok ? 'Habilitado' : 'Habilitación incompleta'}</div>
+      <div class="jefe-session-sub">${esc(serviciosTexto(u))} · ${habilitacion(u).ok ? 'Habilitado' : 'Habilitación incompleta'}</div>
       <div class="jefe-session-sub" style="color:${CUENTAS[estadoCuenta(u)].color};font-weight:800">${CUENTAS[estadoCuenta(u)].label}</div>
       <button class="jefe-logout" onclick="userLogout()">${ICONS.logout} Cerrar sesión</button>
     </div>`;
@@ -8123,7 +8414,7 @@ function renderSolicitud() {
         <div class="head-icon">${ICONS.calPlus}</div>
         <div>
           <h1 class="page-title">Solicitud Quirúrgica</h1>
-          <p class="page-sub">${esc(u.nombre)} — ${esc(u.servicio)} · elija una franja libre para cargar el turno</p>
+          <p class="page-sub">${esc(u.nombre)} — ${esc(serviciosTexto(u))} · elija una franja libre para cargar el turno</p>
         </div>
       </div>
       <button class="btn btn-outline btn-sm" onclick="go('grilla')">${ICONS.grid.replace('18', '15')} Ver la grilla completa</button>
@@ -8180,7 +8471,7 @@ function renderMis() {
     <div class="page-head">
       <div>
         <h1 class="page-title">Mis Solicitudes</h1>
-        <p class="page-sub">${esc(u.nombre)} — ${esc(u.servicio)}</p>
+        <p class="page-sub">${esc(u.nombre)} — ${esc(serviciosTexto(u))}</p>
       </div>
       <button class="btn btn-blue" onclick="go('solicitud')">${ICONS.calPlus.replace('18', '16')} Nueva solicitud</button>
     </div>
@@ -8892,7 +9183,7 @@ function campoCirujano(c, u, exc, ro) {
     <select id="k-cir-sel" ${ro} onchange="cirujanoElegido(this)">
       <option value="">— Elegir el profesional —</option>
       ${padron.map((p) => `<option value="${esc(p.email)}" data-nombre="${esc(p.nombre)}" data-serv="${esc(p.servicio || '')}"
-        ${String(p.email).toLowerCase() === actual ? 'selected' : ''}>${esc(p.nombre)}${p.servicio ? ' — ' + esc(p.servicio) : ''}</option>`).join('')}
+        ${String(p.email).toLowerCase() === actual ? 'selected' : ''}>${esc(p.nombre)}${serviciosDe(p).length ? ' — ' + esc(serviciosTexto(p)) : ''}</option>`).join('')}
     </select>
     <span class="hint">${turnoHuerfano(c) && duenoProbable(c)
       ? `Este turno figura a nombre de <b>${esc(c.cirujano || 's/d')}</b> pero no está asociado a ninguna cuenta, así que su cirujano no recibe los avisos. Se propone la coincidencia por nombre: confírmela para repararlo.`
@@ -8900,6 +9191,18 @@ function campoCirujano(c, u, exc, ro) {
   </div>`;
 }
 /* Elegido el profesional, el servicio del turno lo sigue: son el mismo dato. */
+/* Servicios que se ofrecen al cargar un turno. El cirujano elige entre LOS SUYOS
+   —es lo que reparte su producción entre sus servicios—; la Jefatura, que
+   carga por otros, ve la lista entera. Si el turno ya tenía un servicio que no
+   está en la lista (dato viejo), se conserva como opción para no perderlo. */
+function opcionesServicioTurno(c, u, exc) {
+  const propios = exc && exc.cirujano ? serviciosDe(exc.cirujano) : (u ? serviciosDe(u) : []);
+  let lista = (u && !jefe && propios.length) ? propios.slice() : serviciosCatalogo();
+  const actual = c && c.servicio ? servicioCanonico(c.servicio) : '';
+  if (actual && !lista.some((x) => mismoServicio(x, actual))) lista = [actual].concat(lista);
+  const elegido = actual || propios[0] || '';
+  return lista.map((x) => `<option ${elegido && mismoServicio(elegido, x) ? 'selected' : ''}>${esc(x)}</option>`).join('');
+}
 function cirujanoElegido(sel) {
   const op = sel.selectedOptions && sel.selectedOptions[0];
   const serv = op && op.dataset ? op.dataset.serv : '';
@@ -8985,7 +9288,7 @@ function openAsignarDueno(id) {
       <select id="dueno-sel">
         <option value="">— Elegir el profesional —</option>
         ${padron.map((p) => `<option value="${esc(p.email)}" data-nombre="${esc(p.nombre)}"
-          ${probable && p.email === probable.email ? 'selected' : ''}>${esc(p.nombre)}${p.servicio ? ' — ' + esc(p.servicio) : ''}</option>`).join('')}
+          ${probable && p.email === probable.email ? 'selected' : ''}>${esc(p.nombre)}${serviciosDe(p).length ? ' — ' + esc(serviciosTexto(p)) : ''}</option>`).join('')}
       </select>
       <span class="hint">${probable
         ? 'Viene propuesto por coincidencia de nombre. Verifíquelo antes de confirmar.'
@@ -9305,7 +9608,7 @@ function renderExcepcion() {
         <div class="field full"><label>Cirujano que va a realizar la cirugía *</label>
           <select id="x-cir" onchange="excCambio()">
             <option value="">Seleccionar…</option>
-            ${profs.map((p) => `<option value="${esc(p.email)}" ${excForm.email === p.email ? 'selected' : ''}>${esc(p.nombre)} — ${esc(p.servicio || 'sin servicio')}</option>`).join('')}
+            ${profs.map((p) => `<option value="${esc(p.email)}" ${excForm.email === p.email ? 'selected' : ''}>${esc(p.nombre)} — ${esc(serviciosTexto(p))}</option>`).join('')}
           </select>
           <span class="hint">Solo figuran las cuentas autorizadas: el aviso obligatorio se emite a esa cuenta.</span></div>
         <div class="field full"><label>Motivo de la excepción *</label>
@@ -10016,7 +10319,7 @@ function exportarPorTipo() {
   filas.push([`Período ${desde} a ${hasta}`,
     alc === 'hospital' ? 'Alcance: todo el bloque quirúrgico'
       : alc === 'propio' ? `Alcance: cirugías de ${(u && u.nombre) || ''}`
-      : `Alcance: servicio de ${(u && u.servicio) || ''}`,
+      : `Alcance: ${serviciosDe(u).length > 1 ? 'servicios' : 'servicio'} de ${serviciosTexto(u)}`,
     `Exportado ${nowDT().replace('T', ' ')}`]);
   descargarCSV(`hru-estadisticas-tipo-cirugia-${desde}_${hasta}.csv`, filas);
 }
@@ -10027,17 +10330,21 @@ function exportarPorTipo() {
    de su servicio, y nada de los demás servicios. Del propio servicio ve el
    agregado, no el rendimiento nominal de cada colega. */
 function estTodoElBloque() { return jefe || director; }
-function estServicioPropio() {
-  const u = usuarioActual();
-  return estTodoElBloque() ? '' : ((u && u.servicio) || '');
+/* Los servicios de quien mira; vacío = todo el bloque (Jefatura y Dirección).
+   Un profesional con varios servicios ve cada uno de ellos por separado. */
+function estServiciosPropios() {
+  return estTodoElBloque() ? [] : serviciosDe(usuarioActual());
 }
-/* Filtro de un grupo (servicio o cirujano) contra el servicio de quien mira. */
+function estServicioPropio() { return estServiciosPropios().join(' · '); }
+/* Filtro de un grupo (servicio o cirujano) contra los servicios de quien mira. */
 function estDeSuServicio(g) {
-  const serv = estServicioPropio();
-  if (!serv) return true;
-  if (mismoServicio(g.nombre, serv)) return true;
-  if (g.servicioPrinc && mismoServicio(g.servicioPrinc, serv)) return true;
-  return Object.keys(g.servicios || {}).some((x) => mismoServicio(x, serv));
+  if (estTodoElBloque()) return true;
+  const propios = estServiciosPropios();
+  if (!propios.length) return false;
+  const es = (x) => propios.some((s) => mismoServicio(x, s));
+  if (es(g.nombre)) return true;
+  if (g.servicioPrinc && es(g.servicioPrinc)) return true;
+  return Object.keys(g.servicios || {}).some(es);
 }
 
 /* Grupos visibles según quién mira: el desglose nominal solo lo ven completo la
@@ -10130,7 +10437,7 @@ function estTipoAlcances() {
   const opciones = [];
   if (u) {
     opciones.push({ k: 'propio', label: 'Mis cirugías' });
-    if (u.servicio) opciones.push({ k: 'servicio', label: 'Mi servicio' });
+    if (serviciosDe(u).length) opciones.push({ k: 'servicio', label: serviciosDe(u).length > 1 ? 'Mis servicios' : 'Mi servicio' });
   }
   if (estTodoElBloque()) opciones.push({ k: 'hospital', label: 'Todo el bloque' });
   return opciones;
@@ -10153,7 +10460,7 @@ function estTipoAlcanza(c) {
   const u = usuarioActual();
   if (!u) return false;
   if (alc === 'propio') return (c.cirujanoEmail && c.cirujanoEmail === u.email) || mismoProfesional(c.cirujano, u.nombre);
-  return mismoServicio(c.servicio, u.servicio);
+  return esDeSusServicios(u, c.servicio);
 }
 
 /* Quién figura en el desglose por cirujano. La Jefatura y la Dirección ven el
@@ -10307,7 +10614,7 @@ function seccionTipoCirugia() {
     ? 'Todas las cirugías del bloque en el período.'
     : alc === 'propio'
       ? `Solamente las cirugías a cargo de ${esc((u && u.nombre) || 'usted')}.`
-      : `Cirugías del servicio de ${esc((u && u.servicio) || '')}, con todos sus cirujanos.`;
+      : `Cirugías ${serviciosDe(u).length > 1 ? 'de sus servicios' : 'del servicio'} (${esc(serviciosTexto(u))}), con todos sus cirujanos.`;
 
   return `
     ${ops.length > 1 ? `<div class="est-presets" style="margin-bottom:14px">
@@ -10811,7 +11118,7 @@ function renderReclamos() {
 
     ${u ? `<div class="card">
       <div class="card-title">Nuevo reclamo</div>
-      <div class="card-sub">Se registra a nombre de ${esc(u.nombre)} (${esc(u.servicio)}) y se dirige a la Jefatura de Quirófanos</div>
+      <div class="card-sub">Se registra a nombre de ${esc(u.nombre)} (${esc(serviciosTexto(u))}) y se dirige a la Jefatura de Quirófanos</div>
       <div class="form-grid">
         <div class="field full"><label>Asunto *</label><input type="text" id="r-asunto" placeholder="Motivo del reclamo"></div>
         <div class="field full"><label>Detalle *</label><textarea id="r-texto" placeholder="Describa la situación, los antecedentes y la solución solicitada..."></textarea></div>
@@ -10938,10 +11245,10 @@ function enviarReclamo() {
   const t = nowDT();
   const id = Date.now();
   upsert('reclamos', {
-    id, de: u.servicio, para: JEFATURA, asunto, texto,
+    id, de: serviciosTexto(u), para: JEFATURA, asunto, texto,
     autor: u.nombre, autorMail: u.email, fechaHora: t,
     estado: 'abierto', respuesta: '', fechaRespuesta: '',
-    mensajes: [{ rol: 'autor', nombre: u.nombre, email: u.email, de: u.servicio, texto, t }],
+    mensajes: [{ rol: 'autor', nombre: u.nombre, email: u.email, de: serviciosTexto(u), texto, t }],
     leido: { [claveMail(u.email)]: 1 },
   });
   reclamoAbierto = id;
@@ -10963,7 +11270,7 @@ function enviarMensajeReclamo(id) {
     rol, texto, t,
     nombre: rol === 'jefatura' ? JEFATURA : (u ? u.nombre : r.autor),
     email: rol === 'jefatura' ? '' : (u ? u.email : r.autorMail || ''),
-    de: rol === 'jefatura' ? JEFATURA : (u ? u.servicio : r.de),
+    de: rol === 'jefatura' ? JEFATURA : (u ? serviciosTexto(u) : r.de),
   });
   r.mensajes = hilo;
   r.estado = rol === 'jefatura' ? 'respondido' : 'abierto';
@@ -11002,8 +11309,58 @@ function reabrirReclamo(id) {
 }
 
 /* ================= ACCESO PROFESIONAL (alta e ingreso) ================= */
+/* El lema, en el único lugar por el que pasan todos y donde nadie está apurado:
+   la puerta de entrada. En la grilla o en el parte competiría con el trabajo. */
+function lemaHeroHTML() {
+  return `<figure class="lema-hero">
+    <div class="lema-foto"><img src="equipo-quirurgico.jpg" width="960" height="577" decoding="async"
+      alt="Un equipo quirúrgico, con gorros y barbijos, mira hacia arriba desde el quirófano"></div>
+    <figcaption class="lema">
+      <span class="lema-kicker">En honor a</span>
+      <span class="lema-frase">quienes dedican su vida a salvar otras</span>
+      <span class="lema-sub">Su vocación deja una huella eterna en nuestras vidas.</span>
+    </figcaption>
+  </figure>`;
+}
+
+/* Bienvenida: una sola vez por profesional, al terminar el alta. Devuelve una
+   promesa que se resuelve al cerrarla, para que el aviso de «cuenta pendiente
+   de autorización» salga después y no encima. */
+const BIENV_KEY = 'hruq_bienvenida_vista_v1';
+let bienvenidaCerrar = null;
+function mostrarBienvenida(u) {
+  let vistas = {};
+  try { vistas = JSON.parse(localStorage.getItem(BIENV_KEY) || '{}'); } catch (e) {}
+  const k = claveMail(u.email);
+  if (vistas[k]) return Promise.resolve();
+  vistas[k] = nowDT();
+  try { localStorage.setItem(BIENV_KEY, JSON.stringify(vistas)); } catch (e) {}
+  const nombre = String(u.nombre || '').trim();
+  const ov = $('bienvenida-overlay');
+  $('bienvenida-titulo').textContent = (nombre ? nombre + ', l' : 'L') + 'e damos la bienvenida al Bloque Quirúrgico del Hospital Regional Ushuaia.';
+  ov.classList.add('open');
+  /* La ventana se puede cerrar por varios lados —«Comenzar», Escape, tocar el
+     fondo, el botón atrás del teléfono—, y los tres últimos los maneja código
+     general que no sabe que alguien está esperando. Si la promesa dependiera
+     solo de «Comenzar», el alta quedaba trabada y el aviso de «cuenta
+     pendiente» no salía nunca. Se escucha a la ventana misma: cuando deja de
+     estar abierta, por lo que sea, la promesa se cumple. */
+  return new Promise((res) => {
+    bienvenidaCerrar = res;
+    const obs = new MutationObserver(() => {
+      if (ov.classList.contains('open')) return;
+      obs.disconnect();
+      const r = bienvenidaCerrar; bienvenidaCerrar = null;
+      if (r) r();
+    });
+    obs.observe(ov, { attributes: true, attributeFilter: ['class'] });
+  });
+}
+function cerrarBienvenida() { $('bienvenida-overlay').classList.remove('open'); }
+
 function renderAcceso() {
   $('main').innerHTML = `
+    ${lemaHeroHTML()}
     <div class="page-head"><div>
       <h1 class="page-title">Acceso Profesional</h1>
       <p class="page-sub">Credenciales nominales con correo institucional — requisito para operar el sistema</p>
@@ -11037,9 +11394,9 @@ function renderAcceso() {
           <div class="field"><label>Nombre y apellido *</label><input type="text" id="a-nombre"></div>
           <div class="field"><label>DNI *</label><input type="text" id="a-dni"></div>
           <div class="field"><label>Correo institucional *</label><input type="email" id="a-mail" placeholder="nombre@hru.gob.ar"></div>
-          <div class="field"><label>Servicio *</label>
-            <select id="a-serv"><option value="">Seleccionar…</option>${SERVICIOS_HRU.map((s) => `<option>${s}</option>`).join('')}</select>
-            <span class="hint">Determina qué módulos quirúrgicos verá en su solapa.</span></div>
+          <div class="field" style="grid-column:1 / -1"><label>Servicio o servicios en los que trabaja *</label>
+            ${servPickerHTML('alta', [])}
+            <span class="hint">Puede elegir varios (por ejemplo, Cirugía General y Endoscopía Digestiva): el primero queda como principal. Determina qué estadísticas y qué módulos quirúrgicos verá, y entre cuáles elegirá al programar cada cirugía.</span></div>
           <div class="field"><label>Contraseña *</label><input type="password" id="a-pass" autocomplete="new-password"></div>
           <div class="field"><label>Repetir contraseña *</label><input type="password" id="a-pass2" autocomplete="new-password"></div>
         </div>
@@ -11049,6 +11406,7 @@ function renderAcceso() {
           <p class="form-note">La cuenta queda <b>pendiente de autorización de la Jefatura de Quirófanos</b> y con <b>habilitación incompleta</b> hasta que cargue la documentación en Mi Perfil. Recién con la autorización de la Jefatura y la habilitación completa se pueden cargar solicitudes quirúrgicas.</p>
         </div>
       </div>`}`;
+  servPickPintar('alta');
 }
 
 /* ================= IDENTIDAD REAL DEL PROFESIONAL =================
@@ -11430,10 +11788,13 @@ async function doAlta() {
   const nombre = $('a-nombre').value.trim(), dni = $('a-dni').value.trim();
   // Canónico: escrito a mano, «Cirugia General» y «Cirugía General» quedaban
   // como dos servicios distintos y el cirujano no veía sus propios módulos.
-  const mail = $('a-mail').value.trim().toLowerCase(), serv = servicioCanonico($('a-serv').value);
+  const mail = $('a-mail').value.trim().toLowerCase();
+  const pick = servPick.alta || { sel: [], nuevos: [] };
+  const servs = pick.sel.slice();
   const p1 = $('a-pass').value, p2 = $('a-pass2').value;
   const fail = (m) => { err.textContent = m; err.style.display = 'block'; };
-  if (!nombre || !dni || !mail || !serv || !p1) return fail('Complete todos los campos.');
+  if (!servs.length) return fail('Elija al menos un servicio. Si el suyo no figura, use «Otro (no figura en la lista)».');
+  if (!nombre || !dni || !mail || !p1) return fail('Complete todos los campos.');
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return fail('Ingrese un correo institucional válido.');
   if (p1.length < 6) return fail('La contraseña debe tener al menos 6 caracteres.');
   if (p1 !== p2) return fail('Las contraseñas no coinciden.');
@@ -11459,7 +11820,10 @@ async function doAlta() {
   }
   const u = {
     id: mail.replace(/[.#$/\[\]]/g, ','),
-    email: mail, nombre, dni, servicio: serv,
+    email: mail, nombre, dni,
+    // Todos sus servicios; el primero es el principal y se copia a `servicio`
+    // para lo que todavía lee uno solo.
+    servicios: servs, servicio: servs[0],
     matricula: { numero: '', vigente: false },
     especialista: { titulo: '', si: false },
     seguro: { vence: '' },
@@ -11473,9 +11837,15 @@ async function doAlta() {
     mailVerificado: false,   // se copia desde Firebase en cada ingreso
   };
   upsert('usuarios', u);
+  // Los servicios escritos a mano que no figuraban entran a la lista común,
+  // marcados para que la Jefatura los revise. Va después de crear la identidad:
+  // la lista vive en `config`, que un anónimo no puede escribir.
+  pick.nuevos.filter((n) => servs.includes(n)).forEach((n) => registrarServicioNuevo(n, mail));
+  delete servPick.alta;
   resuscribir();
   sessionStorage.setItem('hru_user', u.email);
   cambioDeIdentidad(true);
+  await mostrarBienvenida(u);
   alert('Cuenta creada correctamente.'
     + (fb.creada ? '\n\nLe enviamos un correo a ' + mail + ' para verificar la dirección. Reviselo —puede estar en Correo no deseado— y confirme el enlace: es el correo al que van a llegarle los avisos del bloque.' : '')
     + '\n\nSu acceso queda PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos: hasta que la Jefatura lo habilite no podrá programar cirugías.\n\nMientras tanto, complete su documentación de habilitación en Mi Perfil.');
@@ -11503,7 +11873,7 @@ function renderPerfil() {
         <div class="head-icon">${ICONS.user.replace('14', '20')}</div>
         <div>
           <h1 class="page-title">Mi Perfil</h1>
-          <p class="page-sub">${esc(u.nombre)} · ${esc(u.email)} · ${esc(u.servicio)}</p>
+          <p class="page-sub">${esc(u.nombre)} · ${esc(u.email)} · ${esc(serviciosTexto(u))}</p>
         </div>
       </div>
     </div>
@@ -11567,6 +11937,10 @@ function renderPerfil() {
     <div class="card" style="margin-top:16px">
       <div class="card-title">Seguridad de la cuenta</div>
       <div class="card-sub">${esc(u.email)}</div>
+      <p style="margin-top:10px;font-size:0.88rem;color:var(--txt-suave, var(--muted))">
+        ${serviciosDe(u).length > 1 ? 'Sus servicios' : 'Su servicio'}: <b style="color:var(--ink)">${esc(serviciosTexto(u))}</b>.
+        Para sumar o quitar uno, pídaselo a la Jefatura de Quirófanos desde <b>Reclamos</b>.
+      </p>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 14px">
         ${u.mailVerificado
           ? '<span class="badge-ok">Correo verificado</span>'
@@ -11634,10 +12008,12 @@ function renderUsuarios() {
       <div><strong>Dos controles independientes</strong>
       La <b>autorización de la cuenta</b> la da y la revoca la Jefatura de Quirófanos en esta pantalla. La <b>habilitación documental</b> —matrícula provincial vigente, título de especialista, seguro de responsabilidad civil, RCP con revalidación bienal y vacunación completa— la carga cada profesional en Mi Perfil y el sistema la verifica solo. Para programar hacen falta las dos.</div></div>
 
+    ${tarjetaServiciosAgregados()}
+
     <div class="tbl-wrap">
       <table class="tbl">
         <thead><tr>
-          <th>Profesional</th><th>Servicio</th><th>Cuenta</th><th>Matrícula</th><th>Especialista</th><th>Seguro</th><th>RCP</th><th>Vacunas</th><th>Habilitación</th><th>Acciones de Jefatura</th>
+          <th>Profesional</th><th>Servicios</th><th>Cuenta</th><th>Matrícula</th><th>Especialista</th><th>Seguro</th><th>RCP</th><th>Vacunas</th><th>Habilitación</th><th>Acciones de Jefatura</th>
         </tr></thead>
         <tbody>
           ${lista.length ? lista.map((u) => {
@@ -11647,7 +12023,7 @@ function renderUsuarios() {
             const id = esc(u.id);
             return `<tr>
               <td><b>${esc(u.nombre)}</b>${u.prueba ? ' <span class="badge-pend">PRUEBA</span>' : ''}<div class="req-sub">${esc(u.email)}${u.dni ? ' · DNI ' + esc(u.dni) : ''}</div></td>
-              <td>${esc(u.servicio)}</td>
+              <td>${esc(serviciosTexto(u))}</td>
               <td><span class="${CUENTAS[e].badge}">${CUENTAS[e].label}</span>
                 ${u.cuentaFecha ? `<div class="req-sub">${fmtDT(u.cuentaFecha)}</div>` : ''}
                 ${e === 'baja' && u.cuentaMotivo ? `<div class="req-sub" style="color:var(--red)">Motivo: ${esc(u.cuentaMotivo)}</div>` : ''}
@@ -11661,6 +12037,7 @@ function renderUsuarios() {
               <td><div class="cir-actions" style="margin:0">
                 ${e !== 'aprobado' ? `<button class="btn btn-sm btn-blue" onclick="autorizarCuenta('${id}')">${ico(ICONS.check, 14)} ${e === 'baja' ? 'Reactivar' : 'Autorizar'}</button>` : ''}
                 ${e !== 'baja' ? `<button class="btn btn-sm btn-red" onclick="darDeBajaCuenta('${id}')">${ico(ICONS.x, 14)} Dar de baja</button>` : ''}
+                <button class="btn btn-sm btn-outline" onclick="abrirEditarServicios('${id}')">${ico(ICONS.layers, 14)} Servicios</button>
                 <button class="btn btn-sm btn-outline" onclick="blanquearClave('${id}')" title="Le envía un enlace a su correo para que elija una contraseña nueva">${ico(ICONS.key, 14)} Blanquear contraseña</button>
                 <button class="btn btn-sm btn-outline" onclick="eliminarProfesional('${id}')">${ico(ICONS.trash, 14)} Eliminar</button>
               </div></td>
@@ -11686,6 +12063,151 @@ function avisoEnvio(enviado, que) {
   return `\n\n⚠ ATENCIÓN: este dispositivo no está llegando a la base compartida.` +
     `\n${que} quedó guardada acá y se enviará sola al recuperar la conexión, pero HASTA ENTONCES el resto de los equipos NO la ve.` +
     `\n\nDeje la app abierta con señal hasta que el indicador de arriba diga «Sincronizado».`;
+}
+
+/* ================= SERVICIOS: LO QUE HACE LA JEFATURA =================
+   Dos cosas. Una: cambiar los servicios de un profesional (el que empieza a
+   hacer endoscopías, el que se equivocó al registrarse). Dos: revisar los
+   servicios que los profesionales escribieron a mano con «Otro» — confirmarlos,
+   corregir cómo quedaron escritos, o unirlos con uno que ya existía. Corregir y
+   unir reescriben los datos ya cargados para que las estadísticas no queden
+   partidas en dos. */
+let servEditId = null;
+function abrirEditarServicios(id) {
+  const u = usuarioPorId(id);
+  if (!u) return;
+  servEditId = id;
+  $('servedit-nombre').textContent = `${u.nombre} · ${u.email}`;
+  $('servedit-cuerpo').innerHTML = servPickerHTML('editar', serviciosDe(u), true);
+  servPickPintar('editar');
+  $('servedit-err').style.display = 'none';
+  $('servedit-overlay').classList.add('open');
+}
+function cerrarEditarServicios() { $('servedit-overlay').classList.remove('open'); servEditId = null; delete servPick.editar; }
+function guardarEditarServicios() {
+  const u = usuarioPorId(servEditId);
+  const st = servPick.editar;
+  if (!u || !st) return;
+  if (!st.sel.length) {
+    $('servedit-err').textContent = 'Tiene que quedar al menos un servicio.';
+    $('servedit-err').style.display = 'block';
+    return;
+  }
+  const sel = st.sel.slice(), nuevos = st.nuevos.slice();
+  pedirJefatura('Servicios del profesional',
+    `Guardar los servicios de ${u.nombre}: ${sel.join(', ')}. Sus cirugías ya cargadas conservan el servicio con el que se programaron. Confirme con la credencial de Jefatura.`,
+    async () => {
+      const antes = serviciosTexto(u);
+      u.servicios = sel;
+      u.servicio = sel[0];
+      u.serviciosHist = (u.serviciosHist || []).concat([{ t: nowDT(), de: antes, a: sel.join(' · ') }]);
+      nuevos.filter((n) => sel.includes(n)).forEach((n) => registrarServicioNuevo(n, 'Jefatura de Quirófanos'));
+      const enviado = await upsert('usuarios', u);
+      cerrarEditarServicios();
+      renderUsuarios();
+      alert(`Servicios de ${u.nombre}: ${sel.join(' · ')}.` + (enviado ? '' : '\n\nAtención: el cambio quedó guardado en este dispositivo y todavía no llegó a la base compartida.'));
+    });
+}
+
+function serviciosAgregadosVivos() {
+  const lista = (servDoc() && servDoc().lista) || [];
+  return lista.map((s, i) => ({ s, i })).filter((x) => x.s && x.s.nombre && !x.s.unidoA);
+}
+function tarjetaServiciosAgregados() {
+  const vivos = serviciosAgregadosVivos();
+  if (!vivos.length) return '';
+  const sinRevisar = vivos.filter((x) => !x.s.revisado).length;
+  return `<div class="card" style="margin-bottom:16px">
+    <div class="card-title">Servicios agregados por los profesionales${sinRevisar ? ` <span class="badge-no">${sinRevisar} sin revisar</span>` : ''}</div>
+    <div class="card-sub">No estaban en la lista del hospital: los escribió alguien con «Otro». Revise cómo quedaron escritos, porque de este nombre dependen las estadísticas y los módulos. Si alguno es en realidad un servicio que ya existía, únalo: lo cargado se pasa solo al correcto.</div>
+    <div class="tbl-wrap" style="margin-top:12px"><table class="tbl">
+      <thead><tr><th>Servicio</th><th>Lo agregó</th><th>Profesionales</th><th>Cirugías</th><th>Acciones</th></tr></thead>
+      <tbody>${vivos.map(({ s, i }) => {
+        const nProf = DB.usuarios.filter((u) => esDeSusServicios(u, s.nombre)).length;
+        const nCx = DB.cirugias.filter((c) => mismoServicio(c.servicio, s.nombre)).length;
+        return `<tr>
+          <td><b>${esc(s.nombre)}</b> ${s.revisado ? '<span class="badge-ok">Revisado</span>' : '<span class="badge-no">Nuevo</span>'}</td>
+          <td>${esc(s.por || '—')}<div class="req-sub">${s.alta ? fmtDT(s.alta) : ''}</div></td>
+          <td>${nProf}</td><td>${nCx}</td>
+          <td><div class="cir-actions" style="margin:0">
+            ${s.revisado ? '' : `<button class="btn btn-sm btn-blue" onclick="servConfirmar(${i})">${ico(ICONS.check, 14)} Está bien escrito</button>`}
+            <button class="btn btn-sm btn-outline" onclick="servCorregir(${i})">Corregir nombre</button>
+            <button class="btn btn-sm btn-outline" onclick="servUnir(${i})">Unir con otro</button>
+          </div></td></tr>`;
+      }).join('')}</tbody>
+    </table></div>
+  </div>`;
+}
+function servGuardarLista(mutar) {
+  const doc = servDoc();
+  const lista = ((doc && doc.lista) || []).map((s) => Object.assign({}, s, { alias: (s.alias || []).slice() }));
+  mutar(lista);
+  // Objeto nuevo: la caché de `servDinamicos` compara por referencia.
+  return upsert('config', { id: 'servicios', lista, actualizado: nowDT() });
+}
+/* Pasa todo lo cargado con el nombre viejo al nombre nuevo: el padrón, las
+   cirugías y los consentimientos. Compara por la forma exacta del nombre, no
+   por el corrector, porque el corrector ya apunta al nombre nuevo. */
+function reemplazarServicioEnDatos(viejo, nuevo) {
+  const kv = servicioTokens(viejo).join(' ');
+  const es = (x) => !!x && servicioTokens(x).join(' ') === kv;
+  const n = { prof: 0, cx: 0, ci: 0 };
+  DB.usuarios.forEach((u) => {
+    const ss = Array.isArray(u.servicios) && u.servicios.length ? u.servicios : (u.servicio ? [u.servicio] : []);
+    if (!ss.some(es)) return;
+    const out = [];
+    ss.map((s) => (es(s) ? nuevo : s)).forEach((s) => { if (!out.some((x) => mismoServicio(x, s))) out.push(s); });
+    u.servicios = out; u.servicio = out[0] || '';
+    upsert('usuarios', u); n.prof++;
+  });
+  DB.cirugias.forEach((c) => { if (es(c.servicio)) { c.servicio = nuevo; upsert('cirugias', c); n.cx++; } });
+  DB.consentimientos.forEach((r) => { if (es(r.especialidad)) { r.especialidad = nuevo; upsert('consentimientos', r); n.ci++; } });
+  return n;
+}
+function servConfirmar(i) {
+  const s = servDoc().lista[i];
+  pedirJefatura('Servicio nuevo', `Confirmar «${s.nombre}» tal como está escrito. Confirme con la credencial de Jefatura.`, async () => {
+    await servGuardarLista((l) => { l[i].revisado = true; });
+    renderUsuarios();
+  });
+}
+async function servCorregir(i) {
+  const s = servDoc().lista[i];
+  const t = await pedirTexto(`¿Cómo se tiene que escribir «${s.nombre}»?\nEscríbalo como debe figurar en las estadísticas.`, { campo: { requerido: true, valor: s.nombre } });
+  if (!t) return;
+  const r = resolverServicioEscrito(t);
+  if (!r) return;
+  if (r.ambiguo) { alert(`«${t}» puede ser ${r.ambiguo.join(', ')}. Escríbalo completo.`); return; }
+  if (!r.nuevo && !mismoServicio(r.nombre, s.nombre)) {
+    alert(`«${r.nombre}» ya es un servicio de la lista. Para juntarlos use «Unir con otro».`);
+    return;
+  }
+  const nuevo = r.nuevo ? r.nombre : s.nombre;
+  if (nuevo === s.nombre) { servConfirmar(i); return; }
+  pedirJefatura('Corregir servicio', `«${s.nombre}» pasa a llamarse «${nuevo}», y todo lo cargado con el nombre anterior se actualiza. Confirme con la credencial de Jefatura.`, async () => {
+    const viejo = s.nombre;
+    await servGuardarLista((l) => { l[i].alias.push(viejo); l[i].nombre = nuevo; l[i].revisado = true; });
+    const n = reemplazarServicioEnDatos(viejo, nuevo);
+    renderUsuarios();
+    alert(`Listo: «${viejo}» ahora es «${nuevo}».\nSe actualizaron ${n.prof} profesional(es), ${n.cx} cirugía(s) y ${n.ci} consentimiento(s).`);
+  });
+}
+async function servUnir(i) {
+  const s = servDoc().lista[i];
+  const t = await pedirTexto(`¿Con qué servicio de la lista se une «${s.nombre}»?\nEscriba su nombre, aunque sea incompleto.`, { campo: { requerido: true } });
+  if (!t) return;
+  const r = resolverServicioEscrito(t);
+  if (!r) return;
+  if (r.ambiguo) { alert(`«${t}» puede ser ${r.ambiguo.join(', ')}. Escríbalo más completo.`); return; }
+  if (r.nuevo) { alert(`«${t}» no es ningún servicio de la lista. Si solo hay que arreglar cómo está escrito, use «Corregir nombre».`); return; }
+  if (mismoServicio(r.nombre, s.nombre)) { alert('Es el mismo servicio.'); return; }
+  pedirJefatura('Unir servicios', `«${s.nombre}» se une con «${r.nombre}»: desaparece de la lista y todo lo cargado con ese nombre pasa a «${r.nombre}». Confirme con la credencial de Jefatura.`, async () => {
+    const viejo = s.nombre;
+    await servGuardarLista((l) => { l[i].unidoA = r.nombre; l[i].revisado = true; });
+    const n = reemplazarServicioEnDatos(viejo, r.nombre);
+    renderUsuarios();
+    alert(`Listo: «${viejo}» se unió con «${r.nombre}».\nSe pasaron ${n.prof} profesional(es), ${n.cx} cirugía(s) y ${n.ci} consentimiento(s).`);
+  });
 }
 
 function autorizarCuenta(id) {
@@ -12771,7 +13293,7 @@ function openSlot(d, sid, fid) {
       <div class="form-grid">
         ${campoCirujano(c, u, exc, ro)}
         <div class="field"><label>Servicio / especialidad *</label>
-          <select id="k-serv" ${ro}>${SERVICIOS_HRU.map((x) => `<option ${mismoServicio(c?.servicio || (exc && exc.cirujano.servicio) || (u && u.servicio), x) ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+          <select id="k-serv" ${ro}>${opcionesServicioTurno(c, u, exc)}</select></div>
         ${campoAyudante('k-ayu', (ayudanteDe(c || {}) || {}).nombre || '', ro)}
         <div class="field"><label>Anestesista</label><input type="text" id="k-anest" value="${v(c && c.anestesista)}" ${ro}></div>
         <div class="field"><label>Tipo de anestesia</label>
@@ -16063,7 +16585,10 @@ function ciMedicoDe(r) {
     || DB.usuarios.find((x) => x.nombre && r.medico && mismoProfesional(x.nombre, r.medico))
     || null;
   const nombre = (u && u.nombre) || profesionalCanonico(r.medico) || 'Sin profesional identificado';
-  const serv = (u && u.servicio) || r.especialidad || '';
+  // Con varios servicios, manda la especialidad del propio consentimiento si es
+  // una de las suyas; si no, su servicio principal.
+  const esp = r.especialidad && u && esDeSusServicios(u, r.especialidad) ? r.especialidad : '';
+  const serv = esp || (u && serviciosDe(u)[0]) || r.especialidad || '';
   return { nombre, servicio: servicioCanonico(serv) || 'Sin servicio asignado' };
 }
 /* Rótulo vivo del buscador: cuántas fichas está mirando sobre el total. */
@@ -16914,9 +17439,11 @@ function modSetPeriodo(p) { modPeriodo = p; if (!modAncla) modAncla = hoyISO(); 
 /* ---- Alcance: cada cirujano ve su servicio; la Dirección Médica, todo ---- */
 function modAlcance() {
   const u = usuarioActual();
+  // Un profesional con varios servicios ve los módulos de todos ellos; la
+  // planilla los separa por servicio, que es lo que sale de `c.servicio`.
   const base = director
-    ? { todo: true, servicio: modServicio, quien: modServicio || 'todos los servicios' }
-    : (() => { const serv = servicioCanonico(u && u.servicio); return { todo: false, servicio: serv, quien: serv }; })();
+    ? { todo: true, servicios: modServicio ? [modServicio] : [], servicio: modServicio, quien: modServicio || 'todos los servicios' }
+    : (() => { const ss = serviciosDe(u); return { todo: false, servicios: ss, servicio: ss.join(' · '), quien: ss.join(' · ') }; })();
   if (modProf) base.quien = `${modProf} — ${base.quien}`;
   return base;
 }
@@ -16926,7 +17453,7 @@ function modFilasDelAlcance() {
   const [d, h] = modRango();
   const al = modAlcance();
   let filas = modulosRegistrados(d, h);
-  if (!al.todo || al.servicio) filas = filas.filter((f) => mismoServicio(f.servicio, al.servicio));
+  if (!al.todo || al.servicios.length) filas = filas.filter((f) => al.servicios.some((s) => mismoServicio(f.servicio, s)));
   return filas;
 }
 /* Lo que efectivamente se ve y se exporta. Con un profesional elegido —la
@@ -17829,7 +18356,7 @@ function comDestinoLabel(c) {
   const d = comDestino(c);
   if (d.tipo === 'profesional') {
     const u = DB.usuarios.find((x) => claveMail(x.email) === claveMail(d.valor));
-    return u ? `${u.nombre} (${u.servicio || 'sin servicio'})` : 'Un profesional (cuenta eliminada)';
+    return u ? `${u.nombre} (${serviciosTexto(u)})` : 'Un profesional (cuenta eliminada)';
   }
   if (d.tipo === 'servicio') return `Servicio de ${d.valor}`;
   return COM_DESTINOS[d.tipo].label;
@@ -18096,7 +18623,7 @@ function comDestinatarios(c) {
     const u = activos().find((x) => claveMail(x.email) === claveMail(d.valor));
     if (u) lista.push(comoDest(u));
   } else if (d.tipo === 'servicio') {
-    activos().filter((u) => servicioCanonico(u.servicio) === servicioCanonico(d.valor)).forEach((u) => lista.push(comoDest(u)));
+    activos().filter((u) => esDeSusServicios(u, d.valor)).forEach((u) => lista.push(comoDest(u)));
   } else if (d.tipo === 'medicos' || d.tipo === 'medicos_direccion') {
     activos().forEach((u) => lista.push(comoDest(u)));
   }
@@ -18406,13 +18933,13 @@ function renderComunicados() {
             <option value="">Seleccionar…</option>
             ${DB.usuarios.filter((u) => estadoCuenta(u) !== 'baja')
               .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es'))
-              .map((u) => `<option value="${esc(u.email)}">${esc(u.nombre)} — ${esc(u.servicio || 'sin servicio')}</option>`).join('')}
+              .map((u) => `<option value="${esc(u.email)}">${esc(u.nombre)} — ${esc(serviciosTexto(u))}</option>`).join('')}
           </select></div>
         <div class="field full" id="c-dest-serv-wrap" style="display:none"><label>¿A qué servicio?</label>
           <select id="c-dest-serv">
             <option value="">Seleccionar…</option>
             ${SERVICIOS_HRU.map((s) => {
-              const n = DB.usuarios.filter((u) => estadoCuenta(u) !== 'baja' && servicioCanonico(u.servicio) === servicioCanonico(s)).length;
+              const n = DB.usuarios.filter((u) => estadoCuenta(u) !== 'baja' && esDeSusServicios(u, s)).length;
               return `<option value="${esc(s)}">${esc(s)} (${n} profesional${n === 1 ? '' : 'es'})</option>`;
             }).join('')}
           </select></div>
