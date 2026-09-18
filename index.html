@@ -2859,6 +2859,32 @@
     <div class="pass-wrap"><input type="password" id="cred-clave" autocomplete="current-password"></div>
     <p class="pass-error" id="cred-err"></p>
     <button class="btn btn-teal" id="cred-btn" onclick="confirmarCredencial()">Confirmar</button>
+    <!-- Jefatura, Dirección y Admisión: su contraseña también la custodia
+         Firebase, así que la recuperan y la cambian desde acá mismo. -->
+    <div id="cred-extra" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px">
+      <button class="btn btn-sm btn-outline" type="button" onclick="credOlvido(this)">¿Olvidó su contraseña?</button>
+      <button class="btn btn-sm btn-outline" type="button" onclick="credCambiar()">Cambiar contraseña</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="clave-overlay" style="z-index:160">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrarCambioClave()" aria-label="Cerrar">✕</button>
+    <h2 id="clave-titulo">Cambiar contraseña</h2>
+    <p class="modal-sub" id="clave-desc"></p>
+    <div id="clave-mail-wrap">
+      <label class="pass-label" for="clave-mail">Correo de la cuenta</label>
+      <div class="pass-wrap"><input type="email" id="clave-mail" autocomplete="username" inputmode="email"></div>
+    </div>
+    <label class="pass-label" for="clave-actual">Contraseña actual</label>
+    <div class="pass-wrap"><input type="password" id="clave-actual" autocomplete="current-password"></div>
+    <label class="pass-label" for="clave-nueva">Contraseña nueva</label>
+    <div class="pass-wrap"><input type="password" id="clave-nueva" autocomplete="new-password"></div>
+    <label class="pass-label" for="clave-nueva2">Repita la contraseña nueva</label>
+    <div class="pass-wrap"><input type="password" id="clave-nueva2" autocomplete="new-password" onkeydown="if(event.key==='Enter')guardarCambioClave()"></div>
+    <p class="pass-error" id="clave-err"></p>
+    <button class="btn btn-teal" id="clave-btn" onclick="guardarCambioClave()">Cambiar contraseña</button>
   </div>
 </div>
 
@@ -4978,7 +5004,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.14.1';
+const APP_VERSION = '3.14.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -5300,13 +5326,25 @@ function vaciarCola() {
   colaPendiente = [];
   saveCola();
   pend.forEach((op) => {
-    const r = refs[op.col];
+    const r = refEscritura(op.col);
     if (!r) { colaPendiente.push(op); return; }
     r.child(op.id).transaction(
       // undefined aborta la transacción y deja la nube intacta.
       (actual) => resolverCola(actual, op),
       (err, hecho, snap) => {
-        if (err) { encolar(op); return; }
+        if (err) {
+          /* Una transacción necesita LEER el registro para comparar fechas. En
+             las colecciones que este usuario escribe pero no lee —la incidencia
+             del que no es Jefatura, el legajo del que recién pide el alta— se
+             niega siempre, y el cambio quedaba en la cola para siempre. Ahí se
+             escribe directo: son registros nuevos, con id propio, sin versión
+             anterior que proteger. */
+          const negado = /permission[_ ]denied/i.test(String((err && (err.code || err.message)) || ''));
+          if (!negado) { encolar(op); return; }
+          const directo = op.tipo === 'del' ? r.child(op.id).remove() : r.child(op.id).set(op.obj);
+          directo.then(() => { saveCola(); pintarConexion(); }).catch(() => encolar(op));
+          return;
+        }
         if (hecho) return;
         // Descartado por viejo: este dispositivo se pone al día con la nube.
         const val = snap && snap.val();
@@ -5584,7 +5622,9 @@ function suscribirCol(col, alPrimero) {
     // resto. Avisar «Sin conexión» acá sería mentirle al quirófano.
     const denegado = err && (err.code === 'PERMISSION_DENIED'
       || /permission[_ ]denied/i.test(String(err.message || '')));
-    refs[col] = null;
+    // `refs[col]` NO se anula: que no se pueda leer no dice nada de si se puede
+    // escribir (ver `refEscritura`). Anularlo dejaba mudas las incidencias.
+    escuchas[col] = null;
     if (!denegado) { conectado = false; pintarConexion(); }
     if (first) { first = false; if (alPrimero) alPrimero(); }
   });
@@ -5596,11 +5636,29 @@ function suscribirCol(col, alPrimero) {
 function resuscribir() {
   if (!cloudOn || typeof firebase === 'undefined' || !firebase.apps.length) return;
   COLS.forEach((col) => suscribirCol(col, null));
+  // Con la identidad nueva puede haber permiso para lo que antes esperaba en
+  // la cola —el legajo de un alta recién hecha, por ejemplo—: se descarga ya.
+  if (conectado) vaciarCola();
 }
 /* Devuelve una promesa que dice si el cambio quedó confirmado en la nube
    (true) o solamente guardado en este dispositivo, a la espera de red (false).
    Quien necesite darle una respuesta franca al usuario —autorizar una cuenta,
    por ejemplo— la espera; el resto la ignora y sigue como siempre. */
+/* Dónde se ESCRIBE una colección. Poder leerla y poder escribirla son cosas
+   distintas, y las reglas las separan a propósito en dos lugares: cualquiera
+   puede reportar una incidencia aunque solo la Jefatura las lea, y quien pide
+   el alta puede crear su legajo antes de poder leer el padrón. Durante un
+   tiempo la app las confundió: una suscripción denegada dejaba `refs[col]` en
+   null, y con eso la escritura se iba a la cola y no salía nunca. Así, desde
+   el 28-08-2026 hasta la 3.14.2, ninguna incidencia reportada por alguien que
+   no fuera la Jefatura llegó a la nube, y ningún alta nueva subió su legajo.
+   Quien decide si se puede escribir es la regla de la base, no si se pudo leer. */
+function refEscritura(col) {
+  if (refs[col]) return refs[col];
+  try {
+    return (typeof firebase !== 'undefined' && firebase.apps.length) ? firebase.database().ref(col) : null;
+  } catch (e) { return null; }
+}
 function upsert(col, obj) {
   obj._m = ahoraServidor();
   const plano = JSON.parse(JSON.stringify(obj));
@@ -5613,8 +5671,9 @@ function upsert(col, obj) {
   let envio = Promise.resolve(!cloudOn);
   if (cloudOn) {
     const op = { tipo: 'set', col, id: obj.id, obj: plano, m: plano._m };
-    if (refs[col] && conectado) {
-      envio = refs[col].child(obj.id).set(plano).then(() => true).catch(() => { encolar(op); return false; });
+    const r = refEscritura(col);
+    if (r && conectado) {
+      envio = r.child(obj.id).set(plano).then(() => true).catch(() => { encolar(op); return false; });
     } else { encolar(op); envio = Promise.resolve(false); }
   }
   refreshView();
@@ -5627,8 +5686,9 @@ function removeDoc(col, id) {
   let envio = Promise.resolve(!cloudOn);
   if (cloudOn) {
     const op = { tipo: 'del', col, id, m: ahoraServidor() };
-    if (refs[col] && conectado) {
-      envio = refs[col].child(id).remove().then(() => true).catch(() => { encolar(op); return false; });
+    const r = refEscritura(col);
+    if (r && conectado) {
+      envio = r.child(id).remove().then(() => true).catch(() => { encolar(op); return false; });
     } else { encolar(op); envio = Promise.resolve(false); }
   }
   refreshView();
@@ -6886,6 +6946,8 @@ function revisarRecordatorios() {
   avisarVozVispera();
   // Los seis contadores del tablero abierto, si cambiaron.
   publicarEstadisticasSemana();
+  // El correo verificado del profesional con sesión, si todavía no consta.
+  vigilarVerificacion();
 }
 function pintarCampana() {
   pintarBadgesAvisos();
@@ -7794,7 +7856,8 @@ function closeOk() {
 function renderConfidenciales() {
   const list = DB.incidencias.filter((i) => {
     const q = filtros.q.toLowerCase();
-    const matchQ = !q || i.desglose.toLowerCase().includes(q) || i.personal.toLowerCase().includes(q) || i.servicio.toLowerCase().includes(q) || i.informante.nombre.toLowerCase().includes(q);
+    const matchQ = !q || [i.desglose, i.personal, i.servicio, informanteDe(i).nombre]
+      .some((t) => String(t ?? '').toLowerCase().includes(q));
     const matchC = !filtros.cat || i.categoria === filtros.cat;
     const matchE = !filtros.estado || i.estado === filtros.estado;
     return matchQ && matchC && matchE;
@@ -7836,13 +7899,24 @@ function renderConfidenciales() {
 }
 let incFocus = false;
 
+/* Las incidencias las puede escribir cualquiera con pase —tiene que ser así
+   para poder reportar sin cuenta—, de modo que a la base puede llegar un
+   registro mal formado, por error o a propósito. Uno solo sin `categoria`, sin
+   `estado` o sin `informante` dejaba a la Jefatura sin su bandeja entera. Se
+   lee con red: lo incompleto se muestra, y se nota que le falta algo. */
+const CAT_DESCONOCIDA = { nombre: 'Sin categoría válida', desc: '', color: 'var(--muted)', urgente: false, expediente: false };
+function catDe(i) { return CATS[i && i.categoria] || CAT_DESCONOCIDA; }
+function estadoDe(i) { return (i && typeof i.estado === 'string' && i.estado) || 'Pendiente'; }
+function informanteDe(i) { return (i && i.informante && typeof i.informante === 'object') ? i.informante : {}; }
+
 function incCard(i) {
-  const cat = CATS[i.categoria];
+  const cat = catDe(i);
+  const est = estadoDe(i);
   return `
     <div class="inc-card" onclick="openDetalle(${i.id})">
       <div class="inc-top">
-        <span class="chip"><span class="cat-letter" style="background:${cat.color};width:20px;height:20px;font-size:0.72rem;border-radius:6px">${i.categoria}</span> ${cat.nombre}</span>
-        <span class="chip chip-estado-${i.estado.replace(' ', '\\ ')}">${i.estado === 'Resuelta' ? ICONS.checkCircle.replace('22','13').replace('22','13') : i.estado === 'En Revisión' ? ICONS.eyeSm.replace('16','13') : ICONS.clockSm.replace('14','13')} ${i.estado}</span>
+        <span class="chip"><span class="cat-letter" style="background:${cat.color};width:20px;height:20px;font-size:0.72rem;border-radius:6px">${esc(i.categoria) || '?'}</span> ${cat.nombre}</span>
+        <span class="chip chip-estado-${est.replace(' ', '\\ ')}">${est === 'Resuelta' ? ICONS.checkCircle.replace('22','13').replace('22','13') : est === 'En Revisión' ? ICONS.eyeSm.replace('16','13') : ICONS.clockSm.replace('14','13')} ${esc(est)}</span>
         ${cat.urgente ? '<span class="chip" style="background:var(--red-soft);color:var(--red);border-color:#f3c8c8">2 h</span>' : ''}
         <div class="inc-actions">
           <button class="btn-del" onclick="event.stopPropagation();delIncidencia(${i.id})">${ICONS.trash} Limpiar</button>
@@ -7853,7 +7927,7 @@ function incCard(i) {
       <div class="inc-meta">
         <span>${ICONS.calendar} ${fmtFecha(i.fechaIncidencia)}</span>
         <span>${ICONS.steth} ${esc(i.personal)}</span>
-        <span>${ICONS.user} ${esc(i.informante.nombre)}</span>
+        <span>${ICONS.user} ${esc(informanteDe(i).nombre)}</span>
       </div>
     </div>`;
 }
@@ -7874,11 +7948,12 @@ async function delIncidencia(id) {
 function openDetalle(id) {
   const i = DB.incidencias.find((x) => x.id === id);
   if (!i) return;
-  const cat = CATS[i.categoria];
+  const cat = catDe(i);
+  const inf = informanteDe(i);
   $('det-modal').innerHTML = `
     <button class="modal-close" onclick="closeDetalle()" aria-label="Cerrar">✕</button>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-      <span class="cat-letter" style="background:${cat.color};width:38px;height:38px;font-size:1.1rem">${i.categoria}</span>
+      <span class="cat-letter" style="background:${cat.color};width:38px;height:38px;font-size:1.1rem">${esc(i.categoria) || '?'}</span>
       <div>
         <div style="font-weight:800;font-size:1.15rem">${cat.nombre}</div>
         <div style="font-size:0.82rem;color:var(--muted)">${cat.urgente ? 'Reporte inmediato (2 h) · Notifica a Jefatura SQC, Jefe de Servicio y Dirección Médica' : 'Reporte diferido (24 h) · Co-responsables: Jefe de Servicio y Jefatura SQC'}${cat.expediente ? ' · Con expediente de evento adverso' : ''}</div>
@@ -7900,10 +7975,10 @@ function openDetalle(id) {
 
     <div class="det-section">
       <h4>Datos del informante (confidencial)</h4>
-      <div class="det-row"><b>Nombre y apellido</b> ${esc(i.informante.nombre)}</div>
-      <div class="det-row"><b>DNI</b> ${esc(i.informante.dni)}</div>
-      <div class="det-row"><b>Teléfono</b> ${esc(i.informante.telefono)}</div>
-      <div class="det-row"><b>Mail institucional</b> ${esc(i.informante.mail)}</div>
+      <div class="det-row"><b>Nombre y apellido</b> ${esc(inf.nombre)}</div>
+      <div class="det-row"><b>DNI</b> ${esc(inf.dni)}</div>
+      <div class="det-row"><b>Teléfono</b> ${esc(inf.telefono)}</div>
+      <div class="det-row"><b>Mail institucional</b> ${esc(inf.mail)}</div>
     </div>
 
     <div class="det-section">
@@ -10997,21 +11072,41 @@ function entrarFirebase(mail, clave) {
   try { auth = firebase.auth(); } catch (e) { return Promise.resolve({ ok: false, motivo: 'sin-nube' }); }
   return auth.signInWithEmailAndPassword(mail, clave)
     .then(() => ({ ok: true }))
-    .catch((e) => ({ ok: false, motivo: (e && e.code) || 'error' }));
+    .catch((e) => {
+      const code = (e && e.code) || 'error';
+      return { ok: false, motivo: code === 'auth/network-request-failed' ? 'sin-nube' : code };
+    });
 }
-/* Entra si la cuenta ya existe; la crea si todavía no, y en ese caso manda el
-   correo de verificación. Solo se la llama con una contraseña ya validada. */
+/* Crea la cuenta si todavía no existe —y entonces manda el correo de
+   verificación— o entra si ya existía con esa misma contraseña.
+
+   EL ORDEN ES CREAR PRIMERO, y no conviene invertirlo. El proyecto tiene
+   activada la protección contra enumeración de correos: al ENTRAR, Firebase
+   responde «credencial inválida» tanto si el correo no existe como si la
+   contraseña está mal, y nunca dice «no existe». La primera versión probaba
+   entrar y creaba solo ante «no existe», así que no creó una sola cuenta: nadie
+   podía registrarse. Crear, en cambio, sí distingue: si el correo ya está
+   tomado falla con `email-already-in-use`, y recién ahí se prueba entrar.
+
+   `ya-existe` quiere decir: hay cuenta con ese correo y la contraseña escrita
+   no es la suya. */
 async function crearOEntrarFirebase(mail, clave) {
-  const r = await entrarFirebase(mail, clave);
-  if (r.ok) return { ok: true, creada: false };
-  if (r.motivo !== 'auth/user-not-found') return r;
+  if (!cloudOn || typeof firebase === 'undefined' || !firebase.auth) return { ok: false, motivo: 'sin-nube' };
   try {
     const cred = await firebase.auth().createUserWithEmailAndPassword(mail, clave);
     try { await cred.user.sendEmailVerification(); } catch (e) {}
     return { ok: true, creada: true };
   } catch (e) {
-    return { ok: false, motivo: (e && e.code) || 'error' };
+    const code = (e && e.code) || 'error';
+    if (code === 'auth/network-request-failed') return { ok: false, motivo: 'sin-nube' };
+    if (code !== 'auth/email-already-in-use') return { ok: false, motivo: code };
   }
+  const r = await entrarFirebase(mail, clave);
+  if (r.ok) return { ok: true, creada: false };
+  if (['auth/invalid-credential', 'auth/wrong-password', 'auth/invalid-login-credentials'].includes(r.motivo)) {
+    return { ok: false, motivo: 'ya-existe' };
+  }
+  return r;
 }
 /* Deja asentado que este profesional ya tiene identidad propia. A partir de
    acá su contraseña la custodia Firebase y el hash local deja de mandar. */
@@ -11039,11 +11134,191 @@ async function recuperarClave(btn) {
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
   try {
     await firebase.auth().sendPasswordResetEmail(mail);
-    alert('Si ' + mail + ' corresponde a una cuenta del sistema, le acabamos de enviar un enlace para establecer una contraseña nueva.\n\nRevise también la carpeta de Correo no deseado. El enlace vence en una hora.');
+    alert('Si ' + mail + ' tiene cuenta en el sistema, le acabamos de enviar un enlace para establecer una contraseña nueva. El enlace vence en una hora.'
+      + '\n\nSi no le llega en unos minutos:'
+      + '\n• Revise Correo no deseado. Outlook y Hotmail suelen desviarlo: el remitente es noreply@incidencias-hru.firebaseapp.com.'
+      + '\n• Si nunca se registró en esta versión de la app, no hay cuenta y no se envía nada. Vaya a «Solicitar alta».');
   } catch (e) {
     fallar('No se pudo enviar el correo. Revise la dirección e intente otra vez.');
   }
   if (btn) { btn.disabled = false; btn.textContent = '¿Olvidó su contraseña?'; }
+}
+
+/* ================= CONTRASEÑAS: CAMBIAR, VERIFICAR, BLANQUEAR =================
+   Desde la etapa 3 la contraseña de cada persona —profesional, Jefatura,
+   Dirección o Admisión— la custodia Firebase. De ahí salen tres reglas:
+
+   · Cada uno cambia la SUYA, sabiendo la actual. Se hace en la sesión donde ya
+     está esa identidad (reautenticando) o, si no, en la instancia verificadora:
+     cambiarla desde otra sesión revoca los tokens de las demás, y si se hiciera
+     sobre la sesión principal ajena, al que estaba trabajando se le cortaría el
+     acceso a la base en la próxima renovación sin ningún aviso.
+   · Nadie ve ni escribe la contraseña de otro. «Blanquear» es mandarle a su
+     correo un enlace para que elija una nueva. Fijarla a mano exigiría el SDK
+     de administrador en un servidor (Cloud Functions, plan Blaze) y además
+     dejaría a la Jefatura sabiendo la clave de un colega.
+   · El hash local (`passHash`) queda solo como respaldo sin red. Se refresca en
+     cada ingreso con Firebase, para que un blanqueo por correo no lo deje
+     viejo. */
+function authPrincipalEs(mail) {
+  try {
+    const cu = firebase.auth().currentUser;
+    return !!(cu && cu.email && cu.email.toLowerCase() === String(mail).toLowerCase());
+  } catch (e) { return false; }
+}
+/* Comprueba la contraseña de una cuenta sin tocar la sesión de nadie. */
+async function verificarClaveDe(mail, clave) {
+  if (!cloudOn || typeof firebase === 'undefined' || !firebase.auth) return { ok: false, motivo: 'sin-nube' };
+  try {
+    if (authPrincipalEs(mail)) {
+      const cred = firebase.auth.EmailAuthProvider.credential(mail, clave);
+      await firebase.auth().currentUser.reauthenticateWithCredential(cred);
+    } else {
+      const a2 = authVerificador();
+      await a2.signInWithEmailAndPassword(mail, clave);
+      try { await a2.signOut(); } catch (e) {}
+    }
+    return { ok: true };
+  } catch (e) {
+    const code = (e && e.code) || 'error';
+    return { ok: false, motivo: code === 'auth/network-request-failed' ? 'sin-nube' : code };
+  }
+}
+async function cambiarClaveFirebase(mail, actual, nueva) {
+  if (!cloudOn || typeof firebase === 'undefined' || !firebase.auth) return { ok: false, motivo: 'sin-nube' };
+  try {
+    if (authPrincipalEs(mail)) {
+      const cu = firebase.auth().currentUser;
+      await cu.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(mail, actual));
+      await cu.updatePassword(nueva);
+    } else {
+      const a2 = authVerificador();
+      const c = await a2.signInWithEmailAndPassword(mail, actual);
+      await c.user.updatePassword(nueva);
+      try { await a2.signOut(); } catch (e) {}
+    }
+    return { ok: true };
+  } catch (e) {
+    const code = (e && e.code) || 'error';
+    return { ok: false, motivo: code === 'auth/network-request-failed' ? 'sin-nube' : code };
+  }
+}
+function textoErrorClave(motivo) {
+  if (motivo === 'sin-nube') return 'Sin conexión con la nube: no se puede verificar la contraseña en este momento.';
+  if (motivo === 'auth/too-many-requests') return 'Demasiados intentos fallidos. Espere unos minutos y vuelva a probar.';
+  if (motivo === 'auth/weak-password') return 'La contraseña nueva es demasiado débil. Use al menos 6 caracteres, con letras y números.';
+  if (['auth/invalid-credential', 'auth/wrong-password', 'auth/invalid-login-credentials', 'auth/user-not-found'].includes(motivo)) {
+    return 'El correo o la contraseña actual no son correctos.';
+  }
+  return 'No se pudo completar el cambio. Intente de nuevo en unos minutos.';
+}
+
+/* Ventana única para cambiar la contraseña. `modo`:
+   'propia' → el profesional con sesión (el correo va fijo);
+   'rol'    → Jefatura, Dirección o Admisión (escriben el correo de su cuenta). */
+let claveCtx = null;
+function abrirCambioClave(modo, correo) {
+  claveCtx = { modo };
+  const u = usuarioActual();
+  const mail = modo === 'propia' ? (u && u.email) : (correo || '');
+  $('clave-titulo').textContent = modo === 'propia' ? 'Cambiar mi contraseña' : 'Cambiar contraseña de cuenta de rol';
+  $('clave-desc').textContent = modo === 'propia'
+    ? 'Escriba su contraseña actual y la nueva. La próxima vez que ingrese, en cualquier dispositivo, va a ser con la nueva.'
+    : 'Para Jefatura, Dirección Médica o Admisión y Egresos. Escriba el correo de la cuenta, la contraseña actual y la nueva.';
+  $('clave-mail').value = mail || '';
+  $('clave-mail').readOnly = modo === 'propia';
+  $('clave-mail-wrap').style.display = modo === 'propia' ? 'none' : '';
+  ['clave-actual', 'clave-nueva', 'clave-nueva2'].forEach((id) => { $(id).value = ''; });
+  $('clave-err').style.display = 'none';
+  $('clave-btn').disabled = false;
+  $('clave-btn').textContent = 'Cambiar contraseña';
+  $('clave-overlay').classList.add('open');
+  setTimeout(() => ($('clave-mail-wrap').style.display === 'none' || mail ? $('clave-actual') : $('clave-mail')).focus(), 60);
+}
+function cerrarCambioClave() { $('clave-overlay').classList.remove('open'); claveCtx = null; }
+async function guardarCambioClave() {
+  if (!claveCtx) return;
+  const err = $('clave-err');
+  const fallar = (m) => { err.textContent = m; err.style.display = 'block'; $('clave-btn').disabled = false; $('clave-btn').textContent = 'Cambiar contraseña'; };
+  const mail = $('clave-mail').value.trim().toLowerCase();
+  const actual = $('clave-actual').value, nueva = $('clave-nueva').value, nueva2 = $('clave-nueva2').value;
+  if (!mail) return fallar('Escriba el correo de la cuenta.');
+  if (!actual) return fallar('Escriba la contraseña actual.');
+  if (nueva.length < 6) return fallar('La contraseña nueva debe tener al menos 6 caracteres.');
+  if (nueva !== nueva2) return fallar('Las dos contraseñas nuevas no coinciden.');
+  if (nueva === actual) return fallar('La contraseña nueva es igual a la actual.');
+  $('clave-btn').disabled = true;
+  $('clave-btn').textContent = 'Cambiando…';
+  const r = await cambiarClaveFirebase(mail, actual, nueva);
+  if (!r.ok) return fallar(textoErrorClave(r.motivo));
+  // El legajo del profesional guarda el respaldo sin red: se pone al día.
+  const u = DB.usuarios.find((x) => String(x.email || '').toLowerCase() === mail);
+  if (u) { u.passHash = await hashPass(nueva); u.claveFecha = nowDT(); upsert('usuarios', u); }
+  cerrarCambioClave();
+  alert('Contraseña cambiada. A partir de ahora se ingresa con la nueva, en todos los dispositivos.');
+}
+
+/* Blanqueo que hace la Jefatura: no escribe una contraseña ajena, le manda al
+   profesional un enlace a su propio correo para que elija una nueva. */
+function blanquearClave(id) {
+  const u = usuarioPorId(id);
+  if (!u) return;
+  if (!cloudOn || typeof firebase === 'undefined' || !firebase.auth) {
+    alert('Sin conexión con la nube: el enlace no se puede enviar en este momento.');
+    return;
+  }
+  pedirJefatura('Blanquear contraseña',
+    `Se le enviará a ${u.nombre} (${u.email}) un enlace para que elija una contraseña nueva. Nadie más la va a conocer. Confirme con la credencial de Jefatura.`,
+    async () => {
+      try {
+        await firebase.auth().sendPasswordResetEmail(u.email);
+        u.claveBlanqueo = nowDT();
+        upsert('usuarios', u);
+        alert(`Enlace enviado a ${u.email}.\n\nVence en una hora. Si no le llega, que revise Correo no deseado; si el profesional nunca se registró en esta versión de la app, no tiene cuenta y el correo no sale.`);
+      } catch (e) {
+        alert('No se pudo enviar el enlace. Intente de nuevo en unos minutos.');
+      }
+    });
+}
+
+/* ---- Verificación del correo ----
+   Obligatoria para que la Jefatura autorice la cuenta: es la única prueba de
+   que quien pidió el alta es dueño de esa casilla, y es la casilla a la que van
+   a ir los avisos y los resúmenes. El dato vive en Firebase Auth y la Jefatura
+   no puede consultarlo desde su sesión, así que se copia al legajo en cada
+   ingreso del propio profesional. */
+async function refrescarVerificacion(u) {
+  try {
+    const cu = firebase.auth().currentUser;
+    if (!cu || !authPrincipalEs(u.email)) return;
+    await cu.reload();
+    const v = !!firebase.auth().currentUser.emailVerified;
+    if (u.mailVerificado !== v) { u.mailVerificado = v; upsert('usuarios', u); }
+  } catch (e) {}
+}
+/* Quien verifica con la app abierta no vuelve a pasar por el ingreso: se lo
+   mira en la ronda de recordatorios, solo mientras siga sin verificar y a lo
+   sumo cada cinco minutos, porque cada consulta va a la red. */
+let verifUltimo = 0;
+function vigilarVerificacion() {
+  const u = usuarioActual();
+  if (!u || u.mailVerificado || !cloudOn) return;
+  if (Date.now() - verifUltimo < 5 * 60000) return;
+  verifUltimo = Date.now();
+  refrescarVerificacion(u);
+}
+async function reenviarVerificacion(btn) {
+  try {
+    const cu = firebase.auth().currentUser;
+    if (!cu) { alert('Ingrese a su cuenta para reenviar la verificación.'); return; }
+    await cu.sendEmailVerification();
+    if (btn) btnHecho(btn, 'Correo enviado', null, 3000);
+    alert('Le reenviamos el correo de verificación a ' + cu.email + '.\n\nAbra el enlace y después vuelva a ingresar a la app para que quede registrado. Si no llega, revise Correo no deseado.');
+  } catch (e) {
+    alert(e && e.code === 'auth/too-many-requests'
+      ? 'Ya se enviaron varios correos seguidos. Espere unos minutos antes de pedir otro.'
+      : 'No se pudo reenviar el correo en este momento.');
+  }
 }
 
 /* Espera a que el padrón llegue de la nube después de un cambio de identidad.
@@ -11081,7 +11356,10 @@ async function doLogin() {
     const r = await entrarFirebase(mail, pass);
     if (!r.ok) {
       if (r.motivo === 'auth/too-many-requests') return fallar('Demasiados intentos fallidos. Espere unos minutos y vuelva a probar.');
-      return fallar('Correo o contraseña incorrectos.');
+      if (r.motivo === 'sin-nube') return fallar('Sin conexión con la nube: su contraseña no se puede verificar en este momento.');
+      // Con el padrón vacío esto es, casi siempre, alguien que todavía no se
+      // registró en esta versión: decírselo le ahorra el «¿Olvidó…?» inútil.
+      return fallar('Correo o contraseña incorrectos. Si todavía no se registró en esta versión de la app, use la pestaña «Solicitar alta».');
     }
     yaAutenticado = true;
     resuscribir();
@@ -11126,6 +11404,14 @@ async function doLogin() {
     if (r.ok) marcarMigrado(u);
     // Si la nube no respondió, entra igual: la migración espera al próximo ingreso.
   }
+  // Si Firebase acaba de validar la contraseña, el respaldo sin red se pone al
+  // día (un blanqueo por correo lo habría dejado viejo) y se copia al legajo si
+  // el correo ya está verificado.
+  if (authPrincipalEs(mail)) {
+    const h = await hashPass(pass);
+    if (u.passHash !== h) { u.passHash = h; upsert('usuarios', u); }
+    await refrescarVerificacion(u);
+  }
   // Con identidad nueva cambian los permisos: hay que volver a escuchar la base
   // para que aparezca lo que antes estaba negado.
   resuscribir();
@@ -11163,9 +11449,8 @@ async function doAlta() {
        —de una etapa anterior, o de un alta previa— pero la contraseña escrita
        acá no es la de esa cuenta. El alta no puede seguir, y decirle solamente
        «no se pudo» lo deja sin salida: lo que necesita es restablecerla. */
-    if (['auth/email-already-in-use', 'auth/wrong-password', 'auth/invalid-credential',
-         'auth/invalid-login-credentials'].includes(fb.motivo)) {
-      return fail('Ese correo ya tiene una cuenta en el sistema. Si es suya, vaya a «Ingresar» y entre con su contraseña; si no la recuerda, use «¿Olvidó su contraseña?» y le llegará un enlace para ponerle una nueva.');
+    if (fb.motivo === 'ya-existe') {
+      return fail('Ese correo ya tiene una cuenta en el sistema, con otra contraseña. Si es suya, vuelva a solicitar el alta escribiendo esa contraseña; si no la recuerda, vaya a «Ingresar» y use «¿Olvidó su contraseña?».');
     }
     if (fb.motivo === 'auth/weak-password') return fail('La contraseña es demasiado débil. Use al menos 6 caracteres, con letras y números.');
     if (fb.motivo === 'auth/invalid-email') return fail('Ingrese un correo válido.');
@@ -11185,6 +11470,7 @@ async function doAlta() {
     passHash: await hashPass(p1), creado: hoyISO(),
     // Nace con identidad propia salvo que el alta se haya hecho sin red.
     fbAuth: !!fb.ok, fbAuthFecha: fb.ok ? nowDT() : '',
+    mailVerificado: false,   // se copia desde Firebase en cada ingreso
   };
   upsert('usuarios', u);
   resuscribir();
@@ -11277,6 +11563,20 @@ function renderPerfil() {
         <button class="btn btn-blue" onclick="guardarPerfil()">${ICONS.check.replace('14', '16')} Guardar documentación</button>
         <p class="form-note">La Jefatura audita las vigencias desde el módulo <b>Profesionales</b>.</p>
       </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">Seguridad de la cuenta</div>
+      <div class="card-sub">${esc(u.email)}</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 14px">
+        ${u.mailVerificado
+          ? '<span class="badge-ok">Correo verificado</span>'
+          : `<span class="badge-no">Correo sin verificar</span>
+             <span style="color:var(--muted);font-size:0.86rem">La Jefatura no puede autorizar su cuenta hasta que abra el enlace que le llegó al registrarse, y vuelva a ingresar.</span>`}
+      </div>
+      <div class="form-actions" style="margin-top:0">
+        <button class="btn btn-outline" onclick="abrirCambioClave('propia')">${ico(ICONS.key, 15)} Cambiar mi contraseña</button>
+        ${u.mailVerificado ? '' : `<button class="btn btn-outline" onclick="reenviarVerificacion(this)">${ico(ICONS.mail, 15)} Reenviar correo de verificación</button>`}
+      </div>
     </div>`;
 }
 
@@ -11350,7 +11650,8 @@ function renderUsuarios() {
               <td>${esc(u.servicio)}</td>
               <td><span class="${CUENTAS[e].badge}">${CUENTAS[e].label}</span>
                 ${u.cuentaFecha ? `<div class="req-sub">${fmtDT(u.cuentaFecha)}</div>` : ''}
-                ${e === 'baja' && u.cuentaMotivo ? `<div class="req-sub" style="color:var(--red)">Motivo: ${esc(u.cuentaMotivo)}</div>` : ''}</td>
+                ${e === 'baja' && u.cuentaMotivo ? `<div class="req-sub" style="color:var(--red)">Motivo: ${esc(u.cuentaMotivo)}</div>` : ''}
+                <div style="margin-top:6px">${u.mailVerificado ? '<span class="badge-ok">Correo verificado</span>' : '<span class="badge-no">Correo sin verificar</span>'}</div></td>
               <td>${b(h.reqs[0].ok)}</td>
               <td>${b(h.reqs[1].ok)}</td>
               <td>${b(h.reqs[2].ok)}<div class="req-sub">${u.seguro?.vence ? fmtFecha(u.seguro.vence) : '—'}</div></td>
@@ -11360,6 +11661,7 @@ function renderUsuarios() {
               <td><div class="cir-actions" style="margin:0">
                 ${e !== 'aprobado' ? `<button class="btn btn-sm btn-blue" onclick="autorizarCuenta('${id}')">${ico(ICONS.check, 14)} ${e === 'baja' ? 'Reactivar' : 'Autorizar'}</button>` : ''}
                 ${e !== 'baja' ? `<button class="btn btn-sm btn-red" onclick="darDeBajaCuenta('${id}')">${ico(ICONS.x, 14)} Dar de baja</button>` : ''}
+                <button class="btn btn-sm btn-outline" onclick="blanquearClave('${id}')" title="Le envía un enlace a su correo para que elija una contraseña nueva">${ico(ICONS.key, 14)} Blanquear contraseña</button>
                 <button class="btn btn-sm btn-outline" onclick="eliminarProfesional('${id}')">${ico(ICONS.trash, 14)} Eliminar</button>
               </div></td>
             </tr>`;
@@ -11390,6 +11692,15 @@ function autorizarCuenta(id) {
   const u = usuarioPorId(id);
   if (!u) return;
   const alta = estadoCuenta(u) === 'baja';
+  /* Verificar el correo es obligatorio para la primera autorización: es la
+     única prueba de que quien pidió el alta es dueño de esa casilla, y es la
+     casilla a la que van a llegar los avisos del bloque. Una reactivación no lo
+     pide de nuevo: esa cuenta ya estuvo autorizada. Sin nube no se puede
+     comprobar, así que en modo local no se exige. */
+  if (!alta && cloudOn && !u.mailVerificado) {
+    alert(`${u.nombre} todavía no verificó su correo (${u.email}).\n\nLa cuenta no se puede autorizar hasta que abra el enlace que le llegó al registrarse y vuelva a ingresar a la app. Si no lo encuentra, puede pedir otro desde Mi Perfil → «Reenviar correo de verificación».`);
+    return;
+  }
   pedirJefatura('Jefatura de Quirófanos', `${alta ? 'Reactivar' : 'Autorizar'} la cuenta de ${u.nombre}. Confirme con la credencial de Jefatura.`, async () => {
     u.cuenta = 'aprobado';
     u.cuentaMotivo = '';
@@ -13226,12 +13537,31 @@ function pedirCredencial(cfg) {
   $('cred-clave').value = '';
   $('cred-err').style.display = 'none';
   $('cred-mail-wrap').style.display = cfg.propia ? 'none' : '';
+  $('cred-extra').style.display = cfg.propia ? 'none' : 'flex';
   $('cred-btn').disabled = false;
   $('cred-btn').textContent = 'Confirmar';
   $('cred-overlay').classList.add('open');
   setTimeout(() => (cfg.propia || cfg.correo ? $('cred-clave') : $('cred-mail')).focus(), 60);
 }
 function closeCredencial() { $('cred-overlay').classList.remove('open'); credCB = null; }
+/* Recuperar o cambiar la contraseña de una cuenta de rol sin salir de la
+   ventana de credencial: el cambio se abre por encima y, al cerrarlo, la
+   acción que se estaba confirmando sigue esperando. */
+async function credOlvido(btn) {
+  const mail = $('cred-mail').value.trim().toLowerCase();
+  if (!mail) return credError('Escriba primero el correo de la cuenta y después toque «¿Olvidó su contraseña?».');
+  if (!cloudOn || typeof firebase === 'undefined' || !firebase.auth) return credError('Sin conexión con la nube: el correo no se puede enviar en este momento.');
+  $('cred-err').style.display = 'none';
+  btn.disabled = true;
+  try {
+    await firebase.auth().sendPasswordResetEmail(mail);
+    alert('Si ' + mail + ' es una cuenta del sistema, le enviamos un enlace para elegir una contraseña nueva. Vence en una hora.\n\nSi no llega, revise Correo no deseado: el remitente es noreply@incidencias-hru.firebaseapp.com.');
+  } catch (e) {
+    credError('No se pudo enviar el correo. Revise la dirección e intente otra vez.');
+  }
+  btn.disabled = false;
+}
+function credCambiar() { abrirCambioClave('rol', $('cred-mail').value.trim()); }
 function credError(msg) {
   const e = $('cred-err');
   e.textContent = msg;
@@ -13249,7 +13579,20 @@ async function confirmarCredencial() {
   if (cfg.propia) {
     const u = usuarioActual();
     if (!u) return credError('No hay sesión de profesional abierta.');
-    if (await hashPass(clave) !== u.passHash) return credError('Contraseña incorrecta.');
+    /* La contraseña del profesional la custodia Firebase: comparar solo contra
+       el hash del legajo fallaba después de un blanqueo por correo, porque el
+       hash quedaba con la clave vieja. El hash queda como respaldo sin red. */
+    let ok;
+    if (u.fbAuth) {
+      const r = await verificarClaveDe(u.email, clave);
+      if (r.ok) ok = true;
+      else if (r.motivo === 'sin-nube') ok = !!u.passHash && (await hashPass(clave)) === u.passHash;
+      else if (r.motivo === 'auth/too-many-requests') return credError(textoErrorClave(r.motivo));
+      else ok = false;
+    } else {
+      ok = !!u.passHash && (await hashPass(clave)) === u.passHash;
+    }
+    if (!ok) return credError('Contraseña incorrecta.');
     const cb = cfg.onOk; closeCredencial(); await cb('propia'); return;
   }
 
