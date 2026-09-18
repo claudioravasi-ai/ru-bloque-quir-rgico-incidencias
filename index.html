@@ -2785,6 +2785,33 @@
   }
   body[data-tema="noche"] .lema-foto img,
   body[data-tema="noche"] .bienvenida-foto img { filter: brightness(0.8) saturate(0.9); }
+
+  /* ---- Pantalla de ingreso: ocupa todo el ancho ----
+     Antes la portada tenía un tope de 720 px y las tarjetas de 520 y 620: en
+     una computadora quedaba todo contra la izquierda y la mitad de la pantalla
+     vacía. Ahora todo va a lo ancho completo, una cosa debajo de la otra —
+     Claudio descartó las dos columnas enfrentadas—, y en pantallas anchas los
+     campos del ingreso se ponen uno al lado del otro para no quedar estirados. */
+  .acceso-layout { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+  .acceso-layout .lema-hero { max-width: none; margin: 0; }
+  .acceso-form { min-width: 0; }
+  .acceso-card { width: 100%; max-width: none; }
+  .acceso-campos { margin-bottom: 6px; }
+  @media (min-width: 1000px) {
+    .acceso-layout .lema-foto { height: 320px; }
+    .acceso-layout .lema-kicker { font-size: 1.3rem; }
+    .acceso-layout .lema-frase { font-size: 0.86rem; }
+    .acceso-layout .lema-sub { font-size: 1.02rem; }
+  }
+  @media (min-width: 1500px) {
+    .acceso-layout .lema-foto { height: 380px; }
+  }
+  /* Las ventanas de credencial (Jefatura, Dirección, Admisión, cambio de
+     contraseña) crecen un poco en tablet y computadora: 420 px fijos quedaban
+     chicos en una tablet de 820. En el teléfono siguen ocupando todo el ancho. */
+  @media (min-width: 700px) {
+    #cred-overlay .modal, #clave-overlay .modal, #jefe-overlay .modal { max-width: 500px; }
+  }
   @media (max-width: 560px) {
     .lema-foto { height: 180px; }
     .lema-kicker { font-size: 1rem; }
@@ -5295,7 +5322,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.15.2';
+const APP_VERSION = '3.15.5';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -7262,8 +7289,16 @@ function pintarBadgesAvisos() {
   badge.textContent = n > 99 ? '99+' : String(n);
   badge.classList.toggle('crit', crit > 0);
   badge.style.background = crit ? 'var(--red)' : 'var(--amber)';
+  // La barra inferior dice exactamente lo mismo que la campana de arriba: el
+  // mismo número y el mismo color. Con tope en «9+» abajo y en «99+» arriba,
+  // con 11 avisos una decía 11 y la otra «9+», que en el globito se lee «9».
   const bn = $('bn-badge-rec');
-  if (bn) { bn.style.display = n ? 'block' : 'none'; bn.textContent = n > 9 ? '9+' : String(n); }
+  if (bn) {
+    bn.style.display = n ? 'block' : 'none';
+    bn.textContent = badge.textContent;
+    bn.style.background = badge.style.background;
+    bn.style.color = crit ? '#fff' : '#3b2a05';
+  }
 }
 function notificarCriticos() {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
@@ -7813,7 +7848,7 @@ function renderBottomNav() {
   nav.innerHTML = items.map((it) => `
     <button class="bn-btn ${view === it.id ? 'active' : ''}" onclick="${it.id === '__menu' ? 'toggleDrawer()' : `go('${it.id}')`}">
       ${it.icon}<span>${it.label}</span>
-      ${it.badge ? `<span class="bn-badge" id="bn-badge-rec">${it.badge > 9 ? '9+' : it.badge}</span>` : ''}
+      ${it.badge ? `<span class="bn-badge" id="bn-badge-rec">${it.badge > 99 ? '99+' : it.badge}</span>` : ''}
     </button>`).join('');
 }
 
@@ -10708,7 +10743,8 @@ function seccionTipoCirugia() {
    ronda del minuto, y solo cuando el resultado cambió (`estPubUltimo`). Cuando
    haya Cloud Functions esto pasa al servidor y los clientes dejan de escribirlo.
 
-   Solo cuenta cirugías REALIZADAS: es actividad cumplida, no programación. */
+   Solo cuenta casos CERRADOS (finalizados): es actividad cumplida, no
+   programación, y es el mismo criterio de las estadísticas y los KPIs. */
 const EST_PUB_REF = 'publico/semana';
 const EST_PUB_GRUPOS = [
   { k: 'cx_prog',   label: 'Cirugías programadas',    color: 'var(--cat-d)' },
@@ -10736,7 +10772,11 @@ function contarSemanaPublica() {
   const { desde, hasta } = semanaEnCurso();
   const z = { desde, hasta, cx_prog: 0, cx_urg: 0, endo_prog: 0, endo_urg: 0, ces_prog: 0, ces_urg: 0 };
   DB.cirugias.forEach((c) => {
-    if (c.estado !== 'realizada' || !c.fecha || c.fecha < desde || c.fecha > hasta) return;
+    /* Cuenta el caso CERRADO, con el mismo criterio que las estadísticas y los
+       KPIs. La primera versión pedía `estado === 'realizada'`, pero al cerrarse
+       el caso pasa a 'finalizada': el tablero contaba la cirugía a medio cerrar
+       y la perdía justo cuando se cerraba. */
+    if (!cirugiaCerrada(c) || !c.fecha || c.fecha < desde || c.fecha > hasta) return;
     const g = grupoDeSala(c.sala);
     if (g) z[g + (c.urgencia ? '_urg' : '_prog')]++;
   });
@@ -10810,7 +10850,7 @@ function renderEstPublicas() {
     <div class="card" style="margin-top:16px;color:var(--muted);font-size:0.88rem">
       ${ICONS.info.replace('18', '14')}
       Cifras agregadas de actividad cumplida. <b>No incluyen ningún dato de pacientes</b> ni de
-      profesionales. Los turnos programados y no operados no se cuentan.
+      profesionales. Una cirugía se suma cuando su caso queda cerrado —operada, con su parte y sus trámites completos—; los turnos programados y no operados no se cuentan.
       ${d && d.actualizado ? `<br>Última actualización: ${fmtDT(new Date(d.actualizado).toISOString().slice(0, 16))}` : ''}
     </div>`;
 }
@@ -11360,7 +11400,9 @@ function cerrarBienvenida() { $('bienvenida-overlay').classList.remove('open'); 
 
 function renderAcceso() {
   $('main').innerHTML = `
-    ${lemaHeroHTML()}
+    <div class="acceso-layout">
+    <div class="acceso-lema">${lemaHeroHTML()}</div>
+    <div class="acceso-form">
     <div class="page-head"><div>
       <h1 class="page-title">Acceso Profesional</h1>
       <p class="page-sub">Credenciales nominales con correo institucional — requisito para operar el sistema</p>
@@ -11372,11 +11414,13 @@ function renderAcceso() {
     </div>
 
     ${accesoTab === 'login' ? `
-      <div class="card" style="max-width:520px">
+      <div class="card acceso-card">
         <div class="card-title">Ingreso</div>
         <div class="card-sub">Correo institucional y contraseña</div>
-        <div class="field" style="margin-bottom:14px"><label>Correo institucional</label><input type="email" id="l-mail" placeholder="nombre@hru.gob.ar" autocomplete="username"></div>
-        <div class="field" style="margin-bottom:6px"><label>Contraseña</label><input type="password" id="l-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div class="form-grid acceso-campos">
+        <div class="field"><label>Correo institucional</label><input type="email" id="l-mail" placeholder="nombre@hru.gob.ar" autocomplete="username"></div>
+        <div class="field"><label>Contraseña</label><input type="password" id="l-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        </div>
         <p class="pass-error" id="login-error" style="margin:8px 0 0">Correo o contraseña incorrectos.</p>
         <div class="form-actions" style="margin-top:18px">
           <button class="btn btn-blue" onclick="doLogin()">${ICONS.key} Ingresar</button>
@@ -11388,7 +11432,7 @@ function renderAcceso() {
         <div><strong>Requisitos de habilitación (cirujanos)</strong>
         Para operar el sistema debe registrar: matrícula provincial vigente, título de especialista reconocido, seguro de responsabilidad civil médica vigente, formación en RCP con revalidación bienal y esquema de vacunación completo (Hepatitis B, Doble Adultos, Influenza, COVID-19). Podrá cargarlos a continuación y completarlos luego desde <b>Mi Perfil</b>.</div></div>
 
-      <div class="card" style="max-width:620px">
+      <div class="card acceso-card">
         <div class="card-title">Datos de la cuenta</div>
         <div class="form-grid">
           <div class="field"><label>Nombre y apellido *</label><input type="text" id="a-nombre"></div>
@@ -11405,7 +11449,8 @@ function renderAcceso() {
           <button class="btn btn-blue" onclick="doAlta()">${ICONS.userPlus} Crear cuenta</button>
           <p class="form-note">La cuenta queda <b>pendiente de autorización de la Jefatura de Quirófanos</b> y con <b>habilitación incompleta</b> hasta que cargue la documentación en Mi Perfil. Recién con la autorización de la Jefatura y la habilitación completa se pueden cargar solicitudes quirúrgicas.</p>
         </div>
-      </div>`}`;
+      </div>`}
+    </div></div>`;
   servPickPintar('alta');
 }
 
@@ -13686,7 +13731,7 @@ function openTurnoOk(c) {
           Quedó registrada con <b>módulo ${c.modulo}</b> a nombre de ${esc(c.cirujano)} y sin segundo módulo.
           Si finalmente opera con un 1er ayudante, cárguelo desde el turno: el módulo que le corresponde
           se asigna solo.</div></div>
-        <button class="btn btn-orange" style="width:100%;justify-content:center;margin-bottom:14px" onclick="closeTurnoOk();openEquipoMod(${c.id})">
+        <button class="btn btn-orange" style="width:100%;justify-content:center;margin-bottom:14px" onclick="closeTurnoOk();abrirEquipoDesdeTurnoOk(${c.id})">
           ${ico(ICONS.userPlus, 16)} Cargar el 1er ayudante</button>`}
 
     ${turnoProvisional(c) ? `<div class="banner banner-amber" style="text-align:left;margin:0 0 14px">${ico(ICONS.alertTri, 20)}
@@ -16407,7 +16452,9 @@ function ciRegistrar() {
   const previo = ciForm.turnoId ? DB.consentimientos.find((x) => String(x.turnoId) === String(ciForm.turnoId)) : null;
   const reg = {
     id: previo ? previo.id : Date.now(),
-    fecha: new Date().toLocaleString('es-AR'),
+    // Con `hour12: false`: sin eso, según el navegador, las 16:36 quedaban
+    // escritas «04:36» sin el «p. m.», en el registro de un documento legal.
+    fecha: new Date().toLocaleString('es-AR', { hour12: false }),
     fechaISO: hoyISO(),
     paciente: ciForm.p_nombre,
     dni: ciForm.p_dni,
@@ -17054,7 +17101,7 @@ const DESCARGAS = [
     icono: 'book',
     publica: true,
     nombre: 'Manual funcional',
-    sub: 'Plataforma de gestión quirúrgica · edición 3.11.0',
+    sub: 'Plataforma de gestión quirúrgica · edición 3.15',
   },
 ];
 
@@ -18018,7 +18065,36 @@ function openEquipoMod(id) {
   if (sinPractica) nomIniciar(c, '', true);
   pintarModEquipo();
 }
-function closeEquipoMod() { $('eqm-overlay').classList.remove('open'); }
+/* Cargar el ayudante desde «Su cirugía se programó correctamente» no puede ser
+   una salida del camino al consentimiento: esa ventana está hecha para que la
+   única salida sea el consentimiento, porque un turno provisional sin él libera
+   la franja a los 60 minutos. Por eso, al cerrarse la ventana del equipo —se
+   guarde o no—, si el turno sigue provisional se vuelve a esa ventana. Mientras
+   tanto el equipo no se cierra con Escape ni tocando afuera: solo con la cruz o
+   guardando, que pasan por `closeEquipoMod`. */
+let eqVolverATurnoOk = null;
+function abrirEquipoDesdeTurnoOk(id) {
+  openEquipoMod(id);
+  const ov = $('eqm-overlay');
+  if (!ov.classList.contains('open')) {
+    // No se abrió (falta de permiso, turno inexistente): se vuelve al camino.
+    const c = DB.cirugias.find((x) => String(x.id) === String(id));
+    if (c && turnoProvisional(c)) setTimeout(() => openTurnoOk(c), 80);
+    return;
+  }
+  eqVolverATurnoOk = id;
+  ov.classList.add('overlay-fijo');
+}
+function closeEquipoMod() {
+  const ov = $('eqm-overlay');
+  ov.classList.remove('open');
+  ov.classList.remove('overlay-fijo');
+  const id = eqVolverATurnoOk;
+  eqVolverATurnoOk = null;
+  if (id == null) return;
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (c && turnoProvisional(c)) setTimeout(() => openTurnoOk(c), 80);
+}
 
 /* ---- Dar de baja el módulo (solo Dirección Médica) ----
    Vive al pie del modal de equipo y módulos, que es donde la Dirección llega
