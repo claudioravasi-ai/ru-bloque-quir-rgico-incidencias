@@ -5295,7 +5295,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.15.1';
+const APP_VERSION = '3.15.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -12409,8 +12409,16 @@ async function cargarDatosPrueba() {
     ];
     usuarios.forEach((u) => upsert('usuarios', u));
 
-    /* ---- Agenda: abrir los días que usan los turnos de prueba ---- */
-    [d2, d3].forEach((d) => abrirDiaEnTurnos(d, ['M', 'T']));
+    /* ---- Agenda: abrir los días que usan los turnos de prueba ----
+       El bloque nace cerrado: abrir un día entero para la prueba deja ese día
+       disponible para TODOS los profesionales. Por eso el día que estaba
+       cerrado queda marcado `abiertoPorPrueba`, y borrar la prueba lo vuelve a
+       cerrar. El que ya había abierto la Jefatura no se marca y no se toca. */
+    [d2, d3].forEach((d) => {
+      const yaAbierto = diaHabilitado(d);
+      abrirDiaEnTurnos(d, ['M', 'T']);
+      if (!yaAbierto) guardarAgenda(d, (a) => { a.abiertoPorPrueba = true; });
+    });
 
     /* ---- Cirugías ---- */
     const sosa = usuarios[0], benitez = usuarios[1];
@@ -12501,6 +12509,17 @@ function quitarDatosPrueba() {
     .forEach((x) => removeDoc('consentimientos', x.id));
   DB.cirugias.filter((c) => c.prueba).forEach((c) => removeDoc('cirugias', c.id));
   DB.usuarios.filter((u) => u.prueba).forEach((u) => removeDoc('usuarios', u.id));
+  /* Se cierran los días que abrió la prueba y nadie adoptó, salvo que ya tengan
+     algún turno real: cerrarlos no borra ese turno, pero dejaría a su cirujano
+     sin poder reprogramar dentro del mismo día. Esos se informan. */
+  const cerrados = [], conservados = [];
+  DB.agenda.filter((a) => a.abiertoPorPrueba === true).forEach((a) => {
+    const hayReal = DB.cirugias.some((c) => c.fecha === a.id && !c.prueba && c.sala);
+    if (hayReal) { conservados.push(a.id); return; }
+    removeDoc('agenda', a.id);
+    cerrados.push(a.id);
+  });
+  return { cerrados, conservados };
 }
 
 function borrarDatosPrueba() {
@@ -12510,9 +12529,11 @@ function borrarDatosPrueba() {
   pedirJefatura('Jefatura de Quirófanos', 'Borrar los datos de prueba. Confirme con la credencial de Jefatura.', async () => {
     if (!await preguntar(`Se borran ${nu} profesional(es) y ${nc} cirugía(s) de prueba de la base compartida.\n\nNo se toca ningún registro real.`,
       { titulo: '¿Borrar los datos de prueba?', tono: 'peligro', si: 'Sí, borrarlos' })) return;
-    quitarDatosPrueba();
+    const ag = quitarDatosPrueba();
     renderUsuarios();
-    alert('Datos de prueba eliminados. La agenda que se abrió para ellos se conserva: ciérrela desde el panel de Jefatura si no la necesita.');
+    alert('Datos de prueba eliminados.'
+      + (ag.cerrados.length ? `\n\nSe volvieron a cerrar los días que se habían abierto para la prueba: ${ag.cerrados.map(fmtFecha).join(', ')}.` : '')
+      + (ag.conservados.length ? `\n\nQuedan abiertos ${ag.conservados.map(fmtFecha).join(', ')}, porque ya tienen turnos reales cargados. Ciérrelos desde la agenda si corresponde.` : ''));
   });
 }
 
@@ -12612,6 +12633,9 @@ function franjasAbiertas(d) {
 function guardarAgenda(d, mut) {
   const a = agendaDia(d) || { id: d, on: false, salas: {} };
   a.salas = a.salas || {};
+  // Si la Jefatura toca un día que abrieron los datos de prueba, lo adopta como
+  // propio: borrar la prueba ya no lo vuelve a cerrar.
+  delete a.abiertoPorPrueba;
   mut(a);
   upsert('agenda', a);
 }
