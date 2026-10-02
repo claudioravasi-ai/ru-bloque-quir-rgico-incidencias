@@ -15,8 +15,8 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.15.5'
-FECHA = 'Septiembre de 2026'
+VERSION = '3.16.0'
+FECHA = 'Octubre de 2026'
 
 PORTADA = {
     'institucion': 'HOSPITAL REGIONAL USHUAIA',
@@ -31,7 +31,7 @@ PORTADA = {
 
 PIE = [
     'Bloque de Quirófanos Centrales y Unidad de Endoscopía Digestiva — Hospital Regional Ushuaia, Gdor. Ernesto M. Campos. Ministerio de Salud, Tierra del Fuego A.I.A.S.',
-    'Marco normativo de referencia: Directrices de Organización y Funcionamiento para Centros Quirúrgicos, Ministerio de Salud de la Nación (IF-2020-14236688-APN) y Libro Blanco de Quirófanos del HRU, versión 3.0.',
+    'Marco normativo de referencia: Directrices de Organización y Funcionamiento para Centros Quirúrgicos, Ministerio de Salud de la Nación (IF-2020-14236688-APN) y Libro Blanco de Quirófanos del HRU, versión 3.1 (octubre de 2026, con la reserva de franjas por especialidad en el punto 11.3.1).',
     'Documento de uso interno del cuerpo médico quirúrgico. Contiene la descripción funcional de la plataforma; no reemplaza al Libro Blanco de Quirófanos ni a los protocolos asistenciales vigentes.',
 ]
 
@@ -59,6 +59,7 @@ BLOQUES = [
     ['Quirófano de Obstetricia', 'Cesáreas', '08 · 10 · 12 · 14 · 16 · 18 h', 'Turno rodante de urgencia las 24 h'],
 ]),
 ('p', '**El bloque programado nace cerrado.** Ninguna franja está disponible hasta que la Jefatura de Quirófanos habilita el día, la sala y el turno. La decisión es deliberada: la disponibilidad de un quirófano no depende solo del calendario sino del personal de anestesia, de instrumentación, de esterilización y de las camas de recuperación. Abrir la grilla por defecto sería prometer una capacidad que puede no existir. Lo único que está siempre disponible es el turno de urgencia de la hora en curso, en las tres salas de guardia.'),
+('p', '**Prioridad por especialidad.** Además de abrir y cerrar, la Jefatura puede reservar un tramo de una o varias salas para una o varias especialidades. Por ejemplo: el martes, el Quirófano 1 de 08 a 12 h solo para Cirugía Pediátrica, y de 12 h en adelante para cualquier especialidad. Así se da prioridad a un servicio —que Pediatría anote primero a los niños— sin cerrar el resto del día.'),
 ('p', '**Ciclo de programación.** Las solicitudes de turno electivo cierran a las 13:00 h del día previo y el parte quirúrgico se publica a las 14:00 h del día previo. Un turno electivo exige 24 horas de anticipación: no se puede programar una cirugía electiva para el mismo día. Lo que llega fuera de esos plazos entra por la programación fuera de horario de la Jefatura (capítulo 5) o, si es una urgencia, por el turno rodante (capítulo 4).'),
 
 # ─────────────────────────────────────────────────────────────── 2
@@ -102,6 +103,7 @@ BLOQUES = [
 ('h3', 'Paso 2 — Solicitud del turno'),
 ('ul', [
     'Abrir **Programación Diaria** y elegir el día. La grilla muestra las seis salas por franja: las habilitadas por la Jefatura, libres para tocar, y las cerradas, sin opción.',
+    'Si la Jefatura reservó un tramo para ciertas especialidades, un cartel violeta arriba de la grilla lo dice y esas franjas se ven en violeta con la leyenda **«Solo …»**. El profesional de uno de esos servicios las toca como cualquier otra, y el formulario le ofrece solo los servicios admitidos; el de otro servicio las ve cerradas, con la leyenda **«Reservada»**.',
     'Tocar una franja libre. Se abre el formulario con el nombre del cirujano ya puesto.',
     'Elegir el **servicio** entre los propios. Si el profesional pertenece a más de un servicio, esta elección es la que reparte su producción: la cirugía se cuenta en el servicio elegido acá.',
     'Cargar los datos del paciente, la cobertura, el diagnóstico y el CIE-10.',
@@ -186,7 +188,11 @@ BLOQUES = [
 ('h3', 'Paso 1 — Habilitar la agenda'),
 ('ul', [
     'Abrir el día y habilitar sala por sala y turno por turno, según la disponibilidad real de anestesia, instrumentación y recuperación. Abrir un turno abre el día; cerrar el día cierra todo lo que tuviera abierto.',
-    'La configuración de un día puede copiarse a los siguientes —hábiles o corridos— para no rehacerla cada mañana.',
+    'La configuración de un día puede copiarse a los siguientes —hábiles o corridos— para no rehacerla cada mañana. La copia lleva también las reservas por especialidad.',
+    '**Prioridad por especialidad**: en el mismo panel, la sección *Prioridad por especialidad* reserva un tramo horario para una o varias especialidades. Se marcan las salas, el horario —desde y hasta, por la hora de comienzo de la franja— y las especialidades admitidas, y se toca **Reservar el tramo**. Ejemplo: Quirófano 1, de 08:00 a 12:00, Cirugía Pediátrica: las franjas de las 8 y de las 10 quedan para Pediatría y la de las 12 en adelante, para todos. Reservar también abre el turno de esas salas. Si dos reservas tocan la misma franja, valen las especialidades de las dos.',
+    'Cada reserva puede repetirse el mismo día de la semana durante las **4 u 8 semanas** siguientes —«todos los martes, Pediatría en el Quirófano 1 de 8 a 12»—, con la credencial de Jefatura. **Quitar** deja el tramo abierto para cualquier especialidad. Cerrar el día borra también sus reservas.',
+    'La reserva no toca los turnos ya cargados, no alcanza al turno de urgencia de la hora —que no se reserva nunca— y no frena a la propia Jefatura cuando programa por excepción fuera de horario.',
+    '**La agenda la escribe solo la Jefatura.** Abrir, cerrar y reservar turnos lo puede hacer únicamente la cuenta de Jefatura de Quirófanos, y desde la versión 3.16 lo impone el servidor, no solo la pantalla: ninguna otra cuenta —ni un profesional, ni la Dirección Médica, ni Admisión y Egresos— puede cambiarla, aunque lo intente por fuera de la aplicación. Los profesionales la siguen viendo para saber qué franjas están abiertas o reservadas. Si la base rechaza un cambio porque la sesión del equipo no es la de Jefatura, la aplicación lo avisa y pide volver a entrar como Jefatura.',
     'Lo que queda cerrado no se puede programar. La capacidad publicada es la que el bloque puede sostener.',
 ]),
 ('h3', 'Paso 2 — Validar y gobernar el ciclo del día'),
@@ -334,7 +340,8 @@ BLOQUES = [
 ('h1', '12. Seguridad, confidencialidad y continuidad'),
 ('h2', '12.1. Barreras que la aplicación no deja saltear'),
 ('ul', [
-    'El bloque nace cerrado; lo abre la Jefatura.',
+    'El bloque nace cerrado; lo abre la Jefatura. Y la agenda —abrir, cerrar y reservar— solo la puede cambiar la cuenta de Jefatura: lo impone el servidor.',
+    'Una franja reservada para ciertas especialidades no se programa con otro servicio: ni al crear el turno ni al cambiarle el servicio después.',
     'La franja se gana con el consentimiento guardado; salvo urgencias y P1–P2.',
     'Sin apto anestésico, estudios y consentimiento, Admisión no dictamina.',
     'Sin Admisión y coordinación, la Jefatura no valida.',
@@ -349,6 +356,7 @@ BLOQUES = [
 ('ul', [
     '**Los datos de pacientes solo los lee quien tiene cuenta.** Quien abre la aplicación sin ingresar no ve la grilla, ni cirugías, ni consentimientos, ni el padrón: solo el tablero público y el formulario de incidencias. Lo garantiza el servidor, no la pantalla.',
     'Las incidencias las lee solo la Jefatura. Los reclamos, solo su autor y la Jefatura.',
+    'La agenda del bloque (días, salas, turnos abiertos y reservas por especialidad) no tiene datos de pacientes ni de profesionales: la leen todas las cuentas y la escribe solo la Jefatura.',
     'Los consentimientos los ve el profesional que los emitió; el archivo completo, la Jefatura.',
     'El aviso hablado nunca pronuncia nombres de pacientes.',
     'Los datos de salud reciben el tratamiento de dato sensible que exige la Ley 25.326.',
@@ -376,7 +384,13 @@ BLOQUES = [
 ]),
 
 # ─────────────────────────────────────────────────────────────── 14
-('h1', '14. Novedades de las versiones 3.12 a 3.15'),
+('h1', '14. Novedades de las versiones 3.12 a 3.16'),
+('h2', 'Versión 3.16 — Prioridad por especialidad'),
+('ul', [
+    'La Jefatura puede reservar tramos de una o varias salas para una o varias especialidades, repetirlos semana a semana y quitarlos. La grilla lo muestra en violeta y la aplicación impide programar ahí con otro servicio.',
+    'En teléfonos chicos (320 a 414 px) el Panel, la solapa de Consentimientos, los filtros de incidencias y la barra superior ya no corren la pantalla de costado.',
+    '**La agenda quedó cerrada a la Jefatura en el servidor.** Hasta la 3.15, cualquier cuenta con sesión podía, por fuera de la pantalla, abrir un día o quitar una reserva; ahora la base solo acepta esos cambios de la cuenta de Jefatura.',
+]),
 ('h2', 'Identidad y seguridad'),
 ('ul', [
     '**Cada profesional tiene cuenta propia verificada por el servidor.** Los datos de pacientes quedaron cerrados para quien no tiene cuenta. Hasta la versión 3.14, cualquiera que conociera la dirección de la aplicación podía leer —y borrar— cirugías, consentimientos y el padrón.',
