@@ -37,15 +37,30 @@ LAS REGLAS
 --------------------------------------------------------------------
 Consola de Firebase -> Build -> Realtime Database -> pestaña "Reglas"
 
+REGLAS DE LA ETAPA 3 (17/09/2026), con la agenda cerrada a la Jefatura
+(01/10/2026, versión 3.16.0) — las vigentes. El mismo texto, sin nada
+alrededor y listo para pegar, está en `reglas-firebase.json`. Ver más abajo
+las de la etapa 2, que son a las que se vuelve si algo sale mal.
+
 {
   "rules": {
-    "cirugias":        { ".read": "auth != null", "$id": { ".write": "auth != null" } },
-    "usuarios":        { ".read": "auth != null", "$id": { ".write": "auth != null" } },
-    "reclamos":        { ".read": "auth != null", "$id": { ".write": "auth != null" } },
-    "agenda":          { ".read": "auth != null", "$id": { ".write": "auth != null" } },
-    "consentimientos": { ".read": "auth != null", "$id": { ".write": "auth != null" } },
-    "config":          { ".read": "auth != null", "$id": { ".write": "auth != null" } },
-    "comunicados":     { ".read": "auth != null", "$id": { ".write": "auth != null" } },
+    "cirugias": {
+      ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+      ".indexOn": ["fecha"],
+      "$id": { ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'" }
+    },
+    "usuarios": {
+      ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+      "$id": { ".write": "auth != null && (auth.token.firebase.sign_in_provider != 'anonymous' || !data.exists())" }
+    },
+    "reclamos":        { ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'", "$id": { ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'" } },
+    "agenda": {
+      ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+      "$id": { ".write": "auth != null && auth.token.email === root.child('roles/jefatura').val()" }
+    },
+    "consentimientos": { ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'", "$id": { ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'" } },
+    "config":          { ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'", "$id": { ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'" } },
+    "comunicados":     { ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'", "$id": { ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'" } },
 
     "incidencias": {
       ".read": "auth.token.email === root.child('roles/jefatura').val()",
@@ -57,9 +72,76 @@ Consola de Firebase -> Build -> Realtime Database -> pestaña "Reglas"
         ".read": "auth.token.email === data.val()",
         ".write": false
       }
+    },
+
+    "publico": {
+      ".read": true,
+      "$doc": { ".write": "auth != null" }
     }
   }
 }
+
+
+--------------------------------------------------------------------
+LA AGENDA, SOLO PARA LA JEFATURA (01/10/2026, versión 3.16.0)
+--------------------------------------------------------------------
+`agenda` es el registro de cada día del bloque: qué salas y qué turnos abrió
+la Jefatura y, desde la 3.16.0, qué tramos reservó para qué especialidades
+(`reservas`). No tiene datos de pacientes ni de profesionales: solo fechas,
+salas, horas y nombres de servicios.
+
+Hasta esta versión la regla era la general —«cualquier cuenta que no sea
+anónima»—, así que cualquier profesional con cuenta podía, desde la consola
+del navegador y sin pasar por la pantalla, abrirse un día cerrado o borrarse
+una reserva. La pantalla solo le mostraba esos botones a la Jefatura, pero la
+pantalla no es una cerradura.
+
+Ahora:
+
+  · LEER la agenda: cualquier cuenta que no sea anónima (igual que antes). El
+    profesional la necesita para ver qué franjas están abiertas o reservadas.
+  · ESCRIBIR la agenda: solo la cuenta cuyo correo figura en `roles/jefatura`.
+    Es el mismo control que ya protege la lectura de `incidencias`.
+
+La Jefatura ya entra con sesión propia de Firebase (es el único rol que la
+deja abierta), así que no cambia nada en su trabajo. Si alguna vez la sesión
+del equipo no es la de Jefatura —por ejemplo, porque después entró un
+profesional en la misma pestaña—, la app no deja el cambio trabado en la cola:
+lo descarta, la base devuelve la agenda verdadera y avisa que hay que volver a
+entrar como Jefatura.
+
+Para probarla después de publicarla: con la Jefatura, abrir y cerrar un turno
+de un día futuro (tiene que andar); con un profesional, la grilla tiene que
+seguir mostrando lo abierto y lo reservado.
+
+
+--------------------------------------------------------------------
+EL NODO `publico` (17/09/2026)
+--------------------------------------------------------------------
+Es el único lugar de la base con lectura ABIERTA, y es deliberado: sostiene el
+tablero de actividad semanal que la app muestra sin pedir sesión.
+
+Lo que hay adentro son SEIS CONTADORES y nada más:
+
+  publico/semana = {
+    desde, hasta,                    (el lunes y el domingo de la semana)
+    cx_prog, cx_urg,                 (quirófanos 1 a 4)
+    endo_prog, endo_urg,             (sala de endoscopía)
+    ces_prog, ces_urg,               (quirófano de obstetricia)
+    actualizado
+  }
+
+Ni un nombre de paciente, ni un diagnóstico, ni un cirujano, ni un identificador
+que permita llegar a una persona. Son totales de actividad cumplida.
+
+Por eso `.read` puede ser `true` sin contradecir nada de lo de arriba: lo que se
+publica no es un dato personal. Y la escritura sigue exigiendo pase, así que un
+visitante anónimo lee el tablero pero no puede falsearlo.
+
+Quien recalcula esos números hoy es la propia app, desde cualquier dispositivo
+con sesión, y solo cuando el resultado cambió. Cuando el proyecto pase a Blaze
+esto debería moverse a una Cloud Function y entonces el `.write` puede cerrarse
+del todo (`false`), porque ya no escribirían los clientes.
 
 
 --------------------------------------------------------------------
@@ -87,20 +169,59 @@ un documento, así que nadie puede borrar una colección entera de un saque.
 
 
 --------------------------------------------------------------------
-HASTA DÓNDE LLEGA ESTA ETAPA
+LA ETAPA 3, Y POR QUÉ HIZO FALTA (17/09/2026)
 --------------------------------------------------------------------
-Los cirujanos siguen entrando con su propia contraseña, comprobada en el
-navegador contra el hash guardado en "usuarios". No tienen identidad de
-Firebase. Por lo tanto:
+Se comprobó desde fuera del hospital, sin ninguna credencial: con la apiKey que
+viaja en la página pública se pide un pase anónimo y con él se podían LEER las
+cirugías, los consentimientos y el padrón, y también BORRARLOS. No era solo una
+fuga de datos: cualquiera podía vaciar el bloque quirúrgico.
 
-  - Las incidencias confidenciales quedan realmente cerradas a la Jefatura.
-  - Las cirugías, los consentimientos y el padrón siguen siendo legibles por
-    cualquiera que consiga un pase anónimo, y el pase anónimo lo puede pedir
-    cualquiera con la configuración que viaja en la página.
+La causa era que "auth != null" no distinguía nada. El pase anónimo que la app
+pide sola al abrirse lo consigue cualquiera, así que esa condición se cumplía
+para todo el planeta.
 
-Cerrar eso exige que cada cirujano tenga también cuenta de Firebase. Es la
-etapa siguiente, y obliga a que los profesionales ya registrados vuelvan a
-establecer su contraseña una vez.
+Lo que cambia en la etapa 3:
+
+  1. Cada profesional tiene cuenta de Firebase (correo + contraseña). La
+     migración es transparente: al entrar con la contraseña de siempre, y solo
+     después de que el hash local la valida, la app le crea la cuenta con esa
+     misma clave. Nadie tiene que re-establecer nada.
+  2. Las reglas ya no piden "estar autenticado" sino "no ser anónimo":
+     `auth.token.firebase.sign_in_provider != 'anonymous'`. El pase anónimo
+     sigue existiendo —lo necesita la app para abrir y para el tablero
+     público— pero deja de dar acceso a un solo dato de paciente.
+
+QUÉ PUEDE HACER CADA UNO, DESPUÉS DE ESTO
+
+  Visitante sin cuenta (pase anónimo):
+    · ve el tablero público de actividad semanal (nodo "publico");
+    · puede REPORTAR una incidencia;
+    · puede crear su propia alta en el padrón;
+    · NO ve cirugías, ni consentimientos, ni el padrón, ni la grilla.
+
+  Profesional con cuenta:
+    · todo lo que veía antes, sin cambios.
+
+  Jefatura:
+    · lo suyo, más las incidencias, que sigue siendo la única que las lee;
+    · y, desde el 01/10/2026, la única que escribe la agenda (abrir, cerrar y
+      reservar turnos por especialidad).
+
+OJO CON ESTE CAMBIO VISIBLE: hasta ahora, quien entraba sin sesión veía la
+grilla de turnos. Desde la etapa 3 ya no, porque esa grilla tiene nombres de
+pacientes. Es el arreglo, no un defecto.
+
+Por qué "usuarios" deja escribir a un anónimo solo si el registro NO existe
+(`!data.exists()`): para que un alta hecha sin señal se pueda sincronizar al
+reconectar. Crear, sí; pisar la cuenta de un colega —su contraseña, su estado
+de aprobación—, no.
+
+LO QUE TODAVÍA NO CIERRA ESTA ETAPA: un profesional con cuenta puede leer las
+cirugías de todo el bloque, no solo las suyas. Es deliberado —para programar
+hay que ver qué franjas están ocupadas— pero significa que el detalle de los
+pacientes es visible para los ~50 profesionales del padrón, no para cada
+cirujano por separado. Acotar eso exige separar los datos de paciente del
+turno, y es un trabajo de otra escala.
 
 Dirección Médica y Admisión y Egresos verifican su credencial contra Firebase
 pero no dejan sesión abierta, porque Firebase admite una identidad por vez y la

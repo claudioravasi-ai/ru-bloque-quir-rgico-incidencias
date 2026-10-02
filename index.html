@@ -1076,6 +1076,19 @@
   .slot-vencido { border-style: dashed; color: var(--muted); }
   .slot-vencido:hover { border-color: #0f766e; color: #0f766e; }
   .slot-retro { border: 1px dashed #0f766e; background: #eafaf8; color: #0f766e; }
+  /* Prioridad por especialidad: violeta, el color de las decisiones de la Jefatura. */
+  .slot-libre.slot-reserva, body[data-tema] .slot-libre.slot-reserva,
+  body[data-tema] .slot-libre.slot-reserva:hover { border: 1px dashed var(--violeta, #7c3aed); background: var(--violeta-soft, #ede9fe); color: var(--violeta, #7c3aed); }
+  .slot-reserva .slot-hint, .slot-reserva-otra .slot-hint { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .dia-banner.dia-banner-reserva, body[data-tema] .dia-banner.dia-banner-reserva { background: var(--violeta-soft, #ede9fe); color: var(--ink, #0f172a); border: 1px solid var(--violeta, #7c3aed); font-weight: 600; }
+  .dia-banner-reserva > svg, .banner-reserva > svg { color: var(--violeta, #7c3aed); }
+  .banner-reserva { background: var(--violeta-soft, #ede9fe); color: inherit; border: 1px solid var(--violeta, #7c3aed); }
+  .reserva-form { margin-top: 10px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); display: grid; gap: 12px; }
+  .reserva-form .rf-tit { font-size: 0.78rem; font-weight: 800; margin-bottom: 6px; }
+  .reserva-form .rf-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 4px 12px; font-size: 0.84rem; }
+  .reserva-form .rf-checks label { display: flex; gap: 6px; align-items: center; }
+  .reserva-form .rf-horas { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.86rem; }
+  .reserva-form .btn { justify-self: start; }
   .dia-banner {
     background: #2b2f36; color: #e5e7eb; border-radius: var(--radius);
     padding: 14px 18px; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px;
@@ -2876,6 +2889,33 @@
     .est-pub-anillo svg { width: 76px; height: 76px; }
     .est-pub-num { font-size: 1.35rem; }
     .est-pub-label { font-size: 0.84rem; }
+  }
+
+  /* ---- Teléfonos chicos (3.16.0) ----
+     El robot de regresión midió que en 320–414 px tres cosas empujaban la
+     página hacia el costado, ya desde la versión publicada: las tarjetas del
+     Panel (dos columnas que no se dejaban achicar: 177 + 189 px en 347), la
+     fila de solapas de Consentimientos (130 px afuera) y la barra superior
+     (título largo + estado + dos botones). Van al final para ganarle a los
+     cuatro temas. */
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .stat, body[data-tema] .stat { min-width: 0; padding: 16px 12px; gap: 10px; }
+    .stat > div { min-width: 0; }
+    .stat-label { overflow-wrap: break-word; hyphens: auto; }
+    .ci-tabs { flex-wrap: wrap; }
+    .topbar-title, body[data-tema] .topbar-title {
+      min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .topbar, body[data-tema] .topbar { gap: 8px; }
+    /* Filtros: un desplegable con opciones largas («C — Cuasi-accidentes…»)
+       ensanchaba la columna entera a 346 px en un teléfono de 320. */
+    .toolbar > *, .search-box { min-width: 0; }
+    .toolbar select { max-width: 100%; }
+  }
+  @media (max-width: 400px) {
+    .stat-icon { width: 40px; height: 40px; border-radius: 12px; }
+    .stat-num { font-size: 1.45rem; }
   }
 
 </style>
@@ -5322,7 +5362,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.15.5';
+const APP_VERSION = '3.16.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -5660,7 +5700,12 @@ function vaciarCola() {
           const negado = /permission[_ ]denied/i.test(String((err && (err.code || err.message)) || ''));
           if (!negado) { encolar(op); return; }
           const directo = op.tipo === 'del' ? r.child(op.id).remove() : r.child(op.id).set(op.obj);
-          directo.then(() => { saveCola(); pintarConexion(); }).catch(() => encolar(op));
+          directo.then(() => { saveCola(); pintarConexion(); }).catch((e2) => {
+            // Agenda negada: no es falta de red, es que esta sesión no es la
+            // de Jefatura. Reintentarla para siempre no la va a hacer pasar.
+            if (SOLO_JEFATURA_NUBE.includes(op.col) && esNegado(e2)) { agendaNegada(); saveCola(); pintarConexion(); return; }
+            encolar(op);
+          });
           return;
         }
         if (hecho) return;
@@ -5977,6 +6022,26 @@ function refEscritura(col) {
     return (typeof firebase !== 'undefined' && firebase.apps.length) ? firebase.database().ref(col) : null;
   } catch (e) { return null; }
 }
+/* ---- La agenda la escribe solo la Jefatura (3.16.0) ----
+   Abrir, cerrar y reservar turnos es potestad de la Jefatura de Quirófanos, y
+   desde esta versión no lo dice solo la pantalla: lo impone la regla de la
+   base, que deja escribir `agenda` únicamente a la cuenta cargada en
+   `roles/jefatura`. Si una escritura de agenda vuelve negada —la sesión de
+   Firebase de este equipo no es la de Jefatura, por ejemplo porque después
+   entró un profesional en la misma pestaña—, NO se encola: quedaría para
+   siempre como «1 sin enviar» y reintentando. Se descarta, la base devuelve
+   sola la agenda verdadera y se avisa una vez qué hacer. */
+const SOLO_JEFATURA_NUBE = ['agenda'];
+const esNegado = (err) => /permission[_ ]denied/i.test(String((err && (err.code || err.message)) || ''));
+let avisoAgendaNegada = 0;
+function agendaNegada() {
+  const ahora = Date.now();
+  if (ahora - avisoAgendaNegada < 15000) return;   // una copia a 30 días no da 30 avisos
+  avisoAgendaNegada = ahora;
+  setTimeout(() => alert('La base no aceptó el cambio en la agenda.\n\n'
+    + 'Abrir, cerrar y reservar turnos lo puede hacer solo la cuenta de Jefatura de Quirófanos, y la sesión de este equipo no es esa. '
+    + 'Cierre la sesión de Jefatura, vuelva a entrar con el correo y la contraseña de la Jefatura y repita el cambio.'), 0);
+}
 function upsert(col, obj) {
   obj._m = ahoraServidor();
   const plano = JSON.parse(JSON.stringify(obj));
@@ -5991,7 +6056,10 @@ function upsert(col, obj) {
     const op = { tipo: 'set', col, id: obj.id, obj: plano, m: plano._m };
     const r = refEscritura(col);
     if (r && conectado) {
-      envio = r.child(obj.id).set(plano).then(() => true).catch(() => { encolar(op); return false; });
+      envio = r.child(obj.id).set(plano).then(() => true).catch((err) => {
+        if (SOLO_JEFATURA_NUBE.includes(col) && esNegado(err)) { agendaNegada(); return false; }
+        encolar(op); return false;
+      });
     } else { encolar(op); envio = Promise.resolve(false); }
   }
   refreshView();
@@ -6006,7 +6074,10 @@ function removeDoc(col, id) {
     const op = { tipo: 'del', col, id, m: ahoraServidor() };
     const r = refEscritura(col);
     if (r && conectado) {
-      envio = r.child(id).remove().then(() => true).catch(() => { encolar(op); return false; });
+      envio = r.child(id).remove().then(() => true).catch((err) => {
+        if (SOLO_JEFATURA_NUBE.includes(col) && esNegado(err)) { agendaNegada(); return false; }
+        encolar(op); return false;
+      });
     } else { encolar(op); envio = Promise.resolve(false); }
   }
   refreshView();
@@ -9230,9 +9301,15 @@ function campoCirujano(c, u, exc, ro) {
    —es lo que reparte su producción entre sus servicios—; la Jefatura, que
    carga por otros, ve la lista entera. Si el turno ya tenía un servicio que no
    está en la lista (dato viejo), se conserva como opción para no perderlo. */
-function opcionesServicioTurno(c, u, exc) {
-  const propios = exc && exc.cirujano ? serviciosDe(exc.cirujano) : (u ? serviciosDe(u) : []);
+function opcionesServicioTurno(c, u, exc, res) {
+  let propios = exc && exc.cirujano ? serviciosDe(exc.cirujano) : (u ? serviciosDe(u) : []);
   let lista = (u && !jefe && propios.length) ? propios.slice() : serviciosCatalogo();
+  // En una franja reservada solo se ofrecen los servicios admitidos.
+  if (res) {
+    const filtrada = lista.filter((x) => servicioAdmitido(res, x));
+    lista = filtrada.length ? filtrada : res.servicios.slice();
+    propios = propios.filter((x) => servicioAdmitido(res, x));
+  }
   const actual = c && c.servicio ? servicioCanonico(c.servicio) : '';
   if (actual && !lista.some((x) => mismoServicio(x, actual))) lista = [actual].concat(lista);
   const elegido = actual || propios[0] || '';
@@ -12675,6 +12752,79 @@ function franjasAbiertas(d) {
   return SALAS.reduce((n, s) => n + s.franjas.filter((f) => turnoHabilitado(d, s.id, f.p)).length, 0);
 }
 
+/* ---- Prioridad por especialidad (3.16.0) ----
+   Además de abrir y cerrar, la Jefatura puede reservar un tramo del día para
+   una o varias especialidades: «martes 2, Quirófano 1, de 8 a 12 solo Cirugía
+   Pediátrica; de 12 en adelante, cualquiera». Cada reserva vive dentro del
+   registro del día en `agenda` (`a.reservas`) y dice qué salas alcanza, el
+   tramo horario —por la hora de comienzo de la franja: desde inclusive, hasta
+   exclusive— y los servicios admitidos. Si dos reservas tocan la misma franja,
+   valen los servicios de las dos. Fuera de toda reserva, la franja abierta es
+   para cualquier especialidad, como siempre. El turno de urgencia de la hora
+   no se reserva nunca, y la excepción de la Jefatura y el registro fuera de
+   término no la miran: son la llave de la propia Jefatura. */
+const HORAS_RESERVA = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00',
+  '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
+// Firebase guarda los arreglos como objetos con claves 0, 1, 2…: se leen igual.
+const comoLista = (x) => Array.isArray(x) ? x.filter((y) => y != null)
+  : (x && typeof x === 'object' ? Object.values(x).filter((y) => y != null) : []);
+function reservasDia(d) {
+  const a = agendaDia(d);
+  return a ? comoLista(a.reservas) : [];
+}
+function salasDeReserva(r) {
+  const l = comoLista(r.salas);
+  return l.length ? l : SALAS.map((s) => s.id);
+}
+function reservaDeFranja(d, sid, f) {
+  if (!f || f.urg || f.heredada) return null;
+  const reglas = reservasDia(d).filter((r) => salasDeReserva(r).includes(sid)
+    && f.t >= r.desde && f.t < r.hasta && comoLista(r.servicios).length);
+  if (!reglas.length) return null;
+  const servicios = [];
+  reglas.forEach((r) => comoLista(r.servicios).forEach((x) => {
+    if (!servicios.some((y) => mismoServicio(y, x))) servicios.push(x);
+  }));
+  return { servicios, reglas };
+}
+const servicioAdmitido = (res, serv) => !res || res.servicios.some((x) => mismoServicio(x, serv));
+const usuarioAdmitido = (res, u) => !res || serviciosDe(u).some((x) => servicioAdmitido(res, x));
+function textoReserva(r) {
+  const salas = comoLista(r.salas);
+  const donde = !salas.length || salas.length === SALAS.length ? 'Todas las salas'
+    : salas.map((id) => sala(id).nombre).join(', ');
+  return `${donde} · de ${r.desde} a ${r.hasta} h · solo ${comoLista(r.servicios).join(', ')}`;
+}
+/* Turnos (mañana / tarde) que toca un tramo horario. */
+function turnosDelTramo(desde, hasta) {
+  const out = [];
+  if (desde < '14:00') out.push('M');
+  if (hasta > '14:00') out.push('T');
+  return out;
+}
+/* Guarda una reserva en un día. Reservar un tramo cerrado no serviría de nada,
+   así que también abre los turnos que toca en esas salas. Si ya hay una reserva
+   idéntica en el día, no la duplica. */
+function agregarReserva(d, r) {
+  guardarAgenda(d, (a) => {
+    const lista = comoLista(a.reservas);
+    const clave = (x) => [comoLista(x.salas).slice().sort().join(','), x.desde, x.hasta,
+      comoLista(x.servicios).map(claveServicio).sort().join(',')].join('|');
+    if (!lista.some((x) => clave(x) === clave(r))) lista.push(Object.assign({}, r, { id: 'R' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) }));
+    a.reservas = lista;
+    const turnos = turnosDelTramo(r.desde, r.hasta);
+    salasDeReserva(r).forEach((sid) => {
+      const cfg = Object.assign({}, a.salas[sid]);
+      turnosDeSala(sala(sid)).forEach((p) => { if (turnos.includes(p)) cfg[p] = true; });
+      a.salas[sid] = cfg;
+    });
+    a.on = true;
+  });
+}
+function quitarReserva(d, rid) {
+  guardarAgenda(d, (a) => { a.reservas = comoLista(a.reservas).filter((x) => x.id !== rid); });
+}
+
 function guardarAgenda(d, mut) {
   const a = agendaDia(d) || { id: d, on: false, salas: {} };
   a.salas = a.salas || {};
@@ -12701,7 +12851,7 @@ function setSalaOn(d, sid, v) {
   });
 }
 function setDiaOn(d, v) {
-  guardarAgenda(d, (a) => { a.on = v; if (!v) a.salas = {}; });
+  guardarAgenda(d, (a) => { a.on = v; if (!v) { a.salas = {}; a.reservas = []; } });
 }
 /* Abre el día completo en los turnos indicados, en todas las salas programables. */
 function abrirDiaEnTurnos(d, turnos) {
@@ -12723,7 +12873,8 @@ function copiarAgendaA(origen, dias, soloHabiles) {
   for (let i = 1; i <= dias; i++) {
     const d = sumarDias(origen, i);
     if (soloHabiles && !esLaborable(d)) continue;
-    upsert('agenda', { id: d, on: base.on === true, salas: JSON.parse(JSON.stringify(base.salas || {})) });
+    upsert('agenda', { id: d, on: base.on === true, salas: JSON.parse(JSON.stringify(base.salas || {})),
+      reservas: JSON.parse(JSON.stringify(comoLista(base.reservas))) });
     n++;
   }
   return n;
@@ -13008,6 +13159,21 @@ function slotCard(d, s, f, salaOff) {
       <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">${ICONS.clockSm.replace('14', '16')}</span>
       <span class="slot-hint">&lt; ${HORAS_ANTICIPACION} h</span></div>`;
   }
+  // Franja reservada por la Jefatura para ciertas especialidades: quien no es
+  // de ninguna de ellas la ve cerrada; el resto, abierta y con el aviso.
+  const res = reservaDeFranja(d, s.id, f);
+  if (res) {
+    const quien = res.servicios.join(' · ');
+    const u = usuarioActual();
+    if (!jefe && u && !usuarioAdmitido(res, u) && !excepcionPara(d, s.id, f.id)) {
+      return `<div class="slot slot-libre slot-bloq slot-reserva-otra" title="Reservada por la Jefatura de Quirófanos para ${esc(quien)}">
+        <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">${ico(ICONS.lock, 16)}</span>
+        <span class="slot-hint">Reservada: ${esc(quien)}</span></div>`;
+    }
+    return `<button type="button" class="slot slot-libre slot-reserva" onclick="openSlot('${d}','${s.id}','${f.id}')" title="Reservada por la Jefatura de Quirófanos para ${esc(quien)}">
+      <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">+</span>
+      <span class="slot-hint">Solo ${esc(quien)}</span></button>`;
+  }
   return `<button type="button" class="slot slot-libre ${f.urg ? 'slot-urg' : ''}" onclick="openSlot('${d}','${s.id}','${f.id}')">
     <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">+</span>
     <span class="slot-hint">${f.urg ? 'Anotar urgencia' : 'Disponible'}</span></button>`;
@@ -13127,6 +13293,12 @@ function renderProgDiaria() {
       siguen bloqueadas (${cerradas.map((s) => esc(s.nombre)).join(', ')}).</div>
       ${jefe ? `<button class="btn btn-sm btn-teal" style="margin-left:auto;flex:none" onclick="openJefaturaDia()">${ico(ICONS.key, 14)} Habilitar</button>` : ''}</div>`;
   }
+  const reservas = reservasDia(d);
+  if (reservas.length) {
+    cuerpo += `<div class="dia-banner dia-banner-reserva">${ico(ICONS.shield, 18)}<div><b>Prioridad por especialidad dispuesta por la Jefatura:</b>
+      ${reservas.map((r) => esc(textoReserva(r))).join('<br>')}<br>Fuera de esos tramos, los turnos abiertos admiten cualquier especialidad.</div>
+      ${jefe ? `<button class="btn btn-sm btn-outline" style="margin-left:auto;flex:none" onclick="openJefaturaDia()">Editar</button>` : ''}</div>`;
+  }
   cuerpo += `<div class="salas-grid">${SALAS.filter((s) => s.tipo === 'qx').map((s) => salaCard(d, s)).join('')}</div>`;
   cuerpo += SALAS.filter((s) => s.tipo !== 'qx').map((s) => `<div style="margin-bottom:16px">${salaCard(d, s)}</div>`).join('');
 
@@ -13186,7 +13358,7 @@ function toggleGuia() { guiaAbierta = !guiaAbierta; renderProgDiaria(); }
 
 const GUIA_TEMAS = [
   { c: '#0e7490', ico: 'lock',     t: 'El bloque nace cerrado',
-    b: 'Las seis salas amanecen bloqueadas. Las abre la <b>Jefatura</b>, sala por sala y turno por turno.' },
+    b: 'Las seis salas amanecen bloqueadas. Las abre la <b>Jefatura</b>, sala por sala y turno por turno, y puede reservar un tramo <b>para una o varias especialidades</b>.' },
   { c: '#c62f2f', ico: 'zap',      t: 'Urgencias, las 24 horas',
     b: 'Quirófano 1, Endoscopía y Obstetricia tienen <b>un turno libre en la hora que corre</b>, siempre.' },
   { c: '#b45309', ico: 'shield',   t: '1º Admisión y Egresos',
@@ -13227,6 +13399,12 @@ function guiaProgramacion() {
       <div class="gd-b" style="--gc:#0e7490"><b>El bloque nace cerrado.</b>
         Las seis salas se habilitan por turno —mañana o tarde— desde la Jefatura de Quirófanos, todas con la misma
         grilla de 08 a 20 h. Los turnos ya cargados no se pierden si después se cierra la franja.</div>
+
+      <div class="gd-b" style="--gc:#7c3aed"><b>Prioridad por especialidad.</b>
+        La Jefatura puede reservar un tramo horario de una o varias salas para una o varias especialidades —por ejemplo,
+        el Quirófano 1 de 08 a 12 h solo para Cirugía Pediátrica—, y solo ella puede hacerlo: lo controla la base de datos. Esas franjas se ven en violeta con la leyenda
+        «Solo …»; quien no pertenece a ninguno de esos servicios las ve cerradas con la leyenda «Reservada». Fuera del
+        tramo, el turno abierto admite cualquier especialidad. El turno de urgencia de la hora no se reserva nunca.</div>
 
       <div class="gd-b" style="--gc:#c62f2f"><b>Turno de urgencia de la hora en curso.</b>
         Aparte de la grilla programada, el <b>Quirófano 1</b> (cirugías), la <b>Sala de Endoscopía</b> (endoscopías) y el
@@ -13289,6 +13467,13 @@ function openSlot(d, sid, fid) {
       return;
     }
     if (!u && !jefe) { alert('Para programar un turno debe ingresar con su correo institucional (Acceso Profesional) o con la credencial de Jefatura.'); go('acceso'); return; }
+    // Franja reservada para otras especialidades: no se programa.
+    const resN = exc || franjaReabierta(d, sid, fid) ? null : reservaDeFranja(d, sid, f);
+    if (resN && u && !jefe && !usuarioAdmitido(resN, u)) {
+      alert(`Esta franja está reservada por la Jefatura de Quirófanos para ${resN.servicios.join(', ')}.\n\n`
+        + `Sus servicios (${serviciosTexto(u)}) no están entre los admitidos. Elija otra franja o consulte a la Jefatura.`);
+      return;
+    }
     // La autorización de la Jefatura va antes que la documentación: sin ella la
     // cuenta no programa aunque tenga todos los papeles al día.
     if (u && !jefe && !cuentaAprobada(u)) { alert(bloqueoCuenta(u)); go('perfil'); return; }
@@ -13298,6 +13483,7 @@ function openSlot(d, sid, fid) {
     }
   }
   slotCtx = { d, sid, fid, hora: f.t, nd: f.nd || 0 };
+  const resv = exc || franjaReabierta(d, sid, fid) ? null : reservaDeFranja(d, sid, f);
   const puedeEditar = nuevo || jefe || (u && c.cirujanoEmail === u.email && ['borrador', 'pendiente'].includes(c.estado));
   const ro = puedeEditar ? '' : 'disabled';
   const v = (x, alt) => esc((c && x) || alt || '');
@@ -13328,6 +13514,9 @@ function openSlot(d, sid, fid) {
     </div>
     ${c ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">${estChip(c)} ${prioChip(c)} ${authChip(c)}</div>` : '<div style="height:10px"></div>'}
     ${avisoAnticip}
+    ${resv && nuevo ? `<div class="banner banner-reserva" style="margin-bottom:14px">${ico(ICONS.shield, 18)}<div><strong>Franja con prioridad por especialidad</strong>
+        La Jefatura de Quirófanos reservó este horario para <b>${esc(resv.servicios.join(', '))}</b>. El turno solo se guarda con
+        uno de esos servicios.</div></div>` : ''}
 
     <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
       <div class="card-title">Paciente y diagnóstico</div>
@@ -13362,7 +13551,7 @@ function openSlot(d, sid, fid) {
       <div class="form-grid">
         ${campoCirujano(c, u, exc, ro)}
         <div class="field"><label>Servicio / especialidad *</label>
-          <select id="k-serv" ${ro}>${opcionesServicioTurno(c, u, exc)}</select></div>
+          <select id="k-serv" ${ro}>${opcionesServicioTurno(c, u, exc, nuevo ? resv : null)}</select></div>
         ${campoAyudante('k-ayu', (ayudanteDe(c || {}) || {}).nombre || '', ro)}
         <div class="field"><label>Anestesista</label><input type="text" id="k-anest" value="${v(c && c.anestesista)}" ${ro}></div>
         <div class="field"><label>Tipo de anestesia</label>
@@ -13484,6 +13673,15 @@ async function guardarSlot() {
   }
   if (!existente && !turnoHabilitado(d, sid, f.p) && !exc && !retro) {
     alert('Ese turno acaba de bloquearse desde la Jefatura de Quirófanos. Actualice la grilla y elija otra franja.');
+    return;
+  }
+  // Prioridad por especialidad: un turno nuevo, o uno al que se le cambia el
+  // servicio, tiene que ser de una especialidad admitida en esa franja.
+  const resv = exc || retro ? null : reservaDeFranja(d, sid, f);
+  const servElegido = ($('k-serv') || {}).value || '';
+  if (resv && (!existente || !mismoServicio(existente.servicio || '', servElegido)) && !servicioAdmitido(resv, servElegido)) {
+    alert(`Esta franja está reservada por la Jefatura de Quirófanos para ${resv.servicios.join(', ')}.\n\n`
+      + `«${servElegido || 'sin servicio'}» no está admitido. Elija uno de esos servicios u otra franja.`);
     return;
   }
   // La hora pudo pasar con el formulario abierto: la guardia no admite cargar
@@ -14043,8 +14241,11 @@ function openJefaturaDia() {
     <div class="det-section"><h4>Sala por sala, turno por turno</h4>
       ${SALAS.map(filaSala).join('')}
       <p class="form-note">El botón en verde indica el turno abierto. Tocarlo lo cierra; los turnos ya cargados
-      se conservan y, si corresponde, deben suspenderse con causa.</p>
+      se conservan y, si corresponde, deben suspenderse con causa. Abrir, cerrar y reservar lo puede hacer solo la
+      cuenta de Jefatura: lo controla la propia base de datos, no solo esta pantalla.</p>
     </div>
+
+    ${seccionReservas(d)}
 
     <div class="det-section"><h4>Repetir esta configuración</h4>
       <p class="form-note" style="margin:0 0 10px">Copia lo abierto hoy a los días siguientes, para no repetir la
@@ -14064,6 +14265,72 @@ function openJefaturaDia() {
       </div>
     </div>`;
   $('cir-overlay').classList.add('open');
+}
+/* ---- Panel: prioridad por especialidad ---- */
+function seccionReservas(d) {
+  const rs = reservasDia(d);
+  const dia = DIAS_S[new Date(d + 'T12:00:00').getDay()].toLowerCase();
+  const servs = serviciosCatalogo().filter((x) => !/^otros?$/i.test(sinTildes(x)));
+  const horas = (id, sel) => `<select id="${id}">${HORAS_RESERVA.map((h) => `<option ${h === sel ? 'selected' : ''}>${h}</option>`).join('')}</select>`;
+  const lista = rs.length ? rs.map((r) => `<div class="jefatura-row">
+      <div style="min-width:170px;flex:1 1 260px"><div class="jn">${esc(textoReserva(r))}</div></div>
+      <div class="jb">
+        <button class="btn btn-sm btn-outline" onclick="jefRepetirReserva('${d}','${esc(r.id)}',4)">Los próximos 4 ${esc(dia)}</button>
+        <button class="btn btn-sm btn-outline" onclick="jefRepetirReserva('${d}','${esc(r.id)}',8)">Los próximos 8 ${esc(dia)}</button>
+        <button class="btn btn-sm btn-red" onclick="jefQuitarReserva('${d}','${esc(r.id)}')">Quitar</button>
+      </div></div>`).join('')
+    : '<p class="form-note" style="margin:0 0 6px">Sin reservas: todo turno abierto de este día admite cualquier especialidad.</p>';
+  return `<div class="det-section"><h4>Prioridad por especialidad</h4>
+    <p class="form-note" style="margin:0 0 10px">Reserva un tramo del día para una o varias especialidades: en esas
+    franjas solo programan los profesionales de los servicios elegidos; fuera del tramo, el turno abierto sigue siendo
+    para todos. Reservar también abre el turno de esas salas. El turno de urgencia de la hora no se reserva nunca y los
+    turnos ya cargados se conservan.</p>
+    ${lista}
+    <div class="reserva-form">
+      <div class="rf-bloque"><div class="rf-tit">Salas</div>
+        <div class="rf-checks">${SALAS.map((x) => `<label><input type="checkbox" id="rs-sala-${x.id}"> ${esc(x.nombre)}</label>`).join('')}</div></div>
+      <div class="rf-bloque"><div class="rf-tit">Horario (por la hora de comienzo de la franja)</div>
+        <div class="rf-horas">Desde ${horas('rs-desde', '08:00')} hasta ${horas('rs-hasta', '12:00')}</div></div>
+      <div class="rf-bloque"><div class="rf-tit">Especialidades admitidas</div>
+        <div class="rf-checks">${servs.map((x, i) => `<label><input type="checkbox" id="rs-serv-${i}" data-serv="${esc(x)}"> ${esc(x)}</label>`).join('')}</div></div>
+      <button class="btn btn-sm btn-teal" onclick="jefAgregarReserva('${d}')">${ico(ICONS.key, 13)} Reservar el tramo</button>
+    </div>
+  </div>`;
+}
+function jefAgregarReserva(d) {
+  const salas = SALAS.filter((x) => { const el = $('rs-sala-' + x.id); return el && el.checked; }).map((x) => x.id);
+  const servicios = [...document.querySelectorAll('[id^="rs-serv-"]')].filter((el) => el.checked).map((el) => el.dataset.serv);
+  const desde = $('rs-desde').value, hasta = $('rs-hasta').value;
+  if (!salas.length) { alert('Marque al menos una sala.'); return; }
+  if (!servicios.length) { alert('Marque al menos una especialidad.'); return; }
+  if (!(desde < hasta)) { alert('La hora «hasta» tiene que ser posterior a la hora «desde».'); return; }
+  agregarReserva(d, { salas, desde, hasta, servicios, t: nowDT() });
+  openJefaturaDia();
+  renderProgDiaria();
+}
+async function jefQuitarReserva(d, rid) {
+  const r = reservasDia(d).find((x) => x.id === rid);
+  if (!r) return;
+  if (!await preguntar(`${textoReserva(r)}.\n\nEl tramo queda abierto para cualquier especialidad; los turnos ya cargados no se tocan.`,
+    { titulo: '¿Quitar la reserva?', tono: 'jefatura', si: 'Quitar', no: 'Cancelar' })) return;
+  quitarReserva(d, rid);
+  openJefaturaDia();
+  renderProgDiaria();
+}
+/* Repite una reserva el mismo día de la semana durante las semanas siguientes:
+   «todos los martes, Cirugía Pediátrica en el Quirófano 1 de 8 a 12». */
+function jefRepetirReserva(d, rid, semanas) {
+  const r = reservasDia(d).find((x) => x.id === rid);
+  if (!r) return;
+  const dia = DIAS_S[new Date(d + 'T12:00:00').getDay()].toLowerCase();
+  pedirJefatura('Repetir la reserva', `${textoReserva(r)}. Se repetirá los próximos ${semanas} ${dia} y se abrirán esos turnos. Confirme con la credencial de Jefatura.`, () => {
+    const base = { salas: comoLista(r.salas), desde: r.desde, hasta: r.hasta, servicios: comoLista(r.servicios), t: nowDT() };
+    const dias = [];
+    for (let i = 1; i <= semanas; i++) { const d2 = sumarDias(d, 7 * i); agregarReserva(d2, base); dias.push(fmtFecha(d2)); }
+    alert(`Reserva repetida en ${dias.length} día(s): ${dias.join(', ')}.`);
+    openJefaturaDia();
+    renderProgDiaria();
+  });
 }
 function jefToggleTurno(d, sid, p) { setTurnoOn(d, sid, p, !turnoHabilitado(d, sid, p)); openJefaturaDia(); renderProgDiaria(); }
 function jefAbrirDia(d, modo) {
@@ -16996,7 +17263,7 @@ const LIBRO_BLANCO = {
   archivo: './libro-blanco-quirofanos-hru.pdf',
   titulo: 'Libro Blanco de Quirófanos',
   subtitulo: 'Manual de Organización y Funcionamiento de Quirófanos Centrales y de la Unidad de Endoscopía Digestiva',
-  ficha: 'Versión 3.0 · Mayo 2026 · 43 páginas · Jefatura del Departamento Quirúrgico — HRU',
+  ficha: 'Versión 3.1 · Octubre 2026 · 44 páginas · Jefatura del Departamento Quirúrgico — HRU',
   marco: 'Directrices de Organización y Funcionamiento para Centros Quirúrgicos, Ministerio de Salud de la Nación (IF-2020-14236688-APN).',
 };
 /* Safari de iPhone y iPad no muestra PDF dentro de un iframe: se le ofrece el
