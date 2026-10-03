@@ -678,17 +678,204 @@
     .estv-dest-n { font-size: 0.85rem; }
   }
 
-  /* ---- Turnos sin resolver (3.18.0): las salidas del «Resolver turno» ---- */
+  /* ---- Turnos sin resolver (3.18.1): «¿Qué pasó con esta cirugía?» ----
+     Cada salida es un botón entero, con su color: verde se operó, rojo (o gris
+     si nunca llegó al parte) no se operó, violeta se operó antes. */
+  .res-cab { text-align: left; margin-bottom: 14px; padding-right: 28px; }
+  .res-k { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--red); background: color-mix(in srgb, var(--red) 13%, transparent); padding: 4px 10px; border-radius: 99px; }
+  #susp-modal .res-cab h2 { text-align: left; font-size: 1.3rem; margin: 10px 0 6px; }
+  .res-turno { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+  .res-turno b { color: var(--ink); }
   .res-ops { display: flex; flex-direction: column; gap: 10px; }
-  .res-op { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--card); }
-  .res-op-ic { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--bg); color: var(--ink); }
-  .res-op-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-  .res-op-tx b { font-size: 0.92rem; }
-  .res-op-tx span { font-size: 0.8rem; color: var(--muted); line-height: 1.35; }
-  .res-op .btn { flex: none; }
+  .res-op { --rc: var(--blue); width: 100%; display: flex; align-items: center; gap: 14px; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+    padding: 14px 14px 14px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--rc);
+    transition: transform .12s, box-shadow .12s, background .12s; }
+  .res-op:hover:not(:disabled), .res-op:focus-visible { transform: translateY(-1px); background: color-mix(in srgb, var(--rc) 9%, var(--card));
+    box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--rc) 60%, transparent); outline: none; }
+  .res-op:disabled { cursor: default; opacity: 0.6; }
+  .res-op.ok { --rc: var(--green); } .res-op.bad { --rc: var(--red); } .res-op.gris { --rc: #78716c; } .res-op.violeta { --rc: #7c3aed; }
+  .res-op-ic { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: var(--rc); }
+  .res-op-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .res-op-tx > b { font-size: 1rem; }
+  .res-op-tx > span { font-size: 0.84rem; color: var(--ink); line-height: 1.4; }
+  .res-op-tx em { font-style: normal; font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+  .res-op-tx em b { font-size: inherit; color: var(--rc); }
+  .res-op-go { flex: none; color: var(--rc); display: grid; place-items: center; width: 22px; }
+  .res-pie { margin: 14px 0 0; font-size: 0.8rem; color: var(--muted); line-height: 1.45; }
+  .res-pie svg { display: inline-block; vertical-align: -2px; margin-right: 4px; }
+  .fx-modal h2.fx-tit { text-align: left; }
+  /* Ventana única: las tres salidas en fila, la elegida marcada, y sus datos debajo. */
+  #susp-modal .res-ops { flex-direction: row; }
+  #susp-modal .res-op { flex: 1; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px; border-left-width: 1px; border-top: 5px solid var(--rc); }
+  #susp-modal .res-op .res-op-go { display: none; }
+  #susp-modal .res-op.on { background: color-mix(in srgb, var(--rc) 20%, var(--card)); border-color: var(--rc); box-shadow: 0 0 0 3px var(--rc); }
+  #susp-modal .res-ops:has(.res-op.on) .res-op:not(.on) { opacity: 0.55; }
+  #susp-modal .res-op-tx > span { font-size: 0.8rem; color: var(--muted); }
+  #susp-modal .res-op-tx > span b { color: var(--rc); }
+  .res-panel { margin-top: 14px; padding: 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--sup2, var(--bg)); display: flex; flex-direction: column; gap: 10px; }
+  .res-panel[hidden] { display: none; }
+  .res-panel .form-grid { margin: 0; }
+  .res-nota { margin: 0; font-size: 0.78rem; color: var(--muted); }
+  .res-err { margin: 12px 0 0; padding: 8px 12px; border-radius: 10px; font-size: 0.84rem; font-weight: 600; color: var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); }
+  .res-acc { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .res-acc .btn:disabled { opacity: 0.55; cursor: default; }
   @media (max-width: 560px) {
-    .res-op { flex-wrap: wrap; }
-    .res-op .btn { width: 100%; justify-content: center; }
+    #susp-modal .res-ops { flex-direction: column; }
+    #susp-modal .res-op { flex-direction: row; align-items: center; border-top-width: 1px; border-left-width: 5px; }
+    .res-acc .btn { flex: 1 1 auto; justify-content: center; }
+  }
+  .toast-turno { position: fixed; left: 50%; bottom: 28px; z-index: 400; transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+    display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px); padding: 12px 18px; border-radius: 14px; font-weight: 700; font-size: 0.92rem;
+    color: #fff; background: var(--tc, var(--blue)); box-shadow: 0 12px 30px -10px rgba(0,0,0,0.45); transition: opacity .2s, transform .2s; }
+  .toast-turno.on { opacity: 1; transform: translate(-50%, 0); }
+  @media (max-width: 900px) { .toast-turno { bottom: 84px; } }
+
+  /* ---- Ficha de la cirugía (3.18.1): cabecera, camino, qué sigue y tarjetas ----
+     Todo vive bajo .fx-modal para no tocar las otras ventanas que reusan
+     #cir-modal. Los tintes salen de color-mix sobre el color del estado, así
+     funcionan igual en los cuatro temas, claros y oscuro. */
+  #cir-modal.fx-modal { max-width: 880px; padding: 0; max-height: 92vh; }
+  .fx-modal .modal-close { z-index: 3; }
+  .fx-hero { position: relative; padding: 24px 30px 18px; border-top: 5px solid var(--ec); border-radius: 18px 18px 0 0;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--ec) 16%, transparent) 0%, transparent 72%); border-bottom: 1px solid var(--line); }
+  .fx-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; padding-right: 34px; }
+  .fx-tag { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 9px; border-radius: 99px; }
+  .fx-tag.urg { background: color-mix(in srgb, var(--red) 18%, transparent); color: var(--red); }
+  .fx-tag.exc { background: color-mix(in srgb, #7c3aed 18%, transparent); color: #8b5cf6; }
+  .fx-tag.tard { background: color-mix(in srgb, var(--amber) 22%, transparent); color: var(--amber); }
+  .fx-tag.ped { background: color-mix(in srgb, #8b5cf6 18%, transparent); color: #8b5cf6; vertical-align: 1px; }
+  .fx-tit { font-size: 1.4rem; font-weight: 800; line-height: 1.2; color: var(--ink); margin: 0; text-align: left; }
+  .fx-sub { margin-top: 5px; font-size: 0.88rem; color: var(--muted); line-height: 1.45; }
+  .fx-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+  .fx-fact { display: flex; gap: 10px; align-items: center; min-width: 0; padding: 10px 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); }
+  .fx-fact > i { flex: none; width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; font-style: normal;
+    background: color-mix(in srgb, var(--ec) 16%, transparent); color: var(--ec); }
+  .fx-fact > span { min-width: 0; display: flex; flex-direction: column; }
+  .fx-fact small { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .fx-fact b, .fx-fact em { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fx-fact b { font-size: 0.92rem; color: var(--ink); }
+  .fx-fact em { font-style: normal; font-size: 0.75rem; color: var(--muted); }
+  .fx-body { padding: 18px 30px 6px; }
+
+  .fx-camino { list-style: none; display: flex; margin: 2px 0 16px; padding: 0; }
+  .fx-paso { position: relative; flex: 1; min-width: 0; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .fx-paso + .fx-paso::before { content: ''; position: absolute; top: 14px; right: 50%; width: 100%; height: 3px; border-radius: 3px; background: var(--line); z-index: 0; }
+  .fx-paso.ok + .fx-paso.ok::before, .fx-paso.ok + .fx-paso.cur::before { background: var(--green); }
+  .fx-dot { position: relative; z-index: 1; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 0.78rem; font-weight: 800;
+    background: var(--card); border: 2px solid var(--line-fuerte, var(--line)); color: var(--muted); margin-bottom: 4px; }
+  .fx-paso b { font-size: 0.74rem; color: var(--ink); line-height: 1.2; }
+  .fx-paso small { font-size: 0.68rem; color: var(--muted); line-height: 1.2; }
+  .fx-paso.ok .fx-dot { background: var(--green); border-color: var(--green); color: #fff; }
+  .fx-paso.warn .fx-dot { background: var(--amber); border-color: var(--amber); color: #fff; }
+  .fx-paso.bad .fx-dot { background: var(--red); border-color: var(--red); color: #fff; }
+  .fx-paso.violeta .fx-dot { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+  .fx-paso.gris .fx-dot { background: #78716c; border-color: #78716c; color: #fff; }
+  .fx-paso.cur .fx-dot { border-color: var(--ec); color: var(--ec); box-shadow: 0 0 0 5px color-mix(in srgb, var(--ec) 22%, transparent); }
+  .fx-paso.cur.bad .fx-dot { color: #fff; box-shadow: 0 0 0 5px color-mix(in srgb, var(--red) 25%, transparent); }
+  .fx-paso.cur b { color: var(--ec); }
+  .fx-paso.cur.bad b, .fx-paso.cur.bad small { color: var(--red); }
+  .fx-paso.off { opacity: 0.4; }
+
+  .fx-next { --nc: var(--blue); display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; color: var(--ink);
+    background: color-mix(in srgb, var(--nc) 11%, transparent); border: 1px solid color-mix(in srgb, var(--nc) 38%, transparent); border-left: 5px solid var(--nc); }
+  .fx-next > svg { flex: none; color: var(--nc); margin-top: 1px; }
+  .fx-next strong { display: block; font-size: 0.98rem; margin-bottom: 3px; color: var(--nc); }
+  .fx-next > div { font-size: 0.87rem; line-height: 1.5; min-width: 0; }
+  .fx-next small { color: var(--muted); }
+  .fx-next.ok { --nc: var(--green); } .fx-next.warn { --nc: var(--amber); } .fx-next.bad { --nc: var(--red); }
+  .fx-next.violeta { --nc: #7c3aed; } .fx-next.gris { --nc: #78716c; }
+  .fx-faltan { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 4px; }
+  .fx-falta { font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--card); border: 1px solid color-mix(in srgb, var(--amber) 55%, transparent); }
+  .fx-falta.grave { border-color: var(--red); color: var(--red); }
+  .fx-mas summary { cursor: pointer; font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .fx-mas ul { margin: 6px 0 2px 18px; padding: 0; font-size: 0.82rem; }
+
+  .fx-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
+  .fx-card { min-width: 0; padding: 14px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+  .fx-card.full { grid-column: 1 / -1; }
+  .fx-card > h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+  .fx-card > h4 > svg { color: var(--ec, var(--blue)); }
+  .fx-n { margin-left: auto; font-style: normal; text-transform: none; letter-spacing: 0; font-size: 0.74rem; font-weight: 800; padding: 3px 9px; border-radius: 99px;
+    background: var(--sup2, var(--bg)); color: var(--ink); }
+  .fx-n.ok { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
+  .fx-n.warn { background: color-mix(in srgb, var(--amber) 20%, transparent); color: var(--amber); }
+  .fx-n.bad { background: color-mix(in srgb, var(--red) 18%, transparent); color: var(--red); }
+  .fx-kv { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 7px 12px; margin: 0; font-size: 0.87rem; }
+  .fx-kv dt { color: var(--muted); }
+  .fx-kv dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+  .fx-kv dd small { display: block; font-size: 0.75rem; color: var(--muted); }
+  .fx-txt { font-size: 0.84rem; color: var(--muted); line-height: 1.5; margin: 0 0 8px; }
+  .fx-txt.warn { color: var(--ink); background: color-mix(in srgb, var(--amber) 13%, transparent); border-radius: 10px; padding: 8px 11px; }
+  .fx-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 0.76rem; font-weight: 700; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+  .fx-pill.ok { background: color-mix(in srgb, var(--green) 16%, transparent); color: var(--green); }
+  .fx-pill.bad { background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); }
+  .fx-checks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .fx-btn { margin-top: 12px; }
+  .fx-pie { margin-top: 8px; font-size: 0.8rem; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  /* Los renglones de Admisión, Jefatura y excepciones: rótulo a la izquierda y
+     el texto corre en su columna. Solo el PRIMER <b> es rótulo; una negrita
+     dentro de la frase queda en la frase (antes saltaba al costado). */
+  .fx-modal .det-row { display: block; position: relative; padding: 4px 0 4px 112px; font-size: 0.86rem; line-height: 1.5; }
+  .fx-modal .det-row b { min-width: 0; }
+  .fx-modal .det-row > b:first-child { position: absolute; left: 0; top: 4px; width: 104px; font-weight: 600; color: var(--muted); }
+  .fx-modal .det-row small { display: block; color: var(--muted); }
+  .fx-coord { display: flex; flex-direction: column; gap: 6px; }
+  .fx-coord-i { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); cursor: pointer; }
+  .fx-coord-i.ok { border-color: color-mix(in srgb, var(--green) 45%, transparent); background: color-mix(in srgb, var(--green) 8%, transparent); }
+  .fx-coord-i.na { opacity: 0.45; }
+  .fx-coord-i input { margin-top: 2px; width: 16px; height: 16px; flex: none; }
+  .fx-coord-i b { display: block; font-size: 0.84rem; font-weight: 600; }
+  .fx-coord-i small { display: block; font-size: 0.72rem; color: var(--muted); }
+  .fx-mod { display: flex; gap: 12px; align-items: center; }
+  .fx-modbig { flex: none; width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; font-size: 1.35rem; font-weight: 900; padding: 0; }
+  .fx-mod b { display: block; font-size: 0.92rem; }
+  .fx-mod small { display: block; font-size: 0.78rem; color: var(--muted); }
+  .fx-equipo { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .fx-equipo li { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 7px 10px; border-radius: 10px; background: var(--sup2, var(--bg)); }
+  .fx-equipo li > span:first-child { color: var(--muted); font-size: 0.76rem; min-width: 84px; }
+  .fx-equipo li b { flex: 1; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+  .fx-computa { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 10px 12px; border-radius: 10px; color: var(--muted);
+    background: var(--sup2, var(--bg)); border: 1px dashed var(--line-fuerte, var(--line)); }
+  .fx-computa b { display: block; font-size: 0.86rem; color: var(--ink); }
+  .fx-computa small { display: block; font-size: 0.78rem; }
+  .fx-computa.ok { color: var(--green); border: 1px solid color-mix(in srgb, var(--green) 45%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }
+  .fx-computa.ok b { color: var(--green); }
+  .fx-lvq { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .fx-lvq-i { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 3px; padding: 10px 6px; border-radius: 12px; border: 1px dashed var(--line-fuerte, var(--line)); }
+  .fx-lvq-i > i { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-style: normal; background: var(--sup2, var(--bg)); color: var(--muted); }
+  .fx-lvq-i b { font-size: 0.8rem; }
+  .fx-lvq-i small { font-size: 0.7rem; color: var(--muted); }
+  .fx-lvq-i.ok { border: 1px solid color-mix(in srgb, var(--green) 45%, transparent); background: color-mix(in srgb, var(--green) 8%, transparent); }
+  .fx-lvq-i.ok > i { background: var(--green); color: #fff; }
+  .fx-muestras { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .fx-muestras li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: var(--sup2, var(--bg)); }
+  .fx-muestras li > span:first-child { flex: 1; min-width: 140px; font-size: 0.85rem; }
+  .fx-muestras li small { display: block; color: var(--muted); font-size: 0.75rem; }
+  .fx-hist { margin: 16px 0 6px; border: 1px solid var(--line); border-radius: 14px; padding: 4px 16px; }
+  .fx-hist summary { cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 10px 0; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .fx-hist summary em { margin-left: auto; font-style: normal; text-transform: none; letter-spacing: 0; font-weight: 600; }
+  .fx-hist .hist { margin: 4px 0 12px 4px; }
+  .fx-acc { position: sticky; bottom: 0; z-index: 2; margin: 0 !important; padding: 12px 30px; background: inherit; border-top: 1px solid var(--line);
+    border-radius: 0 0 18px 18px; display: flex; flex-wrap: wrap; gap: 8px; box-shadow: 0 -8px 18px -12px rgba(0,0,0,0.25); }
+  @media (max-width: 720px) {
+    .fx-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fx-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 560px) {
+    #cir-modal.fx-modal { max-height: 94vh; }
+    .fx-hero { padding: 20px 18px 14px; }
+    .fx-body { padding: 14px 16px 4px; }
+    .fx-acc { padding: 10px 16px; }
+    .fx-tit { font-size: 1.18rem; }
+    .fx-paso b { font-size: 0.64rem; }
+    .fx-paso small { display: none; }
+    .fx-dot { width: 26px; height: 26px; }
+    .fx-paso + .fx-paso::before { top: 12px; }
+    .fx-kv { grid-template-columns: 88px minmax(0, 1fr); }
+    .fx-modal .det-row { padding-left: 0; }
+    .fx-modal .det-row > b:first-child { position: static; display: block; width: auto; }
+    .fx-acc .btn { flex: 1 1 auto; justify-content: center; }
   }
 
   /* ---- Profesionales (3.17.0): camino para programar, filtros y tarjetas ---- */
@@ -5648,7 +5835,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.18.0';
+const APP_VERSION = '3.18.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -9332,7 +9519,7 @@ async function regularizarJefatura(id) {
 
 /* ================= SUSPENSIÓN ================= */
 let suspCirId = null;
-function openSuspender(id) {
+function openSuspender(id, desdeResolver) {
   suspCirId = id;
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
@@ -9350,17 +9537,24 @@ function openSuspender(id) {
     </div>
     <div class="form-actions" style="margin-top:0">
       <button class="btn btn-red" onclick="confirmSuspender()">${ICONS.x} Confirmar suspensión</button>
-      <button class="btn btn-outline" onclick="closeSuspender()">Cancelar</button>
+      ${desdeResolver ? `<button class="btn btn-outline" onclick="openResolverTurno(${c.id})">Volver</button>` : '<button class="btn btn-outline" onclick="closeSuspender()">Cancelar</button>'}
     </div>
     <p class="form-note" style="margin-top:14px">${ICONS.info.replace('18', '13')} La suspensión no planificada genera automáticamente una incidencia de <b>categoría D</b> en el módulo de mejora continua.</p>`;
-  $('susp-overlay').classList.add('open');
+  abrirVentanaTurno();
 }
 function closeSuspender() { $('susp-overlay').classList.remove('open'); }
 function confirmSuspender() {
   const c = DB.cirugias.find((x) => x.id === suspCirId);
   if (!c) return;
-  const causa = $('susp-causa').value;
-  const det = $('susp-det').value.trim();
+  // Solo lo que sigue en el circuito se suspende: un formulario viejo no
+  // puede pisar un turno que ya se cerró por otro lado.
+  if (!['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado)) { closeSuspender(); avisar('Este turno ya quedó «' + ESTC[estadoVisible(c)].label + '»: no se suspendió.'); return; }
+  suspenderTurno(c, $('susp-causa').value, $('susp-det').value.trim());
+  trasResolverTurno(c);
+}
+
+/* Suspende con causa y genera la incidencia de categoría D. */
+function suspenderTurno(c, causa, det) {
   const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || c.cirujano || 'Sistema');
   const tarde = sinResolver(c);
   c.estado = 'suspendida';
@@ -9376,8 +9570,6 @@ function confirmSuspender() {
     desglose: `[Generada automáticamente por el sistema] Suspensión no planificada de cirugía: ${c.procedimiento} (${c.paciente?.nombre}, ${fmtFecha(c.fecha)}, ${c.quirofano}). Causa registrada: ${causa}. ${det}`,
     informante: { nombre: 'Sistema HRU Quirófanos', dni: '—', telefono: '—', mail: 'sistema@hru.gob.ar' },
   });
-  closeSuspender();
-  refreshView();
 }
 
 /* ================= TURNOS SIN RESOLVER =================
@@ -9397,128 +9589,125 @@ function openResolverTurno(id) {
   const u = usuarioActual();
   const esDueno = u && c.cirujanoEmail === u.email;
   if (!jefe && !esDueno) return;
+  if (!sinResolver(c)) { toastTurno('Este turno ya quedó «' + ESTC[estadoVisible(c)].label + '».'); return; }
+  resCtx = { id: c.id, k: '' };
   const confirmado = c.estado === 'confirmada';
-  const op = (icono, titulo, texto, boton) => `<div class="res-op">
-      <div class="res-op-ic">${icono}</div>
-      <div class="res-op-tx"><b>${titulo}</b><span>${texto}</span></div>
-      ${boton}</div>`;
+  const cand = urgenciasCandidatas(c);
+  // UNA sola ventana: se elige qué pasó, los datos aparecen debajo y se guarda
+  // con un botón. Antes cada opción abría otra ventana y la cadena no terminaba.
+  const op = (k, tono, icono, titulo, texto, deshabilitada) => `
+    <button type="button" class="res-op ${tono}" data-k="${k}" ${deshabilitada ? 'disabled' : `onclick="resElegir('${k}')"`} aria-pressed="false">
+      <span class="res-op-ic">${ico(icono, 20)}</span>
+      <span class="res-op-tx"><b>${titulo}</b><span>${texto}</span></span>
+      <span class="res-op-go" aria-hidden="true"></span>
+    </button>`;
   $('susp-modal').innerHTML = `
     <button class="modal-close" onclick="closeSuspender()" aria-label="Cerrar">✕</button>
-    <h2 style="text-align:left;display:flex;align-items:center;gap:10px">${ico(ICONS.alertTri, 20)} Resolver turno</h2>
-    <p style="font-size:0.88rem;color:var(--muted);margin:6px 0 12px">${esc(c.procedimiento)} — ${esc((c.paciente && c.paciente.nombre) || 's/d')} · ${fmtFecha(c.fecha)}${c.horaProg ? ' · ' + esc(c.horaProg) + ' h' : ''} · ${esc(c.quirofano || 's/d')} · ${esc(c.cirujano || 's/d')}</p>
-    <div class="banner banner-red" style="margin-bottom:14px">${ico(ICONS.clockSm, 18)}
-      <div><strong>La fecha pasó y el turno sigue en «${esc(ESTC[c.estado].label)}»</strong>
-      Nadie lo inició, lo suspendió ni lo cerró. Indique qué pasó. Si nadie lo resuelve, la app lo cierra sola el
-      <b>${fmtFecha(cierreAdminFecha(c))}</b> como ${confirmado ? `<b>suspendida</b> («${esc(CAUSA_SIN_REGISTRO)}»)` : '<b>caducada</b>'}.</div></div>
+    <div class="res-cab">
+      <div class="res-k">${ico(ICONS.alertTri, 14)} Turno sin resolver</div>
+      <h2>¿Qué pasó con esta cirugía?</h2>
+      <div class="res-turno"><b>${esc(c.procedimiento)}</b> · ${esc((c.paciente && c.paciente.nombre) || 's/d')}<br>
+        ${fmtFecha(c.fecha)}${c.horaProg ? ' · ' + esc(c.horaProg) + ' h' : ''} · ${esc(c.quirofano || 's/d')} · ${esc(c.cirujano || 's/d')}</div>
+    </div>
     <div class="res-ops">
-      ${op(ico(ICONS.check, 18), 'Se operó, pero no se registró',
-        jefe ? 'Registro fuera de término: horas reales, parte quirúrgico y constancia de la Lista de Verificación hecha en papel. Pide la credencial de la Jefatura.'
-          : 'El registro fuera de término lo asienta la Jefatura de Quirófanos. Avísele para que lo cargue.',
-        jefe ? `<button class="btn btn-sm btn-blue" onclick="openRegistroTardioTurno(${c.id})">Registrar</button>` : '')}
-      ${confirmado
-        ? op(ico(ICONS.x, 18), 'No se operó', 'Queda suspendida, con causa obligatoria. Genera la incidencia de categoría D, como toda suspensión.',
-          `<button class="btn btn-sm btn-red" onclick="openSuspender(${c.id})">Suspender</button>`)
-        : op(ico(ICONS.x, 18), 'No se operó', 'Nunca llegó a confirmarse en el parte: queda caducada, con su motivo. No cuenta como suspensión.',
-          `<button class="btn btn-sm btn-red" onclick="openCaducarTurno(${c.id})">Dar por caducado</button>`)}
-      ${!c.urgencia ? op(ico(ICONS.zap, 18), 'Se operó antes, de urgencia o adelantada', 'Queda resuelta por anticipado, vinculada con la urgencia si está cargada. No cuenta como suspensión.',
-        `<button class="btn btn-sm btn-outline" onclick="openAnticipar(${c.id})">Resuelta por urgencia</button>`) : ''}
+      ${op('opero', 'ok', ICONS.check, 'Se operó', jefe ? 'Se hizo pero nadie la cargó. Queda <b>Finalizada</b>.' : 'Lo registra la Jefatura de Quirófanos: avísele.', !jefe)}
+      ${op('no', confirmado ? 'bad' : 'gris', ICONS.x, 'No se operó', confirmado ? 'Queda <b>Suspendida</b>, con su causa.' : 'Nunca llegó al parte: queda <b>Caducada</b>.')}
+      ${!c.urgencia ? op('antes', 'violeta', ICONS.zap, 'Se operó antes', 'De urgencia u otro día: <b>Resuelta por anticipado</b>.') : ''}
     </div>
-    <div class="form-actions" style="margin-top:14px"><button class="btn btn-outline" onclick="closeSuspender()">Cerrar</button></div>`;
-  $('susp-overlay').classList.add('open');
-}
 
-/* Caducar: el turno nunca entró al parte oficial. */
-let cadCirId = null;
-function openCaducarTurno(id) {
-  const c = DB.cirugias.find((x) => x.id === id);
-  if (!c) return;
-  cadCirId = id;
-  $('susp-modal').innerHTML = `
-    <button class="modal-close" onclick="closeSuspender()" aria-label="Cerrar">✕</button>
-    <h2 style="text-align:left;display:flex;align-items:center;gap:10px">${ico(ICONS.x, 20)} Dar el turno por caducado</h2>
-    <p style="font-size:0.88rem;color:var(--muted);margin:6px 0 16px">${esc(c.procedimiento)} — ${esc((c.paciente && c.paciente.nombre) || 's/d')} · ${fmtFecha(c.fecha)}. Estaba <b>${esc(ESTC[c.estado].label)}</b>: nunca llegó a confirmarse en el parte.</p>
-    <div class="field" style="margin-bottom:14px">
-      <label>Motivo *</label>
-      <select id="cad-motivo">${MOTIVOS_CADUCIDAD.map((x) => `<option>${x}</option>`).join('')}</select>
+    <div class="res-panel" data-k="opero" hidden>
+      <div class="form-grid">
+        <div class="field"><label>Hora real de inicio *</label><input type="time" id="res-ini" value="${esc(c.horaProg || '')}"></div>
+        <div class="field"><label>Hora real de fin *</label><input type="time" id="res-fin"></div>
+      </div>
+      <div class="field"><label>Parte quirúrgico *</label>
+        <textarea id="res-inf" style="min-height:90px" placeholder="Procedimiento realizado, hallazgos, técnica, complicaciones, muestras...">${esc((c.informe && c.informe.texto) || '')}</textarea></div>
+      <div class="field"><label>Por qué no se cargó a tiempo *</label><input type="text" id="res-mot" placeholder="Ej: falla de conexión en el quirófano"></div>
+      <label class="check-row"><input type="checkbox" id="res-lvq"> La Lista de Verificación se hizo en papel y está en la historia clínica.</label>
     </div>
-    <div class="field" style="margin-bottom:18px">
-      <label>Detalle</label>
-      <textarea id="cad-det" style="min-height:80px" placeholder="Qué pasó con el paciente, si se reprogramó, quién lo informó..."></textarea>
+    <div class="res-panel" data-k="no" hidden>
+      <div class="field"><label>${confirmado ? 'Causa de la suspensión *' : 'Motivo *'}</label>
+        <select id="res-causa">${(confirmado ? CAUSAS_SUSP : MOTIVOS_CADUCIDAD).map((x) => `<option>${x}</option>`).join('')}</select></div>
+      <div class="field"><label>Detalle</label><textarea id="res-det-no" style="min-height:60px" placeholder="Qué pasó, quién lo informó..."></textarea></div>
+      <p class="res-nota">${confirmado ? 'Como toda suspensión, genera una incidencia de categoría D.' : 'No cuenta como suspensión: se informa aparte en Indicadores.'}</p>
     </div>
-    <div class="form-actions" style="margin-top:0">
-      <button class="btn btn-red" onclick="confirmCaducarTurno()">${ICONS.x} Dar por caducado</button>
-      <button class="btn btn-outline" onclick="openResolverTurno(${c.id})">Volver</button>
+    <div class="res-panel" data-k="antes" hidden>
+      <div class="field"><label>¿Qué cirugía lo resolvió?</label>
+        <select id="res-urg">${cand.map((x) => `<option value="${x.id}">${fmtFecha(x.fecha)} · ${esc(x.quirofano || 's/d')} · ${esc(x.procedimiento)}</option>`).join('')}
+          <option value="">No figura en la app (otro hospital, guardia sin carga...)</option></select></div>
+      <div class="field"><label>Detalle${cand.length ? '' : ' *'}</label><textarea id="res-det-antes" style="min-height:60px" placeholder="Dónde y cuándo se operó el paciente."></textarea></div>
     </div>
-    <p class="form-note" style="margin-top:14px">${ICONS.info.replace('18', '13')} No es una suspensión: no entra en esa tasa. Se informa aparte en Indicadores de Gestión. La Jefatura puede reabrirlo si se cerró por error.</p>`;
-  $('susp-overlay').classList.add('open');
+
+    <div class="res-acc">
+      <button class="btn btn-blue" id="res-guardar" disabled onclick="resGuardar()">${ICONS.check} Elija una opción</button>
+      <button class="btn btn-outline" onclick="closeSuspender()">Cancelar</button>
+    </div>
+    <p class="res-pie">${ico(ICONS.clockSm, 14)} Si nadie responde, la app lo cierra sola el <b>${fmtFecha(cierreAdminFecha(c))}</b> como
+      ${confirmado ? '<b>Suspendida</b> «sin registro del equipo»' : '<b>Caducada</b>'}.</p>`;
+  abrirVentanaTurno();
 }
-function caducarTurno(c, motivo, detalle, quien, automatica) {
-  c.caducada = { motivo, detalle: detalle || '', desdeEstado: c.estado, por: quien, t: nowDT(), automatica: !!automatica };
-  c.estado = 'caducada';
-  pushHist(c, `Caducada — ${motivo}${detalle ? ': ' + detalle : ''}. Asentado por ${quien}. El turno del ${fmtFecha(c.fecha)} nunca llegó a confirmarse en el parte`);
-  upsert('cirugias', c);
+let resCtx = null;
+/* Elegir una salida: se marca, se despliegan sus datos y el botón dice qué va a hacer. */
+function resElegir(k) {
+  if (!resCtx) return;
+  resCtx.k = k;
+  resCtx.t = Date.now();
+  const c = DB.cirugias.find((x) => x.id === resCtx.id);
+  document.querySelectorAll('#susp-modal .res-op').forEach((b) => { const on = b.dataset.k === k; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  document.querySelectorAll('#susp-modal .res-panel').forEach((p) => { p.hidden = p.dataset.k !== k; });
+  const g = $('res-guardar');
+  g.disabled = false;
+  g.className = 'btn ' + (k === 'opero' ? 'btn-green' : k === 'no' ? 'btn-red' : 'btn-blue');
+  g.innerHTML = ICONS.check + ' ' + (k === 'opero' ? 'Registrar la cirugía' : k === 'no' ? (c && c.estado === 'confirmada' ? 'Suspender' : 'Dar por caducado') : 'Cerrar como resuelta antes');
+  const p = document.querySelector(`#susp-modal .res-panel[data-k="${k}"]`);
+  if (p) setTimeout(() => p.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 30);
 }
-function confirmCaducarTurno() {
-  const c = DB.cirugias.find((x) => x.id === cadCirId);
+/* Guardar lo elegido. Todo se valida acá, en la misma ventana. */
+function resGuardar() {
+  if (!resCtx || !resCtx.k) return;
+  // Al elegir, los datos se despliegan y la ventana se corre: el botón puede
+  // quedar bajo el dedo. Un toque doble no tiene que confirmar sin querer.
+  if (Date.now() - (resCtx.t || 0) < 800) return;
+  const c = DB.cirugias.find((x) => x.id === resCtx.id);
   if (!c) return;
+  if (!sinResolver(c)) { closeSuspender(); toastTurno('Este turno ya quedó «' + ESTC[estadoVisible(c)].label + '»: no se cambió.'); return; }
   const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || c.cirujano || 'Sistema');
-  caducarTurno(c, $('cad-motivo').value, ($('cad-det').value || '').trim(), quien, false);
-  closeSuspender();
-  cadCirId = null;
-  refreshView();
-}
-
-/* Se operó y no se registró. Es la misma excepción que la reapertura de una
-   franja vencida, pero sobre el turno que ya existe: la Jefatura asienta las
-   horas reales y el parte, y deja constancia de que la Lista de Verificación
-   se hizo en papel. La LVQ no se puede «completar» después: si no se hizo, no
-   se registra por acá —eso es una incidencia—. */
-let tardCirId = null;
-function openRegistroTardioTurno(id) {
-  const c = DB.cirugias.find((x) => x.id === id);
-  if (!c || !jefe) return;
-  pedirJefatura('Registro fuera de término',
-    `${c.procedimiento} — ${(c.paciente && c.paciente.nombre) || 's/d'} · ${fmtFecha(c.fecha)}. Es una excepción reservada a la Jefatura de Quirófanos: ingrese su clave.`, () => {
-      tardCirId = id;
-      $('susp-modal').innerHTML = `
-        <button class="modal-close" onclick="closeSuspender()" aria-label="Cerrar">✕</button>
-        <h2 style="text-align:left;display:flex;align-items:center;gap:10px">${ico(ICONS.check, 20)} Registrar la cirugía fuera de término</h2>
-        <p style="font-size:0.88rem;color:var(--muted);margin:6px 0 16px">${esc(c.procedimiento)} — ${esc((c.paciente && c.paciente.nombre) || 's/d')} · ${fmtFecha(c.fecha)} · ${esc(c.quirofano || 's/d')}.</p>
-        <div class="form-grid">
-          <div class="field"><label>Hora real de inicio *</label><input type="time" id="tard-ini" value="${esc(c.horaProg || '')}"></div>
-          <div class="field"><label>Hora real de fin *</label><input type="time" id="tard-fin"></div>
-        </div>
-        <div class="field" style="margin:12px 0">
-          <label>Parte quirúrgico (informe operatorio) *</label>
-          <textarea id="tard-inf" style="min-height:110px" placeholder="Procedimiento realizado, hallazgos, técnica, complicaciones, muestras...">${esc((c.informe && c.informe.texto) || '')}</textarea>
-        </div>
-        <div class="field" style="margin-bottom:12px">
-          <label>Motivo del registro tardío *</label>
-          <textarea id="tard-mot" style="min-height:60px" placeholder="Por qué no se registró en su momento..."></textarea>
-        </div>
-        <label class="check-row"><input type="checkbox" id="tard-lvq"> Confirmo que la Lista de Verificación Quirúrgica (Entrada, Pausa y Salida) se completó en papel en el quirófano y consta en la historia clínica.</label>
-        <div class="form-actions" style="margin-top:14px">
-          <button class="btn btn-blue" onclick="confirmRegistroTardioTurno()">${ICONS.check} Registrar</button>
-          <button class="btn btn-outline" onclick="openResolverTurno(${c.id})">Volver</button>
-        </div>
-        <p class="form-note" style="margin-top:14px">${ICONS.info.replace('18', '13')} El turno queda marcado como <b>registro fuera de término</b>, y el parte, cargado fuera del plazo de 2 h. Si no falta nada más, la cirugía queda <b>Finalizada</b> y computa en estadísticas y módulos.</p>`;
-      $('susp-overlay').classList.add('open');
-    });
-}
-function confirmRegistroTardioTurno() {
-  const c = DB.cirugias.find((x) => x.id === tardCirId);
-  if (!c || !jefe) return;
-  const hi = $('tard-ini').value, hf = $('tard-fin').value;
-  const inf = ($('tard-inf').value || '').trim(), mot = ($('tard-mot').value || '').trim();
-  if (!hi || !hf) { alert('Indique la hora real de inicio y de fin de la cirugía.'); return; }
-  if (inf.length < 10) { alert('Cargue el parte quirúrgico: sin él la cirugía no se cierra.'); return; }
-  if (!mot) { alert('El registro fuera de término exige un motivo escrito.'); return; }
-  if (!$('tard-lvq').checked) {
-    alert('Sin la Lista de Verificación no se puede registrar la cirugía por esta vía.\n\nSi la LVQ no se hizo, corresponde reportarlo como incidencia.');
-    return;
+  const k = resCtx.k;
+  if (k === 'no') {
+    const causa = $('res-causa').value, det = ($('res-det-no').value || '').trim();
+    if (c.estado === 'confirmada') suspenderTurno(c, causa, det);
+    else caducarTurno(c, causa, det, quien, false);
+    return trasResolverTurno(c);
   }
-  const ini = c.fecha + 'T' + hi;
-  const fin = (hf < hi ? sumarDias(c.fecha, 1) : c.fecha) + 'T' + hf;
+  if (k === 'antes') {
+    const uid = $('res-urg').value, det = ($('res-det-antes').value || '').trim();
+    const urg = uid ? DB.cirugias.find((x) => String(x.id) === String(uid)) : null;
+    if (!urg && !det) return resError('Como la cirugía no figura en la app, escriba dónde y cuándo se operó el paciente.', 'res-det-antes');
+    anticiparTurno(c, urg, quien, det);
+    return trasResolverTurno(c);
+  }
+  // Se operó: solo la Jefatura, con su clave, que se pide recién al guardar.
+  if (!jefe) return;
+  const d = { hi: $('res-ini').value, hf: $('res-fin').value, inf: ($('res-inf').value || '').trim(), mot: ($('res-mot').value || '').trim(), lvq: $('res-lvq').checked };
+  if (!d.hi || !d.hf) return resError('Indique la hora real de inicio y de fin.', d.hi ? 'res-fin' : 'res-ini');
+  if (d.inf.length < 10) return resError('Cargue el parte quirúrgico: sin él la cirugía no se cierra.', 'res-inf');
+  if (!d.mot) return resError('Escriba por qué no se cargó a tiempo.', 'res-mot');
+  if (!d.lvq) return resError('Sin la Lista de Verificación no se puede registrar por acá. Si no se hizo, corresponde una incidencia.', 'res-lvq');
+  pedirJefatura('Registro fuera de término', `${c.procedimiento} — ${fmtFecha(c.fecha)}. Confirme con la clave de la Jefatura.`, () => {
+    aplicarRegistroTardio(c, d);
+    trasResolverTurno(c);
+  });
+}
+function resError(msg, campo) {
+  let e = $('res-err');
+  if (!e) { e = document.createElement('p'); e.id = 'res-err'; e.className = 'res-err'; $('susp-modal').querySelector('.res-acc').before(e); }
+  e.textContent = msg;
+  const f = campo && $(campo);
+  if (f) { f.focus(); f.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+}
+function aplicarRegistroTardio(c, d) {
+  const ini = c.fecha + 'T' + d.hi;
+  const fin = (d.hf < d.hi ? sumarDias(c.fecha, 1) : c.fecha) + 'T' + d.hf;
   const ahora = nowDT();
   c.lvq = c.lvq || {};
   c.lvq.entrada = { done: true, hora: ini, papel: true };
@@ -9526,19 +9715,45 @@ function confirmRegistroTardioTurno() {
   c.lvq.salida = { done: true, hora: fin, papel: true };
   c.horaInicioReal = ini;
   c.horaFinReal = fin;
-  c.informe = { texto: inf, fechaHora: ahora };
-  c.registroTardio = { motivo: mot, autorizadoPor: JEFATURA, fechaHora: ahora, sobreTurno: true, desdeEstado: c.estado };
+  c.informe = { texto: d.inf, fechaHora: ahora };
+  c.registroTardio = { motivo: d.mot, autorizadoPor: JEFATURA, fechaHora: ahora, sobreTurno: true, desdeEstado: c.estado };
   c.estado = 'realizada';
-  pushHist(c, `Registrada fuera de término por la ${JEFATURA}: operada el ${fmtFecha(c.fecha)} de ${hi} a ${hf} h — ${mot}. LVQ declarada en papel; parte quirúrgico cargado`);
-  const cerro = revisarCierre(c);
-  const pend = cierreFaltantes(c);
+  pushHist(c, `Registrada fuera de término por la ${JEFATURA}: operada el ${fmtFecha(c.fecha)} de ${d.hi} a ${d.hf} h — ${d.mot}. LVQ declarada en papel; parte quirúrgico cargado`);
+  revisarCierre(c);
   upsert('cirugias', c);
-  closeSuspender();
-  tardCirId = null;
+}
+function caducarTurno(c, motivo, detalle, quien, automatica) {
+  c.caducada = { motivo, detalle: detalle || '', desdeEstado: c.estado, por: quien, t: nowDT(), automatica: !!automatica };
+  c.estado = 'caducada';
+  pushHist(c, `Caducada — ${motivo}${detalle ? ': ' + detalle : ''}. Asentado por ${quien}. El turno del ${fmtFecha(c.fecha)} nunca llegó a confirmarse en el parte`);
+  upsert('cirugias', c);
+}
+/* La ventana se reusa: siempre arranca arriba. */
+function abrirVentanaTurno() {
+  $('susp-overlay').classList.add('open');
+  $('susp-modal').scrollTop = 0;
+  requestAnimationFrame(() => { $('susp-modal').scrollTop = 0; });
+}
+/* Después de resolver: se cierra la ventana, la ficha de atrás —si estaba
+   abierta— se repinta con el estado nuevo y un aviso breve, que se va solo,
+   dice en qué quedó. Sin otra ventana que haya que cerrar. */
+function trasResolverTurno(c) {
+  $('susp-overlay').classList.remove('open');
+  resCtx = null;
+  if ($('cir-overlay').classList.contains('open') && $('cir-modal').classList.contains('fx-modal')) openCirugia(c.id);
   refreshView();
-  setTimeout(() => alert(cerro
-    ? 'Cirugía registrada.\n\nQueda FINALIZADA y ya computa en las estadísticas y en los módulos quirúrgicos.'
-    : 'Cirugía registrada.\n\nTodavía no está finalizada. Falta:\n\n· ' + pend.join('\n· ')), 120);
+  const e = ESTC[estadoVisible(c)] || ESTC.borrador;
+  toastTurno(`Listo: el turno quedó «${e.label}»`, e.color);
+}
+let toastTimer = null;
+function toastTurno(texto, color) {
+  let t = $('toast-turno');
+  if (!t) { t = document.createElement('div'); t.id = 'toast-turno'; t.className = 'toast-turno'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.style.setProperty('--tc', color || 'var(--blue)');
+  t.innerHTML = `${ico(ICONS.checkCircle, 18)}<span>${esc(texto)}</span>`;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 4200);
 }
 
 /* Reabrir lo que se cerró por haber quedado atrás. Vuelve al estado en que
@@ -9820,7 +10035,7 @@ function alertarCruceServicio(prog, nuevo, quien) {
 }
 
 let antCirId = null;
-function openAnticipar(id) {
+function openAnticipar(id, desdeResolver) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
   antCirId = id;
@@ -9848,22 +10063,28 @@ function openAnticipar(id) {
     </div>
     <div class="form-actions" style="margin-top:0">
       <button class="btn btn-blue" onclick="confirmAnticipar()">${ICONS.check} Cerrar el turno y liberar la franja</button>
-      <button class="btn btn-outline" onclick="closeAnticipar()">Cancelar</button>
+      ${desdeResolver ? `<button class="btn btn-outline" onclick="openResolverTurno(${c.id})">Volver</button>` : '<button class="btn btn-outline" onclick="closeAnticipar()">Cancelar</button>'}
     </div>
     <p class="form-note" style="margin-top:14px">${ICONS.info.replace('18', '13')} Si el turno se cierra por error, la Jefatura puede reponerlo desde la ficha de la cirugía.</p>`;
-  $('susp-overlay').classList.add('open');
+  abrirVentanaTurno();
 }
 function closeAnticipar() { $('susp-overlay').classList.remove('open'); antCirId = null; }
 function confirmAnticipar() {
   const c = DB.cirugias.find((x) => x.id === antCirId);
   if (!c) return;
+  if (!['borrador', 'pendiente', 'validada', 'confirmada'].includes(c.estado)) { closeAnticipar(); avisar('Este turno ya quedó «' + ESTC[estadoVisible(c)].label + '»: no se cambió.'); return; }
   const uid = $('ant-urg').value;
   const det = ($('ant-det').value || '').trim();
   const urg = uid ? DB.cirugias.find((x) => String(x.id) === String(uid)) : null;
   if (!urg && !det) { alert('Como la urgencia no figura en el sistema, describa por escrito dónde y cuándo se operó el paciente.'); return; }
   const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || c.cirujano || 'Sistema');
+  const pasado = sinResolver(c);
   anticiparTurno(c, urg, quien, det);
+  antCirId = null;
+  // Un turno de fecha pasada no libera nada útil: alcanza con decir en qué quedó.
+  if (pasado) { trasResolverTurno(c); return; }
   closeAnticipar();
+  if ($('cir-overlay').classList.contains('open') && $('cir-modal').classList.contains('fx-modal')) openCirugia(c.id);
   refreshView();
   alert(`Turno cerrado como resuelto por urgencia.\n\nLa franja del ${fmtFecha(c.liberado.fecha)} (${c.liberado.quirofano || 's/d'}, ${c.liberado.hora || '—'} h) vuelve a estar disponible en la grilla.`);
 }
@@ -10521,165 +10742,234 @@ function openCirugia(id) {
   const pe = prioridadEfectiva(c);
   const faltan = coordFaltantes(c);
 
-  // Estado del cierre del caso: qué falta para que la cirugía quede finalizada
-  // y empiece a computar en las estadísticas y en los módulos.
-  let cierreHTML = '';
-  if (operada(c)) {
-    const pendCierre = cierreFaltantes(c);
-    cierreHTML = pendCierre.length
-      ? `<div class="det-section"><h4>Cierre del caso — pendiente</h4>
-          <div class="banner banner-amber" style="margin:0">${ico(ICONS.alertTri, 16)}
-            <div><strong>La cirugía se operó pero todavía NO está finalizada</strong>
-            Falta:<br>· ${pendCierre.map(esc).join('<br>· ')}<br><br>
-            Hasta que se complete, el caso no se archiva ni computa en las estadísticas ni en los módulos quirúrgicos.</div></div></div>`
-      : `<div class="det-section"><h4>Cierre del caso</h4>
-          <div class="banner banner-green" style="margin:0">${ico(ICONS.check, 16)}
-            <div><strong>Caso finalizado</strong>
-            LVQ completa en sus tres etapas, parte quirúrgico cargado, aceptación de Admisión y Egresos y validación de la ${esc(JEFATURA)} asentadas.
-            La cirugía computa en las estadísticas y en los módulos quirúrgicos.</div></div></div>`;
-  }
+  // ---- La ficha (3.18.1) ----
+  // Arriba lo que se lee de un vistazo: estado con su color, qué cirugía, a
+  // quién, cuándo y dónde; el camino del caso en seis pasos y una sola tarjeta
+  // que dice qué sigue. Abajo, el detalle en tarjetas por tema. Los botones
+  // quedan fijos al pie, a mano aunque se baje.
+  const est = estadoVisible(c);
+  const ec = (ESTC[est] || ESTC.borrador).color;
+  const kv = (filas) => `<dl class="fx-kv">${filas.filter(Boolean).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
+  const tarjeta = (icono, titulo, cuerpo, extra) => `<section class="fx-card${extra && extra.full ? ' full' : ''}">
+      <h4>${ico(icono, 15)} <span>${titulo}</span>${extra && extra.n ? `<em class="fx-n ${extra.tono || ''}">${extra.n}</em>` : ''}</h4>${cuerpo}</section>`;
+  const recursos = [c.recursos?.arcoC ? 'Arco en C' : '', c.recursos?.implante ? 'Implante: ' + esc(c.recursos.implanteDetalle || 's/d') : '', c.recursos?.hemoderivados ? 'Hemoderivados' : ''].filter(Boolean).join(' · ') || 'Sin recursos especiales';
 
+  // Parte quirúrgico: el formulario, el texto cargado o el aviso de que falta.
   let informeHTML = '';
   if (c.informe) {
     const min = c.horaFinReal ? diffMin(c.horaFinReal, c.informe.fechaHora) : null;
-    informeHTML = `<div class="det-section"><h4>Informe operatorio</h4>
+    informeHTML = tarjeta(ICONS.fileText, 'Parte quirúrgico', `
       <div class="det-desc">${esc(c.informe.texto)}</div>
-      <div class="det-row" style="margin-top:6px"><b>Cargado</b> ${fmtDT(c.informe.fechaHora)}${min !== null ? ` · ${min <= 120 ? `<span style="color:var(--green);font-weight:700">dentro del plazo de 2 h (${min} min)</span>` : `<span style="color:var(--red);font-weight:700">fuera del plazo de 2 h (${Math.round(min / 60 * 10) / 10} h)</span>`}` : ''}</div></div>`;
+      <div class="fx-pie">Cargado el ${fmtDT(c.informe.fechaHora)}${min !== null ? ` · ${min <= 120
+        ? `<span class="fx-pill ok">${ico(ICONS.check, 12)} dentro del plazo de 2 h (${min} min)</span>`
+        : `<span class="fx-pill bad">${ico(ICONS.clockSm, 12)} fuera del plazo de 2 h (${Math.round(min / 60 * 10) / 10} h)</span>`}` : ''}</div>`, { full: true });
   } else if (puedeInforme) {
-    informeHTML = `<div class="det-section"><h4>Parte quirúrgico (informe operatorio)${c.estado === 'en_curso' ? '' : ' — pendiente'}</h4>
-      <div class="banner banner-amber" style="margin-bottom:12px">${ICONS.clockSm.replace('14', '16')}<div>${c.estado === 'en_curso'
+    informeHTML = tarjeta(ICONS.fileText, 'Parte quirúrgico' + (c.estado === 'en_curso' ? '' : ' — pendiente'), `
+      <p class="fx-txt">${c.estado === 'en_curso'
         ? 'El parte se completa dentro de la <b>LVQ de Salida</b>, que es la que cierra la cirugía. Acá puede adelantarlo: lo escrito aparece ya cargado en esa ventana.'
-        : `Meta institucional: parte cargado en <b>≤ 2 horas</b> tras la cirugía (cumplimiento ≥ 95 %).${c.horaFinReal ? ` Fin del procedimiento: ${fmtDT(c.horaFinReal)}.` : ''} <b>Al guardarlo se cierra el caso</b>, salvo que falte regularizar Admisión o la Jefatura.`}</div></div>
+        : `Meta: parte cargado en <b>2 horas</b> o menos tras la cirugía.${c.horaFinReal ? ` Fin del procedimiento: ${fmtDT(c.horaFinReal)}.` : ''} <b>Al guardarlo se cierra el caso</b>, salvo que falte regularizar Admisión o la Jefatura.`}</p>
       <div class="field"><textarea id="inf-texto" placeholder="Describa el procedimiento realizado, hallazgos, técnica, complicaciones, muestras enviadas a Anatomía Patológica..."></textarea></div>
-      <button class="btn btn-blue" style="margin-top:12px" onclick="guardarInforme(${c.id})">${ICONS.fileText} ${c.estado === 'en_curso' ? 'Guardar el borrador del parte' : 'Guardar parte quirúrgico y cerrar'}</button></div>`;
+      <button class="btn btn-blue" style="margin-top:12px" onclick="guardarInforme(${c.id})">${ICONS.fileText} ${c.estado === 'en_curso' ? 'Guardar el borrador del parte' : 'Guardar parte quirúrgico y cerrar'}</button>`, { full: true });
   } else if (operada(c)) {
-    informeHTML = `<div class="det-section"><h4>Parte quirúrgico</h4><div class="banner banner-red" style="margin:0">${ICONS.alertTri.replace('22','16').replace('22','16')}<div>Parte quirúrgico pendiente de carga por el cirujano. Sin él, el caso no se cierra.</div></div></div>`;
+    informeHTML = tarjeta(ICONS.fileText, 'Parte quirúrgico', '<p class="fx-txt">Pendiente de carga por el cirujano. Sin él, el caso no se cierra.</p>', { full: true, n: 'Falta', tono: 'bad' });
   }
 
+  // Lo excepcional del turno, junto: solo aparece si hay algo que contar.
+  const novedades = [
+    turnoHuerfano(c) && !operada(c) ? avisoTurnoHuerfano(c) : '',
+    c.excepcion ? `<div class="det-row"><b>Excepción</b> <span style="color:#7c3aed;font-weight:800">Programada fuera del cronograma por ${esc(c.excepcion.autorizadaPor || JEFATURA)}</span> el ${fmtDT(c.excepcion.fechaHora)} — ${esc(c.excepcion.motivo)}${c.excepcion.detalle ? '. ' + esc(c.excepcion.detalle) : ''}</div>
+      <div class="det-row"><b>Aviso al cirujano</b> ${excAcuseTexto(c)}</div>` : '',
+    c.estado === 'anticipada' && c.liberado ? `<div class="det-row"><b>Franja liberada</b> ${esc(c.liberado.quirofano || 's/d')} · ${esc(c.liberado.hora || '—')} h · ${fmtFecha(c.liberado.fecha)}</div>` : '',
+    c.registroTardio ? (c.registroTardio.sobreTurno
+      ? `<div class="det-row"><b>Registro tardío</b> el turno quedó sin registrar en su fecha y la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} asentó la cirugía el ${fmtDT(c.registroTardio.fechaHora || '')} — ${esc(c.registroTardio.motivo || '')}. Lista de Verificación declarada en papel.</div>`
+      : `<div class="det-row"><b>Registro tardío</b> la franja de las ${esc(c.horaProg || '')} h ya había vencido y la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} la reabrió el ${esc(c.registroTardio.fechaHora || '')} para asentar esta cirugía — ${esc(c.registroTardio.motivo || '')}</div>`) : '',
+    c.reabierto ? `<div class="det-row"><b>Reabierto</b> por ${esc(c.reabierto.por || JEFATURA)} el ${fmtDT(c.reabierto.t)} — ${esc(c.reabierto.motivo || '')}</div>` : '',
+  ].filter(Boolean).join('');
+
+  // Coordinación: cuántas casillas que aplican ya están verificadas.
+  const coordAplica = COORD_ITEMS.filter((it) => it.k !== 'hemoterapia' || c.recursos?.hemoderivados);
+  const coordOk = coordAplica.filter((it) => c.coordinacion && c.coordinacion[it.k]).length;
+  const lvqOk = ['entrada', 'pausa', 'salida'].filter((f) => lvqCompleta(c, f)).length;
+  const muestras = c.muestras || [];
+  const equipo = equipoDe(c);
+  const jefDet = jefaturaDetalle(c);
+  const jefOk = ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado);
+
+  $('cir-modal').className = 'modal modal-white fx-modal';
   $('cir-modal').innerHTML = `
     <button class="modal-close" onclick="closeCirugia()" aria-label="Cerrar">✕</button>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap">
-      ${estChip(c)} ${prioChip(c)}
-    </div>
-    <div style="font-weight:800;font-size:1.2rem;margin-bottom:2px">${esc(c.procedimiento)}</div>
-    ${sinResolver(c) ? `<div class="banner banner-red" style="margin:10px 0 6px">${ico(ICONS.alertTri, 18)}
-      <div><strong>Turno sin resolver</strong>
-      La fecha (${fmtFecha(c.fecha)}) pasó y el turno sigue en «${esc(ESTC[c.estado].label)}»: nadie lo inició, lo suspendió ni lo cerró.
-      ${jefe || (u && c.cirujanoEmail === u.email) ? 'Use <b>Resolver turno</b> e indique qué pasó.' : ''}
-      Si nadie lo resuelve, la app lo cierra sola el <b>${fmtFecha(cierreAdminFecha(c))}</b>.</div></div>` : ''}
-    <div style="font-size:0.86rem;color:var(--muted);margin-bottom:18px">${esc(c.diagnostico)}${c.cie10 ? ' · CIE-10: ' + esc(c.cie10) : ''} — ${PRIOS[pe].desc}</div>
-
-    <div class="det-section">
-      <h4>Paciente</h4>
-      <div class="det-row"><b>Nombre</b> ${esc(c.paciente?.nombre)}${c.paciente?.pediatrico ? ' · <span style="color:#8b5cf6;font-weight:700">Pediátrico</span>' : ''}</div>
-      <div class="det-row"><b>DNI</b> ${esc(c.paciente?.dni)} <b style="min-width:60px;margin-left:14px">Edad</b> ${c.paciente?.edad ?? '—'} años</div>
-      <div class="det-row"><b>HCE</b> Estudios preoperatorios: ${c.hce?.preop ? '<span class="badge-ok">' + ICONS.check + ' verificados</span>' : '<span class="badge-no">' + ICONS.x + ' pendientes</span>'} &nbsp; Consentimiento: ${c.hce?.consentimiento ? '<span class="badge-ok">' + ICONS.check + ' registrado</span>' : '<span class="badge-no">' + ICONS.x + ' pendiente</span>'}</div>
-      <div class="cir-actions" style="margin-top:8px">
-        <button class="btn btn-sm btn-outline" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir el consentimiento informado' : 'Generar el consentimiento informado'}</button>
+    <header class="fx-hero" style="--ec:${ec}">
+      <div class="fx-chips">${estChip(c)} ${prioChip(c)}${c.urgencia ? '<span class="fx-tag urg">Urgencia</span>' : ''}${c.excepcion ? '<span class="fx-tag exc">Excepción</span>' : ''}${c.registroTardio ? '<span class="fx-tag tard">Registro tardío</span>' : ''}</div>
+      <h2 class="fx-tit">${esc(c.procedimiento)}</h2>
+      <div class="fx-sub">${esc(c.paciente?.nombre || 's/d')}${c.paciente?.pediatrico ? ' <span class="fx-tag ped">Pediátrico</span>' : ''}${c.diagnostico ? ' · ' + esc(c.diagnostico) : ''}${c.cie10 ? ' · CIE-10 ' + esc(c.cie10) : ''}</div>
+      <div class="fx-facts">
+        <div class="fx-fact"><i>${ico(ICONS.calendar, 16)}</i><span><small>Fecha</small><b>${fmtFecha(c.fecha)}</b><em>${c.horaProg || '—'} h · ${c.duracionMin || '?'} min</em></span></div>
+        <div class="fx-fact"><i>${ico(ICONS.grid, 16)}</i><span><small>Sala</small><b>${esc(c.quirofano || '—')}</b><em>${c.horaInicioReal ? 'Inicio ' + esc(String(c.horaInicioReal).slice(11, 16)) + ' h' : 'sin iniciar'}</em></span></div>
+        <div class="fx-fact"><i>${ico(ICONS.steth, 16)}</i><span><small>Cirujano</small><b>${esc(c.cirujano || 's/d')}</b><em>${esc(c.servicio || '')}</em></span></div>
+        <div class="fx-fact"><i>${ico(ICONS.clockSm, 16)}</i><span><small>Espera</small><b>${esperaDias(c)} días</b><em>desde ${fmtFecha(c.fechaSolicitud)}</em></span></div>
       </div>
-    </div>
+    </header>
 
-    <div class="det-section">
-      <h4>Programación</h4>
-      <div class="det-row"><b>Fecha y hora</b> ${fmtFecha(c.fecha)} · ${c.horaProg || '—'} h · ${c.duracionMin || '?'} min estimados</div>
-      <div class="det-row"><b>Quirófano</b> ${esc(c.quirofano || '—')}</div>
-      <div class="det-row"><b>Cirujano</b> ${esc(c.cirujano)} (${esc(c.servicio)})${c.cirujanoEmail ? ` <small>${esc(c.cirujanoEmail)}</small>` : ''}</div>
-      ${turnoHuerfano(c) && !operada(c) ? avisoTurnoHuerfano(c) : ''}
-      <div class="det-row"><b>Solicitada</b> ${fmtFecha(c.fechaSolicitud)} · ${esperaDias(c)} días de espera</div>
-      ${c.excepcion ? `<div class="det-row"><b>Excepción</b> <span style="color:#7c3aed;font-weight:800">Programada fuera del cronograma por ${esc(c.excepcion.autorizadaPor || JEFATURA)}</span> el ${fmtDT(c.excepcion.fechaHora)} — ${esc(c.excepcion.motivo)}${c.excepcion.detalle ? '. ' + esc(c.excepcion.detalle) : ''}</div>
-      <div class="det-row"><b>Aviso al cirujano</b> ${excAcuseTexto(c)}</div>` : ''}
-      ${c.estado === 'anticipada' && c.anticipada ? `<div class="det-row"><b>${c.anticipada.tipo === 'adelanto' ? 'Adelantada a otra fecha' : 'Resuelta por urgencia'}</b> El paciente se operó el ${fmtFecha(c.anticipada.fechaUrgencia || '')}${c.anticipada.quirofanoUrgencia ? ' en ' + esc(c.anticipada.quirofanoUrgencia) : ''}${c.anticipada.procedimientoUrgencia ? ` (${esc(c.anticipada.procedimientoUrgencia)})` : ''}. Registrado por ${esc(c.anticipada.registradaPor || '—')} el ${fmtDT(c.anticipada.t)}.</div>
-      ${c.liberado ? `<div class="det-row"><b>Franja liberada</b> ${esc(c.liberado.quirofano || 's/d')} · ${esc(c.liberado.hora || '—')} h · ${fmtFecha(c.liberado.fecha)}</div>` : ''}` : ''}
-      ${authDetalle(c)}
-      ${jefaturaDetalle(c)}
-      ${c.registroTardio ? (c.registroTardio.sobreTurno
-        ? `<div class="det-row"><b>Registro fuera de término</b> el turno quedó sin registrar en su fecha y la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} asentó la cirugía el ${fmtDT(c.registroTardio.fechaHora || '')} — ${esc(c.registroTardio.motivo || '')}. Lista de Verificación declarada en papel.</div>`
-        : `<div class="det-row"><b>Registro fuera de término</b> la franja de las ${esc(c.horaProg || '')} h ya había vencido y la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} la reabrió el ${esc(c.registroTardio.fechaHora || '')} para asentar esta cirugía — ${esc(c.registroTardio.motivo || '')}</div>`) : ''}
-      ${c.estado === 'caducada' && c.caducada ? `<div class="det-row"><b>Caducada</b> ${esc(c.caducada.motivo)}${c.caducada.detalle ? ' — ' + esc(c.caducada.detalle) : ''}. Asentado por ${esc(c.caducada.por || '—')} el ${fmtDT(c.caducada.t)}${c.caducada.automatica ? ' (cierre automático)' : ''}. Nunca llegó a confirmarse en el parte: no cuenta como suspensión.</div>` : ''}
-      ${c.reabierto ? `<div class="det-row"><b>Reabierto</b> por ${esc(c.reabierto.por || JEFATURA)} el ${fmtDT(c.reabierto.t)} — ${esc(c.reabierto.motivo || '')}</div>` : ''}
-      <div class="det-row"><b>Recursos</b> ${[c.recursos?.arcoC ? 'Arco en C' : '', c.recursos?.implante ? 'Implante: ' + esc(c.recursos.implanteDetalle || 's/d') : '', c.recursos?.hemoderivados ? 'Hemoderivados' : ''].filter(Boolean).join(' · ') || 'Sin recursos especiales'}</div>
-      ${c.horaInicioReal ? `<div class="det-row"><b>Inicio real</b> ${fmtDT(c.horaInicioReal)}</div>` : ''}
-      ${c.horaFinReal ? `<div class="det-row"><b>Fin real</b> ${fmtDT(c.horaFinReal)} · duración real ${diffMin(c.horaInicioReal, c.horaFinReal)} min</div>` : ''}
-    </div>
+    <div class="fx-body">
+      ${fichaCamino(c)}
+      ${fichaSiguiente(c)}
 
-    <div class="det-section">
-      <h4>Módulos quirúrgicos</h4>
-      ${c.modulo
-        ? `<div class="det-row"><b>Práctica</b> ${esc(c.procedimiento)}${c.practica ? ` <small>(${esc(c.practica.g)} · ${esc(c.practica.s)})</small>` : ' <small>(fuera del nomenclador)</small>'}</div>
-           <div class="det-row"><b>Módulo</b> <span class="mod-pill mod-${c.modulo}">${c.modulo}</span> ${MODULOS[c.modulo].desc}</div>
-           <div class="det-row"><b>Equipo</b> ${equipoDe(c).map((p) => `${esc(p.rol)}: ${esc(p.nombre)} (${p.modulo || 'sin módulo'})`).join(' · ') || 'sin cargar'}</div>
-           ${ayudanteDefinido(c) ? '' : `<div class="banner banner-amber" style="margin:10px 0 0;padding:10px 14px">${ico(ICONS.alertTri, 16)}<div>Falta declarar el <b>1er ayudante</b> —o dejar constancia de que la cirugía se hizo <b>sin ayudante</b>—.</div></div>`}`
-        : `<div class="banner banner-amber" style="margin:0;padding:10px 14px">${ico(ICONS.alertTri, 16)}<div>Sin práctica del nomenclador: esta cirugía no genera módulo para nadie.</div></div>`}
-      ${cirugiaCerrada(c)
-        ? `<div class="det-row" style="color:var(--green);font-weight:700">${ico(ICONS.check, 14)} Computa en Módulos Quirúrgicos.</div>`
-        : '<div class="det-row" style="color:var(--muted)">Todavía no computa en Módulos Quirúrgicos: se imputa cuando la cirugía quede <b>Finalizada</b>.</div>'}
-      <div class="cir-actions" style="margin-top:8px">
-        <button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">${ico(ICONS.users, 14)} ${c.modulo ? 'Cargar / editar equipo y módulos' : 'Asignar práctica del nomenclador'}</button>
+      <div class="fx-grid">
+        ${tarjeta(ICONS.user, 'Paciente', kv([
+          ['Nombre', esc(c.paciente?.nombre || 's/d')],
+          ['DNI', esc(c.paciente?.dni || '—')],
+          ['Edad', `${c.paciente?.edad ?? '—'} años`],
+        ]) + `<div class="fx-checks">
+            <span class="fx-pill ${c.hce?.preop ? 'ok' : 'bad'}">${ico(c.hce?.preop ? ICONS.check : ICONS.x, 12)} Preoperatorios</span>
+            <span class="fx-pill ${c.hce?.consentimiento ? 'ok' : 'bad'}">${ico(c.hce?.consentimiento ? ICONS.check : ICONS.x, 12)} Consentimiento en la HCE</span>
+          </div>
+          <button class="btn btn-sm btn-outline fx-btn" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir el consentimiento' : 'Generar el consentimiento informado'}</button>`)}
+
+        ${tarjeta(ICONS.calendar, 'Programación', kv([
+          ['Fecha y hora', `${fmtFecha(c.fecha)} · ${c.horaProg || '—'} h`],
+          ['Duración', `${c.duracionMin || '?'} min estimados`],
+          ['Prioridad', esc(PRIOS[pe].desc)],
+          ['Cirujano', `${esc(c.cirujano || 's/d')}${c.cirujanoEmail ? `<small>${esc(c.cirujanoEmail)}</small>` : ''}`],
+          ['Recursos', recursos],
+          c.horaInicioReal ? ['Inicio real', fmtDT(c.horaInicioReal)] : null,
+          c.horaFinReal ? ['Fin real', `${fmtDT(c.horaFinReal)}<small>duración real ${diffMin(c.horaInicioReal, c.horaFinReal)} min</small>`] : null,
+        ]))}
+
+        ${tarjeta(ICONS.shieldCheck, 'Admisión y Jefatura', authDetalle(c)
+          + (jefDet || `<div class="det-row"><b>Validación de Jefatura</b> ${jefOk ? '<span style="color:var(--green);font-weight:800">VALIDADA</span> · confirmada en el parte' : 'Pendiente'}</div>`))}
+
+        ${tarjeta(ICONS.layers, 'Coordinación de áreas', `
+          ${['borrador', 'pendiente'].includes(c.estado) && faltan.length ? `<p class="fx-txt warn">Faltan ${faltan.length} verificación(es) para validar el turno.</p>` : ''}
+          ${jefaturaPendienteDiferida(c) ? `<p class="fx-txt warn">${ico(ICONS.zap, 13)} <b>Lista diferida — ${esc(jefaturaMotivoExencion(c) || 'urgencia')}.</b> Se operó sin que la ${esc(JEFATURA)} la repasara antes: complete lo que corresponda y cierre con <b>Regularizar validación</b>.</p>` : ''}
+          <div class="fx-coord">
+          ${COORD_ITEMS.map((it) => {
+            const aplica = it.k !== 'hemoterapia' || c.recursos?.hemoderivados;
+            const val = !!(c.coordinacion && c.coordinacion[it.k]);
+            return `<label class="fx-coord-i${val ? ' ok' : ''}${aplica ? '' : ' na'}">
+              <input type="checkbox" ${val ? 'checked' : ''} ${puedeCoordinar && aplica && (['borrador', 'pendiente', 'validada'].includes(c.estado) || jefaturaPendienteDiferida(c)) ? '' : 'disabled'} onchange="setCoord(${c.id}, '${it.k}', this.checked)">
+              <span><b>${it.label}${aplica ? '' : ' <i>(no aplica)</i>'}</b><small>${it.who}</small></span>
+            </label>`;
+          }).join('')}
+          </div>`, { n: `${coordOk}/${coordAplica.length}`, tono: coordOk === coordAplica.length ? 'ok' : 'warn' })}
+
+        ${tarjeta(ICONS.users, 'Módulos quirúrgicos', `${c.modulo
+          ? `<div class="fx-mod">
+              <span class="mod-pill mod-${c.modulo} fx-modbig">${c.modulo}</span>
+              <div><b>${esc(MODULOS[c.modulo].desc)}</b><small>${esc(c.procedimiento)}${c.practica ? ` · ${esc(c.practica.g)} · ${esc(c.practica.s)}` : ' · fuera del nomenclador'}</small></div>
+            </div>
+            <ul class="fx-equipo">${equipo.length ? equipo.map((p) => `<li><span>${esc(p.rol)}</span><b>${esc(p.nombre)}</b>${p.modulo ? `<span class="mod-pill mod-${p.modulo}">${p.modulo}</span>` : '<small>sin módulo</small>'}</li>`).join('') : '<li><small>Equipo sin cargar</small></li>'}</ul>
+            ${ayudanteDefinido(c) ? '' : `<p class="fx-txt warn">${ico(ICONS.alertTri, 13)} Falta declarar el <b>1er ayudante</b> o dejar constancia de que se operó <b>sin ayudante</b>.</p>`}`
+          : `<p class="fx-txt warn">${ico(ICONS.alertTri, 13)} Sin práctica del nomenclador: esta cirugía no genera módulo para nadie.</p>`}
+          <div class="fx-computa ${cirugiaCerrada(c) ? 'ok' : ''}">${cirugiaCerrada(c)
+            ? `${ico(ICONS.check, 15)}<span><b>Computa en Módulos Quirúrgicos</b></span>`
+            : `${ico(ICONS.clockSm, 15)}<span><b>Todavía no computa en Módulos Quirúrgicos</b><small>Se imputa cuando la cirugía quede Finalizada.</small></span>`}</div>
+          <button class="btn btn-sm btn-outline fx-btn" onclick="openEquipoMod(${c.id})">${ico(ICONS.users, 14)} ${c.modulo ? 'Cargar / editar equipo y módulos' : 'Asignar práctica del nomenclador'}</button>`,
+          { n: c.modulo ? 'Módulo ' + c.modulo : '', tono: 'neutro' })}
+
+        ${tarjeta(ICONS.clipboard, 'Lista de Verificación (OMS)', `<div class="fx-lvq">${['entrada', 'pausa', 'salida'].map((f) => `
+            <div class="fx-lvq-i${lvqCompleta(c, f) ? ' ok' : ''}">
+              <i>${ico(lvqCompleta(c, f) ? ICONS.check : ICONS.clockSm, 14)}</i>
+              <b>${esc(LVQ[f].titulo.split('—')[0].trim())}</b>
+              <small>${lvqCompleta(c, f) ? fmtDT(c.lvq[f].hora) + (c.lvq[f].papel ? ' · en papel' : '') : 'Pendiente'}</small>
+            </div>`).join('')}</div>`, { n: `${lvqOk}/3`, tono: lvqOk === 3 ? 'ok' : 'neutro' })}
+
+        ${tarjeta(ICONS.flask, 'Anatomía Patológica', `
+          ${muestras.length ? `<ul class="fx-muestras">${muestras.map((m, idx) => `
+            <li><span><b>${esc(m.tipo)}</b>${m.rotulo ? `<small>${esc(m.rotulo)}</small>` : ''}</span>
+              ${m.enviada ? `<span class="fx-pill ok">${ico(ICONS.check, 12)} Enviada ${esc(fmtDT(m.fechaEnvio))}</span>` : `<span class="fx-pill bad">${ico(ICONS.x, 12)} Sin enviar</span>`}
+              ${puedeMuestras ? `<button class="rem-go" onclick="toggleMuestra(${c.id}, ${idx})">${m.enviada ? 'Revertir' : 'Marcar enviada'}</button>
+                <button class="rem-go" style="color:var(--red)" onclick="delMuestra(${c.id}, ${idx})" aria-label="Quitar la muestra">${ICONS.trash}</button>` : ''}</li>`).join('')}</ul>`
+            : '<p class="fx-txt">Sin muestras registradas para este procedimiento.</p>'}
+          ${puedeMuestras ? `
+            <div class="form-grid" style="margin-top:10px">
+              <div class="field"><label>Tipo de muestra</label>
+                <select id="mu-tipo-${c.id}">${TIPOS_MUESTRA.map((t) => `<option>${t}</option>`).join('')}</select></div>
+              <div class="field"><label>Rótulo / identificación</label>
+                <input type="text" id="mu-rot-${c.id}" placeholder="Ej: Vesícula biliar — frasco 1"></div>
+            </div>
+            <button class="btn btn-sm btn-outline fx-btn" onclick="agregarMuestra(${c.id})">${ICONS.flask} Registrar muestra</button>` : ''}`,
+          { full: true, n: muestras.length ? `${muestras.filter((m) => m.enviada).length}/${muestras.length} enviadas` : '', tono: muestras.length && muestras.every((m) => m.enviada) ? 'ok' : 'warn' })}
+
+        ${informeHTML}
+        ${novedades ? tarjeta(ICONS.info, 'Excepciones y registros', novedades, { full: true }) : ''}
       </div>
+
+      ${c.historial?.length ? `<details class="fx-hist">
+        <summary>${ico(ICONS.list, 15)} Historial <em>${c.historial.length} movimiento(s)</em></summary>
+        <div class="hist">${c.historial.slice().reverse().map((h) => `<div class="hist-item">${esc(h.a)}<div class="t">${fmtDT(h.t)}</div></div>`).join('')}</div>
+      </details>` : ''}
     </div>
 
-    <div class="det-section">
-      <h4>Coordinación de áreas (interconexiones)</h4>
-      ${['borrador', 'pendiente'].includes(c.estado) && faltan.length ? `<div class="banner banner-amber" style="margin-bottom:10px;padding:10px 14px">${ICONS.info.replace('18','15')}<div>Faltan verificaciones para validar: ${faltan.length}</div></div>` : ''}
-      ${jefaturaPendienteDiferida(c) ? `<div class="banner banner-amber" style="margin-bottom:10px;padding:10px 14px">${ico(ICONS.zap, 16)}
-        <div><strong>Lista de verificación diferida — ${esc(jefaturaMotivoExencion(c) || 'urgencia')}</strong>
-        La cirugía se hizo sin que la ${esc(JEFATURA)} pudiera repasar estas casillas antes: entró fuera del circuito programado.
-        ${faltan.length ? `Quedan ${faltan.length} sin verificar.` : 'Ya están todas verificadas.'} Complete lo que corresponda y cierre el trámite
-        con <b>Regularizar validación</b>.</div></div>` : ''}
-      <div class="coord-grid">
-        ${COORD_ITEMS.map((it) => {
-          const aplica = it.k !== 'hemoterapia' || c.recursos?.hemoderivados;
-          const val = !!(c.coordinacion && c.coordinacion[it.k]);
-          return `<label class="coord-item" style="${aplica ? '' : 'opacity:0.45'}">
-            <input type="checkbox" ${val ? 'checked' : ''} ${puedeCoordinar && aplica && (['borrador','pendiente','validada'].includes(c.estado) || jefaturaPendienteDiferida(c)) ? '' : 'disabled'} onchange="setCoord(${c.id}, '${it.k}', this.checked)">
-            <span>${it.label}${aplica ? '' : ' <i>(no aplica)</i>'}</span>
-            <span class="who">${it.who}</span>
-          </label>`;
-        }).join('')}
-      </div>
-      <p class="form-note" style="margin-top:8px">${ICONS.info.replace('18', '13')} Anatomía Patológica: el registro de muestras y biopsias se verifica en la LVQ de Salida. Estas casillas representan las interconexiones con HCE/HIS, Farmacia, Esterilización y Hemoterapia hasta que existan interfaces automáticas.</p>
-    </div>
-
-    <div class="det-section">
-      <h4>Lista de Verificación Quirúrgica (OMS / RM 28/2012)</h4>
-      ${['entrada', 'pausa', 'salida'].map((f) => `
-        <div class="det-row"><b>${LVQ[f].titulo.split('—')[0].trim()}</b> ${lvqCompleta(c, f) ? `<span class="badge-ok">${ICONS.check} Completa · ${fmtDT(c.lvq[f].hora)}</span>` : '<span class="badge-no">' + ICONS.x + ' Pendiente</span>'}</div>`).join('')}
-    </div>
-
-    <div class="det-section">
-      <h4>Anatomía Patológica — muestras y biopsias</h4>
-      ${(c.muestras || []).length ? (c.muestras || []).map((m, idx) => `
-        <div class="det-row" style="align-items:center;gap:10px">
-          <b style="min-width:0;flex:1">${esc(m.tipo)}${m.rotulo ? ' · ' + esc(m.rotulo) : ''}</b>
-          ${m.enviada
-            ? `<span class="badge-ok">${ICONS.check} Enviada ${esc(fmtDT(m.fechaEnvio))}</span>`
-            : `<span class="badge-no">${ICONS.x} Sin enviar</span>`}
-          ${puedeMuestras ? `<button class="rem-go" onclick="toggleMuestra(${c.id}, ${idx})">${m.enviada ? 'Revertir' : 'Marcar enviada'}</button>
-             <button class="rem-go" style="color:var(--red)" onclick="delMuestra(${c.id}, ${idx})">${ICONS.trash}</button>` : ''}
-        </div>`).join('')
-        : `<div class="det-row" style="color:var(--muted)">Sin muestras registradas para este procedimiento.</div>`}
-      ${puedeMuestras ? `
-        <div class="form-grid" style="margin-top:12px">
-          <div class="field"><label>Tipo de muestra</label>
-            <select id="mu-tipo-${c.id}">${TIPOS_MUESTRA.map((t) => `<option>${t}</option>`).join('')}</select></div>
-          <div class="field"><label>Rótulo / identificación</label>
-            <input type="text" id="mu-rot-${c.id}" placeholder="Ej: Vesícula biliar — frasco 1"></div>
-        </div>
-        <button class="btn btn-sm btn-outline" style="margin-top:10px" onclick="agregarMuestra(${c.id})">${ICONS.flask} Registrar muestra</button>
-        <p class="form-note" style="margin-top:8px">${ICONS.info.replace('18', '13')} Las biopsias por congelación se envían de inmediato durante el acto quirúrgico. El rotulado correcto de las muestras es un ítem obligatorio de la LVQ de Salida.</p>` : ''}
-    </div>
-
-    ${c.suspension ? `<div class="det-section"><h4>Suspensión</h4>
-      <div class="banner banner-red" style="margin:0">${ICONS.alertTri.replace('22','16').replace('22','16')}<div><strong>${esc(c.suspension.causa)}</strong>${esc(c.suspension.detalle || '')}<br><span style="font-size:0.78rem">${fmtDT(c.suspension.fechaHora)}${c.suspension.por ? ' · ' + esc(c.suspension.por) : ''}${c.suspension.automatica ? ' · cierre automático: nadie indicó qué pasó' : ''}</span></div></div></div>` : ''}
-
-    ${cierreHTML}
-    ${informeHTML}
-
-    ${c.historial?.length ? `<div class="det-section"><h4>Historial</h4>
-      <div class="hist">${c.historial.slice().reverse().map((h) => `<div class="hist-item">${esc(h.a)}<div class="t">${fmtDT(h.t)}</div></div>`).join('')}</div></div>` : ''}
-
-    <div class="cir-actions">${accionesCirugia(c, jefe ? 'jefe' : 'cirujano').join('')}</div>`;
+    <div class="cir-actions fx-acc">${accionesCirugia(c, jefe ? 'jefe' : 'cirujano').join('') || '<span class="fx-txt">Sin acciones disponibles para su perfil en este estado.</span>'}</div>`;
   $('cir-overlay').classList.add('open');
+  $('cir-modal').scrollTop = 0;
+}
+/* ---- El camino del caso, en seis pasos ----
+   Verde lo cumplido, ámbar lo diferido (urgencias), rojo lo rechazado o lo que
+   quedó sin resolver, y un anillo en el paso donde está parado. Si el turno
+   terminó de otra forma —suspendido, resuelto antes o caducado— el último
+   paso lo dice. */
+function fichaCamino(c) {
+  const H = (re) => (c.historial || []).some((h) => re.test(h.a || ''));
+  const confirmado = ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado) || H(/Validada por la|confirmad[ao] en el parte|Confirmada por jefatura/i);
+  const hora = (f) => lvqCompleta(c, f) ? String(c.lvq[f].hora || '').slice(11, 16) + ' h' : '';
+  const pasos = [
+    { t: 'Solicitud', ok: c.estado !== 'borrador', d: c.estado === 'borrador' ? 'borrador' : 'enviada' },
+    c.auth === 'AUTORIZADO' ? { t: 'Admisión', ok: true, d: 'autorizado' }
+      : c.auth === 'NO AUTORIZADO' ? { t: 'Admisión', tono: 'bad', d: 'rechazado' }
+      : authExenta(c) ? { t: 'Admisión', tono: 'warn', d: 'diferida' } : { t: 'Admisión', d: 'pendiente' },
+    jefaturaPendienteDiferida(c) ? { t: 'Jefatura', tono: 'warn', d: 'diferida' }
+      : { t: 'Jefatura', ok: confirmado, d: confirmado ? 'en el parte' : 'pendiente' },
+    { t: 'Quirófano', ok: lvqCompleta(c, 'entrada') && lvqCompleta(c, 'pausa'), d: hora('pausa') || 'LVQ entrada' },
+    { t: 'Salida y parte', ok: lvqCompleta(c, 'salida') && !!c.informe, d: hora('salida') || 'LVQ salida' },
+    { t: 'Finalizada', ok: cirugiaCerrada(c), d: cirugiaCerrada(c) ? 'computa' : 'cierre' },
+  ];
+  const fin = { suspendida: { t: 'Suspendida', tono: 'bad', d: 'no se operó' }, anticipada: { t: 'Resuelta antes', tono: 'violeta', d: 'franja liberada' }, caducada: { t: 'Caducada', tono: 'gris', d: 'no llegó al parte' } }[c.estado];
+  if (fin) pasos[5] = Object.assign({ fin: true }, fin);
+  const cur = fin ? -1 : pasos.findIndex((p) => !p.ok);
+  const vencido = sinResolver(c);
+  return `<ol class="fx-camino">${pasos.map((p, i) => {
+    const cls = ['fx-paso', p.ok ? 'ok' : '', p.tono || '', i === cur ? 'cur' : '', i === cur && vencido ? 'bad' : '', fin && !p.ok && !p.fin ? 'off' : ''].filter(Boolean).join(' ');
+    const icono = p.ok ? ICONS.check : p.tono === 'bad' ? ICONS.x : p.tono === 'warn' ? ICONS.clockSm : p.tono === 'violeta' ? ICONS.zap : '';
+    return `<li class="${cls}"><span class="fx-dot">${icono ? ico(icono, 13) : i + 1}</span><b>${p.t}</b><small>${i === cur && vencido ? 'sin resolver' : esc(p.d)}</small></li>`;
+  }).join('')}</ol>`;
+}
+/* ---- Qué sigue: una sola tarjeta, con el color de la urgencia ---- */
+function fichaSiguiente(c) {
+  const caja = (tono, icono, titulo, cuerpo) => `<div class="fx-next ${tono}">${ico(icono, 20)}<div><strong>${titulo}</strong>${cuerpo}</div></div>`;
+  const u = usuarioActual();
+  if (sinResolver(c)) {
+    return caja('bad', ICONS.alertTri, 'Turno sin resolver',
+      `La fecha (${fmtFecha(c.fecha)}) pasó y el turno sigue en «${esc(ESTC[c.estado].label)}»: nadie lo inició, lo suspendió ni lo cerró.
+      ${jefe || (u && c.cirujanoEmail === u.email) ? 'Toque <b>Resolver turno</b> e indique qué pasó.' : ''}
+      Si nadie lo resuelve, la app lo cierra sola el <b>${fmtFecha(cierreAdminFecha(c))}</b>.`);
+  }
+  if (c.estado === 'suspendida' && c.suspension) {
+    return caja('bad', ICONS.x, 'Suspendida — ' + esc(c.suspension.causa),
+      `${c.suspension.detalle ? esc(c.suspension.detalle) + '<br>' : ''}<small>${fmtDT(c.suspension.fechaHora)}${c.suspension.por ? ' · ' + esc(c.suspension.por) : ''}${c.suspension.automatica ? ' · cierre automático: nadie indicó qué pasó' : ''}</small>`);
+  }
+  if (c.estado === 'anticipada' && c.anticipada) {
+    return caja('violeta', ICONS.zap, c.anticipada.tipo === 'adelanto' ? 'Adelantada a otra fecha' : 'Resuelta por urgencia',
+      `El paciente se operó el ${fmtFecha(c.anticipada.fechaUrgencia || '')}${c.anticipada.quirofanoUrgencia ? ' en ' + esc(c.anticipada.quirofanoUrgencia) : ''}${c.anticipada.procedimientoUrgencia ? ` (${esc(c.anticipada.procedimientoUrgencia)})` : ''}. No cuenta como suspensión.<br><small>Registrado por ${esc(c.anticipada.registradaPor || '—')} el ${fmtDT(c.anticipada.t)}</small>`);
+  }
+  if (c.estado === 'caducada' && c.caducada) {
+    return caja('gris', ICONS.x, 'Caducada — ' + esc(c.caducada.motivo),
+      `${c.caducada.detalle ? esc(c.caducada.detalle) + '<br>' : ''}Nunca llegó a confirmarse en el parte: no cuenta como suspensión.<br><small>${esc(c.caducada.por || '—')} · ${fmtDT(c.caducada.t)}${c.caducada.automatica ? ' · cierre automático' : ''}</small>`);
+  }
+  if (cirugiaCerrada(c)) {
+    return caja('ok', ICONS.checkCircle, 'Caso cerrado',
+      'Lista de Verificación completa, parte quirúrgico cargado y validaciones asentadas. Computa en las estadísticas y en los módulos quirúrgicos.');
+  }
+  const p = pendientesTurno(c);
+  if (p.length) {
+    const grave = p.some((x) => x.grave);
+    return caja(grave ? 'bad' : 'warn', operada(c) ? ICONS.flag : ICONS.list,
+      operada(c) ? 'Operada — falta para cerrar el caso' : `Para avanzar falta${p.length > 1 ? 'n ' + p.length + ' cosas' : ' una cosa'}`,
+      `<div class="fx-faltan">${p.map((x) => `<span class="fx-falta${x.grave ? ' grave' : ''}" title="${esc(x.largo)}">${esc(x.corto)}</span>`).join('')}</div>
+      <details class="fx-mas"><summary>Qué significa cada uno</summary><ul>${p.map((x) => `<li>${esc(x.largo)}</li>`).join('')}</ul></details>
+      ${operada(c) ? '<small>Hasta que se complete, el caso no computa en estadísticas ni en módulos.</small>' : ''}`);
+  }
+  return caja('ok', ICONS.check, 'Sin pendientes', 'El turno tiene todo lo que necesita para avanzar.');
 }
 function closeCirugia() { $('cir-overlay').classList.remove('open'); refreshView(); }
 function setCoord(id, k, val) {
@@ -15359,6 +15649,7 @@ function openJefaturaDia() {
     </div>`;
   };
 
+  $('cir-modal').className = 'modal modal-white';
   $('cir-modal').innerHTML = `
     <button class="modal-close" onclick="closeCirugia()" aria-label="Cerrar">✕</button>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
