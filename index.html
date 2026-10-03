@@ -5606,7 +5606,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.17.0';
+const APP_VERSION = '3.17.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -7544,8 +7544,14 @@ function calcRecordatorios() {
     if (porAutorizar.length) {
       add({
         key: 'cuentas-pend', nivel: 'crit', vista: 'usuarios',
-        titulo: `${porAutorizar.length} profesional(es) esperando autorización de la Jefatura`,
-        texto: 'Altas registradas que todavía no pueden programar cirugías: ' + porAutorizar.map((x) => x.nombre).join('; ') + '.',
+        titulo: `${porAutorizar.length} cuenta(s) sin autorizar`,
+        texto: (() => {
+          // Mismos nombres que Profesionales: «listos para autorizar» son los
+          // que solo esperan el OK de la Jefatura; al resto le falta algo antes.
+          const listos = porAutorizar.filter((x) => profSituacion(x).paso === 'autorizar');
+          return (listos.length ? `${listos.length} lista(s) para autorizar: ${listos.map((x) => x.nombre).join('; ')}. ` : 'Ninguna está lista para autorizar todavía. ')
+            + 'Altas registradas que todavía no pueden programar cirugías: ' + porAutorizar.map((x) => x.nombre).join('; ') + '.';
+        })(),
         cuando: 'Pendiente de resolución',
       });
     }
@@ -12732,7 +12738,7 @@ function profSituacion(u) {
 }
 const PROF_FILTROS = [
   { k: 'todos', t: 'Todos', f: () => true },
-  { k: 'autorizar', t: 'Esperan autorización', f: (x) => x.e === 'pendiente', tono: 'amber' },
+  { k: 'autorizar', t: 'Sin autorizar', f: (x) => x.e === 'pendiente', tono: 'amber' },
   { k: 'correo', t: 'Correo sin verificar', f: (x) => x.e === 'pendiente' && !x.u.mailVerificado, tono: 'amber' },
   { k: 'docs', t: 'Documentación incompleta', f: (x) => x.e !== 'baja' && !x.h.ok, tono: 'red' },
   { k: 'vence', t: 'Vence en 30 días', f: (x) => x.e !== 'baja' && x.venc.length > 0, tono: 'amber' },
@@ -12774,7 +12780,8 @@ function profTarjeta(x) {
     .concat(['paso-' + x.paso], e !== 'baja' ? ['paso-activos'] : []).join(' ');
   const busca = sinTildes([u.nombre, u.email, u.dni, serviciosTexto(u)].join(' ').toLowerCase());
   const estado = e === 'baja' ? { t: 'Dado de baja', c: 'bad' } : listo ? { t: 'Puede programar', c: 'ok' }
-    : e === 'pendiente' ? { t: 'Espera autorización', c: 'mid' } : { t: 'Autorizado · le falta documentación', c: 'mid' };
+    : e === 'pendiente' ? { t: x.paso === 'autorizar' ? 'Listo para autorizar' : x.paso === 'correo' ? 'Sin autorizar · falta verificar el correo' : 'Sin autorizar · falta documentación', c: 'mid' }
+    : { t: 'Autorizado · le falta documentación', c: 'mid' };
   const pasos = [
     { t: 'Correo', ok: !!u.mailVerificado || e === 'aprobado' },
     { t: 'Documentación', ok: h.ok },
@@ -12833,7 +12840,7 @@ function renderUsuarios() {
     { k: 'paso-activos', t: 'Registrados', n: activos.length, c: 'var(--blue)', d: 'cuentas activas' },
     { k: 'paso-correo', t: 'Correo sin verificar', n: activos.filter((x) => x.paso === 'correo').length, c: '#8b5cf6', d: 'abrir el enlace del alta' },
     { k: 'paso-docs', t: 'Documentación', n: activos.filter((x) => x.paso === 'docs').length, c: 'var(--red)', d: 'la carga cada uno en Mi Perfil' },
-    { k: 'paso-autorizar', t: 'Esperan autorización', n: activos.filter((x) => x.paso === 'autorizar').length, c: 'var(--amber)', d: 'le toca a la Jefatura' },
+    { k: 'paso-autorizar', t: 'Listos para autorizar', n: activos.filter((x) => x.paso === 'autorizar').length, c: 'var(--amber)', d: 'solo falta el OK de la Jefatura' },
     { k: 'paso-listo', t: 'Pueden programar', n: activos.filter((x) => x.paso === 'listo').length, c: 'var(--green)', d: 'cuenta y papeles al día' },
   ];
   const maxPaso = Math.max(1, ...pasos.map((p) => p.n));
@@ -12843,7 +12850,7 @@ function renderUsuarios() {
         <div class="head-icon">${ICONS.users}</div>
         <div>
           <h1 class="page-title">Profesionales</h1>
-          <p class="page-sub">${cuenta('listo')} pueden programar · ${cuenta('autorizar')} esperan autorización · ${cuenta('baja')} dados de baja — ${habilitados} de ${lista.length} con habilitación documental completa</p>
+          <p class="page-sub">${cuenta('listo')} pueden programar · ${activos.filter((x) => x.paso === 'autorizar').length} listos para autorizar · ${cuenta('autorizar')} sin autorizar · ${cuenta('baja')} dados de baja — ${habilitados} de ${lista.length} con habilitación documental completa</p>
         </div>
       </div>
     </div>
