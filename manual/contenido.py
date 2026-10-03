@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.18.0'
+VERSION = '3.18.1'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -171,13 +171,15 @@ BLOQUES = [
     ['Caducada', 'Pasó la fecha sin que el turno llegara a confirmarse en el parte. Lleva motivo y no cuenta como suspensión', 'Jefatura, cirujano o, a los 7 días, la aplicación'],
 ]),
 ('h3', 'Los turnos que quedaron atrás'),
-('p', 'Desde la 3.18, un turno cuyo día ya pasó y que nadie cerró no queda «Confirmada» para siempre: al día siguiente pasa a **Sin resolver**, con etiqueta roja, primero en *Mis Solicitudes* y en un grupo propio, el primero de *Programación Quirúrgica*. El botón **Iniciar** desaparece y queda uno solo, **Resolver turno**, que lo puede tocar el cirujano dueño del turno o la Jefatura. Ofrece tres salidas, todas con rastro en el historial:'),
+('p', 'Desde la 3.18, un turno cuyo día ya pasó y que nadie cerró no queda «Confirmada» para siempre: al día siguiente pasa a **Sin resolver**, con etiqueta roja, primero en *Mis Solicitudes* y en un grupo propio, el primero de *Programación Quirúrgica*. El botón **Iniciar** desaparece y queda uno solo, **Resolver turno**, que lo puede tocar el cirujano dueño del turno o la Jefatura. Abre **una sola ventana** que pregunta *¿Qué pasó con esta cirugía?*: se toca una de las tres respuestas, debajo aparecen los datos que hacen falta y se guarda con un botón. La ventana se cierra sola, la ficha se actualiza y un aviso breve dice en qué quedó el turno. Las tres respuestas, todas con rastro en el historial:'),
 ('ul', [
-    '**Se operó, pero no se registró** → *registro fuera de término*. Lo asienta solo la Jefatura, con su credencial: horas reales de inicio y fin, parte quirúrgico, motivo y la constancia de que la Lista de Verificación se hizo en papel y figura en la historia clínica. Si la Lista no se hizo, no se registra por acá: corresponde una incidencia. El parte queda fuera del plazo de 2 h y, si no falta nada más, la cirugía pasa a **Finalizada**.',
+    '**Se operó** (no se registró a tiempo) → *registro fuera de término*. Lo asienta solo la Jefatura, que confirma con su clave al guardar: horas reales de inicio y fin, parte quirúrgico, motivo y la constancia de que la Lista de Verificación se hizo en papel y figura en la historia clínica. Si la Lista no se hizo, no se registra por acá: corresponde una incidencia. El parte queda fuera del plazo de 2 h y, si no falta nada más, la cirugía pasa a **Finalizada**.',
     '**No se operó** → si había llegado al parte, queda **Suspendida** con causa obligatoria y genera la incidencia de categoría D, como toda suspensión. Si nunca se confirmó, queda **Caducada** con su motivo (turno no confirmado a tiempo, falta de autorización del financiador, estudios incompletos, el paciente no se presentó, reprogramada u otra) y no cuenta como suspensión.',
     '**Se operó antes, de urgencia o adelantada** → **Resuelta por anticipado**, como hasta ahora.',
 ]),
 ('p', 'Mientras siga sin resolver, el cirujano y la Jefatura reciben cada día un aviso rojo: «Turno del … sin resolver». Si en **7 días** nadie dice qué pasó, la aplicación lo cierra sola: el confirmado queda **Suspendida** con la causa *«Sin registro del equipo (cierre administrativo)»* y el que nunca se confirmó queda **Caducada**. Ese cierre automático no genera incidencia de categoría D, pero se cuenta en *Indicadores de Gestión*. La Jefatura puede reabrir con motivo un turno caducado o cerrado por la aplicación: vuelve a *Sin resolver* y el plazo de 7 días corre de nuevo. Los turnos que ya estaban atrasados cuando salió la 3.18 empezaron a contar los 7 días el 3 de octubre de 2026.'),
+('h3', 'La ficha de la cirugía'),
+('p', 'Desde la 3.18.1 la ficha se lee de arriba hacia abajo. **Arriba**, con el color del estado: la cirugía, el paciente y cuatro datos rápidos (fecha, sala, cirujano y días de espera). Después, **el camino del caso** en seis pasos —Solicitud, Admisión, Jefatura, Quirófano, Salida y parte, Finalizada—: verde lo cumplido, ámbar lo diferido, rojo lo rechazado o sin resolver, y un anillo en el paso donde está parado. Debajo, **una sola tarjeta dice qué sigue** (lo que falta, el turno sin resolver, la suspensión o el caso cerrado). El detalle va en tarjetas por tema —Paciente, Programación, Admisión y Jefatura, Coordinación, Módulos, Lista de Verificación, Anatomía Patológica, Parte quirúrgico— con un contador en cada una (por ejemplo 3/4 o 2/3). El historial queda plegado al final y los botones, fijos al pie.'),
 ('p', 'En la ficha de la cirugía, el apartado de módulos dice **«Todavía no computa en Módulos Quirúrgicos: se imputa cuando la cirugía quede Finalizada»** mientras el caso no esté cerrado, y **«Computa en Módulos Quirúrgicos»** cuando ya lo está.'),
 
 # ─────────────────────────────────────────────────────────────── 4
@@ -403,6 +405,7 @@ BLOQUES = [
 ('h1', '14. Novedades de las versiones 3.12 a 3.18'),
 ('h2', 'Versión 3.18 — Turnos sin resolver'),
 ('ul', [
+    '3.18.1: **Resolver turno** en una sola ventana (antes cada opción abría otra) y aviso breve de cómo quedó; la ficha de la cirugía, rediseñada con el camino del caso, «qué sigue» y tarjetas por tema.',
     'Un turno cuyo día pasó sin que nadie lo iniciara, suspendiera o cerrara pasa a **Sin resolver**, con un solo botón: **Resolver turno** (se operó y no se registró, no se operó, o se operó antes).',
     'Estado nuevo **Caducada** para los turnos que nunca llegaron a confirmarse: no cuenta como suspensión.',
     'Aviso diario al cirujano y a la Jefatura y **cierre automático a los 7 días**, que la Jefatura puede reabrir con motivo.',
