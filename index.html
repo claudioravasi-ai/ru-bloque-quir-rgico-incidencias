@@ -565,6 +565,195 @@
   .est-pill.mid { background: var(--amber-soft); color: #92600a; }
   .est-pill.bad { background: var(--red-soft); color: var(--red); }
 
+  /* ---- Estadísticas visuales (3.17.0) ----
+     Panorama con anillo y barras de colores, franja de destacados, tarjetas por
+     servicio / cirujano / práctica y cuadro con semáforo. Todo con variables
+     de tema, para que se lea igual en las cuatro apariencias. */
+  .estv-pista { stroke: var(--sup2, #eef1f4); }
+  .estv-dot { display: inline-block; flex: none; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: -1px; }
+  .estv-anillo { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 10px; }
+  .estv-anillo svg { width: 190px; max-width: 100%; flex: none; margin: 0 auto; }
+  .estv-arco { transition: stroke-width .15s; cursor: default; }
+  .estv-arco:hover { stroke-width: 32; }
+  .estv-c1 { font-size: 26px; font-weight: 800; fill: var(--ink); }
+  .estv-c2 { font-size: 10.5px; fill: var(--muted); }
+  /* Los temas pintan de gris todo texto de gráfico; la cifra central va en tinta. */
+  body[data-tema] .chart-card svg text.estv-c1 { fill: var(--ink); }
+  .estv-ley { list-style: none; flex: 1 1 200px; min-width: 0; display: grid; gap: 7px; font-size: 0.82rem; }
+  .estv-ley li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; column-gap: 4px; }
+  .estv-ley li small { grid-column: 2 / 4; color: var(--muted); font-size: 0.72rem; margin-top: -2px; }
+  .estv-ley-n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .estv-ley b { font-variant-numeric: tabular-nums; }
+  .estv-vacio { color: var(--muted); display: block !important; }
+  .estv-apil { display: grid; gap: 12px; margin-top: 12px; }
+  .estv-apil-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 0.83rem; margin-bottom: 5px; }
+  .estv-apil-top > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .estv-apil-top b { flex: none; font-variant-numeric: tabular-nums; }
+  .estv-susp-n { font-style: normal; font-weight: 600; color: var(--red); font-size: 0.76rem; }
+  .estv-apil-barra { display: flex; height: 12px; border-radius: 99px; overflow: hidden; background: var(--sup2, #eef1f4); }
+  .estv-apil-barra i { display: block; height: 100%; }
+  .estv-apil-barra i + i { border-left: 2px solid var(--card); }
+  .estv-rayado { background: repeating-linear-gradient(135deg, var(--red) 0 4px, #f08a8a 4px 8px) !important; }
+  .estv-ref { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 14px; font-size: 0.74rem; color: var(--muted); }
+  .estv-ref span { display: inline-flex; align-items: center; gap: 6px; }
+  .estv-ref i { display: inline-block; width: 16px; height: 9px; border-radius: 99px; }
+  .estv-ref i.ok { background: var(--green); } .estv-ref i.mid { background: var(--amber); } .estv-ref i.bad { background: var(--red); }
+  .estv-ref small { flex-basis: 100%; }
+  .estv-sem { margin: 12px 2px 0; }
+  .estv-dest { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 12px; margin-bottom: 18px; }
+  .estv-dest-i { display: flex; gap: 12px; align-items: flex-start; background: var(--card); border-radius: var(--radius); padding: 14px 16px;
+    border: 1px solid var(--line); border-left: 5px solid var(--dc); min-width: 0; }
+  .estv-dest-ic { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #fff; background: var(--dc); }
+  .estv-dest-ic svg { width: 17px; height: 17px; }
+  .estv-dest-i > div:last-child { min-width: 0; }
+  .estv-dest-t { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .estv-dest-n { font-weight: 800; font-size: 0.95rem; line-height: 1.25; margin-top: 2px; overflow-wrap: anywhere; }
+  .estv-dest-v { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .estv-barra { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 4px 0 14px; }
+  .estv-barra-t { font-weight: 800; font-size: 1rem; margin-right: auto; }
+  .estv-orden { display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+  .estv-orden select { padding: 7px 10px; border: 1px solid var(--line); border-radius: 9px; font-family: inherit; font-size: 0.82rem; background: var(--card); color: var(--ink); max-width: 160px; }
+  .estv-seg { display: inline-flex; background: var(--sup2, #eef1f4); border-radius: 99px; padding: 3px; }
+  .estv-seg button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 0.8rem; font-weight: 700; padding: 7px 13px; border-radius: 99px; cursor: pointer; }
+  .estv-seg button.on { background: var(--card); color: var(--blue); box-shadow: 0 1px 3px rgba(15,23,42,0.14); }
+  .estv-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+  .estv-card { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 16px 14px;
+    overflow: hidden; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .estv-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 5px; background: var(--cc); }
+  .estv-card::after { content: ''; position: absolute; right: -40px; top: -40px; width: 120px; height: 120px; border-radius: 50%; background: var(--cc); opacity: .07; pointer-events: none; }
+  .estv-card.clic { cursor: pointer; transition: transform .12s, box-shadow .12s; }
+  .estv-card.clic:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(15,23,42,0.12); }
+  .estv-card.propia { box-shadow: 0 0 0 2px var(--blue); }
+  .estv-card.sel { box-shadow: 0 0 0 2px var(--cc); }
+  .estv-card header { display: flex; align-items: center; gap: 11px; min-width: 0; }
+  .estv-av { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; font-size: 0.9rem; color: #fff; background: var(--cc); }
+  .estv-av.sm { width: 30px; height: 30px; border-radius: 9px; font-size: 0.72rem; }
+  .estv-card-nom { min-width: 0; flex: 1; }
+  .estv-card-nom b { font-size: 0.98rem; line-height: 1.25; overflow-wrap: anywhere; }
+  .estv-card-nom small { display: block; color: var(--muted); font-size: 0.74rem; margin-top: 2px; overflow-wrap: anywhere; }
+  .estv-rank { flex: none; align-self: flex-start; font-size: 0.72rem; font-weight: 800; color: var(--cc); background: var(--sup2, #eef1f4); border-radius: 99px; padding: 3px 8px; }
+  .estv-cifras { display: grid; grid-template-columns: 1.1fr 1fr 1.3fr; gap: 10px; align-items: end; }
+  .estv-cifras > div { min-width: 0; }
+  .estv-big { display: block; font-size: 1.75rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .estv-mid { display: block; font-size: 1.05rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .estv-lbl { display: block; font-size: 0.7rem; color: var(--muted); font-weight: 600; margin-top: 3px; }
+  .estv-share { display: flex; align-items: center; gap: 7px; }
+  .estv-mini-anillo { width: 40px; height: 40px; flex: none; }
+  .estv-pp-t { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; font-size: 0.76rem; color: var(--muted); font-weight: 600; flex-wrap: wrap; }
+  .estv-pp .est-pill:not(.ok):not(.mid):not(.bad) { background: var(--sup2, #eef1f4); color: var(--muted); }
+  .estv-inds { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+  .estv-ind { background: var(--sup2, #f4f6f8); border-radius: 10px; padding: 9px 10px; min-width: 0; border-left: 3px solid transparent; }
+  .estv-ind.ok { border-left-color: var(--green); } .estv-ind.mid { border-left-color: var(--amber); } .estv-ind.bad { border-left-color: var(--red); }
+  .estv-ind-e { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  .estv-ind-v { font-size: 1.02rem; font-weight: 800; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .estv-ind.ok .estv-ind-v { color: var(--green); } .estv-ind.mid .estv-ind-v { color: #b7790f; } .estv-ind.bad .estv-ind-v { color: var(--red); }
+  .estv-ind-b { height: 5px; border-radius: 99px; background: var(--line); margin-top: 6px; overflow: hidden; }
+  .estv-ind-b i { display: block; height: 100%; border-radius: 99px; background: var(--muted); }
+  .estv-ind.ok .estv-ind-b i { background: var(--green); } .estv-ind.mid .estv-ind-b i { background: var(--amber); } .estv-ind.bad .estv-ind-b i { background: var(--red); }
+  .estv-ind-x { font-size: 0.7rem; color: var(--muted); margin-top: 3px; overflow-wrap: anywhere; }
+  .estv-rojo { color: var(--red); }
+  .estv-inds.tres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .estv-mod { flex: none; align-self: flex-start; }
+  .estv-card footer { font-size: 0.78rem; font-weight: 700; color: var(--cc); margin-top: -4px; }
+  .estv-cu-nom { display: flex; align-items: center; gap: 10px; min-width: 200px; }
+  .estv-cuadro .estv-av.sm { background: var(--cc); }
+  .estv-celda { display: inline-block; white-space: nowrap; min-width: 58px; text-align: center; font-weight: 800; font-size: 0.8rem; padding: 5px 8px; border-radius: 8px; }
+  .estv-celda.ok { background: var(--green-soft); color: #166b4a; }
+  .estv-celda.mid { background: var(--amber-soft); color: #92600a; }
+  .estv-celda.bad { background: var(--red-soft); color: var(--red); }
+  .estv-meds { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 14px; text-align: center; }
+  .estv-med svg { width: 100%; max-width: 150px; margin: 0 auto; }
+  .estv-med-v { font-size: 1.35rem; font-weight: 800; margin-top: -8px; font-variant-numeric: tabular-nums; }
+  .estv-med-t { font-weight: 700; font-size: 0.82rem; margin-top: 2px; }
+  .estv-med small { color: var(--muted); font-size: 0.72rem; }
+  @media (max-width: 560px) {
+    .estv-cifras { grid-template-columns: 1fr 1fr; }
+    .estv-share { grid-column: 1 / -1; }
+    .estv-big { font-size: 1.5rem; }
+    .estv-barra-t { flex-basis: 100%; }
+    .estv-seg button { padding: 7px 10px; }
+    .estv-dest { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .estv-dest-i { padding: 10px; gap: 8px; flex-direction: column; }
+    .estv-dest-ic { width: 28px; height: 28px; }
+    .estv-dest-n { font-size: 0.85rem; }
+  }
+
+  /* ---- Profesionales (3.17.0): camino para programar, filtros y tarjetas ---- */
+  .prof-embudo-card { margin-bottom: 18px; }
+  .prof-embudo { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+  .prof-paso { position: relative; text-align: left; border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 12px 12px 10px;
+    cursor: pointer; font: inherit; color: var(--ink); display: flex; flex-direction: column; gap: 4px; min-width: 0; border-top: 4px solid var(--fc); transition: transform .12s, box-shadow .12s; }
+  .prof-paso:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,23,42,0.10); }
+  .prof-paso.on { box-shadow: 0 0 0 2px var(--fc); }
+  .prof-paso-n { font-size: 1.8rem; font-weight: 800; line-height: 1; color: var(--fc); font-variant-numeric: tabular-nums; }
+  .prof-paso-t { font-size: 0.8rem; font-weight: 700; line-height: 1.25; }
+  .prof-paso-t em { font-style: normal; display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: var(--fc); color: #fff; font-size: 0.66rem; margin-right: 5px; vertical-align: 1px; }
+  .prof-paso-b { display: block; height: 6px; border-radius: 99px; background: var(--sup2, #eef1f4); overflow: hidden; }
+  .prof-paso-b i { display: block; height: 100%; background: var(--fc); border-radius: 99px; }
+  .prof-paso small { color: var(--muted); font-size: 0.7rem; line-height: 1.3; }
+  .prof-filtros { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 12px; }
+  .prof-busca { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; color: var(--muted); }
+  .prof-busca input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 11px 0; font: inherit; font-size: 0.9rem; color: var(--ink); outline: none; }
+  .prof-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .prof-chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 99px; padding: 6px 12px; font: inherit; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+  .prof-chip span { background: var(--sup2, #eef1f4); border-radius: 99px; padding: 1px 7px; font-size: 0.72rem; }
+  .prof-chip.amber span { background: var(--amber-soft); color: #92600a; }
+  .prof-chip.red span { background: var(--red-soft); color: var(--red); }
+  .prof-chip.green span { background: var(--green-soft); color: #166b4a; }
+  .prof-chip.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .prof-chip.on span { background: rgba(255,255,255,0.22); color: #fff; }
+  .prof-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 16px; margin-bottom: 22px; }
+  .prof-card { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; overflow: hidden; }
+  .prof-card::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--pc); }
+  .prof-card.pendiente { box-shadow: 0 0 0 2px var(--amber); }
+  .prof-card.baja { opacity: .78; }
+  .prof-card header { display: flex; align-items: flex-start; gap: 11px; min-width: 0; }
+  .prof-av { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #fff; background: var(--pc); box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--pc); margin: 2px 2px 0 4px; }
+  .prof-id { flex: 1; min-width: 0; }
+  .prof-id b { font-size: 1rem; overflow-wrap: anywhere; }
+  .prof-id small { display: block; color: var(--muted); font-size: 0.75rem; margin-top: 2px; overflow-wrap: anywhere; }
+  .prof-estado { flex: none; font-size: 0.7rem; font-weight: 800; padding: 4px 9px; border-radius: 99px; max-width: 46%; text-align: center; line-height: 1.25; }
+  .prof-estado.ok { background: var(--green-soft); color: #166b4a; }
+  .prof-estado.mid { background: var(--amber-soft); color: #92600a; }
+  .prof-estado.bad { background: var(--red-soft); color: var(--red); }
+  .prof-servs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .prof-serv { font-size: 0.74rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; color: var(--sc); background: var(--sup2, #f4f6f8); border: 1px solid var(--sc); }
+  .prof-serv small { font-weight: 600; opacity: .8; }
+  .prof-camino { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+  .prof-pp { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 700; color: var(--muted); background: var(--sup2, #f4f6f8); border-radius: 99px; padding: 4px 9px; }
+  .prof-pp i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 2px solid currentColor; }
+  .prof-pp.ok { background: var(--green-soft); color: #166b4a; }
+  .prof-pp.meta.ok { background: var(--green); color: #fff; }
+  .prof-pp svg { width: 12px; height: 12px; }
+  .prof-flecha { width: 10px; height: 2px; background: var(--line); border-radius: 2px; }
+  .prof-hab { display: flex; align-items: center; gap: 12px; }
+  .prof-hab-ring { position: relative; flex: none; width: 46px; height: 46px; }
+  .prof-hab-ring svg { width: 46px; height: 46px; }
+  .prof-hab-ring span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 0.72rem; font-weight: 800; }
+  .prof-reqs { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }
+  .prof-req { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 700; padding: 4px 8px; border-radius: 8px; cursor: help; }
+  .prof-req svg { width: 12px; height: 12px; }
+  .prof-req.ok { background: var(--green-soft); color: #166b4a; }
+  .prof-req.mid { background: var(--amber-soft); color: #92600a; }
+  .prof-req.bad { background: var(--red-soft); color: var(--red); }
+  .prof-falta { display: flex; gap: 8px; align-items: flex-start; font-size: 0.8rem; line-height: 1.4; background: var(--red-soft); color: var(--ink); border-radius: 10px; padding: 8px 10px; }
+  .prof-falta svg { flex: none; margin-top: 2px; color: var(--red); }
+  .prof-falta.mid { background: var(--amber-soft); }
+  .prof-falta.mid svg { color: #b7790f; }
+  .prof-pie { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; font-size: 0.75rem; color: var(--muted); }
+  .prof-pie b { color: var(--ink); }
+  .prof-acc { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .btn-red-soft { background: var(--red-soft); color: var(--red); border: 1px solid transparent; }
+  .btn-red-soft:hover { border-color: var(--red); }
+  .btn-ghost-red { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+  .btn-ghost-red:hover { color: var(--red); border-color: var(--red); }
+  @media (max-width: 900px) { .prof-embudo { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 560px) {
+    .prof-embudo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .prof-embudo .prof-paso:first-child { grid-column: 1 / -1; }
+    .prof-paso-n { font-size: 1.5rem; }
+  }
+
   /* Hilo de reclamos */
   /* Mismo caso que `.det-desc`: en tema oscuro los mensajes quedaban en blanco
      sobre blanco. */
@@ -5417,7 +5606,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.16.1';
+const APP_VERSION = '3.17.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10517,30 +10706,6 @@ const EST_COLUMNAS = [
   { k: 'enEspera', t: 'En espera' },
 ];
 
-function estFila(g, clave, propia, maxRealizadas) {
-  const nMails = Object.keys(g.mails).length;
-  const sub = clave === 'cirujano'
-    ? [g.servicioPrinc, g.salaPrinc].filter(Boolean).join(' · ')
-    : `${nMails ? nMails + ' cirujano(s) con cuenta' : 'sin cirujanos con cuenta'} · ${g.salaPrinc || 'sin sala predominante'}`;
-  const drill = clave === 'servicio'
-    ? ` class="clic" onclick="estVerCirujanos('${attr(g.nombre)}')" title="Ver el desglose por cirujano de este servicio"`
-    : (propia ? ' class="propia"' : '');
-  return `<tr${drill}>
-    <td><div class="est-nom">${esc(g.nombre)}${propia ? ' <span class="est-pill ok">Usted</span>' : ''}<small>${esc(sub)}</small></div></td>
-    <td class="num"><b>${g.realizadas}</b>
-      <span class="est-mini"><i style="width:${maxRealizadas ? (g.realizadas / maxRealizadas) * 100 : 0}%"></i></span></td>
-    <td class="num">${g.suspendidas}</td>
-    <td class="num">${g.programadas ? estPillInv(g.tasaSusp, 10, 5) : '—'}</td>
-    <td class="num">${g.horas ? g.horas.toFixed(1) : '—'}</td>
-    <td class="num">${g.share ? g.share.toFixed(1) + ' %' : '—'}</td>
-    <td class="num">${g.durMedia ? Math.round(g.durMedia) + ' min' : '—'}</td>
-    <td class="num">${g.realizadas ? estPill(g.cumplInforme, 95, 80) : '—'}</td>
-    <td class="num">${g.realizadas ? estPill(g.cumplLVQ, 95, 80) : '—'}</td>
-    <td class="num">${g.esperaMedia === null ? '—' : Math.round(g.esperaMedia) + ' d'}</td>
-    <td class="num">${g.enEspera || '—'}${g.esperaMax > 90 ? `<small style="display:block;color:var(--red);font-weight:700">máx. ${g.esperaMax} d</small>` : ''}</td>
-  </tr>`;
-}
-
 function exportarEstadisticas() {
   const clave = estTab;
   const [desde, hasta] = estRango();
@@ -10795,44 +10960,6 @@ function calcPorTipo() {
   return arr;
 }
 
-/* Torta de tipos de cirugía, con el mismo trazo que la de incidencias del
-   Panel: un anillo de segmentos y el total en el centro. */
-function donutTipos(arr, total) {
-  const R = 74, CX = 110, CY = 105, SW = 34;
-  const circ = 2 * Math.PI * R;
-  let segs = '', off = 0;
-  const conDatos = arr.filter((t) => t.realizadas > 0);
-  // Las prácticas que no entran en la torta con color propio se suman en una
-  // única porción gris: sin esto, un período largo dibuja cien hilos ilegibles.
-  const conColor = conDatos.filter((t) => t.color !== TIPO_CX_GRIS);
-  const resto = conDatos.filter((t) => t.color === TIPO_CX_GRIS);
-  const restoN = resto.reduce((n, t) => n + t.realizadas, 0);
-  const porciones = conColor.map((t) => ({ nombre: t.nombre, n: t.realizadas, color: t.color }));
-  if (restoN) porciones.push({ nombre: `Otras ${resto.length} práctica(s)`, n: restoN, color: TIPO_CX_GRIS });
-
-  if (!total || !porciones.length) {
-    segs = `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="#e5e7eb" stroke-width="${SW}"/>`;
-  } else {
-    porciones.forEach((p) => {
-      const frac = p.n / total;
-      segs += `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${p.color}"
-        stroke-width="${SW}" stroke-dasharray="${frac * circ} ${circ}" stroke-dashoffset="${-off * circ}"
-        transform="rotate(-90 ${CX} ${CY})"><title>${esc(p.nombre)} — ${p.n} (${(frac * 100).toFixed(1)} %)</title></circle>`;
-      off += frac;
-    });
-  }
-  return `<div style="display:flex;justify-content:center"><svg viewBox="0 0 220 210" style="width:220px">
-      ${segs}
-      <text x="${CX}" y="${CY - 2}" text-anchor="middle" font-size="30" font-weight="800" fill="#171c24">${total}</text>
-      <text x="${CX}" y="${CY + 20}" text-anchor="middle" font-size="11" fill="#8b929c">cirugías</text>
-    </svg></div>
-    <div class="legend" style="justify-content:center">
-      ${porciones.length
-        ? porciones.map((p) => `<span><span class="dot" style="background:${p.color};border-radius:50%"></span>${esc(p.nombre)} (${p.n} · ${((p.n / total) * 100).toFixed(1)} %)</span>`).join('')
-        : '<span style="color:var(--muted)">Sin cirugías realizadas en el período</span>'}
-    </div>`;
-}
-
 /* Detalle de un tipo: qué servicios y qué cirujanos lo componen. */
 function tipoDetalle(t) {
   const barras = (lista, color) => {
@@ -10893,27 +11020,39 @@ function seccionTipoCirugia() {
       <div><strong>Producción según tipo de cirugía</strong>
       Cada fila es la <b>práctica</b> tal como se cargó en el turno: la misma descripción del Nomenclador Modulado 2025 que fija el módulo A, B o C en Módulos Quirúrgicos. Una práctica puede repartirse entre varios servicios y cirujanos. ${leyendaAlcance} Toque una práctica del cuadro para ver quiénes la sostienen.</div></div>
 
-    <div class="charts">
+    ${estvDestacadosTipo(arr)}
+    <div class="charts estv-pano">
       <div class="chart-card">
-        <div class="card-title" style="margin-bottom:6px">Distribución por tipo de cirugía</div>
+        <div class="card-title" style="margin-bottom:4px">Distribución por tipo de cirugía</div>
         <div class="card-sub">Sobre ${total} cirugía(s) realizada(s) en el período · ${arr.filter((t) => t.realizadas > 0).length} práctica(s) distinta(s)</div>
-        ${donutTipos(arr, total)}
+        ${(() => {
+          const con = arr.filter((t) => t.realizadas > 0);
+          const segs = con.filter((t) => t.color !== TIPO_CX_GRIS).map((t) => ({ nombre: t.nombre, valor: t.realizadas, color: t.color, txt: t.realizadas + ' cirugía(s)' }));
+          const resto = con.filter((t) => t.color === TIPO_CX_GRIS);
+          const rn = resto.reduce((n, t) => n + t.realizadas, 0);
+          if (rn) segs.push({ nombre: `Otras ${resto.length} práctica(s)`, valor: rn, color: EST_GRIS, txt: rn + ' cirugía(s)' });
+          return estvAnillo(segs, total, String(total), 'cirugías');
+        })()}
       </div>
       <div class="chart-card">
-        <div class="card-title" style="margin-bottom:6px">Horas de quirófano por práctica</div>
+        <div class="card-title" style="margin-bottom:4px">Horas de quirófano por práctica</div>
         <div class="card-sub">Las diez que más quirófano consumieron. Tiempo real medido; si falta, la duración estimada</div>
         ${(() => {
           const orden = arr.filter((t) => t.minutos > 0).sort((a, b) => b.minutos - a.minutos).slice(0, 10);
-          const tope = orden.length ? orden[0].minutos : 1;
-          return orden.length ? orden.map((t) => `
-            <div class="barra-fila">
-              <div class="barra-top"><span>${esc(t.nombre)}</span><b>${t.horas.toFixed(1)} h</b></div>
-              <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(t.minutos / tope) * 100}%;background:${t.color}"></div></div>
-            </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin horas de quirófano registradas en el período.</div>';
+          return orden.length
+            ? estvBarras(orden.map((t) => ({ nombre: t.nombre, valor: t.minutos, color: t.color === TIPO_CX_GRIS ? EST_GRIS : t.color, horas: t.horas, dur: t.durMedia })),
+                (x) => `${estFmt1(x.horas)} h${x.dur ? ` <em class="estv-susp-n" style="color:var(--muted)">· ${Math.round(x.dur)} min c/u</em>` : ''}`)
+            : '<div class="empty" style="padding:20px 0">Sin horas de quirófano registradas en el período.</div>';
         })()}
       </div>
     </div>
 
+    ${estvBarraDetalle(`Detalle por práctica · ${arr.length}`, false)}
+    ${sel ? tipoDetalle(sel) : ''}
+    ${!arr.length ? '<div class="empty">Sin actividad registrada en el período seleccionado.</div>'
+      : estVista === 'tarjetas'
+        ? `<div class="estv-cards">${arr.map((t, i) => estvTarjetaTipo(t, i + 1, Math.max(1, ...arr.map((x) => x.realizadas)))).join('')}</div>`
+        : `
     <div class="tbl-wrap">
       <table class="tbl tbl-tipo">
         <thead><tr>
@@ -10956,8 +11095,7 @@ function seccionTipoCirugia() {
         </tbody>
       </table>
     </div>
-
-    ${sel ? tipoDetalle(sel) : ''}`;
+    ${EST_SEMAFORO_NOTA}`}`;
 }
 
 /* ================= ESTADÍSTICAS PÚBLICAS DE LA SEMANA =================
@@ -11084,6 +11222,360 @@ function renderEstPublicas() {
     </div>`;
 }
 
+/* ================= ESTADÍSTICAS VISUALES (3.17.0) =================
+   Las tres solapas —por servicio, por cirujano y por tipo de cirugía— se leen
+   primero como dibujo y después como número: un panorama con anillo y barras
+   de colores, una franja de «lo que salta a la vista» y, debajo, el detalle en
+   tarjetas o en un cuadro de colores (a elección, se recuerda por equipo).
+   Los datos y el alcance de cada perfil son exactamente los de siempre: esto
+   cambia cómo se ve, no qué ve cada uno. */
+const EST_PALETA = ['#2980d9', '#1fa971', '#f0a92e', '#8b5cf6', '#e8543f', '#0ea5a4',
+  '#d946a0', '#6b7ad9', '#7c9c2f', '#c2703a', '#0891b2', '#be185d'];
+const EST_GRIS = '#a7b0ba';
+let estVista = (() => { try { return localStorage.getItem('hruq_est_vista') === 'cuadro' ? 'cuadro' : 'tarjetas'; } catch (e) { return 'tarjetas'; } })();
+function estVistaSet(v) {
+  estVista = v === 'cuadro' ? 'cuadro' : 'tarjetas';
+  try { localStorage.setItem('hruq_est_vista', estVista); } catch (e) { /* sin almacenamiento: vale para esta sesión */ }
+  renderEstadisticas();
+}
+/* El color de un servicio es siempre el mismo —sale de su lugar en la lista
+   del hospital—, así que Cirugía General se ve igual en el anillo, en las
+   barras y en su tarjeta, y de un período a otro. */
+function estColorServicio(nombre) {
+  const i = serviciosCatalogo().findIndex((x) => mismoServicio(x, nombre));
+  if (i >= 0) return EST_PALETA[i % EST_PALETA.length];
+  let h = 0;
+  String(nombre || '').split('').forEach((ch) => { h = (h * 31 + ch.charCodeAt(0)) >>> 0; });
+  return EST_PALETA[h % EST_PALETA.length];
+}
+/* Colores de un grupo de filas: por servicio, el del servicio; por cirujano,
+   uno por persona en el orden de horas de quirófano. */
+function estColores(arr, clave) {
+  const m = {};
+  if (clave === 'servicio') arr.forEach((g) => { m[g.nombre] = estColorServicio(g.nombre); });
+  else arr.slice().sort((a, b) => b.minutos - a.minutos || a.nombre.localeCompare(b.nombre))
+    .forEach((g, i) => { m[g.nombre] = EST_PALETA[i % EST_PALETA.length]; });
+  return m;
+}
+function estIniciales(n) {
+  const p = String(n || '').replace(/^(dr|dra|lic)\.?\s+/i, '').split(/\s+/).filter((w) => w && !/^(y|de|del|la|e)$/i.test(w));
+  return ((p[0] || '?')[0] + ((p[1] || '')[0] || '')).toUpperCase();
+}
+const estFmt1 = (x) => (Math.round(x * 10) / 10).toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+/* Semáforo de cada indicador: 'ok' verde, 'mid' ámbar, 'bad' rojo. Mismos
+   umbrales que el cuadro de siempre. */
+const estTonoSusp = (v) => v >= 10 ? 'bad' : v >= 5 ? 'mid' : 'ok';
+const estTonoCumpl = (v) => v >= 95 ? 'ok' : v >= 80 ? 'mid' : 'bad';
+const estTonoEspera = (v) => v > 90 ? 'bad' : v > 30 ? 'mid' : 'ok';
+
+/* Anillo con la cifra en el centro y la leyenda al costado. `segs` =
+   [{ nombre, valor, color, txt }]; `total` es el 100 % del anillo. */
+function estvAnillo(segs, total, centro, centroSub) {
+  const R = 70, C = 90, SW = 26, circ = 2 * Math.PI * R;
+  let off = 0, arcos = '';
+  if (total > 0) {
+    segs.filter((s) => s.valor > 0).forEach((s) => {
+      const f = s.valor / total;
+      // Un hueco de 1,5 px entre porciones: separa colores vecinos parecidos.
+      const largo = Math.max(0, f * circ - (segs.length > 1 ? 1.5 : 0));
+      arcos += `<circle cx="${C}" cy="${C}" r="${R}" fill="none" style="stroke:${s.color}" stroke-width="${SW}"
+        stroke-dasharray="${largo} ${circ}" stroke-dashoffset="${-off * circ}" transform="rotate(-90 ${C} ${C})"
+        class="estv-arco"><title>${esc(s.nombre)} — ${esc(s.txt || String(s.valor))} (${estFmt1(f * 100)} %)</title></circle>`;
+      off += f;
+    });
+  }
+  const leyenda = segs.filter((s) => s.valor > 0).map((s) => `<li>
+      <span class="estv-dot" style="background:${s.color}"></span>
+      <span class="estv-ley-n">${esc(s.nombre)}</span>
+      <b>${total ? estFmt1((s.valor / total) * 100) : '0,0'} %</b>
+      <small>${esc(s.txt || String(s.valor))}</small></li>`).join('');
+  return `<div class="estv-anillo">
+      <svg viewBox="0 0 180 180" role="img" aria-label="${esc(centro + ' ' + centroSub)}">
+        <circle cx="${C}" cy="${C}" r="${R}" fill="none" class="estv-pista" stroke-width="${SW}"/>
+        ${arcos}
+        <text x="${C}" y="${C + 4}" text-anchor="middle" class="estv-c1">${esc(centro)}</text>
+        <text x="${C}" y="${C + 24}" text-anchor="middle" class="estv-c2">${esc(centroSub)}</text>
+      </svg>
+      <ul class="estv-ley">${leyenda || '<li class="estv-vacio">Sin datos en el período</li>'}</ul>
+    </div>`;
+}
+/* Barras horizontales apiladas: realizadas (color del grupo) + suspendidas
+   (rojo rayado) + llegadas al parte que todavía no cerraron (gris). */
+function estvApiladas(items, colores) {
+  const lista = items.filter((g) => g.programadas > 0).sort((a, b) => b.programadas - a.programadas).slice(0, 10);
+  if (!lista.length) return '<div class="empty" style="padding:20px 0">Sin cirugías que hayan llegado al parte en el período.</div>';
+  const max = Math.max(...lista.map((g) => g.programadas));
+  return `<div class="estv-apil">${lista.map((g) => {
+    const abiertas = Math.max(0, g.programadas - g.realizadas - g.suspendidas);
+    const w = (n) => (n / max) * 100;
+    return `<div class="estv-apil-fila">
+      <div class="estv-apil-top"><span><span class="estv-dot" style="background:${colores[g.nombre] || EST_GRIS}"></span>${esc(g.nombre)}</span>
+        <b>${g.realizadas}${g.suspendidas ? ` <em class="estv-susp-n">· ${g.suspendidas} susp. (${estFmt1(g.tasaSusp)} %)</em>` : ''}</b></div>
+      <div class="estv-apil-barra" title="${g.realizadas} realizadas · ${g.suspendidas} suspendidas${abiertas ? ` · ${abiertas} sin cerrar` : ''}">
+        <i style="width:${w(g.realizadas)}%;background:${colores[g.nombre] || EST_GRIS}"></i>
+        ${g.suspendidas ? `<i class="estv-rayado" style="width:${w(g.suspendidas)}%"></i>` : ''}
+        ${abiertas ? `<i style="width:${w(abiertas)}%;background:${EST_GRIS};opacity:.45"></i>` : ''}
+      </div></div>`;
+  }).join('')}</div>
+  <div class="estv-ref"><span><i style="background:linear-gradient(90deg,#2980d9,#1fa971,#f0a92e,#8b5cf6)"></i>Realizadas (color de cada uno)</span><span><i class="estv-rayado"></i>Suspendidas</span><span><i style="background:${EST_GRIS};opacity:.45"></i>En el parte, sin cerrar</span></div>`;
+}
+/* Barras simples de colores, para rankings (causas, horas por práctica). */
+function estvBarras(lista, fmt) {
+  const max = Math.max(1, ...lista.map((x) => x.valor));
+  return lista.map((x) => `<div class="estv-apil-fila">
+      <div class="estv-apil-top"><span><span class="estv-dot" style="background:${x.color}"></span>${esc(x.nombre)}</span><b>${fmt ? fmt(x) : x.valor}</b></div>
+      <div class="estv-apil-barra"><i style="width:${(x.valor / max) * 100}%;background:${x.color}"></i></div></div>`).join('');
+}
+/* Franja «a simple vista»: tres o cuatro hallazgos del período. */
+function estvDestacados(lista) {
+  const vis = lista.filter(Boolean);
+  if (!vis.length) return '';
+  return `<div class="estv-dest">${vis.map((d) => `<div class="estv-dest-i" style="--dc:${d.color}">
+      <div class="estv-dest-ic">${d.icono}</div>
+      <div><div class="estv-dest-t">${esc(d.titulo)}</div><div class="estv-dest-n">${esc(d.nombre)}</div><div class="estv-dest-v">${d.valor}</div></div>
+    </div>`).join('')}</div>`;
+}
+/* Mini anillo de porcentaje para las tarjetas. */
+function estvMiniAnillo(pct, color) {
+  const R = 15, circ = 2 * Math.PI * R, f = Math.max(0, Math.min(100, pct)) / 100;
+  return `<svg viewBox="0 0 40 40" class="estv-mini-anillo"><circle cx="20" cy="20" r="${R}" fill="none" class="estv-pista" stroke-width="6"/>
+    <circle cx="20" cy="20" r="${R}" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"
+      stroke-dasharray="${f * circ} ${circ}" transform="rotate(-90 20 20)"/></svg>`;
+}
+/* Indicador de calidad con su semáforo y su barrita. */
+function estvIndicador(etq, valor, tono, pct, extra) {
+  return `<div class="estv-ind ${tono || ''}">
+    <div class="estv-ind-e">${etq}</div>
+    <div class="estv-ind-v">${valor}</div>
+    ${pct === null || pct === undefined ? '' : `<div class="estv-ind-b"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div>`}
+    ${extra ? `<div class="estv-ind-x">${extra}</div>` : ''}
+  </div>`;
+}
+/* Tarjeta de un servicio o de un cirujano. */
+function estvTarjeta(g, clave, color, rank, propia, maxReal) {
+  const nMails = Object.keys(g.mails).length;
+  const sub = clave === 'cirujano'
+    ? [g.servicioPrinc, g.salaPrinc].filter(Boolean).join(' · ')
+    : `${nMails ? nMails + ' cirujano(s) con cuenta' : 'sin cirujanos con cuenta'}${g.salaPrinc ? ' · ' + g.salaPrinc : ''}`;
+  const drill = clave === 'servicio' && estTodoElBloque();
+  const abiertas = Math.max(0, g.programadas - g.realizadas - g.suspendidas);
+  const w = (n) => g.programadas ? (n / g.programadas) * 100 : 0;
+  return `<article class="estv-card${propia ? ' propia' : ''}${drill ? ' clic' : ''}" style="--cc:${color}"
+      ${drill ? `onclick="estVerCirujanos('${attr(g.nombre)}')" title="Ver el desglose por cirujano de este servicio"` : ''}>
+    <header>
+      <span class="estv-av">${esc(estIniciales(g.nombre))}</span>
+      <div class="estv-card-nom"><b>${esc(g.nombre)}</b>${propia ? ' <span class="est-pill ok">Usted</span>' : ''}<small>${esc(sub)}</small></div>
+      <span class="estv-rank">#${rank}</span>
+    </header>
+    <div class="estv-cifras">
+      <div><span class="estv-big">${g.realizadas}</span><span class="estv-lbl">realizadas</span>
+        <span class="est-mini" style="margin-top:6px"><i style="width:${maxReal ? (g.realizadas / maxReal) * 100 : 0}%;background:var(--cc)"></i></span></div>
+      <div><span class="estv-big">${g.horas ? estFmt1(g.horas) : '—'}</span><span class="estv-lbl">horas qx</span></div>
+      <div class="estv-share">${estvMiniAnillo(g.share, color)}<div><span class="estv-mid">${g.share ? estFmt1(g.share) + ' %' : '—'}</span><span class="estv-lbl">del bloque</span></div></div>
+    </div>
+    <div class="estv-pp" title="${g.programadas} llegaron al parte">
+      <div class="estv-apil-barra">
+        <i style="width:${w(g.realizadas)}%;background:var(--cc)"></i>
+        ${g.suspendidas ? `<i class="estv-rayado" style="width:${w(g.suspendidas)}%"></i>` : ''}
+        ${abiertas ? `<i style="width:${w(abiertas)}%;background:${EST_GRIS};opacity:.45"></i>` : ''}
+      </div>
+      <div class="estv-pp-t"><span>${g.programadas} al parte</span><span class="est-pill ${g.programadas ? estTonoSusp(g.tasaSusp) : ''}">${g.suspendidas} susp. · ${g.programadas ? estFmt1(g.tasaSusp) + ' %' : '—'}</span></div>
+    </div>
+    <div class="estv-inds">
+      ${estvIndicador('Dur. media', g.durMedia ? Math.round(g.durMedia) + ' min' : '—', '', null)}
+      ${estvIndicador('Informe ≤ 2 h', g.realizadas ? Math.round(g.cumplInforme) + ' %' : '—', g.realizadas ? estTonoCumpl(g.cumplInforme) : '', g.realizadas ? g.cumplInforme : null)}
+      ${estvIndicador('LVQ completa', g.realizadas ? Math.round(g.cumplLVQ) + ' %' : '—', g.realizadas ? estTonoCumpl(g.cumplLVQ) : '', g.realizadas ? g.cumplLVQ : null)}
+      ${estvIndicador('Espera media', g.esperaMedia === null ? '—' : Math.round(g.esperaMedia) + ' d', g.esperaMedia === null ? '' : estTonoEspera(g.esperaMedia), null,
+        `${g.enEspera || 0} en lista${g.esperaMax > 90 ? ` · <b class="estv-rojo">máx. ${g.esperaMax} d</b>` : ''}`)}
+    </div>
+    ${drill ? `<footer>Ver cirujanos del servicio ›</footer>` : ''}
+  </article>`;
+}
+/* Celda del cuadro de colores. */
+function estvCelda(tono, txt) { return `<td class="num"><span class="estv-celda ${tono || ''}">${txt}</span></td>`; }
+function estvFilaCuadro(g, clave, color, propia, maxReal) {
+  const drill = clave === 'servicio' && estTodoElBloque();
+  return `<tr${drill ? ` class="clic" onclick="estVerCirujanos('${attr(g.nombre)}')" title="Ver el desglose por cirujano de este servicio"` : (propia ? ' class="propia"' : '')}>
+    <td><div class="estv-cu-nom"><span class="estv-av sm" style="--cc:${color}">${esc(estIniciales(g.nombre))}</span>
+      <div class="est-nom">${esc(g.nombre)}${propia ? ' <span class="est-pill ok">Usted</span>' : ''}<small>${esc(clave === 'cirujano' ? g.servicioPrinc || '' : (g.salaPrinc || ''))}</small></div></div></td>
+    <td class="num"><b>${g.realizadas}</b><span class="est-mini"><i style="width:${maxReal ? (g.realizadas / maxReal) * 100 : 0}%;background:${color}"></i></span></td>
+    <td class="num">${g.suspendidas}</td>
+    ${g.programadas ? estvCelda(estTonoSusp(g.tasaSusp), estFmt1(g.tasaSusp) + ' %') : '<td class="num">—</td>'}
+    <td class="num">${g.horas ? estFmt1(g.horas) : '—'}</td>
+    <td class="num"><span class="tipo-share"><span class="est-mini" style="width:48px;margin-top:0"><i style="width:${Math.max(3, g.share)}%;background:${color}"></i></span>${g.share ? estFmt1(g.share) + ' %' : '—'}</span></td>
+    <td class="num">${g.durMedia ? Math.round(g.durMedia) + ' min' : '—'}</td>
+    ${g.realizadas ? estvCelda(estTonoCumpl(g.cumplInforme), Math.round(g.cumplInforme) + ' %') : '<td class="num">—</td>'}
+    ${g.realizadas ? estvCelda(estTonoCumpl(g.cumplLVQ), Math.round(g.cumplLVQ) + ' %') : '<td class="num">—</td>'}
+    ${g.esperaMedia === null ? '<td class="num">—</td>' : estvCelda(estTonoEspera(g.esperaMedia), Math.round(g.esperaMedia) + ' d')}
+    <td class="num">${g.enEspera || '—'}${g.esperaMax > 90 ? `<small style="display:block;color:var(--red);font-weight:700">máx. ${g.esperaMax} d</small>` : ''}</td>
+  </tr>`;
+}
+/* Selector de vista + orden (el orden también sirve en tarjetas). */
+function estvBarraDetalle(titulo, conOrden) {
+  const ops = [{ k: 'nombre', t: 'Nombre' }].concat(EST_COLUMNAS);
+  return `<div class="estv-barra">
+    <div class="estv-barra-t">${titulo}</div>
+    ${conOrden ? `<label class="estv-orden">Ordenar por
+      <select onchange="estOrden=this.value;estAsc=this.value==='nombre';renderEstadisticas()">
+        ${ops.map((o) => `<option value="${o.k}" ${estOrden === o.k ? 'selected' : ''}>${o.t}</option>`).join('')}
+      </select></label>` : ''}
+    <div class="estv-seg" role="group" aria-label="Forma de ver el detalle">
+      <button class="${estVista === 'tarjetas' ? 'on' : ''}" onclick="estVistaSet('tarjetas')">${ICONS.layers.replace('18', '14')} Tarjetas</button>
+      <button class="${estVista === 'cuadro' ? 'on' : ''}" onclick="estVistaSet('cuadro')">${ICONS.grid.replace('18', '14')} Cuadro de colores</button>
+    </div>
+  </div>`;
+}
+const EST_SEMAFORO_NOTA = `<div class="estv-ref estv-sem"><span><i class="ok"></i>En meta</span><span><i class="mid"></i>A mejorar</span><span><i class="bad"></i>Fuera de meta</span>
+  <small>Suspensión: meta &lt; 5 % · Informe ≤ 2 h y LVQ completa: meta ≥ 95 % · Espera media: meta ≤ 30 días</small></div>`;
+
+/* ---- Solapas «Por servicio» y «Por cirujano» ---- */
+function seccionEstGrupos(clave, visibles, ctx) {
+  const u = usuarioActual();
+  const colores = estColores(visibles, clave);
+  const maxReal = Math.max(1, ...visibles.map((g) => g.realizadas));
+  const esPropia = (g) => !!(u && (mismoProfesional(g.nombre, u.nombre) || (clave === 'cirujano' && g.mails[u.email])));
+  const conHoras = visibles.filter((g) => g.minutos > 0).sort((a, b) => b.minutos - a.minutos);
+  const top = conHoras.slice(0, 9);
+  const otros = conHoras.slice(9);
+  const segs = top.map((g) => ({ nombre: g.nombre, valor: g.minutos, color: colores[g.nombre], txt: estFmt1(g.horas) + ' h' }));
+  if (otros.length) {
+    const m = otros.reduce((s, g) => s + g.minutos, 0);
+    segs.push({ nombre: `Otros ${otros.length}`, valor: m, color: EST_GRIS, txt: estFmt1(m / 60) + ' h' });
+  }
+  // El resto del bloque se muestra como una sola porción, sin nombres: es el
+  // denominador institucional, no la producción de otro equipo.
+  const visMin = conHoras.reduce((s, g) => s + g.minutos, 0);
+  const restoMin = Math.max(0, ctx.totBloqueMin - visMin);
+  if (restoMin > 0.5 && restoMin / Math.max(1, ctx.totBloqueMin) > 0.002) {
+    segs.push({ nombre: 'Resto del bloque', valor: restoMin, color: 'var(--line)', txt: estFmt1(restoMin / 60) + ' h' });
+  }
+  const conReal = visibles.filter((g) => g.realizadas > 0);
+  const masProd = conReal.slice().sort((a, b) => b.realizadas - a.realizadas)[0];
+  const masHoras = conHoras[0];
+  const mejorInf = conReal.slice().sort((a, b) => b.cumplInforme - a.cumplInforme || b.realizadas - a.realizadas)[0];
+  const masSusp = visibles.filter((g) => g.suspendidas > 0).sort((a, b) => b.tasaSusp - a.tasaSusp)[0];
+  const quien = clave === 'servicio' ? 'servicio' : 'cirujano';
+  const dest = visibles.length > 1 ? estvDestacados([
+    masProd && { icono: ICONS.check, color: colores[masProd.nombre], titulo: `Más cirugías realizadas`, nombre: masProd.nombre, valor: `${masProd.realizadas} realizadas` },
+    masHoras && { icono: ICONS.clockSm, color: colores[masHoras.nombre], titulo: 'Más horas de quirófano', nombre: masHoras.nombre, valor: `${estFmt1(masHoras.horas)} h · ${estFmt1(masHoras.share)} % del bloque` },
+    mejorInf && { icono: ICONS.fileText, color: 'var(--green)', titulo: 'Mejor informe en plazo', nombre: mejorInf.nombre, valor: `${Math.round(mejorInf.cumplInforme)} % dentro de 2 h` },
+    masSusp && { icono: ICONS.alertTri.replace(/22/g, '16'), color: 'var(--red)', titulo: 'Mayor suspensión', nombre: masSusp.nombre, valor: `${masSusp.suspendidas} de ${masSusp.programadas} · ${estFmt1(masSusp.tasaSusp)} %` },
+  ]) : '';
+  const th = (c) => `<th class="num orden ${estOrden === c.k ? 'on' : ''}" onclick="estSort('${c.k}')">${c.t}${estOrden === c.k ? ' ' + (estAsc ? ICONS.arrowUp : ICONS.arrowDown) : ''}</th>`;
+  const detalle = !visibles.length
+    ? '<div class="empty">Sin actividad registrada en el período seleccionado.</div>'
+    : estVista === 'cuadro'
+      ? `<div class="tbl-wrap"><table class="tbl estv-cuadro" style="min-width:1080px">
+          <thead><tr>
+            <th class="orden ${estOrden === 'nombre' ? 'on' : ''}" onclick="estSort('nombre')">${clave === 'servicio' ? 'Servicio' : 'Cirujano'}${estOrden === 'nombre' ? ' ' + (estAsc ? ICONS.arrowUp : ICONS.arrowDown) : ''}</th>
+            ${EST_COLUMNAS.map(th).join('')}
+          </tr></thead>
+          <tbody>${visibles.map((g) => estvFilaCuadro(g, clave, colores[g.nombre], esPropia(g), maxReal)).join('')}</tbody>
+        </table></div>${EST_SEMAFORO_NOTA}`
+      : `<div class="estv-cards">${visibles.map((g, i) => estvTarjeta(g, clave, colores[g.nombre], i + 1, esPropia(g), maxReal)).join('')}</div>${EST_SEMAFORO_NOTA}`;
+  return `
+    ${dest}
+    <div class="charts estv-pano">
+      <div class="chart-card">
+        <div class="card-title" style="margin-bottom:4px">Ocupación del bloque ${clave === 'servicio' ? 'por servicio' : 'por cirujano'}</div>
+        <div class="card-sub">Horas de quirófano del período —cirugías, endoscopías y cesáreas—, sobre el total del bloque</div>
+        ${estvAnillo(segs, ctx.totBloqueMin, estFmt1(visMin / 60) + ' h', ctx.todoElBloque ? 'horas de quirófano' : `${estFmt1(ctx.totBloqueMin ? (visMin / ctx.totBloqueMin) * 100 : 0)} % del bloque`)}
+      </div>
+      <div class="chart-card">
+        <div class="card-title" style="margin-bottom:4px">Realizadas y suspendidas por ${quien}</div>
+        <div class="card-sub">Cada barra es todo lo que llegó al parte: lo realizado, lo suspendido y lo que todavía no cerró</div>
+        ${estvApiladas(visibles, colores)}
+      </div>
+    </div>
+    ${estvBarraDetalle(`Detalle por ${quien} · ${visibles.length}`, true)}
+    ${detalle}
+    <div class="charts" style="margin-top:22px">
+      <div class="chart-card">
+        <div class="card-title" style="margin-bottom:4px">Causas de suspensión del período${ctx.todoElBloque ? '' : ' — su servicio'}</div>
+        <div class="card-sub">${ctx.tot.suspendidas} suspensión(es) sobre ${ctx.tot.programadas} cirugías que llegaron al parte</div>
+        ${ctx.causasArr.length ? estvAnillo(ctx.causasArr.map(([c, n], i) => ({ nombre: c, valor: n, color: EST_CAUSAS_COLORES[i % EST_CAUSAS_COLORES.length], txt: n + ' caso(s)' })), ctx.tot.suspendidas, String(ctx.tot.suspendidas), 'suspensiones')
+          : '<div class="empty" style="padding:20px 0">Sin suspensiones registradas en el período.</div>'}
+      </div>
+      <div class="chart-card">
+        <div class="card-title" style="margin-bottom:4px">Cumplimiento de calidad${ctx.todoElBloque ? ' del bloque' : ' de su servicio'}</div>
+        <div class="card-sub">Sobre ${ctx.tot.realizadas} procedimiento(s) finalizado(s) en el período: cirugías, endoscopías y cesáreas</div>
+        ${estvCalidad(ctx.porServ)}
+      </div>
+    </div>`;
+}
+const EST_CAUSAS_COLORES = ['#e8543f', '#f0a92e', '#d946a0', '#c2703a', '#8b5cf6', '#be185d', '#ea7a17', '#6b7ad9'];
+/* Tres medidores grandes con el promedio ponderado del alcance. */
+function estvCalidad(grupos) {
+  const t = grupos.reduce((s, g) => ({ r: s.r + g.realizadas, inf: s.inf + g.informeEnPlazo, lvq: s.lvq + g.lvqOk, p: s.p + g.programadas, su: s.su + g.suspendidas }), { r: 0, inf: 0, lvq: 0, p: 0, su: 0 });
+  if (!t.p) return '<div class="empty" style="padding:20px 0">Sin cirugías en el período.</div>';
+  const inf = t.r ? (t.inf / t.r) * 100 : 0, lvq = t.r ? (t.lvq / t.r) * 100 : 0, susp = (t.su / t.p) * 100;
+  const med = (titulo, v, tono, meta, invertido) => {
+    const col = tono === 'ok' ? 'var(--green)' : tono === 'mid' ? 'var(--amber)' : 'var(--red)';
+    const R = 36, circ = Math.PI * R;   // medio anillo
+    const f = Math.max(0, Math.min(100, invertido ? Math.min(100, v * 5) : v)) / 100;
+    return `<div class="estv-med">
+      <svg viewBox="0 0 100 60"><path d="M14 52 A36 36 0 0 1 86 52" fill="none" class="estv-pista" stroke-width="11" stroke-linecap="round"/>
+        <path d="M14 52 A36 36 0 0 1 86 52" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${f * circ} ${circ}"/></svg>
+      <div class="estv-med-v" style="color:${col}">${estFmt1(v)} %</div>
+      <div class="estv-med-t">${titulo}</div><small>${meta}</small></div>`;
+  };
+  return `<div class="estv-meds">
+    ${t.r ? med('Informe ≤ 2 h', inf, estTonoCumpl(inf), 'meta ≥ 95 %') : ''}
+    ${t.r ? med('LVQ completa', lvq, estTonoCumpl(lvq), 'meta ≥ 95 %') : ''}
+    ${med('Suspensión', susp, estTonoSusp(susp), 'meta &lt; 5 % · escala 0–20 %', true)}
+  </div>`;
+}
+
+/* ---- Solapa «Por tipo de cirugía» ---- */
+function estvTarjetaTipo(t, rank, maxReal) {
+  const color = t.color === TIPO_CX_GRIS ? EST_GRIS : t.color;
+  const abiertas = Math.max(0, t.programadas - t.realizadas - t.suspendidas);
+  const w = (n) => t.programadas ? (n / t.programadas) * 100 : 0;
+  return `<article class="estv-card clic${estTipoSel === t.nombre ? ' sel' : ''}" style="--cc:${color}" onclick="estTipoVer('${attr(t.nombre)}')" title="Ver el desglose por servicio y por cirujano">
+    <header>
+      <span class="estv-av">${esc(estIniciales(t.nombre))}</span>
+      <div class="estv-card-nom"><b>${esc(t.nombre)}</b><small>${esc(t.contexto)}</small></div>
+      ${t.modulo ? `<span class="estv-mod">${modTagsTipo(t)}</span>` : ''}
+      <span class="estv-rank">#${rank}</span>
+    </header>
+    <div class="estv-cifras">
+      <div><span class="estv-big">${t.realizadas}</span><span class="estv-lbl">realizadas</span>
+        <span class="est-mini" style="margin-top:6px"><i style="width:${maxReal ? (t.realizadas / maxReal) * 100 : 0}%;background:var(--cc)"></i></span></div>
+      <div><span class="estv-big">${t.horas ? estFmt1(t.horas) : '—'}</span><span class="estv-lbl">horas qx</span></div>
+      <div class="estv-share">${estvMiniAnillo(t.share, color)}<div><span class="estv-mid">${t.share ? estFmt1(t.share) + ' %' : '—'}</span><span class="estv-lbl">del total</span></div></div>
+    </div>
+    <div class="estv-pp">
+      <div class="estv-apil-barra">
+        <i style="width:${w(t.realizadas)}%;background:var(--cc)"></i>
+        ${t.suspendidas ? `<i class="estv-rayado" style="width:${w(t.suspendidas)}%"></i>` : ''}
+        ${abiertas ? `<i style="width:${w(abiertas)}%;background:${EST_GRIS};opacity:.45"></i>` : ''}
+      </div>
+      <div class="estv-pp-t"><span>${t.programadas} al parte</span><span class="est-pill ${t.programadas ? estTonoSusp(t.tasaSusp) : ''}">${t.suspendidas} susp. · ${t.programadas ? estFmt1(t.tasaSusp) + ' %' : '—'}</span></div>
+    </div>
+    <div class="estv-inds tres">
+      ${estvIndicador('Dur. media', t.durMedia ? Math.round(t.durMedia) + ' min' : '—', '', null)}
+      ${estvIndicador('Servicios', String(t.listaServicios.length || '—'), '', null, t.listaServicios.slice(0, 2).map(([n]) => esc(n)).join(' · '))}
+      ${estvIndicador('Cirujanos', String(t.nCirujanos || '—'), '', null)}
+    </div>
+    <footer>${estTipoSel === t.nombre ? 'Ocultar el desglose ‹' : 'Ver quiénes la sostienen ›'}</footer>
+  </article>`;
+}
+function estvDestacadosTipo(arr) {
+  const con = arr.filter((t) => t.realizadas > 0);
+  if (con.length < 2) return '';
+  const masFrec = con[0];
+  const masHoras = con.slice().sort((a, b) => b.minutos - a.minutos)[0];
+  const masLarga = con.filter((t) => t.durMedia).sort((a, b) => b.durMedia - a.durMedia)[0];
+  const masSusp = arr.filter((t) => t.suspendidas > 0).sort((a, b) => b.tasaSusp - a.tasaSusp)[0];
+  const col = (t) => t.color === TIPO_CX_GRIS ? EST_GRIS : t.color;
+  return estvDestacados([
+    { icono: ICONS.check, color: col(masFrec), titulo: 'La más frecuente', nombre: masFrec.nombre, valor: `${masFrec.realizadas} realizadas · ${estFmt1(masFrec.share)} %` },
+    masHoras && { icono: ICONS.clockSm, color: col(masHoras), titulo: 'La que más quirófano usa', nombre: masHoras.nombre, valor: `${estFmt1(masHoras.horas)} h en el período` },
+    masLarga && { icono: ICONS.zap.replace('16', '15'), color: col(masLarga), titulo: 'La más larga en promedio', nombre: masLarga.nombre, valor: `${Math.round(masLarga.durMedia)} min por cirugía` },
+    masSusp && { icono: ICONS.alertTri.replace(/22/g, '16'), color: 'var(--red)', titulo: 'Mayor suspensión', nombre: masSusp.nombre, valor: `${masSusp.suspendidas} de ${masSusp.programadas} · ${estFmt1(masSusp.tasaSusp)} %` },
+  ]);
+}
+
 function renderEstadisticas() {
   const u = usuarioActual();
   const [desde, hasta] = estRango();
@@ -11198,40 +11690,7 @@ function renderEstadisticas() {
       <div><strong>Cómo leer el cuadro</strong>
       ${todoElBloque ? 'Toque un servicio para ver su desglose por cirujano.' : 'El cuadro muestra el agregado de su servicio.'} Las horas de quirófano usan el tiempo real medido entre incisión y cierre; cuando no está cargado se toma la duración estimada de la solicitud. La columna <b>En espera</b> es una foto del estado actual, no del período elegido.</div></div>` : ''}
 
-    <div class="tbl-wrap">
-      <table class="tbl" style="min-width:1080px">
-        <thead><tr>
-          <th class="orden ${estOrden === 'nombre' ? 'on' : ''}" onclick="estSort('nombre')">${clave === 'servicio' ? 'Servicio' : 'Cirujano'}${estOrden === 'nombre' ? ' ' + (estAsc ? ICONS.arrowUp : ICONS.arrowDown) : ''}</th>
-          ${EST_COLUMNAS.map(th).join('')}
-        </tr></thead>
-        <tbody>
-          ${visibles.length
-            ? visibles.map((g) => estFila(g, clave, !!(u && (mismoProfesional(g.nombre, u.nombre) || (clave === 'cirujano' && g.mails[u.email]))), maxReal)).join('')
-            : `<tr><td colspan="${EST_COLUMNAS.length + 1}"><div class="empty">Sin actividad registrada en el período seleccionado.</div></td></tr>`}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="charts">
-      <div class="chart-card">
-        <div class="card-title" style="margin-bottom:6px">Ocupación del bloque ${todoElBloque ? 'por servicio' : '— su servicio'}</div>
-        <div class="card-sub">Horas de quirófano consumidas en el período${todoElBloque ? '' : ', medidas contra el total del bloque'}</div>
-        ${topHoras.length && topHoras[0].minutos ? topHoras.map((g) => `
-          <div class="barra-fila">
-            <div class="barra-top"><span>${esc(g.nombre)}</span><b>${(g.minutos / 60).toFixed(1)} h · ${g.share.toFixed(1)} %</b></div>
-            <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${todoElBloque ? (g.minutos / maxHoras) * 100 : g.share}%;background:var(--blue)"></div></div>
-          </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin horas de quirófano registradas en el período.</div>'}
-      </div>
-      <div class="chart-card">
-        <div class="card-title" style="margin-bottom:6px">Causas de suspensión del período${todoElBloque ? '' : ' — su servicio'}</div>
-        <div class="card-sub">${tot.suspendidas} suspensión(es) sobre ${tot.programadas} cirugías que llegaron al parte</div>
-        ${causasArr.length ? causasArr.map(([c, n]) => `
-          <div class="barra-fila">
-            <div class="barra-top"><span>${esc(c)}</span><b>${n}</b></div>
-            <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(n / maxCausa) * 100}%;background:var(--red)"></div></div>
-          </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin suspensiones registradas en el período.</div>'}
-      </div>
-    </div>`}`;
+    ${seccionEstGrupos(clave, visibles, { todoElBloque, totBloqueMin: totBloque.minutos, tot, causasArr, porServ })}`}`;
 }
 
 /* ================= RECLAMOS (canal Jefe a Jefe) ================= */
@@ -12236,22 +12695,155 @@ function guardarPerfil() {
   renderSidebar();
 }
 
-/* ================= PROFESIONALES (jefe) =================
+/* ================= PROFESIONALES (jefe) — 3.17.0 =================
    Dos controles distintos conviven en esta vista: la habilitación documental,
    que se calcula sola a partir de lo que cargó el profesional, y la
-   autorización de la cuenta, que la otorga o revoca la Jefatura a mano. */
+   autorización de la cuenta, que la otorga o revoca la Jefatura a mano.
+   Desde la 3.17 se lee como un camino: registro → correo verificado →
+   documentación → autorización → puede programar. Arriba, cuántos hay parados
+   en cada paso (y se toca para filtrar); abajo, una tarjeta por profesional
+   que dice en castellano qué le falta. Las acciones son las mismas de siempre. */
+let profFiltro = 'todos';
+let profBusca = '';
+const PROF_REQ_CORTO = { matricula: 'Matrícula', especialista: 'Especialista', seguro: 'Seguro', rcp: 'RCP', vacunas: 'Vacunas' };
+/* Lo que vence en los próximos 30 días: seguro y RCP (revalidación a 2 años). */
+function profPorVencer(u) {
+  const hoy = hoyISO(), en30 = sumarDias(hoy, 30), out = [];
+  if (u.seguro?.vence && u.seguro.vence >= hoy && u.seguro.vence <= en30) out.push({ k: 'seguro', txt: `Seguro vence el ${fmtFecha(u.seguro.vence)}` });
+  if (u.rcp?.fecha) {
+    const v = sumarDias(u.rcp.fecha, 730);
+    if (v >= hoy && v <= en30) out.push({ k: 'rcp', txt: `RCP vence el ${fmtFecha(v)}` });
+  }
+  return out;
+}
+function profSituacion(u) {
+  const h = habilitacion(u), e = estadoCuenta(u), venc = profPorVencer(u);
+  const faltan = [];
+  if (e === 'baja') faltan.push('cuenta dada de baja');
+  // El correo verificado es condición para que la Jefatura autorice; una vez
+  // autorizada la cuenta ya no se le pide.
+  if (!u.mailVerificado && e !== 'aprobado') faltan.push('verificar su correo');
+  const QUE_FALTA = { matricula: 'matrícula vigente', especialista: 'título de especialista', seguro: 'seguro vigente', rcp: 'RCP al día (revalidación bienal)', vacunas: 'vacunación completa' };
+  h.reqs.filter((r) => !r.ok).forEach((r) => faltan.push(QUE_FALTA[r.k]));
+  if (e === 'pendiente') faltan.push('autorización de la Jefatura');
+  const listo = e === 'aprobado' && h.ok;
+  const paso = e === 'baja' ? 'baja' : listo ? 'listo' : (!u.mailVerificado && e !== 'aprobado') ? 'correo' : !h.ok ? 'docs' : 'autorizar';
+  return { h, e, venc, faltan, listo, paso };
+}
+const PROF_FILTROS = [
+  { k: 'todos', t: 'Todos', f: () => true },
+  { k: 'autorizar', t: 'Esperan autorización', f: (x) => x.e === 'pendiente', tono: 'amber' },
+  { k: 'correo', t: 'Correo sin verificar', f: (x) => x.e === 'pendiente' && !x.u.mailVerificado, tono: 'amber' },
+  { k: 'docs', t: 'Documentación incompleta', f: (x) => x.e !== 'baja' && !x.h.ok, tono: 'red' },
+  { k: 'vence', t: 'Vence en 30 días', f: (x) => x.e !== 'baja' && x.venc.length > 0, tono: 'amber' },
+  { k: 'listo', t: 'Pueden programar', f: (x) => x.listo, tono: 'green' },
+  { k: 'baja', t: 'Dados de baja', f: (x) => x.e === 'baja', tono: 'red' },
+];
+function profFiltrar(k) { profFiltro = k; profAplicarFiltro(); }
+function profBuscar(v) { profBusca = v; profAplicarFiltro(); }
+/* Filtra sin repintar: así el buscador no pierde el foco mientras se escribe. */
+function profAplicarFiltro() {
+  const q = sinTildes(String(profBusca || '').toLowerCase()).trim();
+  const f = PROF_FILTROS.find((x) => x.k === profFiltro) || (/^paso-/.test(profFiltro) ? { k: profFiltro } : PROF_FILTROS[0]);
+  let vis = 0;
+  document.querySelectorAll('.prof-card').forEach((el) => {
+    const enFiltro = (el.dataset.filtros || '').split(' ').includes(f.k) || f.k === 'todos';
+    const enBusca = !q || (el.dataset.busca || '').includes(q);
+    const mostrar = enFiltro && enBusca;
+    el.style.display = mostrar ? '' : 'none';
+    if (mostrar) vis++;
+  });
+  document.querySelectorAll('.prof-chip').forEach((el) => el.classList.toggle('on', el.dataset.k === f.k));
+  document.querySelectorAll('.prof-paso').forEach((el) => el.classList.toggle('on', el.dataset.k === f.k));
+  const n = $('prof-vis'); if (n) n.textContent = vis;
+  const v = $('prof-vacio'); if (v) v.style.display = vis ? 'none' : '';
+}
+function profTarjeta(x) {
+  const { u, h, e, venc, faltan, listo } = x;
+  const id = esc(u.id);
+  const servs = serviciosDe(u);
+  const color = servs.length ? estColorServicio(servs[0]) : EST_GRIS;
+  const anio = hoyISO().slice(0, 4);
+  const cx = DB.cirugias.filter((c) => (c.fecha || '').startsWith(anio) && cirugiaCerrada(c)
+    && ((c.cirujanoEmail && c.cirujanoEmail === u.email) || mismoProfesional(c.cirujano, u.nombre))).length;
+  const nOk = h.reqs.filter((r) => r.ok).length;
+  const vence = (k) => venc.some((v) => v.k === k);
+  // Además de los filtros de las pastillas, el paso del camino en que está
+  // parado (lo que filtra el embudo de arriba).
+  const filtros = PROF_FILTROS.filter((f) => f.k !== 'todos' && f.f(x)).map((f) => f.k)
+    .concat(['paso-' + x.paso], e !== 'baja' ? ['paso-activos'] : []).join(' ');
+  const busca = sinTildes([u.nombre, u.email, u.dni, serviciosTexto(u)].join(' ').toLowerCase());
+  const estado = e === 'baja' ? { t: 'Dado de baja', c: 'bad' } : listo ? { t: 'Puede programar', c: 'ok' }
+    : e === 'pendiente' ? { t: 'Espera autorización', c: 'mid' } : { t: 'Autorizado · le falta documentación', c: 'mid' };
+  const pasos = [
+    { t: 'Correo', ok: !!u.mailVerificado || e === 'aprobado' },
+    { t: 'Documentación', ok: h.ok },
+    { t: 'Autorización', ok: e === 'aprobado' },
+  ];
+  return `<article class="prof-card ${e}" style="--pc:${color}" data-filtros="${filtros}" data-busca="${esc(busca)}">
+    <header>
+      <span class="prof-av">${esc(estIniciales(u.nombre))}</span>
+      <div class="prof-id">
+        <b>${esc(u.nombre)}</b>${u.prueba ? ' <span class="badge-pend">PRUEBA</span>' : ''}
+        <small>${esc(u.email)}${u.dni ? ' · DNI ' + esc(u.dni) : ''}</small>
+      </div>
+      <span class="prof-estado ${estado.c}">${estado.t}</span>
+    </header>
+    <div class="prof-servs">${servs.length
+      ? servs.map((s, i) => `<span class="prof-serv" style="--sc:${estColorServicio(s)}">${esc(s)}${i === 0 && servs.length > 1 ? ' <small>principal</small>' : ''}</span>`).join('')
+      : '<span class="prof-serv" style="--sc:var(--muted)">Sin servicio</span>'}</div>
+    <div class="prof-camino" aria-label="Camino para programar">
+      ${pasos.map((p) => `<span class="prof-pp ${p.ok ? 'ok' : ''}">${p.ok ? ICONS.check : '<i></i>'} ${p.t}</span>`).join('<span class="prof-flecha"></span>')}
+      <span class="prof-flecha"></span>
+      <span class="prof-pp meta ${listo ? 'ok' : ''}">${listo ? ICONS.check : '<i></i>'} Programa</span>
+    </div>
+    <div class="prof-hab">
+      <div class="prof-hab-ring">${estvMiniAnillo((nOk / 5) * 100, h.ok ? 'var(--green)' : nOk >= 3 ? 'var(--amber)' : 'var(--red)')}<span>${nOk}/5</span></div>
+      <div class="prof-reqs">${h.reqs.map((r) => {
+        const tono = !r.ok ? 'bad' : vence(r.k) ? 'mid' : 'ok';
+        return `<span class="prof-req ${tono}" title="${esc(r.label)} — ${esc(r.det)}">${tono === 'bad' ? ICONS.x : tono === 'mid' ? ICONS.clockSm : ICONS.check} ${PROF_REQ_CORTO[r.k]}</span>`;
+      }).join('')}</div>
+    </div>
+    ${faltan.length && e !== 'baja' ? `<div class="prof-falta">${ico(ICONS.info, 14)}<span><b>Para programar le falta:</b> ${esc(faltan.join(', '))}.</span></div>` : ''}
+    ${venc.length ? `<div class="prof-falta mid">${ico(ICONS.clockSm, 14)}<span>${esc(venc.map((v) => v.txt).join(' · '))}.</span></div>` : ''}
+    ${e === 'baja' && u.cuentaMotivo ? `<div class="prof-falta">${ico(ICONS.x, 14)}<span><b>Motivo de la baja:</b> ${esc(u.cuentaMotivo)}</span></div>` : ''}
+    <div class="prof-pie">
+      <span title="Cirugías finalizadas en ${anio}"><b>${cx}</b> cirugía(s) en ${anio}</span>
+      ${u.cuentaFecha ? `<span>${e === 'baja' ? 'Baja' : e === 'aprobado' ? 'Autorizado' : 'Alta'} ${fmtDT(u.cuentaFecha)}</span>` : ''}
+    </div>
+    <div class="prof-acc">
+      ${e !== 'aprobado' ? `<button class="btn btn-sm btn-blue" onclick="autorizarCuenta('${id}')">${ico(ICONS.check, 14)} ${e === 'baja' ? 'Reactivar' : 'Autorizar'}</button>` : ''}
+      <button class="btn btn-sm btn-outline" onclick="abrirEditarServicios('${id}')">${ico(ICONS.layers, 14)} Servicios</button>
+      <button class="btn btn-sm btn-outline" onclick="blanquearClave('${id}')" title="Le envía un enlace a su correo para que elija una contraseña nueva">${ico(ICONS.key, 14)} Blanquear contraseña</button>
+      ${e !== 'baja' ? `<button class="btn btn-sm btn-red-soft" onclick="darDeBajaCuenta('${id}')">${ico(ICONS.x, 14)} Dar de baja</button>` : ''}
+      <button class="btn btn-sm btn-ghost-red" onclick="eliminarProfesional('${id}')" title="Eliminar la cuenta">${ico(ICONS.trash, 14)} Eliminar</button>
+    </div>
+  </article>`;
+}
 function renderUsuarios() {
   const lista = DB.usuarios.slice().sort((a, b) => a.nombre.localeCompare(b.nombre));
-  const habilitados = lista.filter((u) => habilitacion(u).ok).length;
-  const porEstado = (e) => lista.filter((u) => estadoCuenta(u) === e);
-  const pend = porEstado('pendiente'), bajas = porEstado('baja'), oks = porEstado('aprobado');
+  const X = lista.map((u) => Object.assign({ u }, profSituacion(u)));
+  const ORDEN = { autorizar: 0, correo: 1, docs: 2, listo: 3, baja: 4 };
+  X.sort((a, b) => ORDEN[a.paso] - ORDEN[b.paso] || a.u.nombre.localeCompare(b.u.nombre));
+  const cuenta = (k) => X.filter((PROF_FILTROS.find((f) => f.k === k) || PROF_FILTROS[0]).f).length;
+  const habilitados = X.filter((x) => x.h.ok).length;
+  const activos = X.filter((x) => x.e !== 'baja');
+  // El embudo: cuántos están parados en cada paso del camino.
+  const pasos = [
+    { k: 'paso-activos', t: 'Registrados', n: activos.length, c: 'var(--blue)', d: 'cuentas activas' },
+    { k: 'paso-correo', t: 'Correo sin verificar', n: activos.filter((x) => x.paso === 'correo').length, c: '#8b5cf6', d: 'abrir el enlace del alta' },
+    { k: 'paso-docs', t: 'Documentación', n: activos.filter((x) => x.paso === 'docs').length, c: 'var(--red)', d: 'la carga cada uno en Mi Perfil' },
+    { k: 'paso-autorizar', t: 'Esperan autorización', n: activos.filter((x) => x.paso === 'autorizar').length, c: 'var(--amber)', d: 'le toca a la Jefatura' },
+    { k: 'paso-listo', t: 'Pueden programar', n: activos.filter((x) => x.paso === 'listo').length, c: 'var(--green)', d: 'cuenta y papeles al día' },
+  ];
+  const maxPaso = Math.max(1, ...pasos.map((p) => p.n));
   $('main').innerHTML = `
     <div class="page-head">
       <div class="head-row">
         <div class="head-icon">${ICONS.users}</div>
         <div>
           <h1 class="page-title">Profesionales</h1>
-          <p class="page-sub">${oks.length} autorizados · ${pend.length} pendientes · ${bajas.length} dados de baja — ${habilitados} de ${lista.length} con habilitación documental completa</p>
+          <p class="page-sub">${cuenta('listo')} pueden programar · ${cuenta('autorizar')} esperan autorización · ${cuenta('baja')} dados de baja — ${habilitados} de ${lista.length} con habilitación documental completa</p>
         </div>
       </div>
     </div>
@@ -12269,54 +12861,36 @@ function renderUsuarios() {
         <div style="margin-top:10px"><button class="btn btn-sm btn-blue" onclick="explicarConexion()">${ico(ICONS.info, 14)} Ver estado y reintentar</button></div></div></div>`;
     })()}
 
-    ${pend.length ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 20)}
-      <div><strong>${pend.length} profesional(es) esperando su autorización</strong>
-      Ninguna de estas cuentas puede programar cirugías hasta que la Jefatura la autorice: ${pend.map((u) => esc(u.nombre)).join(' · ')}.</div></div>` : ''}
+    ${bannerPlegable('prof-dos-controles', 'blue', ICONS.info, 'Dos controles independientes',
+      'Para programar hacen falta la autorización de la cuenta y la documentación al día.',
+      `<p>La <b>autorización de la cuenta</b> la da y la revoca la Jefatura de Quirófanos en esta pantalla. La <b>habilitación documental</b> —matrícula provincial vigente, título de especialista, seguro de responsabilidad civil, RCP con revalidación bienal y vacunación completa— la carga cada profesional en Mi Perfil y el sistema la verifica sola. Antes de autorizar, el profesional tiene que haber verificado su correo. Para programar hacen falta las dos cosas.</p>`)}
 
-    <div class="banner banner-blue">${ICONS.info}
-      <div><strong>Dos controles independientes</strong>
-      La <b>autorización de la cuenta</b> la da y la revoca la Jefatura de Quirófanos en esta pantalla. La <b>habilitación documental</b> —matrícula provincial vigente, título de especialista, seguro de responsabilidad civil, RCP con revalidación bienal y vacunación completa— la carga cada profesional en Mi Perfil y el sistema la verifica solo. Para programar hacen falta las dos.</div></div>
+    <div class="chart-card prof-embudo-card">
+      <div class="card-title" style="margin-bottom:4px">Camino para programar</div>
+      <div class="card-sub">Cuántos profesionales están parados en cada paso. Toque un paso para ver quiénes son.</div>
+      <div class="prof-embudo">${pasos.map((p, i) => `
+        <button type="button" class="prof-paso" data-k="${p.k}" style="--fc:${p.c}" onclick="profFiltrar('${p.k}')">
+          <span class="prof-paso-n">${p.n}</span>
+          <span class="prof-paso-t">${i ? `<em>${i}</em>` : ''}${p.t}</span>
+          <span class="prof-paso-b"><i style="width:${(p.n / maxPaso) * 100}%"></i></span>
+          <small>${p.d}</small>
+        </button>`).join('')}</div>
+    </div>
 
     ${tarjetaServiciosAgregados()}
 
-    <div class="tbl-wrap">
-      <table class="tbl">
-        <thead><tr>
-          <th>Profesional</th><th>Servicios</th><th>Cuenta</th><th>Matrícula</th><th>Especialista</th><th>Seguro</th><th>RCP</th><th>Vacunas</th><th>Habilitación</th><th>Acciones de Jefatura</th>
-        </tr></thead>
-        <tbody>
-          ${lista.length ? lista.map((u) => {
-            const h = habilitacion(u);
-            const e = estadoCuenta(u);
-            const b = (ok) => ok ? `<span class="badge-ok">${ICONS.check}</span>` : `<span class="badge-no">${ICONS.x}</span>`;
-            const id = esc(u.id);
-            return `<tr>
-              <td><b>${esc(u.nombre)}</b>${u.prueba ? ' <span class="badge-pend">PRUEBA</span>' : ''}<div class="req-sub">${esc(u.email)}${u.dni ? ' · DNI ' + esc(u.dni) : ''}</div></td>
-              <td>${esc(serviciosTexto(u))}</td>
-              <td><span class="${CUENTAS[e].badge}">${CUENTAS[e].label}</span>
-                ${u.cuentaFecha ? `<div class="req-sub">${fmtDT(u.cuentaFecha)}</div>` : ''}
-                ${e === 'baja' && u.cuentaMotivo ? `<div class="req-sub" style="color:var(--red)">Motivo: ${esc(u.cuentaMotivo)}</div>` : ''}
-                <div style="margin-top:6px">${u.mailVerificado ? '<span class="badge-ok">Correo verificado</span>' : '<span class="badge-no">Correo sin verificar</span>'}</div></td>
-              <td>${b(h.reqs[0].ok)}</td>
-              <td>${b(h.reqs[1].ok)}</td>
-              <td>${b(h.reqs[2].ok)}<div class="req-sub">${u.seguro?.vence ? fmtFecha(u.seguro.vence) : '—'}</div></td>
-              <td>${b(h.reqs[3].ok)}<div class="req-sub">${u.rcp?.fecha ? fmtFecha(u.rcp.fecha) : '—'}</div></td>
-              <td>${b(h.reqs[4].ok)}</td>
-              <td>${h.ok ? '<span class="badge-ok">Habilitado</span>' : '<span class="badge-no">Incompleto</span>'}</td>
-              <td><div class="cir-actions" style="margin:0">
-                ${e !== 'aprobado' ? `<button class="btn btn-sm btn-blue" onclick="autorizarCuenta('${id}')">${ico(ICONS.check, 14)} ${e === 'baja' ? 'Reactivar' : 'Autorizar'}</button>` : ''}
-                ${e !== 'baja' ? `<button class="btn btn-sm btn-red" onclick="darDeBajaCuenta('${id}')">${ico(ICONS.x, 14)} Dar de baja</button>` : ''}
-                <button class="btn btn-sm btn-outline" onclick="abrirEditarServicios('${id}')">${ico(ICONS.layers, 14)} Servicios</button>
-                <button class="btn btn-sm btn-outline" onclick="blanquearClave('${id}')" title="Le envía un enlace a su correo para que elija una contraseña nueva">${ico(ICONS.key, 14)} Blanquear contraseña</button>
-                <button class="btn btn-sm btn-outline" onclick="eliminarProfesional('${id}')">${ico(ICONS.trash, 14)} Eliminar</button>
-              </div></td>
-            </tr>`;
-          }).join('') : '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">No hay profesionales registrados.</td></tr>'}
-        </tbody>
-      </table>
+    <div class="prof-filtros">
+      <div class="prof-busca">${ico(ICONS.search, 15)}
+        <input type="search" placeholder="Buscar por nombre, correo, DNI o servicio" value="${esc(profBusca)}" oninput="profBuscar(this.value)" aria-label="Buscar profesional"></div>
+      <div class="prof-chips">${PROF_FILTROS.map((f) => `<button type="button" class="prof-chip ${f.tono || ''}" data-k="${f.k}" onclick="profFiltrar('${f.k}')">${f.t} <span>${cuenta(f.k)}</span></button>`).join('')}</div>
     </div>
+    <div class="estv-barra"><div class="estv-barra-t">Mostrando <span id="prof-vis">${X.length}</span> de ${X.length}</div></div>
+
+    <div class="prof-grid">${X.map(profTarjeta).join('')}</div>
+    <div id="prof-vacio" class="empty" style="display:none">${lista.length ? 'Ningún profesional coincide con el filtro.' : 'No hay profesionales registrados.'}</div>
 
     ${cardDatosPrueba()}`;
+  profAplicarFiltro();
 }
 
 /* ---- Acciones de la Jefatura sobre una cuenta ----
