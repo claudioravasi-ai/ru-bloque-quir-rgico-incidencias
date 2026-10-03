@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.17.1'
+VERSION = '3.18.0'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -166,8 +166,19 @@ BLOQUES = [
     ['Realizada', 'Lista de salida e informe operatorio cargados', 'Equipo en sala'],
     ['Finalizada', 'Caso cerrado: además, Admisión autorizada y validación regularizada. Recién acá computa', 'Automático al completarse lo que faltaba'],
     ['Suspendida', 'No se realizó; lleva causa y genera una incidencia de categoría D', 'Jefatura o cirujano'],
-    ['Resuelta por urgencia', 'El paciente se operó de urgencia antes de su turno: la franja vuelve al bloque sin contar como suspensión', 'Jefatura'],
+    ['Resuelta por urgencia', 'El paciente se operó de urgencia antes de su turno: la franja vuelve al bloque sin contar como suspensión', 'Jefatura o cirujano'],
+    ['Sin resolver', 'Pasó el día del turno y sigue en borrador, pendiente, validada o confirmada: nadie lo inició, lo suspendió ni lo cerró. No se guarda: lo calcula la aplicación con la fecha', 'Automático, desde el día siguiente'],
+    ['Caducada', 'Pasó la fecha sin que el turno llegara a confirmarse en el parte. Lleva motivo y no cuenta como suspensión', 'Jefatura, cirujano o, a los 7 días, la aplicación'],
 ]),
+('h3', 'Los turnos que quedaron atrás'),
+('p', 'Desde la 3.18, un turno cuyo día ya pasó y que nadie cerró no queda «Confirmada» para siempre: al día siguiente pasa a **Sin resolver**, con etiqueta roja, primero en *Mis Solicitudes* y en un grupo propio, el primero de *Programación Quirúrgica*. El botón **Iniciar** desaparece y queda uno solo, **Resolver turno**, que lo puede tocar el cirujano dueño del turno o la Jefatura. Ofrece tres salidas, todas con rastro en el historial:'),
+('ul', [
+    '**Se operó, pero no se registró** → *registro fuera de término*. Lo asienta solo la Jefatura, con su credencial: horas reales de inicio y fin, parte quirúrgico, motivo y la constancia de que la Lista de Verificación se hizo en papel y figura en la historia clínica. Si la Lista no se hizo, no se registra por acá: corresponde una incidencia. El parte queda fuera del plazo de 2 h y, si no falta nada más, la cirugía pasa a **Finalizada**.',
+    '**No se operó** → si había llegado al parte, queda **Suspendida** con causa obligatoria y genera la incidencia de categoría D, como toda suspensión. Si nunca se confirmó, queda **Caducada** con su motivo (turno no confirmado a tiempo, falta de autorización del financiador, estudios incompletos, el paciente no se presentó, reprogramada u otra) y no cuenta como suspensión.',
+    '**Se operó antes, de urgencia o adelantada** → **Resuelta por anticipado**, como hasta ahora.',
+]),
+('p', 'Mientras siga sin resolver, el cirujano y la Jefatura reciben cada día un aviso rojo: «Turno del … sin resolver». Si en **7 días** nadie dice qué pasó, la aplicación lo cierra sola: el confirmado queda **Suspendida** con la causa *«Sin registro del equipo (cierre administrativo)»* y el que nunca se confirmó queda **Caducada**. Ese cierre automático no genera incidencia de categoría D, pero se cuenta en *Indicadores de Gestión*. La Jefatura puede reabrir con motivo un turno caducado o cerrado por la aplicación: vuelve a *Sin resolver* y el plazo de 7 días corre de nuevo. Los turnos que ya estaban atrasados cuando salió la 3.18 empezaron a contar los 7 días el 3 de octubre de 2026.'),
+('p', 'En la ficha de la cirugía, el apartado de módulos dice **«Todavía no computa en Módulos Quirúrgicos: se imputa cuando la cirugía quede Finalizada»** mientras el caso no esté cerrado, y **«Computa en Módulos Quirúrgicos»** cuando ya lo está.'),
 
 # ─────────────────────────────────────────────────────────────── 4
 ('h1', '4. Urgencias y emergencias'),
@@ -200,7 +211,8 @@ BLOQUES = [
     'Revisar las solicitudes que entraron antes del cierre de las 13:00 h (el viernes, las del sábado, el domingo y el lunes).',
     'En la ficha de cada turno, marcar las verificaciones de coordinación y tocar **Validar y confirmar en el parte**.',
     'Publicar el Parte Quirúrgico a las 14:00 h del día hábil previo: el del lunes, el viernes.',
-    'Suspender cuando corresponda, siempre con causa: la suspensión genera sola una incidencia de categoría D.',
+    'Suspender cuando corresponda, siempre con causa: la suspensión genera sola una incidencia de categoría D. Desde la 3.18 se suman dos causas: *Falta de autorización del financiador* y *Reprogramada*.',
+    '**Turnos sin resolver**: el grupo rojo que encabeza Programación Quirúrgica. Cada uno se cierra con **Resolver turno** (ver *Los turnos que quedaron atrás*, en la sección 3). Solo la Jefatura puede asentar un registro fuera de término y reabrir un turno caducado o cerrado por la aplicación.',
     '**Resuelta por urgencia**: si el paciente de un turno programado se operó antes por guardia, el turno no se suspende —no hubo falla de proceso—; se libera la franja y queda vinculado con la urgencia.',
     '**Programación fuera de horario**: la única llave para cargar un turno en una franja cerrada o pasado el cierre. Pide otra vez la credencial, el profesional se elige del padrón, lleva motivo y detalle, y el cirujano recibe un comunicado urgente para que avise si no lo autorizó.',
 ]),
@@ -304,6 +316,7 @@ BLOQUES = [
     ['Cumplimiento del informe operatorio', 'Cirugías con el informe cargado a tiempo', '95 % o más'],
 ]),
 ('p', 'Se acompañan de la actividad por servicio y de las causas de suspensión del mes. La utilización se calcula con las horas reales de inicio y fin que registra la Lista de Verificación.'),
+('p', 'Desde la 3.18 se suman los **turnos que quedaron atrás**. Un cartel rojo avisa cuántos turnos del mes siguen sin resolver. El cuadro *Turnos que quedaron sin registro* muestra, por servicio y por cirujano, los cerrados por la aplicación sin registro del equipo —que ya están incluidos en la tasa de suspensiones— y los caducados, que nunca llegaron al parte y se informan aparte, fuera de esa tasa. En *Estadísticas*, junto a las suspensiones de cada servicio o cirujano figura cuántas fueron «sin registro».'),
 ('h2', '9.3. Tablero público de actividad'),
 ('p', 'Quien abre la aplicación sin ingresar encuentra la solapa **Estadísticas**: la actividad de la semana en curso, de lunes a domingo, en seis gráficos —cirugías programadas y de urgencia, endoscopías programadas y de urgencia, cesáreas programadas y de urgencia—, actualizada en vivo. Solo cuenta casos cerrados. **No contiene ningún dato de pacientes ni de profesionales**: son seis contadores. Al ingresar a una cuenta, la solapa se reemplaza por las estadísticas propias. La página está marcada para que los buscadores no la indexen.'),
 
@@ -387,7 +400,16 @@ BLOQUES = [
 ]),
 
 # ─────────────────────────────────────────────────────────────── 14
-('h1', '14. Novedades de las versiones 3.12 a 3.17'),
+('h1', '14. Novedades de las versiones 3.12 a 3.18'),
+('h2', 'Versión 3.18 — Turnos sin resolver'),
+('ul', [
+    'Un turno cuyo día pasó sin que nadie lo iniciara, suspendiera o cerrara pasa a **Sin resolver**, con un solo botón: **Resolver turno** (se operó y no se registró, no se operó, o se operó antes).',
+    'Estado nuevo **Caducada** para los turnos que nunca llegaron a confirmarse: no cuenta como suspensión.',
+    'Aviso diario al cirujano y a la Jefatura y **cierre automático a los 7 días**, que la Jefatura puede reabrir con motivo.',
+    'Registro fuera de término sobre el turno existente, con horas reales, parte quirúrgico y constancia de la Lista de Verificación en papel.',
+    'Indicadores: turnos sin resolver del mes, y cerrados sin registro y caducados por servicio y por cirujano.',
+    'En la ficha, los módulos dicen si la cirugía ya computa o todavía no.',
+]),
 ('h2', 'Versión 3.17 — Estadísticas visuales y Profesionales'),
 ('ul', [
     '3.17.1: en Profesionales, el paso naranja del camino pasó a llamarse **Listos para autorizar** y el filtro, **Sin autorizar**. Antes los dos se llamaban «Esperan autorización» y mostraban números distintos: el paso cuenta solo a quienes ya tienen correo y papeles; el filtro, a todas las cuentas sin autorizar.',
@@ -448,6 +470,7 @@ BLOQUES = [
     ['Respuesta a un reclamo', '48 horas hábiles', 'Jefatura y autor'],
     ['Enlace para restablecer contraseña', 'Vence en 1 hora', 'Titular de la cuenta'],
     ['Espera quirúrgica prolongada', 'Más de 90 días', 'Cirujano y Jefatura'],
+    ['Turno sin resolver', 'Desde el día siguiente al turno; cierre automático a los 7 días', 'Cirujano del turno y Jefatura'],
     ['Vigencias de habilitación', 'Matrícula, seguro, RCP y vacunas', 'Profesional titular'],
 ]),
 ('p', 'Estos plazos se recalculan en vivo, cada minuto y cada vez que la aplicación vuelve al primer plano. No son alarmas que alguien configuró: se derivan del estado real de los datos y del reloj, y desaparecen solos cuando el problema se resuelve.'),
