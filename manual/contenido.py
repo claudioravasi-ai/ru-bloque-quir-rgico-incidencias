@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.16.1'
+VERSION = '3.17.0'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -207,6 +207,7 @@ BLOQUES = [
 ('h3', 'Paso 3 — Regularizar las urgencias'),
 ('p', 'Las urgencias entran sin validación previa. La Jefatura abre la ficha y toca **Regularizar validación**. La aplicación le muestra lo que quedaba sin verificar y lo deja asentado. Si era lo último que faltaba, avisa que la cirugía queda **Finalizada y ya computa** en las estadísticas y en los módulos.'),
 ('h3', 'Paso 4 — Cuentas profesionales y servicios'),
+('p', 'La solapa **Profesionales** se lee como un camino: **registro → correo verificado → documentación → autorización → puede programar**. Arriba, el cuadro *Camino para programar* dice cuántos profesionales están parados en cada paso; al tocar un paso se ven quiénes son. Debajo hay un buscador (nombre, correo, DNI o servicio) y filtros rápidos: esperan autorización, correo sin verificar, documentación incompleta, **vence en 30 días** (seguro o RCP), pueden programar y dados de baja. Cada profesional tiene su tarjeta, con sus servicios en color, los cinco requisitos en verde, ámbar (por vencer) o rojo, y una línea que dice en castellano **qué le falta para programar**. Las cuentas que esperan autorización van primero y con borde ámbar.'),
 ('ul', [
     'Autorizar, dar de baja —con motivo— y reactivar cuentas. **La primera autorización exige el correo verificado**; la aplicación lo indica en cada profesional con «Correo verificado» o «Correo sin verificar».',
     '**Blanquear contraseña**: envía al profesional un enlace a su correo.',
@@ -291,6 +292,8 @@ BLOQUES = [
 ('ul', [
     'Volumen por período, por servicio, por cirujano y por tipo de cirugía; urgencias y programación fuera de horario por separado.',
     'Suspensiones y sus causas; distribución por complejidad; espera quirúrgica, con alerta sobre los turnos que superan los 90 días.',
+    '**Cómo se lee (desde la 3.17).** Las tres solapas —por servicio, por cirujano y por tipo de cirugía— arrancan con una franja de **destacados** (lo que más se operó, lo que más quirófano usó, el mejor informe en plazo, la mayor suspensión) y un **panorama** de dos gráficos: un anillo de colores con la parte del bloque que ocupa cada uno y barras con lo realizado, lo suspendido (rayado rojo) y lo que todavía no cerró. Cada servicio tiene siempre el mismo color en todos los gráficos.',
+    'Debajo, el **detalle** se ve a elección en **Tarjetas** —una por servicio, cirujano o práctica, con realizadas, horas, porcentaje del bloque, suspensiones, duración media, informe en 2 horas, Lista de Verificación completa y espera— o en el **Cuadro de colores**, la tabla de siempre con semáforo: verde en meta, ámbar a mejorar, rojo fuera de meta (suspensión menor a 5 %, informe y Lista de Verificación de 95 % o más, espera media de 30 días o menos). La elección se recuerda en cada equipo. Al pie, las causas de suspensión en anillo y tres medidores de calidad del período.',
     '**Quién ve qué.** El profesional ve el agregado de **cada uno de sus servicios** y su propia producción. El desglose nominal completo —cada cirujano, uno por uno— queda reservado a la Jefatura y a la Dirección. Un indicador sirve para mejorar el proceso, y ese uso no requiere exponer el rendimiento individual de cada colega.',
 ]),
 ('h2', '9.2. Indicadores de gestión (Jefatura)'),
@@ -384,7 +387,13 @@ BLOQUES = [
 ]),
 
 # ─────────────────────────────────────────────────────────────── 14
-('h1', '14. Novedades de las versiones 3.12 a 3.16'),
+('h1', '14. Novedades de las versiones 3.12 a 3.17'),
+('h2', 'Versión 3.17 — Estadísticas visuales y Profesionales'),
+('ul', [
+    'Las estadísticas por servicio, por cirujano y por tipo de cirugía se rediseñaron para leerse de un vistazo: destacados, anillo de ocupación, barras de realizadas y suspendidas, tarjetas de colores o cuadro con semáforo, causas de suspensión en anillo y medidores de calidad. Los datos y lo que ve cada perfil no cambiaron.',
+    'Las estadísticas cuentan, como siempre, cirugías, endoscopías y cesáreas: la Sala de Endoscopía y el Quirófano de Obstetricia son parte del bloque.',
+    '**Profesionales** rediseñada: camino para programar con conteo por paso, buscador, filtros (incluido «vence en 30 días») y tarjetas que dicen qué le falta a cada uno.',
+]),
 ('h2', 'Versión 3.16.1 — Cierre del viernes, urgencias cumplidas, «Otra» especialidad y notificaciones'),
 ('ul', [
     '**La lista del lunes cierra el viernes a las 13:00 h.** Antes cerraba el domingo, de modo que el sábado la grilla del lunes seguía abierta. Ahora el cierre es siempre el del día hábil previo, sábados y domingos no hay cierre, y la regla de 24 horas de anticipación sigue vigente además del cierre. Las franjas fuera de plazo dicen **«Lista cerrada»** y un cartel arriba de la grilla explica hasta cuándo se pudo pedir.',
