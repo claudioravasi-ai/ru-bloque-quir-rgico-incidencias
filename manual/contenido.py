@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.17.0'
+VERSION = '3.17.1'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -207,7 +207,7 @@ BLOQUES = [
 ('h3', 'Paso 3 — Regularizar las urgencias'),
 ('p', 'Las urgencias entran sin validación previa. La Jefatura abre la ficha y toca **Regularizar validación**. La aplicación le muestra lo que quedaba sin verificar y lo deja asentado. Si era lo último que faltaba, avisa que la cirugía queda **Finalizada y ya computa** en las estadísticas y en los módulos.'),
 ('h3', 'Paso 4 — Cuentas profesionales y servicios'),
-('p', 'La solapa **Profesionales** se lee como un camino: **registro → correo verificado → documentación → autorización → puede programar**. Arriba, el cuadro *Camino para programar* dice cuántos profesionales están parados en cada paso; al tocar un paso se ven quiénes son. Debajo hay un buscador (nombre, correo, DNI o servicio) y filtros rápidos: esperan autorización, correo sin verificar, documentación incompleta, **vence en 30 días** (seguro o RCP), pueden programar y dados de baja. Cada profesional tiene su tarjeta, con sus servicios en color, los cinco requisitos en verde, ámbar (por vencer) o rojo, y una línea que dice en castellano **qué le falta para programar**. Las cuentas que esperan autorización van primero y con borde ámbar.'),
+('p', 'La solapa **Profesionales** se lee como un camino: **registro → correo verificado → documentación → autorización → puede programar**. Arriba, el cuadro *Camino para programar* dice cuántos profesionales están parados en cada paso —cada uno cuenta solo en el primer paso que le falta—; al tocar un paso se ven quiénes son. **Listos para autorizar** son los que ya verificaron el correo y tienen la documentación completa: solo les falta el OK de la Jefatura. Debajo hay un buscador (nombre, correo, DNI o servicio) y filtros rápidos: **sin autorizar** (todas las cuentas que la Jefatura todavía no autorizó, les falte o no algo antes), correo sin verificar, documentación incompleta, **vence en 30 días** (seguro o RCP), pueden programar y dados de baja. Cada profesional tiene su tarjeta, con sus servicios en color, los cinco requisitos en verde, ámbar (por vencer) o rojo, y una línea que dice en castellano **qué le falta para programar**. La etiqueta de la tarjeta dice qué tiene que pasar primero: «Listo para autorizar», «Sin autorizar · falta verificar el correo» o «Sin autorizar · falta documentación». Las cuentas listas para autorizar van primero.'),
 ('ul', [
     'Autorizar, dar de baja —con motivo— y reactivar cuentas. **La primera autorización exige el correo verificado**; la aplicación lo indica en cada profesional con «Correo verificado» o «Correo sin verificar».',
     '**Blanquear contraseña**: envía al profesional un enlace a su correo.',
@@ -390,6 +390,7 @@ BLOQUES = [
 ('h1', '14. Novedades de las versiones 3.12 a 3.17'),
 ('h2', 'Versión 3.17 — Estadísticas visuales y Profesionales'),
 ('ul', [
+    '3.17.1: en Profesionales, el paso naranja del camino pasó a llamarse **Listos para autorizar** y el filtro, **Sin autorizar**. Antes los dos se llamaban «Esperan autorización» y mostraban números distintos: el paso cuenta solo a quienes ya tienen correo y papeles; el filtro, a todas las cuentas sin autorizar.',
     'Las estadísticas por servicio, por cirujano y por tipo de cirugía se rediseñaron para leerse de un vistazo: destacados, anillo de ocupación, barras de realizadas y suspendidas, tarjetas de colores o cuadro con semáforo, causas de suspensión en anillo y medidores de calidad. Los datos y lo que ve cada perfil no cambiaron.',
     'Las estadísticas cuentan, como siempre, cirugías, endoscopías y cesáreas: la Sala de Endoscopía y el Quirófano de Obstetricia son parte del bloque.',
     '**Profesionales** rediseñada: camino para programar con conteo por paso, buscador, filtros (incluido «vence en 30 días») y tarjetas que dicen qué le falta a cada uno.',
