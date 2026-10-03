@@ -1085,6 +1085,8 @@
   .banner-reserva { background: var(--violeta-soft, #ede9fe); color: inherit; border: 1px solid var(--violeta, #7c3aed); }
   .reserva-form { margin-top: 10px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); display: grid; gap: 12px; }
   .reserva-form .rf-tit { font-size: 0.78rem; font-weight: 800; margin-bottom: 6px; }
+  .rs-otra-sug { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .rs-otra-sug:empty { display: none; }
   .reserva-form .rf-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 4px 12px; font-size: 0.84rem; }
   .reserva-form .rf-checks label { display: flex; gap: 6px; align-items: center; }
   .reserva-form .rf-horas { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.86rem; }
@@ -5139,7 +5141,60 @@ function resolverServicioEscrito(texto) {
   const existente = serviciosCatalogo().find((x) => servicioTokens(x).join(' ') === servicioTokens(canon).join(' '));
   if (existente) return { nombre: existente, nuevo: false };
   if (/^otros?$/i.test(sinTildes(limpio))) return null;
+  // Con errores de tipeo: «traumatologa», «pediatrca», «oftamologia».
+  const parec = serviciosParecidos(limpio);
+  if (parec.length === 1) return { nombre: parec[0], nuevo: false, corregido: true };
+  if (parec.length > 1) return { ambiguo: parec };
   return { nombre: prolijarServicio(limpio), nuevo: true };
+}
+/* ---- Tolerancia a errores de tipeo (3.16.1) ----
+   Solo se usa al ESCRIBIR un servicio que no figura —nunca en las
+   estadísticas, que siguen comparando por `servicioCanonico`—: así lo mal
+   escrito se reconoce antes de guardarse y lo que se guarda es el nombre de la
+   lista. Cada palabra escrita tiene que parecerse a una del servicio, con la
+   misma primera letra y a 1 error de distancia (2 si la palabra es larga),
+   contra la palabra entera o contra su comienzo («trumato» ≈ «traumat…»). */
+function distEdicion(a, b) {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m || !n) return m || n;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+function tokParecido(escrito, oficial) {
+  if (tokEncaja(escrito, oficial)) return true;
+  if (escrito.length < 4 || escrito[0] !== oficial[0]) return false;
+  const tol = escrito.length >= 9 ? 2 : 1;
+  return distEdicion(escrito, oficial) <= tol
+    || (escrito.length < oficial.length && distEdicion(escrito, oficial.slice(0, escrito.length)) <= tol);
+}
+function serviciosParecidos(texto) {
+  const t = servicioTokens(texto);
+  if (!t.length) return [];
+  return serviciosCatalogo().filter((x) => {
+    const o = servicioTokens(x);
+    return t.every((w) => o.some((y) => tokParecido(w, y)));
+  });
+}
+/* Sugerencias mientras se escribe: lo que encaja por comienzo de palabra y lo
+   que se parece con errores, sin repetir y en el orden de la lista. */
+function sugerenciasServicio(texto) {
+  const t = servicioTokens(texto);
+  if (!t.length) return [];
+  const cat = serviciosCatalogo();
+  const porPrefijo = cat.filter((x) => {
+    const o = servicioTokens(x);
+    return t.every((w) => o.some((y) => y.indexOf(w) === 0 || tokEncaja(w, y)));
+  });
+  const parec = serviciosParecidos(texto);
+  return cat.filter((x) => porPrefijo.includes(x) || parec.includes(x)).slice(0, 6);
 }
 /* Mayúsculas, conectores y tildes de las palabras médicas más comunes. Lo que
    no se pueda deducir con seguridad lo corrige la Jefatura después. */
@@ -5355,14 +5410,14 @@ const BLOQUE = {
   quirofanos: SALAS.map((s) => s.nombre),
   horaApertura: 8,   // 08:00
   horaCierre: 20,    // 20:00 — usado para la tasa de utilización
-  cierreSolicitudes: '13:00', // del día previo
-  publicacionParte: '14:00',  // del día previo
+  cierreSolicitudes: '13:00', // del día hábil previo (el lunes cierra el viernes)
+  publicacionParte: '14:00',  // del día hábil previo
 };
 
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.16.0';
+const APP_VERSION = '3.16.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -6179,8 +6234,24 @@ function sumarDias(iso, n) {
   d.setDate(d.getDate() + n);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
-function limiteCierre(fechaCir) { return new Date(sumarDias(fechaCir, -1) + 'T' + BLOQUE.cierreSolicitudes + ':00'); }
-function limitePublicacion(fechaCir) { return new Date(sumarDias(fechaCir, -1) + 'T' + BLOQUE.publicacionParte + ':00'); }
+/* ---- El ciclo de programación cierra el día HÁBIL previo (3.16.1) ----
+   Sábados y domingos no hay cierre: el domingo no se programa nada, así que la
+   lista del lunes —y la de un fin de semana que la Jefatura abra por
+   excepción— cierra el viernes anterior a las 13:00 y su parte se publica el
+   viernes a las 14:00. Martes a viernes, como siempre, el día anterior. */
+function diaHabilPrevio(fechaCir) {
+  let d = sumarDias(fechaCir, -1);
+  while (!esLaborable(d)) d = sumarDias(d, -1);
+  return d;
+}
+function limiteCierre(fechaCir) { return new Date(diaHabilPrevio(fechaCir) + 'T' + BLOQUE.cierreSolicitudes + ':00'); }
+function limitePublicacion(fechaCir) { return new Date(diaHabilPrevio(fechaCir) + 'T' + BLOQUE.publicacionParte + ':00'); }
+/* «el viernes 2 oct 2026» / «el día previo»: cómo se nombra el día de cierre. */
+function textoDiaCierre(fechaCir) {
+  const p = diaHabilPrevio(fechaCir);
+  return p === sumarDias(fechaCir, -1) ? `del día previo (${fmtFecha(p)})` : `del ${DIAS_S[new Date(p + 'T12:00:00').getDay()].toLowerCase()} ${fmtFecha(p)}`;
+}
+const cierreSuperado = (fechaCir) => Date.now() > limiteCierre(fechaCir).getTime();
 function partePublicado(fechaCir) { return new Date() >= limitePublicacion(fechaCir); }
 function addHorasHabiles(desdeDT, horas) {
   const d = new Date(desdeDT);
@@ -6922,27 +6993,39 @@ function calcRecordatorios() {
   const u = usuarioActual();
   const add = (o) => R.push(o);
 
-  /* ---- 1. Ciclo de programación: cierre 13:00 y publicación 14:00 ---- */
+  /* ---- 1. Ciclo de programación: cierre 13:00 y publicación 14:00 ----
+     Solo en días hábiles. El viernes cierra todo lo que va hasta el lunes
+     inclusive (sábado, domingo y lunes); sábados y domingos no hay cierre. */
   const cierreHoy = new Date(hoy + 'T' + BLOQUE.cierreSolicitudes + ':00');
   const publicHoy = new Date(hoy + 'T' + BLOQUE.publicacionParte + ':00');
-  if (ahora < cierreHoy) {
+  const diasQueCierran = [];
+  if (esLaborable(hoy)) {
+    for (let i = 1; i <= 7; i++) {
+      const x = sumarDias(hoy, i);
+      if (diaHabilPrevio(x) !== hoy) break;
+      diasQueCierran.push(x);
+    }
+  }
+  const proxHabil = diasQueCierran[diasQueCierran.length - 1];
+  const parteDe = proxHabil ? `${DIAS_S[new Date(proxHabil + 'T12:00:00').getDay()].toLowerCase()} ${fmtFecha(proxHabil)}` : '';
+  if (proxHabil && ahora < cierreHoy) {
     const falta = cierreHoy - ahora;
     add({
       key: 'ciclo-cierre', nivel: falta <= 2 * 36e5 ? 'warn' : 'info', vista: 'solicitud',
       titulo: `Cierre de solicitudes ${humanoRestante(falta)}`,
-      texto: `Las solicitudes para el parte del ${fmtFecha(manana)} cierran hoy a las ${BLOQUE.cierreSolicitudes} h. Pasado ese horario solo ingresan emergencias y urgencias diferibles (P1–P2).`,
+      texto: `Las solicitudes para el parte del ${parteDe} cierran hoy a las ${BLOQUE.cierreSolicitudes} h.${diasQueCierran.length > 1 ? ' Hoy cierra también lo del fin de semana: sábados y domingos no hay cierre.' : ''} Pasado ese horario solo ingresan emergencias y urgencias diferibles (P1–P2).`,
       cuando: `Hoy ${BLOQUE.cierreSolicitudes} h`,
     });
   }
-  if (jefe) {
-    const sinConfirmarManana = DB.cirugias.filter((c) => c.fecha === manana && ['pendiente', 'validada'].includes(c.estado));
+  if (jefe && proxHabil) {
+    const sinConfirmarManana = DB.cirugias.filter((c) => diasQueCierran.includes(c.fecha) && ['pendiente', 'validada'].includes(c.estado));
     if (sinConfirmarManana.length && ahora >= cierreHoy) {
       add({
         key: 'ciclo-publicacion', nivel: ahora >= publicHoy ? 'crit' : 'warn', vista: 'programacion',
-        titulo: `${sinConfirmarManana.length} turno(s) sin confirmar para mañana`,
+        titulo: `${sinConfirmarManana.length} turno(s) sin confirmar para ${diasQueCierran.length > 1 ? 'el ' + parteDe : 'mañana'}`,
         texto: ahora >= publicHoy
-          ? `El parte del ${fmtFecha(manana)} ya debía estar publicado (${BLOQUE.publicacionParte} h). Confirme o suspenda los turnos pendientes.`
-          : `El parte del ${fmtFecha(manana)} se publica hoy a las ${BLOQUE.publicacionParte} h. Quedan turnos en circuito de validación.`,
+          ? `El parte del ${parteDe} ya debía estar publicado (${BLOQUE.publicacionParte} h). Confirme o suspenda los turnos pendientes.`
+          : `El parte del ${parteDe} se publica hoy a las ${BLOQUE.publicacionParte} h. Quedan turnos en circuito de validación.`,
         cuando: `Hoy ${BLOQUE.publicacionParte} h`,
       });
     }
@@ -7380,29 +7463,55 @@ function notificarCriticos() {
     if (remNotificados[r.key] === hoy) return;
     if (remEsLeido(r)) return;   // ya lo miró: no se le vuelve a saltar al dispositivo
     remNotificados[r.key] = hoy;
-    try {
-      const n = new Notification('HRU Quirófanos — ' + r.titulo, {
-        body: r.texto, icon: 'icon-192.png', badge: 'icon-192.png', tag: r.key,
-      });
-      n.onclick = () => {
-        window.focus();
-        if (r.reclamo) { reclamoAbierto = reclamoPermitido(r.reclamo) ? r.reclamo : null; go('reclamos'); marcarReclamoLeido(r.reclamo); }
-        else go(r.vista || 'recordatorios');
-        n.close();
-      };
-    } catch (e) { /* algunos navegadores exigen ServiceWorkerRegistration.showNotification */ }
+    mostrarNotifSistema('HRU Quirófanos — ' + r.titulo, { body: r.texto, tag: r.key }, () => {
+      if (r.reclamo) { reclamoAbierto = reclamoPermitido(r.reclamo) ? r.reclamo : null; go('reclamos'); marcarReclamoLeido(r.reclamo); }
+      else go(r.vista || 'recordatorios');
+    });
   });
   guardarNotificados();
 }
-/* El pedido de permiso se dispara desde dos pantallas —Recordatorios y
-   Reclamos— y antes terminaba repintando siempre Recordatorios: quien lo
-   apretaba desde Reclamos era expulsado de su pantalla sin haber pedido irse.
-   Ahora el botón acusa recibo con su propio color y la vista que se repinta es
-   aquella en la que el profesional está parado. */
+/* El pedido de permiso se dispara desde tres pantallas —Recordatorios,
+   Reclamos y Comunicados— y repinta aquella en la que la persona está parada.
+   Antes, en Comunicados el botón no decía nada: se lo llamaba sin `this`, así
+   que no había acuse, y la pantalla no se repintaba. Además, si el navegador ya
+   había bloqueado el permiso, el pedido se resolvía en silencio. Ahora siempre
+   hay respuesta: una notificación de prueba al activarlas y, si están
+   bloqueadas, cómo destrabarlas en cada equipo. */
+const VISTAS_CON_NOTIF = ['recordatorios', 'reclamos', 'comunicados'];
+function permisoNotif() { return ('Notification' in window) ? Notification.permission : 'unsupported'; }
+/* Algunos navegadores —Chrome en Android, sobre todo— no admiten
+   `new Notification()` y exigen hacerlo a través del service worker. */
+function mostrarNotifSistema(titulo, opts, alTocar) {
+  if (permisoNotif() !== 'granted') return Promise.resolve(false);
+  const o = Object.assign({ icon: 'icon-192.png', badge: 'icon-192.png' }, opts || {});
+  try {
+    const n = new Notification(titulo, o);
+    if (alTocar) n.onclick = () => { window.focus(); alTocar(); n.close(); };
+    return Promise.resolve(true);
+  } catch (e) {
+    if (!('serviceWorker' in navigator)) return Promise.resolve(false);
+    return navigator.serviceWorker.getRegistration()
+      .then((reg) => reg ? reg.showNotification(titulo, o).then(() => true) : false)
+      .catch(() => false);
+  }
+}
+const AYUDA_NOTIF_BLOQUEADAS = `El navegador de este equipo tiene bloqueadas las notificaciones de la app, y una vez bloqueadas ya no vuelve a preguntar. Para habilitarlas:
+
+• Computadora (Chrome o Edge): toque el candado o el ícono de ajustes a la izquierda de la dirección → Notificaciones → Permitir, y recargue la página.
+• Android: menú ⋮ → Configuración → Configuración de sitios → Notificaciones → permita este sitio. Si instaló la app, también en Ajustes del teléfono → Aplicaciones → HRU Quirófanos → Notificaciones.
+• iPhone o iPad: solo funcionan con la app agregada a la pantalla de inicio (Compartir → Agregar a inicio) y abierta desde ese ícono. Después: Ajustes → Notificaciones → HRU Quirófanos.
+
+Los avisos siguen apareciendo igual dentro de la app, en la campana del encabezado.`;
 async function pedirPermisoNotif(btn) {
+  const repintar = () => { if (VISTAS_CON_NOTIF.includes(view)) refreshView(); };
   if (!('Notification' in window)) {
     btnHecho(btn, 'No disponible en este navegador', 'off', 3200);
-    alert('Este navegador no admite notificaciones del sistema. Los recordatorios seguirán visibles en la campana del encabezado.');
+    alert('Este navegador no admite notificaciones del sistema.\n\nEn iPhone o iPad funcionan solo con la app agregada a la pantalla de inicio (Compartir → Agregar a inicio) y abierta desde ese ícono.\n\nLos recordatorios siguen visibles en la campana del encabezado.');
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    btnHecho(btn, 'Bloqueadas en este navegador', 'off', 3600);
+    alert(AYUDA_NOTIF_BLOQUEADAS);
     return;
   }
   let p;
@@ -7410,12 +7519,55 @@ async function pedirPermisoNotif(btn) {
   if (p === 'granted') {
     remNotificados = {}; guardarNotificados(); notificarCriticos();
     btnHecho(btn, 'Notificaciones activadas', null, 2400);
+    const salio = await mostrarNotifSistema('HRU Quirófanos — notificaciones activadas',
+      { body: 'Así le van a llegar los avisos del bloque quirúrgico a este dispositivo.', tag: 'prueba-notif' });
+    alert(salio
+      ? 'Listo: las notificaciones quedaron activadas en este dispositivo. Le acabamos de mandar una de prueba.\n\nEl permiso es por equipo y por navegador: si usa la app en otro teléfono o computadora, actívelas también ahí.'
+      : 'El permiso quedó concedido, pero el dispositivo no mostró la notificación de prueba. Revise que el modo «No molestar» o el ahorro de batería no las estén silenciando.');
     // Se deja ver el acuse y recién después se repinta: el cartel azul pasa a
     // ser el verde de «activadas», y el botón ya no hace falta.
-    setTimeout(() => { if (view === 'recordatorios' || view === 'reclamos') refreshView(); }, 2400);
+    setTimeout(repintar, 400);
+  } else if (p === 'denied') {
+    btnHecho(btn, 'El dispositivo rechazó el permiso', 'off', 3600);
+    alert(AYUDA_NOTIF_BLOQUEADAS);
+    setTimeout(repintar, 400);
   } else {
-    btnHecho(btn, p === 'denied' ? 'El dispositivo rechazó el permiso' : 'Sin respuesta del dispositivo', 'off', 3600);
+    btnHecho(btn, 'Sin respuesta del dispositivo', 'off', 3600);
+    alert('El navegador cerró el pedido de permiso sin una respuesta. Vuelva a tocar «Activar notificaciones» y elija «Permitir».');
   }
+}
+/* Cartel de las notificaciones del dispositivo para las tres pantallas que lo
+   muestran: dice siempre en qué estado están, para que nadie tenga que adivinar
+   si el botón hizo algo. */
+function bannerNotif(id, explicacion) {
+  const p = permisoNotif();
+  if (p === 'granted') {
+    return `<div class="banner banner-green">${ICONS.bell.replace('16', '18')}
+      <div><strong>Notificaciones activadas en este dispositivo</strong>
+      ${explicacion} El permiso es por equipo y por navegador.
+      <div style="margin-top:10px"><button class="btn btn-outline btn-sm" onclick="probarNotif(this)">${ICONS.bell} Enviar una de prueba</button></div></div></div>`;
+  }
+  if (p === 'denied') {
+    return `<div class="banner banner-amber">${ICONS.bell.replace('16', '18')}
+      <div><strong>Las notificaciones están bloqueadas en este navegador</strong>
+      Se bloquearon desde el propio navegador y la app ya no puede volver a pedirlas: hay que habilitarlas a mano.
+      <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pedirPermisoNotif(this)">${ICONS.bell} Cómo habilitarlas</button></div></div></div>`;
+  }
+  if (p === 'unsupported') {
+    return `<div class="banner banner-amber">${ICONS.info}
+      <div><strong>Este navegador no admite notificaciones</strong>
+      En iPhone o iPad funcionan solo con la app agregada a la pantalla de inicio y abierta desde ese ícono. Los avisos siguen en la campana del encabezado.</div></div>`;
+  }
+  return bannerPlegable(id, 'blue', ICONS.bell.replace('16', '18'),
+    'Active las notificaciones del dispositivo',
+    'Un aviso en el celular o la computadora aunque no esté mirando la app.',
+    `<p>${explicacion} El permiso lo concede el dispositivo y se puede revocar desde los ajustes del navegador en cualquier momento.</p>
+     <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pedirPermisoNotif(this)">${ICONS.bell} Activar notificaciones</button></div>`);
+}
+async function probarNotif(btn) {
+  const ok = await mostrarNotifSistema('HRU Quirófanos — prueba', { body: 'Las notificaciones de este dispositivo funcionan.', tag: 'prueba-notif' });
+  btnHecho(btn, ok ? 'Enviada' : 'No se pudo mostrar', ok ? null : 'off', 2400);
+  if (!ok) alert('El permiso está concedido, pero el dispositivo no mostró la notificación. Revise que el modo «No molestar» o el ahorro de batería no las estén silenciando.');
 }
 
 function refreshView() {
@@ -7980,7 +8132,7 @@ function renderPanel() {
     <div class="banner banner-blue">
       ${ICONS.clockSm.replace('14', '18')}
       <div><strong>Ciclo de programación quirúrgica</strong>
-      Cierre de solicitudes: <b>${BLOQUE.cierreSolicitudes} h del día previo</b> · Publicación del parte: <b>${BLOQUE.publicacionParte} h del día previo</b>.</div>
+      Cierre de solicitudes: <b>${BLOQUE.cierreSolicitudes} h del día hábil previo</b> · Publicación del parte: <b>${BLOQUE.publicacionParte} h del día hábil previo</b> (lo del lunes cierra el viernes; sábados y domingos no hay cierre).</div>
     </div>
 
     <div class="q-group-title">${ICONS.calendarBig} Actividad quirúrgica</div>
@@ -8409,7 +8561,7 @@ function renderParte() {
   if (!publicado) {
     contenido = `<div class="banner banner-amber">${ICONS.clockSm.replace('14', '18')}
       <div><strong>Parte aún no publicado</strong>
-      El parte quirúrgico del ${fmtFecha(f)} se publica a las <b>${BLOQUE.publicacionParte} h</b> del día previo (${fmtFecha(sumarDias(f, -1))}).</div></div>`;
+      El parte quirúrgico del ${fmtFecha(f)} se publica a las <b>${BLOQUE.publicacionParte} h</b> ${textoDiaCierre(f)}.</div></div>`;
   } else if (!lista.length) {
     contenido = `<div class="empty">No hay cirugías confirmadas en el parte del ${fmtFecha(f)}.</div>`;
   } else {
@@ -8438,7 +8590,7 @@ function renderParte() {
 
     <div class="banner banner-blue">${ICONS.info}
       <div><strong>Plazos del ciclo de programación</strong>
-      Cierre de solicitudes: <b>${BLOQUE.cierreSolicitudes} h del día previo</b> · Publicación del parte: <b>${BLOQUE.publicacionParte} h del día previo</b> · Emergencias: ingreso directo con meta de incisión &lt; 30 min.</div></div>
+      Cierre de solicitudes: <b>${BLOQUE.cierreSolicitudes} h del día hábil previo</b> · Publicación del parte: <b>${BLOQUE.publicacionParte} h del día hábil previo</b> (lo del lunes, el viernes) · Emergencias: ingreso directo con meta de incisión &lt; 30 min.</div></div>
 
     ${contenido}`;
 }
@@ -8528,7 +8680,7 @@ function renderSolicitud() {
 
     <div class="banner ${cerrado ? 'banner-amber' : 'banner-blue'}">${ICONS.clockSm.replace('14', '18')}
       <div><strong>${cerrado ? 'Cierre de solicitudes superado para esta fecha' : 'Ciclo de programación'}</strong>
-      Las solicitudes del ${fmtFecha(d)} cerraban a las <b>${BLOQUE.cierreSolicitudes} h</b> del ${fmtFecha(sumarDias(d, -1))} y el parte se publica a las <b>${BLOQUE.publicacionParte} h</b>.
+      Las solicitudes del ${fmtFecha(d)} cierran a las <b>${BLOQUE.cierreSolicitudes} h</b> ${textoDiaCierre(d)} y el parte se publica ese día a las <b>${BLOQUE.publicacionParte} h</b>. La lista del lunes cierra el viernes: sábados y domingos no hay cierre.
       ${cerrado ? 'Pasado el cierre solo ingresan emergencias y urgencias diferibles (P1–P2) por el Quirófano 1.' : `Anticipación mínima: ${HORAS_ANTICIPACION} h.`}</div></div>
 
     <div class="dia-bar">
@@ -9552,8 +9704,8 @@ function excEstadoFranja(d, sid, fid) {
   const razones = [];
   if (turnoEn(d, sid, fid)) razones.push('ocupada');
   if (!turnoHabilitado(d, sid, f.p)) razones.push('bloque no habilitado para ese día y turno');
-  if (!puedeReservar(d, f, false)) razones.push(`menos de ${HORAS_ANTICIPACION} h de anticipación`);
-  if (new Date() > limiteCierre(fechaDeFranja(d, f))) razones.push(`cierre de solicitudes superado (${BLOQUE.cierreSolicitudes} h del día previo)`);
+  if (!anticipacionOk(d, f)) razones.push(`menos de ${HORAS_ANTICIPACION} h de anticipación`);
+  if (cierreSuperado(fechaDeFranja(d, f))) razones.push(`cierre de solicitudes superado (${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(fechaDeFranja(d, f))})`);
   return { f, inicio, pasada: inicio.getTime() <= Date.now(), ocupada: !!turnoEn(d, sid, fid), razones };
 }
 
@@ -9679,7 +9831,7 @@ function renderExcepcion() {
 
     <div class="banner banner-amber">${ICONS.alertTri}
       <div><strong>Es una excepción, no una vía alternativa</strong>
-      El flujo normal cierra las listas a las <b>${BLOQUE.cierreSolicitudes} h del día previo</b> y exige <b>${HORAS_ANTICIPACION} h</b> de anticipación; además, los quirófanos 2, 3 y 4 y Endoscopía nacen bloqueados. Esta pantalla es la única llave que abre esas franjas y solo la tiene la Jefatura. Cada uso queda registrado con motivo, fecha, hora y destinatario.</div></div>
+      El flujo normal cierra las listas a las <b>${BLOQUE.cierreSolicitudes} h del día hábil previo</b> (la del lunes, el viernes) y exige <b>${HORAS_ANTICIPACION} h</b> de anticipación; además, los quirófanos 2, 3 y 4 y Endoscopía nacen bloqueados. Esta pantalla es la única llave que abre esas franjas y solo la tiene la Jefatura. Cada uso queda registrado con motivo, fecha, hora y destinatario.</div></div>
 
     <div class="banner banner-red">${ICONS.megafonoBig}
       <div><strong>El cirujano se entera siempre</strong>
@@ -11214,12 +11366,7 @@ function renderReclamos() {
       <div><strong>${sinLeer.length} reclamo(s) con mensajes sin leer</strong>
       ${sinLeer.map((r) => `<div style="margin-top:6px">· <a href="#reclamos" onclick="event.preventDefault();abrirReclamo(${r.id})" style="color:inherit;font-weight:700">${esc(r.asunto)}</a> — ${reclamoNoLeidos(r)} mensaje(s) nuevo(s)</div>`).join('')}</div></div>` : ''}
 
-    ${permiso === 'granted' ? '' : bannerPlegable('rec-notif', 'blue', ICONS.bell.replace('16', '18'),
-      'Active las notificaciones del dispositivo',
-      'Un aviso en el celular cuando le toque responder o le respondan.',
-      `<p>Recibirá un aviso cuando le toque responder un reclamo o cuando le respondan uno propio, sin depender de que revise la app.
-       El permiso lo concede el dispositivo y se puede revocar desde los ajustes del navegador en cualquier momento.</p>
-       <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pedirPermisoNotif(this)">${ICONS.bell} Activar notificaciones</button></div>`)}
+    ${permiso === 'granted' ? '' : bannerNotif('rec-notif', 'Recibirá un aviso cuando le toque responder un reclamo o cuando le respondan uno propio, sin depender de que revise la app.')}
 
     ${bannerPlegable('rec-confid', 'blue', ICONS.lock,
       jefe && !u ? 'Vista de Jefatura' : 'Su reclamo es confidencial',
@@ -12954,6 +13101,11 @@ function fmtDiaLargo(d) {
    qué fecha empieza el turno. */
 function puedeReservar(d, f, urgencia) {
   if (urgencia) return true;
+  return anticipacionOk(d, f) && !cierreSuperado(fechaDeFranja(d, f));
+}
+/* Las dos llaves de lo electivo van por separado para poder decir cuál falló:
+   el reloj de 24 h y el cierre de la lista (13:00 del día hábil previo). */
+function anticipacionOk(d, f) {
   return inicioDeFranja(d, f).getTime() >= Date.now() + HORAS_ANTICIPACION * 36e5;
 }
 function anticipacionMinima() {
@@ -13155,6 +13307,11 @@ function slotCard(d, s, f, salaOff) {
   }
   const reservable = puedeReservar(d, f, !!f.urg);
   if (!reservable && !f.urg) {
+    if (anticipacionOk(d, f)) {
+      return `<div class="slot slot-libre slot-bloq" title="Las solicitudes del ${fmtFecha(fechaDeFranja(d, f))} cerraron a las ${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(fechaDeFranja(d, f))}">
+        <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">${ico(ICONS.lock, 16)}</span>
+        <span class="slot-hint">Lista cerrada</span></div>`;
+    }
     return `<div class="slot slot-libre slot-bloq" title="Se programa con ${HORAS_ANTICIPACION} h de anticipación (desde ${anticipacionMinima()})">
       <span class="slot-hora">${f.t}${nd}</span><span class="slot-mas">${ICONS.clockSm.replace('14', '16')}</span>
       <span class="slot-hint">&lt; ${HORAS_ANTICIPACION} h</span></div>`;
@@ -13210,7 +13367,7 @@ function urgenciaBloque(d, s) {
       : `El turno de urgencia solo se ofrece en el día de hoy, en la hora que corre. Acá figuran únicamente las de este día que se anotaron.`}</div>
     ${fs.length ? `<div class="${clase}">${fs.map((f) => slotCard(d, s, f, false)).join('')}</div>`
       : '<div class="empty" style="padding:14px">Sin urgencias anotadas este día.</div>'}
-    ${jefe ? `<div class="urg-retro"><button class="btn btn-sm btn-outline" onclick="registrarUrgenciaTardia('${d}','${s.id}')">${ico(ICONS.clockSm, 14)} Registrar una ${esc(r.corto)} de una hora ya cumplida</button></div>` : ''}
+    ${jefe && urgTardiaPermitida(d) ? `<div class="urg-retro"><button class="btn btn-sm btn-outline" onclick="registrarUrgenciaTardia('${d}','${s.id}')">${ico(ICONS.clockSm, 14)} Registrar una ${esc(r.corto)} de una hora ya cumplida</button></div>` : ''}
   </div>`;
 }
 
@@ -13236,16 +13393,40 @@ function salaCard(d, s) {
 /* Una urgencia se opera primero y se anota después: puede que nadie la haya
    cargado y que la hora ya se haya cumplido. La Jefatura elige la hora, pone su
    clave y el motivo, y el turno queda marcado como registro fuera de término. */
+/* «Ya cumplida» quiere decir eso: se ofrece en los días anteriores (las 24
+   horas) y hoy solo en las horas que ya terminaron. Nunca en la hora que corre
+   —para eso está el turno de urgencia de la hora— ni en días futuros, porque
+   las urgencias no se programan a futuro. Devuelve la última hora elegible. */
+function urgTardiaHoraMax(d) {
+  const hoy = hoyISO();
+  if (d < hoy) return 23;
+  if (d > hoy) return -1;
+  return new Date().getHours() - 1;
+}
+const urgTardiaPermitida = (d) => urgTardiaHoraMax(d) >= 0;
 async function registrarUrgenciaTardia(d, sid) {
   if (!jefe) return;
+  const max = urgTardiaHoraMax(d);
+  if (max < 0) {
+    alert(d > hoyISO()
+      ? 'Este día todavía no llegó: solo se registran urgencias de horas ya cumplidas.'
+      : 'Todavía no terminó ninguna hora del día. La urgencia de ahora se anota en el turno de la hora en curso.');
+    return;
+  }
   const s = sala(sid), r = rotuloUrgencia(s);
-  const hora = await pedirTexto(`${s.nombre} — ${fmtDiaLargo(d)}. Indique la hora en que se realizó la ${r.corto} (0 a 23).`, {
+  const rango = max === 23 ? '0 a 23' : `0 a ${max}`;
+  const hora = await pedirTexto(`${s.nombre} — ${fmtDiaLargo(d)}. Indique la hora en que se realizó la ${r.corto} (${rango}).${max < 23 ? ' Hoy solo se registran las horas que ya terminaron: la de ahora se anota en el turno de la hora en curso.' : ''}`, {
     titulo: 'Registrar una urgencia ya realizada', tono: 'jefatura', si: 'Continuar', no: 'Cancelar',
-    campo: { label: 'Hora del procedimiento (0–23)', placeholder: 'Ej: 3', requerido: true, error: 'Escriba la hora, de 0 a 23.' },
+    campo: { label: `Hora del procedimiento (${rango.replace(' a ', '–')})`, placeholder: 'Ej: 3', requerido: true, error: `Escriba la hora, de ${rango}.` },
   });
   if (hora === null) return;
   const h = Number(String(hora).trim().replace(/[^0-9]/g, ''));
   if (!(h >= 0 && h <= 23)) { alert('La hora tiene que ser un número de 0 a 23.'); return; }
+  // La hora pudo avanzar con el diálogo abierto: se vuelve a medir.
+  if (h > urgTardiaHoraMax(d)) {
+    alert(`La franja de las ${String(h).padStart(2, '0')}:00 todavía no terminó. Solo se registran horas ya cumplidas; la urgencia en curso se anota en el turno de la hora.`);
+    return;
+  }
   let n = 1;
   while (turnoEn(d, sid, idFranjaUrgencia(h, n))) n++;
   reabrirFranja(d, sid, idFranjaUrgencia(h, n));
@@ -13292,6 +13473,13 @@ function renderProgDiaria() {
     cuerpo += `<div class="dia-banner">${ICONS.lock}<div>Día abierto parcialmente: ${cerradas.length} de ${salasProgramables().length} salas
       siguen bloqueadas (${cerradas.map((s) => esc(s.nombre)).join(', ')}).</div>
       ${jefe ? `<button class="btn btn-sm btn-teal" style="margin-left:auto;flex:none" onclick="openJefaturaDia()">${ico(ICONS.key, 14)} Habilitar</button>` : ''}</div>`;
+  }
+  // Lista cerrada: el día todavía no llegó, pero su cierre (13:00 del día hábil
+  // previo) ya pasó. Las franjas abiertas lo dicen una por una; esto lo explica.
+  if (dOn && d > hoyISO() && cierreSuperado(d)) {
+    cuerpo += `<div class="dia-banner">${ico(ICONS.lock, 18)}<div><b>Lista del ${fmtDiaLargo(d)} cerrada.</b>
+      Las solicitudes cerraron a las ${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(d)}: la del lunes cierra el viernes, y sábados y domingos no hay cierre.
+      Desde ahora solo entran urgencias${jefe ? ' y la programación fuera de horario de la Jefatura' : ''}.</div></div>`;
   }
   const reservas = reservasDia(d);
   if (reservas.length) {
@@ -13366,7 +13554,7 @@ const GUIA_TEMAS = [
   { c: '#166b4a', ico: 'check',    t: '2º Jefatura de Quirófanos',
     b: 'Valida lo pedido —arco en C, prótesis—, el turno <b>entra al parte</b> y se habilita la foja de LVQ.' },
   { c: '#1d4f8c', ico: 'clockSm',  t: 'Plazos',
-    b: `<b>${HORAS_ANTICIPACION} h</b> de anticipación para lo electivo. Solicitudes hasta las <b>${BLOQUE.cierreSolicitudes}</b> y parte a las <b>${BLOQUE.publicacionParte}</b> del día previo.` },
+    b: `<b>${HORAS_ANTICIPACION} h</b> de anticipación para lo electivo. Solicitudes hasta las <b>${BLOQUE.cierreSolicitudes}</b> y parte a las <b>${BLOQUE.publicacionParte}</b> del día hábil previo: lo del lunes cierra el viernes.` },
 ];
 
 function guiaProgramacion() {
@@ -13431,7 +13619,7 @@ function guiaProgramacion() {
       <div class="gd-b" style="--gc:#1d4f8c"><b>Plazos y orden del parte.</b>
         Anticipación mínima de ${HORAS_ANTICIPACION} h para turnos electivos (desde ${anticipacionMinima()}).
         Cierre de solicitudes ${BLOQUE.cierreSolicitudes} h y publicación del parte ${BLOQUE.publicacionParte} h del día
-        previo. Los turnos se ordenan en el parte por prelación P1–P6.</div>
+        hábil previo: lo del lunes cierra el viernes, y sábados y domingos no hay cierre. Los turnos se ordenan en el parte por prelación P1–P6.</div>
 
       ${jefe ? `<div class="gd-b" style="--gc:#7c3aed"><b>Reapertura excepcional de una franja cumplida.</b>
         Si una urgencia o una cesárea se operó y nadie la cargó a tiempo, la Jefatura reabre esa franja con su clave y un
@@ -13500,7 +13688,9 @@ function openSlot(d, sid, fid) {
         Motivo: <b>${esc(exc.motivo)}</b>. Al guardar, ${esc(exc.cirujano.nombre)} recibe el aviso obligatorio
         con acuse de lectura y la excepción queda asentada en el turno.</div></div>`
     : (nuevo && !retro && !puedeReservar(d, f, false))
-    ? `<div class="banner banner-amber" style="margin-bottom:14px">${ICONS.alertTri.replace(/22/g, '16')}<div>Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.
+    ? `<div class="banner banner-amber" style="margin-bottom:14px">${ICONS.alertTri.replace(/22/g, '16')}<div>${anticipacionOk(d, f)
+        ? `La lista del ${fmtFecha(fechaDeFranja(d, f))} cerró a las ${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(fechaDeFranja(d, f))}.`
+        : `Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.`}
         ${s.urgHoraria ? `Si es una ${rotuloUrgencia(s).corto}, no hace falta excepción: use el turno de urgencia de la hora en curso.` : 'Si es una urgencia, use el turno de urgencia del Quirófano 1, de Endoscopía o de Obstetricia.'}</div></div>` : '';
 
   $('slot-modal').innerHTML = `
@@ -13692,7 +13882,9 @@ async function guardarSlot() {
     return;
   }
   if (!existente && !puedeReservar(d, f, urgencia) && !exc && !retro) {
-    alert(`Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.\n\nSolo puede programarse marcando "Urgencia / emergencia", y únicamente en el Quirófano 1 o en el quirófano de Obstetricia.`);
+    alert(`${anticipacionOk(d, f)
+      ? `La lista del ${fmtFecha(fechaDeFranja(d, f))} cerró a las ${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(fechaDeFranja(d, f))}.`
+      : `Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.`}\n\nSolo puede programarse marcando "Urgencia / emergencia", y únicamente en el Quirófano 1 o en el quirófano de Obstetricia.`);
     return;
   }
   const edad = Number($('k-edad').value || 0);
@@ -14292,18 +14484,71 @@ function seccionReservas(d) {
       <div class="rf-bloque"><div class="rf-tit">Horario (por la hora de comienzo de la franja)</div>
         <div class="rf-horas">Desde ${horas('rs-desde', '08:00')} hasta ${horas('rs-hasta', '12:00')}</div></div>
       <div class="rf-bloque"><div class="rf-tit">Especialidades admitidas</div>
-        <div class="rf-checks">${servs.map((x, i) => `<label><input type="checkbox" id="rs-serv-${i}" data-serv="${esc(x)}"> ${esc(x)}</label>`).join('')}</div></div>
+        <div class="rf-checks">${servs.map((x, i) => `<label><input type="checkbox" id="rs-serv-${i}" data-serv="${esc(x)}"> ${esc(x)}</label>`).join('')}
+          <label><input type="checkbox" id="rs-otra" onchange="rsOtraToggle()"> Otra…</label></div>
+        <div id="rs-otra-box" style="display:none;margin-top:8px">
+          <input type="text" id="rs-otra-txt" autocomplete="off" placeholder="Escriba la especialidad (no importan mayúsculas, tildes ni errores)"
+            oninput="rsOtraEscribir()" onkeydown="if(event.key==='Enter'){event.preventDefault();jefAgregarReserva('${d}')}" style="width:100%">
+          <div id="rs-otra-sug" class="rs-otra-sug"></div>
+          <span class="hint" id="rs-otra-nota"></span>
+        </div></div>
       <button class="btn btn-sm btn-teal" onclick="jefAgregarReserva('${d}')">${ico(ICONS.key, 13)} Reservar el tramo</button>
     </div>
   </div>`;
+}
+/* ---- «Otra» especialidad en la reserva (3.16.1) ----
+   La Jefatura escribe una especialidad que no tiene casilla. Mientras escribe,
+   se le ofrecen las de la lista que encajan —por comienzo de palabra o con
+   errores de tipeo—; si elige una, se marca su casilla. Lo que de verdad es
+   nuevo se guarda prolijo (mayúsculas y tildes) en el listado compartido de
+   servicios, el mismo que usan los perfiles, las estadísticas, los módulos y
+   la facturación, para que todo cruce con un único nombre. */
+function rsOtraToggle() {
+  const on = $('rs-otra') && $('rs-otra').checked;
+  $('rs-otra-box').style.display = on ? '' : 'none';
+  if (on) setTimeout(() => $('rs-otra-txt').focus(), 30);
+}
+function rsOtraEscribir() {
+  const txt = $('rs-otra-txt').value;
+  const sug = $('rs-otra-sug'), nota = $('rs-otra-nota');
+  const lista = txt.trim() ? sugerenciasServicio(txt) : [];
+  sug.innerHTML = lista.map((x) => `<button type="button" class="btn btn-sm btn-outline" onclick="rsOtraElegir(this.dataset.serv)" data-serv="${esc(x)}">${esc(x)}</button>`).join('');
+  const r = txt.trim() ? resolverServicioEscrito(txt) : null;
+  nota.innerHTML = !r ? ''
+    : r.ambiguo ? `Puede ser ${r.ambiguo.map((x) => `<b>${esc(x)}</b>`).join(', ')}: toque la que corresponda.`
+    : r.nuevo ? `No figura en la lista: se agregará como <b>${esc(r.nombre)}</b>.`
+    : `Se tomará como <b>${esc(r.nombre)}</b>, tal como figura en la lista.`;
+}
+function rsOtraElegir(nombre) {
+  const caja = [...document.querySelectorAll('[id^="rs-serv-"]')].find((el) => mismoServicio(el.dataset.serv, nombre));
+  if (caja) {
+    caja.checked = true;
+    $('rs-otra-txt').value = '';
+    $('rs-otra').checked = false;
+    rsOtraToggle();
+    $('rs-otra-sug').innerHTML = '';
+    $('rs-otra-nota').innerHTML = '';
+    return;
+  }
+  $('rs-otra-txt').value = nombre;
+  rsOtraEscribir();
 }
 function jefAgregarReserva(d) {
   const salas = SALAS.filter((x) => { const el = $('rs-sala-' + x.id); return el && el.checked; }).map((x) => x.id);
   const servicios = [...document.querySelectorAll('[id^="rs-serv-"]')].filter((el) => el.checked).map((el) => el.dataset.serv);
   const desde = $('rs-desde').value, hasta = $('rs-hasta').value;
+  let nueva = null;
+  if ($('rs-otra') && $('rs-otra').checked && $('rs-otra-txt').value.trim()) {
+    const r = resolverServicioEscrito($('rs-otra-txt').value);
+    if (!r) { alert('Escriba el nombre de la especialidad.'); return; }
+    if (r.ambiguo) { alert(`«${$('rs-otra-txt').value.trim()}» puede ser ${r.ambiguo.join(', ')}. Toque la que corresponda debajo del campo.`); return; }
+    if (!servicios.some((x) => mismoServicio(x, r.nombre))) servicios.push(r.nombre);
+    if (r.nuevo) nueva = r.nombre;
+  }
   if (!salas.length) { alert('Marque al menos una sala.'); return; }
   if (!servicios.length) { alert('Marque al menos una especialidad.'); return; }
   if (!(desde < hasta)) { alert('La hora «hasta» tiene que ser posterior a la hora «desde».'); return; }
+  if (nueva) registrarServicioNuevo(nueva, 'Jefatura de Quirófanos');
   agregarReserva(d, { salas, desde, hasta, servicios, t: nowDT() });
   openJefaturaDia();
   renderProgDiaria();
@@ -14551,7 +14796,7 @@ function imprimirParte(d) {
       <tbody>${filas.join('') || '<tr><td colspan="8" style="text-align:center;padding:20px">Sin turnos programados para la fecha.</td></tr>'}</tbody>
     </table>
     <div class="pie">Documento generado por la App HRU Quirófanos — canal único y válido para la gestión quirúrgica del hospital.
-    El parte se publica a las ${BLOQUE.publicacionParte} h del día previo.</div>
+    El parte se publica a las ${BLOQUE.publicacionParte} h del día hábil previo.</div>
     </body></html>`;
   const w = window.open('', '_blank');
   if (!w) { alert('El navegador bloqueó la ventana emergente. Habilite las ventanas emergentes para imprimir el parte.'); return; }
@@ -14687,22 +14932,19 @@ function renderRecordatorios() {
       ? bannerPlegable('rem-notif-ok', 'green', ICONS.bell.replace('16', '18'),
           'Notificaciones del sistema activadas',
           'Este dispositivo recibe los avisos críticos.',
-          '<p>Los avisos críticos aparecen como notificación del dispositivo mientras la app esté abierta, incluso en segundo plano o instalada en la pantalla de inicio. Tocar la notificación lleva directo a la cirugía, al reclamo o a la sección que la originó.</p>')
+          `<p>Los avisos críticos aparecen como notificación del dispositivo mientras la app esté abierta, incluso en segundo plano o instalada en la pantalla de inicio. Tocar la notificación lleva directo a la cirugía, al reclamo o a la sección que la originó.</p>
+           <div style="margin-top:10px"><button class="btn btn-outline btn-sm" onclick="probarNotif(this)">${ICONS.bell} Enviar una de prueba</button></div>`)
       : permiso === 'unsupported'
         ? bannerPlegable('rem-notif-no', 'amber', ICONS.info,
             'Este navegador no admite notificaciones',
             'Los recordatorios siguen en la campana del encabezado.',
             '<p>El navegador de este dispositivo no soporta notificaciones del sistema. Los recordatorios siguen disponibles en la campana del encabezado y en esta pantalla, que se recalculan en vivo cada minuto.</p>')
-        : bannerPlegable('rem-notif-pedir', 'blue', ICONS.bell.replace('16', '18'),
-            'Active las notificaciones del sistema',
-            'Reciba en el dispositivo los avisos críticos.',
-            `<p>Reciba en el dispositivo los avisos críticos: emergencias sin incisión, retrasos mayores a 60 minutos, informes operatorios fuera de plazo y cierre del ciclo de programación.</p>
-             <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pedirPermisoNotif(this)">${ICONS.bell} Activar notificaciones</button></div>`)}
+        : bannerNotif('rem-notif-pedir', 'Reciba en el dispositivo los avisos críticos: emergencias sin incisión, retrasos mayores a 60 minutos, informes operatorios fuera de plazo y cierre del ciclo de programación.')}
 
     ${bannerPlegable('rem-plazos', 'blue', ICONS.clockSm.replace('14', '18'),
       'Plazos que controla el sistema',
       'Cierre de solicitudes, partes, incidencias, reclamos y habilitaciones.',
-      `<p>Cierre de solicitudes <b>${BLOQUE.cierreSolicitudes} h</b> y publicación del parte <b>${BLOQUE.publicacionParte} h</b> del día previo · Emergencias: incisión &lt; 30 min · Urgencias diferibles &lt; 6 h · Coordinación de insumos 48–72 h antes · Informe operatorio &lt; 2 h · Incidencias A–C &lt; 2 h y D–F &lt; 24 h · Reclamos 48 h hábiles · Espera &gt; 90 días · Vigencias de habilitación.</p>`)}
+      `<p>Cierre de solicitudes <b>${BLOQUE.cierreSolicitudes} h</b> y publicación del parte <b>${BLOQUE.publicacionParte} h</b> del día hábil previo (lo del lunes, el viernes) · Emergencias: incisión &lt; 30 min · Urgencias diferibles &lt; 6 h · Coordinación de insumos 48–72 h antes · Informe operatorio &lt; 2 h · Incidencias A–C &lt; 2 h y D–F &lt; 24 h · Reclamos 48 h hábiles · Espera &gt; 90 días · Vigencias de habilitación.</p>`)}
 
     ${bloquesRecordatorios()}`;
   remPintarAcuse();
@@ -18963,14 +19205,11 @@ function consultarPorComunicado(id) {
 }
 function comNotificarSistema(c) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
-  try {
-    const n = new Notification('HRU Quirófanos — Comunicado de la Jefatura', {
-      body: (c.titulo || '') + '\n' + String(c.texto || '').slice(0, 140),
-      tag: 'com-' + c.id,
-      requireInteraction: comPrio(c) === 'urgente',
-    });
-    n.onclick = () => { window.focus(); mostrarComunicado(c.id, true); n.close(); };
-  } catch (e) { /* algunos navegadores exigen ServiceWorkerRegistration.showNotification */ }
+  mostrarNotifSistema('HRU Quirófanos — Comunicado de la Jefatura', {
+    body: (c.titulo || '') + '\n' + String(c.texto || '').slice(0, 140),
+    tag: 'com-' + c.id,
+    requireInteraction: comPrio(c) === 'urgente',
+  }, () => mostrarComunicado(c.id, true));
 }
 
 /* ---- Emisión y seguimiento (Jefatura) ---- */
@@ -19267,12 +19506,9 @@ function renderComunicados() {
 
     <div class="banner banner-blue">${ICONS.users}
       <div><strong>Quién queda registrado</strong>
-      Los <b>profesionales</b> entran con su correo: cada lectura guarda nombre, servicio y hora exacta. La <b>Dirección Médica</b> usa clave compartida, así que figura como un único renglón sin identificar a la persona. El <b>personal sin cuenta</b> declara su área al confirmar y puede dejar su nombre si quiere; como no hay padrón, de ese grupo se cuentan las lecturas registradas, nunca las que faltan.</div></div>
+      Los <b>profesionales</b> entran con su correo: cada lectura guarda nombre, servicio y hora exacta. La <b>Dirección Médica</b> entra con la cuenta institucional del rol, así que figura como un único renglón sin identificar a la persona. El <b>personal sin cuenta</b> declara su área al confirmar y puede dejar su nombre si quiere; como no hay padrón, de ese grupo se cuentan las lecturas registradas, nunca las que faltan.</div></div>
 
-    ${permiso === 'granted' ? '' : `<div class="banner banner-amber">${ICONS.bell.replace('16', '18')}
-      <div><strong>Las notificaciones del dispositivo están desactivadas</strong>
-      El emergente y el sonido funcionan igual dentro de la app, pero sin permiso del navegador no se avisa a quien la tenga cerrada.
-      <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pedirPermisoNotif()">${ICONS.bell} Activar notificaciones</button></div></div></div>`}
+    ${bannerNotif('com-notif', 'Los avisos críticos del bloque y los reclamos que le toca responder le aparecen como notificación del dispositivo mientras la app esté abierta, aunque esté en segundo plano o en otra pestaña. Cada destinatario de un comunicado activa las suyas desde su pantalla de Recordatorios; el emergente y el sonido dentro de la app funcionan igual, con o sin permiso.')}
 
     <div class="card">
       <div class="card-title">Emitir un comunicado</div>
