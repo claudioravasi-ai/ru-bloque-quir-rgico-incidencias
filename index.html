@@ -678,6 +678,19 @@
     .estv-dest-n { font-size: 0.85rem; }
   }
 
+  /* ---- Turnos sin resolver (3.18.0): las salidas del «Resolver turno» ---- */
+  .res-ops { display: flex; flex-direction: column; gap: 10px; }
+  .res-op { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--card); }
+  .res-op-ic { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--bg); color: var(--ink); }
+  .res-op-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .res-op-tx b { font-size: 0.92rem; }
+  .res-op-tx span { font-size: 0.8rem; color: var(--muted); line-height: 1.35; }
+  .res-op .btn { flex: none; }
+  @media (max-width: 560px) {
+    .res-op { flex-wrap: wrap; }
+    .res-op .btn { width: 100%; justify-content: center; }
+  }
+
   /* ---- Profesionales (3.17.0): camino para programar, filtros y tarjetas ---- */
   .prof-embudo-card { margin-bottom: 18px; }
   .prof-embudo { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
@@ -3448,6 +3461,10 @@ const ESTC = {
   pendiente:  { label: 'Pendiente',  color: '#f0a92e', soft: '#fdf3dd', text: '#92600a', desc: 'Aguarda validación administrativa/anestésica' },
   validada:   { label: 'Validada',   color: '#2980d9', soft: '#e3eefb', text: '#1d4f8c', desc: 'Aprobada por áreas técnicas; espera confirmación de jefatura' },
   confirmada: { label: 'Confirmada', color: '#1fa971', soft: '#dcf5ea', text: '#166b4a', desc: 'Turno oficial en el parte quirúrgico' },
+  /* No se guarda: se calcula (ver `sinResolver`). Es el turno que todavía
+     figura en el circuito cuando su día ya pasó —nadie lo inició, lo suspendió
+     ni lo cerró—. Se muestra aparte para que no quede «Confirmada» para siempre. */
+  sin_resolver: { label: 'Sin resolver', color: '#dc2626', soft: '#fde2e2', text: '#991b1b', desc: 'Pasó la fecha del turno y quedó sin cerrar: hay que decir qué pasó' },
   en_curso:   { label: 'En curso',   color: '#f97316', soft: '#ffedd5', text: '#b45309', desc: 'Procedimiento registrado en tiempo real' },
   /* El procedimiento terminó en el quirófano, pero el caso todavía no está
      cerrado: puede faltar el parte quirúrgico y, en la urgencia operada fuera
@@ -3461,6 +3478,10 @@ const ESTC = {
      proceso ni causa que reportar— y por eso no entra en la tasa de
      suspensiones: la franja simplemente vuelve a estar disponible. */
   anticipada: { label: 'Resuelta por anticipado', color: '#7c3aed', soft: '#efe7fd', text: '#5b21b6', desc: 'El paciente se operó antes de la fecha prevista —de urgencia o adelantado—: la franja quedó liberada' },
+  /* Pasó la fecha sin que el turno llegara al parte oficial (borrador,
+     pendiente o validada). Como nunca estuvo confirmado, no es una suspensión
+     ni entra en esa tasa: se informa aparte en Indicadores. */
+  caducada:   { label: 'Caducada', color: '#78716c', soft: '#ece9e6', text: '#57534e', desc: 'Pasó la fecha sin que el turno llegara a confirmarse en el parte: no cuenta como suspensión' },
 };
 
 /* ================= PRIORIZACIÓN AUTOMÁTICA (orden de prelación) ================= */
@@ -3522,8 +3543,29 @@ const CAUSAS_SUSP = [
   'Emergencia desplazó el turno',
   'Ausencia del paciente',
   'Falta de cama de internación / UTI',
+  'Falta de autorización del financiador',
+  'Reprogramada',
   'Otra causa',
 ];
+/* La que pone la app sola cuando un turno confirmado pasa DIAS_CIERRE_ADMIN
+   días sin que nadie diga qué pasó. No se ofrece en la lista: la elige el
+   sistema, y por eso en Indicadores se cuenta también aparte. */
+const CAUSA_SIN_REGISTRO = 'Sin registro del equipo (cierre administrativo)';
+/* Por qué caducó un turno que nunca llegó a confirmarse. */
+const MOTIVOS_CADUCIDAD = [
+  'Turno no confirmado a tiempo',
+  'Falta de autorización del financiador',
+  'Estudios o documentación prequirúrgica incompletos',
+  'El paciente no se presentó',
+  'Reprogramada',
+  'Otra causa',
+];
+const MOTIVO_CADUCIDAD_AUTO = 'Sin resolver a los 7 días (cierre administrativo)';
+/* Días que espera un turno «sin resolver» antes de que la app lo cierre sola. */
+const DIAS_CIERRE_ADMIN = 7;
+/* Los turnos que ya estaban atrasados cuando salió la 3.18 no se cierran de
+   golpe al abrirla: su plazo corre desde esta fecha, así se pueden resolver a mano. */
+const INICIO_CIERRE_ADMIN = '2026-10-03';
 
 /* ================= SALAS Y FRANJAS HORARIAS =================
    Estructura de turnos del bloque quirúrgico del HRU: cuatro quirófanos
@@ -5606,7 +5648,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.17.1';
+const APP_VERSION = '3.18.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -6614,7 +6656,7 @@ function cierreFaltantes(c) { return faltantesCierre(c).map((x) => x.largo); }
 function pendientesTurno(c) {
   if (!c) return [];
   // Caso cerrado, suspendido o resuelto por anticipado: no hay nada que esperar.
-  if (['finalizada', 'suspendida', 'anticipada'].includes(c.estado)) return [];
+  if (['finalizada', 'suspendida', 'anticipada', 'caducada'].includes(c.estado)) return [];
   if (operada(c)) return faltantesCierre(c);
   const f = [];
   if (c.estado === 'borrador') f.push({ corto: 'enviar la solicitud', largo: 'La solicitud sigue en borrador: el cirujano todavía no la envió al circuito' });
@@ -6639,7 +6681,30 @@ function cirugiaCerrada(c) { return operada(c) && !cierreFaltantes(c).length; }
    mismo incluso en esos turnos viejos. */
 function estadoVisible(c) {
   if (!c) return 'borrador';
+  if (sinResolver(c)) return 'sin_resolver';
   return (c.estado === 'realizada' && cirugiaCerrada(c)) ? 'finalizada' : c.estado;
+}
+/* ---- Turnos que quedaron atrás ----
+   Un turno en el circuito (borrador, pendiente, validada o confirmada) cuyo día
+   ya pasó y nadie tocó. No se guarda nada: se calcula con la fecha, así que un
+   turno viejo pasa a «Sin resolver» apenas se abre esta versión. Se mira el día
+   real y el de la grilla, que difieren en la madrugada del Quirófano 1. */
+function fechaRefTurno(c) {
+  const a = String((c && c.fecha) || ''), b = String((c && diaDeGrilla(c)) || '');
+  return a > b ? a : b;
+}
+function sinResolver(c) {
+  if (!c || !['borrador', 'pendiente', 'validada', 'confirmada'].includes(c.estado)) return false;
+  const ref = fechaRefTurno(c);
+  return !!ref && ref < hoyISO();
+}
+/* Día en que la app lo cierra sola si nadie lo resolvió. Si la Jefatura lo
+   reabrió, el plazo vuelve a correr desde la reapertura. */
+function cierreAdminFecha(c) {
+  const ref = fechaRefTurno(c);
+  const re = c && c.reabierto && c.reabierto.t ? String(c.reabierto.t).slice(0, 10) : '';
+  const base = [ref, re, INICIO_CIERRE_ADMIN].sort().pop();
+  return sumarDias(base, DIAS_CIERRE_ADMIN);
 }
 /* Único lugar donde el caso se cierra o se reabre. Se llama después de cada
    paso que puede completar el cierre —parte quirúrgico, dictamen de Admisión,
@@ -7385,6 +7450,19 @@ function calcRecordatorios() {
     });
   });
 
+  /* ---- 4 bis. Turno sin resolver: la fecha pasó y nadie lo cerró ----
+     Al día siguiente del turno, al cirujano dueño y a la Jefatura. Se repite
+     cada día hasta que alguien lo resuelve o la app lo cierra sola. */
+  DB.cirugias.filter(sinResolver).filter(remMia).forEach((c) => {
+    const cierra = cierreAdminFecha(c);
+    add({
+      key: 'sinres-' + c.id, nivel: 'crit', vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
+      titulo: `Turno del ${fmtFecha(c.fecha)} sin resolver`,
+      texto: `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.quirofano || 's/d'}, ${c.horaProg || '—'} h). La fecha pasó y el turno sigue en «${ESTC[c.estado].label}»: indique si se operó, se suspendió o se resolvió antes. Si nadie lo resuelve, se cierra solo el ${fmtFecha(cierra)} como ${c.estado === 'confirmada' ? 'suspendido sin registro del equipo' : 'caducado'}.`,
+      cuando: `Se cierra solo el ${fmtFecha(cierra)}`,
+    });
+  });
+
   /* ---- 5. Cirugía en curso excedida ---- */
   DB.cirugias.filter((c) => c.estado === 'en_curso' && c.horaInicioReal).filter(remMia).forEach((c) => {
     const transcurrido = diffMin(c.horaInicioReal, dateToDT(ahora));
@@ -7603,6 +7681,8 @@ function cambioDeIdentidad(entra) {
 function revisarRecordatorios() {
   // Antes de recalcular: las franjas provisionales vencidas vuelven al bloque.
   barrerTurnosProvisionales();
+  // Y los turnos que quedaron atrás más de DIAS_CIERRE_ADMIN días, se cierran.
+  if (cerrarTurnosVencidos().length && ['programacion', 'mis', 'grilla', 'parte'].includes(view)) refreshView();
   remLista = calcRecordatorios();
   pintarCampana();
   if (view === 'recordatorios') renderRecordatorios();
@@ -8919,7 +8999,8 @@ function renderMis() {
   const u = usuarioActual();
   if (!u) { go('acceso'); return; }
   const mias = DB.cirugias.filter((c) => c.cirujanoEmail === u.email)
-    .sort((a, b) => String(b.fecha || '').localeCompare(String(a.fecha || '')));
+    .sort((a, b) => (sinResolver(b) ? 1 : 0) - (sinResolver(a) ? 1 : 0) || String(b.fecha || '').localeCompare(String(a.fecha || '')));
+  const nSinRes = mias.filter(sinResolver).length;
   $('main').innerHTML = `
     <div class="page-head">
       <div>
@@ -8928,6 +9009,8 @@ function renderMis() {
       </div>
       <button class="btn btn-blue" onclick="go('solicitud')">${ICONS.calPlus.replace('18', '16')} Nueva solicitud</button>
     </div>
+    ${nSinRes ? `<div class="banner banner-red">${ico(ICONS.alertTri, 20)}<div><strong>${nSinRes} turno(s) sin resolver</strong>
+      La fecha pasó y quedaron sin cerrar. Están primeros en la lista: toque <b>Resolver turno</b> e indique qué pasó. Si nadie lo hace, la app los cierra solos a los ${DIAS_CIERRE_ADMIN} días.</div></div>` : ''}
     ${leyendaEstados()}
     ${mias.length ? mias.map((c) => cirCard(c, 'cirujano')).join('') : '<div class="empty">Aún no tiene solicitudes cargadas.</div>'}`;
 }
@@ -8965,29 +9048,38 @@ function accionesCirugia(c, rol) {
   const u = usuarioActual();
   const esDueno = u && c.cirujanoEmail === u.email;
   const a = [];
-  if (c.estado === 'borrador' && esDueno) {
+  // Pasó el día y el turno sigue en el circuito: lo único que se ofrece es
+  // decir qué pasó. Iniciar, validar o suspender suelto ya no tienen sentido.
+  const vencido = sinResolver(c);
+  if (vencido && (jefe || esDueno)) {
+    a.push(`<button class="btn btn-sm btn-red" onclick="openResolverTurno(${c.id})">${ico(ICONS.alertTri, 14)} Resolver turno</button>`);
+  }
+  if (c.estado === 'borrador' && esDueno && !vencido) {
     a.push(c.sala && c.franja
       ? `<button class="btn btn-sm btn-outline" onclick="openSlot('${diaDeGrilla(c)}','${c.sala}','${c.franja}')">${ICONS.edit} Editar</button>`
       : `<button class="btn btn-sm btn-outline" onclick="go('solicitud')">${ICONS.edit} Elegir franja</button>`);
     a.push(`<button class="btn btn-sm btn-red" onclick="delCirugia(${c.id})">${ICONS.trash} Eliminar</button>`);
   }
+  if (c.estado === 'borrador' && esDueno && vencido && !jefe) {
+    a.push(`<button class="btn btn-sm btn-outline" onclick="delCirugia(${c.id})">${ICONS.trash} Eliminar el borrador</button>`);
+  }
   // El circuito de la programada tiene un orden y el botón lo respeta: mientras
   // Admisión y Egresos no acepte, lo único que se ofrece es su trámite; recién
   // con la aceptación aparece la validación de la Jefatura.
-  if (c.estado === 'pendiente' && jefe) {
+  if (c.estado === 'pendiente' && jefe && !vencido) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${!c.auth ? '1º Aceptación de Admisión y Egresos' : authBotonTexto(c)}</button>`);
   }
-  if (c.estado === 'pendiente' && jefe && authOk(c)) {
+  if (c.estado === 'pendiente' && jefe && authOk(c) && !vencido) {
     a.push(`<button class="btn btn-sm btn-green" onclick="validarCirugia(${c.id})">${ICONS.check} Validar y confirmar en el parte</button>`);
   }
   // Turnos de la versión anterior, que quedaron detenidos en «Validada».
-  if (c.estado === 'validada' && jefe) {
+  if (c.estado === 'validada' && jefe && !vencido) {
     a.push(`<button class="btn btn-sm btn-green" onclick="confirmarCirugia(${c.id})">${ICONS.check} Confirmar en el parte</button>`);
   }
   // El turno confirmado en el parte arranca con la LVQ. La urgencia que entró
   // fuera de horario, también: la validación de la Jefatura queda diferida y el
   // cirujano no espera a nadie para operar.
-  if ((c.estado === 'confirmada' || puedeIniciarSinJefatura(c)) && (jefe || esDueno)) {
+  if ((c.estado === 'confirmada' || puedeIniciarSinJefatura(c)) && (jefe || esDueno) && !vencido) {
     a.push(`<button class="btn btn-sm btn-orange" onclick="openLVQ(${c.id}, 'inicio')">${ICONS.play} Iniciar (LVQ Entrada + Pausa)</button>`);
   }
   // Terminado el procedimiento, el cirujano completa la Salida del check-list
@@ -8996,16 +9088,21 @@ function accionesCirugia(c, rol) {
   if (c.estado === 'en_curso' && (jefe || esDueno)) {
     a.push(`<button class="btn btn-sm btn-darkgreen" onclick="openLVQ(${c.id}, 'salida')">${ICONS.flag} Finalizar (LVQ Salida + parte)</button>`);
   }
-  if (['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado) && jefe) {
+  if (['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado) && jefe && !vencido) {
     a.push(`<button class="btn btn-sm btn-red" onclick="openSuspender(${c.id})">${ICONS.x} Suspender</button>`);
   }
   // El paciente pudo operarse de urgencia antes de su fecha: el turno se cierra
   // por anticipación —no por suspensión— y la franja queda libre.
-  if (['pendiente', 'validada', 'confirmada'].includes(c.estado) && !c.urgencia && (jefe || esDueno)) {
+  if (['pendiente', 'validada', 'confirmada'].includes(c.estado) && !c.urgencia && (jefe || esDueno) && !vencido) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="openAnticipar(${c.id})">${ICONS.zap} Resuelta por urgencia</button>`);
   }
   if (c.estado === 'anticipada' && jefe) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="reabrirAnticipada(${c.id})">${ICONS.refresh} Reponer el turno</button>`);
+  }
+  // Lo que se cerró por haber quedado atrás —caducado, o suspendido por la app
+  // sola— la Jefatura lo puede reabrir con motivo si se cerró por error.
+  if (jefe && (c.estado === 'caducada' || (c.estado === 'suspendida' && c.suspension && c.suspension.automatica))) {
+    a.push(`<button class="btn btn-sm btn-outline" onclick="reabrirCierreTurno(${c.id})">${ICONS.refresh} Reabrir el turno</button>`);
   }
   // Caso ya operado al que le falta el dictamen de Admisión y Egresos: el
   // trámite se cierra desde la propia tarjeta, sin ir a buscarlo a la grilla.
@@ -9019,7 +9116,7 @@ function accionesCirugia(c, rol) {
   if (c.estado === 'realizada' && !c.informe && (jefe || esDueno)) {
     a.push(`<button class="btn btn-sm btn-blue" onclick="openCirugia(${c.id})">${ICONS.fileText} Cargar informe operatorio</button>`);
   }
-  if (jefe && ['borrador', 'suspendida'].includes(c.estado)) {
+  if (jefe && ['borrador', 'suspendida', 'caducada'].includes(c.estado)) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="delCirugia(${c.id})">${ICONS.trash} Eliminar</button>`);
   }
   return a;
@@ -9264,9 +9361,11 @@ function confirmSuspender() {
   if (!c) return;
   const causa = $('susp-causa').value;
   const det = $('susp-det').value.trim();
+  const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || c.cirujano || 'Sistema');
+  const tarde = sinResolver(c);
   c.estado = 'suspendida';
-  c.suspension = { causa, detalle: det, fechaHora: nowDT() };
-  pushHist(c, 'Suspendida: ' + causa);
+  c.suspension = { causa, detalle: det, fechaHora: nowDT(), por: quien };
+  pushHist(c, 'Suspendida: ' + causa + (tarde ? ` — asentado por ${quien} después de la fecha del turno (${fmtFecha(c.fecha)})` : ''));
   upsert('cirugias', c);
   // Incidencia automática categoría D (suspensión no planificada)
   upsert('incidencias', {
@@ -9279,6 +9378,231 @@ function confirmSuspender() {
   });
   closeSuspender();
   refreshView();
+}
+
+/* ================= TURNOS SIN RESOLVER =================
+   Un turno confirmado para el 20 que nadie inició, suspendió ni cerró seguía
+   figurando «Confirmada» —con el botón Iniciar— semanas después. Desde la 3.18
+   ese turno pasa a «Sin resolver» al día siguiente y queda una sola acción:
+   decir qué pasó. Las salidas son las de siempre, todas con rastro:
+     · se operó y no se registró → registro fuera de término (Jefatura);
+     · no se operó → suspendida con causa, si había llegado al parte, o
+       caducada, si nunca se confirmó (no entra en la tasa de suspensiones);
+     · se operó antes, de urgencia o adelantada → resuelta por anticipado.
+   Si nadie lo resuelve en DIAS_CIERRE_ADMIN días, la app lo cierra sola
+   (`cerrarTurnosVencidos`) y la Jefatura puede reabrirlo con motivo. */
+function openResolverTurno(id) {
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c) return;
+  const u = usuarioActual();
+  const esDueno = u && c.cirujanoEmail === u.email;
+  if (!jefe && !esDueno) return;
+  const confirmado = c.estado === 'confirmada';
+  const op = (icono, titulo, texto, boton) => `<div class="res-op">
+      <div class="res-op-ic">${icono}</div>
+      <div class="res-op-tx"><b>${titulo}</b><span>${texto}</span></div>
+      ${boton}</div>`;
+  $('susp-modal').innerHTML = `
+    <button class="modal-close" onclick="closeSuspender()" aria-label="Cerrar">✕</button>
+    <h2 style="text-align:left;display:flex;align-items:center;gap:10px">${ico(ICONS.alertTri, 20)} Resolver turno</h2>
+    <p style="font-size:0.88rem;color:var(--muted);margin:6px 0 12px">${esc(c.procedimiento)} — ${esc((c.paciente && c.paciente.nombre) || 's/d')} · ${fmtFecha(c.fecha)}${c.horaProg ? ' · ' + esc(c.horaProg) + ' h' : ''} · ${esc(c.quirofano || 's/d')} · ${esc(c.cirujano || 's/d')}</p>
+    <div class="banner banner-red" style="margin-bottom:14px">${ico(ICONS.clockSm, 18)}
+      <div><strong>La fecha pasó y el turno sigue en «${esc(ESTC[c.estado].label)}»</strong>
+      Nadie lo inició, lo suspendió ni lo cerró. Indique qué pasó. Si nadie lo resuelve, la app lo cierra sola el
+      <b>${fmtFecha(cierreAdminFecha(c))}</b> como ${confirmado ? `<b>suspendida</b> («${esc(CAUSA_SIN_REGISTRO)}»)` : '<b>caducada</b>'}.</div></div>
+    <div class="res-ops">
+      ${op(ico(ICONS.check, 18), 'Se operó, pero no se registró',
+        jefe ? 'Registro fuera de término: horas reales, parte quirúrgico y constancia de la Lista de Verificación hecha en papel. Pide la credencial de la Jefatura.'
+          : 'El registro fuera de término lo asienta la Jefatura de Quirófanos. Avísele para que lo cargue.',
+        jefe ? `<button class="btn btn-sm btn-blue" onclick="openRegistroTardioTurno(${c.id})">Registrar</button>` : '')}
+      ${confirmado
+        ? op(ico(ICONS.x, 18), 'No se operó', 'Queda suspendida, con causa obligatoria. Genera la incidencia de categoría D, como toda suspensión.',
+          `<button class="btn btn-sm btn-red" onclick="openSuspender(${c.id})">Suspender</button>`)
+        : op(ico(ICONS.x, 18), 'No se operó', 'Nunca llegó a confirmarse en el parte: queda caducada, con su motivo. No cuenta como suspensión.',
+          `<button class="btn btn-sm btn-red" onclick="openCaducarTurno(${c.id})">Dar por caducado</button>`)}
+      ${!c.urgencia ? op(ico(ICONS.zap, 18), 'Se operó antes, de urgencia o adelantada', 'Queda resuelta por anticipado, vinculada con la urgencia si está cargada. No cuenta como suspensión.',
+        `<button class="btn btn-sm btn-outline" onclick="openAnticipar(${c.id})">Resuelta por urgencia</button>`) : ''}
+    </div>
+    <div class="form-actions" style="margin-top:14px"><button class="btn btn-outline" onclick="closeSuspender()">Cerrar</button></div>`;
+  $('susp-overlay').classList.add('open');
+}
+
+/* Caducar: el turno nunca entró al parte oficial. */
+let cadCirId = null;
+function openCaducarTurno(id) {
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c) return;
+  cadCirId = id;
+  $('susp-modal').innerHTML = `
+    <button class="modal-close" onclick="closeSuspender()" aria-label="Cerrar">✕</button>
+    <h2 style="text-align:left;display:flex;align-items:center;gap:10px">${ico(ICONS.x, 20)} Dar el turno por caducado</h2>
+    <p style="font-size:0.88rem;color:var(--muted);margin:6px 0 16px">${esc(c.procedimiento)} — ${esc((c.paciente && c.paciente.nombre) || 's/d')} · ${fmtFecha(c.fecha)}. Estaba <b>${esc(ESTC[c.estado].label)}</b>: nunca llegó a confirmarse en el parte.</p>
+    <div class="field" style="margin-bottom:14px">
+      <label>Motivo *</label>
+      <select id="cad-motivo">${MOTIVOS_CADUCIDAD.map((x) => `<option>${x}</option>`).join('')}</select>
+    </div>
+    <div class="field" style="margin-bottom:18px">
+      <label>Detalle</label>
+      <textarea id="cad-det" style="min-height:80px" placeholder="Qué pasó con el paciente, si se reprogramó, quién lo informó..."></textarea>
+    </div>
+    <div class="form-actions" style="margin-top:0">
+      <button class="btn btn-red" onclick="confirmCaducarTurno()">${ICONS.x} Dar por caducado</button>
+      <button class="btn btn-outline" onclick="openResolverTurno(${c.id})">Volver</button>
+    </div>
+    <p class="form-note" style="margin-top:14px">${ICONS.info.replace('18', '13')} No es una suspensión: no entra en esa tasa. Se informa aparte en Indicadores de Gestión. La Jefatura puede reabrirlo si se cerró por error.</p>`;
+  $('susp-overlay').classList.add('open');
+}
+function caducarTurno(c, motivo, detalle, quien, automatica) {
+  c.caducada = { motivo, detalle: detalle || '', desdeEstado: c.estado, por: quien, t: nowDT(), automatica: !!automatica };
+  c.estado = 'caducada';
+  pushHist(c, `Caducada — ${motivo}${detalle ? ': ' + detalle : ''}. Asentado por ${quien}. El turno del ${fmtFecha(c.fecha)} nunca llegó a confirmarse en el parte`);
+  upsert('cirugias', c);
+}
+function confirmCaducarTurno() {
+  const c = DB.cirugias.find((x) => x.id === cadCirId);
+  if (!c) return;
+  const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || c.cirujano || 'Sistema');
+  caducarTurno(c, $('cad-motivo').value, ($('cad-det').value || '').trim(), quien, false);
+  closeSuspender();
+  cadCirId = null;
+  refreshView();
+}
+
+/* Se operó y no se registró. Es la misma excepción que la reapertura de una
+   franja vencida, pero sobre el turno que ya existe: la Jefatura asienta las
+   horas reales y el parte, y deja constancia de que la Lista de Verificación
+   se hizo en papel. La LVQ no se puede «completar» después: si no se hizo, no
+   se registra por acá —eso es una incidencia—. */
+let tardCirId = null;
+function openRegistroTardioTurno(id) {
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c || !jefe) return;
+  pedirJefatura('Registro fuera de término',
+    `${c.procedimiento} — ${(c.paciente && c.paciente.nombre) || 's/d'} · ${fmtFecha(c.fecha)}. Es una excepción reservada a la Jefatura de Quirófanos: ingrese su clave.`, () => {
+      tardCirId = id;
+      $('susp-modal').innerHTML = `
+        <button class="modal-close" onclick="closeSuspender()" aria-label="Cerrar">✕</button>
+        <h2 style="text-align:left;display:flex;align-items:center;gap:10px">${ico(ICONS.check, 20)} Registrar la cirugía fuera de término</h2>
+        <p style="font-size:0.88rem;color:var(--muted);margin:6px 0 16px">${esc(c.procedimiento)} — ${esc((c.paciente && c.paciente.nombre) || 's/d')} · ${fmtFecha(c.fecha)} · ${esc(c.quirofano || 's/d')}.</p>
+        <div class="form-grid">
+          <div class="field"><label>Hora real de inicio *</label><input type="time" id="tard-ini" value="${esc(c.horaProg || '')}"></div>
+          <div class="field"><label>Hora real de fin *</label><input type="time" id="tard-fin"></div>
+        </div>
+        <div class="field" style="margin:12px 0">
+          <label>Parte quirúrgico (informe operatorio) *</label>
+          <textarea id="tard-inf" style="min-height:110px" placeholder="Procedimiento realizado, hallazgos, técnica, complicaciones, muestras...">${esc((c.informe && c.informe.texto) || '')}</textarea>
+        </div>
+        <div class="field" style="margin-bottom:12px">
+          <label>Motivo del registro tardío *</label>
+          <textarea id="tard-mot" style="min-height:60px" placeholder="Por qué no se registró en su momento..."></textarea>
+        </div>
+        <label class="check-row"><input type="checkbox" id="tard-lvq"> Confirmo que la Lista de Verificación Quirúrgica (Entrada, Pausa y Salida) se completó en papel en el quirófano y consta en la historia clínica.</label>
+        <div class="form-actions" style="margin-top:14px">
+          <button class="btn btn-blue" onclick="confirmRegistroTardioTurno()">${ICONS.check} Registrar</button>
+          <button class="btn btn-outline" onclick="openResolverTurno(${c.id})">Volver</button>
+        </div>
+        <p class="form-note" style="margin-top:14px">${ICONS.info.replace('18', '13')} El turno queda marcado como <b>registro fuera de término</b>, y el parte, cargado fuera del plazo de 2 h. Si no falta nada más, la cirugía queda <b>Finalizada</b> y computa en estadísticas y módulos.</p>`;
+      $('susp-overlay').classList.add('open');
+    });
+}
+function confirmRegistroTardioTurno() {
+  const c = DB.cirugias.find((x) => x.id === tardCirId);
+  if (!c || !jefe) return;
+  const hi = $('tard-ini').value, hf = $('tard-fin').value;
+  const inf = ($('tard-inf').value || '').trim(), mot = ($('tard-mot').value || '').trim();
+  if (!hi || !hf) { alert('Indique la hora real de inicio y de fin de la cirugía.'); return; }
+  if (inf.length < 10) { alert('Cargue el parte quirúrgico: sin él la cirugía no se cierra.'); return; }
+  if (!mot) { alert('El registro fuera de término exige un motivo escrito.'); return; }
+  if (!$('tard-lvq').checked) {
+    alert('Sin la Lista de Verificación no se puede registrar la cirugía por esta vía.\n\nSi la LVQ no se hizo, corresponde reportarlo como incidencia.');
+    return;
+  }
+  const ini = c.fecha + 'T' + hi;
+  const fin = (hf < hi ? sumarDias(c.fecha, 1) : c.fecha) + 'T' + hf;
+  const ahora = nowDT();
+  c.lvq = c.lvq || {};
+  c.lvq.entrada = { done: true, hora: ini, papel: true };
+  c.lvq.pausa = { done: true, hora: ini, papel: true };
+  c.lvq.salida = { done: true, hora: fin, papel: true };
+  c.horaInicioReal = ini;
+  c.horaFinReal = fin;
+  c.informe = { texto: inf, fechaHora: ahora };
+  c.registroTardio = { motivo: mot, autorizadoPor: JEFATURA, fechaHora: ahora, sobreTurno: true, desdeEstado: c.estado };
+  c.estado = 'realizada';
+  pushHist(c, `Registrada fuera de término por la ${JEFATURA}: operada el ${fmtFecha(c.fecha)} de ${hi} a ${hf} h — ${mot}. LVQ declarada en papel; parte quirúrgico cargado`);
+  const cerro = revisarCierre(c);
+  const pend = cierreFaltantes(c);
+  upsert('cirugias', c);
+  closeSuspender();
+  tardCirId = null;
+  refreshView();
+  setTimeout(() => alert(cerro
+    ? 'Cirugía registrada.\n\nQueda FINALIZADA y ya computa en las estadísticas y en los módulos quirúrgicos.'
+    : 'Cirugía registrada.\n\nTodavía no está finalizada. Falta:\n\n· ' + pend.join('\n· ')), 120);
+}
+
+/* Reabrir lo que se cerró por haber quedado atrás. Vuelve al estado en que
+   estaba y el plazo del cierre automático corre de nuevo desde hoy. */
+async function reabrirCierreTurno(id) {
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c || !jefe) return;
+  const auto = c.estado === 'suspendida' && c.suspension && c.suspension.automatica;
+  if (c.estado !== 'caducada' && !auto) return;
+  const motivo = await pedirTexto(`El turno vuelve a «Sin resolver» y hay que indicar qué pasó. Si nadie lo resuelve, la app lo vuelve a cerrar en ${DIAS_CIERRE_ADMIN} días.`, {
+    titulo: 'Reabrir el turno', tono: 'jefatura', si: 'Reabrir', no: 'Cancelar',
+    campo: { label: 'Motivo', multilinea: true, requerido: true, error: 'La reapertura exige un motivo escrito.' },
+  });
+  if (motivo === null) return;
+  const previo = c.estado === 'caducada' ? ((c.caducada && c.caducada.desdeEstado) || 'pendiente') : 'confirmada';
+  const cerrado = c.estado === 'caducada' ? 'caducado' : 'suspendido';
+  if (c.estado === 'caducada') delete c.caducada; else delete c.suspension;
+  c.estado = previo;
+  c.reabierto = { t: nowDT(), motivo, por: JEFATURA };
+  pushHist(c, `Reabierto por la ${JEFATURA} (estaba ${cerrado}) — ${motivo}`);
+  upsert('cirugias', c);
+  refreshView();
+}
+
+/* Red de seguridad: pasados DIAS_CIERRE_ADMIN días, el turno sin resolver se
+   cierra solo. Como `barrerTurnosProvisionales`, actúa la Jefatura sobre todo
+   el bloque o el cirujano sobre lo suyo, y nunca con la nube caída: con datos
+   viejos podría pisar algo que ya se resolvió en otro equipo. No genera
+   incidencia de categoría D (la generaría cada equipo que lo barra); se
+   cuenta en Indicadores como «cerrados sin registro». */
+let cerrandoVencidos = false;
+function cerrarTurnosVencidos() {
+  const u = usuarioActual();
+  if (!u && !jefe) return [];
+  if (cloudOn && (!conectado || !nubeLista)) return [];
+  // Cada guardado puede disparar otra ronda de recordatorios —y con ella este
+  // barrido— antes de que termine el actual: sin el candado, un turno recién
+  // suspendido se volvía a procesar como si siguiera en el circuito.
+  if (cerrandoVencidos) return [];
+  cerrandoVencidos = true;
+  try {
+    return cerrarTurnosVencidosAhora(u);
+  } finally {
+    cerrandoVencidos = false;
+  }
+}
+function cerrarTurnosVencidosAhora(u) {
+  const hoy = hoyISO();
+  const cerrados = [];
+  DB.cirugias.filter(sinResolver).forEach((c) => {
+    if (!sinResolver(c)) return;   // otro paso ya lo resolvió
+    if (!jefe && c.cirujanoEmail !== u.email) return;
+    if (cierreAdminFecha(c) > hoy) return;
+    if (c.estado === 'confirmada') {
+      c.estado = 'suspendida';
+      c.suspension = { causa: CAUSA_SIN_REGISTRO, detalle: `Nadie indicó qué pasó con el turno del ${fmtFecha(c.fecha)} en ${DIAS_CIERRE_ADMIN} días.`, fechaHora: nowDT(), por: 'Sistema', automatica: true };
+      pushHist(c, `Cerrada por la aplicación como suspendida — ${CAUSA_SIN_REGISTRO}: ${DIAS_CIERRE_ADMIN} días sin resolver`);
+      upsert('cirugias', c);
+    } else {
+      caducarTurno(c, MOTIVO_CADUCIDAD_AUTO, '', 'Sistema', true);
+    }
+    cerrados.push(c);
+  });
+  return cerrados;
 }
 
 /* ================= RESOLUCIÓN ANTICIPADA POR URGENCIA =================
@@ -9698,7 +10022,7 @@ function avisoTurnoHuerfano(c) {
 /* Listado de los turnos huérfanos del bloque, para que la Jefatura no tenga
    que encontrarlos abriendo ficha por ficha. Solo se muestra si hay alguno. */
 function turnosHuerfanos() {
-  return DB.cirugias.filter((c) => turnoHuerfano(c) && !operada(c) && c.estado !== 'anticipada')
+  return DB.cirugias.filter((c) => turnoHuerfano(c) && !operada(c) && !['anticipada', 'caducada'].includes(c.estado))
     .sort((a, b) => String(a.fecha || '').localeCompare(String(b.fecha || '')));
 }
 function bannerTurnosHuerfanos() {
@@ -10096,6 +10420,8 @@ function renderExcepcion() {
    detalle se despliega al pulsarla: la Jefatura ve el estado del bloque entero
    de un vistazo y entra solo a lo que le interesa. */
 const PROG_GRUPOS = [
+  // Primero lo que quedó atrás: es lo único de la lista que ya no espera a nadie más.
+  { est: 'sin_resolver', hint: `La fecha pasó y nadie los cerró: indicar qué pasó (se cierran solos a los ${DIAS_CIERRE_ADMIN} días)` },
   { est: 'borrador',   hint: 'Iniciadas por el cirujano, todavía sin enviar al circuito' },
   { est: 'pendiente',  hint: '1º Admisión y Egresos acepta; 2º la Jefatura valida y confirma en el parte' },
   { est: 'validada',   hint: 'Turnos de la versión anterior: al confirmar entran al parte oficial' },
@@ -10105,10 +10431,11 @@ const PROG_GRUPOS = [
   { est: 'finalizada', hint: 'Caso cerrado: computa en estadísticas y en módulos quirúrgicos' },
   { est: 'suspendida', hint: 'Con causa registrada e incidencia de categoría D automática' },
   { est: 'anticipada', hint: 'El paciente se operó antes de su fecha: la franja quedó liberada' },
+  { est: 'caducada',   hint: 'La fecha pasó sin que llegaran al parte: no cuentan como suspensión' },
 ];
 /* Estados terminales: se listan por fecha, del más reciente al más viejo. Los
    que siguen en circuito van por orden de prelación. */
-const PROG_TERMINALES = ['finalizada', 'suspendida', 'anticipada', 'realizada'];
+const PROG_TERMINALES = ['finalizada', 'suspendida', 'anticipada', 'realizada', 'caducada', 'sin_resolver'];
 let progAbierto = {};
 function progToggle(est) {
   progAbierto[est] = !progAbierto[est];
@@ -10148,7 +10475,7 @@ function renderProgramacion() {
     ${total ? '' : '<div class="empty">No hay solicitudes cargadas en el bloque.</div>'}`;
   } else {
     const lista = DB.cirugias
-      .filter((c) => !progEstado || c.estado === progEstado)
+      .filter((c) => !progEstado || estadoVisible(c) === progEstado)
       .sort((a, b) => String(b.fecha || '').localeCompare(String(a.fecha || '')) || ordenPrelacion(a, b));
     cuerpo = `
       <div class="toolbar">
@@ -10235,6 +10562,11 @@ function openCirugia(id) {
       ${estChip(c)} ${prioChip(c)}
     </div>
     <div style="font-weight:800;font-size:1.2rem;margin-bottom:2px">${esc(c.procedimiento)}</div>
+    ${sinResolver(c) ? `<div class="banner banner-red" style="margin:10px 0 6px">${ico(ICONS.alertTri, 18)}
+      <div><strong>Turno sin resolver</strong>
+      La fecha (${fmtFecha(c.fecha)}) pasó y el turno sigue en «${esc(ESTC[c.estado].label)}»: nadie lo inició, lo suspendió ni lo cerró.
+      ${jefe || (u && c.cirujanoEmail === u.email) ? 'Use <b>Resolver turno</b> e indique qué pasó.' : ''}
+      Si nadie lo resuelve, la app lo cierra sola el <b>${fmtFecha(cierreAdminFecha(c))}</b>.</div></div>` : ''}
     <div style="font-size:0.86rem;color:var(--muted);margin-bottom:18px">${esc(c.diagnostico)}${c.cie10 ? ' · CIE-10: ' + esc(c.cie10) : ''} — ${PRIOS[pe].desc}</div>
 
     <div class="det-section">
@@ -10260,7 +10592,11 @@ function openCirugia(id) {
       ${c.liberado ? `<div class="det-row"><b>Franja liberada</b> ${esc(c.liberado.quirofano || 's/d')} · ${esc(c.liberado.hora || '—')} h · ${fmtFecha(c.liberado.fecha)}</div>` : ''}` : ''}
       ${authDetalle(c)}
       ${jefaturaDetalle(c)}
-      ${c.registroTardio ? `<div class="det-row"><b>Registro fuera de término</b> la franja de las ${esc(c.horaProg || '')} h ya había vencido y la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} la reabrió el ${esc(c.registroTardio.fechaHora || '')} para asentar esta cirugía — ${esc(c.registroTardio.motivo || '')}</div>` : ''}
+      ${c.registroTardio ? (c.registroTardio.sobreTurno
+        ? `<div class="det-row"><b>Registro fuera de término</b> el turno quedó sin registrar en su fecha y la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} asentó la cirugía el ${fmtDT(c.registroTardio.fechaHora || '')} — ${esc(c.registroTardio.motivo || '')}. Lista de Verificación declarada en papel.</div>`
+        : `<div class="det-row"><b>Registro fuera de término</b> la franja de las ${esc(c.horaProg || '')} h ya había vencido y la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} la reabrió el ${esc(c.registroTardio.fechaHora || '')} para asentar esta cirugía — ${esc(c.registroTardio.motivo || '')}</div>`) : ''}
+      ${c.estado === 'caducada' && c.caducada ? `<div class="det-row"><b>Caducada</b> ${esc(c.caducada.motivo)}${c.caducada.detalle ? ' — ' + esc(c.caducada.detalle) : ''}. Asentado por ${esc(c.caducada.por || '—')} el ${fmtDT(c.caducada.t)}${c.caducada.automatica ? ' (cierre automático)' : ''}. Nunca llegó a confirmarse en el parte: no cuenta como suspensión.</div>` : ''}
+      ${c.reabierto ? `<div class="det-row"><b>Reabierto</b> por ${esc(c.reabierto.por || JEFATURA)} el ${fmtDT(c.reabierto.t)} — ${esc(c.reabierto.motivo || '')}</div>` : ''}
       <div class="det-row"><b>Recursos</b> ${[c.recursos?.arcoC ? 'Arco en C' : '', c.recursos?.implante ? 'Implante: ' + esc(c.recursos.implanteDetalle || 's/d') : '', c.recursos?.hemoderivados ? 'Hemoderivados' : ''].filter(Boolean).join(' · ') || 'Sin recursos especiales'}</div>
       ${c.horaInicioReal ? `<div class="det-row"><b>Inicio real</b> ${fmtDT(c.horaInicioReal)}</div>` : ''}
       ${c.horaFinReal ? `<div class="det-row"><b>Fin real</b> ${fmtDT(c.horaFinReal)} · duración real ${diffMin(c.horaInicioReal, c.horaFinReal)} min</div>` : ''}
@@ -10274,7 +10610,9 @@ function openCirugia(id) {
            <div class="det-row"><b>Equipo</b> ${equipoDe(c).map((p) => `${esc(p.rol)}: ${esc(p.nombre)} (${p.modulo || 'sin módulo'})`).join(' · ') || 'sin cargar'}</div>
            ${ayudanteDefinido(c) ? '' : `<div class="banner banner-amber" style="margin:10px 0 0;padding:10px 14px">${ico(ICONS.alertTri, 16)}<div>Falta declarar el <b>1er ayudante</b> —o dejar constancia de que la cirugía se hizo <b>sin ayudante</b>—.</div></div>`}`
         : `<div class="banner banner-amber" style="margin:0;padding:10px 14px">${ico(ICONS.alertTri, 16)}<div>Sin práctica del nomenclador: esta cirugía no genera módulo para nadie.</div></div>`}
-      <div class="det-row" style="color:var(--muted)">Los módulos se imputan en la solapa Módulos Quirúrgicos únicamente cuando la cirugía queda <b>Realizada</b>.</div>
+      ${cirugiaCerrada(c)
+        ? `<div class="det-row" style="color:var(--green);font-weight:700">${ico(ICONS.check, 14)} Computa en Módulos Quirúrgicos.</div>`
+        : '<div class="det-row" style="color:var(--muted)">Todavía no computa en Módulos Quirúrgicos: se imputa cuando la cirugía quede <b>Finalizada</b>.</div>'}
       <div class="cir-actions" style="margin-top:8px">
         <button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">${ico(ICONS.users, 14)} ${c.modulo ? 'Cargar / editar equipo y módulos' : 'Asignar práctica del nomenclador'}</button>
       </div>
@@ -10332,7 +10670,7 @@ function openCirugia(id) {
     </div>
 
     ${c.suspension ? `<div class="det-section"><h4>Suspensión</h4>
-      <div class="banner banner-red" style="margin:0">${ICONS.alertTri.replace('22','16').replace('22','16')}<div><strong>${esc(c.suspension.causa)}</strong>${esc(c.suspension.detalle || '')}<br><span style="font-size:0.78rem">${fmtDT(c.suspension.fechaHora)}</span></div></div></div>` : ''}
+      <div class="banner banner-red" style="margin:0">${ICONS.alertTri.replace('22','16').replace('22','16')}<div><strong>${esc(c.suspension.causa)}</strong>${esc(c.suspension.detalle || '')}<br><span style="font-size:0.78rem">${fmtDT(c.suspension.fechaHora)}${c.suspension.por ? ' · ' + esc(c.suspension.por) : ''}${c.suspension.automatica ? ' · cierre automático: nadie indicó qué pasó' : ''}</span></div></div></div>` : ''}
 
     ${cierreHTML}
     ${informeHTML}
@@ -10454,11 +10792,34 @@ function calcKPIs(ym) {
   // pero se muestran para que la diferencia no aparezca como quirófano ocioso.
   const sinCerrar = delMes.filter((c) => c.estado === 'realizada' && !cirugiaCerrada(c)).length;
 
+  // Turnos que quedaron atrás (3.18): los que todavía nadie resolvió, los que
+  // la app cerró sola por falta de registro —que sí son suspensiones— y los
+  // caducados, que nunca llegaron al parte y se informan aparte.
+  const sinResolverMes = delMes.filter(sinResolver).length;
+  const sinRegistro = suspendidas.filter((c) => c.suspension && c.suspension.automatica);
+  const caducadas = delMes.filter((c) => c.estado === 'caducada');
+
   return {
-    utilizacion, tasaSusp, turnover, cumplInforme, sinCerrar,
+    utilizacion, tasaSusp, turnover, cumplInforme, sinCerrar, sinResolverMes, sinRegistro, caducadas,
     realizadas: realizadas.length, suspendidas: suspendidas.length, programadas: programadas.length,
     minOperados, minDisponibles, turnovers: turnovers.length, conInforme: conInforme.length, enPlazo, causas,
   };
+}
+
+/* Desglose por servicio y por cirujano de los turnos cerrados sin registro y
+   de los caducados del mes. */
+function kpiSinRegistroTabla(sinReg, cad) {
+  const filas = (clave) => {
+    const m = {};
+    const nom = (c) => (clave === 'servicio' ? servicioCanonico(c.servicio || '') : profesionalCanonico(c.cirujano || '')) || 'Sin asignar';
+    sinReg.forEach((c) => { const n = nom(c); (m[n] = m[n] || { s: 0, c: 0 }).s++; });
+    cad.forEach((c) => { const n = nom(c); (m[n] = m[n] || { s: 0, c: 0 }).c++; });
+    return Object.entries(m).sort((a, b) => (b[1].s + b[1].c) - (a[1].s + a[1].c) || a[0].localeCompare(b[0]));
+  };
+  const tabla = (col, arr) => `<div class="tbl-wrap" style="margin-top:12px"><table class="tbl">
+    <thead><tr><th>${col}</th><th class="num">Sin registro</th><th class="num">Caducados</th></tr></thead>
+    <tbody>${arr.map(([n, v]) => `<tr><td>${esc(n)}</td><td class="num">${v.s}</td><td class="num">${v.c}</td></tr>`).join('')}</tbody></table></div>`;
+  return tabla('Servicio', filas('servicio')) + tabla('Cirujano', filas('cirujano'));
 }
 
 function kpiCard(label, icon, valor, texto, ok, meta, pct, goalPct) {
@@ -10503,6 +10864,10 @@ function renderKPIs() {
       Se operaron en el mes pero todavía no están finalizadas: falta el parte quirúrgico y/o regularizar la aceptación de Admisión y Egresos o la validación de la ${esc(JEFATURA)}.
       <b>No computan en ninguno de estos indicadores</b> hasta que se cierren. Se resuelven desde Programación Quirúrgica, en el grupo «Operadas — pendientes de cierre».</div></div>` : ''}
 
+    ${k.sinResolverMes ? `<div class="banner banner-red">${ico(ICONS.alertTri, 18)}<div><strong>${k.sinResolverMes} turno(s) del mes sin resolver</strong>
+      La fecha pasó y nadie indicó qué pasó. Los confirmados cuentan como programados y todavía no figuran ni como realizados ni como suspendidos.
+      Se resuelven desde Programación Quirúrgica, en el grupo «Sin resolver»; a los ${DIAS_CIERRE_ADMIN} días la app los cierra sola.</div></div>` : ''}
+
     <div class="kpi-grid">
       ${kpiCard('Tasa de utilización del bloque', ICONS.chart.replace('18', '15'),
         k.utilizacion.toFixed(1) + ' %',
@@ -10535,6 +10900,11 @@ function renderKPIs() {
             <div class="bar-track" style="margin-top:0"><div class="bar-fill" style="width:${(n / maxCausa) * 100}%;background:var(--red)"></div></div>
           </div>`).join('') : '<div class="empty" style="padding:20px 0">Sin suspensiones registradas en el período.</div>'}
       </div>
+      ${(k.sinRegistro.length || k.caducadas.length) ? `<div class="chart-card">
+        <div class="card-title" style="margin-bottom:6px">Turnos que quedaron sin registro</div>
+        <div class="card-sub"><b>${k.sinRegistro.length}</b> cerrado(s) por la app sin registro del equipo —ya incluidos en la tasa de suspensiones— y <b>${k.caducadas.length}</b> caducado(s), que nunca llegaron al parte (informativo, fuera de la tasa)</div>
+        ${kpiSinRegistroTabla(k.sinRegistro, k.caducadas)}
+      </div>` : ''}
       <div class="chart-card">
         <div class="card-title" style="margin-bottom:6px">Actividad por servicio</div>
         <div class="card-sub">Cirugías realizadas en el período</div>
@@ -10608,7 +10978,7 @@ function estGrupoVacio(nombre) {
     nombre, servicios: {}, salas: {}, causas: {}, espera: [],
     programadas: 0, realizadas: 0, suspendidas: 0, minutos: 0,
     urgencias: 0, pediatricos: 0, conInforme: 0, informeEnPlazo: 0, lvqOk: 0,
-    enEspera: 0, esperaMax: 0, mails: {},
+    enEspera: 0, esperaMax: 0, mails: {}, sinRegistro: 0,
   };
 }
 
@@ -10641,6 +11011,7 @@ function calcEstadisticas(clave) {
       if (c.quirofano) g.salas[c.quirofano] = (g.salas[c.quirofano] || 0) + 1;
       if (c.estado === 'suspendida') {
         g.suspendidas++;
+        if (c.suspension && c.suspension.automatica) g.sinRegistro++;
         const causa = c.suspension?.causa || 'Sin causa registrada';
         g.causas[causa] = (g.causas[causa] || 0) + 1;
         return;
@@ -11316,7 +11687,7 @@ function estvApiladas(items, colores) {
     const w = (n) => (n / max) * 100;
     return `<div class="estv-apil-fila">
       <div class="estv-apil-top"><span><span class="estv-dot" style="background:${colores[g.nombre] || EST_GRIS}"></span>${esc(g.nombre)}</span>
-        <b>${g.realizadas}${g.suspendidas ? ` <em class="estv-susp-n">· ${g.suspendidas} susp. (${estFmt1(g.tasaSusp)} %)</em>` : ''}</b></div>
+        <b>${g.realizadas}${g.suspendidas ? ` <em class="estv-susp-n">· ${g.suspendidas} susp. (${estFmt1(g.tasaSusp)} %)${g.sinRegistro ? ` · ${g.sinRegistro} sin registro` : ''}</em>` : ''}</b></div>
       <div class="estv-apil-barra" title="${g.realizadas} realizadas · ${g.suspendidas} suspendidas${abiertas ? ` · ${abiertas} sin cerrar` : ''}">
         <i style="width:${w(g.realizadas)}%;background:${colores[g.nombre] || EST_GRIS}"></i>
         ${g.suspendidas ? `<i class="estv-rayado" style="width:${w(g.suspendidas)}%"></i>` : ''}
@@ -11385,7 +11756,7 @@ function estvTarjeta(g, clave, color, rank, propia, maxReal) {
         ${g.suspendidas ? `<i class="estv-rayado" style="width:${w(g.suspendidas)}%"></i>` : ''}
         ${abiertas ? `<i style="width:${w(abiertas)}%;background:${EST_GRIS};opacity:.45"></i>` : ''}
       </div>
-      <div class="estv-pp-t"><span>${g.programadas} al parte</span><span class="est-pill ${g.programadas ? estTonoSusp(g.tasaSusp) : ''}">${g.suspendidas} susp. · ${g.programadas ? estFmt1(g.tasaSusp) + ' %' : '—'}</span></div>
+      <div class="estv-pp-t"><span>${g.programadas} al parte</span><span class="est-pill ${g.programadas ? estTonoSusp(g.tasaSusp) : ''}" ${g.sinRegistro ? `title="${g.sinRegistro} cerrada(s) por la app sin registro del equipo"` : ''}>${g.suspendidas} susp.${g.sinRegistro ? ` (${g.sinRegistro} sin reg.)` : ''} · ${g.programadas ? estFmt1(g.tasaSusp) + ' %' : '—'}</span></div>
     </div>
     <div class="estv-inds">
       ${estvIndicador('Dur. media', g.durMedia ? Math.round(g.durMedia) + ' min' : '—', '', null)}
@@ -13812,11 +14183,14 @@ function slotTitulo(c) {
   const est = estadoVisible(c);
   const e = ESTC[est] || ESTC.borrador;
   const cab = e.label + (c.paciente?.nombre ? ' · ' + c.paciente.nombre : '');
-  const p = pendientesTurno(c);
+  const p = est === 'sin_resolver' ? [] : pendientesTurno(c);
   if (p.length) return cab + '\n\nFalta para avanzar:\n' + p.map((x) => '· ' + x.largo).join('\n');
   if (est === 'suspendida') return cab + '\n\nSuspendida: ' + (c.suspension?.causa || 'sin causa registrada')
     + (c.suspension?.detalle ? ' — ' + c.suspension.detalle : '') + '\nLa franja no espera nada más.';
   if (est === 'anticipada') return cab + '\n\n' + e.desc + '.\nLa franja no espera nada más.';
+  if (est === 'caducada') return cab + '\n\nCaducada: ' + ((c.caducada && c.caducada.motivo) || 'sin motivo registrado') + '.\nNunca llegó a confirmarse en el parte.';
+  if (est === 'sin_resolver') return cab + '\n\nLa fecha pasó y el turno sigue en «' + ESTC[c.estado].label + '»'
+    + ': nadie lo inició, lo suspendió ni lo cerró.\nÁbralo y use «Resolver turno». Si nadie lo resuelve, se cierra solo el ' + fmtFecha(cierreAdminFecha(c)) + '.';
   if (est === 'finalizada') return cab + '\n\nCaso cerrado: Lista de Verificación completa, parte quirúrgico cargado y las dos validaciones asentadas.\nNo falta nada.';
   return cab + '\n\nSin pendientes: el turno tiene todo lo que necesita para avanzar.';
 }
@@ -13826,11 +14200,12 @@ function slotTitulo(c) {
    viaja en el emergente, para que la grilla se lea de un vistazo y la ficha
    quede para cuando hay que hacer algo, no para averiguar qué falta. */
 function slotPendientes(c) {
+  if (sinResolver(c)) return `<span class="slot-falta grave">${ico(ICONS.alertTri, 11)} <span>Fecha pasada: <b>resolver</b></span></span>`;
   const p = pendientesTurno(c);
   if (!p.length) {
     // Un caso cerrado, suspendido o resuelto por anticipado ya lo dice su
     // propio estado: no necesita que le repitan que no espera nada.
-    if (['finalizada', 'suspendida', 'anticipada'].includes(estadoVisible(c))) return '';
+    if (['finalizada', 'suspendida', 'anticipada', 'caducada'].includes(estadoVisible(c))) return '';
     return `<span class="slot-falta ok">${ico(ICONS.check, 11)} <span>Sin pendientes</span></span>`;
   }
   const grave = p.some((x) => x.grave);
@@ -13847,7 +14222,7 @@ function slotCard(d, s, f, salaOff) {
   const c = turnoEn(d, s.id, f.id);
   const nd = f.nd ? '<span class="slot-nd" title="Corresponde a la madrugada del día siguiente">+1 día</span>' : '';
   if (c) {
-    const e = ESTC[c.estado];
+    const e = ESTC[estadoVisible(c)] || ESTC.borrador;
     const pe = prioridadEfectiva(c);
     return `<button type="button" class="slot" style="border-left:4px solid ${e.color}" title="${esc(slotTitulo(c))}" onclick="openSlot('${d}','${s.id}','${f.id}')">
       ${c.urgencia || c.excepcion || c.registroTardio ? `<span class="slot-tags">${c.urgencia ? '<i class="slot-urg-tag">URG</i>' : ''}${c.excepcion ? '<i class="slot-exc-tag" title="Programada por excepción de la Jefatura, fuera del cronograma habitual">EXC</i>' : ''}${c.registroTardio ? '<i class="slot-retro-tag" title="Cirugía ya realizada, registrada fuera de término por la Jefatura de Quirófanos">TARDÍO</i>' : ''}</span>` : ''}
@@ -14353,7 +14728,8 @@ function openSlot(d, sid, fid) {
 
     ${c ? `<div class="det-section">
       <h4>Circuito del turno</h4>
-      <div class="det-row"><b>Estado</b> ${ESTC[c.estado].label} — ${ESTC[c.estado].desc}</div>
+      <div class="det-row"><b>Estado</b> ${ESTC[estadoVisible(c)].label} — ${ESTC[estadoVisible(c)].desc}</div>
+      ${sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email)) ? `<div class="cir-actions" style="margin:8px 0 4px"><button class="btn btn-sm btn-red" onclick="closeSlot();openResolverTurno(${c.id})">${ico(ICONS.alertTri, 14)} Resolver turno</button></div>` : ''}
       ${c.registroTardio ? `<div class="det-row"><b>Registro fuera de término</b> asentado por la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} el ${esc(c.registroTardio.fechaHora || '')} sobre una franja ya vencida — ${esc(c.registroTardio.motivo || '')}</div>` : ''}
       ${authDetalle(c)}
       ${jefaturaDetalle(c)}
@@ -14370,7 +14746,7 @@ function openSlot(d, sid, fid) {
 
     <div class="form-actions" style="margin-top:4px">
       ${puedeEditar ? `<button class="btn btn-blue" onclick="guardarSlot()">${ICONS.check.replace('14', '16')} ${nuevo ? 'Programar turno' : 'Guardar cambios'}</button>` : ''}
-      ${c && (jefe || (u && c.cirujanoEmail === u.email)) ? `<button class="btn btn-red" onclick="cancelarSlot(${c.id})">${ICONS.trash} Cancelar turno</button>` : ''}
+      ${c && !sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email)) ? `<button class="btn btn-red" onclick="cancelarSlot(${c.id})">${ICONS.trash} Cancelar turno</button>` : ''}
       <button class="btn btn-outline" onclick="closeSlot()">Cerrar</button>
       ${!puedeEditar ? `<p class="form-note">El turno ya avanzó en el circuito: los cambios se gestionan desde la ficha completa.</p>` : ''}
     </div>`;
@@ -14614,7 +14990,7 @@ const CI_PROVISIONAL_MIN = 60;   // red de seguridad, en minutos
 
 function turnoProvisional(c) {
   return !!(c && c.ciProvisional && !consentimientoDeTurno(c)
-    && !['suspendida', 'realizada', 'finalizada', 'anticipada'].includes(c.estado));
+    && !['suspendida', 'realizada', 'finalizada', 'anticipada', 'caducada'].includes(c.estado));
 }
 /* El turno provisional sobre el que está trabajando el generador, si lo hay. */
 function turnoProvisionalDelFormulario() {
@@ -17459,7 +17835,7 @@ function ciPendientesDe(u) {
   if (!u) return 0;
   const hoy = hoyISO();
   return DB.cirugias.filter((c) => c.cirujanoEmail === u.email && (c.fecha || '') >= hoy
-    && !['suspendida', 'realizada', 'finalizada', 'anticipada', 'borrador'].includes(c.estado)
+    && !['suspendida', 'realizada', 'finalizada', 'anticipada', 'caducada', 'borrador'].includes(c.estado)
     && c.sala && !consentimientoDeTurno(c)).length;
 }
 function consentimientoDeTurno(c) {
@@ -17659,7 +18035,7 @@ function ciTurnosSinCI() {
   const hoy = hoyISO();
   return DB.cirugias
     .filter((c) => (c.fecha || '') >= hoy
-      && !['suspendida', 'realizada', 'finalizada', 'anticipada', 'borrador'].includes(c.estado)
+      && !['suspendida', 'realizada', 'finalizada', 'anticipada', 'caducada', 'borrador'].includes(c.estado)
       && c.sala
       && !consentimientoDeTurno(c))
     .sort((a, b) => String(a.fecha).localeCompare(String(b.fecha))
