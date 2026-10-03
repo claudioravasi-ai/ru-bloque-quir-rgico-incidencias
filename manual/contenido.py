@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.16.0'
+VERSION = '3.16.1'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -60,7 +60,7 @@ BLOQUES = [
 ]),
 ('p', '**El bloque programado nace cerrado.** Ninguna franja está disponible hasta que la Jefatura de Quirófanos habilita el día, la sala y el turno. La decisión es deliberada: la disponibilidad de un quirófano no depende solo del calendario sino del personal de anestesia, de instrumentación, de esterilización y de las camas de recuperación. Abrir la grilla por defecto sería prometer una capacidad que puede no existir. Lo único que está siempre disponible es el turno de urgencia de la hora en curso, en las tres salas de guardia.'),
 ('p', '**Prioridad por especialidad.** Además de abrir y cerrar, la Jefatura puede reservar un tramo de una o varias salas para una o varias especialidades. Por ejemplo: el martes, el Quirófano 1 de 08 a 12 h solo para Cirugía Pediátrica, y de 12 h en adelante para cualquier especialidad. Así se da prioridad a un servicio —que Pediatría anote primero a los niños— sin cerrar el resto del día.'),
-('p', '**Ciclo de programación.** Las solicitudes de turno electivo cierran a las 13:00 h del día previo y el parte quirúrgico se publica a las 14:00 h del día previo. Un turno electivo exige 24 horas de anticipación: no se puede programar una cirugía electiva para el mismo día. Lo que llega fuera de esos plazos entra por la programación fuera de horario de la Jefatura (capítulo 5) o, si es una urgencia, por el turno rodante (capítulo 4).'),
+('p', '**Ciclo de programación.** Las solicitudes de turno electivo cierran a las 13:00 h del **día hábil previo** y el parte quirúrgico se publica a las 14:00 h de ese mismo día. Como los domingos no se programan cirugías, sábados y domingos no hay cierre: **la lista del lunes cierra el viernes a las 13:00 h** (y con ella la de un sábado o domingo que la Jefatura abra por excepción). Las dos reglas se suman: además del cierre, un turno electivo exige 24 horas de anticipación: no se puede programar una cirugía electiva para el mismo día. Lo que llega fuera de esos plazos entra por la programación fuera de horario de la Jefatura (capítulo 5) o, si es una urgencia, por el turno rodante (capítulo 4).'),
 
 # ─────────────────────────────────────────────────────────────── 2
 ('h1', '2. Perfiles de acceso y cuentas'),
@@ -178,7 +178,7 @@ BLOQUES = [
     '**No nace provisional** y **no pide la autorización previa de Admisión** ni la validación previa de la Jefatura: se opera primero y los trámites se regularizan después. Un quirófano no puede condicionar una urgencia a un trámite.',
     'Sigue el mismo camino clínico: consentimiento, Lista de Verificación en sus tres momentos e informe operatorio.',
     'Después, **Admisión regulariza** su dictamen —la aplicación le explica que el turno estaba exento y que el trámite se registra con la cirugía ya hecha— y la **Jefatura regulariza la validación**. Con eso el caso pasa a Finalizado y computa.',
-    'Si una urgencia se operó y nadie la cargó a tiempo, la Jefatura la registra **fuera de término** desde el propio bloque, con su credencial y el motivo.',
+    'Si una urgencia se operó y nadie la cargó a tiempo, la Jefatura la registra **fuera de término** desde el propio bloque, con su credencial y el motivo. El botón **«Registrar una urgencia de una hora ya cumplida»** aparece solo en los días anteriores y, en el día de hoy, deja elegir únicamente las horas que ya terminaron: nunca la hora en curso —para eso está el turno de urgencia de la hora— ni días futuros, porque las urgencias no se programan por adelantado.',
 ]),
 ('p', 'Plazos que controla el sistema: la emergencia (P1) tiene como meta la incisión antes de los 30 minutos desde la solicitud; la urgencia diferible (P2), la resolución dentro de las 6 horas.'),
 
@@ -189,7 +189,7 @@ BLOQUES = [
 ('ul', [
     'Abrir el día y habilitar sala por sala y turno por turno, según la disponibilidad real de anestesia, instrumentación y recuperación. Abrir un turno abre el día; cerrar el día cierra todo lo que tuviera abierto.',
     'La configuración de un día puede copiarse a los siguientes —hábiles o corridos— para no rehacerla cada mañana. La copia lleva también las reservas por especialidad.',
-    '**Prioridad por especialidad**: en el mismo panel, la sección *Prioridad por especialidad* reserva un tramo horario para una o varias especialidades. Se marcan las salas, el horario —desde y hasta, por la hora de comienzo de la franja— y las especialidades admitidas, y se toca **Reservar el tramo**. Ejemplo: Quirófano 1, de 08:00 a 12:00, Cirugía Pediátrica: las franjas de las 8 y de las 10 quedan para Pediatría y la de las 12 en adelante, para todos. Reservar también abre el turno de esas salas. Si dos reservas tocan la misma franja, valen las especialidades de las dos.',
+    '**Prioridad por especialidad**: en el mismo panel, la sección *Prioridad por especialidad* reserva un tramo horario para una o varias especialidades. Se marcan las salas, el horario —desde y hasta, por la hora de comienzo de la franja— y las especialidades admitidas, y se toca **Reservar el tramo**. Si la especialidad no tiene casilla, se marca **Otra…** y se escribe: no importan mayúsculas, tildes, errores de tipeo ni que esté incompleta. Mientras se escribe, la aplicación ofrece las de la lista que encajan («traumatolgia» → Traumatología y Ortopedia) y, si se toca una, marca su casilla. Si es de verdad nueva, la guarda prolija en la lista común de servicios —la misma de los perfiles, las estadísticas, los módulos y la facturación— para que todo cruce con un único nombre. Ejemplo: Quirófano 1, de 08:00 a 12:00, Cirugía Pediátrica: las franjas de las 8 y de las 10 quedan para Pediatría y la de las 12 en adelante, para todos. Reservar también abre el turno de esas salas. Si dos reservas tocan la misma franja, valen las especialidades de las dos.',
     'Cada reserva puede repetirse el mismo día de la semana durante las **4 u 8 semanas** siguientes —«todos los martes, Pediatría en el Quirófano 1 de 8 a 12»—, con la credencial de Jefatura. **Quitar** deja el tramo abierto para cualquier especialidad. Cerrar el día borra también sus reservas.',
     'La reserva no toca los turnos ya cargados, no alcanza al turno de urgencia de la hora —que no se reserva nunca— y no frena a la propia Jefatura cuando programa por excepción fuera de horario.',
     '**La agenda la escribe solo la Jefatura.** Abrir, cerrar y reservar turnos lo puede hacer únicamente la cuenta de Jefatura de Quirófanos, y desde la versión 3.16 lo impone el servidor, no solo la pantalla: ninguna otra cuenta —ni un profesional, ni la Dirección Médica, ni Admisión y Egresos— puede cambiarla, aunque lo intente por fuera de la aplicación. Los profesionales la siguen viendo para saber qué franjas están abiertas o reservadas. Si la base rechaza un cambio porque la sesión del equipo no es la de Jefatura, la aplicación lo avisa y pide volver a entrar como Jefatura.',
@@ -197,9 +197,9 @@ BLOQUES = [
 ]),
 ('h3', 'Paso 2 — Validar y gobernar el ciclo del día'),
 ('ul', [
-    'Revisar las solicitudes que entraron antes del cierre de las 13:00 h.',
+    'Revisar las solicitudes que entraron antes del cierre de las 13:00 h (el viernes, las del sábado, el domingo y el lunes).',
     'En la ficha de cada turno, marcar las verificaciones de coordinación y tocar **Validar y confirmar en el parte**.',
-    'Publicar el Parte Quirúrgico a las 14:00 h del día previo.',
+    'Publicar el Parte Quirúrgico a las 14:00 h del día hábil previo: el del lunes, el viernes.',
     'Suspender cuando corresponda, siempre con causa: la suspensión genera sola una incidencia de categoría D.',
     '**Resuelta por urgencia**: si el paciente de un turno programado se operó antes por guardia, el turno no se suspende —no hubo falla de proceso—; se libera la franja y queda vinculado con la urgencia.',
     '**Programación fuera de horario**: la única llave para cargar un turno en una franja cerrada o pasado el cierre. Pide otra vez la credencial, el profesional se elige del padrón, lleva motivo y detalle, y el cirujano recibe un comunicado urgente para que avise si no lo autorizó.',
@@ -385,6 +385,13 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.16'),
+('h2', 'Versión 3.16.1 — Cierre del viernes, urgencias cumplidas, «Otra» especialidad y notificaciones'),
+('ul', [
+    '**La lista del lunes cierra el viernes a las 13:00 h.** Antes cerraba el domingo, de modo que el sábado la grilla del lunes seguía abierta. Ahora el cierre es siempre el del día hábil previo, sábados y domingos no hay cierre, y la regla de 24 horas de anticipación sigue vigente además del cierre. Las franjas fuera de plazo dicen **«Lista cerrada»** y un cartel arriba de la grilla explica hasta cuándo se pudo pedir.',
+    '**Urgencia de una hora ya cumplida**: solo en días anteriores y, hoy, solo en horas que ya terminaron. En días futuros el botón no aparece.',
+    '**«Otra» especialidad en la prioridad por especialidad**, con autocompletado que tolera mayúsculas, tildes, errores e incompletos, y que guarda la especialidad nueva con el mismo nombre en toda la aplicación. La misma tolerancia a errores de tipeo vale ahora para el «Otro» de los servicios del perfil.',
+    '**Activar notificaciones ahora siempre responde.** En Comunicados, el botón de la Jefatura no daba ninguna señal. Ahora, en Comunicados, Recordatorios y Reclamos, al activarlas llega una notificación de prueba y el cartel pasa a verde («Notificaciones activadas en este dispositivo»); si el navegador las tiene bloqueadas, la aplicación lo dice y explica cómo habilitarlas en computadora, Android y iPhone. El permiso es por equipo y por navegador: cada persona lo activa en cada dispositivo que use. Las notificaciones salen mientras la aplicación está abierta, aunque esté en segundo plano.',
+]),
 ('h2', 'Versión 3.16 — Prioridad por especialidad'),
 ('ul', [
     'La Jefatura puede reservar tramos de una o varias salas para una o varias especialidades, repetirlos semana a semana y quitarlos. La grilla lo muestra en violeta y la aplicación impide programar ahí con otro servicio.',
@@ -418,8 +425,8 @@ BLOQUES = [
 # ─────────────────────────────────────────────────────────────── 15
 ('h1', '15. Anexo — Plazos que controla el sistema'),
 ('tabla', ['Plazo', 'Valor', 'A quién se le avisa'], [
-    ['Cierre de solicitudes de turno', '13:00 h del día previo', 'Cirujano y Jefatura'],
-    ['Publicación del parte quirúrgico', '14:00 h del día previo', 'Todo el bloque'],
+    ['Cierre de solicitudes de turno', '13:00 h del día hábil previo (lo del lunes, el viernes)', 'Cirujano y Jefatura'],
+    ['Publicación del parte quirúrgico', '14:00 h del día hábil previo', 'Todo el bloque'],
     ['Anticipación mínima de un turno electivo', '24 horas', 'Cirujano'],
     ['Consentimiento de un turno provisional', '60 minutos, o la franja se libera', 'Cirujano'],
     ['Emergencia (P1): tiempo hasta la incisión', 'Menos de 30 minutos', 'Equipo de guardia'],
