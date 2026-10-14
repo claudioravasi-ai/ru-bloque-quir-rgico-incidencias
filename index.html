@@ -3309,6 +3309,172 @@
     .stat-num { font-size: 1.45rem; }
   }
 
+  /* ============ VENTANA DEL TURNO (rediseño 3.19) ============
+     Circuito a la vista arriba, cinco pasos numerados, acciones en el orden del
+     circuito (color pleno = falta, tono suave = hecho). Las ayudas largas se
+     muestran solo con el botón «Ayuda». */
+  #slot-modal { max-width: 820px !important; padding: 26px 28px 0; }
+  .tm { --tm-ok: var(--green, #1fa971); --tm-ok-s: var(--green-soft, #dcf5ea); --tm-ok-t: var(--green-txt, #166b4a);
+        --tm-pe: var(--amber, #f0a92e); --tm-pe-s: var(--amber-soft, #fdf3dd); --tm-pe-t: var(--amber-txt, #92600a);
+        --tm-no: var(--red, #d94848); --tm-no-s: var(--red-soft, #fbe5e5); --tm-no-t: var(--red-txt, #a12c2c);
+        --tm-di: #7c3aed; --tm-di-s: var(--violeta-soft, #efe7fd); --tm-di-t: var(--violeta, #5b21b6);
+        --tm-es-s: var(--sup2, #f1f3f5); --tm-es-t: var(--muted, #6b7280); --tm-linea: var(--line, #e3e7ea); }
+  .tm .hint, .tm .tm-ayuda { display: none; }
+  .tm.tm-con-ayuda .hint, .tm.tm-con-ayuda .tm-ayuda { display: block; }
+  .tm .tm-ayuda { font-size: 0.8rem; color: var(--muted); line-height: 1.45; margin: 4px 0 10px; }
+  .tm-head { display: flex; align-items: center; gap: 14px; margin: 0 34px 16px 0; }
+  .tm-head-ico { width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    color: #fff; background: linear-gradient(135deg, #2563eb, #14b8a6); box-shadow: 0 6px 16px rgba(37,99,235,0.28); }
+  .tm-head-txt { min-width: 0; flex: 1; }
+  .tm-kicker { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .tm-urg { color: var(--red, #dc2626); }
+  .tm-title { font-size: 1.28rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; }
+  .tm-sub { font-size: 0.86rem; color: var(--muted); margin-top: 2px; }
+  .tm-ayuda-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--tm-linea); background: var(--sup1, #fff);
+    color: var(--muted); border-radius: 99px; padding: 6px 12px; font: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+  .tm-ayuda-btn[aria-pressed="true"] { background: var(--blue-soft, #e3eefb); color: var(--blue-txt, #1d4f8c); border-color: var(--blue-linea, #b9d3f1); }
+
+  .tm-circuito { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; counter-reset: paso; }
+  .tm-paso { border-radius: 12px; padding: 10px 11px; border: 1px solid transparent; position: relative; min-width: 0; }
+  .tm-paso-top { display: flex; align-items: center; gap: 7px; }
+  .tm-paso-ico { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 800; color: #fff; }
+  .tm-paso-tit { font-size: 0.74rem; font-weight: 800; letter-spacing: 0.02em; line-height: 1.2; min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
+  .tm-paso-txt { font-size: 0.78rem; line-height: 1.3; margin-top: 5px; overflow-wrap: anywhere; }
+  .tm-ok { background: var(--tm-ok-s); border-color: color-mix(in srgb, var(--tm-ok) 35%, transparent); color: var(--tm-ok-t); }
+  .tm-ok .tm-paso-ico { background: var(--tm-ok); }
+  .tm-pend { background: var(--tm-pe-s); border-color: color-mix(in srgb, var(--tm-pe) 50%, transparent); color: var(--tm-pe-t); }
+  .tm-pend .tm-paso-ico { background: var(--tm-pe); }
+  .tm-no { background: var(--tm-no-s); border-color: color-mix(in srgb, var(--tm-no) 45%, transparent); color: var(--tm-no-t); }
+  .tm-no .tm-paso-ico { background: var(--tm-no); }
+  .tm-dif { background: var(--tm-di-s); border-color: color-mix(in srgb, var(--tm-di) 35%, transparent); color: var(--tm-di-t); }
+  .tm-dif .tm-paso-ico { background: var(--tm-di); }
+  .tm-espera { background: var(--tm-es-s); border-color: var(--tm-linea); color: var(--tm-es-t); }
+  .tm-espera .tm-paso-ico { background: transparent; color: var(--tm-es-t); border: 1.5px dashed currentColor; }
+  .tm-pulso { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: tmPulso 1.4s ease-in-out infinite; }
+  @keyframes tmPulso { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.7); } }
+  .tm-circuito-nuevo .tm-paso { padding: 8px 10px; }
+
+  .tm-progreso { border: 1px solid var(--tm-linea); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; background: var(--sup1, #fff); }
+  .tm-prog-top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 0.82rem; }
+  .tm-prog-top span { color: var(--muted); }
+  .tm-prog-barra { height: 7px; border-radius: 99px; background: var(--tm-es-s); margin-top: 7px; overflow: hidden; }
+  .tm-prog-barra i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #f59e0b, #22c55e); transition: width 0.25s; }
+  .tm-prog-ok .tm-prog-barra i { background: var(--tm-ok); }
+  .tm-prog-faltan { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; font-size: 0.75rem; color: var(--muted); align-items: center; }
+  .tm-prog-faltan span { background: var(--tm-pe-s); color: var(--tm-pe-t); border-radius: 99px; padding: 2px 9px; font-weight: 600; }
+
+  .tm-sec { border: 1px solid var(--tm-linea); border-radius: 14px; padding: 14px 16px 16px; margin-bottom: 12px; background: var(--sup1, #fff); }
+  .tm-sec-h { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; }
+  .tm-sec-h b { display: block; font-size: 0.98rem; }
+  .tm-sec-h span:not(.tm-n) { display: block; font-size: 0.76rem; color: var(--muted); margin-top: 1px; }
+  .tm-n { width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.86rem; color: var(--blue-txt, #1d4f8c); background: var(--blue-soft, #e3eefb); }
+  .tm .form-grid { gap: 12px 18px; }
+  .tm .form-grid > *, .tm .field { min-width: 0; }
+  .tm .nom-sel { flex-wrap: wrap; } .tm .nom-sel > * { min-width: 0; }
+  .tm .field input, .tm .field select, .tm .field textarea { max-width: 100%; min-width: 0; width: 100%; box-sizing: border-box; }
+  .tm .field label { font-size: 0.8rem; }
+
+  .tm-reqs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tm-req { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 12px; cursor: pointer;
+    border: 1.5px dashed var(--line-fuerte, #cfd5dc); background: var(--sup1, #fff); transition: background 0.15s, border-color 0.15s; position: relative; }
+  .tm-req input { position: absolute; opacity: 0; pointer-events: none; }
+  .tm-req-ico { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--line-fuerte, #cfd5dc); color: transparent; }
+  .tm-req-txt b { display: block; font-size: 0.86rem; }
+  .tm-req-txt small { display: block; font-size: 0.72rem; color: var(--muted); line-height: 1.3; }
+  .tm-req.on { border-style: solid; border-color: var(--tm-ok); background: var(--tm-ok-s); }
+  .tm-req.on .tm-req-ico { background: var(--tm-ok); border-color: var(--tm-ok); color: #fff; }
+  .tm-req:focus-within { outline: 2px solid var(--foco, #2563eb); outline-offset: 2px; }
+  .tm-req:has(input:disabled) { cursor: default; }
+
+  .tm-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .tm-chip { position: relative; cursor: pointer; }
+  .tm-chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .tm-chip span { display: inline-block; padding: 7px 13px; border-radius: 99px; font-size: 0.82rem; font-weight: 600;
+    border: 1px solid var(--line-fuerte, #cfd5dc); background: var(--sup1, #fff); color: var(--ink, #1f2430); }
+  .tm-chip.on span { background: var(--blue, #2980d9); border-color: var(--blue, #2980d9); color: #fff; }
+  .tm-chip-urg span, .tm-chip-urg.on span { background: var(--red, #dc2626); border-color: var(--red, #dc2626); color: #fff; }
+  .tm-chip:focus-within span { outline: 2px solid var(--foco, #2563eb); outline-offset: 2px; }
+  .tm-eq { margin-top: 12px; }
+  .tm-eq summary, .tm-detalle summary { cursor: pointer; font-size: 0.84rem; font-weight: 700; color: var(--ink, #1f2430); padding: 4px 0; }
+  .tm-eq-n { font-weight: 500; color: var(--muted); margin-left: 6px; }
+  .tm-eq .coord-grid { margin-top: 8px; }
+
+  .tm-sec-acc { background: linear-gradient(180deg, color-mix(in srgb, var(--blue-soft, #e3eefb) 55%, var(--sup1, #fff)), var(--sup1, #fff)); }
+  .tm-accs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tm-acc { display: flex; align-items: center; gap: 10px; text-align: left; font: inherit; cursor: pointer; border-radius: 12px;
+    padding: 11px 12px; border: 1.5px solid transparent; position: relative; transition: transform 0.12s, box-shadow 0.15s, filter 0.15s; min-width: 0; }
+  .tm-acc:hover { transform: translateY(-1px); }
+  .tm-acc:focus-visible { outline: 2px solid var(--foco, #2563eb); outline-offset: 2px; }
+  .tm-acc-n { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 0.74rem; font-weight: 800; }
+  .tm-acc-ico { display: flex; flex-shrink: 0; }
+  .tm-acc-txt { min-width: 0; flex: 1; }
+  .tm-acc-txt b { display: block; font-size: 0.86rem; line-height: 1.25; }
+  .tm-acc-txt small { display: block; font-size: 0.73rem; line-height: 1.3; opacity: 0.88; overflow-wrap: anywhere; }
+  .tm-acc-tag { font-size: 0.64rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 99px; padding: 2px 7px; flex-shrink: 0; }
+  /* Falta: color pleno, que llame. */
+  .tm-acc-falta { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; box-shadow: 0 6px 16px rgba(37,99,235,0.30); }
+  .tm-acc-falta .tm-acc-n { background: #fff; color: #1d4ed8; }
+  .tm-acc-falta .tm-acc-tag { background: #fde047; color: #713f12; }
+  .tm-acc-falta:hover { box-shadow: 0 8px 20px rgba(37,99,235,0.38); filter: brightness(1.05); }
+  /* Hecho: tono suave, con el tilde, para ver o corregir. */
+  .tm-acc-hecho { background: var(--tm-ok-s); color: var(--tm-ok-t); border-color: color-mix(in srgb, var(--tm-ok) 30%, transparent); }
+  .tm-acc-hecho .tm-acc-n { background: var(--tm-ok); color: #fff; }
+  .tm-acc-hecho .tm-acc-tag { background: color-mix(in srgb, var(--tm-ok) 18%, transparent); }
+  /* Frenado: Admisión no autorizó. */
+  .tm-acc-frenado { background: var(--tm-no-s); color: var(--tm-no-t); border-color: var(--tm-no); }
+  .tm-acc-frenado .tm-acc-n { background: var(--tm-no); color: #fff; }
+  /* Neutro: disponible, sin urgencia. */
+  .tm-acc-neutro { background: var(--sup1, #fff); color: var(--ink, #1f2430); border-color: var(--line-fuerte, #cfd5dc); }
+  .tm-acc-neutro .tm-acc-n { background: var(--tm-es-s); color: var(--muted); }
+  /* El pase del paciente: el único con degradé de color, para que se note. */
+  .tm-acc-pase { background: linear-gradient(120deg, #7c3aed, #db2777 55%, #f97316); color: #fff; box-shadow: 0 6px 18px rgba(219,39,119,0.32); }
+  .tm-acc-pase .tm-acc-n { background: #fff; color: #7c3aed; }
+
+  .tm-detalle { margin: 4px 0 12px; padding: 0 4px; }
+  .tm-detalle .det-row { margin-top: 6px; }
+  .tm-pie { position: sticky; bottom: 0; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 0 -28px; padding: 12px 28px 16px;
+    background: var(--card, #fff); border-top: 1px solid var(--tm-linea); z-index: 2; box-shadow: 0 -8px 18px rgba(15,23,42,0.06); }
+  .tm-pie-main { flex: 1 1 220px; justify-content: center; }
+  .tm-pie-red { color: var(--red, #d94848) !important; border-color: color-mix(in srgb, var(--red, #d94848) 45%, transparent) !important; }
+  @media (max-width: 760px) {
+    #slot-modal { padding: 20px 16px 0; }
+    .tm-pie { margin: 0 -16px; padding: 10px 16px 14px; }
+    .tm-circuito { grid-template-columns: 1fr 1fr; }
+    .tm-reqs, .tm-accs { grid-template-columns: 1fr; }
+    .tm-head { margin-right: 26px; flex-wrap: wrap; }
+    .tm-ayuda-btn { order: 3; }
+  }
+  @media (prefers-reduced-motion: reduce) { .tm-pulso { animation: none; } .tm-acc:hover { transform: none; } }
+
+  /* Registro de consentimientos: esta semana o el historial (3.19). */
+  .ci-alcance { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .ci-alcance button { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line-fuerte, #d7dce2); background: var(--sup1, #fff);
+    color: var(--ink, #1f2430); border-radius: 99px; padding: 8px 14px; font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+  .ci-alcance button span { background: var(--sup2, #eef1f4); border-radius: 99px; padding: 1px 8px; font-size: 0.75rem; }
+  .ci-alcance button.on { background: var(--blue, #2980d9); border-color: var(--blue, #2980d9); color: #fff; }
+  .ci-alcance button.on span { background: rgba(255,255,255,0.22); }
+  .ci-alcance small { flex-basis: 100%; color: var(--muted); font-size: 0.8rem; line-height: 1.45; }
+  /* Mis Solicitudes por mes (3.19). */
+  .mis-mes { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 6px 0 14px; padding: 12px 14px;
+    border: 1px solid var(--line, #e3e7ea); border-radius: 14px; background: var(--sup1, #fff); }
+  .mis-mes-t { min-width: 150px; }
+  .mis-mes-t b { display: block; font-size: 1.05rem; text-transform: capitalize; }
+  .mis-mes-t span { font-size: 0.8rem; color: var(--muted); }
+  .mis-hist { flex-basis: 100%; }
+  .mis-hist summary { cursor: pointer; font-weight: 700; font-size: 0.86rem; display: inline-flex; gap: 6px; align-items: center; }
+  .mis-hist-meses { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .mis-hist-meses button { border: 1px solid var(--line-fuerte, #d7dce2); background: var(--sup1, #fff); color: var(--ink, #1f2430);
+    border-radius: 99px; padding: 5px 11px; font: inherit; font-size: 0.8rem; cursor: pointer; text-transform: capitalize; }
+  .mis-hist-meses button span { color: var(--muted); margin-left: 4px; }
+  .mis-hist-meses button.on { background: var(--blue, #2980d9); border-color: var(--blue, #2980d9); color: #fff; }
+  .mis-hist-meses button.on span { color: #fff; }
+  .mis-hist-base { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+  .mis-viejo { font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--line, #e3e7ea); width: 100%; }
+  .mis-viejo span { color: var(--muted); }
 </style>
 </head>
 <body data-tema="sobrio">
@@ -3520,6 +3686,11 @@
   <div class="modal modal-white" id="slot-modal" style="max-width:760px;"></div>
 </div>
 
+<!-- Modal: pase del paciente (tarjeta con QR del portal de seguimiento) -->
+<div class="overlay" id="pase-overlay">
+  <div class="modal modal-white" id="pase-modal"></div>
+</div>
+
 <!-- Modal: dictamen de Admisión y Egresos (autoriza / no autoriza + motivo) -->
 <div class="overlay" id="auth-overlay">
   <div class="modal modal-white" id="auth-modal" style="max-width:560px;"></div>
@@ -3581,6 +3752,7 @@ const ICONS = {
   clipboard: I('<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>'),
   chart: I('<path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8" rx="1"/><rect x="12" y="6" width="3" height="12" rx="1"/><rect x="17" y="13" width="3" height="5" rx="1"/>'),
   play: I('<polygon points="6 3 20 12 6 21 6 3"/>', 15),
+  qr: I('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>', 18),
   flag: I('<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>', 15),
   mail: I('<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>', 16),
   edit: I('<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>', 14),
@@ -5835,7 +6007,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.18.1';
+const APP_VERSION = '3.19.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -6516,6 +6688,8 @@ function agendaNegada() {
     + 'Cierre la sesión de Jefatura, vuelva a entrar con el correo y la contraseña de la Jefatura y repita el cambio.'), 0);
 }
 function upsert(col, obj) {
+  // El pase del paciente acompaña cada cambio de su cirugía (ver PORTAL).
+  if (col === 'cirugias' && obj && obj.pase) portalAlGuardar(obj);
   obj._m = ahoraServidor();
   const plano = JSON.parse(JSON.stringify(obj));
   // 1) memoria + localStorage (siempre, haya o no red)
@@ -6540,6 +6714,8 @@ function upsert(col, obj) {
   return envio;
 }
 function removeDoc(col, id) {
+  // Una cirugía borrada con pase: el QR caduca en el acto.
+  if (col === 'cirugias') portalAlGuardar(DB.cirugias.find((x) => String(x.id) === String(id)), true);
   DB[col] = DB[col].filter((x) => String(x.id) !== String(id));
   saveLocal(col);
   let envio = Promise.resolve(!cloudOn);
@@ -8340,9 +8516,10 @@ function renderSidebar() {
   const recl = reclamosPendientes();
   if (u) {
     items.push({ sep: 'Cirujano' });
-    items.push({ id: 'solicitud', icon: ICONS.calPlus, label: 'Solicitud Quirúrgica' });
+    // «Solicitud Quirúrgica» y «Mis Solicitudes» eran dos caras de lo mismo:
+    // desde 3.19 hay una sola solapa, y pedir un turno es su botón principal.
     items.push({ id: 'consentimientos', icon: ico(ICONS.fileText, 18), label: 'Consentimientos Informados', badge: ciPendientesDe(u) || null, badgeAmber: true });
-    items.push({ id: 'mis', icon: ICONS.list, label: 'Mis Solicitudes' });
+    items.push({ id: 'mis', icon: ICONS.calPlus, label: 'Mis Solicitudes', activo: ['mis', 'solicitud'] });
     items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'modulos', icon: ICONS.layers, label: 'Módulos Quirúrgicos', badge: modulosIncompletos(u).length || null, badgeAmber: true });
     if (!jefe) items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
@@ -8384,7 +8561,7 @@ function renderSidebar() {
     ? it.html
     : it.sep
     ? `<div class="nav-sep">${it.sep}</div>`
-    : `<button class="nav-btn ${view === it.id ? 'active' : ''}" onclick="go('${it.id}')">${it.icon} ${it.label}${it.badge ? `<span class="nav-badge"${it.badgeAmber ? ' style="background:var(--amber);color:#3b2a05"' : ''}>${it.badge}</span>` : ''}</button>`
+    : `<button class="nav-btn ${view === it.id || (it.activo && it.activo.includes(view)) ? 'active' : ''}" onclick="go('${it.id}')">${it.icon} ${it.label}${it.badge ? `<span class="nav-badge"${it.badgeAmber ? ' style="background:var(--amber);color:#3b2a05"' : ''}>${it.badge}</span>` : ''}</button>`
   ).join('');
   renderBottomNav();
 
@@ -8422,7 +8599,7 @@ const VIEWS = {};
 const TITULOS = {
   panel: 'Panel', grilla: 'Programación Diaria', parte: 'Parte Quirúrgico', recordatorios: 'Recordatorios',
   nueva: 'Nueva Incidencia', confidenciales: 'Incidencias Confidenciales',
-  solicitud: 'Solicitud Quirúrgica', mis: 'Mis Solicitudes', reclamos: 'Reclamos',
+  solicitud: 'Nueva solicitud quirúrgica', mis: 'Mis Solicitudes', reclamos: 'Reclamos',
   perfil: 'Mi Perfil', programacion: 'Programación', confidenciales: 'Incidencias Confidenciales',
   kpis: 'Indicadores', usuarios: 'Profesionales', acceso: 'Acceso Profesional',
   comunicados: 'Comunicados', excepcion: 'Programación Fuera de Horario',
@@ -8464,6 +8641,9 @@ function go(v, silencioso) {
   if (['programacion', 'kpis', 'usuarios', 'comunicados', 'excepcion'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['solicitud', 'mis', 'perfil', 'consentimientos'].includes(v) && !usuarioActual() && !jefe) { v = 'acceso'; }
   if (v === 'reclamos' && !usuarioActual() && !jefe) { v = 'acceso'; }
+  // Desde el menú, «Consentimientos» abre el registro; el generador solo se
+  // abre desde un turno (irAConsentimiento), con sus datos ya volcados.
+  if (v === 'consentimientos') { if (!ciIrTurno) { ciTab = ciTab === 'pendientes' ? 'pendientes' : 'registro'; ciAlcance = 'semana'; } ciIrTurno = false; }
   // Los módulos los consulta el profesional acreditado (solo su servicio) o la
   // Dirección Médica (todo el hospital, con su propia clave).
   if (v === 'modulos' && !usuarioActual() && !director) { closeDrawer(); openDirectorModal(); return; }
@@ -9091,7 +9271,7 @@ function renderSolicitud() {
     const e = estadoCuenta(u);
     $('main').innerHTML = `
       <div class="page-head"><div>
-        <h1 class="page-title">Solicitud Quirúrgica</h1>
+        <h1 class="page-title">Nueva solicitud quirúrgica</h1>
         <p class="page-sub">Carga de solicitudes al ciclo de programación</p>
       </div></div>
       <div class="banner ${e === 'baja' ? 'banner-red' : 'banner-amber'}">${ico(ICONS.alertTri, 20)}
@@ -9106,7 +9286,7 @@ function renderSolicitud() {
   if (!hab.ok) {
     $('main').innerHTML = `
       <div class="page-head"><div>
-        <h1 class="page-title">Solicitud Quirúrgica</h1>
+        <h1 class="page-title">Nueva solicitud quirúrgica</h1>
         <p class="page-sub">Carga de solicitudes al ciclo de programación</p>
       </div></div>
       <div class="banner banner-red">${ICONS.alertTri.replace(/22/g, '20')}
@@ -9131,9 +9311,10 @@ function renderSolicitud() {
   $('main').innerHTML = `
     <div class="page-head">
       <div class="head-row">
+        <button class="dia-nav" onclick="go('mis')" aria-label="Volver a Mis Solicitudes" title="Volver a Mis Solicitudes">‹</button>
         <div class="head-icon">${ICONS.calPlus}</div>
         <div>
-          <h1 class="page-title">Solicitud Quirúrgica</h1>
+          <h1 class="page-title">Nueva solicitud quirúrgica</h1>
           <p class="page-sub">${esc(u.nombre)} — ${esc(serviciosTexto(u))} · elija una franja libre para cargar el turno</p>
         </div>
       </div>
@@ -9182,24 +9363,78 @@ function moverSolFecha(n) {
 }
 
 /* ================= MIS SOLICITUDES (cirujano) ================= */
+/* Desde 3.19 la lista arranca por el MES EN CURSO: un cirujano con años de
+   actividad ya no recorre cientos de tarjetas para encontrar las de esta
+   semana. Los turnos sin resolver se muestran siempre arriba, sean del mes que
+   sean, porque piden una acción. Los otros meses se recorren con las flechas, y
+   lo anterior a la ventana que la app mantiene en vivo (unos quince meses) se
+   trae de la base solo si el cirujano lo pide. */
+let misMes = null;            // 'AAAA-MM' que se está mirando
+let misHistorial = null;      // turnos anteriores a la ventana en vivo, traídos a pedido
+function nombreMes(ym) { const [a, m] = ym.split('-'); return `${MESES_FULL[Number(m) - 1].toLowerCase()} ${a}`; }
+function moverMes(ym, n) { const [a, m] = ym.split('-').map(Number); const d = new Date(a, m - 1 + n, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; }
 function renderMis() {
   const u = usuarioActual();
   if (!u) { go('acceso'); return; }
-  const mias = DB.cirugias.filter((c) => c.cirujanoEmail === u.email)
-    .sort((a, b) => (sinResolver(b) ? 1 : 0) - (sinResolver(a) ? 1 : 0) || String(b.fecha || '').localeCompare(String(a.fecha || '')));
-  const nSinRes = mias.filter(sinResolver).length;
+  const mesHoy = hoyISO().slice(0, 7);
+  if (!misMes) misMes = mesHoy;
+  const todas = DB.cirugias.filter((c) => c.cirujanoEmail === u.email);
+  const pend = todas.filter(sinResolver);
+  const delMes = todas.filter((c) => String(c.fecha || '').slice(0, 7) === misMes && !sinResolver(c))
+    .sort((a, b) => String(a.fecha || '').localeCompare(String(b.fecha || '')) || String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+  // Borradores sin fecha (la franja se liberó): son del cirujano y piden una franja.
+  const sinFecha = todas.filter((c) => !c.fecha && !sinResolver(c));
+  const meses = [...new Set(todas.map((c) => String(c.fecha || '').slice(0, 7)).filter(Boolean))].sort();
+  const nMes = (ym) => todas.filter((c) => String(c.fecha || '').slice(0, 7) === ym).length;
+  const desdeVentana = ventanaSync().desde;
   $('main').innerHTML = `
     <div class="page-head">
       <div>
         <h1 class="page-title">Mis Solicitudes</h1>
         <p class="page-sub">${esc(u.nombre)} — ${esc(serviciosTexto(u))}</p>
       </div>
-      <button class="btn btn-blue" onclick="go('solicitud')">${ICONS.calPlus.replace('18', '16')} Nueva solicitud</button>
+      <button class="btn btn-blue" onclick="go('solicitud')">${ICONS.calPlus.replace('18', '16')} Nueva solicitud quirúrgica</button>
     </div>
-    ${nSinRes ? `<div class="banner banner-red">${ico(ICONS.alertTri, 20)}<div><strong>${nSinRes} turno(s) sin resolver</strong>
-      La fecha pasó y quedaron sin cerrar. Están primeros en la lista: toque <b>Resolver turno</b> e indique qué pasó. Si nadie lo hace, la app los cierra solos a los ${DIAS_CIERRE_ADMIN} días.</div></div>` : ''}
+    ${pend.length ? `<div class="banner banner-red">${ico(ICONS.alertTri, 20)}<div><strong>${pend.length} turno(s) sin resolver</strong>
+      La fecha pasó y quedaron sin cerrar. Toque <b>Resolver turno</b> e indique qué pasó. Si nadie lo hace, la app los cierra solos a los ${DIAS_CIERRE_ADMIN} días.</div></div>
+      ${pend.map((c) => cirCard(c, 'cirujano')).join('')}` : ''}
+    <div class="mis-mes">
+      <button class="dia-nav" onclick="misMes=moverMes(misMes,-1);renderMis()" aria-label="Mes anterior">‹</button>
+      <div class="mis-mes-t"><b>${nombreMes(misMes)}</b><span>${delMes.length} cirugía(s)${misMes === mesHoy ? ' · mes en curso' : ''}</span></div>
+      <button class="dia-nav" onclick="misMes=moverMes(misMes,1);renderMis()" aria-label="Mes siguiente">›</button>
+      ${misMes !== mesHoy ? `<button class="btn btn-sm btn-outline" onclick="misMes=null;renderMis()">Volver al mes en curso</button>` : ''}
+      <details class="mis-hist">
+        <summary>${ICONS.list} Ver el histórico</summary>
+        <div class="mis-hist-meses">${meses.length ? meses.slice().reverse().map((ym) => `<button class="${ym === misMes ? 'on' : ''}" onclick="misMes='${ym}';renderMis()">${nombreMes(ym)} <span>${nMes(ym)}</span></button>`).join('') : '<span class="form-note">Sin cirugías cargadas.</span>'}</div>
+        ${cloudOn ? `<div class="mis-hist-base">
+          ${misHistorial === null
+            ? `<button class="btn btn-sm btn-outline" onclick="traerHistorialMis(this)">${ico(ICONS.download, 14)} Traer de la base lo anterior al ${fmtFecha(desdeVentana)}</button>
+               <span class="form-note">La app mantiene en vivo los últimos quince meses; lo más viejo se trae solo cuando se pide.</span>`
+            : `<b>${misHistorial.length} cirugía(s) anteriores al ${fmtFecha(desdeVentana)}</b>${misHistorial.map((c) => `<div class="mis-viejo">${fmtFecha(c.fecha)} · ${esc(c.procedimiento || '')} — ${esc((c.paciente && c.paciente.nombre) || '')} · <span>${esc((ESTC[c.estado] || {}).label || c.estado || '')}</span></div>`).join('')}`}
+        </div>` : ''}
+      </details>
+    </div>
     ${leyendaEstados()}
-    ${mias.length ? mias.map((c) => cirCard(c, 'cirujano')).join('') : '<div class="empty">Aún no tiene solicitudes cargadas.</div>'}`;
+    ${sinFecha.length && misMes === mesHoy ? sinFecha.map((c) => cirCard(c, 'cirujano')).join('') : ''}
+    ${delMes.length ? delMes.map((c) => cirCard(c, 'cirujano')).join('')
+      : `<div class="empty">${misMes === mesHoy ? 'No tiene cirugías en el mes en curso.' : `No tiene cirugías en ${nombreMes(misMes)}.`}</div>`}`;
+}
+/* Lo anterior a la ventana en vivo: una consulta puntual, de solo lectura, que
+   no queda escuchando ni se guarda en el equipo. */
+async function traerHistorialMis(btn) {
+  const u = usuarioActual();
+  if (!u || !cloudOn) return;
+  btn.disabled = true; btn.textContent = 'Trayendo…';
+  try {
+    const snap = await firebase.database().ref('cirugias').orderByChild('fecha').endAt(sumarDias(ventanaSync().desde, -1)).once('value');
+    misHistorial = Object.values(snap.val() || {}).filter((c) => c && c.cirujanoEmail === u.email)
+      .sort((a, b) => String(b.fecha || '').localeCompare(String(a.fecha || '')));
+  } catch (e) {
+    btn.disabled = false; btn.textContent = 'No se pudo traer: reintentar';
+    return;
+  }
+  renderMis();
+  const d = document.querySelector('.mis-hist'); if (d) d.open = true;
 }
 
 function leyendaEstados() {
@@ -9299,6 +9534,12 @@ function accionesCirugia(c, rol) {
   // La urgencia se operó sin el visto previo: la Jefatura lo cierra después.
   if (jefe && jefaturaPendienteDiferida(c)) {
     a.push(`<button class="btn btn-sm btn-blue" onclick="regularizarJefatura(${c.id})">${ICONS.check} Regularizar validación</button>`);
+  }
+  // Pase del paciente: se emite o se vuelve a mostrar desde la propia tarjeta.
+  if ((jefe || esDueno) && c.pase && c.pase.token && !c.pase.caducado) {
+    a.push(`<button class="btn btn-sm btn-outline" onclick="openPase(${c.id})">${ico(ICONS.qr, 14)} Pase del paciente</button>`);
+  } else if ((jefe || esDueno) && !c.pase && portalElegible(c)) {
+    a.push(`<button class="btn btn-sm pase-btn-main" onclick="openPase(${c.id})">${ico(ICONS.qr, 14)} Generar pase del paciente</button>`);
   }
   if (c.estado === 'realizada' && !c.informe && (jefe || esDueno)) {
     a.push(`<button class="btn btn-sm btn-blue" onclick="openCirugia(${c.id})">${ICONS.fileText} Cargar informe operatorio</button>`);
@@ -14939,51 +15180,80 @@ function openSlot(d, sid, fid) {
         : `Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.`}
         ${s.urgHoraria ? `Si es una ${rotuloUrgencia(s).corto}, no hace falta excepción: use el turno de urgencia de la hora en curso.` : 'Si es una urgencia, use el turno de urgencia del Quirófano 1, de Endoscopía o de Obstetricia.'}</div></div>` : '';
 
+  /* Ventana del turno (rediseño 3.19). Antes era una sola columna de tarjetas
+     con todas las ayudas a la vista y los botones del circuito mezclados al
+     final. Ahora arriba va el circuito —dónde está el turno y qué falta—,
+     después cinco pasos numerados con lo que se carga, y abajo las acciones en
+     el mismo orden en que se cumplen: fuerte la que falta, suave la ya hecha.
+     Las ayudas largas se esconden detrás del botón «Ayuda». Los campos y sus
+     identificadores son los mismos de siempre: `guardarSlot` no cambia. */
   $('slot-modal').innerHTML = `
     <button class="modal-close" onclick="closeSlot()" aria-label="Cerrar">✕</button>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;flex-wrap:wrap">
-      <div class="head-icon" style="background:#e8f4fb">${ICONS.calPlus}</div>
-      <div>
-        <div style="font-weight:800;font-size:1.1rem">${esc(s.nombre)} — ${f.t} h</div>
-        <div style="font-size:0.82rem;color:var(--muted)">${fmtDiaLargo(fechaDeFranja(d, f))}${f.nd ? ` · madrugada de la guardia del ${fmtFecha(d)}` : ''} · ${nuevo ? 'Nuevo turno' : 'Turno programado'}</div>
+    <div class="tm" id="tm">
+    <div class="tm-head">
+      <div class="tm-head-ico">${ICONS.calPlus}</div>
+      <div class="tm-head-txt">
+        <div class="tm-kicker">${nuevo ? 'Nuevo turno' : 'Turno programado'}${f.urg ? ' · <b class="tm-urg">urgencia / emergencia</b>' : ''}</div>
+        <div class="tm-title">${esc(s.nombre)} · ${f.t} h</div>
+        <div class="tm-sub">${fmtDiaLargo(fechaDeFranja(d, f))}${f.nd ? ` · madrugada de la guardia del ${fmtFecha(d)}` : ''}</div>
       </div>
+      <button type="button" class="tm-ayuda-btn" aria-pressed="false"
+        onclick="const t=$('tm');t.classList.toggle('tm-con-ayuda');this.setAttribute('aria-pressed',t.classList.contains('tm-con-ayuda'))">${ico(ICONS.info, 15)} Ayuda</button>
     </div>
-    ${c ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">${estChip(c)} ${prioChip(c)} ${authChip(c)}</div>` : '<div style="height:10px"></div>'}
+
+    ${c ? tmCircuito(c, u) : tmCircuitoNuevo(f)}
     ${avisoAnticip}
     ${resv && nuevo ? `<div class="banner banner-reserva" style="margin-bottom:14px">${ico(ICONS.shield, 18)}<div><strong>Franja con prioridad por especialidad</strong>
         La Jefatura de Quirófanos reservó este horario para <b>${esc(resv.servicios.join(', '))}</b>. El turno solo se guarda con
         uno de esos servicios.</div></div>` : ''}
+    ${puedeEditar ? '<div class="tm-progreso" id="tm-progreso" aria-live="polite"></div>' : ''}
 
-    <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
-      <div class="card-title">Paciente y diagnóstico</div>
-      <div class="card-sub">${ICONS.info.replace('18', '13')} Estos datos se importan de la Historia Clínica Electrónica cuando la interfaz HCE/HIS esté disponible; mientras tanto se declaran manualmente.</div>
+    <section class="tm-sec">
+      <div class="tm-sec-h"><span class="tm-n">1</span><div><b>Paciente</b><span>quién se opera y cómo se lo contacta</span></div></div>
+      <p class="tm-ayuda">${ICONS.info.replace('18', '13')} Estos datos se importan de la Historia Clínica Electrónica cuando la interfaz HCE/HIS esté disponible; mientras tanto se declaran manualmente.</p>
       <div class="form-grid">
-        <div class="field"><label>Paciente — apellido y nombre *</label><input type="text" id="k-pac" value="${v(c && c.paciente?.nombre)}" ${ro}></div>
-        <div class="field"><label>DNI</label><input type="text" id="k-dni" value="${v(c && c.paciente?.dni)}" ${ro}></div>
-        <div class="field"><label>Edad</label><input type="number" id="k-edad" min="0" max="120" value="${c?.paciente?.edad ?? ''}" ${ro}></div>
+        <div class="field full"><label>Apellido y nombre *</label><input type="text" id="k-pac" value="${v(c && c.paciente?.nombre)}" ${ro}></div>
+        <div class="field"><label>DNI</label><input type="text" id="k-dni" inputmode="numeric" value="${v(c && c.paciente?.dni)}" ${ro}></div>
         <div class="field"><label>Fecha de nacimiento</label><input type="date" id="k-nac" value="${v(c && c.paciente?.nacimiento)}" ${ro}>
           <span class="hint">Se vuelca al consentimiento informado.</span></div>
-        <div class="field"><label>Teléfono de contacto</label><input type="text" id="k-tel" value="${v(c && c.paciente?.telefono)}" ${ro}></div>
-        <div class="field"><label>Obra social / financiador</label>
+        <div class="field"><label>Edad</label><input type="number" id="k-edad" min="0" max="120" value="${c?.paciente?.edad ?? ''}" ${ro}></div>
+        <div class="field"><label>Teléfono</label><input type="tel" id="k-tel" value="${v(c && c.paciente?.telefono)}" ${ro}></div>
+        <div class="field full"><label>Correo electrónico del paciente</label><input type="email" id="k-mail" autocomplete="off" placeholder="nombre@correo.com" value="${v(c && c.paciente?.email)}" ${ro}>
+          <span class="hint">Opcional. Hace falta para el <b>pase del paciente</b>: cada vez que el paciente consulta su cirugía le llega a este correo un código de un solo uso.</span></div>
+        <div class="field full"><label>Obra social / financiador</label>
           <select id="k-obra" ${ro} onchange="onObraChange()">${opcionesObra(c && c.obraSocial)}</select>
           <div id="k-obra-nueva-wrap" style="display:none;margin-top:6px">
             <input type="text" id="k-obra-nueva" placeholder="Nombre de la obra social, prepaga o mutual" ${ro}>
             <span class="hint">Queda agregada al listado compartido del hospital.</span>
           </div></div>
+      </div>
+    </section>
+
+    <section class="tm-sec">
+      <div class="tm-sec-h"><span class="tm-n">2</span><div><b>Diagnóstico y cirugía</b><span>qué se opera, elegido del nomenclador</span></div></div>
+      <div class="form-grid">
         <div class="field"><label>Diagnóstico preoperatorio *</label><input type="text" id="k-diag" value="${v(c && c.diagnostico)}" ${ro}></div>
         <div class="field"><label>Código CIE-10</label><input type="text" id="k-cie" placeholder="Ej: K80.2" value="${v(c && c.cie10)}" ${ro}></div>
         ${campoPractica(c, ro)}
       </div>
-      <div style="margin-top:12px">
-        <label class="check-row"><input type="checkbox" id="k-preanest" ${c?.coordinacion?.anestesia ? 'checked' : ''} ${ro}> Evaluación pre-anestésica aprobada — apto anestésico registrado en la HCE</label>
-        <label class="check-row"><input type="checkbox" id="k-preop" ${c?.hce?.preop ? 'checked' : ''} ${ro}> Estudios preoperatorios completos y verificados en la HCE</label>
-        <label class="check-row"><input type="checkbox" id="k-consent" ${c?.hce?.consentimiento ? 'checked' : ''} ${ro}> Consentimiento informado firmado y registrado en la HCE</label>
-        <p class="form-note" style="margin-top:6px">Los tres son requisito para que <b>Admisión y Egresos</b> dictamine sobre el turno programado. El consentimiento, además, tiene que estar <b>generado y guardado</b> en el historial del cirujano: se descarga al terminar de programar.</p>
-      </div>
-    </div>
+    </section>
 
-    <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
-      <div class="card-title">Equipo quirúrgico</div>
+    <section class="tm-sec">
+      <div class="tm-sec-h"><span class="tm-n">3</span><div><b>Requisitos para Admisión y Egresos</b><span>toque cada uno cuando esté hecho</span></div></div>
+      <div class="tm-reqs">
+        <label class="tm-req"><input type="checkbox" id="k-preanest" ${c?.coordinacion?.anestesia ? 'checked' : ''} ${ro}>
+          <span class="tm-req-ico">${ico(ICONS.check, 16)}</span><span class="tm-req-txt"><b>Pre-anestésico</b><small>apto anestésico registrado en la HCE</small></span></label>
+        <label class="tm-req"><input type="checkbox" id="k-preop" ${c?.hce?.preop ? 'checked' : ''} ${ro}>
+          <span class="tm-req-ico">${ico(ICONS.check, 16)}</span><span class="tm-req-txt"><b>Pre-quirúrgico</b><small>estudios completos y verificados en la HCE</small></span></label>
+        <label class="tm-req"><input type="checkbox" id="k-consent" ${c?.hce?.consentimiento ? 'checked' : ''} ${ro}>
+          <span class="tm-req-ico">${ico(ICONS.check, 16)}</span><span class="tm-req-txt"><b>Consentimiento firmado</b><small>registrado en la HCE</small></span></label>
+      </div>
+      <p class="tm-ayuda">Los tres son requisito para que <b>Admisión y Egresos</b> dictamine sobre el turno programado. El consentimiento, además, tiene que estar <b>generado y guardado</b> en el historial del cirujano: se descarga al terminar de programar.
+      ${!f.urg ? ' Con los tres listos y el consentimiento guardado, la app genera el <b>pase del paciente</b>: una tarjeta con un código QR para que siga su cirugía.' : ''}</p>
+    </section>
+
+    <section class="tm-sec">
+      <div class="tm-sec-h"><span class="tm-n">4</span><div><b>Equipo quirúrgico</b><span>quién opera y con qué anestesia</span></div></div>
       <div class="form-grid">
         ${campoCirujano(c, u, exc, ro)}
         <div class="field"><label>Servicio / especialidad *</label>
@@ -14994,56 +15264,214 @@ function openSlot(d, sid, fid) {
           <select id="k-tanest" ${ro}><option value="">Seleccionar…</option>${ANESTESIAS.map((a) => `<option ${c?.anestesia === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
       </div>
       <div id="k-ayu-mods"></div>
-    </div>
+    </section>
 
-    <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
-      <div class="card-title">Prioridad y recursos</div>
+    <section class="tm-sec">
+      <div class="tm-sec-h"><span class="tm-n">5</span><div><b>Prioridad y recursos</b><span>orden de prelación, tiempo y lo que hay que reservar</span></div></div>
       <div class="form-grid">
-        <div class="field full"><label>Prioridad de prelación *</label>
-          <select id="k-prio" ${ro}>${Object.keys(PRIOS).filter((k) => k !== '5').map((k) => `<option value="${k}" ${String(c?.prioridad || 6) === k ? 'selected' : ''}>P${k} — ${PRIOS[k].label} (${PRIOS[k].desc})</option>`).join('')}</select>
+        <div class="field"><label>Prioridad de prelación *</label>
+          <select id="k-prio" ${ro}>${Object.keys(PRIOS).filter((k) => k !== '5').map((k) => `<option value="${k}" ${String(c?.prioridad || 6) === k ? 'selected' : ''}>P${k} — ${PRIOS[k].label}</option>`).join('')}</select>
           <span class="hint">La prioridad P5 (espera &gt; 90 días) la asigna el sistema automáticamente.</span></div>
         <div class="field"><label>Duración estimada (min)</label><input type="number" id="k-dur" min="15" step="5" value="${c?.duracionMin || (s.tipo === 'endo' ? 45 : 90)}" ${ro}></div>
       </div>
-      <div style="margin-top:12px">
-        <label class="check-row"><input type="checkbox" id="k-implante" ${c?.recursos?.implante ? 'checked' : ''} ${ro} onchange="$('k-impdet-wrap').style.display=this.checked?'flex':'none'"> Requiere implante / prótesis (verificación con Farmacia 48–72 h antes)</label>
-        <div class="field" id="k-impdet-wrap" style="display:${c?.recursos?.implante ? 'flex' : 'none'};max-width:420px;margin:4px 0 0 26px"><input type="text" id="k-impdet" placeholder="Detalle del implante" value="${v(c && c.recursos?.implanteDetalle)}" ${ro}></div>
-        <label class="check-row"><input type="checkbox" id="k-hemo" ${c?.recursos?.hemoderivados ? 'checked' : ''} ${ro}> Requiere reserva de hemoderivados (Hemoterapia)</label>
-        ${f && f.urg ? `<label class="check-row" style="color:var(--red);font-weight:700"><input type="checkbox" id="k-urg" checked disabled> Urgencia / emergencia — turno de guardia de las ${f.t} h: saltea la anticipación de ${HORAS_ANTICIPACION} h</label>` : ''}
+      <div class="tm-chips">
+        <label class="tm-chip"><input type="checkbox" id="k-implante" ${c?.recursos?.implante ? 'checked' : ''} ${ro} onchange="$('k-impdet-wrap').style.display=this.checked?'flex':'none'"><span>Implante / prótesis</span></label>
+        <label class="tm-chip"><input type="checkbox" id="k-hemo" ${c?.recursos?.hemoderivados ? 'checked' : ''} ${ro}><span>Reserva de hemoderivados</span></label>
+        ${f && f.urg ? `<label class="tm-chip tm-chip-urg"><input type="checkbox" id="k-urg" checked disabled><span>Urgencia / emergencia</span></label>` : ''}
       </div>
-      <div class="field full" style="margin-top:12px"><label>Equipamiento especial</label>
+      <div class="field" id="k-impdet-wrap" style="display:${c?.recursos?.implante ? 'flex' : 'none'};max-width:460px;margin-top:10px"><label>Detalle del implante</label>
+        <input type="text" id="k-impdet" placeholder="Qué implante o prótesis" value="${v(c && c.recursos?.implanteDetalle)}" ${ro}>
+        <span class="hint">Farmacia lo verifica 48–72 h antes de la cirugía.</span></div>
+      ${f && f.urg ? `<p class="tm-ayuda">Turno de guardia de las ${f.t} h: saltea la anticipación de ${HORAS_ANTICIPACION} h.</p>` : ''}
+      <details class="tm-eq" ${eq.length ? 'open' : ''}>
+        <summary>Equipamiento especial <span class="tm-eq-n" id="tm-eq-n">${eq.length ? eq.length + ' elegido(s)' : 'ninguno'}</span></summary>
         <div class="coord-grid">
-          ${EQUIPOS.map((x, i) => `<label class="coord-item"><input type="checkbox" class="k-eq" data-eq="${esc(x)}" ${eq.includes(x) ? 'checked' : ''} ${ro}> ${x}</label>`).join('')}
-        </div></div>
-    </div>
+          ${EQUIPOS.map((x) => `<label class="coord-item"><input type="checkbox" class="k-eq" data-eq="${esc(x)}" ${eq.includes(x) ? 'checked' : ''} ${ro}> ${x}</label>`).join('')}
+        </div>
+      </details>
+    </section>
 
-    ${c ? `<div class="det-section">
-      <h4>Circuito del turno</h4>
+    ${c ? tmAcciones(c, u) : ''}
+
+    ${c ? `<details class="tm-detalle">
+      <summary>Detalle del circuito</summary>
       <div class="det-row"><b>Estado</b> ${ESTC[estadoVisible(c)].label} — ${ESTC[estadoVisible(c)].desc}</div>
-      ${sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email)) ? `<div class="cir-actions" style="margin:8px 0 4px"><button class="btn btn-sm btn-red" onclick="closeSlot();openResolverTurno(${c.id})">${ico(ICONS.alertTri, 14)} Resolver turno</button></div>` : ''}
       ${c.registroTardio ? `<div class="det-row"><b>Registro fuera de término</b> asentado por la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} el ${esc(c.registroTardio.fechaHora || '')} sobre una franja ya vencida — ${esc(c.registroTardio.motivo || '')}</div>` : ''}
       ${authDetalle(c)}
       ${jefaturaDetalle(c)}
       <div class="det-row"><b>Consentimiento informado</b> ${consentimientoDeTurno(c)
         ? `generado el ${esc(consentimientoDeTurno(c).fecha)}`
         : '<span style="color:var(--red);font-weight:700">pendiente de generar</span>'}</div>
-      <div class="cir-actions" style="margin-top:10px">
-        <button class="btn btn-sm btn-outline" onclick="closeSlot();openCirugia(${c.id})">${ICONS.eyeSm} Ver ficha completa (LVQ, coordinación, informe)</button>
-        <button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${authBotonTexto(c)}</button>
-      <button class="btn btn-sm btn-outline" onclick="openEquipoMod(${c.id})">${ico(ICONS.users, 14)} Equipo y módulos</button>
-        <button class="btn btn-sm btn-blue" onclick="closeSlot();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir consentimiento' : 'Generar consentimiento informado'}</button>
-      </div>
-    </div>` : ''}
+      ${c.pase && c.pase.token ? `<div class="det-row"><b>Pase del paciente</b> ${c.pase.caducado ? 'caducado' : 'activo'} · código ${esc(c.pase.ref || '')} · emitido el ${fmtDT(c.pase.creado)}</div>` : ''}
+    </details>` : ''}
 
-    <div class="form-actions" style="margin-top:4px">
-      ${puedeEditar ? `<button class="btn btn-blue" onclick="guardarSlot()">${ICONS.check.replace('14', '16')} ${nuevo ? 'Programar turno' : 'Guardar cambios'}</button>` : ''}
-      ${c && !sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email)) ? `<button class="btn btn-red" onclick="cancelarSlot(${c.id})">${ICONS.trash} Cancelar turno</button>` : ''}
+    <div class="tm-pie">
+      ${puedeEditar ? `<button class="btn btn-blue tm-pie-main" onclick="guardarSlot()">${ICONS.check.replace('14', '16')} ${nuevo ? 'Programar turno' : 'Guardar cambios'}</button>` : ''}
+      ${c && !sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email)) ? `<button class="btn btn-outline tm-pie-red" onclick="cancelarSlot(${c.id})">${ICONS.trash} Cancelar turno</button>` : ''}
       <button class="btn btn-outline" onclick="closeSlot()">Cerrar</button>
-      ${!puedeEditar ? `<p class="form-note">El turno ya avanzó en el circuito: los cambios se gestionan desde la ficha completa.</p>` : ''}
+      ${!puedeEditar ? `<p class="form-note" style="flex-basis:100%;margin:4px 0 0">El turno ya avanzó en el circuito: los datos se corrigen desde <b>Ver y completar ficha</b>.</p>` : ''}
+    </div>
     </div>`;
   $('slot-overlay').classList.add('open');
   eqmModulo = '';
   nomIniciar(c, ro);
   pintarModEquipo();
+  tmEnlazar();
+}
+/* ---- Ventana del turno: el circuito a la vista ----
+   Cuatro casilleros con el mismo código de color en toda la app: verde hecho,
+   ámbar pendiente, rojo frenado, violeta diferido (urgencias) y gris en espera
+   del paso anterior. Lo que antes había que deducir de dos renglones de texto
+   —¿lo aceptó Admisión? ¿lo validó la Jefatura?— ahora se lee de un vistazo. */
+function tmPaso(n, titulo, est, texto) {
+  const marca = { ok: ico(ICONS.check, 14), pend: '<span class="tm-pulso"></span>', no: '✕', dif: '↷', espera: n };
+  return `<div class="tm-paso tm-${est}">
+    <div class="tm-paso-top"><span class="tm-paso-ico">${marca[est] || n}</span><span class="tm-paso-tit">${titulo}</span></div>
+    <div class="tm-paso-txt">${texto}</div></div>`;
+}
+function tmEstadoAdmision(c) {
+  if (c.auth === 'AUTORIZADO') return { est: 'ok', txt: 'Aceptó el turno' };
+  if (c.auth === 'NO AUTORIZADO') return { est: 'no', txt: `No autorizó: ${esc(recortar(c.authMotivo || 'sin motivo registrado', 70))}` };
+  if (authExenta(c)) return { est: 'dif', txt: 'Diferida: se regulariza después' };
+  if (turnoProvisional(c) || !consentimientoDeTurno(c)) return { est: 'espera', txt: 'Espera el consentimiento' };
+  return { est: 'pend', txt: 'Pendiente de su dictamen' };
+}
+function tmEstadoJefatura(c) {
+  if (c.estado === 'suspendida') return { est: 'no', txt: `Suspendida: ${esc(recortar((c.suspension && c.suspension.causa) || 'causa registrada', 60))}` };
+  if (['caducada', 'anticipada'].includes(c.estado)) return { est: 'espera', txt: ESTC[c.estado].label };
+  if (jefaturaPendienteDiferida(c)) return { est: 'dif', txt: 'Validación diferida' };
+  if (['confirmada', 'en_curso', 'realizada'].includes(c.estado)) return { est: 'ok', txt: 'Confirmada en el parte' };
+  if (c.estado === 'borrador') return { est: 'espera', txt: 'El turno no está presentado' };
+  if (!authOk(c)) return { est: 'espera', txt: 'Espera a Admisión y Egresos' };
+  return { est: 'pend', txt: 'Lista para validar' };
+}
+function recortar(t, n) { t = String(t || ''); return t.length > n ? t.slice(0, n - 1) + '…' : t; }
+
+function tmCircuito(c, u) {
+  const ci = consentimientoDeTurno(c);
+  const adm = tmEstadoAdmision(c);
+  const jef = tmEstadoJefatura(c);
+  const prog = c.estado === 'borrador'
+    ? { est: 'pend', txt: c.ciLiberado ? 'Franja liberada: elegir otra' : 'Borrador sin presentar' }
+    : turnoProvisional(c) ? { est: 'pend', txt: 'Provisional hasta guardar el consentimiento' }
+    : { est: 'ok', txt: `${esc(c.quirofano || '')} · ${esc(c.horaProg || '')} h` };
+  const cons = ci ? { est: 'ok', txt: 'Generado y guardado' }
+    : authExenta(c) ? { est: 'dif', txt: 'Se completa después' }
+    : { est: 'pend', txt: 'Falta generarlo' };
+  const resolver = sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email));
+  return `<div class="tm-circuito" role="list" aria-label="Circuito del turno">
+      ${tmPaso(1, 'Programación', prog.est, prog.txt)}
+      ${tmPaso(2, 'Consentimiento', cons.est, cons.txt)}
+      ${tmPaso(3, 'Admisión y Egresos', adm.est, adm.txt)}
+      ${tmPaso(4, 'Jefatura de Quirófanos', jef.est, jef.txt)}
+    </div>
+    ${resolver ? `<div class="banner banner-red" style="margin:0 0 14px">${ico(ICONS.alertTri, 18)}<div><strong>Turno sin resolver</strong>
+      La fecha pasó y quedó sin cerrar. <button class="btn btn-sm btn-red" style="margin-top:8px" onclick="closeSlot();openResolverTurno(${c.id})">${ico(ICONS.alertTri, 14)} Resolver turno</button></div></div>` : ''}`;
+}
+/* Turno nuevo: el mismo camino, todavía sin recorrer, para que el cirujano
+   sepa desde el principio qué pasa después de «Programar». */
+function tmCircuitoNuevo(f) {
+  if (f && f.urg) {
+    return `<div class="tm-circuito tm-circuito-nuevo">
+      ${tmPaso(1, 'Programación', 'pend', 'Complete los datos')}
+      ${tmPaso(2, 'Operar', 'espera', 'Sin esperar trámites')}
+      ${tmPaso(3, 'Admisión y Egresos', 'dif', 'Se regulariza después')}
+      ${tmPaso(4, 'Jefatura de Quirófanos', 'dif', 'Se regulariza después')}
+    </div>`;
+  }
+  return `<div class="tm-circuito tm-circuito-nuevo">
+    ${tmPaso(1, 'Programación', 'pend', 'Complete los datos')}
+    ${tmPaso(2, 'Consentimiento', 'espera', 'Al terminar de programar')}
+    ${tmPaso(3, 'Admisión y Egresos', 'espera', 'Dictamina el turno')}
+    ${tmPaso(4, 'Jefatura de Quirófanos', 'espera', 'Lo confirma en el parte')}
+  </div>`;
+}
+
+/* Las acciones del turno, numeradas en el orden en que se cumplen. La que falta
+   va con color pleno y la marca «falta»; la que ya está hecha, en tono suave y
+   con el tilde, para verla o corregirla. */
+function tmBoton(n, estado, icono, titulo, detalle, accion) {
+  return `<button type="button" class="tm-acc tm-acc-${estado}" onclick="${accion}">
+    <span class="tm-acc-n">${estado === 'hecho' ? ico(ICONS.check, 13) : n}</span>
+    <span class="tm-acc-ico">${icono}</span>
+    <span class="tm-acc-txt"><b>${titulo}</b><small>${detalle}</small></span>
+    ${estado === 'falta' ? '<span class="tm-acc-tag">falta</span>' : estado === 'hecho' ? '<span class="tm-acc-tag">hecho</span>' : ''}
+  </button>`;
+}
+function tmAcciones(c, u) {
+  const ci = consentimientoDeTurno(c);
+  const b = [];
+  let n = 0;
+  b.push(tmBoton(++n, ci ? 'hecho' : 'falta', ico(ICONS.fileText, 18),
+    ci ? 'Consentimiento informado' : 'Generar el consentimiento informado',
+    ci ? `Guardado el ${esc(String(ci.fecha || '').split(',')[0])} · ver o reimprimir` : 'Con los datos del turno ya volcados',
+    `closeSlot();irAConsentimiento(${c.id})`));
+  const admHecha = c.auth === 'AUTORIZADO';
+  const admFalta = !c.auth && (ci || authExenta(c));
+  b.push(tmBoton(++n, admHecha ? 'hecho' : c.auth === 'NO AUTORIZADO' ? 'frenado' : admFalta ? 'falta' : 'neutro', ico(ICONS.shield, 18),
+    'Admisión y Egresos', admHecha ? 'Aceptado · modificar el dictamen' : c.auth === 'NO AUTORIZADO' ? 'No autorizado · rectificar' : authBotonTexto(c),
+    `pedirAutorizacion(${c.id})`));
+  b.push(tmBoton(++n, ayudanteDefinido(c) ? 'hecho' : 'falta', ico(ICONS.users, 18),
+    'Equipo y módulos', ayudanteDefinido(c) ? (tieneAyudante(c) ? `Ayudante: ${esc((ayudanteDe(c) || {}).nombre || '')}` : 'Sin ayudante') : 'Falta decir si opera con ayudante',
+    `openEquipoMod(${c.id})`));
+  // La ficha completa es donde se hace la LVQ, la coordinación y el informe:
+  // aprieta cuando el turno ya está en el parte y algo de eso falta.
+  const fichaFalta = (c.estado === 'confirmada' && !lvqCompleta(c, 'entrada'))
+    || c.estado === 'en_curso' || (operada(c) && cierreFaltantes(c).length > 0)
+    || (jefe && c.estado === 'pendiente' && authOk(c) && coordFaltantes(c).length > 0);
+  b.push(tmBoton(++n, fichaFalta ? 'falta' : 'neutro', ICONS.eyeSm,
+    'Ver y completar ficha', 'LVQ, coordinación, informe e historial', `closeSlot();openCirugia(${c.id})`));
+  if (c.pase && c.pase.token) {
+    b.push(tmBoton(++n, c.pase.caducado ? 'neutro' : 'hecho', ICONS.qr, 'Pase del paciente',
+      c.pase.caducado ? 'Caducado: la cirugía se cerró' : `Código ${esc(c.pase.ref || '')} · ver, imprimir o enviar`, `openPase(${c.id})`));
+  } else if (portalElegible(c)) {
+    b.push(tmBoton(++n, 'pase', ICONS.qr, 'Generar el pase del paciente', 'Tarjeta con QR para que siga su cirugía', `openPase(${c.id})`));
+  }
+  return `<section class="tm-sec tm-sec-acc">
+    <div class="tm-sec-h"><span class="tm-n">${ico(ICONS.flag, 14)}</span><div><b>Lo que sigue</b><span>en el orden del circuito · color pleno = falta hacerlo</span></div></div>
+    <div class="tm-accs">${b.join('')}</div>
+  </section>`;
+}
+
+/* Datos obligatorios: una barra que se completa mientras se escribe y dice qué
+   falta, en lugar de enterarse al apretar «Programar». */
+function tmProgreso() {
+  const box = $('tm-progreso');
+  if (!box) return;
+  const val = (id) => String((($(id) || {}).value) || '').trim();
+  const req = [
+    ['Paciente', !!val('k-pac')],
+    ['Diagnóstico', !!val('k-diag')],
+    ['Cirugía del nomenclador', !!nomLeer().procedimiento],
+    ['Módulo', !!nomLeer().modulo],
+    ['Cirujano', !!(val('k-cir-sel') || val('k-cir'))],
+    ['Servicio', !!val('k-serv')],
+  ];
+  const ok = req.filter((r) => r[1]).length;
+  const pct = Math.round((ok / req.length) * 100);
+  const reqs = ['k-preanest', 'k-preop', 'k-consent'].filter((id) => ($(id) || {}).checked).length;
+  box.innerHTML = `<div class="tm-prog-top"><b>${ok === req.length ? 'Datos obligatorios completos' : `Datos obligatorios: ${ok} de ${req.length}`}</b>
+      <span>Requisitos para Admisión: ${reqs} de 3</span></div>
+    <div class="tm-prog-barra"><i style="width:${pct}%"></i></div>
+    ${ok < req.length ? `<div class="tm-prog-faltan">Falta: ${req.filter((r) => !r[1]).map((r) => `<span>${r[0]}</span>`).join('')}</div>` : ''}`;
+  box.classList.toggle('tm-prog-ok', ok === req.length);
+}
+function tmEnlazar() {
+  const m = $('slot-modal');
+  if (!m) return;
+  const pintarReqs = () => m.querySelectorAll('.tm-req input, .tm-chip input').forEach((i) => {
+    i.closest('label').classList.toggle('on', i.checked);
+  });
+  const contarEq = () => {
+    const n = m.querySelectorAll('.k-eq:checked').length;
+    const t = $('tm-eq-n'); if (t) t.textContent = n ? `${n} elegido(s)` : 'ninguno';
+  };
+  pintarReqs();
+  tmProgreso();
+  m.oninput = () => tmProgreso();
+  m.onchange = () => { pintarReqs(); contarEq(); tmProgreso(); };
+  // El nomenclador se elige con un clic en su lista, que no dispara `change`.
+  m.onclick = (e) => { if (e.target.closest('#k-nomlist, #k-nomsel')) setTimeout(tmProgreso, 0); };
 }
 function closeSlot() {
   $('slot-overlay').classList.remove('open');
@@ -15134,6 +15562,14 @@ async function guardarSlot() {
       : `Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.`}\n\nSolo puede programarse marcando "Urgencia / emergencia", y únicamente en el Quirófano 1 o en el quirófano de Obstetricia.`);
     return;
   }
+  // El correo del paciente es optativo, pero si se escribe tiene que servir:
+  // a esa dirección le llega el código de cada ingreso al pase.
+  const mailPaciente = String(($('k-mail') || {}).value || '').trim().toLowerCase();
+  if (mailPaciente && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mailPaciente)) {
+    alert('El correo del paciente no parece válido.\n\nRevíselo o déjelo vacío: es optativo y solo hace falta para el pase del paciente.');
+    $('k-mail').focus();
+    return;
+  }
   const edad = Number($('k-edad').value || 0);
   const prio = urgencia ? Math.min(Number($('k-prio').value), 2) : Number($('k-prio').value);
   const c = existente || {
@@ -15152,6 +15588,7 @@ async function guardarSlot() {
     paciente: {
       nombre: paciente, dni: $('k-dni').value.trim(), edad, pediatrico: edad > 0 && edad < 15,
       nacimiento: $('k-nac').value, telefono: $('k-tel').value.trim(),
+      email: mailPaciente,
     },
     obraSocial,
     diagnostico, cie10: $('k-cie').value.trim(), procedimiento, practica, modulo,
@@ -17788,7 +18225,9 @@ const CI_VACIO = {
 };
 
 let ciForm = { ...CI_VACIO };
-let ciTab = 'generar';          // 'generar' | 'registro'
+let ciTab = 'registro';         // 'registro' | 'generar' (solo desde un turno) | 'pendientes'
+let ciIrTurno = false;          // el generador se abre únicamente desde un turno
+let ciAlcance = 'semana';       // 'semana' | 'todo': el registro arranca por la semana en curso
 let ciEvidencia = 'evidencia';  // etiqueta del origen del texto clínico cargado
 let ciRegQ = '';                // búsqueda dentro del registro guardado
 
@@ -18118,6 +18557,7 @@ function irAConsentimiento(turnoId) {
   if (previo) ciForm.c_proc = ciClaveVigente(ciForm.c_esp, ciForm.c_proc);
   ciEvidencia = previo ? 'recuperado del registro' : 'volcado desde la programación';
   ciTab = 'generar';
+  ciIrTurno = true;
   go('consentimientos');
 }
 /* Turnos futuros del cirujano que todavía no tienen consentimiento generado.
@@ -18235,6 +18675,14 @@ function ciRegistrar() {
     // El consentimiento guardado es lo que convierte la franja provisional en
     // franja confirmada. Va después del upsert del turno para no pisarlo.
     confirmarTurnoProvisional(reg.turnoId);
+    // Turno electivo con los tres requisitos y el consentimiento recién
+    // guardado: es el momento de entregarle el pase al paciente. Se ofrece una
+    // sola vez por turno en esta sesión; después queda en «Lo que sigue».
+    const t = DB.cirugias.find((x) => String(x.id) === String(reg.turnoId));
+    if (t && !t.pase && portalElegible(t) && !paseOfrecido.has(String(t.id))) {
+      paseOfrecido.add(String(t.id));
+      setTimeout(() => openPase(t.id, { recien: true }), 450);
+    }
   }
   return reg;
 }
@@ -18420,20 +18868,46 @@ function ciMedicoDe(r) {
   return { nombre, servicio: servicioCanonico(serv) || 'Sin servicio asignado' };
 }
 /* Rótulo vivo del buscador: cuántas fichas está mirando sobre el total. */
+/* Semana en curso, de lunes a domingo. Un consentimiento es «de la semana» si
+   se generó en ella o si su cirugía cae en ella. */
+function ciSemana() {
+  const hoy = hoyISO();
+  const dow = (new Date(hoy + 'T12:00:00').getDay() + 6) % 7;
+  const desde = sumarDias(hoy, -dow);
+  return { desde, hasta: sumarDias(desde, 6) };
+}
+function ciFechaGenerado(r) {
+  if (r.fechaISO) return r.fechaISO;
+  const m = String(r.fecha || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);   // «10/8/2026, 18:08:10»
+  return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : '';
+}
+function ciEnSemana(r) {
+  const { desde, hasta } = ciSemana();
+  const dentro = (f) => !!f && f >= desde && f <= hasta;
+  return dentro(ciFechaGenerado(r)) || dentro(r.fechaCx);
+}
+function ciRegistroAlcance() {
+  const v = ciRegistroVisible();
+  return ciAlcance === 'todo' ? v : v.filter(ciEnSemana);
+}
 function ciRegistroContados() {
-  const total = ciRegistroVisible().length;
+  const total = ciRegistroAlcance().length;
   const q = ciRegQ.toLowerCase();
   if (!q) return `${total} consentimiento(s)`;
-  const n = ciRegistroVisible().filter((r) => [r.paciente, r.dni, r.procedimiento, r.medico]
+  const n = ciRegistroAlcance().filter((r) => [r.paciente, r.dni, r.procedimiento, r.medico]
     .some((x) => String(x || '').toLowerCase().includes(q))).length;
   return `${n} de ${total}`;
 }
 function ciRegistroLista() {
   const q = ciRegQ.toLowerCase();
-  const list = ciRegistroVisible()
+  const list = ciRegistroAlcance()
     .filter((r) => !q || [r.paciente, r.dni, r.procedimiento, r.medico].some((x) => String(x || '').toLowerCase().includes(q)))
     .sort((a, b) => b.id - a.id);
   if (!list.length) {
+    if (ciAlcance === 'semana' && ciRegistroVisible().length) {
+      return `<div class="empty">${ciRegQ ? 'Ningún consentimiento de esta semana coincide con la búsqueda.' : 'Esta semana no hay consentimientos.'}
+        <div style="margin-top:10px"><button class="btn btn-sm btn-outline" onclick="ciAlcance='todo';renderConsentimientos()">${ICONS.list} Buscar en el historial</button></div></div>`;
+    }
     return `<div class="empty">${ciRegQ ? 'Ningún consentimiento coincide con la búsqueda.'
       : (ciVeTodo() ? 'Todavía no hay consentimientos guardados en el bloque quirúrgico.'
         : 'Todavía no generó ningún consentimiento informado. Los que genere desde la programación quedan archivados acá.')}</div>`;
@@ -18568,7 +19042,8 @@ function renderConsentimientos() {
         <div class="head-icon">${ico(ICONS.fileText, 22)}</div>
         <div>
           <h1 class="page-title">Consentimientos Médicos Informados</h1>
-          <p class="page-sub">Generador del consentimiento informado quirúrgico — contenidos basados en consensos internacionales · Lex Artis Ad-Hoc</p>
+          <p class="page-sub">${ciTab === 'generar' ? 'Consentimiento informado del turno — contenidos basados en consensos internacionales · Lex Artis Ad-Hoc'
+            : ciVeTodo() ? 'Archivo de los consentimientos del bloque quirúrgico' : 'Los consentimientos que usted generó · cada uno se genera desde su turno'}</p>
         </div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -18576,13 +19051,14 @@ function renderConsentimientos() {
       </div>
     </div>
     <div class="ci-tabs">
-      <button class="ci-tab ${ciTab === 'generar' ? 'active' : ''}" onclick="ciTab='generar';renderConsentimientos()">${ICONS.fileText} Generar consentimiento</button>
-      <button class="ci-tab ${ciTab === 'registro' ? 'active' : ''}" onclick="ciTab='registro';renderConsentimientos()">${ICONS.list} Registros guardados${nReg ? ` (${nReg})` : ''}</button>
+      ${ciTab === 'generar' ? `<button class="ci-tab active">${ICONS.fileText} Consentimiento del turno</button>` : ''}
+      <button class="ci-tab ${ciTab === 'registro' ? 'active' : ''}" onclick="ciTab='registro';renderConsentimientos()">${ICONS.list} ${ciVeTodo() ? 'Registros guardados' : 'Mis consentimientos'}${nReg ? ` (${nReg})` : ''}</button>
       ${ciVeTodo() ? `<button class="ci-tab ${ciTab === 'pendientes' ? 'active' : ''}" onclick="ciTab='pendientes';renderConsentimientos()">${ico(ICONS.alertTri, 15)} Turnos sin consentimiento${nPend ? ` (${nPend})` : ''}</button>` : ''}
     </div>`;
 
+  if (ciTab === 'generar' && !ciForm.turnoId) ciTab = 'registro';
   if (ciTab === 'pendientes') {
-    if (!ciVeTodo()) { ciTab = 'generar'; renderConsentimientos(); return; }
+    if (!ciVeTodo()) { ciTab = 'registro'; renderConsentimientos(); return; }
     $('main').innerHTML = `${cabecera}
       ${bannerPlegable('ci-pend-que-es', 'blue', ICONS.shield,
         'Qué muestra este tablero',
@@ -18599,7 +19075,14 @@ function renderConsentimientos() {
   }
 
   if (ciTab === 'registro') {
+    const nSem = ciRegistroVisible().filter(ciEnSemana).length;
     $('main').innerHTML = `${cabecera}
+      <div class="ci-alcance" role="group" aria-label="Qué consentimientos mostrar">
+        <button class="${ciAlcance === 'semana' ? 'on' : ''}" onclick="ciAlcance='semana';renderConsentimientos()">${ICONS.calendar} Esta semana <span>${nSem}</span></button>
+        <button class="${ciAlcance === 'todo' ? 'on' : ''}" onclick="ciAlcance='todo';renderConsentimientos()">${ICONS.list} Traer el historial <span>${nReg}</span></button>
+        <small>${ciAlcance === 'semana' ? `Del ${fmtFecha(ciSemana().desde)} al ${fmtFecha(ciSemana().hasta)}: los generados o con cirugía en la semana.` : 'Todos sus consentimientos guardados.'}
+        Para generar uno nuevo, entre al turno: <b>Lo que sigue › Generar el consentimiento</b>.</small>
+      </div>
       <div class="ci-buscador">
         <span class="ci-busc-ico">${ico(ICONS.search, 18)}</span>
         <input type="search" id="ci-busc" placeholder="Buscar por paciente, DNI, procedimiento o cirujano…" value="${esc(ciRegQ)}"
@@ -18745,6 +19228,768 @@ function renderConsentimientos() {
   ciPintarAcuse();
 }
 
+const PASE_CSS = `
+#pase-modal{max-width:560px;background:var(--card,#fff);padding:26px 22px 20px;--bp-fondo:var(--card,#fff)}
+.pase-x{z-index:5}
+.pase-intro{text-align:center;margin-bottom:16px}
+.pase-intro-ico{width:64px;height:64px;margin:0 auto 10px;border-radius:20px;display:flex;align-items:center;justify-content:center;color:#fff;
+  background:linear-gradient(135deg,#7c3aed,#db2777 55%,#f97316);box-shadow:0 10px 24px rgba(219,39,119,.35)}
+.pase-intro-kick{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#16a34a;margin-bottom:4px}
+.pase-intro h2{font-size:1.35rem;margin:0 0 6px}
+.pase-intro p{font-size:.9rem;line-height:1.5;color:var(--muted,#4b5563);margin:0}
+.pase-form{display:grid;gap:12px;margin:14px 0}
+.pase-ok{background:var(--sup2,#f5f3ff);border-radius:10px;padding:10px 12px!important;font-size:.82rem!important}
+.pase-acc{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
+.pase-btn-main{color:#fff;background:linear-gradient(120deg,#7c3aed,#db2777 55%,#f97316);box-shadow:0 6px 16px rgba(219,39,119,.3)}
+.pase-btn-main:hover{filter:brightness(1.06)}
+.pase-nota{text-align:center;margin-top:12px}
+.pase-anular{text-align:center;font-size:.78rem;color:var(--muted,#6b7280);margin-top:10px}
+.bp-escena{perspective:1200px;padding:6px 2px 2px}
+.bp{--rx:0deg;--ry:0deg;--bx:50%;--by:30%;position:relative;max-width:420px;margin:0 auto;transform-style:preserve-3d;
+  transform:rotateX(var(--rx)) rotateY(var(--ry));transition:transform .5s cubic-bezier(.2,.8,.2,1);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.bp.bp-vuelta{transform:rotateY(180deg)}
+.bp-cara{border-radius:22px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#fff;color:#111827;
+  box-shadow:0 22px 48px rgba(76,29,149,.28),0 2px 6px rgba(0,0,0,.08)}
+.bp-frente{position:relative}
+.bp-dorso{position:absolute;inset:0;transform:rotateY(180deg);padding:22px 22px;background:linear-gradient(160deg,#faf5ff,#fff1f2 60%,#fff7ed);overflow:auto}
+.bp-brillo{position:absolute;inset:0;pointer-events:none;z-index:3;background:radial-gradient(circle at var(--bx) var(--by),rgba(255,255,255,.35),transparent 45%);mix-blend-mode:soft-light}
+.bp-cab{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 18px 54px;color:#fff;
+  background:linear-gradient(120deg,#6d28d9 0%,#c026d3 38%,#ec4899 62%,#f97316 100%)}
+.bp-marca{display:flex;align-items:center;gap:9px}
+.bp-logo{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center}
+.bp-logo svg{width:18px;height:18px}
+.bp-marca b{display:block;font-size:.95rem;letter-spacing:.01em}
+.bp-marca small{display:block;font-size:.68rem;opacity:.9}
+.bp-tipo{font-size:.66rem;font-weight:800;letter-spacing:.14em;text-align:right;line-height:1.35;background:rgba(255,255,255,.18);padding:6px 9px;border-radius:9px}
+.bp-ruta{display:flex;align-items:center;gap:6px;margin:-40px 14px 0;padding:14px 14px;background:#fff;border-radius:16px;position:relative;z-index:2;
+  box-shadow:0 10px 24px rgba(124,58,237,.18)}
+.bp-pto{min-width:0}
+.bp-pto small{display:block;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9ca3af}
+.bp-pto b{display:block;font-size:1.45rem;font-weight:900;letter-spacing:-.02em;line-height:1.1;color:#4c1d95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bp-pto span{display:block;font-size:.74rem;color:#6b7280;font-weight:600}
+.bp-der{text-align:right;margin-left:auto}
+.bp-vuelo{flex:1;color:#db2777;text-align:center;min-width:70px}
+.bp-vuelo svg{width:100%;height:22px;display:block}
+.bp-vuelo span{display:block;font-size:.7rem;font-weight:800;color:#be185d;margin-top:2px}
+.bp-datos{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;padding:16px 18px 6px}
+.bp-dato small{display:block;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9ca3af}
+.bp-dato b{display:block;font-size:.86rem;line-height:1.3;color:#111827}
+.bp-ancho{grid-column:1/-1}
+.bp-est{display:inline-block!important;padding:3px 9px;border-radius:99px;font-size:.74rem!important}
+.bp-pe{background:#fef3c7;color:#92400e!important}.bp-no{background:#fee2e2;color:#991b1b!important}.bp-az{background:#dbeafe;color:#1e40af!important}
+.bp-ok{background:#dcfce7;color:#166534!important}.bp-gr{background:#f3f4f6;color:#4b5563!important}.bp-vi{background:#ede9fe;color:#5b21b6!important}
+.bp-corte{position:relative;height:26px;margin-top:8px}
+.bp-corte i{position:absolute;left:18px;right:18px;top:50%;border-top:2px dashed #e5e7eb}
+.bp-corte::before,.bp-corte::after{content:"";position:absolute;top:0;width:26px;height:26px;border-radius:50%;background:var(--bp-fondo,#fff)}
+.bp-corte::before{left:-13px}.bp-corte::after{right:-13px}
+.bp-talon{display:flex;gap:14px;align-items:center;padding:6px 18px 18px}
+.bp-qr{width:132px;height:132px;flex-shrink:0;border-radius:14px;padding:6px;background:#fff;box-shadow:inset 0 0 0 2px #ede9fe;display:flex;align-items:center;justify-content:center}
+.bp-qr svg{width:100%;height:100%}
+.bp-qr-espera{font-size:.7rem;color:#6b7280;text-align:center;padding:6px}
+.bp-talon-txt{min-width:0;flex:1}
+.bp-talon-txt b{display:block;font-size:.9rem;line-height:1.3;color:#4c1d95}
+.bp-talon-txt span{display:block;font-size:.74rem;line-height:1.4;color:#4b5563;margin-top:4px;overflow-wrap:anywhere}
+.bp-talon-txt .bp-ref{display:inline-block;margin-top:8px;font:800 .9rem ui-monospace,Menlo,monospace;letter-spacing:.12em;color:#fff;
+  background:linear-gradient(120deg,#6d28d9,#ec4899);padding:4px 10px;border-radius:8px}
+.bp-sello{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%) rotate(-14deg);z-index:4;font:900 2rem system-ui;letter-spacing:.2em;
+  color:#dc2626;border:4px solid #dc2626;border-radius:12px;padding:4px 16px;background:rgba(255,255,255,.75)}
+.bp-caduco .bp-cab{filter:grayscale(.85)}
+.bp-dorso-t{font-weight:900;font-size:1rem;color:#6d28d9;margin-bottom:6px}
+.bp-dorso ol{margin:0;padding-left:20px;font-size:.84rem;line-height:1.5;color:#1f2937}
+.bp-dorso li{margin-bottom:6px}
+.bp-dorso p{font-size:.82rem;line-height:1.5;color:#374151;margin:0 0 8px}
+.bp-priv{font-size:.74rem!important;color:#6b7280!important;border-top:1px dashed #e9d5ff;padding-top:8px}
+@media (max-width:420px){.bp-pto b{font-size:1.15rem}.bp-qr{width:104px;height:104px}.bp-talon{gap:10px;padding:6px 14px 16px}.bp-datos{grid-template-columns:1fr 1fr}.bp-datos .bp-dato:nth-child(2){grid-column:1/-1}}
+@media (prefers-reduced-motion:reduce){.bp{transition:none}}
+`;
+const PORTAL_CSS = `
+body.portal-pac{background:#f6f3ff!important;color:#111827}
+body.portal-pac > *:not(#portal-root):not(script):not(style){display:none!important}
+body.portal-pac[data-tema="noche"]{background:#120d1f!important}
+.pp{max-width:520px;margin:0 auto;min-height:100vh;padding:0 16px 32px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.pp-cab{display:flex;justify-content:space-between;align-items:center;padding:16px 0 12px}
+.pp-marca{display:flex;align-items:center;gap:10px}
+.pp-logo{width:38px;height:38px;border-radius:12px;color:#fff;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#7c3aed,#ec4899 60%,#f97316)}
+.pp-logo svg{width:20px;height:20px}
+.pp-marca b{display:block;font-size:1.05rem}
+.pp-marca small{display:block;font-size:.72rem;color:#6b7280}
+.pp-salir{border:1px solid #ddd6fe;background:#fff;color:#5b21b6;border-radius:99px;padding:7px 14px;font:inherit;font-weight:700;font-size:.82rem;cursor:pointer}
+.pp-hero{text-align:center;padding:26px 18px 22px;border-radius:24px;color:#fff;margin-bottom:14px;
+  background:linear-gradient(135deg,#6d28d9 0%,#c026d3 45%,#f97316 100%);box-shadow:0 18px 40px rgba(124,58,237,.3)}
+.pp-hero-ico{width:58px;height:58px;margin:0 auto 10px;border-radius:18px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center}
+.pp-hero h1{font-size:1.5rem;margin:0 0 6px;letter-spacing:-.01em}
+.pp-hero p{margin:0;font-size:.92rem;line-height:1.5;opacity:.95}
+.pp-card{background:#fff;border-radius:20px;padding:18px;box-shadow:0 6px 22px rgba(76,29,149,.08);margin-bottom:14px}
+.pp-lbl{display:block;font-size:.8rem;font-weight:700;color:#4c1d95;margin-bottom:6px}
+.pp-input{width:100%;box-sizing:border-box;font:inherit;font-size:1.15rem;padding:13px 14px;border-radius:14px;border:2px solid #e9d5ff;outline:none;background:#fff;color:#111827}
+.pp-input:focus{border-color:#a855f7;box-shadow:0 0 0 4px rgba(168,85,247,.18)}
+.pp-cod{font:800 1.6rem ui-monospace,Menlo,monospace;letter-spacing:.3em;text-align:center;text-transform:uppercase}
+.pp-btn{width:100%;margin-top:12px;border:0;border-radius:14px;padding:14px;font:inherit;font-size:1rem;font-weight:800;color:#fff;cursor:pointer;
+  background:linear-gradient(120deg,#7c3aed,#db2777 60%,#f97316);box-shadow:0 8px 20px rgba(219,39,119,.3)}
+.pp-btn:disabled{opacity:.6;cursor:wait}
+.pp-link{display:block;margin:12px auto 0;background:none;border:0;color:#7c3aed;font:inherit;font-weight:700;font-size:.86rem;cursor:pointer}
+.pp-link:disabled{color:#a1a1aa;cursor:default}
+.pp-error{background:#fee2e2;color:#991b1b;border-radius:12px;padding:10px 12px;font-size:.86rem;margin-bottom:12px}
+.pp-demo{background:#fef9c3;color:#713f12;border-radius:12px;padding:10px 12px;font-size:.84rem;margin-bottom:12px}
+.pp-demo code{font:800 1rem ui-monospace,Menlo,monospace;letter-spacing:.15em}
+.pp-estado{border-radius:24px;padding:22px 20px;margin-bottom:14px;color:#fff;box-shadow:0 18px 40px rgba(0,0,0,.12)}
+.pp-estado h1{font-size:1.45rem;margin:4px 0 6px;line-height:1.2}
+.pp-estado p{margin:0;font-size:.94rem;line-height:1.5;opacity:.96}
+.pp-hola{font-size:.9rem;font-weight:700;opacity:.92}
+.pp-motivo{margin-top:8px!important;background:rgba(255,255,255,.18);border-radius:10px;padding:8px 10px}
+.pp-ok{background:linear-gradient(135deg,#059669,#10b981 55%,#34d399)}
+.pp-pe{background:linear-gradient(135deg,#d97706,#f59e0b 60%,#fbbf24)}
+.pp-no{background:linear-gradient(135deg,#b91c1c,#e11d48 60%,#f43f5e)}
+.pp-az{background:linear-gradient(135deg,#1d4ed8,#2563eb 55%,#06b6d4)}
+.pp-vi{background:linear-gradient(135deg,#6d28d9,#8b5cf6 60%,#c026d3)}
+.pp-gr{background:linear-gradient(135deg,#475569,#64748b)}
+.pp-vivo{display:inline-flex;align-items:center;gap:7px;font-size:.72rem;font-weight:700;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:99px}
+.pp-vivo span{width:8px;height:8px;border-radius:50%;background:#fff;animation:ppVivo 1.6s ease-in-out infinite}
+@keyframes ppVivo{0%,100%{opacity:1}50%{opacity:.3}}
+.pp-linea{list-style:none;margin:0;padding:0}
+.pp-paso{display:flex;gap:12px;position:relative;padding-bottom:16px}
+.pp-paso:last-child{padding-bottom:0}
+.pp-paso:not(:last-child)::after{content:"";position:absolute;left:13px;top:28px;bottom:2px;width:2px;background:#ede9fe}
+.pp-p-ico{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.85rem;color:#fff}
+.pp-paso b{display:block;font-size:.92rem;color:#1f2937}
+.pp-paso small{display:block;font-size:.8rem;color:#6b7280;line-height:1.4;margin-top:2px}
+.pp-p-ok .pp-p-ico{background:#10b981}
+.pp-p-no .pp-p-ico{background:#e11d48}
+.pp-p-pend .pp-p-ico{background:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.22);animation:ppVivo 1.6s ease-in-out infinite}
+.pp-p-espera .pp-p-ico{background:#fff;border:2px dashed #c4b5fd}
+.pp-datos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pp-datos small{display:block;font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#a78bfa}
+.pp-datos b{display:block;font-size:.88rem;line-height:1.35;color:#111827;overflow-wrap:anywhere}
+.pp-pie{font-size:.74rem;line-height:1.5;color:#6b7280;text-align:center;padding:6px 8px}
+@media (prefers-reduced-motion:reduce){.pp-vivo span,.pp-p-pend .pp-p-ico{animation:none}}
+`;
+
+/* ================= PASE DEL PACIENTE Y PORTAL DE SEGUIMIENTO (3.19) =================
+   Cuando el cirujano programa una cirugía electiva con los tres requisitos
+   cumplidos (pre-anestésico, pre-quirúrgico y consentimiento) y guarda el
+   consentimiento, la app ofrece el PASE DEL PACIENTE: una tarjeta tipo pase de
+   embarque con un QR. El QR abre esta misma app en modo paciente, una rama
+   aparte que solo muestra el estado de SU cirugía y se actualiza sola.
+
+   Protección de datos (Ley 25.326, datos de salud = sensibles):
+   · El QR y el enlace llevan solo una llave al azar (26 caracteres, ~150 bits).
+     Nada de nombre, DNI ni diagnóstico en la dirección.
+   · Cada ingreso se valida con DNI + un código de un solo uso que el servicio
+     del portal (Apps Script, del lado del servidor) manda al correo del
+     paciente. El código vence a los 10 minutos y no se repite.
+   · El paciente nunca toca la base: el Apps Script la lee con permisos propios
+     y le devuelve solo una foto mínima (nombre de pila, cirugía, día, hora,
+     lugar, cirujano y en qué está). Sin diagnóstico ni datos de terceros.
+   · Lo privado del pase (correo y el DNI convertido en huella) vive aparte, en
+     `portalPrivado`, que no lee ninguna cuenta de la app; se borra al caducar.
+   · El pase caduca solo cuando la cirugía se cierra (finalizada), se resuelve
+     antes, caduca el turno o se cancela. Desde ese momento el QR no abre nada.
+   Sin el servicio publicado (PORTAL.servicio vacío) el pase se imprime igual y
+   el portal avisa que todavía no está activo. En modo local (`?local`) todo se
+   simula en este navegador y el código se muestra en pantalla. */
+const PORTAL = {
+  // Dirección /exec del Apps Script `apps-script/PortalPaciente.gs`. Se pega
+  // acá al publicarlo (ver PASO-A-PASO). Vacía = portal no activo todavía.
+  servicio: '',
+  sondeoSeg: 30,          // cada cuánto el portal del paciente vuelve a mirar
+  codigoMin: 10,          // vigencia del código del correo
+};
+const PORTAL_TOKEN = (new URLSearchParams(location.search).get('pase') || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 40);
+const PORTAL_DEMO = 'hru_portal_demo_v1';
+const PORTAL_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+const PORTAL_ABC_COD = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+const portalFirmas = {};   // última foto enviada de cada pase: no se reenvía lo mismo
+
+function portalAzar(n, abc) {
+  const a = new Uint32Array(n);
+  crypto.getRandomValues(a);
+  return Array.from(a, (x) => abc[x % abc.length]).join('');
+}
+async function sha256Hex(txt) {
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(txt)));
+  return Array.from(new Uint8Array(b), (x) => x.toString(16).padStart(2, '0')).join('');
+}
+const soloDigitos = (x) => String(x || '').replace(/\D/g, '');
+/* La huella del DNI lleva la llave del pase como sal: así la misma persona no
+   deja la misma huella en dos pases, y la tabla de DNI no sirve para nada. */
+function portalHuellaDni(token, dni) { return sha256Hex(`${token}:${soloDigitos(dni)}`); }
+function portalUrl(token) { return `${location.origin}${location.pathname}?pase=${token}${forceLocal ? '&local' : ''}`; }
+function primerNombre(n) {
+  const t = String(n || '').trim();
+  if (!t) return '';
+  const parte = t.includes(',') ? t.split(',')[1] : t;
+  const p = (parte || t).trim().split(/\s+/)[0] || '';
+  return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
+}
+function enmascararMail(m) {
+  const [u, d] = String(m || '').split('@');
+  if (!u || !d) return '';
+  return `${u.slice(0, 2)}${'•'.repeat(Math.max(2, Math.min(6, u.length - 2)))}@${d}`;
+}
+
+/* ¿Corresponde ofrecer el pase? Electiva (las urgencias operan sin esperar y no
+   hay nada que seguir), los tres requisitos tildados y el consentimiento ya
+   guardado, con el turno vivo en el circuito. */
+function portalElegible(c) {
+  return !!c && !c.urgencia && !authExenta(c) && !!c.sala && !sinResolver(c)
+    && !!(c.hce && c.hce.preop && c.hce.consentimiento) && !!(c.coordinacion && c.coordinacion.anestesia)
+    && !!consentimientoDeTurno(c) && !turnoProvisional(c)
+    && ['pendiente', 'validada', 'confirmada'].includes(c.estado);
+}
+
+/* En qué está la cirugía, dicho para el paciente. */
+function portalEstadoPaciente(c, borrado) {
+  if (borrado) return { clave: 'cancelada', caducado: true };
+  const vis = estadoVisible(c);
+  if (['finalizada', 'anticipada', 'caducada'].includes(vis) || c.estado === 'finalizada') return { clave: vis, caducado: true };
+  const adm = c.auth === 'AUTORIZADO' ? 'ok' : c.auth === 'NO AUTORIZADO' ? 'no' : 'pend';
+  if (c.estado === 'realizada') return { clave: 'operada', adm, jef: 'ok' };
+  if (c.estado === 'en_curso') return { clave: 'en_curso', adm, jef: 'ok' };
+  if (c.estado === 'suspendida') return { clave: 'suspendida', adm, jef: 'susp', motivo: (c.suspension && c.suspension.causa) || '' };
+  if (c.estado === 'borrador') return { clave: 'reprogramando', adm, jef: 'espera' };
+  if (c.estado === 'confirmada') return { clave: 'confirmada', adm, jef: 'ok' };
+  if (adm === 'no') return { clave: 'no_autorizada', adm, jef: 'espera' };
+  if (adm === 'ok') return { clave: 'esperando_jefatura', adm, jef: 'pend' };
+  return { clave: 'esperando_admision', adm, jef: 'espera' };
+}
+/* La foto que ve el paciente. Es TODO lo que sale de la app hacia el portal. */
+function portalFoto(c, borrado) {
+  const e = portalEstadoPaciente(c, borrado);
+  if (e.caducado) return { v: 1, caducado: true, clave: e.clave, act: ahoraServidor() };
+  return {
+    v: 1, caducado: false, clave: e.clave, adm: e.adm, jef: e.jef, motivo: e.motivo || '',
+    nombre: primerNombre(c.paciente && c.paciente.nombre), proc: c.procedimiento || '',
+    fecha: c.fecha || '', hora: c.horaProg || '', lugar: c.quirofano || '', cirujano: c.cirujano || '',
+    ref: (c.pase && c.pase.ref) || '', act: ahoraServidor(),
+  };
+}
+
+/* ---- Guardado: lo llama `upsert` con cada cambio de una cirugía con pase ---- */
+function portalDemoLeer() { try { return JSON.parse(localStorage.getItem(PORTAL_DEMO) || '{}'); } catch (e) { return {}; } }
+function portalDemoGuardar(m) { try { localStorage.setItem(PORTAL_DEMO, JSON.stringify(m)); } catch (e) {} }
+function portalAlGuardar(c, borrado) {
+  if (!c || !c.pase || !c.pase.token) return;
+  const foto = portalFoto(c, borrado);
+  if (foto.caducado && !c.pase.caducado && !borrado) {
+    c.pase.caducado = nowDT();
+    pushHist(c, 'Pase del paciente caducado: la cirugía salió del circuito y el QR dejó de abrir el portal');
+  }
+  const t = c.pase.token;
+  const firma = JSON.stringify(Object.assign({}, foto, { act: 0 }));
+  if (portalFirmas[t] === firma) return;
+  portalFirmas[t] = firma;
+  if (!cloudOn) {
+    const m = portalDemoLeer();
+    m[t] = Object.assign(m[t] || {}, { foto });
+    if (foto.caducado) delete m[t].priv;
+    portalDemoGuardar(m);
+    return;
+  }
+  try {
+    const db = firebase.database();
+    db.ref('portalPaciente/' + t).set(foto).catch(() => { delete portalFirmas[t]; });
+    if (foto.caducado) db.ref('portalPrivado/' + t).remove().catch(() => {});
+  } catch (e) { delete portalFirmas[t]; }
+}
+/* Lo privado del pase: el correo al que va el código y la huella del DNI. */
+async function portalEscribirPrivado(c) {
+  if (!c || !c.pase || !c.pase.token || c.pase.caducado) return;
+  const t = c.pase.token;
+  const priv = { email: String((c.paciente && c.paciente.email) || '').toLowerCase(),
+    dniHuella: await portalHuellaDni(t, c.paciente && c.paciente.dni), creado: c.pase.creado || nowDT() };
+  if (!cloudOn) {
+    const m = portalDemoLeer();
+    m[t] = Object.assign(m[t] || {}, { priv });
+    portalDemoGuardar(m);
+    return true;
+  }
+  return firebase.database().ref('portalPrivado/' + t).set(priv).then(() => true).catch(() => false);
+}
+
+/* ---- Emisión ---- */
+async function generarPase(c, mail, dni) {
+  c.paciente = c.paciente || {};
+  c.paciente.email = mail;
+  if (dni) c.paciente.dni = dni;
+  c.pase = { token: portalAzar(26, PORTAL_ABC), ref: 'HRU-' + portalAzar(4, PORTAL_ABC_COD), creado: nowDT(),
+    por: (usuarioActual() || {}).nombre || JEFATURA };
+  pushHist(c, `Pase del paciente emitido (código ${c.pase.ref}): el paciente sigue el estado de su cirugía con el QR y un código de un solo uso en su correo`);
+  upsert('cirugias', c);
+  await portalEscribirPrivado(c);
+}
+function anularPase(id) {
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c || !c.pase) return;
+  preguntar('El QR y el enlace actuales dejan de funcionar en el acto. Después puede emitir un pase nuevo para entregarle al paciente.',
+    { titulo: '¿Anular este pase?', tono: 'peligro', si: 'Sí, anularlo', no: 'No' }).then((si) => {
+    if (!si) return;
+    const viejo = c.pase;
+    const foto = { v: 1, caducado: true, clave: 'anulado', act: ahoraServidor() };
+    if (!cloudOn) { const m = portalDemoLeer(); m[viejo.token] = { foto }; portalDemoGuardar(m); }
+    else {
+      try {
+        firebase.database().ref('portalPaciente/' + viejo.token).set(foto).catch(() => {});
+        firebase.database().ref('portalPrivado/' + viejo.token).remove().catch(() => {});
+      } catch (e) {}
+    }
+    delete c.pase;
+    pushHist(c, `Pase del paciente ${viejo.ref || ''} anulado — el QR anterior ya no abre el portal`);
+    upsert('cirugias', c);
+    openPase(id);
+  });
+}
+
+/* ---- QR: la librería se pide recién cuando hace falta ----
+   qrcode-generator (Kazuhiko Arase, licencia MIT). Se dibuja como SVG propio
+   para que imprima nítido a cualquier tamaño. */
+let qrCargando = null;
+function cargarQR() {
+  if (window.qrcode) return Promise.resolve(true);
+  if (!qrCargando) {
+    qrCargando = new Promise((ok) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+      s.onload = () => ok(!!window.qrcode);
+      s.onerror = () => { qrCargando = null; ok(false); };
+      document.head.appendChild(s);
+    });
+  }
+  return qrCargando;
+}
+function qrSvg(texto) {
+  const q = window.qrcode(0, 'M');
+  q.addData(texto);
+  q.make();
+  const n = q.getModuleCount();
+  let d = '';
+  for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (q.isDark(r, k)) d += `M${k} ${r}h1v1h-1z`;
+  return `<svg viewBox="-2 -2 ${n + 4} ${n + 4}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="Código QR del pase">
+    <rect x="-2" y="-2" width="${n + 4}" height="${n + 4}" fill="#fff"/><path d="${d}" fill="#111827"/></svg>`;
+}
+
+/* ---- La ventana del pase ---- */
+let paseId = null;
+const paseOfrecido = new Set();   // turnos a los que ya se les ofreció el pase en esta sesión
+function openPase(id, opciones) {
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c) return;
+  paseId = id;
+  closeSlot();
+  pintarEstiloPase();
+  const u = usuarioActual();
+  const puede = jefe || (u && c.cirujanoEmail === u.email);
+  if (!c.pase || !c.pase.token) {
+    if (!portalElegible(c)) {
+      alert('El pase del paciente se genera para las cirugías programadas (no urgencias) que tienen tildados el pre-anestésico, '
+        + 'el pre-quirúrgico y el consentimiento firmado, con el consentimiento informado ya guardado en la app.');
+      return;
+    }
+    if (!puede) { alert('El pase lo emite el cirujano del turno o la Jefatura de Quirófanos.'); return; }
+    $('pase-modal').innerHTML = paseFormulario(c, opciones && opciones.recien);
+    $('pase-overlay').classList.add('open');
+    setTimeout(() => { const i = $('pase-mail'); if (i && !i.value) i.focus(); }, 60);
+    return;
+  }
+  $('pase-modal').innerHTML = paseVista(c, puede);
+  $('pase-overlay').classList.add('open');
+  paseDibujarQR(c);
+  paseInclinacion();
+}
+function closePase() { $('pase-overlay').classList.remove('open'); paseId = null; }
+
+function paseFormulario(c, recien) {
+  return `<button class="modal-close" onclick="closePase()" aria-label="Cerrar">✕</button>
+    <div class="pase-intro">
+      <div class="pase-intro-ico">${ico(ICONS.qr, 30)}</div>
+      ${recien ? '<div class="pase-intro-kick">Cirugía programada y consentimiento guardado</div>' : ''}
+      <h2>Pase del paciente</h2>
+      <p>Una tarjeta con un <b>código QR</b> para ${esc(primerNombre(c.paciente && c.paciente.nombre) || 'el paciente')}: con ella sigue
+      en su teléfono, <b>en tiempo real</b>, si Admisión y Egresos autorizó, si la Jefatura confirmó y para qué día y hora quedó.</p>
+    </div>
+    <div class="pase-form">
+      <div class="field"><label>Correo del paciente *</label>
+        <input type="email" id="pase-mail" value="${esc((c.paciente && c.paciente.email) || '')}" placeholder="nombre@correo.com" autocomplete="off">
+        <span class="hint">Cada vez que entre le llega a este correo un código de un solo uso.</span></div>
+      <div class="field"><label>DNI del paciente *</label>
+        <input type="text" id="pase-dni" inputmode="numeric" value="${esc((c.paciente && c.paciente.dni) || '')}">
+        <span class="hint">Con su DNI pide el código. No viaja en el QR.</span></div>
+      <label class="check-row pase-ok"><input type="checkbox" id="pase-acepta">
+        <span>Le expliqué al paciente para qué es el pase y aceptó recibir los códigos en ese correo. Ve solo su cirugía, sin diagnóstico, y el pase caduca solo cuando se cierra la cirugía.</span></label>
+    </div>
+    <div class="pase-acc">
+      <button class="btn pase-btn-main" onclick="confirmarPase(this)">${ico(ICONS.qr, 16)} Generar el pase</button>
+      <button class="btn btn-outline" onclick="closePase()">Ahora no</button>
+    </div>
+    <p class="form-note" style="text-align:center;margin-top:10px">Lo puede generar después desde el turno: <b>Lo que sigue › Generar el pase del paciente</b>.</p>`;
+}
+async function confirmarPase(btn) {
+  const c = DB.cirugias.find((x) => x.id === paseId);
+  if (!c) return;
+  const mail = String($('pase-mail').value || '').trim().toLowerCase();
+  const dni = String($('pase-dni').value || '').trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) { alert('Escriba un correo válido del paciente: ahí le llega el código de cada ingreso.'); $('pase-mail').focus(); return; }
+  if (soloDigitos(dni).length < 6) { alert('Escriba el DNI del paciente: es lo que le pide el portal antes de mandarle el código.'); $('pase-dni').focus(); return; }
+  if (!$('pase-acepta').checked) { alert('Confirme que el paciente fue informado y aceptó recibir los códigos en su correo.'); return; }
+  btn.disabled = true;
+  await generarPase(c, mail, dni);
+  openPase(c.id);
+}
+
+const PASE_PASOS = {
+  esperando_admision: { txt: 'En revisión por Admisión y Egresos', tono: 'pe' },
+  no_autorizada: { txt: 'Admisión y Egresos no la autorizó', tono: 'no' },
+  esperando_jefatura: { txt: 'Autorizada · espera a la Jefatura', tono: 'az' },
+  confirmada: { txt: 'Confirmada en el parte', tono: 'ok' },
+  suspendida: { txt: 'Suspendida', tono: 'no' },
+  reprogramando: { txt: 'Reprogramándose', tono: 'gr' },
+  en_curso: { txt: 'En quirófano', tono: 'vi' },
+  operada: { txt: 'Cirugía realizada', tono: 'ok' },
+};
+function paseVista(c, puede) {
+  const p = c.pase;
+  const foto = portalFoto(c);
+  const est = PASE_PASOS[foto.clave] || { txt: p.caducado ? 'Pase caducado' : '—', tono: 'gr' };
+  const dni = soloDigitos(c.paciente && c.paciente.dni);
+  const url = portalUrl(p.token);
+  const tel = soloDigitos(c.paciente && c.paciente.telefono);
+  const msg = `Hola ${primerNombre(c.paciente && c.paciente.nombre)}: este es tu pase para seguir tu cirugía en el Hospital Regional Ushuaia. Entrá acá y pedí el código con tu DNI: ${url}`;
+  const sala = String(c.quirofano || '').replace(/Quir[oó]fano\s*/i, 'QX ').replace(/Endoscop[ií]a/i, 'ENDO');
+  return `<button class="modal-close pase-x" onclick="closePase()" aria-label="Cerrar">✕</button>
+    <div class="bp-escena">
+    <div class="bp ${p.caducado ? 'bp-caduco' : ''}" id="bp">
+      <div class="bp-cara bp-frente">
+        <div class="bp-brillo"></div>
+        <div class="bp-cab">
+          <div class="bp-marca"><span class="bp-logo">${ICONS.activity || ''}</span><div><b>HRU · Quirófanos</b><small>Hospital Regional Ushuaia</small></div></div>
+          <div class="bp-tipo">PASE DEL<br>PACIENTE</div>
+        </div>
+        <div class="bp-ruta">
+          <div class="bp-pto"><small>Paciente</small><b>${esc(primerNombre(c.paciente && c.paciente.nombre)) || '—'}</b><span>DNI ${dni ? '•••' + esc(dni.slice(-3)) : 's/d'}</span></div>
+          <div class="bp-vuelo"><svg viewBox="0 0 120 24" aria-hidden="true"><path d="M2 12h116" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 5"/>
+            <circle cx="60" cy="12" r="9" fill="currentColor" opacity=".18"/><path d="M55 12h10M60 7v10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+            <span>${esc(fmtFecha(c.fecha))}</span></div>
+          <div class="bp-pto bp-der"><small>Destino</small><b>${esc(sala || '—')}</b><span>${esc(c.horaProg || '—')} h</span></div>
+        </div>
+        <div class="bp-datos">
+          <div class="bp-dato bp-ancho"><small>Cirugía</small><b>${esc(c.procedimiento || '')}</b></div>
+          <div class="bp-dato"><small>Fecha</small><b>${esc(fmtDiaLargo(c.fecha))}</b></div>
+          <div class="bp-dato"><small>Hora</small><b>${esc(c.horaProg || '—')} h</b></div>
+          <div class="bp-dato"><small>Cirujano/a</small><b>${esc(c.cirujano || '')}</b></div>
+          <div class="bp-dato"><small>Estado ahora</small><b class="bp-est bp-${est.tono}">${esc(est.txt)}</b></div>
+        </div>
+        <div class="bp-corte"><i></i></div>
+        <div class="bp-talon">
+          <div class="bp-qr" id="bp-qr"><div class="bp-qr-espera">Generando QR…</div></div>
+          <div class="bp-talon-txt">
+            <b>Escaneá y seguí tu cirugía en tiempo real</b>
+            <span>Te pedimos tu DNI y te mandamos un código de un solo uso a <b>${esc(enmascararMail(c.paciente && c.paciente.email))}</b>.</span>
+            <span class="bp-ref">${esc(p.ref || '')}</span>
+          </div>
+        </div>
+        ${p.caducado ? '<div class="bp-sello">CADUCADO</div>' : ''}
+      </div>
+      <div class="bp-cara bp-dorso">
+        <div class="bp-dorso-t">Cómo usar tu pase</div>
+        <ol>
+          <li><b>Escaneá el QR</b> con la cámara del teléfono o abrí el enlace que te mandaron.</li>
+          <li><b>Escribí tu DNI</b>: te llega a tu correo un código de 8 letras y números.</li>
+          <li><b>Ingresá el código</b>: sirve una sola vez y vence en ${PORTAL.codigoMin} minutos. Cada vez que entres te mandamos uno nuevo.</li>
+        </ol>
+        <div class="bp-dorso-t" style="margin-top:12px">Qué vas a ver</div>
+        <p>Si Admisión y Egresos autorizó tu cirugía, si la Jefatura de Quirófanos la confirmó o la suspendió, y el día y la hora. Se actualiza sola.</p>
+        <p class="bp-priv">Ves solo tu cirugía, sin diagnóstico. Tus datos se usan únicamente para avisarte el estado de tu cirugía (Ley 25.326). El pase caduca cuando se cierra la cirugía.</p>
+      </div>
+    </div>
+    </div>
+    <div class="pase-acc">
+      <button class="btn btn-outline" onclick="$('bp').classList.toggle('bp-vuelta')">${ICONS.refresh || '↻'} Dar vuelta</button>
+      <button class="btn pase-btn-main" onclick="imprimirPase()">${ICONS.fileText} Imprimir</button>
+      ${!p.caducado ? `
+      <button class="btn btn-outline" onclick="copiarEnlacePase(this)">${ico(ICONS.link || ICONS.fileText, 15)} Copiar enlace</button>
+      ${tel ? `<a class="btn btn-outline" target="_blank" rel="noopener" href="https://wa.me/${tel.startsWith('54') ? tel : '54' + tel}?text=${encodeURIComponent(msg)}">WhatsApp</a>` : ''}
+      <a class="btn btn-outline" href="mailto:${esc(c.paciente && c.paciente.email || '')}?subject=${encodeURIComponent('Tu pase de cirugía — Hospital Regional Ushuaia')}&body=${encodeURIComponent(msg)}">${ICONS.mail} Correo</a>
+      <a class="btn btn-outline" target="_blank" rel="noopener" href="${esc(url)}">${ICONS.eyeSm} Ver como paciente</a>` : ''}
+    </div>
+    ${!cloudOn ? '<p class="form-note pase-nota">Modo local: el portal del paciente se simula en este navegador y el código se muestra en pantalla.</p>'
+      : !PORTAL.servicio ? '<p class="form-note pase-nota"><b>El portal del paciente todavía no está activo</b>: falta publicar el servicio que manda los códigos por correo. El pase se puede imprimir y entregar igual; empieza a funcionar apenas se active.</p>' : ''}
+    ${puede && !p.caducado ? `<p class="pase-anular"><button class="btn btn-sm btn-outline" onclick="anularPase(${c.id})">${ICONS.trash} Anular este pase y generar otro</button> si el paciente lo perdió o cambió de correo.</p>` : ''}`;
+}
+async function paseDibujarQR(c) {
+  const box = $('bp-qr');
+  if (!box || !c.pase) return;
+  const ok = await cargarQR();
+  if (!$('bp-qr')) return;
+  $('bp-qr').innerHTML = ok ? qrSvg(portalUrl(c.pase.token))
+    : '<div class="bp-qr-espera">Sin conexión para dibujar el QR. Use «Copiar enlace».</div>';
+}
+/* El pase se inclina con el puntero, como una tarjeta en la mano. */
+function paseInclinacion() {
+  const bp = $('bp');
+  if (!bp || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  bp.onpointermove = (e) => {
+    if (bp.classList.contains('bp-vuelta')) return;
+    const r = bp.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+    bp.style.setProperty('--rx', `${(-y * 7).toFixed(2)}deg`);
+    bp.style.setProperty('--ry', `${(x * 9).toFixed(2)}deg`);
+    bp.style.setProperty('--bx', `${((x + 0.5) * 100).toFixed(0)}%`);
+    bp.style.setProperty('--by', `${((y + 0.5) * 100).toFixed(0)}%`);
+  };
+  bp.onpointerleave = () => { bp.style.setProperty('--rx', '0deg'); bp.style.setProperty('--ry', '0deg'); };
+}
+function copiarEnlacePase(btn) {
+  const c = DB.cirugias.find((x) => x.id === paseId);
+  if (!c || !c.pase) return;
+  const url = portalUrl(c.pase.token);
+  const listo = () => { const t = btn.innerHTML; btn.textContent = 'Copiado ✓'; setTimeout(() => { btn.innerHTML = t; }, 1600); };
+  if (navigator.clipboard) navigator.clipboard.writeText(url).then(listo, () => prompt('Copie el enlace del pase:', url));
+  else prompt('Copie el enlace del pase:', url);
+}
+/* Se imprime en un marco aparte: frente y dorso, sin el resto de la app. */
+function imprimirPase() {
+  const bp = $('bp');
+  if (!bp) return;
+  const f = document.createElement('iframe');
+  f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  document.body.appendChild(f);
+  const d = f.contentDocument;
+  d.open();
+  d.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Pase del paciente</title><style>${PASE_CSS}
+    body{margin:0;padding:12mm;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#fff}
+    .bp{transform:none!important;box-shadow:none!important;margin:0 auto 8mm}.bp-cara{position:relative!important;transform:none!important;backface-visibility:visible!important}
+    .bp-dorso{margin-top:8mm;border:1px dashed #c4b5fd}.bp-brillo{display:none}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>${bp.outerHTML.replace('bp-vuelta', '')}</body></html>`);
+  d.close();
+  setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 1500); }, 350);
+}
+
+/* ================= EL PORTAL, DEL LADO DEL PACIENTE =================
+   Se abre con `?pase=<llave>`. No arranca la app del hospital: no se conecta a
+   la base, no pide pase anónimo, no carga datos de nadie. Habla solo con el
+   servicio del portal, que verifica el código y le devuelve la foto mínima. */
+const portal = { paso: 'dni', destino: '', sesion: '', foto: null, error: '', timer: null, demoCodigo: '', reenviarEn: 0, act: null };
+
+function iniciarPortalPaciente() {
+  document.body.classList.add('portal-pac');
+  document.title = 'Mi cirugía — Hospital Regional Ushuaia';
+  pintarEstiloPase();
+  const root = document.createElement('main');
+  root.id = 'portal-root';
+  document.body.appendChild(root);
+  renderPortal();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && portal.paso === 'estado') portalConsultar(); });
+  // En modo local, el cambio hecho en la pestaña del hospital llega al instante.
+  window.addEventListener('storage', (e) => { if (e.key === PORTAL_DEMO && portal.paso === 'estado') portalConsultar(); });
+}
+function portalMarco(cuerpo) {
+  return `<div class="pp">
+    <header class="pp-cab">
+      <div class="pp-marca"><span class="pp-logo">${ICONS.activity || ''}</span><div><b>Mi cirugía</b><small>Hospital Regional Ushuaia · Quirófanos</small></div></div>
+      ${portal.paso === 'estado' ? '<button class="pp-salir" onclick="portalSalir()">Salir</button>' : ''}
+    </header>
+    ${cuerpo}
+    <footer class="pp-pie">Ves solo tu cirugía, sin diagnóstico. Cada ingreso se valida con un código de un solo uso enviado a tu correo.
+      Tus datos se usan únicamente para informarte el estado de tu cirugía (Ley 25.326 de Protección de Datos Personales).
+      Para dudas sobre tu cirugía, consultá a tu cirujano/a.</footer>
+  </div>`;
+}
+function renderPortal() {
+  const r = $('portal-root');
+  if (!r) return;
+  if (!PORTAL_TOKEN || PORTAL_TOKEN.length < 20) {
+    r.innerHTML = portalMarco(portalTarjeta('no', 'Este enlace no es válido', 'Revisá que hayas escaneado el QR completo del pase que te dieron en el hospital.'));
+    return;
+  }
+  if (portal.paso === 'caducado') {
+    r.innerHTML = portalMarco(portalTarjeta('gr', 'Este pase ya no está activo',
+      'Tu cirugía se cerró en el sistema del hospital, así que el pase caducó y no se puede volver a usar. Si tenés dudas, consultá a tu cirujano/a.'));
+    return;
+  }
+  if (portal.paso === 'dni' || portal.paso === 'codigo') {
+    const codigo = portal.paso === 'codigo';
+    r.innerHTML = portalMarco(`
+      <section class="pp-hero">
+        <div class="pp-hero-ico">${ico(ICONS.shieldCheck || ICONS.shield, 30)}</div>
+        <h1>${codigo ? 'Revisá tu correo' : 'Seguí tu cirugía'}</h1>
+        <p>${codigo
+          ? `Te mandamos un código de 8 letras y números a <b>${esc(portal.destino)}</b>. Vence en ${PORTAL.codigoMin} minutos y sirve para un solo ingreso.`
+          : 'Para proteger tus datos, cada vez que entrás te mandamos un código nuevo a tu correo. Empezá con tu DNI.'}</p>
+      </section>
+      <section class="pp-card">
+        ${portal.error ? `<div class="pp-error" role="alert">${esc(portal.error)}</div>` : ''}
+        ${codigo && portal.demoCodigo ? `<div class="pp-demo"><b>Modo de prueba</b> — no se manda correo. Tu código es <code>${esc(portal.demoCodigo)}</code></div>` : ''}
+        ${codigo ? `
+          <label class="pp-lbl" for="pp-cod">Código del correo</label>
+          <input class="pp-input pp-cod" id="pp-cod" maxlength="8" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false"
+            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" onkeydown="if(event.key==='Enter')portalValidar()">
+          <button class="pp-btn" id="pp-go" onclick="portalValidar()">Ingresar</button>
+          <button class="pp-link" id="pp-reenv" onclick="portalPedirCodigo(true)" ${portal.reenviarEn > Date.now() ? 'disabled' : ''}>Mandarme otro código</button>`
+        : `
+          <label class="pp-lbl" for="pp-dni">Tu DNI</label>
+          <input class="pp-input" id="pp-dni" inputmode="numeric" autocomplete="off" placeholder="Sin puntos" onkeydown="if(event.key==='Enter')portalPedirCodigo()">
+          <button class="pp-btn" id="pp-go" onclick="portalPedirCodigo()">Mandarme el código</button>`}
+      </section>`);
+    setTimeout(() => { const i = $(codigo ? 'pp-cod' : 'pp-dni'); if (i) i.focus(); }, 50);
+    return;
+  }
+  r.innerHTML = portalMarco(portalVistaEstado(portal.foto || {}));
+}
+function portalTarjeta(tono, titulo, texto) {
+  return `<section class="pp-estado pp-${tono}"><h1>${titulo}</h1><p>${texto}</p></section>`;
+}
+const PP_TITULOS = {
+  esperando_admision: ['pe', 'Tu cirugía está en revisión', 'Admisión y Egresos está revisando la autorización. Te mostramos acá cuando avance.'],
+  no_autorizada: ['no', 'Admisión y Egresos no autorizó la cirugía por ahora', 'Comunicate con tu cirujano/a para saber qué falta y cómo seguir.'],
+  esperando_jefatura: ['az', 'Autorizada por Admisión y Egresos', 'Falta la confirmación de la Jefatura de Quirófanos, que verifica sala, insumos y equipo.'],
+  confirmada: ['ok', '¡Tu cirugía está confirmada!', ''],
+  suspendida: ['no', 'Tu cirugía fue suspendida', 'Tu cirujano/a se va a comunicar con vos para reprogramarla.'],
+  reprogramando: ['gr', 'Tu cirugía se está reprogramando', 'Todavía no tiene día y hora nuevos. Te lo mostramos acá apenas quede asignado.'],
+  en_curso: ['vi', 'Tu cirugía está en curso', 'El equipo quirúrgico está trabajando.'],
+  operada: ['ok', 'Cirugía realizada', 'Tu cirugía ya se hizo. El pase se cierra cuando el equipo complete los registros.'],
+};
+function portalVistaEstado(f) {
+  const t = PP_TITULOS[f.clave] || ['gr', 'Estado de tu cirugía', ''];
+  const sub = f.clave === 'confirmada' ? `${esc(fmtDiaLargo(f.fecha))} a las <b>${esc(f.hora)} h</b> · ${esc(f.lugar)}` : t[2];
+  const paso = (est, tit, txt) => `<li class="pp-paso pp-p-${est}"><span class="pp-p-ico">${est === 'ok' ? '✓' : est === 'no' ? '✕' : est === 'pend' ? '' : ''}</span>
+    <div><b>${tit}</b><small>${txt}</small></div></li>`;
+  const admTxt = { ok: 'Autorizó la cirugía', no: 'No la autorizó por ahora', pend: 'Revisando la autorización' };
+  const jefTxt = { ok: 'Confirmó la cirugía en el parte', susp: f.motivo ? `Suspendida · motivo: ${esc(f.motivo)}` : 'La suspendió', pend: 'Verificando sala, insumos y equipo', espera: 'Espera a Admisión y Egresos' };
+  const diaEst = f.clave === 'en_curso' ? 'pend' : f.clave === 'operada' ? 'ok' : 'espera';
+  return `
+    <section class="pp-estado pp-${t[0]}">
+      <div class="pp-vivo"><span></span> En vivo · actualizado ${portal.act ? portal.act.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+      ${f.nombre ? `<div class="pp-hola">Hola, ${esc(f.nombre)}</div>` : ''}
+      <h1>${t[1]}</h1>
+      ${sub ? `<p>${sub}</p>` : ''}
+      ${f.clave === 'suspendida' && f.motivo ? `<p class="pp-motivo">Motivo: <b>${esc(f.motivo)}</b></p>` : ''}
+    </section>
+    <section class="pp-card">
+      <ol class="pp-linea">
+        ${paso('ok', 'Cirugía solicitada', `Por ${esc(f.cirujano || 'tu cirujano/a')}`)}
+        ${paso(f.adm === 'ok' ? 'ok' : f.adm === 'no' ? 'no' : 'pend', 'Admisión y Egresos', admTxt[f.adm] || admTxt.pend)}
+        ${paso(f.jef === 'ok' ? 'ok' : f.jef === 'susp' ? 'no' : f.jef === 'pend' ? 'pend' : 'espera', 'Jefatura de Quirófanos', jefTxt[f.jef] || jefTxt.espera)}
+        ${paso(diaEst, 'Día de la cirugía', f.fecha ? `${esc(fmtDiaLargo(f.fecha))} · ${esc(f.hora)} h` : 'A confirmar')}
+      </ol>
+    </section>
+    <section class="pp-card pp-datos">
+      <div><small>Cirugía</small><b>${esc(f.proc || '')}</b></div>
+      <div><small>Fecha</small><b>${f.fecha ? esc(fmtDiaLargo(f.fecha)) : 'A confirmar'}</b></div>
+      <div><small>Hora</small><b>${esc(f.hora || '—')} h</b></div>
+      <div><small>Lugar</small><b>Hospital Regional Ushuaia · ${esc(f.lugar || '')}</b></div>
+      <div><small>Cirujano/a</small><b>${esc(f.cirujano || '')}</b></div>
+      <div><small>Código de pase</small><b>${esc(f.ref || '')}</b></div>
+    </section>`;
+}
+
+/* ---- Conversación con el servicio del portal ---- */
+async function portalServicio(datos) {
+  const r = await fetch(PORTAL.servicio, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(datos) });
+  return r.json();
+}
+const PORTAL_ERRORES = {
+  dni: 'El DNI no coincide con el de este pase. Revisalo e intentá de nuevo.',
+  caducado: 'Este pase ya no está activo.',
+  limite: 'Pediste demasiados códigos. Esperá unos minutos y volvé a intentar.',
+  codigo: 'El código no es correcto o ya venció. Revisalo o pedí uno nuevo.',
+  intentos: 'Hubo demasiados intentos con este código. Pedí uno nuevo.',
+  sesion: 'Tu ingreso venció. Volvé a pedir un código.',
+  config: 'El seguimiento en línea todavía no está activo en el hospital. Probá más tarde.',
+  red: 'No pudimos conectarnos. Revisá tu conexión e intentá de nuevo.',
+};
+function portalOcupado(si) { const b = $('pp-go'); if (b) { b.disabled = si; b.classList.toggle('pp-cargando', si); } }
+
+async function portalPedirCodigo(reenvio) {
+  portal.error = '';
+  const dni = reenvio ? portal.dni : soloDigitos(($('pp-dni') || {}).value);
+  if (!reenvio && dni.length < 6) { portal.error = 'Escribí tu DNI, sin puntos.'; renderPortal(); return; }
+  portal.dni = dni;
+  portalOcupado(true);
+  const huella = await portalHuellaDni(PORTAL_TOKEN, dni);
+  let res;
+  if (!cloudOn) res = await portalDemoPedir(huella);
+  else if (!PORTAL.servicio) res = { error: 'config' };
+  else { try { res = await portalServicio({ accion: 'pedirCodigo', token: PORTAL_TOKEN, dniHuella: huella }); } catch (e) { res = { error: 'red' }; } }
+  if (res && res.ok) {
+    portal.paso = 'codigo'; portal.destino = res.destino || 'tu correo'; portal.demoCodigo = res.demo || '';
+    portal.reenviarEn = Date.now() + 60000;
+    setTimeout(() => { const b = $('pp-reenv'); if (b) b.disabled = false; }, 60000);
+  } else if (res && res.error === 'caducado') portal.paso = 'caducado';
+  else portal.error = PORTAL_ERRORES[(res && res.error) || 'red'] || PORTAL_ERRORES.red;
+  renderPortal();
+}
+async function portalValidar() {
+  portal.error = '';
+  const cod = String(($('pp-cod') || {}).value || '').toUpperCase();
+  if (cod.length !== 8) { portal.error = 'El código tiene 8 letras y números.'; renderPortal(); return; }
+  portalOcupado(true);
+  let res;
+  if (!cloudOn) res = await portalDemoValidar(cod);
+  else { try { res = await portalServicio({ accion: 'validarCodigo', token: PORTAL_TOKEN, codigo: cod }); } catch (e) { res = { error: 'red' }; } }
+  if (res && res.ok) {
+    portal.sesion = res.sesion; portal.foto = res.foto; portal.act = new Date(); portal.paso = res.foto && res.foto.caducado ? 'caducado' : 'estado';
+    portal.demoCodigo = '';
+    clearInterval(portal.timer);
+    portal.timer = setInterval(portalConsultar, (cloudOn ? PORTAL.sondeoSeg : 5) * 1000);
+  } else if (res && res.error === 'caducado') portal.paso = 'caducado';
+  else portal.error = PORTAL_ERRORES[(res && res.error) || 'red'] || PORTAL_ERRORES.red;
+  renderPortal();
+}
+async function portalConsultar() {
+  if (portal.paso !== 'estado') return;
+  let res;
+  if (!cloudOn) res = portalDemoFoto();
+  else { try { res = await portalServicio({ accion: 'estado', token: PORTAL_TOKEN, sesion: portal.sesion }); } catch (e) { return; } }
+  if (res && res.ok) {
+    portal.foto = res.foto; portal.act = new Date();
+    if (res.foto && res.foto.caducado) { portal.paso = 'caducado'; clearInterval(portal.timer); }
+  } else if (res && (res.error === 'sesion' || res.error === 'caducado')) {
+    clearInterval(portal.timer);
+    portal.paso = res.error === 'caducado' ? 'caducado' : 'dni';
+    portal.error = res.error === 'sesion' ? PORTAL_ERRORES.sesion : '';
+  }
+  renderPortal();
+}
+function portalSalir() { clearInterval(portal.timer); Object.assign(portal, { paso: 'dni', sesion: '', foto: null, error: '' }); renderPortal(); }
+
+/* ---- Simulación del servicio en modo local (misma lógica que el Apps Script) ---- */
+function portalDemoPase() { return portalDemoLeer()[PORTAL_TOKEN] || null; }
+async function portalDemoPedir(huella) {
+  const p = portalDemoPase();
+  if (!p || !p.foto) return { error: 'caducado' };
+  if (p.foto.caducado || !p.priv) return { error: 'caducado' };
+  if (p.priv.dniHuella !== huella) return { error: 'dni' };
+  const usados = JSON.parse(sessionStorage.getItem('hru_portal_demo_usados') || '[]');
+  let cod;
+  do { cod = portalAzar(8, PORTAL_ABC_COD); } while (usados.includes(cod));
+  sessionStorage.setItem('hru_portal_demo_otp', JSON.stringify({ h: await sha256Hex(cod), vence: Date.now() + PORTAL.codigoMin * 60000, n: 0 }));
+  return { ok: true, destino: enmascararMail(p.priv.email), demo: cod };
+}
+async function portalDemoValidar(cod) {
+  const o = JSON.parse(sessionStorage.getItem('hru_portal_demo_otp') || 'null');
+  if (!o || o.vence < Date.now()) return { error: 'codigo' };
+  if (o.n >= 5) { sessionStorage.removeItem('hru_portal_demo_otp'); return { error: 'intentos' }; }
+  if (o.h !== await sha256Hex(cod)) { o.n++; sessionStorage.setItem('hru_portal_demo_otp', JSON.stringify(o)); return { error: 'codigo' }; }
+  sessionStorage.removeItem('hru_portal_demo_otp');
+  const usados = JSON.parse(sessionStorage.getItem('hru_portal_demo_usados') || '[]');
+  usados.push(cod); sessionStorage.setItem('hru_portal_demo_usados', JSON.stringify(usados));
+  return Object.assign({ sesion: 'demo' }, portalDemoFoto());
+}
+function portalDemoFoto() {
+  const p = portalDemoPase();
+  if (!p || !p.foto) return { error: 'caducado' };
+  return { ok: true, foto: p.foto };
+}
+
+/* ---- Estilos del pase y del portal (se inyectan una vez; el pase impreso los reusa) ---- */
+function pintarEstiloPase() {
+  if ($('pase-css')) return;
+  const s = document.createElement('style');
+  s.id = 'pase-css';
+  s.textContent = PASE_CSS + PORTAL_CSS;
+  document.head.appendChild(s);
+}
+
 /* ================= LIBRO BLANCO DE QUIRÓFANOS =================
    Manual institucional de organización y funcionamiento del bloque. Se sirve
    junto a la app (misma carpeta) y el service worker lo guarda en caché, así
@@ -18753,7 +19998,7 @@ const LIBRO_BLANCO = {
   archivo: './libro-blanco-quirofanos-hru.pdf',
   titulo: 'Libro Blanco de Quirófanos',
   subtitulo: 'Manual de Organización y Funcionamiento de Quirófanos Centrales y de la Unidad de Endoscopía Digestiva',
-  ficha: 'Versión 3.1 · Octubre 2026 · 44 páginas · Jefatura del Departamento Quirúrgico — HRU',
+  ficha: 'Versión 3.2 · Octubre 2026 · 47 páginas · Jefatura del Departamento Quirúrgico — HRU',
   marco: 'Directrices de Organización y Funcionamiento para Centros Quirúrgicos, Ministerio de Salud de la Nación (IF-2020-14236688-APN).',
 };
 /* Safari de iPhone y iPad no muestra PDF dentro de un iframe: se le ofrece el
@@ -20835,6 +22080,9 @@ Object.assign(VIEWS, {
 
 /* ================= INIT ================= */
 document.addEventListener('DOMContentLoaded', () => {
+  // Enlace del pase del paciente: se abre solo el portal, nunca la app del hospital.
+  if (PORTAL_TOKEN) { iniciarPortalPaciente(); return; }
+  pintarEstiloPase();
   $('i-activity').innerHTML = ICONS.activity;
   $('shield-slot').innerHTML = ICONS.shieldCheck;
   $('ingresar-icon').innerHTML = ICONS.shield.replace('18', '15').replace('18', '15');

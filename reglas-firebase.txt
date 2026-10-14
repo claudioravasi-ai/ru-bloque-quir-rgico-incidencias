@@ -8,6 +8,8 @@ Base:                 https://incidencias-hru-default-rtdb.firebaseio.com
 --------------------------------------------------------------------
 HISTORIA
 --------------------------------------------------------------------
+13/10/2026 — Versión 3.19.0: carpetas `portalPaciente` y `portalPrivado` para el
+pase del paciente (ver más abajo).
 28/08/2026 — La base estaba ABIERTA: respondía a cualquiera que conociera la
 dirección, sin credencial. Se cerró con pase anónimo (".read"/".write":
 "auth != null") y la app pasó a pedir ese pase sola al abrirse.
@@ -62,6 +64,9 @@ las de la etapa 2, que son a las que se vuelve si algo sale mal.
     "config":          { ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'", "$id": { ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'" } },
     "comunicados":     { ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'", "$id": { ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'" } },
 
+    "portalPaciente": { "$t": { ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'", ".validate": "!newData.exists() || newData.hasChildren(['v', 'caducado'])" } },
+    "portalPrivado":  { "$t": { ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'" } },
+
     "incidencias": {
       ".read": "auth.token.email === root.child('roles/jefatura').val()",
       "$id": { ".write": "auth != null" }
@@ -114,6 +119,27 @@ Para probarla después de publicarla: con la Jefatura, abrir y cerrar un turno
 de un día futuro (tiene que andar); con un profesional, la grilla tiene que
 seguir mostrando lo abierto y lo reservado.
 
+
+--------------------------------------------------------------------
+EL PASE DEL PACIENTE (13/10/2026, versión 3.19.0)
+--------------------------------------------------------------------
+Dos carpetas nuevas, que NINGUNA cuenta de la app puede leer (no tienen ".read"):
+
+  portalPaciente/<llave>  la foto mínima que ve el paciente: nombre de pila,
+                          cirugía, día, hora, quirófano, cirujano y en qué está.
+                          Sin DNI, sin diagnóstico, sin datos de terceros.
+  portalPrivado/<llave>   el correo del paciente y la huella (SHA-256 con sal)
+                          de su DNI. Se borra sola cuando el pase caduca.
+
+Las ESCRIBE la app del hospital (cualquier cuenta con correo y contraseña),
+cada vez que cambia la cirugía. Las LEE solo el Apps Script del portal
+(apps-script/PortalPaciente.gs), que entra con la cuenta de Google del dueño
+del proyecto y por eso no pasa por estas reglas. El paciente nunca toca la
+base: habla únicamente con ese Apps Script, que le pide el código del correo.
+
+Si estas dos líneas no se publican, el pase igual se imprime pero la app no
+puede guardar el estado para el portal (la base lo rechaza) y el paciente ve
+«Este pase ya no está activo».
 
 --------------------------------------------------------------------
 EL NODO `publico` (17/09/2026)
