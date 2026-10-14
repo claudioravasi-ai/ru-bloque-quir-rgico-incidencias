@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.18.1'
+VERSION = '3.19.0'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -31,7 +31,7 @@ PORTADA = {
 
 PIE = [
     'Bloque de Quirófanos Centrales y Unidad de Endoscopía Digestiva — Hospital Regional Ushuaia, Gdor. Ernesto M. Campos. Ministerio de Salud, Tierra del Fuego A.I.A.S.',
-    'Marco normativo de referencia: Directrices de Organización y Funcionamiento para Centros Quirúrgicos, Ministerio de Salud de la Nación (IF-2020-14236688-APN) y Libro Blanco de Quirófanos del HRU, versión 3.1 (octubre de 2026, con la reserva de franjas por especialidad en el punto 11.3.1).',
+    'Marco normativo de referencia: Directrices de Organización y Funcionamiento para Centros Quirúrgicos, Ministerio de Salud de la Nación (IF-2020-14236688-APN) y Libro Blanco de Quirófanos del HRU, versión 3.2 (octubre de 2026: enfermería de quirófanos adecuada a la Disposición HRU N.º 442/2026 y firmantes de Enfermería e Instrumentación).',
     'Documento de uso interno del cuerpo médico quirúrgico. Contiene la descripción funcional de la plataforma; no reemplaza al Libro Blanco de Quirófanos ni a los protocolos asistenciales vigentes.',
 ]
 
@@ -102,14 +102,15 @@ BLOQUES = [
 ('p', 'La cuenta necesita dos condiciones independientes para programar: que la Jefatura la haya autorizado y que la documentación habilitante esté completa y vigente. La aplicación vigila los vencimientos y avisa antes de que caduquen: una habilitación vencida detectada el día de la cirugía es un turno suspendido.'),
 ('h3', 'Paso 2 — Solicitud del turno'),
 ('ul', [
-    'Abrir **Programación Diaria** y elegir el día. La grilla muestra las seis salas por franja: las habilitadas por la Jefatura, libres para tocar, y las cerradas, sin opción.',
+    'Abrir **Mis Solicitudes › Nueva solicitud quirúrgica** (o la **Programación Diaria**) y elegir el día. La grilla muestra las seis salas por franja: las habilitadas por la Jefatura, libres para tocar, y las cerradas, sin opción.',
     'Si la Jefatura reservó un tramo para ciertas especialidades, un cartel violeta arriba de la grilla lo dice y esas franjas se ven en violeta con la leyenda **«Solo …»**. El profesional de uno de esos servicios las toca como cualquier otra, y el formulario le ofrece solo los servicios admitidos; el de otro servicio las ve cerradas, con la leyenda **«Reservada»**.',
-    'Tocar una franja libre. Se abre el formulario con el nombre del cirujano ya puesto.',
+    'Tocar una franja libre. Se abre la **ventana del turno**: arriba, el **circuito** en cuatro casilleros de colores (Programación, Consentimiento, Admisión y Egresos, Jefatura de Quirófanos); debajo, una **barra de datos obligatorios** que dice qué falta mientras se escribe, y cinco pasos numerados: 1 Paciente, 2 Diagnóstico y cirugía, 3 Requisitos para Admisión, 4 Equipo quirúrgico y 5 Prioridad y recursos. Las explicaciones largas se ven con el botón **Ayuda**.',
+    'En el paciente se puede cargar su **correo electrónico** (optativo): es el que usa el pase del paciente (paso 3 bis).',
     'Elegir el **servicio** entre los propios. Si el profesional pertenece a más de un servicio, esta elección es la que reparte su producción: la cirugía se cuenta en el servicio elegido acá.',
     'Cargar los datos del paciente, la cobertura, el diagnóstico y el CIE-10.',
     'Elegir la práctica en el buscador del **Nomenclador Modulado 2025**. El buscador trae las prácticas del servicio elegido. Al elegirla queda fijado el módulo A, B o C: no se escribe ni se negocia.',
     'Indicar la prioridad (P1 emergencia, P2 urgencia diferible, P3 alta complejidad o pediatría, P4 recursos escasos, P6 electiva estándar), el tipo de anestesia, la duración estimada y el equipamiento (arco en C, laparoscopio, microscopio, neuronavegación, torre de endoscopía y otros), y si prevé implantes o hemoderivados.',
-    'Marcar lo que ya está cumplido: evaluación preanestésica aprobada y estudios preoperatorios completos.',
+    'Tocar los tres **requisitos para Admisión** que ya estén cumplidos —**pre-anestésico**, **pre-quirúrgico** y **consentimiento firmado**—: cada casillero se pone verde al marcarlo.',
     'Confirmar. El turno queda **Pendiente** y toma la franja, pero de manera **provisional** (paso 3).',
 ]),
 ('p', 'Si el profesional va a operar con un primer ayudante, lo carga desde el mismo turno. El módulo del ayudante se asigna solo, un escalón por debajo del de la cirugía (capítulo 10).'),
@@ -118,6 +119,15 @@ BLOQUES = [
 ('p', 'El consentimiento se abre con los datos del turno ya volcados —paciente, documento, cobertura, diagnóstico, procedimiento, fecha, hora, sala, anestesia, nombre y matrícula del cirujano— y con el contenido clínico del procedimiento precargado. El cirujano lo revisa, lo adecua al caso y lo guarda (capítulo 8).'),
 ('p', '**Guardar el consentimiento confirma la franja.** Significa que se completó y se entregó al paciente, y es lo que habilita el paso por Admisión y Egresos. Si se sale sin guardarlo, la aplicación lo advierte y, si se confirma la salida, la franja vuelve al bloque: el turno queda en Borrador en «Mis Solicitudes», con todo lo cargado, para reprogramarlo. Si el navegador se cierra sin pasar por ese aviso, la franja se libera sola a los 60 minutos.'),
 ('p', 'Quedan exentos de esta regla las urgencias, las emergencias, los turnos de prioridad P1 y P2 y los turnos que carga la Jefatura en nombre de un profesional, que no está frente a la pantalla para guardar el documento.'),
+('h3', 'Paso 3 bis — El pase del paciente'),
+('p', 'Si la cirugía es programada (no urgencia ni emergencia), tiene los tres requisitos marcados y el consentimiento quedó guardado, la aplicación ofrece el **pase del paciente**: una tarjeta tipo pase de embarque, de colores vivos, con un **código QR**, el nombre de pila del paciente, la cirugía, el día, la hora, el quirófano, el cirujano y el estado del turno. Se puede dar vuelta para ver las instrucciones, imprimir, copiar el enlace o mandarlo por WhatsApp o por correo.'),
+('ul', [
+    'Para emitirlo se confirman el **correo** y el **DNI** del paciente y se tilda que el paciente fue informado y aceptó recibir los códigos en ese correo.',
+    'El paciente escanea el QR, escribe su DNI y recibe en su correo un **código de 8 letras y números**, que vence a los 10 minutos y sirve para **un solo ingreso**. Cada vez que entra recibe uno nuevo.',
+    'Ve en **tiempo real** en qué está su cirugía: en revisión por Admisión y Egresos, autorizada o no autorizada, esperando a la Jefatura, **confirmada para tal día y hora**, o **suspendida** con su motivo (por ejemplo, falta de insumo o implante). No ve el diagnóstico ni datos de nadie más.',
+    'El pase **caduca solo** cuando la cirugía se cierra (Finalizada), se resuelve antes, caduca el turno o se cancela: desde ese momento el QR no abre nada. Si el paciente lo pierde o cambia de correo, el cirujano o la Jefatura lo **anulan y emiten otro** desde el turno.',
+    'El pase también se genera o se vuelve a mostrar desde el turno (**Lo que sigue › Pase del paciente**) y desde la tarjeta del turno en Mis Solicitudes.',
+]),
 ('h3', 'Paso 4 — Admisión y Egresos'),
 ('p', 'Admisión y Egresos dictamina sobre el turno con la credencial de su sector. Para abrir el trámite exige tres cosas: **apto anestésico, estudios preoperatorios y consentimiento informado guardado**. Sin esas tres el turno no avanza. El dictamen es AUTORIZADO o NO AUTORIZADO —este último con motivo escrito— y siempre lleva el nombre del agente que lo firma. Puede rectificarse los días siguientes, y el cambio queda asentado. Detalle en el capítulo 7.'),
 ('h3', 'Paso 5 — Coordinación y validación de la Jefatura'),
@@ -149,8 +159,8 @@ BLOQUES = [
 ('p', 'A partir de las 20:00 h del día anterior a una cirugía, si el cirujano tiene la aplicación abierta, recibe un recordatorio y un **aviso hablado**, con voz femenina y pausada: «buenas noches, le recuerdo que mañana tiene una cirugía programada; la primera, a las 10 de la mañana». Dice cuántas cirugías y a qué hora es la primera, y **nunca pronuncia nombres de pacientes ni procedimientos**, porque la app se usa en pasillos y vestuarios. Habla una sola vez por jornada. Si el teléfono tiene el sonido bloqueado, habla al primer toque de pantalla. Se apaga junto con el sonido de los avisos.'),
 ('h3', 'Paso 9 — Lo que el cirujano consulta después'),
 ('ul', [
-    '**Mis Solicitudes** — el estado de todos sus turnos y su historial.',
-    '**Consentimientos Informados** — el archivo de los que emitió, en solo lectura y descargables en PDF.',
+    '**Mis Solicitudes** — es también donde se pide un turno nuevo. Arranca por el **mes en curso**; con las flechas se pasa a otros meses, **Ver el histórico** lista todos los meses y, para lo anterior a los últimos quince meses, **Traer de la base** lo busca a pedido. Los turnos sin resolver aparecen siempre arriba, sean del mes que sean.',
+    '**Consentimientos Informados** — solo los que emitió el cirujano, en solo lectura y descargables en PDF. Arranca por **Esta semana** (los generados o con cirugía en la semana) y **Traer el historial** muestra todos. Un consentimiento nuevo se genera siempre desde su turno (**Lo que sigue › Generar el consentimiento**).',
     '**Módulos Quirúrgicos** — sus módulos del período en todos sus servicios, como cirujano y como primer ayudante.',
     '**Estadísticas** — la actividad de sus servicios y su propia producción.',
     '**Reclamos** — comunicación formal y confidencial con la Jefatura.',
@@ -277,6 +287,7 @@ BLOQUES = [
     '**El cirujano lo adecua al caso.** Todo el texto es editable: es la Lex Artis Ad-Hoc, y la aplicación la facilita en lugar de sustituirla.',
     '**Riesgos personalizados.** Un apartado propio para las condiciones de ese paciente —cardiopatía, diabetes, anticoagulación, edad, cirugías previas—. Es el que la jurisprudencia exige individualizar.',
     '**Vista en vivo.** A la izquierda lo que se completa; a la derecha el documento armándose, con membrete y paginación.',
+    '**Nace del turno.** Se abre desde el turno (al terminar de programar, o desde **Lo que sigue › Generar el consentimiento**); la solapa Consentimientos Informados es el registro de lo ya emitido.',
     '**Cuatro botones**: Bajar e imprimir, Imprimir / PDF, Guardar en registro y Limpiar. Guardarlo en el registro marca el consentimiento en la historia clínica del turno, confirma la franja provisional y habilita el paso por Admisión.',
 ]),
 ('h2', '8.2. El documento emitido'),
@@ -377,6 +388,7 @@ BLOQUES = [
     'La agenda del bloque (días, salas, turnos abiertos y reservas por especialidad) no tiene datos de pacientes ni de profesionales: la leen todas las cuentas y la escribe solo la Jefatura.',
     'Los consentimientos los ve el profesional que los emitió; el archivo completo, la Jefatura.',
     'El aviso hablado nunca pronuncia nombres de pacientes.',
+    '**Pase del paciente:** el QR y el enlace llevan solo una llave al azar, sin nombre, DNI ni diagnóstico. El paciente no entra a la base: habla con un servicio del hospital que verifica su DNI y el código de un solo uso enviado a su correo, y le muestra solo su cirugía. El correo y la huella del DNI se guardan aparte, ninguna cuenta de la app los lee, y se borran cuando el pase caduca.',
     'Los datos de salud reciben el tratamiento de dato sensible que exige la Ley 25.326.',
 ]),
 ('h2', '12.3. Continuidad'),
@@ -402,7 +414,15 @@ BLOQUES = [
 ]),
 
 # ─────────────────────────────────────────────────────────────── 14
-('h1', '14. Novedades de las versiones 3.12 a 3.18'),
+('h1', '14. Novedades de las versiones 3.12 a 3.19'),
+('h2', 'Versión 3.19 — Pase del paciente y ventana del turno nueva'),
+('ul', [
+    '**Pase del paciente** con QR y seguimiento en tiempo real para el paciente, con código de un solo uso por correo (paso 3 bis).',
+    '**Ventana del turno rediseñada**: circuito en colores arriba, barra de datos obligatorios, cinco pasos numerados, ayudas detrás del botón Ayuda y, en un turno ya cargado, **Lo que sigue**: las acciones en el orden del circuito, en color pleno las que faltan y en tono suave (con tilde) las ya hechas. El botón «Ver ficha completa» pasó a llamarse **Ver y completar ficha**.',
+    '**Una sola solapa** para el cirujano: «Solicitud Quirúrgica» se unió a **Mis Solicitudes**, que ahora arranca por el mes en curso, con histórico a pedido.',
+    '**Consentimientos Informados**: solo los del cirujano, arrancando por la semana en curso; el historial, a pedido; ya no hay un generador suelto.',
+    '**Libro Blanco 3.2**: enfermería de quirófanos (4.3.2 y 4.3.3) adecuada a la Disposición HRU N.º 442/2026 —el personal de enfermería cumple también las funciones de técnico de anestesia— y, en 12.3, las firmas de la Jefa de Enfermería de Quirófanos Centrales y de la Jefa de Instrumentación Quirúrgica.',
+]),
 ('h2', 'Versión 3.18 — Turnos sin resolver'),
 ('ul', [
     '3.18.1: **Resolver turno** en una sola ventana (antes cada opción abría otra) y aviso breve de cómo quedó; la ficha de la cirugía, rediseñada con el camino del caso, «qué sigue» y tarjetas por tema.',
