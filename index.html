@@ -3475,6 +3475,297 @@
   .mis-hist-base { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
   .mis-viejo { font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--line, #e3e7ea); width: 100%; }
   .mis-viejo span { color: var(--muted); }
+
+  /* ---- 3.20 — Ventana de Admisión y Egresos: cabecera viva, dictamen en dos tarjetas grandes ---- */
+  body #auth-modal.au { padding: 0; overflow-x: hidden; background: var(--card, #fff); border-radius: 22px; max-width: 580px; }
+  #auth-modal.au .modal-close { color: #fff; z-index: 3; }
+  .au-hero { position: relative; overflow: hidden; padding: 22px 24px 54px; color: #fff;
+    background: linear-gradient(120deg, #0ea5e9, #6366f1 35%, #a855f7 65%, #ec4899); background-size: 220% 220%; animation: auFluye 9s ease-in-out infinite; }
+  .au-hero::before, .au-hero::after { content: ""; position: absolute; border-radius: 50%; background: rgba(255,255,255,.16); animation: auFlota 7s ease-in-out infinite; }
+  .au-hero::before { width: 160px; height: 160px; right: -40px; top: -60px; }
+  .au-hero::after { width: 90px; height: 90px; left: 40%; bottom: -50px; animation-delay: -3s; }
+  @keyframes auFluye { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  @keyframes auFlota { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(10px) scale(1.08); } }
+  .au-kick { position: relative; display: inline-flex; align-items: center; gap: 8px; font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    background: rgba(255,255,255,.2); padding: 5px 11px; border-radius: 99px; }
+  .au-kick i { width: 8px; height: 8px; border-radius: 50%; background: #fde047; box-shadow: 0 0 0 0 rgba(253,224,71,.7); animation: auLatido 1.8s infinite; }
+  @keyframes auLatido { 70% { box-shadow: 0 0 0 9px rgba(253,224,71,0); } 100% { box-shadow: 0 0 0 0 rgba(253,224,71,0); } }
+  .au-hero h2 { position: relative; margin: 10px 0 4px; font-size: 1.32rem; line-height: 1.2; letter-spacing: -.01em; }
+  .au-hero p { position: relative; margin: 0; font-size: .86rem; opacity: .95; }
+  .au-ficha { position: relative; z-index: 2; margin: -36px 16px 0; padding: 14px; border-radius: 18px; background: var(--card, #fff);
+    box-shadow: 0 14px 32px -12px rgba(79,70,229,.45); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .au-dato { padding: 9px 10px; border-radius: 12px; background: color-mix(in srgb, var(--c) 10%, transparent); min-width: 0; }
+  .au-dato small { display: block; font-size: .6rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--c); }
+  .au-dato b { display: block; font-size: .84rem; line-height: 1.25; color: var(--ink, #111827); overflow-wrap: anywhere; margin-top: 2px; }
+  .au-dato.ancho { grid-column: 1 / -1; }
+  .au-cuerpo { padding: 16px 20px 20px; }
+  .au-previo { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; margin-bottom: 14px; font-size: .82rem; line-height: 1.4;
+    background: color-mix(in srgb, #f59e0b 14%, transparent); color: var(--ink, #78350f); border: 1px solid color-mix(in srgb, #f59e0b 40%, transparent); }
+  .au-t { font-size: .74rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted, #6b7280); margin: 0 0 8px; }
+  .au-ops { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .au-op { --c1: #10b981; --c2: #059669; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 6px; padding: 16px 14px; border-radius: 18px; cursor: pointer;
+    border: 2px solid color-mix(in srgb, var(--c1) 35%, transparent); background: color-mix(in srgb, var(--c1) 8%, var(--card, #fff));
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s, background .25s, color .25s; }
+  .au-op.no { --c1: #f43f5e; --c2: #be123c; }
+  .au-op input { position: absolute; opacity: 0; pointer-events: none; }
+  .au-op:hover { transform: translateY(-3px); box-shadow: 0 12px 24px -10px var(--c1); }
+  .au-op-i { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #fff;
+    background: linear-gradient(135deg, var(--c1), var(--c2)); box-shadow: 0 8px 16px -6px var(--c1); transition: transform .4s cubic-bezier(.2,1.6,.4,1); }
+  .au-op > span:last-child { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .au-op b { font-size: 1rem; color: var(--ink, #111827); letter-spacing: .02em; }
+  .au-op small { font-size: .76rem; line-height: 1.35; color: var(--muted, #4b5563); }
+  .au-op.sel { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--c1), var(--c2)); box-shadow: 0 16px 30px -12px var(--c1); transform: translateY(-3px); }
+  .au-op.sel b, .au-op.sel small { color: #fff; }
+  .au-op.sel .au-op-i { background: rgba(255,255,255,.22); box-shadow: none; transform: scale(1.12) rotate(-6deg); }
+  .au-op.sel::after { content: "✓"; position: absolute; top: 10px; right: 12px; width: 24px; height: 24px; border-radius: 50%; background: #fff; color: var(--c2);
+    font-weight: 900; font-size: .85rem; display: flex; align-items: center; justify-content: center; animation: auPop .45s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes auPop { from { transform: scale(0); } to { transform: scale(1); } }
+  .au-op:focus-within { outline: 3px solid color-mix(in srgb, var(--c1) 50%, transparent); outline-offset: 2px; }
+  .au-motivo { padding: 14px; border-radius: 16px; margin-bottom: 14px; background: color-mix(in srgb, #f43f5e 8%, transparent); border: 1px dashed color-mix(in srgb, #f43f5e 45%, transparent);
+    animation: auBaja .3s ease; }
+  @keyframes auBaja { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .au-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .au-chip { border: 1px solid color-mix(in srgb, #f43f5e 40%, transparent); background: var(--card, #fff); color: var(--ink, #1f2937); border-radius: 99px; padding: 6px 11px;
+    font: inherit; font-size: .76rem; font-weight: 600; cursor: pointer; transition: background .2s, color .2s, transform .2s; }
+  .au-chip:hover { transform: translateY(-1px); }
+  .au-chip.on { background: #e11d48; color: #fff; border-color: #e11d48; }
+  .au-cuerpo textarea, .au-cuerpo input[type=text] { width: 100%; box-sizing: border-box; font: inherit; font-size: .92rem; padding: 11px 13px; border-radius: 12px;
+    border: 2px solid var(--line, #e5e7eb); background: var(--card, #fff); color: var(--ink, #111827); outline: none; transition: border-color .2s, box-shadow .2s; }
+  .au-cuerpo textarea:focus, .au-cuerpo input[type=text]:focus { border-color: #6366f1; box-shadow: 0 0 0 4px color-mix(in srgb, #6366f1 18%, transparent); }
+  .au-hint { display: block; font-size: .74rem; color: var(--muted, #6b7280); margin-top: 5px; }
+  .au-acc { display: flex; gap: 10px; margin-top: 16px; }
+  .au-ir { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 14px; padding: 14px; font: inherit; font-weight: 800; font-size: .95rem;
+    color: #fff; cursor: pointer; background: linear-gradient(120deg, #6366f1, #a855f7 55%, #ec4899); background-size: 200% 100%; animation: auFluye 6s ease-in-out infinite;
+    box-shadow: 0 10px 22px -10px #7c3aed; transition: transform .2s, filter .2s; }
+  .au-ir:hover { transform: translateY(-2px); filter: brightness(1.06); }
+  .au-ir.ok { background: linear-gradient(120deg, #059669, #10b981); animation: none; }
+  .au-ir.no { background: linear-gradient(120deg, #be123c, #f43f5e); animation: none; }
+  @media (max-width: 520px) { .au-ficha { grid-template-columns: 1fr 1fr; } .au-ops { grid-template-columns: 1fr; } .au-op { flex-direction: row; align-items: center; } .au-op > span { flex: 1; }
+    .au-acc { flex-direction: column-reverse; } }
+  @media (prefers-reduced-motion: reduce) { .au-hero, .au-hero::before, .au-hero::after, .au-kick i, .au-ir { animation: none; } .au-op, .au-op-i { transition: none; } }
+
+  /* ---- 3.20 — Sello de «Validada»: la Jefatura ve en el acto que el turno entró al parte ---- */
+  .sello-ok { position: fixed; inset: 0; z-index: 450; display: flex; align-items: center; justify-content: center; pointer-events: none;
+    background: radial-gradient(circle, rgba(16,185,129,.18), transparent 60%); animation: selloFondo 2.2s ease forwards; }
+  .sello-ok-c { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 26px 34px; border-radius: 26px; color: #fff; text-align: center;
+    background: linear-gradient(135deg, #059669, #10b981 55%, #34d399); box-shadow: 0 30px 60px -20px rgba(5,150,105,.7); animation: selloPop 2.2s cubic-bezier(.2,1.4,.4,1) forwards; }
+  .sello-ok-i { width: 74px; height: 74px; border-radius: 50%; background: rgba(255,255,255,.22); display: flex; align-items: center; justify-content: center; }
+  .sello-ok-i svg { width: 42px; height: 42px; stroke-dasharray: 60; stroke-dashoffset: 60; animation: selloTrazo .6s .25s ease forwards; }
+  .sello-ok b { font-size: 1.25rem; letter-spacing: .01em; }
+  .sello-ok small { font-size: .86rem; opacity: .95; max-width: 280px; }
+  @keyframes selloPop { 0% { opacity: 0; transform: scale(.5); } 18% { opacity: 1; transform: scale(1); } 80% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.92) translateY(-10px); } }
+  @keyframes selloFondo { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes selloTrazo { to { stroke-dashoffset: 0; } }
+  .btn.validando { pointer-events: none; opacity: .75; }
+  .btn.validando svg { animation: giraVal .8s linear infinite; }
+  @keyframes giraVal { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .sello-ok, .sello-ok-c { animation-duration: 2.2s; animation-timing-function: step-end; } .sello-ok-i svg { animation: none; stroke-dashoffset: 0; } }
+
+  /* ---- 3.20 — Flujo de trabajo de la Jefatura: centro de mando ----
+     Idea (no código) de las bandejas «Mi trabajo» de Plane y Huly y de los
+     tableros de Focalboard y Nullboard: primero lo que me toca, ordenado por
+     urgencia y con UNA acción por renglón; después el bloque de un vistazo. */
+  .fl { --fl-card: var(--card, #fff); --fl-ink: var(--ink, #111827); --fl-mut: var(--muted, #6b7280); --fl-line: var(--line, #e5e7eb); }
+  .fl-hero { position: relative; overflow: hidden; border-radius: 24px; padding: 20px 22px; color: #fff; margin-bottom: 16px;
+    background: linear-gradient(120deg, #0f172a, #312e81 35%, #7c3aed 65%, #db2777); background-size: 220% 220%; animation: flFluye 12s ease-in-out infinite; }
+  .fl-hero::after { content: ""; position: absolute; width: 260px; height: 260px; right: -80px; top: -120px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.22), transparent 65%); animation: flFlota 8s ease-in-out infinite; }
+  @keyframes flFluye { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  @keyframes flFlota { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-30px,20px); } }
+  .fl-hola { position: relative; font-size: .76rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .85; }
+  .fl-titulo { position: relative; margin: 4px 0 14px; font-size: 1.35rem; font-weight: 900; letter-spacing: -.01em; line-height: 1.25; }
+  .fl-kpis { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .fl-kpi { border: 0; text-align: left; cursor: pointer; font: inherit; color: #fff; padding: 12px 13px; border-radius: 16px; background: rgba(255,255,255,.12);
+    backdrop-filter: blur(6px); transition: transform .25s cubic-bezier(.2,.8,.2,1), background .25s; }
+  .fl-kpi:hover { transform: translateY(-3px); background: rgba(255,255,255,.2); }
+  .fl-kpi b { display: block; font-size: 1.9rem; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+  .fl-kpi span { display: block; font-size: .74rem; font-weight: 700; margin-top: 5px; opacity: .92; }
+  .fl-kpi i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; background: var(--k); box-shadow: 0 0 0 0 var(--k); }
+  .fl-kpi.vivo i { animation: flLatido 1.6s infinite; }
+  @keyframes flLatido { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--k) 70%, transparent); } 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+  .fl-sec { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 22px 2px 10px; }
+  .fl-sec h2 { white-space: nowrap; }
+  @media (max-width: 560px) { .fl-sec small { order: 3; width: 100%; } }
+  .fl-sec h2 { margin: 0; font-size: 1.08rem; font-weight: 900; color: var(--fl-ink); }
+  .fl-sec small { color: var(--fl-mut); font-size: .8rem; }
+  .fl-sec .fl-n { margin-left: auto; font-size: .74rem; font-weight: 800; padding: 3px 10px; border-radius: 99px; color: #fff; background: linear-gradient(120deg, #7c3aed, #db2777); }
+
+  .fl-cola { display: flex; flex-direction: column; gap: 10px; }
+  .fl-t { --c: #7c3aed; position: relative; display: flex; align-items: center; gap: 14px; padding: 14px 14px 14px 18px; border-radius: 18px; background: var(--fl-card);
+    border: 1px solid color-mix(in srgb, var(--c) 22%, var(--fl-line)); box-shadow: 0 4px 14px -8px color-mix(in srgb, var(--c) 45%, transparent);
+    opacity: 0; transform: translateY(10px); animation: flEntra .45s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: var(--d, 0ms);
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s; overflow: hidden; }
+  .fl-t::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(var(--c), color-mix(in srgb, var(--c) 55%, #fff)); }
+  .fl-t:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -14px color-mix(in srgb, var(--c) 70%, transparent); }
+  @keyframes flEntra { to { opacity: 1; transform: none; } }
+  .fl-t.rojo { --c: #e11d48; } .fl-t.verde { --c: #059669; } .fl-t.ambar { --c: #d97706; } .fl-t.azul { --c: #2563eb; } .fl-t.violeta { --c: #7c3aed; }
+  .fl-rank { flex: none; width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: .95rem;
+    color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); }
+  .fl-main { flex: 1; min-width: 0; cursor: pointer; }
+  .fl-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .fl-tag { font-size: .66rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; color: #fff; background: var(--c); padding: 3px 8px; border-radius: 99px; }
+  .fl-cuando { font-size: .74rem; font-weight: 700; color: var(--c); }
+  .fl-proc { display: block; font-size: .98rem; font-weight: 800; color: var(--fl-ink); line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fl-pac { display: block; font-size: .8rem; color: var(--fl-mut); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fl-mot { display: block; font-size: .78rem; color: var(--fl-ink); margin-top: 5px; opacity: .85; }
+  .fl-go { flex: none; display: inline-flex; align-items: center; gap: 7px; border: 0; cursor: pointer; font: inherit; font-weight: 800; font-size: .84rem; color: #fff;
+    padding: 11px 15px; border-radius: 13px; background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 65%, #000));
+    box-shadow: 0 8px 16px -8px var(--c); transition: transform .2s, filter .2s; white-space: nowrap; }
+  .fl-go:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.08); }
+  .fl-go:active { transform: scale(.97); }
+  .fl-go svg { width: 16px; height: 16px; }
+  .fl-t.top { padding: 18px 16px 18px 20px; border-width: 2px; animation: flEntra .45s cubic-bezier(.2,.8,.2,1) forwards, flBrilla 2.6s 1s ease-in-out infinite; }
+  .fl-t.top .fl-rank { width: 44px; height: 44px; font-size: 1.15rem; color: #fff; background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 60%, #000)); }
+  .fl-t.top .fl-proc { font-size: 1.08rem; white-space: normal; }
+  .fl-t.top .fl-go { padding: 13px 18px; font-size: .9rem; }
+  .fl-primero { font-size: .66rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--c); }
+  @keyframes flBrilla { 0%,100% { box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--c) 50%, transparent); } 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--c) 16%, transparent), 0 14px 30px -12px var(--c); } }
+  .fl-mas { align-self: center; margin-top: 2px; border: 1px dashed var(--fl-line); background: transparent; color: var(--fl-ink); font: inherit; font-weight: 700; font-size: .84rem;
+    padding: 9px 16px; border-radius: 99px; cursor: pointer; }
+  .fl-mas:hover { border-style: solid; }
+  .fl-listo { text-align: center; padding: 26px 18px; border-radius: 20px; color: #065f46; background: linear-gradient(135deg, #d1fae5, #ecfeff); }
+  .fl-listo b { display: block; font-size: 1.1rem; margin: 6px 0 2px; }
+  .fl-listo i { display: inline-flex; width: 48px; height: 48px; border-radius: 50%; align-items: center; justify-content: center; color: #fff; background: #10b981; animation: auPop .5s cubic-bezier(.2,1.6,.4,1); }
+
+  .fl-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .fl-panel { border-radius: 20px; padding: 14px; background: var(--fl-card); border: 1px solid var(--fl-line); }
+  .fl-panel h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: .92rem; font-weight: 900; color: var(--fl-ink); }
+  .fl-panel h3 em { margin-left: auto; font-style: normal; font-size: .72rem; font-weight: 800; color: var(--fl-mut); }
+  .fl-linea { list-style: none; margin: 0; padding: 0; position: relative; }
+  .fl-linea::before { content: ""; position: absolute; left: 44px; top: 6px; bottom: 6px; width: 2px; background: var(--fl-line); }
+  .fl-ev { position: relative; display: flex; align-items: center; gap: 12px; padding: 7px 0; cursor: pointer; }
+  .fl-ev-h { width: 36px; flex: none; text-align: right; font-size: .78rem; font-weight: 900; color: var(--fl-ink); font-variant-numeric: tabular-nums; }
+  .fl-ev-p { width: 14px; height: 14px; flex: none; border-radius: 50%; background: var(--c); border: 3px solid var(--fl-card); box-shadow: 0 0 0 2px var(--c); z-index: 1; }
+  .fl-ev.vivo .fl-ev-p { animation: flLatido 1.4s infinite; --k: var(--c); }
+  .fl-ev-t { min-width: 0; flex: 1; }
+  .fl-ev-t b { display: block; font-size: .84rem; color: var(--fl-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fl-ev-t small { display: block; font-size: .72rem; color: var(--fl-mut); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fl-ev:hover .fl-ev-t b { color: #7c3aed; }
+  .fl-esp { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 14px; cursor: pointer; transition: background .2s; }
+  .fl-esp:hover { background: color-mix(in srgb, var(--c) 9%, transparent); }
+  .fl-esp-q { flex: none; font-size: .64rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; padding: 4px 8px; border-radius: 8px; color: var(--c);
+    background: color-mix(in srgb, var(--c) 13%, transparent); min-width: 74px; text-align: center; }
+  .fl-vacio { font-size: .82rem; color: var(--fl-mut); padding: 10px 4px; }
+
+  .fl-tubo { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+  .fl-etapa { position: relative; border: 0; cursor: pointer; font: inherit; text-align: left; padding: 12px 10px 10px; border-radius: 16px; overflow: hidden;
+    color: var(--fl-ink); background: color-mix(in srgb, var(--c) 9%, var(--fl-card)); border: 1px solid color-mix(in srgb, var(--c) 25%, transparent);
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s; }
+  .fl-etapa:hover { transform: translateY(-3px); box-shadow: 0 12px 22px -12px var(--c); }
+  .fl-etapa b { display: block; font-size: 1.5rem; font-weight: 900; color: var(--c); line-height: 1; font-variant-numeric: tabular-nums; }
+  .fl-etapa span { display: block; font-size: .7rem; font-weight: 800; margin-top: 5px; line-height: 1.2; }
+  .fl-etapa i { position: absolute; left: 0; bottom: 0; height: 4px; width: var(--w); background: var(--c); border-radius: 0 4px 4px 0; transform-origin: left;
+    animation: flCrece .9s cubic-bezier(.2,.8,.2,1) both; }
+  .fl-etapa:not(:last-child)::after { content: "›"; position: absolute; right: 6px; top: 8px; font-weight: 900; color: color-mix(in srgb, var(--c) 60%, transparent); }
+  .fl-etapa.cero { opacity: .55; cursor: default; }
+  .fl-etapa.cero:hover { transform: none; box-shadow: none; }
+  @keyframes flCrece { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .fl-todo { margin-top: 22px; }
+  .fl-todo > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; font-weight: 800; font-size: .9rem; color: var(--fl-ink); padding: 12px 14px; border-radius: 14px; border: 1px dashed var(--fl-line); }
+  .fl-todo > summary::-webkit-details-marker { display: none; }
+  .fl-todo[open] > summary { margin-bottom: 10px; }
+  @media (max-width: 860px) { .fl-tubo { grid-template-columns: repeat(4, minmax(0, 1fr)); } .fl-dos { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) {
+    .fl-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fl-tubo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fl-t { flex-wrap: wrap; gap: 10px; } .fl-main { flex: 1 1 calc(100% - 60px); } .fl-go { width: 100%; justify-content: center; }
+    .fl-proc, .fl-pac { white-space: normal; } .fl-titulo { font-size: 1.15rem; } }
+  @media (prefers-reduced-motion: reduce) { .fl-hero, .fl-hero::after, .fl-t, .fl-t.top, .fl-kpi.vivo i, .fl-ev.vivo .fl-ev-p, .fl-etapa i { animation: none; } .fl-t { opacity: 1; transform: none; } }
+
+  /* ---- 3.20 — Habilitación del bloque: tablero de salas × turnos ----
+     Idea (no código) de la vista «recursos × horario» de FullCalendar y TUI
+     Calendar, y de la tira de días de gantt-schedule-timeline-calendar. */
+  #cir-modal.hb { max-width: 820px; padding: 0; overflow-x: hidden; border-radius: 22px; }
+  #cir-modal.hb .modal-close { color: #fff; z-index: 3; }
+  .hb-hero { position: relative; overflow: hidden; color: #fff; padding: 20px 22px 16px;
+    background: linear-gradient(120deg, #0f766e, #0891b2 35%, #6366f1 70%, #a855f7); background-size: 220% 220%; animation: flFluye 11s ease-in-out infinite; }
+  .hb-hero::after { content: ""; position: absolute; width: 220px; height: 220px; right: -60px; top: -110px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.25), transparent 65%); animation: flFlota 8s ease-in-out infinite; }
+  .hb-kick { position: relative; font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .9; }
+  .hb-tit { position: relative; display: flex; align-items: center; gap: 14px; margin-top: 6px; }
+  .hb-tit h2 { margin: 0; font-size: 1.3rem; font-weight: 900; line-height: 1.2; }
+  .hb-tit p { margin: 2px 0 0; font-size: .84rem; opacity: .92; }
+  .hb-anillo { --v: 0; flex: none; width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: .95rem;
+    background: conic-gradient(#fde047 calc(var(--v) * 1%), rgba(255,255,255,.22) 0); transition: --v .6s; position: relative; }
+  .hb-anillo::before { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: rgba(15,23,42,.35); }
+  .hb-anillo span { position: relative; }
+  .hb-semana { position: relative; display: grid; grid-template-columns: 30px repeat(7, minmax(0, 1fr)) 30px; gap: 6px; margin-top: 14px; align-items: stretch; }
+  .hb-flecha { border: 0; border-radius: 10px; background: rgba(255,255,255,.16); color: #fff; font-size: 1.1rem; font-weight: 900; cursor: pointer; }
+  .hb-flecha:hover { background: rgba(255,255,255,.28); }
+  .hb-dia { position: relative; overflow: hidden; border: 0; cursor: pointer; font: inherit; color: #fff; border-radius: 14px; padding: 8px 4px 10px; text-align: center;
+    background: rgba(255,255,255,.12); transition: transform .2s, background .2s; }
+  .hb-dia:hover { transform: translateY(-2px); background: rgba(255,255,255,.22); }
+  .hb-dia small { display: block; font-size: .62rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
+  .hb-dia b { display: block; font-size: 1.15rem; font-weight: 900; line-height: 1.1; }
+  .hb-dia i { position: absolute; left: 0; right: 0; bottom: 0; height: var(--h); background: linear-gradient(0deg, rgba(253,224,71,.55), rgba(253,224,71,.12)); transition: height .5s; }
+  .hb-dia b, .hb-dia small { position: relative; }
+  .hb-dia.sel { background: #fff; color: #312e81; box-shadow: 0 10px 20px -8px rgba(0,0,0,.4); transform: translateY(-2px); }
+  .hb-dia.sel i { background: linear-gradient(0deg, rgba(16,185,129,.4), rgba(16,185,129,.08)); }
+  .hb-dia.finde { opacity: .7; }
+  .hb-cuerpo { padding: 16px 20px 20px; }
+  .hb-rapidos { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .hb-rap { display: inline-flex; align-items: center; gap: 7px; border: 0; cursor: pointer; font: inherit; font-weight: 800; font-size: .82rem; padding: 9px 14px; border-radius: 99px; color: #fff;
+    background: linear-gradient(120deg, var(--c1), var(--c2)); box-shadow: 0 6px 14px -8px var(--c1); transition: transform .2s, filter .2s; }
+  .hb-rap:hover { transform: translateY(-2px); filter: brightness(1.07); }
+  .hb-rap.out { color: var(--ink, #1f2937); background: var(--card, #fff); border: 1.5px solid var(--line, #e5e7eb); box-shadow: none; }
+  .hb-t { font-size: .74rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--muted, #6b7280); margin: 4px 0 8px; display: flex; align-items: center; gap: 8px; }
+  .hb-t { flex-wrap: wrap; }
+  .hb-t em { font-style: normal; font-weight: 600; letter-spacing: 0; text-transform: none; }
+  @media (max-width: 640px) { .hb-t em { flex-basis: 100%; } }
+  .hb-tablero { display: grid; gap: 8px; }
+  .hb-fila { display: grid; grid-template-columns: minmax(120px, 170px) repeat(var(--cols), minmax(0, 1fr)); gap: 8px; align-items: stretch; }
+  .hb-cab { border: 0; background: transparent; font: inherit; font-size: .72rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--muted, #6b7280);
+    padding: 4px; border-radius: 10px; cursor: pointer; text-align: center; }
+  .hb-cab:hover { background: var(--sup2, #f3f4f6); color: var(--ink, #111827); }
+  .hb-cab small { display: block; font-weight: 600; letter-spacing: 0; text-transform: none; font-size: .68rem; }
+  .hb-sala { border: 0; cursor: pointer; font: inherit; text-align: left; padding: 10px 12px; border-radius: 14px; background: var(--sup2, #f5f5f7); color: var(--ink, #111827); transition: background .2s; }
+  .hb-sala:hover { background: color-mix(in srgb, #6366f1 12%, var(--sup2, #f5f5f7)); }
+  .hb-sala b { display: block; font-size: .86rem; line-height: 1.2; }
+  .hb-sala small { display: block; font-size: .68rem; color: var(--muted, #6b7280); margin-top: 2px; }
+  .hb-celda { position: relative; overflow: hidden; min-height: 64px; border: 2px dashed var(--line, #d1d5db); border-radius: 16px; cursor: pointer; font: inherit;
+    background: var(--card, #fff); color: var(--muted, #6b7280); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 8px 6px;
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s, background .25s, border-color .25s; }
+  .hb-celda:hover { transform: translateY(-2px); border-color: #10b981; }
+  .hb-celda .hb-ic { width: 26px; height: 26px; border-radius: 9px; display: grid; place-items: center; background: var(--sup2, #f3f4f6); transition: transform .35s cubic-bezier(.2,1.6,.4,1); }
+  .hb-celda .hb-ic svg { width: 14px; height: 14px; }
+  .hb-celda b { font-size: .74rem; font-weight: 800; }
+  .hb-celda.on { border: 2px solid transparent; color: #fff; background: linear-gradient(135deg, #059669, #10b981 60%, #34d399); box-shadow: 0 10px 20px -12px #059669; }
+  .hb-celda.on .hb-ic { background: rgba(255,255,255,.22); transform: scale(1.08); }
+  .hb-celda.on::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%); transform: translateX(-120%); animation: hbBrillo 3.2s ease-in-out infinite; }
+  @keyframes hbBrillo { 0%, 60% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+  .hb-celda.na { cursor: default; border-style: solid; opacity: .35; }
+  .hb-celda.na:hover { transform: none; border-color: var(--line, #d1d5db); }
+  .hb-celda.pop { animation: hbPop .4s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes hbPop { 0% { transform: scale(.9); } 100% { transform: scale(1); } }
+  .hb-res { position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; max-width: 100%; }
+  .hb-res span { font-size: .6rem; font-weight: 800; padding: 2px 6px; border-radius: 99px; color: #fff; background: var(--e); box-shadow: 0 0 0 1.5px rgba(255,255,255,.7);
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hb-pincel-on .hb-celda:not(.na) { cursor: copy; }
+  .hb-pincel-on .hb-celda:not(.na):hover { border-color: var(--pc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pc) 35%, transparent); }
+  .hb-pinceles { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .hb-esp { border: 1.5px solid color-mix(in srgb, var(--e) 45%, transparent); background: color-mix(in srgb, var(--e) 10%, var(--card, #fff)); color: var(--ink, #1f2937);
+    font: inherit; font-size: .76rem; font-weight: 700; padding: 6px 11px; border-radius: 99px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: transform .2s; }
+  .hb-esp i { width: 9px; height: 9px; border-radius: 50%; background: var(--e); }
+  .hb-esp:hover { transform: translateY(-1px); }
+  .hb-esp.sel { color: #fff; background: var(--e); border-color: var(--e); box-shadow: 0 6px 14px -6px var(--e); }
+  .hb-esp.sel i { background: #fff; }
+  .hb-aviso-pincel { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; margin-bottom: 10px; font-size: .82rem; color: #fff;
+    background: linear-gradient(120deg, var(--pc), color-mix(in srgb, var(--pc) 60%, #000)); animation: auBaja .3s ease; }
+  .hb-aviso-pincel button { margin-left: auto; border: 0; border-radius: 99px; padding: 6px 12px; font: inherit; font-weight: 800; font-size: .76rem; cursor: pointer; background: rgba(255,255,255,.9); color: #111827; }
+  .hb-reservas { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .hb-r { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: color-mix(in srgb, var(--e) 9%, var(--card, #fff)); border-left: 4px solid var(--e); font-size: .8rem; color: var(--ink, #1f2937); }
+  .hb-r span { flex: 1; min-width: 0; }
+  .hb-r button { border: 0; background: transparent; cursor: pointer; font: inherit; font-size: .74rem; font-weight: 800; color: var(--muted, #6b7280); padding: 4px 6px; border-radius: 8px; white-space: nowrap; }
+  .hb-r button:hover { background: var(--sup2, #f3f4f6); color: var(--ink, #111827); }
+  .hb-plegable { margin-top: 14px; border-radius: 14px; border: 1px dashed var(--line, #e5e7eb); }
+  .hb-plegable > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; padding: 11px 14px; font-weight: 800; font-size: .86rem; color: var(--ink, #1f2937); }
+  .hb-plegable > summary::-webkit-details-marker { display: none; }
+  .hb-plegable > div { padding: 0 14px 14px; }
+  .hb-nota { font-size: .76rem; color: var(--muted, #6b7280); line-height: 1.45; margin: 12px 2px 0; }
+  @media (max-width: 640px) {
+    .hb-semana { grid-template-columns: 26px repeat(7, minmax(0, 1fr)) 26px; gap: 4px; } .hb-dia { padding: 6px 2px 8px; } .hb-dia b { font-size: .98rem; }
+    .hb-fila { grid-template-columns: minmax(84px, 104px) repeat(var(--cols), minmax(0, 1fr)); gap: 6px; } .hb-sala { padding: 8px; } .hb-sala b { font-size: .76rem; } .hb-sala small { display: none; }
+    .hb-celda { min-height: 56px; } .hb-celda b { font-size: .66rem; } .hb-cuerpo { padding: 14px 12px 18px; } .hb-tit h2 { font-size: 1.08rem; } }
+  @media (prefers-reduced-motion: reduce) { .hb-hero, .hb-hero::after, .hb-celda.on::after, .hb-celda.pop { animation: none; } }
 </style>
 </head>
 <body data-tema="sobrio">
@@ -6007,7 +6298,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.19.1';
+const APP_VERSION = '3.20.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -9492,7 +9783,7 @@ function accionesCirugia(c, rol) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${!c.auth ? '1º Aceptación de Admisión y Egresos' : authBotonTexto(c)}</button>`);
   }
   if (c.estado === 'pendiente' && jefe && authOk(c) && !vencido) {
-    a.push(`<button class="btn btn-sm btn-green" onclick="validarCirugia(${c.id})">${ICONS.check} Validar y confirmar en el parte</button>`);
+    a.push(`<button class="btn btn-sm btn-green" onclick="validarCirugia(${c.id}, this)">${ICONS.check} Validar y confirmar en el parte</button>`);
   }
   // Turnos de la versión anterior, que quedaron detenidos en «Validada».
   if (c.estado === 'validada' && jefe && !vencido) {
@@ -9562,9 +9853,14 @@ async function delCirugia(id) {
    prótesis, implantes, hemoderivados, instrumental, apto anestésico— y, si
    está, el turno entra al parte quirúrgico de programados en ese mismo
    momento. Es ahí donde se le habilita la foja de LVQ al cirujano. */
-function validarCirugia(id) {
+function validarCirugia(id, btn) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
+  // Un segundo toque sobre un turno ya validado no hace nada, pero lo dice.
+  if (['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado)) {
+    toastTurno('Este turno ya estaba validado y confirmado en el parte', '#059669');
+    return;
+  }
   // Primero Admisión y Egresos, después la Jefatura. Sin la aceptación de
   // Admisión el turno no se valida ni entra al parte. Solo saltean este paso
   // las urgencias y emergencias, que regularizan el trámite después.
@@ -9585,8 +9881,24 @@ function validarCirugia(id) {
   pushHist(c, 'Validada por la ' + JEFATURA + ': verificado lo solicitado por el cirujano (Farmacia, Esterilización, Anestesiología'
     + (c.recursos?.hemoderivados ? ', Hemoterapia' : '') + (c.recursos?.arcoC ? ', arco en C' : '') + (c.recursos?.implante ? ', implante/prótesis' : '')
     + ') — CONFIRMADA en el parte quirúrgico de programados; queda habilitada la Lista de Verificación Quirúrgica para el día de la cirugía');
+  if (btn) { btn.classList.add('validando'); btn.innerHTML = `${ico(ICONS.refresh, 14)} Validando…`; }
   upsert('cirugias', c);
-  refreshView();
+  selloValidada(c);
+  setTimeout(refreshView, 350);
+}
+/* Señal inconfundible de que la validación quedó hecha: sello en pantalla + aviso. */
+function selloValidada(c) {
+  const viejo = $('sello-ok');
+  if (viejo) viejo.remove();
+  const d = document.createElement('div');
+  d.id = 'sello-ok';
+  d.className = 'sello-ok';
+  d.setAttribute('role', 'status');
+  d.innerHTML = `<div class="sello-ok-c"><span class="sello-ok-i"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+    <b>Cirugía validada</b><small>${esc(c.procedimiento || '')} quedó CONFIRMADA en el parte de ${esc(fmtFecha(c.fecha))}. El cirujano ya puede usar la Lista de Verificación ese día.</small></div>`;
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 2300);
+  setTimeout(() => toastTurno('Validada y confirmada en el parte ✓', '#059669'), 1900);
 }
 
 function confirmarCirugia(id) {
@@ -10910,6 +11222,139 @@ function progLista(est) {
     : l.sort(ordenPrelacion);
 }
 
+
+/* ---- 3.20 — Centro de mando de la Jefatura ----
+   Responde, en este orden: ¿qué tengo que hacer YO y qué va primero?, ¿qué
+   pasa hoy en los quirófanos?, ¿qué espera a otros?, ¿cómo está el bloque? */
+function flCuando(fecha) {
+  if (!fecha) return 'sin fecha';
+  const d = diasEntre(hoyISO(), fecha);
+  return d < -1 ? `hace ${-d} días` : d === -1 ? 'ayer' : d === 0 ? 'hoy' : d === 1 ? 'mañana' : `en ${d} días`;
+}
+function flTareas() {
+  const t = [];
+  const hoy = hoyISO();
+  DB.cirugias.forEach((c) => {
+    const vis = estadoVisible(c);
+    const d = c.fecha ? diasEntre(hoy, c.fecha) : 30;
+    const cu = flCuando(c.fecha);
+    // Lo que opera hoy o mañana sube: no hay margen para dejarlo para después.
+    const apuro = d >= 0 && d <= 1 ? 150 : 0;
+    if (vis === 'sin_resolver') {
+      t.push({ c, score: 1000 - d, tono: 'rojo', tag: 'Vencido', mot: `El turno era ${cu} y nadie dijo qué pasó. Si nadie lo resuelve, se cierra solo.`,
+        btn: 'Resolver turno', on: `openResolverTurno(${c.id})`, ic: ICONS.alertTri });
+    } else if (c.estado === 'validada') {
+      t.push({ c, score: 760 + apuro - d * 4, tono: 'azul', tag: 'Para el parte', mot: 'Turno de la versión anterior: falta confirmarlo en el parte.',
+        btn: 'Confirmar en el parte', on: `confirmarCirugia(${c.id})`, ic: ICONS.check });
+    } else if (c.estado === 'pendiente' && authOk(c)) {
+      const f = coordFaltantes(c);
+      if (!f.length) t.push({ c, score: 800 + apuro - d * 4, tono: 'verde', tag: 'Lista para validar', mot: `Admisión autorizó y la coordinación está completa. Opera ${cu}.`,
+        btn: 'Validar', on: `validarCirugia(${c.id}, this)`, ic: ICONS.check });
+      else t.push({ c, score: 700 + apuro - d * 4, tono: 'ambar', tag: `Faltan ${f.length} verificaci${f.length > 1 ? 'ones' : 'ón'}${apuro ? ' · opera ' + cu : ''}`, mot: f.slice(0, 2).join(' · ') + (f.length > 2 ? '…' : ''),
+        btn: 'Verificar', on: `openCirugia(${c.id})`, ic: ICONS.list });
+    } else if (jefaturaPendienteDiferida(c)) {
+      t.push({ c, score: 600 - Math.min(d, 0), tono: 'violeta', tag: 'Urgencia operada', mot: 'Se operó sin el visto previo de la Jefatura: falta regularizar.',
+        btn: 'Regularizar', on: `regularizarJefatura(${c.id})`, ic: ICONS.check });
+    }
+  });
+  return t.sort((a, b) => b.score - a.score);
+}
+function flEspera() {
+  const e = [];
+  DB.cirugias.forEach((c) => {
+    if (estadoVisible(c) === 'sin_resolver') return;
+    if (c.estado === 'pendiente' && c.auth === 'NO AUTORIZADO') e.push({ c, quien: 'Cirujano', color: '#e11d48', txt: 'Admisión no autorizó: el cirujano corrige' });
+    else if (c.estado === 'pendiente' && !authOk(c)) e.push({ c, quien: 'Admisión', color: '#d97706', txt: 'Espera el dictamen de Admisión y Egresos' });
+    else if (c.estado === 'borrador') e.push({ c, quien: 'Cirujano', color: '#6b7280', txt: 'Borrador: el cirujano todavía no lo envió' });
+  });
+  return e.sort((a, b) => String(a.c.fecha || '').localeCompare(String(b.c.fecha || '')));
+}
+function flHoy() {
+  const hoy = hoyISO();
+  return DB.cirugias.filter((c) => c.estado === 'en_curso' || (c.fecha === hoy && ['confirmada', 'realizada', 'finalizada'].includes(c.estado)))
+    .sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+}
+let flVerTodas = false;
+function flAbrirEtapa(est) {
+  progAbierto[est] = true;
+  const d = $('fl-todo');
+  if (d) d.open = true;
+  renderProgramacion();
+  setTimeout(() => { const g = $('grp-' + est); if (g) g.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+}
+function flIr(id) { const el = $(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+function renderFlujoJefatura() {
+  const tareas = flTareas(), espera = flEspera(), hoyL = flHoy();
+  const hoy = hoyISO();
+  const semana = DB.cirugias.filter((c) => c.estado === 'confirmada' && c.fecha >= hoy && diasEntre(hoy, c.fecha) <= 7).length;
+  const enCurso = DB.cirugias.filter((c) => c.estado === 'en_curso').length;
+  const urg = tareas.filter((t) => t.tono === 'rojo').length;
+  const fechaLarga = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const titulo = !tareas.length ? 'Todo al día: no hay nada esperando a la Jefatura.'
+    : urg ? `${urg} turno${urg > 1 ? 's' : ''} vencido${urg > 1 ? 's' : ''} para resolver primero, y ${tareas.length - urg} cosa${tareas.length - urg === 1 ? '' : 's'} más.`
+    : `Tenés ${tareas.length} cosa${tareas.length > 1 ? 's' : ''} para hacer. Arrancá por la primera.`;
+  const kpi = (n, txt, color, on, vivo) => `<button type="button" class="fl-kpi${vivo ? ' vivo' : ''}" style="--k:${color}" onclick="${on}"><b data-n="${n}">${n}</b><span><i></i>${txt}</span></button>`;
+  const visibles = flVerTodas ? tareas : tareas.slice(0, 6);
+  const tarea = (t, i) => `<article class="fl-t ${t.tono}${i === 0 ? ' top' : ''}" style="--d:${Math.min(i, 8) * 55}ms">
+      <div class="fl-rank">${i + 1}</div>
+      <div class="fl-main" onclick="openCirugia(${t.c.id})" title="Abrir el turno">
+        ${i === 0 ? '<div class="fl-primero">Lo primero</div>' : ''}
+        <div class="fl-tags"><span class="fl-tag">${esc(t.tag)}</span><span class="fl-cuando">${esc(fmtFecha(t.c.fecha))}${t.c.horaProg ? ' · ' + esc(t.c.horaProg) + ' h' : ''} · ${esc(t.c.quirofano || 'sin sala')}</span></div>
+        <b class="fl-proc">${esc(t.c.procedimiento || 's/d')}</b>
+        <span class="fl-pac">${esc(t.c.paciente?.nombre || 's/d')} · ${esc(t.c.cirujano || 's/d')}</span>
+        <small class="fl-mot">${esc(t.mot)}</small>
+      </div>
+      <button type="button" class="fl-go" onclick="${t.on}">${ico(t.ic, 16)} ${t.btn}</button>
+    </article>`;
+  const etapas = ['borrador', 'pendiente', 'validada', 'confirmada', 'en_curso', 'realizada', 'finalizada'];
+  const cuenta = {};
+  etapas.forEach((k) => { cuenta[k] = DB.cirugias.filter((c) => estadoVisible(c) === k).length; });
+  const max = Math.max(1, ...etapas.map((k) => cuenta[k]));
+  return `<div class="fl">
+    <section class="fl-hero">
+      <div class="fl-hola">${esc(fechaLarga)} · Jefatura de Quirófanos</div>
+      <div class="fl-titulo">${titulo}</div>
+      <div class="fl-kpis">
+        ${kpi(tareas.length, 'Te toca a vos', '#fde047', "flIr('fl-cola')", tareas.length > 0)}
+        ${kpi(hoyL.length, enCurso ? `Hoy · ${enCurso} en quirófano` : 'Hoy en quirófano', '#34d399', "flIr('fl-hoy')", enCurso > 0)}
+        ${kpi(espera.length, 'Esperando a otros', '#fb923c', "flIr('fl-espera')")}
+        ${kpi(semana, 'Confirmadas 7 días', '#93c5fd', "flAbrirEtapa('confirmada')")}
+      </div>
+    </section>
+
+    <div class="fl-sec" id="fl-cola"><h2>Ahora te toca</h2><small>ordenado por urgencia: lo vencido, lo que opera antes, lo que falta verificar</small>${tareas.length ? `<span class="fl-n">${tareas.length}</span>` : ''}</div>
+    <div class="fl-cola">
+      ${tareas.length ? visibles.map(tarea).join('')
+        : `<div class="fl-listo"><i>${ico(ICONS.check, 24)}</i><b>¡Nada pendiente para la Jefatura!</b>Cuando un turno necesite tu validación, aparece acá primero.</div>`}
+      ${tareas.length > 6 ? `<button type="button" class="fl-mas" onclick="flVerTodas=!flVerTodas;renderProgramacion()">${flVerTodas ? 'Mostrar solo las primeras 6' : `Ver las ${tareas.length - 6} restantes`}</button>` : ''}
+    </div>
+
+    <div class="fl-dos" style="margin-top:22px">
+      <section class="fl-panel" id="fl-hoy">
+        <h3>${ico(ICONS.clockSm || ICONS.clock, 16)} Hoy en los quirófanos <em>${hoyL.length} turno${hoyL.length === 1 ? '' : 's'}</em></h3>
+        ${hoyL.length ? `<ol class="fl-linea">${hoyL.map((c) => {
+          const e = ESTC[estadoVisible(c)] || ESTC.confirmada;
+          return `<li class="fl-ev${c.estado === 'en_curso' ? ' vivo' : ''}" style="--c:${e.color}" onclick="openCirugia(${c.id})">
+            <span class="fl-ev-h">${esc(c.horaProg || '—')}</span><span class="fl-ev-p"></span>
+            <span class="fl-ev-t"><b>${esc(c.procedimiento || 's/d')}</b><small>${esc(e.label)} · ${esc(c.quirofano || '')} · ${esc(c.cirujano || '')}</small></span></li>`;
+        }).join('')}</ol>` : '<div class="fl-vacio">No hay cirugías confirmadas para hoy.</div>'}
+      </section>
+      <section class="fl-panel" id="fl-espera">
+        <h3>${ico(ICONS.users, 16)} Esperando a otros <em>no depende de vos</em></h3>
+        ${espera.length ? espera.slice(0, 7).map((x) => `<div class="fl-esp" style="--c:${x.color}" onclick="openCirugia(${x.c.id})">
+            <span class="fl-esp-q">${esc(x.quien)}</span>
+            <span class="fl-ev-t"><b>${esc(x.c.procedimiento || 's/d')}</b><small>${esc(x.txt)} · ${esc(fmtFecha(x.c.fecha))}</small></span></div>`).join('')
+          + (espera.length > 7 ? `<div class="fl-vacio">y ${espera.length - 7} más en «Todo el circuito».</div>` : '')
+          : '<div class="fl-vacio">Nada trabado en Admisión ni en los cirujanos.</div>'}
+      </section>
+    </div>
+
+    <div class="fl-sec"><h2>El circuito de un vistazo</h2><small>tocá una etapa para ver sus turnos</small></div>
+    <div class="fl-tubo">${etapas.map((k) => `<button type="button" class="fl-etapa${cuenta[k] ? '' : ' cero'}" style="--c:${ESTC[k].color};--w:${Math.round(cuenta[k] / max * 100)}%"
+        ${cuenta[k] ? `onclick="flAbrirEtapa('${k}')"` : 'disabled'}><b>${cuenta[k]}</b><span>${esc(ESTC[k].label.replace(' — pendiente de cierre', ''))}</span><i></i></button>`).join('')}</div>
+  </div>`;
+}
+
 function renderProgramacion() {
   const tabs = [
     { id: 'flujo', label: 'Flujo de trabajo' },
@@ -10918,11 +11363,12 @@ function renderProgramacion() {
   let cuerpo = '';
   if (progTab === 'flujo') {
     const total = DB.cirugias.length;
-    cuerpo = `<div class="q-acc-list">${PROG_GRUPOS.map((g) => {
+    const abiertoAlguno = PROG_GRUPOS.some((g) => progAbierto[g.est]);
+    cuerpo = renderFlujoJefatura() + `<details class="fl-todo" id="fl-todo" ${abiertoAlguno ? 'open' : ''}><summary>${ico(ICONS.list, 15)} Todo el circuito por estado (incluye suspendidas, caducadas y cerradas)</summary><div class="q-acc-list">${PROG_GRUPOS.map((g) => {
       const e = ESTC[g.est];
       const lista = progLista(g.est);
       const abierto = !!progAbierto[g.est] && lista.length > 0;
-      return `<div>
+      return `<div id="grp-${g.est}">
         <button type="button" class="q-acc ${abierto ? 'on' : ''} ${lista.length ? '' : 'vacio'}"
           ${lista.length ? `onclick="progToggle('${g.est}')"` : 'disabled'}>
           <span class="q-acc-dot" style="background:${e.color}"></span>
@@ -10933,7 +11379,7 @@ function renderProgramacion() {
         </button>
         ${abierto ? `<div class="q-acc-body">${lista.map((c) => cirCard(c, 'jefe')).join('')}</div>` : ''}
       </div>`;
-    }).join('')}</div>
+    }).join('')}</div></details>
     ${total ? '' : '<div class="empty">No hay solicitudes cargadas en el bloque.</div>'}`;
   } else {
     const lista = DB.cirugias
@@ -15913,60 +16359,46 @@ function openAuth(id) {
   if (!c) return;
   authCtx = id;
   const prev = c.auth === 'NO AUTORIZADO';
+  const dato = (color, t, v, ancho) => `<div class="au-dato${ancho ? ' ancho' : ''}" style="--c:${color}"><small>${t}</small><b>${v}</b></div>`;
+  const op = (val, cls, icono, titulo, txt, sel) => `<label class="au-op ${cls}${sel ? ' sel' : ''}">
+      <input type="radio" name="auth-r" value="${val}" ${sel ? 'checked' : ''} onchange="onAuthOpcion()">
+      <span class="au-op-i">${ico(icono, 22)}</span><span><b>${titulo}</b><small>${txt}</small></span></label>`;
+  $('auth-modal').className = 'modal modal-white au';
   $('auth-modal').innerHTML = `
     <button class="modal-close" onclick="closeAuth()" aria-label="Cerrar">✕</button>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
-      <div class="head-icon" style="background:#e8f4fb">${ico(ICONS.shield, 20)}</div>
-      <div>
-        <div style="font-weight:800;font-size:1.05rem">Admisión y Egresos</div>
-        <div style="font-size:0.82rem;color:var(--muted)">Dictamen administrativo del turno</div>
+    <header class="au-hero">
+      <span class="au-kick"><i></i> Admisión y Egresos · ${c.auth ? 'Rectificación' : 'Dictamen'}</span>
+      <h2>${esc(c.procedimiento || 's/d')}</h2>
+      <p>${esc(c.quirofano || '')} · ${fmtFecha(c.fecha)} · ${esc(c.horaProg || '—')} h</p>
+    </header>
+    <div class="au-ficha">
+      ${dato('#6366f1', 'Paciente', esc(c.paciente?.nombre || 's/d'), true)}
+      ${dato('#0ea5e9', 'DNI', esc(c.paciente?.dni || '—'))}
+      ${dato('#a855f7', 'Cobertura', esc(c.obraSocial || 'sin declarar'))}
+      ${dato(c.auth === 'AUTORIZADO' ? '#10b981' : c.auth ? '#f43f5e' : '#f59e0b', 'Estado', esc(c.auth || 'PENDIENTE'))}
+    </div>
+    <div class="au-cuerpo">
+      ${c.auth ? `<div class="au-previo">${ico(ICONS.alertTri, 18)}<span><b>Ya tiene dictamen: ${esc(c.auth)}.</b>
+        ${c.authAgente ? 'Lo dictaminó ' + esc(c.authAgente) + (c.authFecha ? ' el ' + esc(c.authFecha) : '') + '. ' : ''}Lo que registre ahora lo reemplaza y queda asentado en el historial.</span></div>` : ''}
+      <p class="au-t">Dictamen</p>
+      <div class="au-ops">
+        ${op('1', 'si', ICONS.checkCircle, 'AUTORIZADO', 'El turno puede confirmarse en el parte oficial.', c.auth === 'AUTORIZADO')}
+        ${op('2', 'no', ICONS.x, 'NO AUTORIZADO', 'No entra al parte; el cirujano ve el motivo.', prev)}
       </div>
-    </div>
-    <div class="notify-list" style="margin:6px 0 14px">
-      <b>${esc(c.procedimiento || 's/d')}</b><br>
-      · Paciente: ${esc(c.paciente?.nombre || 's/d')}${c.paciente?.dni ? ` · DNI ${esc(c.paciente.dni)}` : ''}<br>
-      · Cobertura: ${esc(c.obraSocial || 'sin declarar')}<br>
-      · ${esc(c.quirofano || '')} — ${esc(c.horaProg || '')} h · ${fmtFecha(c.fecha)}<br>
-      · Estado actual: <b>${esc(c.auth || 'PENDIENTE')}</b>
-    </div>
-
-    ${c.auth ? `<div class="desc-aviso" style="margin-bottom:12px">
-      <b>Este turno ya tiene dictamen registrado: ${esc(c.auth)}.</b><br>
-      ${c.authAgente ? 'Lo dictaminó ' + esc(c.authAgente) + (c.authFecha ? ' el ' + esc(c.authFecha) : '') + '. ' : ''}Lo que registre ahora lo reemplaza, y el cambio queda asentado en el historial del turno.
-    </div>` : ''}
-
-    <div class="field" style="margin-bottom:12px">
-      <label>Dictamen</label>
-      <label class="check-row"><input type="radio" name="auth-r" value="1" ${c.auth === 'AUTORIZADO' ? 'checked' : ''} onchange="onAuthOpcion()"><span><b>1 — AUTORIZADO</b> · el turno puede confirmarse en el parte oficial</span></label>
-      <label class="check-row" style="color:var(--red)"><input type="radio" name="auth-r" value="2" ${prev ? 'checked' : ''} onchange="onAuthOpcion()"><span><b>2 — NO AUTORIZADO</b> · el turno no entra al parte oficial y el cirujano ve el motivo</span></label>
-    </div>
-
-    <div id="auth-motivo-wrap" style="display:${prev ? 'block' : 'none'}">
-      <div class="field" style="margin-bottom:10px">
-        <label>Motivo del rechazo *</label>
-        <select id="auth-motivo-sel" onchange="onAuthMotivoSel()">
-          <option value="">Seleccionar un motivo frecuente…</option>
-          ${MOTIVOS_NO_AUT.map((m) => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}
-          <option value="__otro__">Otro motivo (escribir)</option>
-        </select>
+      <div id="auth-motivo-wrap" class="au-motivo" style="display:${prev ? 'block' : 'none'}">
+        <p class="au-t" style="color:#be123c">Motivo del rechazo *</p>
+        <div class="au-chips">${MOTIVOS_NO_AUT.map((m) => `<button type="button" class="au-chip${c.authMotivo === m ? ' on' : ''}" onclick="onAuthMotivoChip(this)">${esc(m)}</button>`).join('')}</div>
+        <textarea id="auth-motivo" rows="3" placeholder="Toque un motivo frecuente o escriba otro. El cirujano verá este texto.">${esc(c.authMotivo || '')}</textarea>
+        <span class="au-hint">Queda visible para el cirujano, la Jefatura y en el parte quirúrgico.</span>
       </div>
-      <div class="field" style="margin-bottom:6px">
-        <label>Detalle del motivo *</label>
-        <textarea id="auth-motivo" rows="3" placeholder="Explique por qué no se autoriza el turno. El cirujano verá este texto.">${esc(c.authMotivo || '')}</textarea>
-        <span class="hint">Queda visible para el cirujano, la Jefatura y en el parte quirúrgico.</span>
-      </div>
-    </div>
-
-    <div class="field" style="margin-bottom:6px">
-      <label>Agente que dictamina *</label>
+      <p class="au-t">Agente que dictamina *</p>
       <input type="text" id="auth-agente" placeholder="Apellido y nombre del administrativo" value="${esc(c.authAgente || '')}">
-      <span class="hint">Obligatorio. Queda asentado en el historial del turno junto con la fecha y la hora del dictamen.</span>
-    </div>
-
-    <p class="pass-error" id="auth-err" style="margin:6px 0 0"></p>
-    <div class="form-actions" style="margin-top:14px">
-      <button class="btn btn-blue" onclick="guardarAuth()">${ico(ICONS.check, 16)} Registrar dictamen</button>
-      <button class="btn btn-outline" onclick="closeAuth()">Cancelar</button>
+      <span class="au-hint">Queda asentado en el historial del turno con la fecha y la hora.</span>
+      <p class="pass-error" id="auth-err" style="margin:10px 0 0"></p>
+      <div class="au-acc">
+        <button class="btn btn-outline" onclick="closeAuth()">Cancelar</button>
+        <button class="au-ir${c.auth === 'AUTORIZADO' ? ' ok' : prev ? ' no' : ''}" id="auth-ir" onclick="guardarAuth()">${ico(ICONS.check, 18)} <span>Registrar dictamen</span></button>
+      </div>
     </div>`;
   $('auth-overlay').classList.add('open');
 }
@@ -15976,16 +16408,24 @@ function authOpcion() {
   return r ? r.value : '';
 }
 function onAuthOpcion() {
+  const v = authOpcion();
   const w = $('auth-motivo-wrap');
-  if (w) w.style.display = authOpcion() === '2' ? 'block' : 'none';
+  if (w) w.style.display = v === '2' ? 'block' : 'none';
+  document.querySelectorAll('#auth-modal .au-op').forEach((l) => l.classList.toggle('sel', !!l.querySelector('input:checked')));
+  const ir = $('auth-ir');
+  if (ir) {
+    ir.classList.toggle('ok', v === '1');
+    ir.classList.toggle('no', v === '2');
+    ir.querySelector('span').textContent = v === '1' ? 'Registrar: AUTORIZADO' : v === '2' ? 'Registrar: NO AUTORIZADO' : 'Registrar dictamen';
+  }
+  const err = $('auth-err');
+  if (err) err.style.display = 'none';
 }
 /* El motivo frecuente precarga el detalle, que sigue siendo editable. */
-function onAuthMotivoSel() {
-  const sel = $('auth-motivo-sel'), t = $('auth-motivo');
-  if (!sel || !t) return;
-  if (sel.value && sel.value !== '__otro__') t.value = sel.value;
-  else if (sel.value === '__otro__') t.value = '';
-  t.focus();
+function onAuthMotivoChip(b) {
+  const t = $('auth-motivo');
+  document.querySelectorAll('#auth-modal .au-chip').forEach((x) => x.classList.toggle('on', x === b));
+  if (t) { t.value = b.textContent; t.focus(); }
 }
 function guardarAuth() {
   const c = DB.cirugias.find((x) => x.id === authCtx);
@@ -16054,97 +16494,158 @@ function authDetalle(c) {
    El bloque nace cerrado, así que este panel es la única llave. Se llega con la
    sesión de Jefatura, que ya exigió su credencial; las acciones que alcanzan a
    varios días la vuelven a pedir. */
+/* 3.20 — La ventana de habilitación es un tablero: salas en filas, turnos en
+   columnas, cada ficha se prende y se apaga. Arriba, la semana para saltar de
+   día viendo cuán abierto está cada uno. La prioridad por especialidad se
+   «pinta»: se elige la especialidad y se tocan las fichas. */
+let jefPincel = null;   // especialidad elegida para pintar reservas (null = tocar abre/cierra)
+const HB_COLORES = ['#e11d48', '#7c3aed', '#0891b2', '#d97706', '#16a34a', '#db2777', '#2563eb', '#ea580c', '#0d9488', '#9333ea', '#ca8a04', '#4f46e5'];
+function colorEspecialidad(nombre) {
+  const k = claveServicio(nombre);
+  let h = 0;
+  for (let i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) >>> 0;
+  return HB_COLORES[h % HB_COLORES.length];
+}
+const HB_RANGO = { M: ['08:00', '14:00'], T: ['14:00', '20:00'] };
+function hbAbiertosDia(d) {
+  let n = 0, t = 0;
+  salasProgramables().forEach((s) => turnosDeSala(s).forEach((p) => { t++; if (turnoHabilitado(d, s.id, p)) n++; }));
+  return { n, t };
+}
 function openJefaturaDia() {
   const d = diaSel || hoyISO();
   const prog = salasProgramables();
-  const abiertas = prog.filter((s) => salaHabilitada(d, s.id)).length;
-  const dOn = diaHabilitado(d);
+  const cols = TURNOS_BLOQUE.map((t) => t.p).filter((p) => prog.some((s) => turnosDeSala(s).includes(p)));
+  const { n, t } = hbAbiertosDia(d);
+  const pct = t ? Math.round(n / t * 100) : 0;
+  const rs = reservasDia(d);
+  // Semana de lunes a domingo del día elegido.
+  const w = new Date(d + 'T12:00:00').getDay();
+  const lunes = sumarDias(d, -((w + 6) % 7));
+  const semana = Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i));
+  const servs = serviciosCatalogo().filter((x) => !/^otros?$/i.test(sinTildes(x)));
+  const pc = jefPincel ? colorEspecialidad(jefPincel) : '';
 
-  const filaSala = (s) => {
-    const turnos = turnosDeSala(s);
-    // Mismo rótulo que la grilla: «abierta» a secas confundiría cuando solo
-    // está abierto uno de los dos turnos.
-    const abiertos = turnos.filter((p) => turnoHabilitado(d, s.id, p));
-    const rotulo = !abiertos.length ? 'BLOQUEADA'
-      : abiertos.length === turnos.length ? 'ABIERTA — MAÑANA Y TARDE'
-      : 'SOLO ' + abiertos.map((p) => rotuloTurno(p).label.toUpperCase()).join(' Y ');
-    return `<div class="jefatura-row">
-      <div style="min-width:170px">
-        <div class="jn">${esc(s.nombre)}</div>
-        <div style="font-size:0.76rem;font-weight:800;color:${abiertos.length ? 'var(--green)' : 'var(--red)'}">
-          ${rotulo}</div>
-        ${s.urgHoraria ? `<div class="hint">${esc(rotuloUrgencia(s).titulo)}: turno de la hora siempre abierto</div>` : ''}
-      </div>
-      <div class="jb">
-        ${turnos.map((p) => {
-          const on = turnoHabilitado(d, s.id, p);
-          return `<button class="btn btn-sm ${on ? 'btn-green' : 'btn-outline'}" onclick="jefToggleTurno('${d}','${s.id}','${p}')">
-            ${on ? ico(ICONS.check, 13) : ico(ICONS.lock, 13)} ${rotuloTurno(p).label}</button>`;
-        }).join('')}
-        <button class="btn btn-sm btn-red" onclick="jefLimpiarSala('${d}','${s.id}')">Limpiar</button>
-      </div>
-    </div>`;
+  const celda = (s, p) => {
+    if (!turnosDeSala(s).includes(p)) return `<div class="hb-celda na" aria-hidden="true"><b>—</b></div>`;
+    const on = turnoHabilitado(d, s.id, p);
+    const f = s.franjas.find((x) => x.p === p);
+    const res = rs.filter((r) => salasDeReserva(r).includes(s.id) && HB_RANGO[p] && r.desde < HB_RANGO[p][1] && r.hasta > HB_RANGO[p][0]);
+    const esps = [];
+    res.forEach((r) => comoLista(r.servicios).forEach((x) => { if (!esps.some((y) => mismoServicio(y, x))) esps.push(x); }));
+    return `<button type="button" class="hb-celda${on ? ' on' : ''}" id="hb-${s.id}-${p}" onclick="jefCelda('${d}','${s.id}','${p}')"
+        title="${esc(s.nombre)} · ${esc(rotuloTurno(p).label)}${f ? '' : ''}: ${on ? 'abierto — tocar para cerrar' : 'cerrado — tocar para abrir'}">
+      <span class="hb-ic">${ico(on ? ICONS.check : ICONS.lock, 14)}</span><b>${on ? 'Abierto' : 'Cerrado'}</b>
+      ${esps.length ? `<span class="hb-res">${esps.map((x) => `<span style="--e:${colorEspecialidad(x)}" title="Reservado para ${esc(x)}">${esc(x)}</span>`).join('')}</span>` : ''}
+    </button>`;
   };
+  const dia = DIAS_S[new Date(d + 'T12:00:00').getDay()].toLowerCase();
 
-  $('cir-modal').className = 'modal modal-white';
+  $('cir-modal').className = 'modal modal-white hb';
   $('cir-modal').innerHTML = `
     <button class="modal-close" onclick="closeCirugia()" aria-label="Cerrar">✕</button>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      <div class="head-icon" style="background:#e8f4fb">${ICONS.shield}</div>
-      <div><div style="font-weight:800;font-size:1.1rem">Jefatura de Quirófanos — habilitación del bloque</div>
-        <div style="font-size:0.82rem;color:var(--muted)">${fmtDiaLargo(d)}</div></div>
-    </div>
-
-    <div class="banner ${dOn ? 'banner-green' : 'banner-amber'}" style="margin-bottom:14px">
-      ${dOn ? ico(ICONS.checkCircle, 20) : ico(ICONS.lock, 20)}
-      <div><strong>${dOn ? `Día abierto — ${abiertas} de ${prog.length} salas habilitadas` : 'Día cerrado'}</strong>
-      Las seis salas nacen bloqueadas todos los días, el Quirófano 1 y Obstetricia incluidos. Lo único que no se
-      habilita —porque no se cierra nunca— es el turno de urgencia de la hora en curso del Quirófano 1, de
-      Endoscopía y de Obstetricia.</div></div>
-
-    <div class="det-section"><h4>Abrir el día completo</h4>
-      <div class="jefatura-row">
-        <div style="min-width:170px"><div class="jn">Todas las salas</div>
-          <div class="hint">Los seis quirófanos y la Sala de Endoscopía</div></div>
-        <div class="jb">
-          <button class="btn btn-sm btn-teal" onclick="jefAbrirDia('${d}','MT')">${ico(ICONS.key, 13)} Mañana y tarde</button>
-          <button class="btn btn-sm btn-outline" onclick="jefAbrirDia('${d}','M')">Solo mañana</button>
-          <button class="btn btn-sm btn-outline" onclick="jefAbrirDia('${d}','T')">Solo tarde</button>
-          <button class="btn btn-sm btn-red" onclick="jefCerrarDia('${d}')">Cerrar el día</button>
-        </div>
+    <header class="hb-hero">
+      <div class="hb-kick">Jefatura de Quirófanos · habilitación del bloque</div>
+      <div class="hb-tit">
+        <div class="hb-anillo" style="--v:${pct}"><span>${pct}%</span></div>
+        <div><h2>${esc(fmtDiaLargo(d))}</h2>
+          <p>${diaHabilitado(d) ? `${n} de ${t} turnos abiertos${rs.length ? ` · ${rs.length} reserva${rs.length > 1 ? 's' : ''} por especialidad` : ''}` : 'Día cerrado: todas las salas bloqueadas'}</p></div>
       </div>
-    </div>
-
-    <div class="det-section"><h4>Sala por sala, turno por turno</h4>
-      ${SALAS.map(filaSala).join('')}
-      <p class="form-note">El botón en verde indica el turno abierto. Tocarlo lo cierra; los turnos ya cargados
-      se conservan y, si corresponde, deben suspenderse con causa. Abrir, cerrar y reservar lo puede hacer solo la
-      cuenta de Jefatura: lo controla la propia base de datos, no solo esta pantalla.</p>
-    </div>
-
-    ${seccionReservas(d)}
-
-    <div class="det-section"><h4>Repetir esta configuración</h4>
-      <p class="form-note" style="margin:0 0 10px">Copia lo abierto hoy a los días siguientes, para no repetir la
-      habilitación uno por uno. Pide la credencial de Jefatura porque alcanza a varias fechas.</p>
-      <div class="jb" style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-sm btn-outline" onclick="jefCopiarAgenda('${d}',7,true)">Próximos 7 días hábiles</button>
-        <button class="btn btn-sm btn-outline" onclick="jefCopiarAgenda('${d}',30,true)">Próximos 30 días hábiles</button>
-        <button class="btn btn-sm btn-outline" onclick="jefCopiarAgenda('${d}',7,false)">Próximos 7 días corridos</button>
+      <div class="hb-semana">
+        <button type="button" class="hb-flecha" onclick="jefIrDia('${sumarDias(d, -7)}')" aria-label="Semana anterior">‹</button>
+        ${semana.map((x) => {
+          const a2 = hbAbiertosDia(x);
+          const h = a2.t ? Math.round(a2.n / a2.t * 100) : 0;
+          const wd = new Date(x + 'T12:00:00').getDay();
+          return `<button type="button" class="hb-dia${x === d ? ' sel' : ''}${wd === 0 || wd === 6 ? ' finde' : ''}" style="--h:${h}%" onclick="jefIrDia('${x}')"
+            title="${esc(fmtDiaLargo(x))}: ${a2.n} de ${a2.t} turnos abiertos"><i></i><small>${DIAS_S[wd].slice(0, 3)}</small><b>${Number(x.slice(8))}</b></button>`;
+        }).join('')}
+        <button type="button" class="hb-flecha" onclick="jefIrDia('${sumarDias(d, 7)}')" aria-label="Semana siguiente">›</button>
       </div>
-    </div>
+    </header>
 
-    <div class="det-section"><h4>Limpiar la programación</h4>
-      <div class="jefatura-row">
-        <div style="min-width:170px"><div class="jn">Turnos no confirmados del día</div>
-          <div class="hint">No toca los confirmados, en curso ni realizados</div></div>
-        <div class="jb"><button class="btn btn-sm btn-red" onclick="jefLimpiarDia('${d}')">Limpiar el día</button></div>
+    <div class="hb-cuerpo">
+      <div class="hb-rapidos">
+        <button type="button" class="hb-rap" style="--c1:#059669;--c2:#10b981" onclick="jefAbrirDia('${d}','MT')">${ico(ICONS.key, 14)} Abrir todo el día</button>
+        <button type="button" class="hb-rap" style="--c1:#0891b2;--c2:#06b6d4" onclick="jefAbrirDia('${d}','M')">Solo mañanas</button>
+        <button type="button" class="hb-rap" style="--c1:#6366f1;--c2:#8b5cf6" onclick="jefAbrirDia('${d}','T')">Solo tardes</button>
+        <button type="button" class="hb-rap out" onclick="jefCerrarDia('${d}')">${ico(ICONS.lock, 14)} Cerrar el día</button>
       </div>
+
+      <div class="hb-t">${ico(ICONS.grid, 14)} Salas y turnos <em>${jefPincel ? '— tocá una ficha para reservarla' : '— tocá una ficha para abrirla o cerrarla; el nombre de la sala o del turno, para toda la fila o columna'}</em></div>
+      ${jefPincel ? `<div class="hb-aviso-pincel" style="--pc:${pc}">${ico(ICONS.edit, 16)}<span>Pintando <b>${esc(jefPincel)}</b>: cada ficha que toques queda reservada para esta especialidad (y se abre).</span>
+        <button type="button" onclick="jefPintar(null)">Listo</button></div>` : ''}
+      <div class="hb-tablero${jefPincel ? ' hb-pincel-on' : ''}" style="--cols:${cols.length};--pc:${pc || '#10b981'}">
+        <div class="hb-fila" style="--cols:${cols.length}"><span></span>${cols.map((p) => `<button type="button" class="hb-cab" onclick="jefToggleColumna('${d}','${p}')" title="Abrir o cerrar ${esc(rotuloTurno(p).label)} en todas las salas">${esc(rotuloTurno(p).label)}<small>${esc(rotuloTurno(p).rango.replace(' del día siguiente', ''))}</small></button>`).join('')}</div>
+        ${prog.map((s) => `<div class="hb-fila" style="--cols:${cols.length}">
+          <button type="button" class="hb-sala" onclick="jefToggleSala('${d}','${s.id}')" title="Abrir o cerrar toda la sala"><b>${esc(s.nombre.replace(' — Cesáreas', ''))}</b>
+            <small>${s.urgHoraria ? 'urgencia de la hora: siempre' : 'programada'}</small></button>
+          ${cols.map((p) => celda(s, p)).join('')}</div>`).join('')}
+      </div>
+
+      <div class="hb-t" style="margin-top:16px">${ico(ICONS.users, 14)} Prioridad por especialidad <em>— elegí una y tocá las fichas</em></div>
+      <div class="hb-pinceles">${servs.map((x) => `<button type="button" class="hb-esp${jefPincel && mismoServicio(jefPincel, x) ? ' sel' : ''}" style="--e:${colorEspecialidad(x)}"
+          onclick="jefPintar(this.dataset.s)" data-s="${esc(x)}"><i></i>${esc(x)}</button>`).join('')}</div>
+      ${rs.length ? `<div class="hb-reservas">${rs.map((r) => `<div class="hb-r" style="--e:${colorEspecialidad(comoLista(r.servicios)[0] || '')}">
+          <span>${esc(textoReserva(r))}</span>
+          <button type="button" onclick="jefRepetirReserva('${d}','${esc(r.id)}',4)">↻ 4 ${esc(dia)}</button>
+          <button type="button" onclick="jefRepetirReserva('${d}','${esc(r.id)}',8)">↻ 8 ${esc(dia)}</button>
+          <button type="button" onclick="jefQuitarReserva('${d}','${esc(r.id)}')">✕ Quitar</button></div>`).join('')}</div>`
+        : '<p class="hb-nota" style="margin-top:0">Sin reservas: todo turno abierto admite cualquier especialidad.</p>'}
+
+      <details class="hb-plegable"><summary>${ico(ICONS.clockSm || ICONS.clock, 15)} Reservar un tramo a medida (otras horas u otra especialidad)</summary>
+        <div>${seccionReservas(d, true)}</div></details>
+      <details class="hb-plegable"><summary>${ico(ICONS.refresh, 15)} Repetir esta configuración en otros días</summary>
+        <div><p class="hb-nota" style="margin:0 0 10px">Copia lo abierto este día a los siguientes. Pide la credencial de Jefatura porque alcanza a varias fechas.</p>
+          <div class="hb-rapidos" style="margin:0">
+            <button type="button" class="hb-rap out" onclick="jefCopiarAgenda('${d}',7,true)">Próximos 7 días hábiles</button>
+            <button type="button" class="hb-rap out" onclick="jefCopiarAgenda('${d}',30,true)">Próximos 30 días hábiles</button>
+            <button type="button" class="hb-rap out" onclick="jefCopiarAgenda('${d}',7,false)">Próximos 7 días corridos</button></div></div></details>
+      <details class="hb-plegable"><summary>${ico(ICONS.trash, 15)} Limpiar la programación</summary>
+        <div><p class="hb-nota" style="margin:0 0 10px">Quita los turnos no confirmados de este día (no toca los confirmados, en curso ni realizados), o los de una sala.</p>
+          <div class="hb-rapidos" style="margin:0">
+            <button type="button" class="hb-rap" style="--c1:#be123c;--c2:#f43f5e" onclick="jefLimpiarDia('${d}')">Limpiar el día</button>
+            ${prog.map((s) => `<button type="button" class="hb-rap out" onclick="jefLimpiarSala('${d}','${s.id}')">${esc(s.nombre.replace(' — Cesáreas', ''))}</button>`).join('')}</div></div></details>
+
+      <p class="hb-nota">Las salas nacen bloqueadas todos los días. Lo único que no se cierra nunca es el turno de urgencia de la hora en curso
+        del Quirófano 1, de Endoscopía y de Obstetricia. Cerrar un turno no borra los ya cargados: si corresponde, se suspenden con causa.
+        Abrir, cerrar y reservar lo puede hacer solo la cuenta de Jefatura: lo controla la propia base de datos.</p>
     </div>`;
   $('cir-overlay').classList.add('open');
 }
+function jefIrDia(d) { diaSel = d; openJefaturaDia(); renderProgDiaria(); }
+function jefPintar(esp) { jefPincel = esp && !(jefPincel && mismoServicio(jefPincel, esp)) ? esp : null; openJefaturaDia(); }
+/* Una ficha: con el pincel, la reserva para esa especialidad; sin él, abre o cierra. */
+function jefCelda(d, sid, p) {
+  if (jefPincel && HB_RANGO[p]) {
+    agregarReserva(d, { salas: [sid], desde: HB_RANGO[p][0], hasta: HB_RANGO[p][1], servicios: [jefPincel], t: nowDT() });
+  } else {
+    setTurnoOn(d, sid, p, !turnoHabilitado(d, sid, p));
+  }
+  openJefaturaDia();
+  renderProgDiaria();
+  const el = $(`hb-${sid}-${p}`);
+  if (el) el.classList.add('pop');
+}
+function jefToggleSala(d, sid) {
+  const s = sala(sid);
+  const todos = turnosDeSala(s).every((p) => turnoHabilitado(d, sid, p));
+  setSalaOn(d, sid, !todos);
+  openJefaturaDia();
+  renderProgDiaria();
+}
+function jefToggleColumna(d, p) {
+  const salas = salasProgramables().filter((s) => turnosDeSala(s).includes(p));
+  const todos = salas.every((s) => turnoHabilitado(d, s.id, p));
+  guardarAgenda(d, (a) => {
+    salas.forEach((s) => { a.salas[s.id] = Object.assign({}, a.salas[s.id], { [p]: !todos }); });
+    if (!todos) a.on = true;
+  });
+  openJefaturaDia();
+  renderProgDiaria();
+}
 /* ---- Panel: prioridad por especialidad ---- */
-function seccionReservas(d) {
+function seccionReservas(d, sinLista) {
   const rs = reservasDia(d);
   const dia = DIAS_S[new Date(d + 'T12:00:00').getDay()].toLowerCase();
   const servs = serviciosCatalogo().filter((x) => !/^otros?$/i.test(sinTildes(x)));
@@ -16157,12 +16658,12 @@ function seccionReservas(d) {
         <button class="btn btn-sm btn-red" onclick="jefQuitarReserva('${d}','${esc(r.id)}')">Quitar</button>
       </div></div>`).join('')
     : '<p class="form-note" style="margin:0 0 6px">Sin reservas: todo turno abierto de este día admite cualquier especialidad.</p>';
-  return `<div class="det-section"><h4>Prioridad por especialidad</h4>
+  return `<div class="det-section" style="margin:0"><h4 style="display:none">Prioridad por especialidad</h4>
     <p class="form-note" style="margin:0 0 10px">Reserva un tramo del día para una o varias especialidades: en esas
     franjas solo programan los profesionales de los servicios elegidos; fuera del tramo, el turno abierto sigue siendo
     para todos. Reservar también abre el turno de esas salas. El turno de urgencia de la hora no se reserva nunca y los
     turnos ya cargados se conservan.</p>
-    ${lista}
+    ${sinLista ? '' : lista}
     <div class="reserva-form">
       <div class="rf-bloque"><div class="rf-tit">Salas</div>
         <div class="rf-checks">${SALAS.map((x) => `<label><input type="checkbox" id="rs-sala-${x.id}"> ${esc(x.nombre)}</label>`).join('')}</div></div>
@@ -19243,7 +19744,52 @@ const PASE_CSS = `
 .pase-btn-main{color:#fff;background:linear-gradient(120deg,#7c3aed,#db2777 55%,#f97316);box-shadow:0 6px 16px rgba(219,39,119,.3)}
 .pase-btn-main:hover{filter:brightness(1.06)}
 .pase-nota{text-align:center;margin-top:12px}
-.pase-anular{text-align:center;font-size:.78rem;color:var(--muted,#6b7280);margin-top:10px}
+/* 3.20 — botonera del pase: mosaico de acciones con color propio, que se levanta y responde al toque */
+.pase-mosaico{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+.pase-acc-t{--c1:#7c3aed;--c2:#db2777;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+  min-height:86px;padding:12px 8px;border-radius:18px;border:1px solid color-mix(in srgb,var(--c1) 22%,transparent);cursor:pointer;text-decoration:none;
+  font:inherit;font-size:.8rem;font-weight:800;color:var(--ink,#1f2937);background:color-mix(in srgb,var(--c1) 7%,var(--card,#fff));
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,background .25s}
+.pase-acc-t:hover{transform:translateY(-4px);box-shadow:0 12px 26px color-mix(in srgb,var(--c1) 30%,transparent)}
+.pase-acc-t:active{transform:translateY(-1px) scale(.97)}
+.pase-acc-t:focus-visible{outline:3px solid color-mix(in srgb,var(--c1) 55%,transparent);outline-offset:2px}
+.pase-acc-i{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;
+  background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:0 6px 14px color-mix(in srgb,var(--c1) 40%,transparent);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.pase-acc-i svg{width:20px;height:20px}
+.pase-acc-t:hover .pase-acc-i{transform:rotate(-8deg) scale(1.1)}
+.pase-acc-t.giro:hover .pase-acc-i{transform:rotateY(180deg)}
+.pase-acc-t>span{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;line-height:1.2}
+.pase-acc-t small{display:block;font-size:.66rem;font-weight:600;color:var(--muted,#6b7280)}
+.pase-acc-t.prin{grid-column:span 3;flex-direction:row;min-height:64px;gap:12px;color:#fff;border:0;
+  background:linear-gradient(120deg,#7c3aed,#db2777 55%,#f97316);background-size:200% 100%;animation:paseFluye 6s ease-in-out infinite;font-size:.95rem}
+.pase-acc-t.prin .pase-acc-i{background:rgba(255,255,255,.22);box-shadow:none}
+.pase-acc-t.prin small{color:rgba(255,255,255,.9);font-size:.72rem;margin:0}
+.pase-acc-t.prin span{display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+.pase-acc-t::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--px,50%) var(--py,50%),rgba(255,255,255,.55),transparent 55%);
+  opacity:0;transition:opacity .4s;pointer-events:none}
+.pase-acc-t.toque::after{opacity:1;transition:none}
+.pase-acc-t[disabled]{opacity:.65;cursor:wait;transform:none}
+@keyframes paseFluye{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.pase-envio{display:flex;align-items:center;gap:10px;margin-top:14px;padding:11px 14px;border-radius:14px;font-size:.84rem;line-height:1.4}
+.pase-envio>svg{flex-shrink:0}
+.pase-envio b{display:block}
+.pase-envio small{display:block;opacity:.85;font-size:.76rem}
+.pase-envio.ok{background:color-mix(in srgb,#10b981 14%,var(--card,#fff));color:#065f46;border:1px solid color-mix(in srgb,#10b981 35%,transparent)}
+.pase-envio.err{background:color-mix(in srgb,#e11d48 11%,var(--card,#fff));color:#9f1239;border:1px solid color-mix(in srgb,#e11d48 35%,transparent)}
+.pase-envio.va{background:color-mix(in srgb,#7c3aed 10%,var(--card,#fff));color:#5b21b6;border:1px solid color-mix(in srgb,#7c3aed 30%,transparent)}
+.pase-envio.nada{background:var(--sup2,#f5f3ff);color:var(--ink,#374151)}
+.pase-envio .pase-vuela{animation:paseVuela 1.1s ease-in-out infinite}
+@keyframes paseVuela{0%{transform:translate(-3px,3px)}50%{transform:translate(3px,-3px)}100%{transform:translate(-3px,3px)}}
+.pase-envio.ok>svg{animation:paseSalta .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes paseSalta{from{transform:scale(.3)}to{transform:scale(1)}}
+.pase-anular{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;border-radius:14px;border:1px dashed var(--line,#e5e7eb);text-align:left}
+.pase-anular-ico{width:36px;height:36px;flex-shrink:0;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#b45309;background:#fef3c7}
+.pase-anular-t{flex:1;min-width:0;font-size:.8rem;line-height:1.35;color:var(--muted,#6b7280)}
+.pase-anular-t b{display:block;color:var(--ink,#1f2937);font-size:.86rem}
+.pase-anular .btn{flex-shrink:0;white-space:nowrap}
+@media (max-width:480px){.pase-mosaico{grid-template-columns:repeat(2,minmax(0,1fr))}.pase-acc-t.prin{grid-column:span 2}
+  .pase-anular{flex-wrap:wrap}.pase-anular .btn{width:100%;justify-content:center}}
+@media (prefers-reduced-motion:reduce){.pase-acc-t,.pase-acc-i{transition:none}.pase-acc-t.prin,.pase-envio .pase-vuela,.pase-envio.ok>svg{animation:none}}
 .bp-escena{perspective:1200px;padding:6px 2px 2px}
 .bp{--rx:0deg;--ry:0deg;--bx:50%;--by:30%;position:relative;max-width:420px;margin:0 auto;transform-style:preserve-3d;
   transform:rotateX(var(--rx)) rotateY(var(--ry));transition:transform .5s cubic-bezier(.2,.8,.2,1);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
@@ -19324,6 +19870,10 @@ body.portal-pac[data-tema="noche"]{background:#120d1f!important}
 .pp-lbl{display:block;font-size:.8rem;font-weight:700;color:#4c1d95;margin-bottom:6px}
 .pp-input{width:100%;box-sizing:border-box;font:inherit;font-size:1.15rem;padding:13px 14px;border-radius:14px;border:2px solid #e9d5ff;outline:none;background:#fff;color:#111827}
 .pp-input:focus{border-color:#a855f7;box-shadow:0 0 0 4px rgba(168,85,247,.18)}
+/* Los temas de la app (body[data-tema] input) pintan el texto con su color: en «noche» quedaba blanco sobre blanco. */
+body.portal-pac .pp-input{color:#111827!important;-webkit-text-fill-color:#111827;background:#fff!important;caret-color:#7c3aed;opacity:1}
+body.portal-pac .pp-input::placeholder{color:#9ca3af;-webkit-text-fill-color:#9ca3af}
+.pp-det{display:block;margin-top:4px;font-size:.72rem;opacity:.75;word-break:break-word}
 .pp-cod{font:800 1.6rem ui-monospace,Menlo,monospace;letter-spacing:.3em;text-align:center;text-transform:uppercase}
 .pp-btn{width:100%;margin-top:12px;border:0;border-radius:14px;padding:14px;font:inherit;font-size:1rem;font-weight:800;color:#fff;cursor:pointer;
   background:linear-gradient(120deg,#7c3aed,#db2777 60%,#f97316);box-shadow:0 8px 20px rgba(219,39,119,.3)}
@@ -19428,6 +19978,26 @@ function enmascararMail(m) {
   return `${u.slice(0, 2)}${'•'.repeat(Math.max(2, Math.min(6, u.length - 2)))}@${d}`;
 }
 
+/* 3.20 — El pase sirve igual para cirugías, endoscopías y cesáreas programadas;
+   lo que cambia es cómo se le habla al paciente. El tipo sale de la sala. */
+const PP_TIPOS = {
+  cir:  { n: 'cirugía', N: 'Cirugía', o: 'a', del: 'de la', mi: 'Mi cirugía', medico: 'cirujano/a', Medico: 'Cirujano/a', equipo: 'El equipo quirúrgico está trabajando.', sector: 'Quirófanos' },
+  endo: { n: 'estudio', N: 'Estudio', o: 'o', del: 'del', mi: 'Mi estudio', medico: 'médico/a', Medico: 'Médico/a', equipo: 'El equipo de Endoscopía está trabajando.', sector: 'Endoscopía' },
+  ces:  { n: 'cesárea', N: 'Cesárea', o: 'a', del: 'de la', mi: 'Mi cesárea', medico: 'obstetra', Medico: 'Obstetra', equipo: 'El equipo de Obstetricia está trabajando.', sector: 'Obstetricia' },
+};
+function portalTipo(c) {
+  const t = c && c.sala ? sala(c.sala).tipo : 'qx';
+  return t === 'endo' ? 'endo' : t === 'obs' ? 'ces' : 'cir';
+}
+const ppTipo = (k) => PP_TIPOS[k] || PP_TIPOS.cir;
+/* El destino corto del pase: QX 2, ENDO u OBST, que entra en la tarjeta. */
+function paseDestino(c) {
+  const t = c && c.sala ? sala(c.sala).tipo : '';
+  if (t === 'endo') return 'ENDO';
+  if (t === 'obs') return 'OBST';
+  return String(c.quirofano || '').replace(/Quir[oó]fano\s*/i, 'QX ');
+}
+
 /* ¿Corresponde ofrecer el pase? Electiva (las urgencias operan sin esperar y no
    hay nada que seguir), los tres requisitos tildados y el consentimiento ya
    guardado, con el turno vivo en el circuito. */
@@ -19458,7 +20028,7 @@ function portalFoto(c, borrado) {
   const e = portalEstadoPaciente(c, borrado);
   if (e.caducado) return { v: 1, caducado: true, clave: e.clave, act: ahoraServidor() };
   return {
-    v: 1, caducado: false, clave: e.clave, adm: e.adm, jef: e.jef, motivo: e.motivo || '',
+    v: 1, caducado: false, clave: e.clave, adm: e.adm, jef: e.jef, motivo: e.motivo || '', tipo: portalTipo(c),
     nombre: primerNombre(c.paciente && c.paciente.nombre), proc: c.procedimiento || '',
     fecha: c.fecha || '', hora: c.horaProg || '', lugar: c.quirofano || '', cirujano: c.cirujano || '',
     ref: (c.pase && c.pase.ref) || '', act: ahoraServidor(),
@@ -19610,7 +20180,7 @@ function paseFormulario(c, recien) {
     <div class="pase-form">
       <div class="field"><label>Correo del paciente *</label>
         <input type="email" id="pase-mail" value="${esc((c.paciente && c.paciente.email) || '')}" placeholder="nombre@correo.com" autocomplete="off">
-        <span class="hint">Cada vez que entre le llega a este correo un código de un solo uso.</span></div>
+        <span class="hint">Al generarlo, el pase le llega solo a este correo. Cada vez que entre, le llega ahí un código de un solo uso.</span></div>
       <div class="field"><label>DNI del paciente *</label>
         <input type="text" id="pase-dni" inputmode="numeric" value="${esc((c.paciente && c.paciente.dni) || '')}">
         <span class="hint">Con su DNI pide el código. No viaja en el QR.</span></div>
@@ -19634,6 +20204,8 @@ async function confirmarPase(btn) {
   btn.disabled = true;
   await generarPase(c, mail, dni);
   openPase(c.id);
+  // 3.20: el pase le llega solo al paciente, sin abrir el correo de nadie.
+  paseEnviarCorreo(c.id, true);
 }
 
 const PASE_PASOS = {
@@ -19653,8 +20225,9 @@ function paseVista(c, puede) {
   const dni = soloDigitos(c.paciente && c.paciente.dni);
   const url = portalUrl(p.token);
   const tel = soloDigitos(c.paciente && c.paciente.telefono);
-  const msg = `Hola ${primerNombre(c.paciente && c.paciente.nombre)}: este es tu pase para seguir tu cirugía en el Hospital Regional Ushuaia. Entrá acá y pedí el código con tu DNI: ${url}`;
-  const sala = String(c.quirofano || '').replace(/Quir[oó]fano\s*/i, 'QX ').replace(/Endoscop[ií]a/i, 'ENDO');
+  const T = ppTipo(portalTipo(c));
+  const msg = `Hola ${primerNombre(c.paciente && c.paciente.nombre)}: este es tu pase para seguir tu ${T.n} en el Hospital Regional Ushuaia. Entrá acá y pedí el código con tu DNI: ${url}`;
+  const sala = paseDestino(c);
   return `<button class="modal-close pase-x" onclick="closePase()" aria-label="Cerrar">✕</button>
     <div class="bp-escena">
     <div class="bp ${p.caducado ? 'bp-caduco' : ''}" id="bp">
@@ -19672,17 +20245,17 @@ function paseVista(c, puede) {
           <div class="bp-pto bp-der"><small>Destino</small><b>${esc(sala || '—')}</b><span>${esc(c.horaProg || '—')} h</span></div>
         </div>
         <div class="bp-datos">
-          <div class="bp-dato bp-ancho"><small>Cirugía</small><b>${esc(c.procedimiento || '')}</b></div>
+          <div class="bp-dato bp-ancho"><small>${T.N}</small><b>${esc(c.procedimiento || '')}</b></div>
           <div class="bp-dato"><small>Fecha</small><b>${esc(fmtDiaLargo(c.fecha))}</b></div>
           <div class="bp-dato"><small>Hora</small><b>${esc(c.horaProg || '—')} h</b></div>
-          <div class="bp-dato"><small>Cirujano/a</small><b>${esc(c.cirujano || '')}</b></div>
+          <div class="bp-dato"><small>${T.Medico}</small><b>${esc(c.cirujano || '')}</b></div>
           <div class="bp-dato"><small>Estado ahora</small><b class="bp-est bp-${est.tono}">${esc(est.txt)}</b></div>
         </div>
         <div class="bp-corte"><i></i></div>
         <div class="bp-talon">
           <div class="bp-qr" id="bp-qr"><div class="bp-qr-espera">Generando QR…</div></div>
           <div class="bp-talon-txt">
-            <b>Escaneá y seguí tu cirugía en tiempo real</b>
+            <b>Escaneá y seguí tu ${T.n} en tiempo real</b>
             <span>Te pedimos tu DNI y te mandamos un código de un solo uso a <b>${esc(enmascararMail(c.paciente && c.paciente.email))}</b>.</span>
             <span class="bp-ref">${esc(p.ref || '')}</span>
           </div>
@@ -19697,24 +20270,112 @@ function paseVista(c, puede) {
           <li><b>Ingresá el código</b>: sirve una sola vez y vence en ${PORTAL.codigoMin} minutos. Cada vez que entres te mandamos uno nuevo.</li>
         </ol>
         <div class="bp-dorso-t" style="margin-top:12px">Qué vas a ver</div>
-        <p>Si Admisión y Egresos autorizó tu cirugía, si la Jefatura de Quirófanos la confirmó o la suspendió, y el día y la hora. Se actualiza sola.</p>
-        <p class="bp-priv">Ves solo tu cirugía, sin diagnóstico. Tus datos se usan únicamente para avisarte el estado de tu cirugía (Ley 25.326). El pase caduca cuando se cierra la cirugía.</p>
+        <p>Si Admisión y Egresos autorizó tu ${T.n}, si la Jefatura de Quirófanos ${T.o === 'o' ? 'lo' : 'la'} confirmó o ${T.o === 'o' ? 'lo' : 'la'} suspendió, y el día y la hora. Se actualiza sola.</p>
+        <p class="bp-priv">Ves solo tu ${T.n}, sin diagnóstico. Tus datos se usan únicamente para avisarte el estado de tu ${T.n} (Ley 25.326). El pase caduca cuando se cierra ${T.o === 'o' ? 'el estudio' : 'la ' + T.n}.</p>
       </div>
     </div>
     </div>
-    <div class="pase-acc">
-      <button class="btn btn-outline" onclick="$('bp').classList.toggle('bp-vuelta')">${ICONS.refresh || '↻'} Dar vuelta</button>
-      <button class="btn pase-btn-main" onclick="imprimirPase()">${ICONS.fileText} Imprimir</button>
-      ${!p.caducado ? `
-      <button class="btn btn-outline" onclick="copiarEnlacePase(this)">${ico(ICONS.link || ICONS.fileText, 15)} Copiar enlace</button>
-      ${tel ? `<a class="btn btn-outline" target="_blank" rel="noopener" href="https://wa.me/${tel.startsWith('54') ? tel : '54' + tel}?text=${encodeURIComponent(msg)}">WhatsApp</a>` : ''}
-      <a class="btn btn-outline" href="mailto:${esc(c.paciente && c.paciente.email || '')}?subject=${encodeURIComponent('Tu pase de cirugía — Hospital Regional Ushuaia')}&body=${encodeURIComponent(msg)}">${ICONS.mail} Correo</a>
-      <a class="btn btn-outline" target="_blank" rel="noopener" href="${esc(url)}">${ICONS.eyeSm} Ver como paciente</a>` : ''}
-    </div>
+    ${paseMosaico(c, url, tel, msg)}
+    ${!p.caducado ? `<div id="pase-envio">${paseEnvioHtml(c)}</div>` : ''}
     ${!cloudOn ? '<p class="form-note pase-nota">Modo local: el portal del paciente se simula en este navegador y el código se muestra en pantalla.</p>'
       : !PORTAL.servicio ? '<p class="form-note pase-nota"><b>El portal del paciente todavía no está activo</b>: falta publicar el servicio que manda los códigos por correo. El pase se puede imprimir y entregar igual; empieza a funcionar apenas se active.</p>' : ''}
-    ${puede && !p.caducado ? `<p class="pase-anular"><button class="btn btn-sm btn-outline" onclick="anularPase(${c.id})">${ICONS.trash} Anular este pase y generar otro</button> si el paciente lo perdió o cambió de correo.</p>` : ''}`;
+    ${puede && !p.caducado ? `<div class="pase-anular">
+      <span class="pase-anular-ico">${ico(ICONS.refresh, 18)}</span>
+      <span class="pase-anular-t"><b>¿El paciente lo perdió o cambió de correo?</b>Se anula este pase y se genera otro con el correo nuevo.</span>
+      <button class="btn btn-sm btn-outline" onclick="anularPase(${c.id})">${ico(ICONS.trash, 14)} Anular y generar otro</button>
+    </div>` : ''}`;
 }
+/* Botonera del pase: el envío por correo va primero y grande; el resto, en mosaico. */
+function paseMosaico(c, url, tel, msg) {
+  const p = c.pase;
+  const t = (cls, c1, c2, icono, txt, sub, attrs) =>
+    `<${attrs.href ? 'a' : 'button'} class="pase-acc-t ${cls}" style="--c1:${c1};--c2:${c2}" ${attrs.href ? `href="${esc(attrs.href)}" target="_blank" rel="noopener"` : `type="button" onclick="${attrs.on}"`}
+      onpointerdown="paseToque(event,this)"><i class="pase-acc-i">${ico(icono, 20)}</i><span>${txt}${sub ? `<small>${sub}</small>` : ''}</span></${attrs.href ? 'a' : 'button'}>`;
+  const wa = tel ? `https://wa.me/${tel.startsWith('54') ? tel : '54' + tel}?text=${encodeURIComponent(msg)}` : '';
+  return `<div class="pase-mosaico">
+    ${!p.caducado ? t('prin', '#7c3aed', '#db2777', ICONS.send, (p.envio && p.envio.ok) ? 'Reenviar el pase por correo' : 'Enviar el pase por correo',
+      'Le llega solo a ' + esc(enmascararMail(c.paciente && c.paciente.email)) + ', sin abrir tu correo', { on: `paseEnviarCorreo(${c.id}, false, this)` }) : ''}
+    ${t('giro', '#0ea5e9', '#6366f1', ICONS.refresh, 'Dar vuelta', 'cómo se usa', { on: `paseGirar(this)` })}
+    ${t('', '#f97316', '#e11d48', ICONS.fileText, 'Imprimir', 'frente y dorso', { on: 'imprimirPase()' })}
+    ${!p.caducado ? t('', '#8b5cf6', '#c026d3', ICONS.link || ICONS.fileText, 'Copiar enlace', 'para pegar', { on: 'copiarEnlacePase(this)' }) : ''}
+    ${!p.caducado && wa ? t('', '#16a34a', '#22c55e', ICONS.msg || ICONS.send, 'WhatsApp', 'mensaje listo', { href: wa }) : ''}
+    ${!p.caducado ? t('', '#0891b2', '#10b981', ICONS.eyeSm || ICONS.eye, 'Ver como paciente', 'abre el portal', { href: url }) : ''}
+  </div>`;
+}
+/* Brillo donde se toca: el botón responde aunque la acción tarde. */
+function paseToque(e, el) {
+  const r = el.getBoundingClientRect();
+  el.style.setProperty('--px', `${e.clientX - r.left}px`);
+  el.style.setProperty('--py', `${e.clientY - r.top}px`);
+  el.classList.add('toque');
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('toque')));
+}
+function paseGirar(btn) {
+  const bp = $('bp');
+  if (!bp) return;
+  bp.classList.toggle('bp-vuelta');
+  const s = btn.querySelector('small');
+  if (s) s.textContent = bp.classList.contains('bp-vuelta') ? 'volver al frente' : 'cómo se usa';
+}
+
+const PASE_ENVIO_ERR = {
+  reglas: 'La base de datos no dejó guardar el pase: falta publicar las reglas de Firebase de la versión 3.19.',
+  formato: 'El servicio de correo está desactualizado: falta publicar la versión nueva del Apps Script (Administrar implementaciones › Nueva versión).',
+  sinPase: 'El servicio no encontró el pase en la base. Pruebe de nuevo en un momento.',
+  limite: 'Ya se mandó 3 veces en la última hora. Espere un rato antes de reenviarlo.',
+  config: 'El servicio de correo todavía no está publicado.',
+  caducado: 'El pase ya caducó: no se manda.',
+  red: 'No hubo respuesta del servicio de correo. Revise la conexión y reintente.',
+};
+function paseEnvioHtml(c, enviando) {
+  const e = c.pase && c.pase.envio;
+  const mail = esc(enmascararMail(c.paciente && c.paciente.email));
+  if (enviando) return `<div class="pase-envio va" role="status"><span class="pase-vuela">${ico(ICONS.send, 20)}</span><span><b>Enviando el pase a ${mail}…</b><small>El servicio del hospital lo manda solo.</small></span></div>`;
+  if (!e) return `<div class="pase-envio nada">${ico(ICONS.mail, 20)}<span><b>Todavía no se envió por correo</b><small>Toque «Enviar el pase por correo».</small></span></div>`;
+  if (e.ok) return `<div class="pase-envio ok" role="status">${ico(ICONS.checkCircle, 22)}<span><b>Pase enviado a ${esc(e.a || mail)}</b><small>${esc(fmtDT(e.t))}${e.auto ? ' · enviado solo al generarlo' : ''}</small></span></div>`;
+  return `<div class="pase-envio err" role="alert">${ico(ICONS.alertTri, 22)}<span><b>No se pudo enviar el pase</b><small>${esc(PASE_ENVIO_ERR[e.err] || PASE_ENVIO_ERR.red)}${e.det ? ' (' + esc(e.det) + ')' : ''}</small></span></div>`;
+}
+/* Antes de pedir el envío, la foto y lo privado del pase tienen que estar en la
+   base: el servicio lee el correo de ahí, nunca del navegador. */
+async function portalSubirPase(c) {
+  const t = c.pase.token;
+  const foto = portalFoto(c);
+  try { await firebase.database().ref('portalPaciente/' + t).set(foto); }
+  catch (e) { const x = new Error('reglas'); x.det = (e && e.code) || ''; throw x; }
+  portalFirmas[t] = JSON.stringify(Object.assign({}, foto, { act: 0 }));
+  if (!await portalEscribirPrivado(c)) { const x = new Error('reglas'); x.det = 'portalPrivado'; throw x; }
+}
+async function paseEnviarCorreo(id, auto, btn) {
+  const c = DB.cirugias.find((x) => x.id === id);
+  if (!c || !c.pase || !c.pase.token || c.pase.caducado) return;
+  if (btn) btn.disabled = true;
+  const caja = () => $('pase-envio');
+  if (caja()) caja().innerHTML = paseEnvioHtml(c, true);
+  let res;
+  if (!cloudOn) { await new Promise((ok) => setTimeout(ok, 900)); res = { ok: true, destino: enmascararMail(c.paciente && c.paciente.email) }; }
+  else if (!PORTAL.servicio) res = { error: 'config' };
+  else {
+    try {
+      await portalSubirPase(c);
+      res = await portalServicio({ accion: 'enviarPase', token: c.pase.token });
+    } catch (e) { res = (e && e.message === 'reglas') ? { error: 'reglas', det: e.det } : { error: 'red' }; }
+  }
+  const ok = !!(res && res.ok);
+  c.pase.envio = { t: nowDT(), ok, a: (res && res.destino) || enmascararMail(c.paciente && c.paciente.email), auto: !!auto,
+    err: ok ? '' : ((res && res.error) || 'red'), det: ok ? '' : String((res && res.det) || '').slice(0, 140) };
+  pushHist(c, ok ? `Pase del paciente enviado por correo a ${c.pase.envio.a}${auto ? ' (automático, al generarlo)' : ''}`
+    : `No se pudo enviar el pase por correo: ${PASE_ENVIO_ERR[c.pase.envio.err] || PASE_ENVIO_ERR.red}`);
+  upsert('cirugias', c);
+  if (paseId === id && caja()) {
+    caja().innerHTML = paseEnvioHtml(c);
+    const b = document.querySelector('.pase-acc-t.prin span');
+    if (b && ok) b.firstChild.textContent = 'Reenviar el pase por correo';
+  }
+  if (btn) btn.disabled = false;
+  if (ok && typeof toastTurno === 'function') toastTurno('Pase enviado por correo al paciente', '#7c3aed');
+  return ok;
+}
+
 async function paseDibujarQR(c) {
   const box = $('bp-qr');
   if (!box || !c.pase) return;
@@ -19768,11 +20429,11 @@ function imprimirPase() {
    Se abre con `?pase=<llave>`. No arranca la app del hospital: no se conecta a
    la base, no pide pase anónimo, no carga datos de nadie. Habla solo con el
    servicio del portal, que verifica el código y le devuelve la foto mínima. */
-const portal = { paso: 'dni', destino: '', sesion: '', foto: null, error: '', timer: null, demoCodigo: '', reenviarEn: 0, act: null };
+const portal = { paso: 'dni', destino: '', sesion: '', foto: null, error: '', det: '', dniTxt: '', timer: null, demoCodigo: '', reenviarEn: 0, act: null };
 
 function iniciarPortalPaciente() {
   document.body.classList.add('portal-pac');
-  document.title = 'Mi cirugía — Hospital Regional Ushuaia';
+  document.title = 'Mi turno — Hospital Regional Ushuaia';
   pintarEstiloPase();
   const root = document.createElement('main');
   root.id = 'portal-root';
@@ -19783,15 +20444,17 @@ function iniciarPortalPaciente() {
   window.addEventListener('storage', (e) => { if (e.key === PORTAL_DEMO && portal.paso === 'estado') portalConsultar(); });
 }
 function portalMarco(cuerpo) {
+  const T = portal.foto && portal.foto.tipo ? ppTipo(portal.foto.tipo) : null;
+  if (T) document.title = `${T.mi} — Hospital Regional Ushuaia`;
   return `<div class="pp">
     <header class="pp-cab">
-      <div class="pp-marca"><span class="pp-logo">${ICONS.activity || ''}</span><div><b>Mi cirugía</b><small>Hospital Regional Ushuaia · Quirófanos</small></div></div>
+      <div class="pp-marca"><span class="pp-logo">${ICONS.activity || ''}</span><div><b>${T ? T.mi : 'Mi turno'}</b><small>Hospital Regional Ushuaia · ${T ? T.sector : 'Quirófanos'}</small></div></div>
       ${portal.paso === 'estado' ? '<button class="pp-salir" onclick="portalSalir()">Salir</button>' : ''}
     </header>
     ${cuerpo}
-    <footer class="pp-pie">Ves solo tu cirugía, sin diagnóstico. Cada ingreso se valida con un código de un solo uso enviado a tu correo.
-      Tus datos se usan únicamente para informarte el estado de tu cirugía (Ley 25.326 de Protección de Datos Personales).
-      Para dudas sobre tu cirugía, consultá a tu cirujano/a.</footer>
+    <footer class="pp-pie">Ves solo tu ${T ? T.n : 'turno'}, sin diagnóstico. Cada ingreso se valida con un código de un solo uso enviado a tu correo.
+      Tus datos se usan únicamente para informarte el estado de tu ${T ? T.n : 'turno'} (Ley 25.326 de Protección de Datos Personales).
+      Para dudas, consultá a tu ${T ? T.medico : 'médico/a'}.</footer>
   </div>`;
 }
 function renderPortal() {
@@ -19803,7 +20466,7 @@ function renderPortal() {
   }
   if (portal.paso === 'caducado') {
     r.innerHTML = portalMarco(portalTarjeta('gr', 'Este pase ya no está activo',
-      'Tu cirugía se cerró en el sistema del hospital, así que el pase caducó y no se puede volver a usar. Si tenés dudas, consultá a tu cirujano/a.'));
+      'Tu turno se cerró en el sistema del hospital, así que el pase caducó y no se puede volver a usar. Si tenés dudas, consultá a tu médico/a.'));
     return;
   }
   if (portal.paso === 'dni' || portal.paso === 'codigo') {
@@ -19811,13 +20474,13 @@ function renderPortal() {
     r.innerHTML = portalMarco(`
       <section class="pp-hero">
         <div class="pp-hero-ico">${ico(ICONS.shieldCheck || ICONS.shield, 30)}</div>
-        <h1>${codigo ? 'Revisá tu correo' : 'Seguí tu cirugía'}</h1>
+        <h1>${codigo ? 'Revisá tu correo' : 'Seguí tu turno'}</h1>
         <p>${codigo
           ? `Te mandamos un código de 8 letras y números a <b>${esc(portal.destino)}</b>. Vence en ${PORTAL.codigoMin} minutos y sirve para un solo ingreso.`
           : 'Para proteger tus datos, cada vez que entrás te mandamos un código nuevo a tu correo. Empezá con tu DNI.'}</p>
       </section>
       <section class="pp-card">
-        ${portal.error ? `<div class="pp-error" role="alert">${esc(portal.error)}</div>` : ''}
+        ${portal.error ? `<div class="pp-error" role="alert">${esc(portal.error)}${portal.det ? `<small class="pp-det">Detalle para el hospital: ${esc(portal.det)}</small>` : ''}</div>` : ''}
         ${codigo && portal.demoCodigo ? `<div class="pp-demo"><b>Modo de prueba</b> — no se manda correo. Tu código es <code>${esc(portal.demoCodigo)}</code></div>` : ''}
         ${codigo ? `
           <label class="pp-lbl" for="pp-cod">Código del correo</label>
@@ -19827,7 +20490,8 @@ function renderPortal() {
           <button class="pp-link" id="pp-reenv" onclick="portalPedirCodigo(true)" ${portal.reenviarEn > Date.now() ? 'disabled' : ''}>Mandarme otro código</button>`
         : `
           <label class="pp-lbl" for="pp-dni">Tu DNI</label>
-          <input class="pp-input" id="pp-dni" inputmode="numeric" autocomplete="off" placeholder="Sin puntos" onkeydown="if(event.key==='Enter')portalPedirCodigo()">
+          <input class="pp-input" id="pp-dni" inputmode="numeric" autocomplete="off" placeholder="Sin puntos" value="${esc(portal.dniTxt)}"
+            oninput="portal.dniTxt=this.value" onkeydown="if(event.key==='Enter')portalPedirCodigo()">
           <button class="pp-btn" id="pp-go" onclick="portalPedirCodigo()">Mandarme el código</button>`}
       </section>`);
     setTimeout(() => { const i = $(codigo ? 'pp-cod' : 'pp-dni'); if (i) i.focus(); }, 50);
@@ -19838,23 +20502,28 @@ function renderPortal() {
 function portalTarjeta(tono, titulo, texto) {
   return `<section class="pp-estado pp-${tono}"><h1>${titulo}</h1><p>${texto}</p></section>`;
 }
-const PP_TITULOS = {
-  esperando_admision: ['pe', 'Tu cirugía está en revisión', 'Admisión y Egresos está revisando la autorización. Te mostramos acá cuando avance.'],
-  no_autorizada: ['no', 'Admisión y Egresos no autorizó la cirugía por ahora', 'Comunicate con tu cirujano/a para saber qué falta y cómo seguir.'],
-  esperando_jefatura: ['az', 'Autorizada por Admisión y Egresos', 'Falta la confirmación de la Jefatura de Quirófanos, que verifica sala, insumos y equipo.'],
-  confirmada: ['ok', '¡Tu cirugía está confirmada!', ''],
-  suspendida: ['no', 'Tu cirugía fue suspendida', 'Tu cirujano/a se va a comunicar con vos para reprogramarla.'],
-  reprogramando: ['gr', 'Tu cirugía se está reprogramando', 'Todavía no tiene día y hora nuevos. Te lo mostramos acá apenas quede asignado.'],
-  en_curso: ['vi', 'Tu cirugía está en curso', 'El equipo quirúrgico está trabajando.'],
-  operada: ['ok', 'Cirugía realizada', 'Tu cirugía ya se hizo. El pase se cierra cuando el equipo complete los registros.'],
-};
+function ppTitulos(T) {
+  const tu = `Tu ${T.n}`, lo = T.o === 'o' ? 'lo' : 'la';
+  return {
+    esperando_admision: ['pe', `${tu} está en revisión`, 'Admisión y Egresos está revisando la autorización. Te mostramos acá cuando avance.'],
+    no_autorizada: ['no', `Admisión y Egresos no autorizó ${T.o === 'o' ? 'el estudio' : 'la ' + T.n} por ahora`, `Comunicate con tu ${T.medico} para saber qué falta y cómo seguir.`],
+    esperando_jefatura: ['az', 'Autorizad' + T.o + ' por Admisión y Egresos', 'Falta la confirmación de la Jefatura de Quirófanos, que verifica sala, insumos y equipo.'],
+    confirmada: ['ok', `¡${tu} está confirmad${T.o}!`, ''],
+    suspendida: ['no', `${tu} fue suspendid${T.o}`, `Tu ${T.medico} se va a comunicar con vos para reprogramar${lo}.`],
+    reprogramando: ['gr', `${tu} se está reprogramando`, 'Todavía no tiene día y hora nuevos. Te lo mostramos acá apenas quede asignado.'],
+    en_curso: ['vi', `${tu} está en curso`, T.equipo],
+    operada: ['ok', `${T.N} realizad${T.o}`, `${tu} ya se hizo. El pase se cierra cuando el equipo complete los registros.`],
+  };
+}
 function portalVistaEstado(f) {
-  const t = PP_TITULOS[f.clave] || ['gr', 'Estado de tu cirugía', ''];
+  const T = ppTipo(f.tipo);
+  const t = ppTitulos(T)[f.clave] || ['gr', `Estado de tu ${T.n}`, ''];
   const sub = f.clave === 'confirmada' ? `${esc(fmtDiaLargo(f.fecha))} a las <b>${esc(f.hora)} h</b> · ${esc(f.lugar)}` : t[2];
   const paso = (est, tit, txt) => `<li class="pp-paso pp-p-${est}"><span class="pp-p-ico">${est === 'ok' ? '✓' : est === 'no' ? '✕' : est === 'pend' ? '' : ''}</span>
     <div><b>${tit}</b><small>${txt}</small></div></li>`;
-  const admTxt = { ok: 'Autorizó la cirugía', no: 'No la autorizó por ahora', pend: 'Revisando la autorización' };
-  const jefTxt = { ok: 'Confirmó la cirugía en el parte', susp: f.motivo ? `Suspendida · motivo: ${esc(f.motivo)}` : 'La suspendió', pend: 'Verificando sala, insumos y equipo', espera: 'Espera a Admisión y Egresos' };
+  const lo = T.o === 'o' ? 'lo' : 'la', el = T.o === 'o' ? 'el estudio' : 'la ' + T.n;
+  const admTxt = { ok: `Autorizó ${el}`, no: `No ${lo} autorizó por ahora`, pend: 'Revisando la autorización' };
+  const jefTxt = { ok: `Confirmó ${el} en el parte`, susp: f.motivo ? `Suspendid${T.o} · motivo: ${esc(f.motivo)}` : `${lo === 'lo' ? 'Lo' : 'La'} suspendió`, pend: 'Verificando sala, insumos y equipo', espera: 'Espera a Admisión y Egresos' };
   const diaEst = f.clave === 'en_curso' ? 'pend' : f.clave === 'operada' ? 'ok' : 'espera';
   return `
     <section class="pp-estado pp-${t[0]}">
@@ -19866,18 +20535,18 @@ function portalVistaEstado(f) {
     </section>
     <section class="pp-card">
       <ol class="pp-linea">
-        ${paso('ok', 'Cirugía solicitada', `Por ${esc(f.cirujano || 'tu cirujano/a')}`)}
+        ${paso('ok', `${T.N} solicitad${T.o}`, `Por ${esc(f.cirujano || 'tu ' + T.medico)}`)}
         ${paso(f.adm === 'ok' ? 'ok' : f.adm === 'no' ? 'no' : 'pend', 'Admisión y Egresos', admTxt[f.adm] || admTxt.pend)}
         ${paso(f.jef === 'ok' ? 'ok' : f.jef === 'susp' ? 'no' : f.jef === 'pend' ? 'pend' : 'espera', 'Jefatura de Quirófanos', jefTxt[f.jef] || jefTxt.espera)}
-        ${paso(diaEst, 'Día de la cirugía', f.fecha ? `${esc(fmtDiaLargo(f.fecha))} · ${esc(f.hora)} h` : 'A confirmar')}
+        ${paso(diaEst, `Día ${T.del} ${T.n}`, f.fecha ? `${esc(fmtDiaLargo(f.fecha))} · ${esc(f.hora)} h` : 'A confirmar')}
       </ol>
     </section>
     <section class="pp-card pp-datos">
-      <div><small>Cirugía</small><b>${esc(f.proc || '')}</b></div>
+      <div><small>${T.N}</small><b>${esc(f.proc || '')}</b></div>
       <div><small>Fecha</small><b>${f.fecha ? esc(fmtDiaLargo(f.fecha)) : 'A confirmar'}</b></div>
       <div><small>Hora</small><b>${esc(f.hora || '—')} h</b></div>
       <div><small>Lugar</small><b>Hospital Regional Ushuaia · ${esc(f.lugar || '')}</b></div>
-      <div><small>Cirujano/a</small><b>${esc(f.cirujano || '')}</b></div>
+      <div><small>${T.Medico}</small><b>${esc(f.cirujano || '')}</b></div>
       <div><small>Código de pase</small><b>${esc(f.ref || '')}</b></div>
     </section>`;
 }
@@ -19895,12 +20564,13 @@ const PORTAL_ERRORES = {
   intentos: 'Hubo demasiados intentos con este código. Pedí uno nuevo.',
   sesion: 'Tu ingreso venció. Volvé a pedir un código.',
   config: 'El seguimiento en línea todavía no está activo en el hospital. Probá más tarde.',
-  red: 'No pudimos conectarnos. Revisá tu conexión e intentá de nuevo.',
+  red: 'No pudimos mandarte el código. Revisá tu conexión e intentá de nuevo en un momento.',
+  sinPase: 'Tu pase todavía no está listo en el sistema del hospital. Probá de nuevo en unos minutos o consultá a tu cirujano/a.',
 };
 function portalOcupado(si) { const b = $('pp-go'); if (b) { b.disabled = si; b.classList.toggle('pp-cargando', si); } }
 
 async function portalPedirCodigo(reenvio) {
-  portal.error = '';
+  portal.error = ''; portal.det = '';
   const dni = reenvio ? portal.dni : soloDigitos(($('pp-dni') || {}).value);
   if (!reenvio && dni.length < 6) { portal.error = 'Escribí tu DNI, sin puntos.'; renderPortal(); return; }
   portal.dni = dni;
@@ -19909,17 +20579,17 @@ async function portalPedirCodigo(reenvio) {
   let res;
   if (!cloudOn) res = await portalDemoPedir(huella);
   else if (!PORTAL.servicio) res = { error: 'config' };
-  else { try { res = await portalServicio({ accion: 'pedirCodigo', token: PORTAL_TOKEN, dniHuella: huella }); } catch (e) { res = { error: 'red' }; } }
+  else { try { res = await portalServicio({ accion: 'pedirCodigo', token: PORTAL_TOKEN, dniHuella: huella }); } catch (e) { res = { error: 'red', det: 'sin respuesta del servicio' }; } }
   if (res && res.ok) {
     portal.paso = 'codigo'; portal.destino = res.destino || 'tu correo'; portal.demoCodigo = res.demo || '';
     portal.reenviarEn = Date.now() + 60000;
     setTimeout(() => { const b = $('pp-reenv'); if (b) b.disabled = false; }, 60000);
   } else if (res && res.error === 'caducado') portal.paso = 'caducado';
-  else portal.error = PORTAL_ERRORES[(res && res.error) || 'red'] || PORTAL_ERRORES.red;
+  else { portal.error = PORTAL_ERRORES[(res && res.error) || 'red'] || PORTAL_ERRORES.red; portal.det = (res && res.det) || ''; }
   renderPortal();
 }
 async function portalValidar() {
-  portal.error = '';
+  portal.error = ''; portal.det = '';
   const cod = String(($('pp-cod') || {}).value || '').toUpperCase();
   if (cod.length !== 8) { portal.error = 'El código tiene 8 letras y números.'; renderPortal(); return; }
   portalOcupado(true);
