@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.19.0'
+VERSION = '3.20.0'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -120,11 +120,13 @@ BLOQUES = [
 ('p', '**Guardar el consentimiento confirma la franja.** Significa que se completó y se entregó al paciente, y es lo que habilita el paso por Admisión y Egresos. Si se sale sin guardarlo, la aplicación lo advierte y, si se confirma la salida, la franja vuelve al bloque: el turno queda en Borrador en «Mis Solicitudes», con todo lo cargado, para reprogramarlo. Si el navegador se cierra sin pasar por ese aviso, la franja se libera sola a los 60 minutos.'),
 ('p', 'Quedan exentos de esta regla las urgencias, las emergencias, los turnos de prioridad P1 y P2 y los turnos que carga la Jefatura en nombre de un profesional, que no está frente a la pantalla para guardar el documento.'),
 ('h3', 'Paso 3 bis — El pase del paciente'),
-('p', 'Si la cirugía es programada (no urgencia ni emergencia), tiene los tres requisitos marcados y el consentimiento quedó guardado, la aplicación ofrece el **pase del paciente**: una tarjeta tipo pase de embarque, de colores vivos, con un **código QR**, el nombre de pila del paciente, la cirugía, el día, la hora, el quirófano, el cirujano y el estado del turno. Se puede dar vuelta para ver las instrucciones, imprimir, copiar el enlace o mandarlo por WhatsApp o por correo.'),
+('p', '**También para endoscopías y cesáreas programadas.** El pase vale igual para los turnos programados de la Sala de Endoscopía y del Quirófano de Obstetricia, con las mismas condiciones. Cambian las palabras: el paciente de endoscopía ve «Mi estudio» («Tu estudio está confirmado», médico/a, destino ENDO) y la de cesárea, «Mi cesárea» (obstetra, destino OBST). Antes de ingresar con el código, el portal dice «Mi turno». Las urgencias, también las de endoscopía y las cesáreas de urgencia, no llevan pase.'),
+('p', 'Si la cirugía es programada (no urgencia ni emergencia), tiene los tres requisitos marcados y el consentimiento quedó guardado, la aplicación ofrece el **pase del paciente**: una tarjeta tipo pase de embarque, de colores vivos, con un **código QR**, el nombre de pila del paciente, la cirugía, el día, la hora, el quirófano, el cirujano y el estado del turno. **Apenas se genera, el pase le llega solo al correo del paciente**: lo manda el servicio del hospital, sin abrir el correo de nadie, y la ventana muestra «Pase enviado a pa•••@…» con la fecha y la hora (o, si falló, el motivo). Debajo, un mosaico de botones de colores: **Reenviar el pase por correo**, **Dar vuelta** (instrucciones), **Imprimir**, **Copiar enlace**, **WhatsApp** y **Ver como paciente**.'),
 ('ul', [
     'Para emitirlo se confirman el **correo** y el **DNI** del paciente y se tilda que el paciente fue informado y aceptó recibir los códigos en ese correo.',
     'El paciente escanea el QR, escribe su DNI y recibe en su correo un **código de 8 letras y números**, que vence a los 10 minutos y sirve para **un solo ingreso**. Cada vez que entra recibe uno nuevo.',
     'Ve en **tiempo real** en qué está su cirugía: en revisión por Admisión y Egresos, autorizada o no autorizada, esperando a la Jefatura, **confirmada para tal día y hora**, o **suspendida** con su motivo (por ejemplo, falta de insumo o implante). No ve el diagnóstico ni datos de nadie más.',
+    'El correo del pase no lleva nombre, DNI, cirugía ni diagnóstico: solo el botón **Abrir mi pase** y el código del pase. Se puede reenviar hasta 3 veces por hora.',
     'El pase **caduca solo** cuando la cirugía se cierra (Finalizada), se resuelve antes, caduca el turno o se cancela: desde ese momento el QR no abre nada. Si el paciente lo pierde o cambia de correo, el cirujano o la Jefatura lo **anulan y emiten otro** desde el turno.',
     'El pase también se genera o se vuelve a mostrar desde el turno (**Lo que sigue › Pase del paciente**) y desde la tarjeta del turno en Mis Solicitudes.',
 ]),
@@ -138,7 +140,7 @@ BLOQUES = [
     '**Hemoterapia** — hemoderivados reservados. Solo aparece activa si el turno pidió reserva; si no, figura como «no aplica».',
     '**Anestesiología** — evaluación preanestésica aprobada, que viene marcada desde el turno.',
 ]),
-('p', 'Con Admisión autorizada y la coordinación completa, la Jefatura toca **Validar y confirmar en el parte**: el turno pasa a **Confirmada** y entra al Parte Quirúrgico del día. Si falta la autorización de Admisión o alguna verificación, la aplicación no deja validar y dice qué falta.'),
+('p', 'Con Admisión autorizada y la coordinación completa, la Jefatura toca **Validar y confirmar en el parte**: aparece en pantalla un **sello verde «Cirugía validada»** y un aviso abajo, y el turno pasa a **Confirmada** y entra al Parte Quirúrgico del día. Si se vuelve a tocar, la aplicación avisa que ya estaba validado. Si falta la autorización de Admisión o alguna verificación, la aplicación no deja validar y dice qué falta.'),
 ('h3', 'Paso 6 — El día de la cirugía'),
 ('ul', [
     'El **Parte Quirúrgico** está publicado desde las 14:00 h de la víspera, ordenado por prioridad.',
@@ -211,6 +213,8 @@ BLOQUES = [
 ('h3', 'Paso 1 — Habilitar la agenda'),
 ('ul', [
     'Abrir el día y habilitar sala por sala y turno por turno, según la disponibilidad real de anestesia, instrumentación y recuperación. Abrir un turno abre el día; cerrar el día cierra todo lo que tuviera abierto.',
+    '**La ventana de habilitación es un tablero** (3.20). Arriba, el porcentaje de turnos abiertos y la **semana**: cada día muestra una barrita de cuán abierto está y se toca para cambiar de día (las flechas pasan de semana). Debajo, botones rápidos —**Abrir todo el día**, **Solo mañanas**, **Solo tardes**, **Cerrar el día**— y el **tablero de salas × turnos**: cada ficha verde está abierta y la punteada, cerrada; tocarla la cambia. Tocar el **nombre de la sala** abre o cierra la sala entera; tocar **Mañana** o **Tarde**, ese turno en todas las salas.',
+    '**Pincel de especialidad**: se toca una especialidad (cada una tiene su color) y después las fichas: cada ficha tocada queda reservada para esa especialidad durante todo el turno (mañana 08–14 o tarde 14–20) y se abre. **Listo** guarda el pincel. Las reservas se ven como etiquetas de color en las fichas y en una lista con **↻ 4**/**↻ 8** (repetir las próximas semanas) y **✕ Quitar**. Para otras horas u otra especialidad, el formulario de siempre está en *Reservar un tramo a medida*. *Repetir esta configuración* y *Limpiar la programación* quedan plegados al final.',
     'La configuración de un día puede copiarse a los siguientes —hábiles o corridos— para no rehacerla cada mañana. La copia lleva también las reservas por especialidad.',
     '**Prioridad por especialidad**: en el mismo panel, la sección *Prioridad por especialidad* reserva un tramo horario para una o varias especialidades. Se marcan las salas, el horario —desde y hasta, por la hora de comienzo de la franja— y las especialidades admitidas, y se toca **Reservar el tramo**. Si la especialidad no tiene casilla, se marca **Otra…** y se escribe: no importan mayúsculas, tildes, errores de tipeo ni que esté incompleta. Mientras se escribe, la aplicación ofrece las de la lista que encajan («traumatolgia» → Traumatología y Ortopedia) y, si se toca una, marca su casilla. Si es de verdad nueva, la guarda prolija en la lista común de servicios —la misma de los perfiles, las estadísticas, los módulos y la facturación— para que todo cruce con un único nombre. Ejemplo: Quirófano 1, de 08:00 a 12:00, Cirugía Pediátrica: las franjas de las 8 y de las 10 quedan para Pediatría y la de las 12 en adelante, para todos. Reservar también abre el turno de esas salas. Si dos reservas tocan la misma franja, valen las especialidades de las dos.',
     'Cada reserva puede repetirse el mismo día de la semana durante las **4 u 8 semanas** siguientes —«todos los martes, Pediatría en el Quirófano 1 de 8 a 12»—, con la credencial de Jefatura. **Quitar** deja el tramo abierto para cualquier especialidad. Cerrar el día borra también sus reservas.',
@@ -219,6 +223,13 @@ BLOQUES = [
     'Lo que queda cerrado no se puede programar. La capacidad publicada es la que el bloque puede sostener.',
 ]),
 ('h3', 'Paso 2 — Validar y gobernar el ciclo del día'),
+('p', '**El Flujo de trabajo es un centro de mando** (3.20). Arriba, una cabecera de colores con la fecha, una frase que dice cuánto hay para hacer y cuatro cifras que se tocan: **Te toca a vos**, **Hoy en quirófano**, **Esperando a otros** y **Confirmadas 7 días**. Debajo:'),
+('ul', [
+    '**Ahora te toca**: la fila de lo que tiene que hacer la Jefatura, **ordenada por urgencia** —primero lo vencido, después lo que opera hoy o mañana, después lo que está listo para validar y lo que falta verificar—. El número 1 está resaltado como **Lo primero**. Cada renglón tiene **un solo botón** con la acción justa: Resolver turno, Validar, Verificar, Confirmar en el parte o Regularizar. Tocando el texto se abre el turno.',
+    '**Hoy en los quirófanos**: la línea de tiempo del día por hora; el que está en curso late.',
+    '**Esperando a otros**: lo que no depende de la Jefatura (el dictamen de Admisión, el borrador o la corrección del cirujano).',
+    '**El circuito de un vistazo**: una barra de colores por etapa con cuántos turnos hay; al tocarla se abre esa etapa en **Todo el circuito por estado**, abajo, que conserva la lista completa (también suspendidas, caducadas y cerradas).',
+]),
 ('ul', [
     'Revisar las solicitudes que entraron antes del cierre de las 13:00 h (el viernes, las del sábado, el domingo y el lunes).',
     'En la ficha de cada turno, marcar las verificaciones de coordinación y tocar **Validar y confirmar en el parte**.',
@@ -271,7 +282,8 @@ BLOQUES = [
 ('ul', [
     'Admisión dictamina desde el propio turno con la credencial de su sector. La verificación se hace por una vía aparte: **no cierra la sesión del profesional** que estaba trabajando en esa computadora.',
     'Para un turno programado, el trámite no abre sin apto anestésico, estudios preoperatorios y consentimiento guardado.',
-    'Dictamen **1 — AUTORIZADO**: el turno puede confirmarse en el parte. Dictamen **2 — NO AUTORIZADO**: el turno no entra al parte, con motivo obligatorio.',
+    'La ventana muestra arriba la cirugía, el paciente, el DNI, la cobertura y el estado; el dictamen se elige tocando una de **dos tarjetas grandes**: **AUTORIZADO** (verde) o **NO AUTORIZADO** (roja). El botón de abajo toma el color de lo elegido y dice qué se va a registrar.',
+    'Dictamen **1 — AUTORIZADO**: el turno puede confirmarse en el parte. Dictamen **2 — NO AUTORIZADO**: el turno no entra al parte, con motivo obligatorio; los motivos frecuentes se eligen con un toque y el texto se puede corregir.',
     'El **nombre del agente** que dictamina es obligatorio. Un dictamen sin responsable identificado no es defendible en una auditoría.',
     'El dictamen se puede **rectificar** los días siguientes; la aplicación avisa que ya había uno y asienta el cambio.',
     'En urgencias, emergencias y P1–P2 el trámite es **diferido**: se **regulariza** después, aunque la cirugía ya esté hecha.',
@@ -414,7 +426,18 @@ BLOQUES = [
 ]),
 
 # ─────────────────────────────────────────────────────────────── 14
-('h1', '14. Novedades de las versiones 3.12 a 3.19'),
+('h1', '14. Novedades de las versiones 3.12 a 3.20'),
+('h2', 'Versión 3.20 — El pase llega solo por correo'),
+('ul', [
+    '**El pase del paciente se envía solo a su correo** al generarlo, desde el servicio del hospital; se puede reenviar con un toque.',
+    '**Botonera del pase rediseñada** en mosaico de colores, y el aviso para anular el pase ordenado en una sola línea.',
+    '**Portal del paciente:** el DNI ahora se ve siempre al escribirlo (con algunos temas quedaba blanco sobre blanco) y no se borra si aparece un error; los errores dicen qué pasó.',
+    '**Admisión y Egresos:** ventana nueva, con cabecera de colores y el dictamen en dos tarjetas grandes.',
+    '**Validar de la Jefatura:** sello verde en pantalla y aviso al validar; un segundo toque avisa que ya estaba hecho.',
+    '**Pase para endoscopías y cesáreas programadas** con sus propias palabras: «Mi estudio» y «Mi cesárea», con el género justo, destino corto ENDO y OBST, y el correo del pase con la misma palabra.',
+    '**Ventana de habilitación del bloque en tablero**: semana para saltar de día, fichas de salas × turnos que se prenden y se apagan, fila y columna completas con un toque y pincel de especialidad para reservar.',
+    '**Flujo de trabajo de la Jefatura rediseñado** como centro de mando: «Ahora te toca» ordenado por urgencia con una acción por renglón, el día en los quirófanos, lo que espera a otros y el circuito en barras de colores (sección 6, paso 2).',
+]),
 ('h2', 'Versión 3.19 — Pase del paciente y ventana del turno nueva'),
 ('ul', [
     '**Pase del paciente** con QR y seguimiento en tiempo real para el paciente, con código de un solo uso por correo (paso 3 bis).',
