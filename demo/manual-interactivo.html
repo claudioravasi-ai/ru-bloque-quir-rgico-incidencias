@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HRU · Manual interactivo</title>
+<meta name="description" content="Demo interactivo: del ingreso de cada integrante del equipo a la cirugía terminada, la lista mensual de Anestesiología y las coberturas de guardia y planta.">
+<style>
+:root {
+  --bg: #0a0f1f; --bg2: #111833; --ink: #f1f5f9; --mut: #94a3b8; --line: rgba(255,255,255,.1); --glass: rgba(255,255,255,.055); --glass2: rgba(255,255,255,.09);
+  --anest: #a78bfa; --jefa: #e879f9; --enf: #2dd4bf; --inst: #fbbf24; --cir: #60a5fa; --jefe: #fb7185; --ok: #4ade80; --mal: #f87171;
+  --r: 18px; font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { min-height: 100vh; overflow-x: hidden; }
+button { font-family: inherit; cursor: pointer; }
+.fondo { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.fondo i { position: absolute; width: 46vmax; height: 46vmax; border-radius: 50%; filter: blur(80px); opacity: .33; animation: flota 22s ease-in-out infinite alternate; }
+.fondo i:nth-child(1) { background: #7c3aed; left: -12vmax; top: -14vmax; }
+.fondo i:nth-child(2) { background: #0d9488; right: -16vmax; top: 18vh; animation-delay: -6s; }
+.fondo i:nth-child(3) { background: #db2777; left: 20vw; bottom: -24vmax; animation-delay: -12s; }
+@keyframes flota { to { transform: translate(6vmax, 4vmax) scale(1.12); } }
+#app { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 14px 16px 150px; }
+
+/* ---------- barra superior ---------- */
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 12px; border-radius: 22px; background: rgba(10,15,31,.7); backdrop-filter: blur(14px); border: 1px solid var(--line); position: sticky; top: 10px; z-index: 20; }
+.marca { display: flex; align-items: center; gap: 9px; font-weight: 800; letter-spacing: -.01em; }
+.marca span { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: conic-gradient(from 200deg, #a78bfa, #2dd4bf, #fbbf24, #fb7185, #a78bfa); animation: gira 8s linear infinite; }
+.marca span b { width: 26px; height: 26px; border-radius: 8px; background: var(--bg); display: grid; place-items: center; font-size: .95rem; animation: gira 8s linear infinite reverse; }
+@keyframes gira { to { transform: rotate(360deg); } }
+.marca small { display: block; font-weight: 600; color: var(--mut); font-size: .68rem; }
+.reloj { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1.05rem; padding: 6px 12px; border-radius: 12px; background: var(--glass); border: 1px solid var(--line); }
+.reloj small { color: var(--mut); font-weight: 600; font-size: .7rem; margin-right: 6px; }
+.esp { flex: 1; }
+.yo { display: flex; align-items: center; gap: 10px; padding: 5px 14px 5px 5px; border-radius: 999px; background: color-mix(in srgb, var(--k) 18%, transparent); border: 1px solid color-mix(in srgb, var(--k) 50%, transparent); animation: entra .5s cubic-bezier(.2,1.4,.4,1); }
+.yo b { display: block; font-size: .86rem; line-height: 1.15; } .yo small { color: color-mix(in srgb, var(--k) 70%, white); font-size: .7rem; font-weight: 700; }
+.yo em { font-style: normal; background: var(--k); color: #0a0f1f; border-radius: 6px; padding: 0 6px; margin-left: 4px; }
+.av { width: 38px; height: 38px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: .8rem; color: #0a0f1f; background: var(--k); box-shadow: 0 0 0 3px color-mix(in srgb, var(--k) 30%, transparent); position: relative; }
+.av .bd { position: absolute; right: -4px; top: -4px; min-width: 18px; height: 18px; border-radius: 9px; background: #ef4444; color: #fff; font-size: .62rem; display: grid; place-items: center; padding: 0 4px; box-shadow: 0 0 0 2px var(--bg); animation: late 1.2s infinite; }
+@keyframes late { 50% { transform: scale(1.18); } }
+.btn { border: 0; border-radius: 12px; padding: 9px 14px; font-weight: 800; font-size: .84rem; color: #0a0f1f; background: var(--k, #e2e8f0); transition: transform .15s, box-shadow .2s, opacity .2s; box-shadow: 0 8px 22px -10px var(--k, #000); }
+.btn:hover { transform: translateY(-2px); } .btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn.fant { background: var(--glass2); color: var(--ink); box-shadow: none; border: 1px solid var(--line); }
+.btn.chico { padding: 6px 10px; font-size: .76rem; border-radius: 10px; }
+
+/* ---------- escenas / pestañas ---------- */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 16px 0 12px; }
+.tabs button { border: 1px solid var(--line); background: var(--glass); color: var(--mut); padding: 9px 14px; border-radius: 999px; font-weight: 700; font-size: .84rem; transition: all .2s; }
+.tabs button.on { background: var(--k); color: #0a0f1f; border-color: transparent; box-shadow: 0 8px 24px -10px var(--k); }
+h2 { font-size: 1.45rem; margin: 18px 0 4px; letter-spacing: -.02em; }
+.sub { color: var(--mut); margin: 0 0 14px; font-size: .9rem; line-height: 1.45; }
+.card { background: var(--glass); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; backdrop-filter: blur(10px); animation: sube .45s ease both; }
+@keyframes sube { from { opacity: 0; transform: translateY(12px); } }
+@keyframes entra { from { opacity: 0; transform: scale(.85); } }
+.grid { display: grid; gap: 12px; }
+
+/* ---------- ingreso ---------- */
+.ingreso h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); margin: 28px 0 6px; letter-spacing: -.03em; line-height: 1.05; }
+.ingreso h1 span { background: linear-gradient(90deg, #a78bfa, #2dd4bf, #fbbf24, #fb7185); -webkit-background-clip: text; background-clip: text; color: transparent; background-size: 200%; animation: brillo 6s linear infinite; }
+@keyframes brillo { to { background-position: 200%; } }
+.sector { margin-top: 18px; } .sector > b { display: flex; align-items: center; gap: 8px; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--k); margin-bottom: 8px; }
+.sector > b::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--k), transparent); opacity: .5; }
+.gente { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.persona { display: flex; align-items: center; gap: 10px; text-align: left; padding: 10px; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); transition: all .2s; position: relative; overflow: hidden; }
+.persona:hover { transform: translateY(-3px); border-color: var(--k); background: color-mix(in srgb, var(--k) 12%, transparent); }
+.persona b { display: block; font-size: .86rem; } .persona small { color: var(--mut); font-size: .72rem; }
+.login-ov { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: rgba(5,8,18,.75); backdrop-filter: blur(8px); animation: sube .25s; padding: 16px; }
+.login { width: min(420px, 100%); border-radius: 26px; padding: 22px; background: linear-gradient(160deg, color-mix(in srgb, var(--k) 30%, #111833), #111833 60%); border: 1px solid color-mix(in srgb, var(--k) 50%, transparent); box-shadow: 0 40px 80px -30px var(--k); animation: entra .35s cubic-bezier(.2,1.3,.4,1); }
+.login .av { width: 64px; height: 64px; font-size: 1.2rem; margin: 0 auto 10px; }
+.login h3 { text-align: center; margin: 0; } .login p { text-align: center; color: var(--mut); margin: 4px 0 16px; font-size: .84rem; }
+.campo { background: rgba(0,0,0,.3); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; font-size: .9rem; min-height: 42px; }
+.campo small { display: block; color: var(--mut); font-size: .66rem; text-transform: uppercase; letter-spacing: .08em; }
+.cursor::after { content: '▍'; animation: parpa .7s steps(2) infinite; color: var(--k); }
+@keyframes parpa { 50% { opacity: 0; } }
+.chequeos { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; }
+.chequeos li { display: flex; gap: 8px; align-items: center; font-size: .84rem; animation: sube .3s both; }
+.chequeos li i { font-style: normal; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--ok); color: #052e16; font-size: .7rem; font-weight: 900; }
+
+/* ---------- tarjetas de cirugía y recorrido ---------- */
+.cx { border-radius: 20px; padding: 0; overflow: hidden; border: 1px solid var(--line); background: var(--glass); margin-bottom: 12px; animation: sube .4s both; }
+.cx.toca { border-color: var(--k); box-shadow: 0 0 0 1px var(--k), 0 20px 50px -28px var(--k); }
+.cx-cab { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; cursor: pointer; }
+.hora { font-weight: 900; font-size: 1.1rem; font-variant-numeric: tabular-nums; padding: 8px 10px; border-radius: 12px; background: rgba(0,0,0,.25); }
+.cx-cab b { display: block; } .cx-cab small { color: var(--mut); font-size: .76rem; }
+.sala-tag { display: inline-block; font-weight: 900; font-size: .7rem; padding: 2px 8px; border-radius: 6px; background: var(--s); color: #0a0f1f; margin-right: 6px; }
+.metro { display: flex; align-items: center; gap: 0; }
+.metro i { width: 13px; height: 13px; border-radius: 50%; background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.18); position: relative; }
+.metro i + i { margin-left: 10px; } .metro i + i::before { content: ''; position: absolute; right: 100%; top: 50%; width: 10px; height: 2px; background: rgba(255,255,255,.15); }
+.metro i.hecho { background: var(--ok); border-color: var(--ok); } .metro i.hecho + i::before { background: var(--ok); }
+.metro i.activo { background: var(--k); border-color: #fff; animation: late 1.1s infinite; }
+.estado-l { padding: 8px 14px; border-top: 1px solid var(--line); font-size: .8rem; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: rgba(0,0,0,.14); }
+.toca-txt { font-weight: 900; color: var(--k); } .espera-txt { color: var(--mut); }
+.pasos { list-style: none; margin: 0; padding: 6px 14px 14px; position: relative; }
+.paso { display: grid; grid-template-columns: 36px 1fr; gap: 12px; padding: 10px 0; position: relative; }
+.paso::before { content: ''; position: absolute; left: 17px; top: 46px; bottom: -10px; width: 2px; background: rgba(255,255,255,.1); }
+.paso:last-child::before { display: none; }
+.paso.hecho::before { background: var(--ok); }
+.num { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.14); font-size: .9rem; z-index: 1; }
+.paso.hecho .num { background: var(--ok); color: #052e16; border-color: var(--ok); animation: entra .4s; }
+.paso.activo .num { background: var(--k); color: #0a0f1f; border-color: #fff; box-shadow: 0 0 0 6px color-mix(in srgb, var(--k) 25%, transparent); }
+.paso.bloq { opacity: .5; } .paso.bloq .num { animation: none; }
+.paso h4 { margin: 6px 0 2px; font-size: .95rem; } .paso > div > small { color: var(--mut); font-size: .76rem; }
+.firmas { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.firma { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 999px; font-size: .74rem; background: rgba(255,255,255,.06); border: 1px dashed rgba(255,255,255,.2); }
+.firma .av { width: 22px; height: 22px; font-size: .55rem; box-shadow: none; }
+.firma.ok { border-style: solid; border-color: color-mix(in srgb, var(--ok) 60%, transparent); background: color-mix(in srgb, var(--ok) 12%, transparent); }
+.firma.libre .av { background: rgba(255,255,255,.15); color: var(--mut); }
+.accion { margin-top: 8px; padding: 12px; border-radius: 14px; background: color-mix(in srgb, var(--k) 12%, rgba(0,0,0,.2)); border: 1px solid color-mix(in srgb, var(--k) 45%, transparent); animation: sube .35s; }
+.accion > b { display: block; font-size: .82rem; margin-bottom: 8px; color: color-mix(in srgb, var(--k) 70%, white); }
+.falta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: space-between; margin-top: 6px; padding: 8px 10px; border-radius: 12px; background: rgba(0,0,0,.2); font-size: .78rem; color: var(--mut); }
+.bloqueo { margin-top: 8px; padding: 10px 12px; border-radius: 12px; font-size: .8rem; background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.35); color: #fecaca; }
+.chk { display: grid; gap: 6px; margin-bottom: 10px; }
+.chk label { display: flex; gap: 9px; align-items: center; padding: 8px 10px; border-radius: 10px; background: rgba(0,0,0,.2); font-size: .82rem; cursor: pointer; transition: background .2s; }
+.chk label.si { background: color-mix(in srgb, var(--ok) 15%, transparent); }
+.chk input { width: 18px; height: 18px; accent-color: var(--ok); }
+.cont { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.cont div { padding: 8px 10px; border-radius: 12px; background: rgba(0,0,0,.22); font-size: .76rem; }
+.cont div.mal { background: rgba(248,113,113,.18); box-shadow: inset 0 0 0 1px var(--mal); animation: tiembla .4s; }
+@keyframes tiembla { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.cont span { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.cont button { width: 30px; height: 30px; border-radius: 9px; border: 0; background: var(--glass2); color: var(--ink); font-weight: 900; font-size: 1rem; }
+.cont output { min-width: 34px; text-align: center; font-weight: 900; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.aviso-mal { padding: 8px 10px; border-radius: 10px; background: rgba(248,113,113,.15); color: #fecaca; font-size: .8rem; margin-bottom: 8px; }
+.ald { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; margin-bottom: 10px; }
+.ald label { font-size: .74rem; color: var(--mut); display: grid; gap: 3px; }
+.ald select { background: rgba(0,0,0,.35); color: var(--ink); border: 1px solid var(--line); border-radius: 9px; padding: 6px; font-family: inherit; }
+.ahora { display: flex; gap: 14px; align-items: center; padding: 16px; border-radius: 22px; margin-bottom: 14px; background: linear-gradient(120deg, color-mix(in srgb, var(--k) 35%, transparent), rgba(255,255,255,.04)); border: 1px solid color-mix(in srgb, var(--k) 45%, transparent); animation: sube .4s; }
+.ahora .big { font-size: 2rem; } .ahora b { display: block; font-size: 1.05rem; } .ahora small { color: color-mix(in srgb, var(--k) 40%, white); font-size: .82rem; }
+
+/* ---------- lista del mes ---------- */
+.mes-wrap { overflow-x: auto; border-radius: 16px; border: 1px solid var(--line); background: rgba(0,0,0,.2); }
+table.mes { border-collapse: separate; border-spacing: 3px; font-size: .72rem; min-width: 100%; }
+.mes th { color: var(--mut); font-weight: 700; padding: 4px 2px; min-width: 30px; }
+.mes th.fs { color: #f9a8d4; } .mes th.hoy { color: #fff; background: var(--k); border-radius: 8px; }
+.mes td.nom { position: sticky; left: 0; background: #12183a; padding: 4px 8px; white-space: nowrap; font-weight: 700; border-radius: 8px; z-index: 1; }
+.mes td.nom i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--p); margin-right: 6px; }
+.cel { width: 30px; height: 30px; border-radius: 8px; border: 0; font-weight: 900; font-size: .72rem; background: rgba(255,255,255,.05); color: var(--mut); transition: transform .15s; }
+.cel:hover { transform: scale(1.15); }
+.cel.P { background: #2dd4bf; color: #042f2e; } .cel.G { background: #a78bfa; color: #1e1b4b; } .cel.F { background: #475569; color: #e2e8f0; } .cel.L { background: #fbbf24; color: #451a03; }
+.cel.pop { animation: pop .35s; } @keyframes pop { 50% { transform: scale(1.35) rotate(-6deg); } }
+.mes tr.cob td { text-align: center; font-size: .9rem; }
+.leyenda { display: flex; gap: 12px; flex-wrap: wrap; font-size: .76rem; color: var(--mut); margin: 10px 0; }
+.leyenda span { display: inline-flex; align-items: center; gap: 5px; } .leyenda .cel { width: 22px; height: 22px; font-size: .6rem; display: inline-grid; place-items: center; }
+.sello { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-weight: 800; font-size: .76rem; }
+.sello.borrador { background: rgba(251,191,36,.18); color: #fde68a; } .sello.enviada { background: rgba(96,165,250,.18); color: #bfdbfe; } .sello.validada { background: rgba(74,222,128,.18); color: #bbf7d0; }
+.barra-acc { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+
+/* ---------- calendario personal y cobertura ---------- */
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cal .dn { text-align: center; color: var(--mut); font-size: .7rem; font-weight: 800; }
+.cal .d { aspect-ratio: 1; border-radius: 14px; padding: 6px; background: rgba(255,255,255,.04); border: 1px solid var(--line); display: flex; flex-direction: column; justify-content: space-between; font-size: .72rem; animation: entra .3s both; }
+.cal .d b { font-size: .85rem; } .cal .d.P { background: rgba(45,212,191,.22); border-color: #2dd4bf; } .cal .d.G { background: rgba(167,139,250,.28); border-color: #a78bfa; }
+.cal .d.F { background: rgba(71,85,105,.3); } .cal .d.L { background: rgba(251,191,36,.2); border-color: #fbbf24; } .cal .d.hoy { box-shadow: 0 0 0 3px #fff; }
+.cal .d small { font-weight: 800; line-height: 1.1; }
+.totales { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin: 12px 0; }
+.totales div { padding: 12px; border-radius: 16px; background: var(--glass); border: 1px solid var(--line); }
+.totales b { display: block; font-size: 1.6rem; font-weight: 900; } .totales small { color: var(--mut); font-size: .74rem; }
+.dias { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; }
+.dias button { flex: none; width: 46px; padding: 6px 0; border-radius: 12px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); font-weight: 800; font-size: .82rem; }
+.dias button small { display: block; font-size: .6rem; color: var(--mut); font-weight: 700; }
+.dias button.on { background: var(--k); color: #0a0f1f; } .dias button.on small { color: #0a0f1f; }
+.dias button.fs { opacity: .6; }
+.cob { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.cob .card { display: flex; gap: 10px; align-items: center; }
+.cob .card .lbl { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--mut); font-weight: 800; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; background: #64748b; margin-right: 4px; } .dot.si { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+
+/* ---------- tablero en vivo y programación ---------- */
+.tablero { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.sala-card { border-radius: 20px; padding: 14px; background: linear-gradient(160deg, color-mix(in srgb, var(--s) 22%, transparent), rgba(255,255,255,.03)); border: 1px solid color-mix(in srgb, var(--s) 45%, transparent); animation: sube .4s both; }
+.sala-card h3 { margin: 0; font-size: 1.05rem; display: flex; justify-content: space-between; align-items: center; }
+.sala-card p { margin: 4px 0 10px; color: var(--mut); font-size: .8rem; }
+.prog { height: 8px; border-radius: 4px; background: rgba(255,255,255,.1); overflow: hidden; margin: 8px 0; }
+.prog i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--s), var(--ok)); transition: width .6s cubic-bezier(.2,1,.3,1); }
+.vivo { display: inline-flex; align-items: center; gap: 5px; font-size: .68rem; font-weight: 900; color: #fecaca; } .vivo::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: late 1s infinite; }
+.linea-t { position: relative; border-radius: 16px; border: 1px solid var(--line); background: rgba(0,0,0,.2); padding: 10px 10px 10px 70px; overflow-x: auto; }
+.linea-t .fila { position: relative; height: 46px; margin-bottom: 6px; min-width: 560px; }
+.linea-t .fila > b { position: absolute; left: -62px; top: 12px; font-size: .78rem; }
+.linea-t .bloque { position: absolute; top: 3px; height: 40px; border-radius: 10px; padding: 4px 8px; font-size: .7rem; overflow: hidden; white-space: nowrap; background: color-mix(in srgb, var(--s) 70%, #0a0f1f); color: #fff; border: 1px solid var(--s); }
+.linea-t .bloque small { display: block; opacity: .85; }
+.linea-t .regla { position: relative; height: 18px; min-width: 560px; font-size: .64rem; color: var(--mut); }
+.linea-t .regla span { position: absolute; transform: translateX(-50%); }
+.linea-t .ahora-l { position: absolute; top: 0; bottom: 0; width: 2px; background: #fb7185; box-shadow: 0 0 10px #fb7185; z-index: 2; }
+
+/* ---------- guía inferior, avisos y película ---------- */
+.guia { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 30; width: min(1150px, calc(100% - 24px)); display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  padding: 10px 12px; border-radius: 22px; background: rgba(10,15,31,.88); backdrop-filter: blur(16px); border: 1px solid var(--line); box-shadow: 0 30px 60px -20px rgba(0,0,0,.8); }
+.guia .txt { flex: 1; min-width: 200px; font-size: .84rem; } .guia .txt small { display: block; color: var(--mut); font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 800; }
+.peli { background: linear-gradient(90deg, #f43f5e, #a855f7) !important; color: #fff !important; }
+.narr { position: fixed; left: 50%; top: 84px; transform: translateX(-50%); z-index: 40; max-width: min(720px, calc(100% - 24px)); padding: 12px 18px; border-radius: 16px; text-align: center;
+  background: linear-gradient(120deg, rgba(168,85,247,.95), rgba(244,63,94,.95)); font-weight: 800; font-size: .95rem; box-shadow: 0 20px 40px -16px #a855f7; animation: entra .35s; pointer-events: none; }
+.foco { position: relative; z-index: 5; outline: 3px solid #fff !important; outline-offset: 3px; animation: focoA 1s ease-in-out infinite !important; }
+@keyframes focoA { 50% { outline-color: #f472b6; box-shadow: 0 0 0 10px rgba(244,114,182,.25); } }
+.toasts { position: fixed; right: 14px; top: 84px; z-index: 50; display: grid; gap: 8px; width: min(340px, calc(100% - 28px)); }
+.toast { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; background: rgba(17,24,51,.95); border: 1px solid var(--k); box-shadow: 0 16px 40px -16px var(--k); font-size: .8rem; animation: desliza .4s cubic-bezier(.2,1.3,.4,1); }
+.toast.fuera { opacity: 0; transform: translateX(30px); transition: all .4s; }
+@keyframes desliza { from { opacity: 0; transform: translateX(60px); } }
+.modal-ov { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; background: rgba(5,8,18,.7); backdrop-filter: blur(6px); padding: 16px; }
+.modal { width: min(460px, 100%); border-radius: 24px; padding: 20px; background: #141b3d; border: 1px solid rgba(251,113,133,.5); box-shadow: 0 40px 80px -30px #fb7185; animation: entra .3s cubic-bezier(.2,1.3,.4,1); }
+.modal h3 { margin: 0 0 8px; } .modal p { color: #cbd5e1; font-size: .88rem; line-height: 1.5; }
+.modal .barra-acc { justify-content: flex-end; }
+.bandeja { position: absolute; right: 0; top: calc(100% + 8px); width: min(340px, 90vw); max-height: 60vh; overflow: auto; border-radius: 18px; background: #141b3d; border: 1px solid var(--line); padding: 8px; box-shadow: 0 30px 60px -20px #000; }
+.bandeja div { padding: 8px 10px; border-radius: 10px; font-size: .8rem; } .bandeja div + div { border-top: 1px solid var(--line); }
+.bandeja small { color: var(--mut); }
+.campana { position: relative; }
+.campana > button { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); font-size: 1.05rem; position: relative; }
+.campana > button .bd { position: absolute; right: -5px; top: -5px; min-width: 18px; height: 18px; border-radius: 9px; background: #ef4444; color: #fff; font-size: .62rem; display: grid; place-items: center; animation: late 1.2s infinite; }
+canvas#conf { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
+/* ---------- manual por sector ---------- */
+.sectores { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 14px; }
+.sectores button { display: inline-flex; align-items: center; gap: 7px; padding: 10px 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); font-weight: 800; font-size: .86rem; transition: all .2s; }
+.sectores button:hover { border-color: var(--k); transform: translateY(-2px); }
+.sectores button.on { background: var(--k); color: #0a0f1f; border-color: transparent; box-shadow: 0 12px 30px -12px var(--k); }
+.intro-sec { padding: 16px; border-radius: 20px; margin-bottom: 12px; background: linear-gradient(120deg, color-mix(in srgb, var(--k) 26%, transparent), rgba(255,255,255,.03)); border: 1px solid color-mix(in srgb, var(--k) 40%, transparent); font-size: .9rem; line-height: 1.5; animation: sube .4s; }
+.intro-sec b { color: color-mix(in srgb, var(--k) 60%, white); }
+.caps { display: grid; gap: 8px; counter-reset: cap; }
+.cap { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 12px; border-radius: 18px; background: var(--glass); border: 1px solid var(--line); animation: sube .4s both; }
+.cap .num { background: color-mix(in srgb, var(--k) 25%, transparent); border-color: var(--k); }
+.cap b { display: block; font-size: .92rem; } .cap small { color: var(--mut); font-size: .78rem; line-height: 1.4; display: block; margin-top: 2px; }
+.cap .quien { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-size: .72rem; color: var(--mut); } .cap .quien .av { width: 20px; height: 20px; font-size: .5rem; box-shadow: none; }
+.cap .bts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.mision { display: block; margin-top: 3px; padding: 6px 10px; border-radius: 10px; background: rgba(251,191,36,.15); color: #fde68a; font-weight: 700; }
+.form { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; align-items: end; }
+.form label { display: grid; gap: 4px; font-size: .74rem; color: var(--mut); font-weight: 700; }
+.form input, .form select { background: rgba(0,0,0,.35); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; font-family: inherit; font-size: .88rem; }
+.sol { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.sol > div { flex: 1; min-width: 200px; } .sol small { color: var(--mut); }
+@media (max-width: 640px) { .cap { grid-template-columns: 34px 1fr; } .cap .bts { grid-column: 1 / -1; justify-content: flex-start; } }
+.pie { color: var(--mut); font-size: .72rem; text-align: center; margin-top: 30px; }
+@media (max-width: 640px) {
+  .cx-cab { grid-template-columns: auto 1fr; } .cx-cab .metro { grid-column: 1 / -1; }
+  .top { top: 6px; } .marca small { display: none; } .yo small em { display: none; }
+  .narr { top: 120px; font-size: .84rem; }
+  .guia { gap: 6px; padding: 8px; bottom: 6px; border-radius: 16px; width: calc(100% - 12px); }
+  .guia .txt { min-width: 100%; order: -1; font-size: .76rem; } .guia .txt small { font-size: .6rem; }
+  .guia .btn { padding: 6px 10px; font-size: .72rem; border-radius: 10px; }
+  .mision { padding: 4px 8px; }
+  .top { position: relative; top: 0; gap: 8px; padding: 8px; } .reloj { font-size: .9rem; padding: 4px 8px; }
+  .yo { order: 5; width: 100%; } .campana { order: 4; }
+  #app { padding-bottom: 170px; }
+  .cont { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<div class="fondo"><i></i><i></i><i></i></div>
+<div id="app"></div>
+<div class="toasts" id="toasts"></div>
+<canvas id="conf"></canvas>
+<script>
+/* =====================================================================
+   DEMO · Recorrido del equipo quirúrgico del HRU
+   Todo es de ejemplo e inventado. No guarda nada: al recargar vuelve a
+   empezar. Reglas que muestra:
+   1. Cada persona entra con su cuenta y ve SU nombre, su función y su sala.
+   2. Una persona = una sala. Para pasar a otra hay que hacer «cambio de sala».
+   3. Cada paso se habilita recién cuando termina el anterior, y solo lo firma
+      quien está anotado en ESA cirugía (si la instrumentadora no se anotó, no
+      hay recuento inicial).
+   ===================================================================== */
+const $ = (s) => document.querySelector(s);
+const pad = (n) => String(n).padStart(2, '0');
+const espera = (ms) => new Promise((r) => setTimeout(r, ms / VEL));
+let VEL = 1;
+
+/* ---------- La gente (inventada) ---------- */
+const FUNC = {
+  anest: { n: 'Anestesiología', c: '#a78bfa', i: '💜' },
+  enf: { n: 'Enfermería', c: '#2dd4bf', i: '🩺' },
+  inst: { n: 'Instrumentación quirúrgica', c: '#fbbf24', i: '🧰' },
+  cir: { n: 'Cirugía', c: '#60a5fa', i: '🔪' },
+  jefe: { n: 'Jefatura de Quirófanos', c: '#fb7185', i: '🏥' },
+  dir: { n: 'Dirección Médica', c: '#38bdf8', i: '🔎' },
+};
+const supervisa = (k) => k && ['jefe', 'dir'].includes(G[k].f);
+const G = {
+  bianchi: { n: 'Dra. Sofía Bianchi', f: 'anest', jefaAnest: true, mail: 'sbianchi' },
+  arce: { n: 'Dr. Tomás Arce', f: 'anest', mail: 'tarce' },
+  paz: { n: 'Dra. Lucía Paz', f: 'anest', mail: 'lpaz' },
+  molina: { n: 'Dr. Iván Molina', f: 'anest', mail: 'imolina' },
+  quiroga: { n: 'Dra. Ana Quiroga', f: 'anest', mail: 'aquiroga' },
+  herrera: { n: 'Dr. Luis Herrera', f: 'anest', mail: 'lherrera' },
+  ruiz: { n: 'Lic. Marta Ruiz', f: 'enf', mail: 'mruiz' },
+  sosa: { n: 'Enf. Jorge Sosa', f: 'enf', mail: 'jsosa' },
+  gomez: { n: 'Inst. Carla Gómez', f: 'inst', mail: 'cgomez' },
+  vera: { n: 'Inst. Diego Vera', f: 'inst', mail: 'dvera' },
+  ferrari: { n: 'Dr. Pablo Ferrari', f: 'cir', mail: 'pferrari', serv: 'Cirugía General' },
+  luna: { n: 'Dra. Elena Luna', f: 'cir', mail: 'eluna', serv: 'Gastroenterología' },
+  rios: { n: 'Dr. Martín Ríos', f: 'cir', mail: 'mrios', serv: 'Obstetricia' },
+  jefatura: { n: 'Jefatura de Quirófanos', f: 'jefe', mail: 'jefatura' },
+  direccion: { n: 'Dirección Médica', f: 'dir', mail: 'direccion' },
+};
+const ANEST = ['bianchi', 'arce', 'paz', 'molina', 'quiroga', 'herrera'];
+const PCOL = { bianchi: '#e879f9', arce: '#a78bfa', paz: '#818cf8', molina: '#c084fc', quiroga: '#f0abfc', herrera: '#7dd3fc' };
+const colorDe = (k) => G[k].jefaAnest ? 'var(--jefa)' : FUNC[G[k].f].c;
+const ini = (n) => n.replace(/^(Dra?|Lic|Enf|Inst)\.\s*/, '').split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+const avatar = (k, extra = '') => `<span class="av" style="--k:${colorDe(k)}">${k === 'jefatura' ? '🏥' : k === 'direccion' ? '🔎' : ini(G[k].n)}${extra}</span>`;
+
+/* ---------- El día del demo: hoy (o el lunes siguiente si cae fin de semana) ---------- */
+const DIA = (() => { const d = new Date(); d.setHours(12); while ([0, 6].includes(d.getDay())) d.setDate(d.getDate() + 1); return d; })();
+const ANIO = DIA.getFullYear(), MES = DIA.getMonth(), HOY = DIA.getDate();
+const NDIAS = new Date(ANIO, MES + 1, 0).getDate();
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const DS = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'];
+const dow = (d) => new Date(ANIO, MES, d, 12).getDay();
+const finde = (d) => [0, 6].includes(dow(d));
+
+const SALAS = [
+  { id: 'Q1', n: 'Quirófano 1', c: '#f472b6' }, { id: 'Q2', n: 'Quirófano 2', c: '#38bdf8' }, { id: 'Q3', n: 'Quirófano 3', c: '#a3e635' },
+  { id: 'END', n: 'Endoscopía', c: '#fb923c' }, { id: 'OBS', n: 'Obstetricia', c: '#c084fc' },
+];
+const salaDe = (id) => SALAS.find((s) => s.id === id);
+/* Puestos de planta de cada día hábil, en orden. Endoscopía y Obstetricia comparten anestesiólogo. */
+const PUESTOS = [['Q1', 'Quirófano 1'], ['Q2', 'Quirófano 2'], ['Q3', 'Quirófano 3'], ['END', 'Endoscopía y Obstetricia']];
+
+/* ---------- El recorrido de cada cirugía (igual que la app) ---------- */
+const ACCION = { equipo: 'anotarse en esta cirugía', entrada: 'firmar la Entrada', rec1: 'hacer el recuento inicial', pausa: 'confirmar la Pausa', rec2: 'hacer el recuento final', salida: 'firmar la Salida', recup: 'dar el alta de recuperación' };
+const ROL = { anest: { n: 'Anestesia', f: 'anest' }, circ: { n: 'Circulante', f: 'enf' }, enf: { n: 'Enfermería', f: 'enf' }, inst: { n: 'Instrumentación', f: 'inst' }, cir: { n: 'Cirujano/a', f: 'cir' } };
+const PASOS = [
+  { k: 'equipo', n: 'Equipo en sala', d: 'Cada uno se anota en su puesto', ic: '👥', roles: ['anest', 'circ', 'inst'] },
+  { k: 'entrada', n: 'Entrada', d: 'Antes de la inducción · Lista OMS', ic: '🚪', roles: ['enf', 'anest'] },
+  { k: 'rec1', n: 'Recuento inicial', d: 'Gasas, compresas, agujas e instrumental', ic: '🧮', roles: ['inst'] },
+  { k: 'pausa', n: 'Pausa quirúrgica', d: 'Antes de la incisión, todos en voz alta', ic: '✋', roles: ['cir', 'anest', 'enf'] },
+  { k: 'rec2', n: 'Recuento final', d: 'Antes del cierre: tiene que coincidir', ic: '🔢', roles: ['inst', 'enf'] },
+  { k: 'salida', n: 'Salida', d: 'Antes de que el paciente deje la sala', ic: '🏁', roles: ['enf'] },
+  { k: 'recup', n: 'Recuperación', d: 'Alta con escala de Aldrete ≥ 9', ic: '💚', roles: ['anest'] },
+];
+const CHECK = {
+  'entrada.enf': ['Identidad del paciente confirmada (pulsera)', 'Sitio quirúrgico marcado', 'Consentimiento firmado', 'Alergias conocidas revisadas', 'Ayuno verificado'],
+  'entrada.anest': ['Máquina y monitores controlados', 'Vía aérea evaluada', 'Riesgo de sangrado previsto'],
+  'salida.enf': ['Procedimiento registrado', 'Muestras rotuladas', 'Problemas de equipos anotados', 'Indicaciones para recuperación'],
+};
+const RECUENTO = [['gasas', 'Gasas'], ['compresas', 'Compresas'], ['agujas', 'Agujas'], ['instr', 'Instrumental']];
+const ALDRETE = [['Actividad', ['Ninguna', 'Mueve 2 miembros', 'Mueve 4 miembros']], ['Respiración', ['Apnea', 'Disnea', 'Respira profundo']],
+  ['Circulación', ['PA ±50%', 'PA ±20-50%', 'PA ±20%']], ['Conciencia', ['No responde', 'Despierta al llamarla', 'Despierta']], ['Saturación', ['< 90% con O₂', '> 90% con O₂', '> 92% aire']]];
+
+/* ---------- Estado del demo ---------- */
+let S;
+function nuevo() {
+  S = {
+    yo: null, tab: null, min: 7 * 60 + 25, abierta: 'cx1', narr: '', bandeja: false, peli: false, modal: null, login: null,
+    llegada: {}, avisos: {}, log: [], ui: { chk: {}, cnt: {}, ald: {} }, diaCob: HOY,
+    sol: [], sector: (S && S.sector) || 'todos', mision: '', silencio: false,
+    mes: { estado: 'borrador', g: {} },
+    cx: [
+      { id: 'cx1', sala: 'Q1', hora: '08:00', fin: '09:30', proc: 'Apendicectomía laparoscópica', pac: 'Paciente de ejemplo A', cir: 'ferrari' },
+      { id: 'cx2', sala: 'Q2', hora: '08:30', fin: '10:30', proc: 'Colecistectomía laparoscópica', pac: 'Paciente de ejemplo B', cir: 'luna' },
+      { id: 'cx3', sala: 'END', hora: '09:00', fin: '09:45', proc: 'Videocolonoscopía', pac: 'Paciente de ejemplo C', cir: 'luna' },
+      { id: 'cx4', sala: 'OBS', hora: '10:00', fin: '11:15', proc: 'Cesárea programada', pac: 'Paciente de ejemplo D', cir: 'rios' },
+      { id: 'cx5', sala: 'Q3', hora: '11:00', fin: '12:30', proc: 'Hernioplastia inguinal', pac: 'Paciente de ejemplo E', cir: 'ferrari' },
+      { id: 'cx6', sala: 'Q1', hora: '10:30', fin: '12:00', proc: 'Colectomía derecha', pac: 'Paciente de ejemplo F', cir: 'ferrari' },
+    ].map((c) => Object.assign(c, { anest: null, circ: null, inst: null, f: {}, rec1: null, rec2: null, ald: null })),
+  };
+  // Borrador: la Jefa de Anestesia ya cargó los primeros días; hay una licencia.
+  ANEST.forEach((k) => { S.mes.g[k] = Array(NDIAS + 1).fill(''); });
+  const sug = sugerencia();
+  for (let d = 1; d <= Math.min(NDIAS, 9); d++) ANEST.forEach((k) => { S.mes.g[k][d] = sug[k][d]; });
+  licencias().forEach((d) => { S.mes.g.quiroga[d] = 'L'; });
+}
+function licencias() { const r = []; for (let d = HOY + 6; d <= Math.min(NDIAS, HOY + 10); d++) r.push(d); return r; }
+const reloj = () => `${pad(Math.floor(S.min / 60))}:${pad(S.min % 60)}`;
+function avanza(m) { S.min += m || 2 + Math.floor(Math.random() * 4); }
+
+/* ---------- Lista del mes: sugerencia automática ----------
+   Guardia de 24 h rotativa; el día siguiente a la guardia es franco; los
+   demás hacen planta de lunes a viernes. Se arma para que hoy Dr. Arce
+   esté de planta en el Quirófano 1. */
+function sugerencia() {
+  const off = (6 - (HOY % 6)) % 6, lic = new Set(licencias()), g = {};
+  ANEST.forEach((k) => { g[k] = Array(NDIAS + 1).fill(''); });
+  for (let d = 1; d <= NDIAS; d++) {
+    const gi = (d + off) % 6, fi = (d - 1 + off) % 6;
+    let guard = ANEST[gi];
+    if (G[guard] && lic.has(d) && guard === 'quiroga') guard = ANEST[(gi + 2) % 6];
+    g[guard][d] = 'G';
+    if (!lic.has(d) || ANEST[fi] !== 'quiroga') g[ANEST[fi]][d] = g[ANEST[fi]][d] || 'F';
+    if (!finde(d)) for (let j = 1; j <= 5; j++) { const k = ANEST[(gi + j) % 6]; if (!g[k][d]) g[k][d] = 'P'; }
+    if (lic.has(d)) g.quiroga[d] = 'L';
+  }
+  return g;
+}
+function cobertura(d) {
+  const r = { P: [], G: [], F: [], L: [] };
+  ANEST.forEach((k) => { const v = S.mes.g[k][d]; if (r[v]) r[v].push(k); });
+  // Orden de puestos: rotación a partir de la guardia, como la sugerencia.
+  const off = (6 - (HOY % 6)) % 6, gi = (d + off) % 6;
+  r.P.sort((a, b) => ((ANEST.indexOf(a) - gi + 6) % 6) - ((ANEST.indexOf(b) - gi + 6) % 6));
+  r.puestos = PUESTOS.map(([id, n], i) => ({ id, n, k: r.P[i] || null }));
+  r.ok = finde(d) ? r.G.length === 1 : r.G.length === 1 && r.P.length >= 4;
+  return r;
+}
+const puestoHoy = (k) => { const c = cobertura(HOY); const v = S.mes.g[k][HOY]; if (v === 'G') return { t: 'Guardia de 24 h', sala: null }; if (v === 'P') { const p = c.puestos.find((x) => x.k === k); return { t: 'Planta · ' + (p ? p.n : 'refuerzo'), sala: p ? p.id : null }; } return v === 'F' ? { t: 'Franco post-guardia' } : v === 'L' ? { t: 'Licencia' } : { t: 'Sin asignar' }; };
+
+/* ---------- Reglas del recorrido ---------- */
+const quien = (c, rol) => rol === 'anest' ? c.anest : rol === 'circ' || rol === 'enf' ? c.circ : rol === 'inst' ? c.inst : rol === 'cir' ? c.cir : null;
+function estado(c) {
+  const p = PASOS.map((x) => ({ ...x, firmas: x.roles.map((r) => ({ rol: r, f: c.f[x.k + '.' + r], k: quien(c, r) })) }));
+  p.forEach((x) => { x.hecho = x.firmas.every((y) => y.f); });
+  const a = p.findIndex((x) => !x.hecho);
+  p.forEach((x, i) => { x.est = x.hecho ? 'hecho' : i === a ? 'activo' : 'bloq'; });
+  return { p, a, hechos: p.filter((x) => x.hecho).length };
+}
+/* ¿Puede el usuario actual firmar este rol? Solo quien está anotado en ESA
+   cirugía; con el puesto libre, solo anotarse (y si es de esa función). */
+function puedo(c, rol, paso) {
+  const yo = S.yo; if (!yo || supervisa(yo)) return false;
+  const f = G[yo].f, q = quien(c, rol);
+  if (ROL[rol].f !== f) return false;
+  if (rol === 'cir') return q === yo;
+  if (q) return q === yo;
+  return paso === 'equipo';
+}
+/* Una persona, una sala: la otra cirugía del día donde figura y que todavía no tuvo la Salida. */
+function ocupadoEn(k, salvo) {
+  return S.cx.find((c) => c.id !== salvo && !c.f['salida.enf'] && [c.anest, c.circ, c.inst].includes(k));
+}
+const salaActual = (k) => { const c = ocupadoEn(k); return c ? c : null; };
+
+/* ---------- Acciones ---------- */
+function registrar(c, txt) { S.log.unshift({ t: reloj(), c: c ? salaDe(c.sala).n : '', txt }); }
+function avisar(k, txt, de) {
+  (S.avisos[k] = S.avisos[k] || []).unshift({ t: reloj(), txt, leido: false });
+  if (S.yo === k) toast(txt, colorDe(k));
+}
+/* Cuando termina un paso, la app avisa sola a quienes tienen que firmar el siguiente. */
+function avisarSiguientes(c, pasoPrevio) {
+  const e = estado(c), act = e.p[e.a]; if (!act) return;
+  const sala = salaDe(c.sala).n;
+  act.firmas.filter((x) => !x.f).forEach((x) => {
+    if (x.k) avisar(x.k, `🔔 Le toca ${ACCION[act.k]} en ${sala}${pasoPrevio ? ` (ya se completó «${pasoPrevio}»)` : ''}`);
+  });
+}
+function firmar(c, paso, rol, extra) {
+  const antes = estado(c).a;
+  c.f[paso + '.' + rol] = Object.assign({ k: S.yo, t: reloj() }, extra || {});
+  const pn = PASOS.find((p) => p.k === paso).n;
+  registrar(c, `${G[S.yo].n} firmó «${pn}» como ${ROL[rol].n}`);
+  avanza();
+  const e = estado(c);
+  if (e.a !== antes) {
+    toast(`✅ «${pn}» completo en ${salaDe(c.sala).n}`, '#4ade80');
+    if (e.a === -1) { festejo(); toast(`🎉 Recorrido completo: ${c.proc}`, '#e879f9'); registrar(c, 'Recorrido completo'); }
+    else avisarSiguientes(c, pn);
+  } else avisarSiguientes(c);
+  render();
+}
+function anotar(id, rol, forzar) {
+  const c = S.cx.find((x) => x.id === id), yo = S.yo;
+  if (G[yo].f === 'anest' && !S.llegada[yo]) { toast('Primero marque su llegada: arriba, «Llegué».', '#fb7185'); return; }
+  const otra = ocupadoEn(yo, id);
+  if (otra && !forzar) { S.modal = { tipo: 'sala', id, rol, otra: otra.id }; render(); return; }
+  if (otra) {
+    ['anest', 'circ', 'inst'].forEach((r) => { if (otra[r] === yo) { otra[r] = null; delete otra.f['equipo.' + r]; } });
+    registrar(otra, `${G[yo].n} dejó la sala por cambio a ${salaDe(c.sala).n}`);
+    toast(`↪ Cambio de sala: ${salaDe(otra.sala).n} → ${salaDe(c.sala).n}. El puesto que dejó queda libre y avisado.`, '#fbbf24');
+    ANEST.concat(['ruiz', 'sosa', 'gomez', 'vera']).filter((k) => G[k].f === G[yo].f && k !== yo).forEach((k) => avisar(k, `⚠ Quedó libre un puesto de ${FUNC[G[yo].f].n} en ${salaDe(otra.sala).n}`));
+  }
+  c[rol === 'enf' ? 'circ' : rol] = yo;
+  S.modal = null;
+  firmar(c, 'equipo', rol);
+}
+function llegue() { S.llegada[S.yo] = reloj(); registrar(null, `${G[S.yo].n} marcó su llegada`); avanza(1); toast('Llegada registrada. Ya puede tomar sus cirugías.', '#4ade80'); render(); }
+function avisarFalta(id, rol) {
+  const c = S.cx.find((x) => x.id === id), k = quien(c, rol), e = estado(c), p = e.p[e.a];
+  if (k) avisar(k, `🔔 ${G[S.yo].n} le pide su firma: «${p.n}» en ${salaDe(c.sala).n}`);
+  else Object.keys(G).filter((x) => G[x].f === ROL[rol].f && !ocupadoEn(x)).forEach((x) => avisar(x, `🔔 Falta ${ROL[rol].n} en ${salaDe(c.sala).n} (${c.hora} h)`));
+  toast(`Aviso enviado a ${k ? G[k].n : 'todo ' + FUNC[ROL[rol].f].n}`, '#60a5fa');
+  registrar(c, `${G[S.yo].n} avisó a ${k ? G[k].n : ROL[rol].n} que falta su firma`);
+  render();
+}
+function recuento(id, cual) {
+  const c = S.cx.find((x) => x.id === id), v = Object.assign({}, S.ui.cnt[id + cual] || {});
+  if (cual === 'rec1') { if (!RECUENTO.some(([k]) => v[k])) { toast('Cargue al menos un valor.', '#fb7185'); return; } c.rec1 = v; firmar(c, 'rec1', 'inst'); return; }
+  c.rec2 = v;
+  const dif = difRecuento(c);
+  if (dif.length) { registrar(c, `Recuento final NO coincide (${dif.join(', ')})`); toast('⚠ El recuento no coincide. Vuelvan a contar: la Salida queda frenada.', '#f87171'); avanza(); render(); return; }
+  firmar(c, 'rec2', 'inst');
+}
+function difRecuento(c) { if (!c.rec1 || !c.rec2) return []; return RECUENTO.filter(([k]) => Number(c.rec1[k] || 0) !== Number(c.rec2[k] || 0)).map(([k, n]) => `${n}: ${c.rec2[k] || 0} de ${c.rec1[k] || 0}`); }
+function aldrete(id) {
+  const c = S.cx.find((x) => x.id === id), v = S.ui.ald[id] || [2, 2, 2, 2, 2];
+  const tot = v.reduce((a, b) => a + Number(b), 0);
+  c.ald = tot;
+  if (tot < 9) { registrar(c, `Aldrete ${tot}/10: sigue en recuperación`); toast(`Aldrete ${tot}/10: todavía no puede salir de recuperación.`, '#fbbf24'); avanza(); render(); return; }
+  firmar(c, 'recup', 'anest', { tot });
+}
+
+/* Lista del mes */
+let animando = false;
+async function sugerir() {
+  if (animando) return; animando = true;
+  const sug = sugerencia();
+  for (let d = 1; d <= NDIAS; d++) {
+    ANEST.forEach((k) => { if (S.mes.g[k][d] !== 'L') S.mes.g[k][d] = sug[k][d]; });
+    render(); document.querySelectorAll(`[data-d="${d}"]`).forEach((b) => b.classList.add('pop'));
+    await espera(28);
+  }
+  animando = false; toast('✨ Cobertura sugerida: guardias rotativas, franco post-guardia y 4 de planta por día hábil.', '#e879f9'); render();
+}
+function celda(k, d) {
+  if (S.mes.estado !== 'borrador' || !G[S.yo].jefaAnest) return;
+  const ciclo = ['', 'P', 'G', 'F', 'L'], v = S.mes.g[k][d];
+  S.mes.g[k][d] = ciclo[(ciclo.indexOf(v) + 1) % ciclo.length]; render();
+  const b = document.querySelector(`[data-c="${k}-${d}"]`); if (b) b.classList.add('pop');
+}
+function enviarLista() {
+  const malos = []; for (let d = 1; d <= NDIAS; d++) if (!cobertura(d).ok) malos.push(d);
+  if (malos.length) { toast(`Faltan cubrir ${malos.length} día(s): ${malos.slice(0, 6).join(', ')}${malos.length > 6 ? '…' : ''}. Use «Sugerir cobertura».`, '#f87171'); return; }
+  S.mes.estado = 'enviada'; registrar(null, 'La Jefa de Anestesia envió la lista del mes a Jefatura');
+  avisar('jefatura', `📋 La lista de Anestesiología de ${MESES[MES]} espera su validación`);
+  toast('📨 Lista enviada a la Jefatura de Quirófanos', '#60a5fa'); render();
+}
+function validarLista() {
+  S.mes.estado = 'validada'; registrar(null, 'Jefatura validó la lista de Anestesiología');
+  ANEST.forEach((k) => avisar(k, `✅ Ya está validada la lista de ${MESES[MES]}: mire «Mi mes»`));
+  toast('✅ Lista validada: cada anestesiólogo ya ve sus días.', '#4ade80'); festejo(60); render();
+}
+
+/* ---------- Ingreso ---------- */
+async function entrar(k, rapido) {
+  S.login = { k, mail: '', pass: 0, ok: [] }; render();
+  const mail = G[k].mail + '@hru.demo';
+  for (let i = 1; i <= mail.length; i += rapido ? 4 : 1) { S.login.mail = mail.slice(0, i); renderLogin(); await espera(rapido ? 12 : 28); }
+  S.login.mail = mail;
+  for (let i = 1; i <= 8; i++) { S.login.pass = i; renderLogin(); await espera(rapido ? 18 : 40); }
+  const ch = G[k].f === 'dir' ? ['Cuenta de Dirección Médica', 'Acceso de solo lectura'] : G[k].f === 'jefe' ? ['Cuenta de Jefatura', 'Permisos de supervisión'] : G[k].f === 'cir' ? ['Cuenta aprobada', 'Matrícula vigente', 'Seguro de mala praxis al día'] : ['Cuenta aprobada', 'Matrícula vigente', 'Función: ' + FUNC[G[k].f].n + (G[k].jefaAnest ? ' · Jefa de Servicio' : '')];
+  for (const t of ch) { S.login.ok.push(t); renderLogin(); await espera(rapido ? 140 : 320); }
+  await espera(250);
+  S.login = null; S.yo = k; S.tab = tabsDe(k)[0][0]; S.bandeja = false; if (S.mision && !rapido) S.mision = '';
+  const pend = (S.avisos[k] || []).filter((a) => !a.leido).length;
+  toast(`Hola${supervisa(k) ? '' : ', ' + G[k].n.split(' ')[1]}. ${pend ? `Tiene ${pend} aviso(s) nuevo(s).` : 'Bienvenido/a.'}`, colorDe(k));
+  render();
+}
+function salir() { S.yo = null; S.tab = null; S.bandeja = false; render(); }
+function tabsDe(k) {
+  const f = G[k].f;
+  if (f === 'jefe') return [['vivo', '📡 Tablero en vivo'], ['sol', '📥 Solicitudes' + (S.sol.filter((x) => x.estado === 'pendiente').length ? ' (' + S.sol.filter((x) => x.estado === 'pendiente').length + ')' : '')], ['prog', '🗓 Programación del día'], ['lista', '📋 Anestesia del mes'], ['cob', '🛡 Coberturas']];
+  if (f === 'dir') return [['vivo', '📡 Tablero en vivo'], ['prog', '🗓 Programación del día'], ['lista', '📋 Anestesia del mes'], ['cob', '🛡 Coberturas']];
+  if (f === 'anest') return [['hoy', '☀️ Hoy'], ...(G[k].jefaAnest ? [['lista', '📋 Lista del mes']] : []), ['mimes', '📅 Mi mes'], ['cob', '🛡 Coberturas'], ['prog', '🗓 Programación']];
+  if (f === 'cir') return [['hoy', '🔪 Mis cirugías'], ['nueva', '➕ Programar una cirugía'], ['prog', '🗓 Programación']];
+  return [['hoy', '🩺 Hoy en sala'], ['prog', '🗓 Programación']];
+}
+
+/* ---------- Pintar ---------- */
+function render() {
+  if (S.silencio) return;
+  const app = $('#app');
+  const k = S.yo;
+  if (k && !tabsDe(k).some(([t]) => t === S.tab)) S.tab = tabsDe(k)[0][0];
+  document.documentElement.style.setProperty('--k', k ? colorDe(k) : '#e879f9');
+  let h = barra();
+  if (!k) h += pantallaIngreso();
+  else {
+    h += `<div class="tabs">${tabsDe(k).map(([t, n]) => `<button class="${S.tab === t ? 'on' : ''}" data-a="tab-${t}" onclick="S.tab='${t}';render()">${n}</button>`).join('')}</div>`;
+    h += ({ hoy: vistaHoy, vivo: vistaVivo, prog: vistaProg, lista: vistaLista, mimes: vistaMiMes, cob: vistaCob, nueva: vistaNueva, sol: vistaSol })[S.tab]();
+  }
+  h += `<p class="pie">Demo con datos inventados · nada se guarda · al recargar vuelve a empezar</p>`;
+  h += guia();
+  if (S.narr) h += `<div class="narr">${S.narr}</div>`;
+  if (S.modal) h += modal();
+  if (S.login) h += '<div id="login-ov"></div>';
+  const sy = window.scrollY;
+  app.innerHTML = h;
+  if (S.login) renderLogin();
+  window.scrollTo(0, sy);
+}
+function barra() {
+  const k = S.yo, sala = k ? salaActual(k) : null, av = k ? (S.avisos[k] || []) : [], nuevos = av.filter((a) => !a.leido).length;
+  return `<div class="top">
+    <div class="marca"><span><b>✚</b></span><div>HRU · Quirófanos<small>Demo del recorrido del equipo</small></div></div>
+    <div class="reloj"><small>${DS[DIA.getDay()]} ${HOY}/${MES + 1}</small>${reloj()}</div>
+    <div class="esp"></div>
+    ${k ? `<div class="yo" style="--k:${colorDe(k)}">${avatar(k)}<div><b>${G[k].n}</b><small>${G[k].jefaAnest ? 'Jefa de Anestesiología' : FUNC[G[k].f].n}${sala ? `<em>En ${salaDe(sala.sala).n}</em>` : ''}</small></div></div>
+      <div class="campana"><button onclick="S.bandeja=!S.bandeja;(S.avisos[S.yo]||[]).forEach(a=>a.leido=true);render()" title="Avisos">🔔${nuevos ? `<span class="bd">${nuevos}</span>` : ''}</button>
+        ${S.bandeja ? `<div class="bandeja">${av.length ? av.map((a) => `<div>${a.txt}<br><small>${a.t} h</small></div>`).join('') : '<div><small>Sin avisos.</small></div>'}</div>` : ''}</div>
+      <button class="btn fant chico" data-a="salir" onclick="salir()">Cambiar de usuario</button>` : ''}
+  </div>`;
+}
+function pantallaIngreso() {
+  const sec = SECTORES.find((x) => x[0] === S.sector) || SECTORES[0];
+  const grupos = [['Anestesiología', 'anest'], ['Enfermería', 'enf'], ['Instrumentación quirúrgica', 'inst'], ['Cirugía', 'cir'], ['Jefatura y Dirección', 'jefe']];
+  const filtra = (k) => S.sector === 'todos' || (S.sector === 'jefa' ? G[k].jefaAnest : S.sector === 'jefe' ? G[k].f === 'jefe' : G[k].f === S.sector);
+  const caps = escSector(S.sector);
+  return `<div class="ingreso">
+    <h1>Manual interactivo · <span>todo el equipo</span>,<br>cada paso en su orden.</h1>
+    <p class="sub">Elija su sector: verá qué hace en la app, capítulo por capítulo. <b>▶ Mirar</b> lo muestra solo; <b>✋ Probarlo yo</b> lo deja hacerlo a usted. Nada de esto toca la app real: son datos inventados y al cerrar se borran.</p>
+    <div class="sectores">${SECTORES.map(([k, n, i, c]) => `<button class="${S.sector === k ? 'on' : ''}" style="--k:${c}" data-a="sec-${k}" onclick="S.sector='${k}';render()">${i} ${n}</button>`).join('')}</div>
+    <div class="intro-sec" style="--k:${sec[3]}">${sec[2]} ${sec[4]}</div>
+    <div class="caps">${caps.map(([e, i], n) => `<div class="cap" style="--k:${sec[3]};animation-delay:${n * 40}ms"><span class="num">${n + 1}</span>
+      <div><b>${e.t}</b><small>${e.d}</small><span class="quien">${avatar(e.k)} como ${G[e.k].n}</span></div>
+      <div class="bts"><button class="btn fant chico" data-a="mirar-${i}" onclick="mirar(${i})">▶ Mirar</button><button class="btn chico" style="--k:${sec[3]}" onclick="probar(${i})">✋ Probarlo yo</button></div></div>`).join('')}</div>
+    <h2 style="font-size:1.05rem;margin-top:24px">…o entre libremente con cualquier persona</h2>
+    ${grupos.map(([n, f]) => { const ks = Object.keys(G).filter((k) => (G[k].f === f || (f === 'jefe' && G[k].f === 'dir')) && filtra(k)); if (!ks.length) return '';
+      return `<div class="sector" style="--k:${FUNC[f].c}"><b>${FUNC[f].i} ${n}</b><div class="gente">
+      ${ks.map((k) => { const nv = (S.avisos[k] || []).filter((a) => !a.leido).length; const sa = salaActual(k);
+        return `<button class="persona" style="--k:${colorDe(k)}" data-a="login-${k}" onclick="entrar('${k}')">${avatar(k, nv ? `<span class="bd">${nv}</span>` : '')}<span><b>${G[k].n}</b><small>${G[k].jefaAnest ? 'Jefa de Servicio · ' : ''}${G[k].serv || FUNC[G[k].f].n}${sa ? ' · en ' + salaDe(sa.sala).n : ''}</small></span></button>`; }).join('')}
+    </div></div>`; }).join('')}
+  </div>`;
+}
+function renderLogin() {
+  const L = S.login, ov = $('#login-ov'); if (!L || !ov) return;
+  const k = L.k;
+  ov.outerHTML = `<div class="login-ov" id="login-ov"><div class="login" style="--k:${colorDe(k)}">
+    ${avatar(k)}<h3>${G[k].n}</h3><p>${G[k].jefaAnest ? 'Jefa de Anestesiología' : FUNC[G[k].f].n}</p>
+    <div class="campo"><small>Correo</small><span class="${L.pass ? '' : 'cursor'}">${L.mail}</span></div>
+    <div class="campo"><small>Contraseña</small><span class="${L.pass && !L.ok.length ? 'cursor' : ''}">${'•'.repeat(L.pass)}</span></div>
+    <ul class="chequeos">${L.ok.map((t) => `<li><i>✓</i>${t}</li>`).join('')}</ul>
+  </div></div>`;
+}
+
+/* --- Hoy: lo que tiene que hacer esta persona --- */
+function vistaHoy() {
+  const k = S.yo, f = G[k].f;
+  let h = '';
+  const mia = salaActual(k);
+  if (f === 'anest') {
+    const ph = puestoHoy(k);
+    h += `<div class="ahora" style="--k:${colorDe(k)}"><span class="big">${S.llegada[k] ? '✅' : '⏰'}</span><div style="flex:1"><b>${S.llegada[k] ? `Llegó a las ${S.llegada[k]} h` : 'Paso 0 · Marque su llegada'}</b>
+      <small>Según la lista del mes, hoy: <b style="display:inline">${ph.t}</b>${S.mes.estado !== 'validada' ? ' (lista todavía sin validar)' : ''}${mia ? ` · Ahora en ${salaDe(mia.sala).n}` : ''}</small></div>
+      ${S.llegada[k] ? '' : `<button class="btn" data-a="llegue" onclick="llegue()">Llegué · estoy disponible</button>`}</div>`;
+    if (!S.llegada[k]) return h + `<div class="card" style="text-align:center;padding:30px"><div style="font-size:2.4rem">🔒</div><b>Las cirugías del día se habilitan cuando marca su llegada.</b><p class="sub" style="margin-top:6px">Así la Jefatura sabe quién está en el hospital antes de asignar salas.</p></div>`;
+  } else if (f !== 'cir') {
+    h += `<div class="ahora" style="--k:${colorDe(k)}"><span class="big">${mia ? '📍' : '👋'}</span><div><b>${mia ? `Está en ${salaDe(mia.sala).n} · ${mia.proc}` : 'Todavía no está en ninguna sala'}</b>
+      <small>${mia ? 'Hasta que esa cirugía tenga la Salida firmada, no puede anotarse en otra sala (salvo «cambio de sala»).' : 'Elija la cirugía donde va a estar y anótese en su puesto: es el paso 1 de cada una.'}</small></div></div>`;
+  }
+  const mias = S.cx.filter((c) => [c.anest, c.circ, c.inst, c.cir].includes(k));
+  const otras = S.cx.filter((c) => !mias.includes(c) && f !== 'cir');
+  const orden = (a, b) => a.hora.localeCompare(b.hora);
+  h += `<h2>${f === 'cir' ? 'Sus cirugías de hoy' : 'Cirugías del día'}</h2><p class="sub">Cada tarjeta avanza en 7 pasos. Usted ve en color lo que le toca; lo demás espera con candado 🔒 hasta que termine el paso anterior.</p>`;
+  h += mias.sort(orden).map(tarjeta).join('');
+  if (otras.length) h += `<h2 style="font-size:1.05rem;color:var(--mut)">Otras salas</h2>` + otras.sort(orden).map(tarjeta).join('');
+  return h;
+}
+function tarjeta(c) {
+  const e = estado(c), act = e.p[e.a], sala = salaDe(c.sala), abierta = S.abierta === c.id;
+  const meToca = act && act.firmas.some((x) => !x.f && puedo(c, x.rol, act.k) && !(act.k === 'equipo' && ocupadoEn(S.yo, c.id) && false));
+  const esperan = act ? act.firmas.filter((x) => !x.f && !puedo(c, x.rol, act.k)) : [];
+  const sugerida = G[S.yo].f === 'anest' && puestoHoy(S.yo).sala && (puestoHoy(S.yo).sala === c.sala || (puestoHoy(S.yo).sala === 'END' && c.sala === 'OBS'));
+  return `<article class="cx ${meToca ? 'toca' : ''}" style="--s:${sala.c}">
+    <div class="cx-cab" data-a="abrir-${c.id}" onclick="S.abierta=S.abierta==='${c.id}'?null:'${c.id}';render()">
+      <span class="hora">${c.hora}</span>
+      <span><b><span class="sala-tag">${sala.id}</span>${c.proc}</b><small>${G[c.cir].n} · ${c.pac}${sugerida && !c.anest ? ' · <b style="color:var(--anest);display:inline">⭐ su sala según la lista</b>' : ''}</small></span>
+      <span class="metro">${e.p.map((p) => `<i class="${p.est}" title="${p.n}"></i>`).join('')}</span>
+    </div>
+    <div class="estado-l">${!act ? '<b style="color:var(--ok)">✓ Recorrido completo</b>' : meToca ? `<span class="toca-txt">▶ Le toca: ${ACCION[act.k]}</span>` : `<span class="espera-txt">⏳ Esperando a ${esperan.map((x) => x.k ? G[x.k].n : ROL[x.rol].n + ' (sin anotar)').join(', ')} para ${ACCION[act.k]}</span>`}
+      <span style="margin-left:auto;color:var(--mut)">${e.hechos}/7</span></div>
+    ${abierta ? `<ol class="pasos">${e.p.map((p, i) => paso(c, p, i)).join('')}</ol>` : ''}
+  </article>`;
+}
+function paso(c, p, i) {
+  const firmas = p.firmas.map((x) => `<span class="firma ${x.f ? 'ok' : x.k ? '' : 'libre'}">${x.k ? avatar(x.k) : '<span class="av">?</span>'}${ROL[x.rol].n}: ${x.k ? G[x.k].n : 'sin anotar'}${x.f ? ` · ✓ ${x.f.t} h` : ''}</span>`).join('');
+  if (p.est !== 'activo') {
+    const prev = PASOS[i - 1];
+    return `<li class="paso ${p.est}"><span class="num">${p.est === 'hecho' ? '✓' : '🔒'}</span><div><h4>${p.ic} ${i + 1}. ${p.n}</h4><small>${p.est === 'hecho' ? p.d : `${p.d} · se habilita cuando termine «${estado(c).p[estado(c).a].n}»`}</small>${p.est === 'hecho' ? `<div class="firmas">${firmas}</div>` : ''}</div></li>`;
+  }
+  const acc = p.firmas.filter((x) => !x.f).map((x) => {
+    if (puedo(c, x.rol, p.k)) return accion(c, p.k, x.rol);
+    if (supervisa(S.yo) || x.k !== S.yo) {
+      return `<div class="falta"><span>Falta: <b>${x.k ? G[x.k].n : ROL[x.rol].n + ' (nadie anotado)'}</b> · ${ROL[x.rol].n}</span>${G[S.yo].f === 'dir' ? '' : `<button class="btn fant chico" data-a="avisar-${c.id}-${x.rol}" onclick="avisarFalta('${c.id}','${x.rol}')">🔔 Avisar</button>`}</div>`;
+    }
+    return '';
+  }).join('');
+  return `<li class="paso activo"><span class="num">${i + 1}</span><div><h4>${p.ic} ${p.n}</h4><small>${p.d}</small><div class="firmas">${firmas}</div>${acc}</div></li>`;
+}
+function accion(c, paso, rol) {
+  const id = c.id, key = id + paso + rol, a = (t, cuerpo) => `<div class="accion"><b>${t}</b>${cuerpo}</div>`;
+  if (paso === 'equipo') {
+    const otra = ocupadoEn(S.yo, id);
+    const t = { anest: 'Confirmo que doy la anestesia', circ: 'Me anoto como circulante', inst: 'Me anoto como instrumentador/a' }[rol];
+    return otra ? `<div class="bloqueo">🔒 Usted ya está en <b>${salaDe(otra.sala).n}</b> (${otra.proc}). Una persona no puede estar en dos salas a la vez.
+        <div style="margin-top:8px"><button class="btn chico" style="--k:#fbbf24" data-a="cambio-${id}-${rol}" onclick="anotar('${id}','${rol}')">↪ Es un cambio de sala</button></div></div>`
+      : a('Su paso: anotarse', `<button class="btn" data-a="anotar-${id}-${rol}" onclick="anotar('${id}','${rol}')">${t}</button>`);
+  }
+  if (CHECK[paso + '.' + rol]) {
+    const L = CHECK[paso + '.' + rol], marc = S.ui.chk[key] || [];
+    const listo = L.every((_, j) => marc[j]);
+    return a(`Lista de verificación · ${ROL[rol].n}`, `<div class="chk">${L.map((t, j) => `<label class="${marc[j] ? 'si' : ''}" data-a="chk-${key}-${j}"><input type="checkbox" ${marc[j] ? 'checked' : ''} onchange="(S.ui.chk['${key}']=S.ui.chk['${key}']||[])[${j}]=this.checked;render()">${t}</label>`).join('')}</div>
+      <button class="btn" data-a="firmar-${key}" ${listo ? '' : 'disabled'} onclick="firmar(S.cx.find(x=>x.id==='${id}'),'${paso}','${rol}')">${listo ? 'Firmar ' + PASOS.find((p) => p.k === paso).n : `Marque los ${L.length} puntos para firmar`}</button>`);
+  }
+  if (paso === 'rec1' || (paso === 'rec2' && rol === 'inst')) {
+    const v = S.ui.cnt[id + paso] = S.ui.cnt[id + paso] || {};
+    const dif = paso === 'rec2' && c.rec2 ? difRecuento(c) : [];
+    return a(paso === 'rec1' ? 'Recuento inicial · cuente y cargue' : 'Recuento final · tiene que coincidir con el inicial',
+      `${dif.length ? `<div class="aviso-mal">⚠ No coincide: ${dif.join(' · ')}. Vuelvan a contar.</div>` : ''}
+      <div class="cont">${RECUENTO.map(([k, n]) => `<div class="${dif.some((d) => d.startsWith(n)) ? 'mal' : ''}">${n}${paso === 'rec2' ? ` <small style="color:var(--mut)">(inicial ${c.rec1[k] || 0})</small>` : ''}<span>
+        <button onclick="S.ui.cnt['${id + paso}'].${k}=Math.max(0,(S.ui.cnt['${id + paso}'].${k}||0)-1);render()" aria-label="Uno menos">−</button><output>${v[k] || 0}</output>
+        <button onclick="S.ui.cnt['${id + paso}'].${k}=(S.ui.cnt['${id + paso}'].${k}||0)+1;render()" aria-label="Uno más">+</button></span></div>`).join('')}</div>
+      <button class="btn" data-a="rec-${id}-${paso}" onclick="recuento('${id}','${paso}')">${paso === 'rec1' ? 'Firmar el recuento inicial' : dif.length ? 'Cargar el recuento corregido' : 'Firmar el recuento final'}</button>`);
+  }
+  if (paso === 'rec2' && rol === 'enf') {
+    if (!c.f['rec2.inst']) return `<div class="falta"><span>🔒 La cofirma se habilita cuando Instrumentación carga un recuento final que coincide.</span></div>`;
+    return a('Cofirma del recuento', `<button class="btn" data-a="cofirma-${id}" onclick="firmar(S.cx.find(x=>x.id==='${id}'),'rec2','enf')">Cofirmo: el recuento coincide</button>`);
+  }
+  if (paso === 'pausa') return a('Pausa · en voz alta', `<p class="sub" style="margin:0 0 8px">Paciente, procedimiento, sitio, tiempo estimado y profilaxis antibiótica confirmados por todo el equipo.</p><button class="btn" data-a="pausa-${id}-${rol}" onclick="firmar(S.cx.find(x=>x.id==='${id}'),'pausa','${rol}')">Confirmo la Pausa (${ROL[rol].n})</button>`);
+  if (paso === 'recup') {
+    const v = S.ui.ald[id] = S.ui.ald[id] || [2, 2, 2, 2, 2], tot = v.reduce((x, y) => x + Number(y), 0);
+    return a('Escala de Aldrete', `<div class="ald">${ALDRETE.map(([n, o], j) => `<label>${n}<select onchange="S.ui.ald['${id}'][${j}]=+this.value;render()">${o.map((t, q) => `<option value="${q}" ${v[j] === q ? 'selected' : ''}>${q} · ${t}</option>`).join('')}</select></label>`).join('')}</div>
+      <div class="barra-acc"><b style="font-size:1.4rem;color:${tot >= 9 ? 'var(--ok)' : 'var(--inst)'}">${tot}/10</b><button class="btn" data-a="ald-${id}" onclick="aldrete('${id}')">${tot >= 9 ? 'Dar el alta de recuperación' : 'Registrar (sigue en recuperación)'}</button></div>`);
+  }
+  return '';
+}
+
+/* --- Jefatura: tablero en vivo --- */
+function vistaVivo() {
+  const total = S.cx.length, comp = S.cx.filter((c) => estado(c).a === -1).length;
+  return `<h2>Tablero en vivo <span class="vivo">EN VIVO</span></h2><p class="sub">Todas las salas de un vistazo: en qué paso está cada cirugía y a quién espera. Un toque en «Avisar» y le llega el pedido a esa persona.</p>
+    <div class="totales"><div><b>${total}</b><small>cirugías hoy</small></div><div><b style="color:var(--ok)">${comp}</b><small>recorridos completos</small></div>
+      <div><b style="color:var(--anest)">${Object.keys(S.llegada).length}/${ANEST.filter((k) => ['P', 'G'].includes(S.mes.g[k][HOY])).length || '—'}</b><small>anestesiólogos llegaron</small></div>
+      <div><b style="color:var(--inst)">${S.cx.filter((c) => c.rec2 && difRecuento(c).length).length}</b><small>recuentos que no coinciden</small></div></div>
+    <div class="tablero">${S.cx.slice().sort((a, b) => a.hora.localeCompare(b.hora)).map((c) => { const e = estado(c), act = e.p[e.a], s = salaDe(c.sala);
+      return `<div class="sala-card" style="--s:${s.c}"><h3>${s.n} <small style="font-size:.8rem;color:var(--mut)">${c.hora} h</small></h3><p>${c.proc} · ${G[c.cir].n}</p>
+        <div class="metro">${e.p.map((p) => `<i class="${p.est}" title="${p.n}"></i>`).join('')}</div><div class="prog"><i style="width:${e.hechos / 7 * 100}%"></i></div>
+        <div style="font-size:.8rem">${act ? `${act.ic} <b>${act.n}</b> · espera a ${act.firmas.filter((x) => !x.f).map((x) => x.k ? G[x.k].n : ROL[x.rol].n + ' (libre)').join(', ')}` : '<b style="color:var(--ok)">✓ Completo</b>'}</div>
+        <div class="firmas">${['anest', 'circ', 'inst'].map((r) => `<span class="firma ${quien(c, r) ? 'ok' : 'libre'}">${quien(c, r) ? avatar(quien(c, r)) : '<span class="av">?</span>'}${ROL[r].n}</span>`).join('')}</div>
+        ${act ? act.firmas.filter((x) => !x.f).slice(0, 1).map((x) => `<button class="btn fant chico" data-a="avisar-${c.id}-${x.rol}" onclick="avisarFalta('${c.id}','${x.rol}')">🔔 Avisar a ${x.k ? G[x.k].n.split(' ').slice(-1)[0] : ROL[x.rol].n}</button>`).join('') : ''}</div>`; }).join('')}</div>
+    <h2 style="font-size:1.05rem">Últimos movimientos</h2><div class="card" style="font-size:.8rem;max-height:240px;overflow:auto">${S.log.length ? S.log.slice(0, 30).map((l) => `<div style="padding:4px 0;border-bottom:1px solid var(--line)"><b>${l.t}</b> · ${l.c ? l.c + ' · ' : ''}${l.txt}</div>`).join('') : '<small style="color:var(--mut)">Todavía nadie hizo nada hoy.</small>'}</div>`;
+}
+/* --- Programación del día: línea de tiempo por sala --- */
+function vistaProg() {
+  const ini0 = 7 * 60, fin0 = 14 * 60, pos = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return ((h * 60 + m - ini0) / (fin0 - ini0)) * 100; };
+  const cob = cobertura(HOY);
+  return `<h2>Cirugías programadas</h2><p class="sub">${DS[DIA.getDay()]} ${HOY} de ${MESES[MES]} · la línea rosa es la hora actual. Debajo de cada sala, el anestesiólogo de planta según la lista del mes.</p>
+    <div class="linea-t"><div class="regla">${[7, 8, 9, 10, 11, 12, 13, 14].map((h) => `<span style="left:${pos(pad(h) + ':00')}%">${h} h</span>`).join('')}</div>
+    <div style="position:relative">${S.min >= ini0 && S.min <= fin0 ? `<div class="ahora-l" style="left:${pos(reloj())}%"></div>` : ''}
+    ${SALAS.map((s) => { const p = cob.puestos.find((x) => x.id === s.id || (s.id === 'OBS' && x.id === 'END'));
+      return `<div class="fila" style="--s:${s.c}"><b style="color:${s.c}">${s.id}<br><small style="color:var(--mut);font-weight:600">${p && p.k ? G[p.k].n.split(' ').slice(-1)[0] : '—'}</small></b>
+      ${S.cx.filter((c) => c.sala === s.id).map((c) => { const e = estado(c); return `<div class="bloque" style="left:${pos(c.hora)}%;width:${pos(c.fin) - pos(c.hora)}%" title="${c.proc}">${e.a === -1 ? '✓ ' : ''}${c.proc}<small>${c.hora}–${c.fin} · ${e.hechos}/7</small></div>`; }).join('')}</div>`; }).join('')}
+    </div></div>
+    <div class="leyenda"><span>👥 ${S.cx.length} cirugías</span><span>🛡 Guardia: ${cob.G.map((k) => G[k].n).join(', ') || '—'}</span><span>💤 Franco: ${cob.F.map((k) => G[k].n).join(', ') || '—'}</span></div>`;
+}
+/* --- Lista del mes (editable por la Jefa; Jefatura valida) --- */
+function vistaLista() {
+  const puedeEd = G[S.yo].jefaAnest && S.mes.estado === 'borrador', esJefe = G[S.yo].f === 'jefe';
+  const est = { borrador: '✏️ Borrador', enviada: '📨 Enviada a Jefatura', validada: '✅ Validada' }[S.mes.estado];
+  const dias = Array.from({ length: NDIAS }, (_, i) => i + 1);
+  const faltan = dias.filter((d) => !cobertura(d).ok).length;
+  return `<h2>Anestesiología · ${MESES[MES]} ${ANIO}</h2>
+    <p class="sub">${puedeEd ? 'Toque una celda para cambiarla (Planta → Guardia → Franco → Licencia → libre) o deje que la app sugiera la cobertura. Abajo, cada día muestra si está cubierto.' : esJefe ? 'La Jefa de Anestesia arma la lista; la Jefatura la revisa y la valida. Después, cada anestesiólogo ve sus días.' : 'Solo lectura.'}</p>
+    <div class="barra-acc"><span class="sello ${S.mes.estado}">${est}</span>${faltan ? `<span class="sello" style="background:rgba(248,113,113,.18);color:#fecaca">⚠ ${faltan} día(s) sin cubrir</span>` : '<span class="sello validada">🛡 Todos los días cubiertos</span>'}
+      <span class="esp"></span>
+      ${puedeEd ? `<button class="btn" data-a="sugerir" style="--k:var(--jefa)" onclick="sugerir()">✨ Sugerir cobertura</button><button class="btn" data-a="enviar" style="--k:#60a5fa" onclick="enviarLista()">📨 Enviar a Jefatura</button>` : ''}
+      ${esJefe && S.mes.estado === 'enviada' ? `<button class="btn" data-a="validar" style="--k:var(--ok)" onclick="validarLista()">✅ Validar la lista</button>` : ''}
+      ${esJefe && S.mes.estado === 'borrador' ? '<small style="color:var(--mut)">Esperando que la Jefa de Anestesia la envíe.</small>' : ''}</div>
+    <div class="mes-wrap"><table class="mes"><thead><tr><th></th>${dias.map((d) => `<th class="${finde(d) ? 'fs' : ''} ${d === HOY ? 'hoy' : ''}">${DS[dow(d)]}<br>${d}</th>`).join('')}</tr></thead><tbody>
+      ${ANEST.map((k) => `<tr><td class="nom" style="--p:${PCOL[k]}"><i></i>${G[k].n}</td>${dias.map((d) => { const v = S.mes.g[k][d]; return `<td><button class="cel ${v}" data-d="${d}" data-c="${k}-${d}" onclick="celda('${k}',${d})" ${puedeEd ? '' : 'tabindex="-1"'}>${v || '·'}</button></td>`; }).join('')}</tr>`).join('')}
+      <tr class="cob"><td class="nom">Cobertura</td>${dias.map((d) => `<td title="${cobertura(d).ok ? 'Cubierto' : 'Falta cubrir'}">${cobertura(d).ok ? '🟢' : '🔴'}</td>`).join('')}</tr>
+    </tbody></table></div>
+    <div class="leyenda"><span><i class="cel P">P</i>Planta (7 a 15 h, una sala)</span><span><i class="cel G">G</i>Guardia de 24 h</span><span><i class="cel F">F</i>Franco post-guardia</span><span><i class="cel L">L</i>Licencia</span><span>Días hábiles: 4 de planta + 1 de guardia · fines de semana: solo guardia</span></div>`;
+}
+/* --- Mi mes: el calendario personal --- */
+function vistaMiMes() {
+  const k = S.yo, g = S.mes.g[k];
+  const n = (v) => g.filter((x) => x === v).length;
+  const primero = dow(1);
+  return `<h2>Mi mes · ${MESES[MES]}</h2><p class="sub">${S.mes.estado === 'validada' ? 'Lista validada por la Jefatura.' : '<b style="color:var(--inst)">Lista en borrador</b>: puede cambiar hasta que la Jefatura la valide.'}</p>
+    <div class="totales"><div><b style="color:#2dd4bf">${n('P')}</b><small>días de planta · ${n('P') * 8} h</small></div><div><b style="color:#a78bfa">${n('G')}</b><small>guardias de 24 h · ${n('G') * 24} h</small></div>
+      <div><b>${n('F')}</b><small>francos post-guardia</small></div><div><b style="color:var(--jefa)">${n('P') * 8 + n('G') * 24}</b><small>horas del mes</small></div></div>
+    <div class="cal">${DS.map((d) => `<div class="dn">${d}</div>`).join('')}${'<div></div>'.repeat(primero)}
+      ${Array.from({ length: NDIAS }, (_, i) => { const d = i + 1, v = g[d], c = cobertura(d), p = c.puestos.find((x) => x.k === k);
+        return `<div class="d ${v} ${d === HOY ? 'hoy' : ''}" style="animation-delay:${i * 12}ms"><b>${d}</b><small>${v === 'P' ? (p ? p.id : 'Planta') : v === 'G' ? 'Guardia' : v === 'F' ? 'Franco' : v === 'L' ? 'Licencia' : ''}</small></div>`; }).join('')}</div>`;
+}
+/* --- Coberturas por día --- */
+function vistaCob() {
+  const d = S.diaCob, c = cobertura(d);
+  const card = (lbl, k, extra) => `<div class="card" style="--k:${k ? colorDe(k) : '#64748b'}">${k ? avatar(k) : '<span class="av" style="--k:#475569">?</span>'}<div><div class="lbl">${lbl}</div><b>${k ? G[k].n : 'Sin cubrir'}</b>${extra || ''}</div></div>`;
+  const llego = (k) => d === HOY && k ? `<br><small><span class="dot ${S.llegada[k] ? 'si' : ''}"></span>${S.llegada[k] ? 'Llegó ' + S.llegada[k] + ' h' : 'Todavía no marcó llegada'}</small>` : '';
+  return `<h2>Coberturas de guardia y planta</h2><p class="sub">Elija un día: quién está en cada sala, quién hace la guardia y quién tiene franco.</p>
+    <div class="dias">${Array.from({ length: NDIAS }, (_, i) => i + 1).map((x) => `<button class="${x === d ? 'on' : ''} ${finde(x) ? 'fs' : ''}" onclick="S.diaCob=${x};render()"><small>${DS[dow(x)]}</small>${x}${cobertura(x).ok ? '' : '<small style="color:#f87171">●</small>'}</button>`).join('')}</div>
+    <div class="cob">${finde(d) ? '<div class="card"><div><div class="lbl">Fin de semana</div><b>Sin cirugías programadas: solo guardia</b></div></div>' : c.puestos.map((p) => card('Planta · ' + p.n, p.k, llego(p.k))).join('')}
+      ${card('🛡 Guardia de 24 h', c.G[0], llego(c.G[0]))}${c.F.map((k) => card('💤 Franco post-guardia', k)).join('')}${c.L.map((k) => card('🏖 Licencia', k)).join('')}</div>`;
+}
+
+/* ---------- Guía inferior: qué sigue y quién ---------- */
+function proximo() {
+  // El recorrido protagonista es el de las 8 h en el Quirófano 1.
+  if (S.mes.estado === 'borrador') return { k: 'bianchi', t: 'armar y enviar la lista de Anestesiología del mes' };
+  if (S.mes.estado === 'enviada') return { k: 'jefatura', t: 'validar la lista del mes' };
+  const c = S.cx[0], e = estado(c), act = e.p[e.a];
+  if (!act) return null;
+  if (!S.llegada.arce) return { k: 'arce', t: 'marcar su llegada' };
+  const x = act.firmas.find((y) => !y.f);
+  const k = x.k || { anest: 'arce', circ: 'ruiz', enf: 'ruiz', inst: 'gomez', cir: 'ferrari' }[x.rol];
+  return { k, t: `${ACCION[act.k]} en Quirófano 1 (como ${ROL[x.rol].n})` };
+}
+function guia() {
+  const p = proximo();
+  return `<div class="guia">
+    <button class="btn peli" data-a="peli" onclick="${S.peli ? 'pararPeli()' : 'pelicula()'}">${S.peli ? '⏸ Parar' : '▶ Ver la película'}</button>
+    ${S.peli ? `<button class="btn fant chico" onclick="VEL=VEL===1?2.2:1;render()">${VEL === 1 ? '⏩ Más rápido' : '▶ Normal'}</button>` : ''}
+    <div class="txt"><small>${S.mision ? 'Su misión' : '¿Qué sigue?'}</small>${S.mision ? `<span class="mision">✋ ${S.mision}</span>` : p ? `Le toca a <b>${G[p.k].n}</b>: ${p.t}.` : '🎉 El recorrido de Quirófano 1 está completo. Pruebe las otras salas o la vista de Jefatura.'}</div>
+    ${p && !S.peli ? (S.yo === p.k ? '<span class="sello validada">Es usted</span>' : `<button class="btn" style="--k:${colorDe(p.k)}" onclick="entrar('${p.k}', true)">Entrar como ${G[p.k].n.split(' ').slice(0, 2).join(' ')}</button>`) : ''}
+    ${S.yo ? `<button class="btn fant chico" onclick="salir()">📘 Volver al manual</button>` : ''}
+    <button class="btn fant chico" onclick="if(confirm('¿Empezar de nuevo el demo?')){pararPeli();nuevo();render()}">↺ Reiniciar</button>
+  </div>`;
+}
+function modal() {
+  const m = S.modal; if (m.tipo !== 'sala') return '';
+  const c = S.cx.find((x) => x.id === m.id), o = S.cx.find((x) => x.id === m.otra);
+  return `<div class="modal-ov"><div class="modal"><h3>🔒 Ya está en otra sala</h3>
+    <p>Usted figura en <b>${salaDe(o.sala).n}</b> · ${o.proc} (${o.hora} h), que todavía no tuvo la Salida.</p>
+    <p>Una persona no puede estar en dos salas a la vez. Si es un <b>cambio de sala</b>, deja libre ese puesto (queda registrado y se avisa a su sector) y pasa a <b>${salaDe(c.sala).n}</b>.</p>
+    <div class="barra-acc"><button class="btn fant" data-a="modal-no" onclick="S.modal=null;render()">Cancelar</button><button class="btn" style="--k:#fbbf24" data-a="modal-si" onclick="anotar('${m.id}','${m.rol}',true)">Sí, es un cambio de sala</button></div></div></div>`;
+}
+
+/* ---------- Avisos flotantes y festejo ---------- */
+function toast(txt, color) {
+  if (S && S.silencio) return;
+  const t = document.createElement('div'); t.className = 'toast'; t.style.setProperty('--k', color || '#a78bfa'); t.innerHTML = txt;
+  $('#toasts').prepend(t);
+  setTimeout(() => t.classList.add('fuera'), 3800 / Math.max(1, VEL * .8)); setTimeout(() => t.remove(), 4300);
+  while ($('#toasts').children.length > 4) $('#toasts').lastChild.remove();
+}
+function festejo(n = 160) {
+  if (S && S.silencio) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv = $('#conf'), cx = cv.getContext('2d'); cv.width = innerWidth; cv.height = innerHeight;
+  const col = ['#a78bfa', '#2dd4bf', '#fbbf24', '#fb7185', '#60a5fa', '#4ade80'];
+  const ps = Array.from({ length: n }, () => ({ x: innerWidth / 2, y: innerHeight * .6, vx: (Math.random() - .5) * 16, vy: -Math.random() * 16 - 6, r: Math.random() * 6 + 3, c: col[Math.floor(Math.random() * col.length)], a: Math.random() * 6 }));
+  let f = 0;
+  (function paso() { cx.clearRect(0, 0, cv.width, cv.height);
+    ps.forEach((p) => { p.x += p.vx; p.y += p.vy; p.vy += .45; p.a += .2; cx.save(); cx.translate(p.x, p.y); cx.rotate(p.a); cx.fillStyle = p.c; cx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r); cx.restore(); });
+    if (++f < 150) requestAnimationFrame(paso); else cx.clearRect(0, 0, cv.width, cv.height); })();
+}
+
+/* ---------- Programar una cirugía (cirujano) y Solicitudes (Jefatura) ---------- */
+const aMin = (h) => { const [x, y] = h.split(':').map(Number); return x * 60 + y; };
+const deMin = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+function vistaNueva() {
+  const f = S.ui.form = S.ui.form || { proc: '', sala: 'Q3', hora: '13:00', dur: '60', anest: 'General', ins: '' };
+  const opt = (arr, v) => arr.map((x) => `<option ${String(x[0]) === String(v) ? 'selected' : ''} value="${x[0]}">${x[1]}</option>`).join('');
+  const horas = []; for (let m = 8 * 60; m <= 14 * 60; m += 30) horas.push([deMin(m), deMin(m) + ' h']);
+  const mias = S.sol.filter((x) => x.cir === S.yo);
+  return `<h2>Programar una cirugía</h2><p class="sub">Paso 1 de 3: usted completa la solicitud. Paso 2: la Jefatura de Quirófanos la confirma. Paso 3: aparece en la programación con su recorrido y le avisa al anestesiólogo de esa sala.</p>
+    <div class="card form">
+      <label style="grid-column:1/-1">Procedimiento<input data-a="f-proc" value="${f.proc}" oninput="S.ui.form.proc=this.value" placeholder="Ej.: Colecistectomía laparoscópica"></label>
+      <label>Sala<select onchange="S.ui.form.sala=this.value">${opt(SALAS.map((x) => [x.id, x.n]), f.sala)}</select></label>
+      <label>Hora<select onchange="S.ui.form.hora=this.value">${opt(horas, f.hora)}</select></label>
+      <label>Duración estimada<select onchange="S.ui.form.dur=this.value">${opt([[30, '30 min'], [60, '1 h'], [90, '1 h 30'], [120, '2 h']], f.dur)}</select></label>
+      <label>Anestesia<select onchange="S.ui.form.anest=this.value">${opt(['General', 'Raquídea', 'Sedación', 'Local'].map((x) => [x, x]), f.anest)}</select></label>
+      <label style="grid-column:1/-1">Insumos o implantes especiales<input value="${f.ins}" oninput="S.ui.form.ins=this.value" placeholder="Opcional"></label>
+      <div><button class="btn" data-a="f-enviar" onclick="enviarSolicitud()">📨 Enviar a Jefatura</button></div>
+    </div>
+    <h2 style="font-size:1.05rem">Mis solicitudes</h2>
+    ${mias.length ? mias.map((x) => `<div class="card sol" style="margin-bottom:8px"><div><b>${x.proc}</b><br><small>${salaDe(x.sala).n} · ${x.hora}–${x.fin} h · anestesia ${x.anest.toLowerCase()}</small></div><span class="sello ${x.estado === 'pendiente' ? 'enviada' : x.estado === 'confirmada' ? 'validada' : 'borrador'}">${{ pendiente: '⏳ Esperando a Jefatura', confirmada: '✅ Confirmada', rechazada: '✖ Rechazada' }[x.estado]}</span></div>`).join('') : '<p class="sub">Todavía no envió solicitudes hoy.</p>'}`;
+}
+function enviarSolicitud() {
+  const f = S.ui.form;
+  if (!String(f.proc).trim()) { toast('Escriba el procedimiento.', '#fb7185'); return; }
+  const ini0 = aMin(f.hora), fin0 = ini0 + Number(f.dur);
+  const choca = S.cx.find((c) => c.sala === f.sala && aMin(c.hora) < fin0 && ini0 < aMin(c.fin));
+  if (choca) { toast(`⛔ ${salaDe(f.sala).n} está ocupado de ${choca.hora} a ${choca.fin} h (${choca.proc}). Elija otra hora o sala.`, '#f87171'); return; }
+  const x = { id: 's' + (S.sol.length + 1), cir: S.yo, proc: f.proc.trim(), sala: f.sala, hora: f.hora, fin: deMin(fin0), anest: f.anest, ins: f.ins, estado: 'pendiente', t: reloj() };
+  S.sol.push(x); S.ui.form = null;
+  registrar(null, `${G[S.yo].n} solicitó ${x.proc} en ${salaDe(x.sala).n} a las ${x.hora} h`);
+  avisar('jefatura', `📥 Nueva solicitud de ${G[S.yo].n}: ${x.proc} (${salaDe(x.sala).n}, ${x.hora} h)`);
+  toast('📨 Solicitud enviada. Le avisamos cuando la Jefatura la confirme.', '#60a5fa'); avanza(); render();
+}
+function vistaSol() {
+  const pend = S.sol.filter((x) => x.estado === 'pendiente'), resto = S.sol.filter((x) => x.estado !== 'pendiente');
+  const fila = (x) => `<div class="card sol" style="margin-bottom:8px">${avatar(x.cir)}<div><b>${x.proc}</b><br><small>${G[x.cir].n} · ${salaDe(x.sala).n} · ${x.hora}–${x.fin} h · anestesia ${x.anest.toLowerCase()}${x.ins ? ' · ' + x.ins : ''} · pedida ${x.t} h</small></div>
+    ${x.estado === 'pendiente' ? `<button class="btn fant chico" onclick="resolverSol('${x.id}',false)">✖ Rechazar</button><button class="btn chico" style="--k:var(--ok)" data-a="conf-${x.id}" onclick="resolverSol('${x.id}',true)">✅ Confirmar y programar</button>` : `<span class="sello ${x.estado === 'confirmada' ? 'validada' : 'borrador'}">${x.estado === 'confirmada' ? '✅ Programada' : '✖ Rechazada'}</span>`}</div>`;
+  return `<h2>Solicitudes de cirugía</h2><p class="sub">Lo que piden los cirujanos llega acá. Al confirmar, la cirugía entra en la programación, se arma su recorrido de 7 pasos y se avisa al cirujano y al anestesiólogo de esa sala.</p>
+    ${pend.length ? pend.map(fila).join('') : '<div class="card"><small style="color:var(--mut)">No hay solicitudes pendientes.</small></div>'}
+    ${resto.length ? '<h2 style="font-size:1.05rem">Resueltas hoy</h2>' + resto.map(fila).join('') : ''}`;
+}
+function resolverSol(id, ok) {
+  const x = S.sol.find((y) => y.id === id); if (!x) return;
+  x.estado = ok ? 'confirmada' : 'rechazada';
+  if (!ok) { avisar(x.cir, `✖ La Jefatura no pudo programar ${x.proc}. Comuníquese con Quirófanos.`); registrar(null, `Jefatura rechazó ${x.proc}`); render(); return; }
+  const c = { id: 'cx' + (S.cx.length + 1), sala: x.sala, hora: x.hora, fin: x.fin, proc: x.proc, pac: 'Paciente de ejemplo ' + String.fromCharCode(65 + S.cx.length), cir: x.cir, anest: null, circ: null, inst: null, f: {}, rec1: null, rec2: null, ald: null };
+  S.cx.push(c);
+  registrar(c, `Jefatura confirmó y programó ${x.proc}`);
+  avisar(x.cir, `✅ Confirmada: ${x.proc} en ${salaDe(x.sala).n} a las ${x.hora} h`);
+  const p = cobertura(HOY).puestos.find((q) => q.id === x.sala || (x.sala === 'OBS' && q.id === 'END'));
+  if (p && p.k) avisar(p.k, `🗓 Se sumó una cirugía en su sala: ${x.proc}, ${x.hora} h`);
+  toast(`✅ Programada en ${salaDe(x.sala).n}. Avisados el cirujano${p && p.k ? ' y ' + G[p.k].n : ''}.`, '#4ade80'); avanza(); render();
+}
+
+/* ---------- Manual interactivo: capítulos por sector ----------
+   Cada capítulo es una escena: «Mirar» la juega sola; «Probarlo yo» deja todo
+   listo hasta ese punto y entra como la persona que corresponde. «Ver la
+   película» juega todas en orden. */
+const SECTORES = [
+  ['todos', 'Todo el recorrido', '🌈', '#e879f9', 'Un día completo del bloque quirúrgico, de la lista del mes a la cirugía terminada. Cada sector hace su parte y la app habilita el paso siguiente.'],
+  ['cir', 'Cirujanos', '🔪', '#60a5fa', 'El cirujano <b>pide la cirugía</b>, la Jefatura la confirma y después ve el recorrido en su sala. En la Pausa confirma en voz alta paciente, sitio y procedimiento.'],
+  ['anest', 'Anestesiólogos', '💜', '#a78bfa', 'Cada anestesiólogo entra con su cuenta, ve <b>qué le toca hoy</b> según la lista del mes, marca su llegada, toma su sala y firma Entrada, Pausa y el alta de recuperación.'],
+  ['jefa', 'Jefa de Anestesia', '📋', '#e879f9', 'La Jefa de Servicio <b>arma la lista mensual</b> (planta, guardias de 24 h, francos y licencias). La app sugiere la cobertura y avisa qué días faltan cubrir.'],
+  ['enf', 'Enfermería', '🩺', '#2dd4bf', 'La enfermera circulante <b>se anota en una sola sala</b>, hace la Lista de Verificación de Entrada y Salida, confirma la Pausa y cofirma el recuento final.'],
+  ['inst', 'Instrumentación', '🧰', '#fbbf24', 'La instrumentadora <b>se anota en la cirugía</b>: recién ahí se le habilita el recuento inicial. Al cierre, el recuento final tiene que coincidir o la Salida queda frenada.'],
+  ['jefe', 'Jefatura de Quirófanos', '🏥', '#fb7185', 'La Jefatura <b>confirma las solicitudes</b>, valida la lista de Anestesia y mira todas las salas en vivo: en qué paso está cada cirugía y a quién espera.'],
+  ['dir', 'Dirección Médica', '🔎', '#38bdf8', 'La Dirección Médica ve <b>lo mismo que la Jefatura, solo para mirar</b>: tablero en vivo, programación, lista mensual y coberturas.'],
+];
+const hacer = (k, fn) => { const p = S.yo; S.yo = k; fn(); S.yo = p; };
+const ESC = [
+  { sec: ['jefa'], k: 'bianchi', tab: 'lista', t: 'Armar la lista del mes', d: 'Sugerir la cobertura con un toque, revisar los días en rojo y enviarla a Jefatura.', hint: 'Toque «✨ Sugerir cobertura» y después «📨 Enviar a Jefatura».',
+    ya() { const g = sugerencia(); ANEST.forEach((k) => { for (let d = 1; d <= NDIAS; d++) if (S.mes.g[k][d] !== 'L') S.mes.g[k][d] = g[k][d]; }); hacer('bianchi', enviarLista); },
+    async anim(h) { await h.como('bianchi'); await h.narra('La Jefa de Anestesia arma la lista del mes. La app sugiere la cobertura en un toque.');
+      await h.toca('tab-lista', () => { S.tab = 'lista'; render(); }, 700); await h.toca('sugerir', () => sugerir(), 800); await espera(NDIAS * 30 + 600);
+      await h.narra('Cada día queda cubierto: 4 de planta, 1 de guardia de 24 h y el franco después de la guardia.', 2400); await h.toca('enviar', enviarLista); } },
+  { sec: ['jefe'], k: 'jefatura', tab: 'lista', t: 'Validar la lista de Anestesia', d: 'La Jefatura recibe el aviso, revisa y valida. Desde ahí cada anestesiólogo ve sus días.', hint: 'Toque «✅ Validar la lista».',
+    ya() { hacer('jefatura', validarLista); },
+    async anim(h) { await h.como('jefatura'); await h.narra('La Jefatura de Quirófanos recibe el aviso y valida la lista.');
+      await h.toca('tab-lista', () => { S.tab = 'lista'; render(); }, 600); await h.toca('validar', validarLista); } },
+  { sec: ['jefe', 'dir', 'anest', 'jefa'], k: 'jefatura', tab: 'cob', t: 'Coberturas de guardia y planta', d: 'Por día: quién está en cada sala, quién hace la guardia, quién tiene franco o licencia, y si ya llegó.', hint: 'Toque distintos días arriba para ver la cobertura de cada uno.',
+    ya() {}, async anim(h) { await h.como('jefatura'); await h.toca('tab-cob', () => { S.tab = 'cob'; render(); }, 600);
+      await h.narra('Coberturas del día: quién está en cada sala, la guardia y los francos.', 2600);
+      await h.toca('tab-prog', () => { S.tab = 'prog'; render(); }, 600); await h.narra('Y las cirugías programadas de hoy, sala por sala, con la hora actual.', 2600); } },
+  { sec: ['cir'], k: 'ferrari', tab: 'nueva', t: 'Pedir una cirugía', d: 'El cirujano completa la solicitud; si la sala está ocupada a esa hora, la app no la deja pasar.', hint: 'Escriba un procedimiento y toque «📨 Enviar a Jefatura».',
+    ya() { hacer('ferrari', () => { S.ui.form = { proc: 'Colecistectomía laparoscópica', sala: 'Q3', hora: '13:00', dur: '60', anest: 'General', ins: '' }; enviarSolicitud(); }); },
+    async anim(h) { await h.como('ferrari'); await h.narra('El cirujano pide una cirugía nueva desde su cuenta.');
+      await h.toca('tab-nueva', () => { S.tab = 'nueva'; render(); }, 600);
+      S.ui.form = { proc: '', sala: 'Q3', hora: '13:00', dur: '60', anest: 'General', ins: '' };
+      const t = 'Colecistectomía laparoscópica'; for (let i = 1; i <= t.length; i += 2) { if (!h.vivo()) throw 0; S.ui.form.proc = t.slice(0, i); render(); await espera(40); } S.ui.form.proc = t;
+      await h.toca('f-enviar', enviarSolicitud); } },
+  { sec: ['jefe', 'cir'], k: 'jefatura', tab: 'sol', t: 'Confirmar la solicitud', d: 'La Jefatura la confirma: entra en la programación, se arma su recorrido y se avisa al cirujano y al anestesiólogo de la sala.', hint: 'Toque «✅ Confirmar y programar».',
+    ya() { const x = S.sol.find((y) => y.estado === 'pendiente'); if (x) hacer('jefatura', () => resolverSol(x.id, true)); },
+    async anim(h) { await h.como('jefatura'); await h.narra('La Jefatura la confirma y queda programada.');
+      await h.toca('tab-sol', () => { S.tab = 'sol'; render(); }, 600); const x = S.sol.find((y) => y.estado === 'pendiente'); if (x) await h.toca('conf-' + x.id, () => resolverSol(x.id, true)); } },
+  { sec: ['anest'], k: 'arce', tab: 'hoy', t: 'Llegar y tomar la sala', d: 'Primero marca la llegada; después confirma su cirugía. Si intenta tomar otra sala, la app lo frena salvo «cambio de sala».', hint: 'Toque «Llegué» y después «Confirmo que doy la anestesia» en Quirófano 1.',
+    ya() { hacer('arce', () => { S.llegada.arce = reloj(); anotar('cx1', 'anest'); }); },
+    async anim(h) { await h.como('arce'); await h.narra('El anestesiólogo entra con su cuenta: arriba se ve SU nombre y lo que le toca hoy según la lista.', 2600);
+      await h.toca('llegue', llegue); h.abrir('cx1'); await h.toca('anotar-cx1-anest', () => anotar('cx1', 'anest'));
+      await h.narra('Ya está en Quirófano 1. Si intenta tomar otra sala, la app lo frena…', 2200);
+      h.abrir('cx2'); await h.toca('cambio-cx2-anest', () => anotar('cx2', 'anest'), 1000); await espera(1800); await h.toca('modal-no', () => { S.modal = null; render(); }, 600);
+      await h.narra('…salvo que sea un «cambio de sala», que deja el otro puesto libre y avisado.', 2200); } },
+  { sec: ['enf'], k: 'ruiz', tab: 'hoy', t: 'Anotarse como circulante', d: 'La enfermera elige su sala. Mientras esa cirugía no tenga la Salida, no puede anotarse en otra.', hint: 'Abra Quirófano 1 y toque «Me anoto como circulante».',
+    ya() { hacer('ruiz', () => anotar('cx1', 'circ')); },
+    async anim(h) { await h.como('ruiz'); h.abrir('cx1'); await h.narra('Enfermería se anota como circulante en Quirófano 1.'); await h.toca('anotar-cx1-circ', () => anotar('cx1', 'circ')); } },
+  { sec: ['inst'], k: 'gomez', tab: 'hoy', t: 'Anotarse como instrumentadora', d: 'Sin anotarse en la cirugía, el recuento inicial no se habilita. Con esto el equipo queda completo.', hint: 'Abra Quirófano 1 y toque «Me anoto como instrumentador/a».',
+    ya() { hacer('gomez', () => anotar('cx1', 'inst')); },
+    async anim(h) { await h.como('gomez'); h.abrir('cx1'); await h.narra('Instrumentación se anota. Sin esto, el recuento inicial no se habilita.'); await h.toca('anotar-cx1-inst', () => anotar('cx1', 'inst'));
+      await h.narra('El equipo está completo: la app avisa sola a quienes firman la Entrada.', 2000); } },
+  { sec: ['enf', 'anest'], k: 'ruiz', tab: 'hoy', t: 'Entrada (Lista OMS)', d: 'Enfermería repasa punto por punto y firma; después firma Anestesia. Hasta no marcar todo, el botón no se habilita.', hint: 'Marque los 5 puntos y toque «Firmar Entrada». Después entre como Dr. Arce y firme él.',
+    ya() { hacer('ruiz', () => firmar(S.cx[0], 'entrada', 'enf')); hacer('arce', () => firmar(S.cx[0], 'entrada', 'anest')); },
+    async anim(h) { await h.como('ruiz'); h.abrir('cx1'); await h.narra('Entrada: Enfermería repasa la Lista de Verificación punto por punto.');
+      await h.tildar('cx1entradaenf', 5); await h.toca('firmar-cx1entradaenf', () => firmar(S.cx[0], 'entrada', 'enf'));
+      await h.como('arce'); h.abrir('cx1'); await h.tildar('cx1entradaanest', 3); await h.toca('firmar-cx1entradaanest', () => firmar(S.cx[0], 'entrada', 'anest')); } },
+  { sec: ['inst'], k: 'gomez', tab: 'hoy', t: 'Recuento inicial', d: 'Con los botones − / + (más fácil con guantes). Solo lo firma la instrumentadora anotada en esa cirugía.', hint: 'Cargue gasas, compresas, agujas e instrumental y firme el recuento inicial.',
+    ya() { hacer('gomez', () => { S.ui.cnt.cx1rec1 = { gasas: 10, compresas: 5, agujas: 3, instr: 42 }; recuento('cx1', 'rec1'); }); },
+    async anim(h) { await h.como('gomez'); h.abrir('cx1'); await h.narra('Recuento inicial con − / + (más fácil con guantes).');
+      await h.contar('cx1', 'rec1', { gasas: 10, compresas: 5, agujas: 3, instr: 42 }); await h.toca('rec-cx1-rec1', () => recuento('cx1', 'rec1')); } },
+  { sec: ['cir', 'anest', 'enf'], k: 'ferrari', tab: 'hoy', t: 'Pausa quirúrgica', d: 'Antes de la incisión firman cirujano, anestesia y enfermería, cada uno desde su cuenta.', hint: 'Firme la Pausa como cirujano; después entre como Arce y como Ruiz.',
+    ya() { hacer('ferrari', () => firmar(S.cx[0], 'pausa', 'cir')); hacer('arce', () => firmar(S.cx[0], 'pausa', 'anest')); hacer('ruiz', () => firmar(S.cx[0], 'pausa', 'enf')); },
+    async anim(h) { await h.narra('Pausa: cirujano, anestesia y enfermería confirman en voz alta.');
+      await h.como('ferrari'); h.abrir('cx1'); await h.toca('pausa-cx1-cir', () => firmar(S.cx[0], 'pausa', 'cir'));
+      await h.como('arce'); h.abrir('cx1'); await h.toca('pausa-cx1-anest', () => firmar(S.cx[0], 'pausa', 'anest'));
+      await h.como('ruiz'); h.abrir('cx1'); await h.toca('pausa-cx1-enf', () => firmar(S.cx[0], 'pausa', 'enf')); } },
+  { sec: ['inst', 'enf'], k: 'gomez', tab: 'hoy', t: 'Recuento final y cofirma', d: 'Si falta una gasa, la app no deja seguir hasta que coincida. Después cofirma Enfermería.', hint: 'Cargue el recuento final (pruebe con una gasa menos) y fírmelo.',
+    ya() { hacer('gomez', () => { S.ui.cnt.cx1rec2 = { gasas: 10, compresas: 5, agujas: 3, instr: 42 }; recuento('cx1', 'rec2'); }); hacer('ruiz', () => firmar(S.cx[0], 'rec2', 'enf')); },
+    async anim(h) { await h.como('gomez'); h.abrir('cx1'); await h.narra('Recuento final. Falta una gasa: la app no deja seguir.');
+      await h.contar('cx1', 'rec2', { gasas: 9, compresas: 5, agujas: 3, instr: 42 }); await h.toca('rec-cx1-rec2', () => recuento('cx1', 'rec2')); await espera(1600);
+      await h.narra('Vuelven a contar, aparece la gasa y ahora sí coincide.'); S.ui.cnt.cx1rec2.gasas = 10; render(); await espera(600);
+      await h.toca('rec-cx1-rec2', () => recuento('cx1', 'rec2')); await h.como('ruiz'); h.abrir('cx1'); await h.toca('cofirma-cx1', () => firmar(S.cx[0], 'rec2', 'enf')); } },
+  { sec: ['enf'], k: 'ruiz', tab: 'hoy', t: 'Salida', d: 'Enfermería cierra la Lista de Verificación. Recién ahí puede anotarse en otra sala.', hint: 'Marque los 4 puntos y firme la Salida.',
+    ya() { hacer('ruiz', () => firmar(S.cx[0], 'salida', 'enf')); },
+    async anim(h) { await h.como('ruiz'); h.abrir('cx1'); await h.narra('Salida: Enfermería cierra la Lista de Verificación.');
+      await h.tildar('cx1salidaenf', 4); await h.toca('firmar-cx1salidaenf', () => firmar(S.cx[0], 'salida', 'enf')); } },
+  { sec: ['anest'], k: 'arce', tab: 'hoy', t: 'Alta de recuperación (Aldrete)', d: 'Con 9 o más, el paciente puede salir de recuperación y el recorrido queda completo.', hint: 'Revise la escala y toque «Dar el alta de recuperación».',
+    ya() { hacer('arce', () => aldrete('cx1')); },
+    async anim(h) { await h.como('arce'); h.abrir('cx1'); await h.narra('Recuperación: alta con la escala de Aldrete.'); await h.toca('ald-cx1', () => aldrete('cx1')); } },
+  { sec: ['anest', 'jefa'], k: 'arce', tab: 'mimes', t: 'Mi mes', d: 'Cada anestesiólogo ve su calendario: días de planta con su sala, guardias, francos y horas del mes.', hint: 'Mire sus días; el día de hoy está marcado con borde blanco.',
+    ya() {}, async anim(h) { await h.como('arce'); await h.toca('tab-mimes', () => { S.tab = 'mimes'; render(); }, 600); await h.narra('Su calendario del mes: planta con la sala, guardias, francos y horas.', 3000); } },
+  { sec: ['jefe', 'dir'], k: 'direccion', tab: 'vivo', t: 'Tablero en vivo', d: 'Todas las salas: en qué paso está cada cirugía y a quién espera. La Jefatura puede avisar; la Dirección, solo mirar.', hint: 'Recorra las tarjetas de cada sala y los últimos movimientos.',
+    ya() {}, async anim(h) { await h.como('direccion'); S.tab = 'vivo'; render(); await h.narra('🎉 Cada firma con su nombre y su hora, a la vista de la Jefatura y la Dirección.', 3500); } },
+];
+const escSector = (sec) => ESC.map((e, i) => [e, i]).filter(([e]) => sec === 'todos' || e.sec.includes(sec));
+function preparar(hasta) { nuevo(); S.silencio = true; for (let i = 0; i < hasta; i++) ESC[i].ya(); S.silencio = false; S.yo = null; S.modal = null; }
+
+let corriendo = 0;
+function pararPeli() { corriendo++; S.peli = false; S.narr = ''; VEL = 1; render(); }
+async function correr(lista) {
+  const yo = ++corriendo; S.peli = true; render();
+  const vivo = () => yo === corriendo;
+  const h = {
+    vivo,
+    narra: async (t, ms = 2200) => { if (!vivo()) throw 0; S.narr = t; render(); await espera(ms); },
+    toca: async (sel, fn, ms = 900) => {
+      if (!vivo()) throw 0;
+      render(); const el = document.querySelector(`[data-a="${sel}"]`);
+      if (el) { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('foco'); }
+      await espera(ms); if (!vivo()) throw 0; fn(); await espera(500);
+    },
+    como: async (k) => { if (!vivo()) throw 0; if (S.yo === k) return; S.yo = null; S.narr = ''; render(); await espera(300); await entrar(k); },
+    abrir: (id) => { S.abierta = id; render(); },
+    tildar: async (key, n) => { for (let j = 0; j < n; j++) { if (!vivo()) throw 0; (S.ui.chk[key] = S.ui.chk[key] || [])[j] = true; render(); const el = document.querySelector(`[data-a="chk-${key}-${j}"]`); if (el) el.scrollIntoView({ block: 'center' }); await espera(260); } },
+    contar: async (id, paso, vals) => { S.ui.cnt[id + paso] = {}; for (const [k, v] of Object.entries(vals)) { for (let i = 1; i <= Math.min(v, 6); i++) { if (!vivo()) throw 0; S.ui.cnt[id + paso][k] = i; render(); await espera(70); } S.ui.cnt[id + paso][k] = v; render(); await espera(200); } },
+  };
+  try {
+    for (const e of lista) await e.anim(h);
+    if (vivo()) { S.narr = ''; S.peli = false; render(); }
+  } catch (e) { if (e !== 0) throw e; }
+}
+function pelicula() { preparar(0); S.narr = '🎬 Un día en el bloque quirúrgico del HRU, paso a paso.'; correr(ESC); }
+function mirar(i) { corriendo++; preparar(i); correr([ESC[i]]); }
+async function probar(i) { corriendo++; preparar(i); S.peli = false; S.narr = ''; S.mision = ESC[i].hint; await entrar(ESC[i].k, true); S.tab = ESC[i].tab; S.abierta = 'cx1'; render(); scrollTo({ top: 0, behavior: 'smooth' }); }
+
+nuevo(); render();
+addEventListener('click', (e) => { if (S.bandeja && !e.target.closest('.campana')) { S.bandeja = false; render(); } });
+</script>
+</body>
+</html>
