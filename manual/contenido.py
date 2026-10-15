@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.21.0'
+VERSION = '3.22.0'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -24,7 +24,7 @@ PORTADA = {
     'area': 'BLOQUE DE QUIRÓFANOS CENTRALES',
     'titulo': 'HRU QUIRÓFANOS',
     'subtitulo': 'Manual funcional de la plataforma de gestión quirúrgica',
-    'bajada': 'Recorrido paso a paso para el médico cirujano, Admisión y Egresos, la Jefatura de Quirófanos y la Dirección Médica',
+    'bajada': 'Recorrido paso a paso para el médico cirujano, Anestesiología, Enfermería, Instrumentación, Admisión y Egresos, la Jefatura de Quirófanos y la Dirección Médica',
     'destinatarios': 'Documento dirigido al cuerpo médico quirúrgico del HRU',
     'temas': 'Programación · Urgencias · Consentimientos informados · Lista de Verificación · Estadísticas · Módulos · Reclamos · Incidencias',
 }
@@ -60,7 +60,7 @@ BLOQUES = [
 ]),
 ('p', '**El bloque programado nace cerrado.** Ninguna franja está disponible hasta que la Jefatura de Quirófanos habilita el día, la sala y el turno. La decisión es deliberada: la disponibilidad de un quirófano no depende solo del calendario sino del personal de anestesia, de instrumentación, de esterilización y de las camas de recuperación. Abrir la grilla por defecto sería prometer una capacidad que puede no existir. Lo único que está siempre disponible es el turno de urgencia de la hora en curso, en las tres salas de guardia.'),
 ('p', '**Prioridad por especialidad.** Además de abrir y cerrar, la Jefatura puede reservar un tramo de una o varias salas para una o varias especialidades. Por ejemplo: el martes, el Quirófano 1 de 08 a 12 h solo para Cirugía Pediátrica, y de 12 h en adelante para cualquier especialidad. Así se da prioridad a un servicio —que Pediatría anote primero a los niños— sin cerrar el resto del día.'),
-('p', '**Ciclo de programación.** Las solicitudes de turno electivo cierran a las 13:00 h del **día hábil previo** y el parte quirúrgico se publica a las 14:00 h de ese mismo día. Como los domingos no se programan cirugías, sábados y domingos no hay cierre: **la lista del lunes cierra el viernes a las 13:00 h** (y con ella la de un sábado o domingo que la Jefatura abra por excepción). Las dos reglas se suman: además del cierre, un turno electivo exige 24 horas de anticipación: no se puede programar una cirugía electiva para el mismo día. Lo que llega fuera de esos plazos entra por la programación fuera de horario de la Jefatura (capítulo 5) o, si es una urgencia, por el turno rodante (capítulo 4).'),
+('p', '**Ciclo de programación.** Las solicitudes de turno electivo cierran a las 13:00 h del **día hábil previo** y el parte quirúrgico se publica a las 14:00 h de ese mismo día. Como los domingos no se programan cirugías, sábados, domingos y **feriados** no hay cierre: **la lista del lunes cierra el viernes a las 13:00 h** (y con ella la de un sábado o domingo que la Jefatura abra por excepción), y lo que sigue a un feriado cierra el día hábil anterior —por ejemplo, con el 9 y el 10 de julio de 2026 no laborables, la lista del lunes 13 cierra el miércoles 8—. Cuentan los feriados nacionales que la app trae de internet, los provinciales de Tierra del Fuego y los que la Jefatura marque a mano en la disponibilidad de Anestesiología. Las dos reglas se suman: además del cierre, un turno electivo exige 24 horas de anticipación: no se puede programar una cirugía electiva para el mismo día. Lo que llega fuera de esos plazos entra por la programación fuera de horario de la Jefatura (capítulo 5) o, si es una urgencia, por el turno rodante (capítulo 4).'),
 
 # ─────────────────────────────────────────────────────────────── 2
 ('h1', '2. Perfiles de acceso y cuentas'),
@@ -168,7 +168,7 @@ BLOQUES = [
     '**Reclamos** — comunicación formal y confidencial con la Jefatura. Se ven los del **mes en curso** y los que siguen abiertos; el resto, en el historial a pedido, que se baja en PDF.',
     '**Informar Incidencia** (botón del Panel) — reporte de eventos adversos y fallas de proceso. Desde la 3.21 ya no figura en el menú lateral, igual que el Parte Quirúrgico, que se abre con **Parte del día**.',
     '**Reconocimiento** — reconocimiento entre colegas, no un premio en dinero. (1) **Distinción del mes**: un voto secreto por mes a un colega (nunca a uno mismo), eligiendo de 1 a 3 valores —Compañerismo, Ética, Presencia, Cordialidad, Lealtad, Docencia, Entrega—; se puede cambiar hasta el último día a las 23:59. El día 1 un servicio automático del hospital cuenta los votos: con menos de 5 votos válidos queda desierta, el empate es compartido y se publica solo quién ganó y sus valores más elegidos, nunca cuántos votos sacó nadie. También se publica el **Servicio del mes** y, en enero, **Vocación HRU** del año. El ganador ve una ceremonia al abrir la app y la distinción queda en su legajo y en su tarjeta. (2) **Muro de gratitud**: notas breves con el nombre de quien las escribe; un filtro frena insultos, el autor o la Jefatura las borran y el botón ⚑ avisa a la Jefatura. (3) **Mis insignias**: cada uno ve, solo él, cuántas veces lo reconocieron por cada valor (bronce 1, plata 3, oro 6, diamante 10).',
-    '**Mi Perfil** — su **tarjeta de presentación** (cinco estilos de infografía, seis colores, adornos, frase propia y foto sacada con la cámara o elegida de un archivo), la documentación habilitante, servicios y cambio de contraseña. Para sumar o quitar un servicio hay que pedírselo a la Jefatura.',
+    '**Mi Perfil** — su **tarjeta de presentación** (siete estilos —entre ellos Holograma, que brilla y gira con el mouse, y Latido, con electrocardiograma animado—, seis colores, adornos, frase propia y foto). Muestra una cinta con la función (Cirujano/a, Anestesiología, Enfermería o Instrumentación) y cifras del año propias de cada función, que se cuentan solas al abrirla. Debajo, la **Documentación** como billetera de credenciales: una tarjeta por documento con su estado (vigente, vence pronto o falta), una barra con los días que le quedan al seguro y al RCP, y un anillo con cuántos requisitos están al día. También servicios y cambio de contraseña. Para sumar o quitar un servicio hay que pedírselo a la Jefatura.',
 ]),
 ('h2', '3.1. Los estados de un turno'),
 ('tabla', ['Estado', 'Qué significa', 'Quién lo produce'], [
@@ -196,16 +196,49 @@ BLOQUES = [
 ('p', 'En la ficha de la cirugía, el apartado de módulos dice **«Todavía no computa en Módulos Quirúrgicos: se imputa cuando la cirugía quede Finalizada»** mientras el caso no esté cerrado, y **«Computa en Módulos Quirúrgicos»** cuando ya lo está.'),
 
 # ─────────────────────────────────────────────────────────────── 4
-('h2', '3.2. Enfermería e Instrumentación quirúrgica'),
+('h2', '3.2. El recorrido de cada cirugía, paso a paso'),
+('p', 'Desde la 3.22 Anestesiología, Enfermería, Instrumentación, el cirujano y la Jefatura trabajan sobre **el mismo recorrido**, inspirado en los «Cinco pasos para una cirugía más segura» del sistema de salud inglés (NHS), que suman el equipo y el cierre a la Lista de Verificación de la OMS. Tiene siete pasos y cada uno se habilita **recién cuando el anterior está completo**:'),
+('tabla', ['Paso', 'Firman', 'Qué se hace'], [
+    ['1. Equipo', 'Anestesia, Circulante, Instrumentación', 'Cada uno confirma que está en la cirugía (el anestesiólogo/a, después de marcar su llegada).'],
+    ['2. Entrada', 'Enfermería y Anestesia', 'Lista de la Entrada antes de la inducción. Al firmar, Anestesia registra el inicio de la anestesia.'],
+    ['3. Recuento inicial', 'Instrumentación', 'Gasas, compresas, agujas e instrumental, con botones − / +.'],
+    ['4. Pausa', 'Cirujano/a, Anestesia y Enfermería', 'Antes de la incisión. El cirujano la registra al tocar «Iniciar»; se anota la hora de incisión.'],
+    ['5. Recuento final', 'Instrumentación y Enfermería', 'Si no coincide con el inicial, el recorrido se frena y la Jefatura recibe el aviso.'],
+    ['6. Salida', 'Enfermería', 'Lista de la Salida; se anotan el fin de la cirugía y la salida de sala.'],
+    ['7. Recuperación', 'Anestesia', 'Alta con la escala de Aldrete (9 o más).'],
+]),
+('ul', [
+    'Cada uno ve **en primer plano solo lo que le toca**: lo hecho queda en una línea con quién firmó y a qué hora, y lo que viene aparece con candado. Una barrita de siete rayas muestra en qué paso está cada cirugía.',
+    'Cuando le toca, la app le avisa sola («Le toca: Entrada»). Si el paso espera la firma de otro, el botón **🔔 Avisar** le manda una notificación («… le pide su firma»), que también le llega al dispositivo si activó las notificaciones. Si el rol todavía no tiene a nadie asignado, el aviso le llega a todo el equipo de esa función.',
+    'El filtro **Mis cirugías / Todas** y el de área (Quirófanos, Endoscopía, Obstetricia) dejan a la vista solo lo necesario.',
+    'Todo queda en el historial de la cirugía: firmas, horas, avisos y cambios.',
+    '**Ficha rápida:** en la línea de tiempo del Panel y en la grilla de Programación Diaria, al pasar el mouse por una cirugía aparece una ficha chica con su estado y qué significa, la hora, el equipo y en qué paso del recorrido está; desaparece sola al sacar el mouse y, al tocarla, se abre la ficha completa. Una referencia de colores muestra los estados del día: **«Validada» no es «En curso»**: está aprobada por las áreas técnicas y espera la confirmación de la Jefatura; «En curso» (naranja) aparece recién cuando el cirujano toca Iniciar.',
+]),
+
+('h2', '3.2 bis. Enfermería e Instrumentación quirúrgica'),
 ('p', 'Desde la 3.21, enfermeras/os (circulantes y técnicas/os de anestesia) e instrumentadoras/es entran con **su propia cuenta**: al darse de alta eligen su **función**, la Jefatura las autoriza y aceptan el compromiso de ingreso. Su habilitación pide matrícula, seguro, RCP y vacunas (no título de especialista). No programan cirugías ni figuran como cirujanos o ayudantes; su lugar en la app es **Mi Sala** y el **Relevo de turno**, además de Reclamos, Reconocimiento y Mi Perfil.'),
 ('ul', [
-    '**Mi Sala:** las cirugías del día por sala. Cada uno se anota en su puesto —Instrumentación, Circulante o Enfermería/técnica de anestesia— con «Me anoto»; el anestesiólogo/a se registra en la Entrada.',
+    '**Mi Sala:** las cirugías del día, cada una con su **recorrido paso a paso** (sección 3.2). En el paso Equipo cada uno se anota con «Me anoto como circulante» o «como instrumentador/a».',
     '**Lista de Verificación por fases, responsabilidad del equipo:** la **Entrada** (antes de la inducción) la coordina Enfermería y firman Enfermería y Anestesia; la **Pausa** (antes de la incisión) la dirige el cirujano —que la registra al tocar Iniciar— y Enfermería firma su presencia; la **Salida** (antes de dejar la sala) la coordina Enfermería y el cirujano la confirma al cargar el parte. Lo que Enfermería ya firmó no se le vuelve a pedir al cirujano.',
     '**Recuento** de gasas, compresas, agujas e instrumental al abrir y al cerrar: lo carga Instrumentación y lo cofirma Enfermería. **Si no coincide, la Salida queda frenada** —tampoco el cirujano puede cerrar— y la Jefatura recibe al instante una incidencia confidencial. Se corrige cargando un recuento nuevo; el anterior queda en el historial.',
     '**Cajas de instrumental** con lote y vencimiento de la esterilización (la app marca VENCIDA si corresponde) e **insumos e implantes** usados: los registra Instrumentación, que es también quien da por verificados los insumos de la cirugía (antes lo marcaba Farmacia).',
     '**Relevo de turno:** quién estuvo en cada sala (sale solo de lo anotado en Mi Sala) y las novedades que deja escritas quien se va, por sala y turno.',
     'Todo queda con nombre, cuenta y hora; nada se borra: se corrige agregando.',
 ]),
+
+('h2', '3.3. Anestesiología'),
+('p', 'Desde la 3.22 los anestesiólogos/as entran con **su propia cuenta** (función «Anestesiología» al darse de alta). Son personal del hospital y **no cobran módulos**: su aporte en la app es de seguridad y de organización del día. Su habilitación pide matrícula, título de especialista, seguro, RCP y vacunas. Su lugar es el **Portal de Anestesiología**, con tres pestañas:'),
+('ul', [
+    '**Hoy:** primero **Llegué · estoy disponible** (recién ahí se habilitan las cirugías). Después, en cada cirugía de Quirófanos, Endoscopía u Obstetricia en que va a estar, confirma el paso **Equipo**. Si toma una cirugía que tenía otro colega, la app pregunta y deja asentados los dos nombres.',
+    'En el recorrido (sección 3.2) firma la **Entrada** —que registra el inicio de la anestesia— y la **Pausa**, anota la incisión, el fin y la salida de sala con «Ahora» y da el **alta de recuperación con la escala de Aldrete** (5 ítems de 0 a 2; con 9 o más, alta).',
+    'El **apto preanestésico no cambia:** lo sigue marcando el cirujano al programar, para que continúen Admisión y Egresos. El portal solo lo muestra.',
+    '**Disponibilidad del mes**, un asistente de cuatro pasos para el Jefe/a: **1 Equipo del mes**, **2 Cubrir los días**, **3 Revisar y enviar** y **4 Validación**; cada paso se habilita al cumplir el anterior. Desde el **15 de cada mes** la app le pide al **Jefe/a de Anestesiología** la grilla del mes siguiente: quién cubre cada sala cada día. Se elige una persona y se **toca o se arrastra** sobre las casillas para asignarla; **Sugerir cobertura** completa los huecos repartiendo en forma pareja sin poner a nadie en dos salas el mismo día, y **Repetir la primera semana** copia el patrón. Arriba, un anillo con el porcentaje cubierto y, en cada día, una barrita de cobertura. **Sábados, domingos y feriados** las urgencias y emergencias se habilitan solas y se cubren con **un anestesiólogo/a de guardia**, la primera fila de la grilla («Guardia»); esos días las demás salas aparecen rayadas, y los días hábiles la fila de guardia no corresponde. **Los feriados nacionales** —con los trasladables y los puentes de cada decreto— **los trae la app de internet** cada año (de ArgentinaDatos o, si no responde, de Nager.Date); **los provinciales de Tierra del Fuego** ya vienen cargados (1 de junio, Día de la Provincia, Ley provincial N.º 7). Un feriado municipal o un decreto nuevo se marca o desmarca tocando el número del día.',
+    '**¿Quiénes aparecen para programar?** Cada anestesiólogo/a se da de alta en la app con la función **Anestesiología**; cuando la Jefatura de Quirófanos autoriza su cuenta, aparece solo/a en la lista del Jefe/a para la disponibilidad. Para un **itinerante** que cubre unos días y no va a usar la app, en **«¿Falta alguien?»** se lo suma por nombre solo a ese mes: aparece en la grilla pero no tiene portal (no marca llegada ni firma). Se lo quita con la ✕ y se vacían sus casillas.',
+    'El Jefe/a la **envía a la Jefatura de Quirófanos**, que la **valida** o la **devuelve para corregir**. Si se cambia después de validada, vuelve a pedir validación. Cada cambio queda en la auditoría de la disponibilidad, con fecha, persona y qué hizo.',
+    '**Indicadores:** puntualidad (inicio de anestesia hasta 15 minutos después de la hora programada), demora promedio, tiempo de anestesia a incisión, duración quirúrgica, porcentaje de altas con Aldrete 9 o más y uso de cada sala sobre la jornada de los días hábiles.',
+]),
+('h2', '3.4. Portales del equipo (Jefatura y Dirección Médica)'),
+('p', 'Dos solapas: **Recorrido del día** —todas las cirugías con su paso actual y a quién esperan— y **Anestesiología del mes** —la disponibilidad y los indicadores—. La **Jefatura** puede avisar a quien falta, firmar en nombre de la Jefatura, designar al **Jefe/a de Servicio de Anestesiología** y validar o devolver la disponibilidad (le llega el aviso cuando se la envían). La **Dirección Médica** ve lo mismo, solo para consultar.'),
 
 ('h1', '4. Urgencias y emergencias'),
 ('p', 'La programación diaria y la guardia son dos carriles separados. El Quirófano 1, la Sala de Endoscopía y el Quirófano de Obstetricia ofrecen, además de su grilla programada, **un turno libre de urgencia en la hora que corre**, las 24 horas, todos los días, esté la sala habilitada o no. Cada sala ofrece el suyo: cirugías de urgencia en el Quirófano 1, endoscopías de urgencia en Endoscopía y cesáreas de urgencia en Obstetricia.'),
@@ -411,7 +444,9 @@ BLOQUES = [
     'Las incidencias las lee solo la Jefatura. Los reclamos, solo su autor y la Jefatura.',
     'La agenda del bloque (días, salas, turnos abiertos y reservas por especialidad) no tiene datos de pacientes ni de profesionales: la leen todas las cuentas y la escribe solo la Jefatura.',
     'Los consentimientos los ve el profesional que los emitió; el archivo completo, la Jefatura.',
-    'Enfermería e Instrumentación ven la grilla, el parte y las cirugías del día con los datos del paciente que necesitan para trabajar; no ven módulos, estadísticas de médicos ni consentimientos. El relevo de turno lo leen las cuentas del hospital y cada novedad queda con el correo real de quien la escribió.',
+    'Enfermería, Instrumentación y Anestesiología ven la grilla, el parte y las cirugías del día con los datos del paciente que necesitan para trabajar; no ven módulos, estadísticas de médicos ni consentimientos. El relevo de turno lo leen las cuentas del hospital y cada novedad queda con el correo real de quien la escribió.',
+    '**Feriados:** para conocer los feriados nacionales, la app consulta un servicio público de internet (ArgentinaDatos o Nager.Date) mandando **solo el año**: ningún dato de pacientes ni de profesionales. La respuesta se guarda en el equipo.',
+    '**Anestesiología:** la disponibilidad mensual y el registro de llegada no tienen datos de pacientes (solo fechas, salas, nombres de profesionales y números de cirugía) y se guardan en texto corto. Cada anestesiólogo/a escribe solo su propio registro de llegada (la base no le deja tocar el de otro; la Jefatura sí); la disponibilidad no se puede borrar. Los tiempos reales y el Aldrete quedan dentro de la cirugía, con el mismo acceso que el resto de su ficha.',
     'El aviso hablado nunca pronuncia nombres de pacientes.',
     '**Pase del paciente:** el QR y el enlace llevan solo una llave al azar, sin nombre, DNI ni diagnóstico. El paciente no entra a la base: habla con un servicio del hospital que verifica su DNI y el código de un solo uso enviado a su correo, y le muestra solo su cirugía. El correo y la huella del DNI se guardan aparte, ninguna cuenta de la app los lee, y se borran cuando el pase caduca.',
     '**Tarjeta de presentación:** la foto se achica en el propio equipo (240 × 240) antes de guardarse. La ven los profesionales del bloque y los pacientes a los que ese cirujano les genera el pase; se quita cuando se quiera.',
@@ -427,7 +462,8 @@ BLOQUES = [
     'Sin conexión sigue funcionando contra la copia local y guarda los cambios para enviarlos cuando vuelve la red. El indicador del encabezado dice si todo está sincronizado o si queda algo sin enviar.',
     'El Libro Blanco de Quirófanos, este manual y la foto del lema quedan guardados para consultarse sin conexión.',
     'Cuando se publica una versión nueva, la app se actualiza sola si la pantalla no tiene nada escrito; si hay un formulario a medio completar, muestra un aviso y espera a que el profesional decida.',
-    'Cada persona elige su apariencia —Aurora austral, Lavanda, Amanecer fueguino o Guardia nocturna, esta última oscura para el turno de 24 horas—, y la elección queda en su dispositivo.',
+    'Cada persona elige su apariencia con paletas de salud —**Quirófano verde** (el verde de los ambos y los paños), **Azul hospitalario** (el azul institucional), **Salvia y arena** (tonos cálidos de clínica de bienestar) o **Guardia nocturna**, oscura para el turno de 24 horas—. Cada una cambia el encabezado de cada pantalla, la barra superior, el menú, el fondo y los botones. La elección queda en su dispositivo.',
+    '**Botón Volver:** abajo a la izquierda, en todas las secciones, lleva a la sección anterior y a la misma altura de la página en que se la dejó (en el celular es un círculo con una flecha).',
     '**Cierre por inactividad:** con una sesión abierta, a los 9 minutos sin uso aparece «¿Sigue ahí?» con la cuenta regresiva del último minuto; a los 10, la sesión se cierra sola. Si quedaba algo sin terminar, al volver a entrar la app pregunta si quiere seguir donde lo dejó.',
 ]),
 
@@ -445,7 +481,23 @@ BLOQUES = [
 ]),
 
 # ─────────────────────────────────────────────────────────────── 14
-('h1', '14. Novedades de las versiones 3.12 a 3.21'),
+('h1', '14. Novedades de las versiones 3.12 a 3.22'),
+('h2', 'Versión 3.22 — Anestesiología, portales del equipo y rediseños'),
+('ul', [
+    '**Rol de Anestesiología** con cuenta propia y su portal: check-point de llegada y de cirugías del día, firma propia en Entrada y Pausa, tiempos reales, alta con Aldrete, disponibilidad mensual pedida el 15 de cada mes con línea de tiempo interactiva, e indicadores de puntualidad y uso (sección 3.3).',
+    '**Portales del equipo** para la Jefatura y la Dirección Médica (sección 3.4).',
+    '**Guardia de anestesia** de sábados, domingos y feriados en la grilla del mes, y **feriados nacionales automáticos** desde internet más los provinciales de Tierra del Fuego. **Los feriados ahora corren el cierre de la lista** igual que un fin de semana, cuentan como días no laborables en la grilla y se descuentan de los días hábiles de los indicadores.',
+    '**Ficha rápida** al pasar el mouse por una cirugía en la línea de tiempo y en la grilla, y referencia de colores de los estados.',
+    '**Recorrido de la cirugía en 7 pasos**, el mismo para todo el equipo: cada paso se habilita al completar el anterior, cada uno ve solo lo suyo y **Avisar** le manda una notificación a quien falta firmar. Diseño sobrio y lineal. La disponibilidad del Jefe/a de Anestesiología pasa a un asistente de 4 pasos.',
+    '**Acceso** rediseñado: una tarjeta con selector deslizante, ojo para ver la contraseña y el alta en tres pasos; se corrigió la elección de función, que se desarmaba. La función médica se llama **Cirujano/a**.',
+    '**Apariencias** rehechas con paletas de salud —Quirófano verde, Azul hospitalario y Salvia y arena— sobre las formas de sistemas de diseño reconocidos (shadcn/ui, Fluent 2 de Microsoft y Material 3 de Google). Ahora cambian toda la pantalla, encabezados incluidos. Guardia nocturna sigue igual.',
+    '**Recordatorios** con tablero de urgencia y fichas de colores (antes todo era verde); ya no aparece el cartel «Sin recordatorios pendientes». El **cierre de la lista** del Panel es ahora una cápsula chica con un anillo que se vacía.',
+    '**Excel de módulos** con estilo de resumen bancario (banda azul marino y filete dorado, ficha del titular, cifras clave, detalle numerado, totales con doble línea y código de control), sin las flechas de filtro que tapaban los títulos, y listo para guardar en PDF en A4 apaisado sin cortes.',
+    '**Módulos Quirúrgicos:** Por profesional como ranking con tarjetas, Por servicio con anillos de complejidad y Detalle como línea de tiempo por día.',
+    '**Mi Perfil:** Documentación como billetera de credenciales y tarjeta de presentación por función, con dos estilos nuevos.',
+    '**Reconocimiento:** reloj de cierre estilo Manhattan (art déco con dígitos que dan vuelta) y **Muro de gratitud** de postales con sello de valor, vista previa, contador y filtros.',
+    '**Botón Volver** en todas las secciones.',
+]),
 ('h2', 'Versión 3.21 — Diseño nuevo, compromiso al ingresar y cierre por inactividad'),
 ('ul', [
     '**Compromiso al ingresar:** cada profesional, al entrar con su usuario, lee y acepta un compromiso (credenciales personales, normas del bloque, deberes y derechos, confidencialidad y valor de constancia). La aceptación queda en su legajo con fecha y hora; con «No volver a mostrármelo» no aparece más. Si no acepta, no ingresa.',
@@ -538,7 +590,7 @@ BLOQUES = [
 # ─────────────────────────────────────────────────────────────── 15
 ('h1', '15. Anexo — Plazos que controla el sistema'),
 ('tabla', ['Plazo', 'Valor', 'A quién se le avisa'], [
-    ['Cierre de solicitudes de turno', '13:00 h del día hábil previo (lo del lunes, el viernes)', 'Cirujano y Jefatura'],
+    ['Cierre de solicitudes de turno', '13:00 h del día hábil previo (lo del lunes, el viernes; los feriados no son hábiles)', 'Cirujano y Jefatura'],
     ['Publicación del parte quirúrgico', '14:00 h del día hábil previo', 'Todo el bloque'],
     ['Anticipación mínima de un turno electivo', '24 horas', 'Cirujano'],
     ['Consentimiento de un turno provisional', '60 minutos, o la franja se libera', 'Cirujano'],
