@@ -238,6 +238,8 @@ canvas#conf { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
 .sol { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .sol > div { flex: 1; min-width: 200px; } .sol small { color: var(--mut); }
 @media (max-width: 640px) { .cap { grid-template-columns: 34px 1fr; } .cap .bts { grid-column: 1 / -1; justify-content: flex-start; } }
+#app.quieto .cx, #app.quieto .card, #app.quieto .cap, #app.quieto .sala-card, #app.quieto .cal .d, #app.quieto .accion,
+#app.quieto .yo, #app.quieto .ahora, #app.quieto .intro-sec, #app.quieto .paso.hecho .num, #app.quieto .chequeos li { animation: none; }
 .pie { color: var(--mut); font-size: .72rem; text-align: center; margin-top: 30px; }
 @media (max-width: 640px) {
   .cx-cab { grid-template-columns: auto 1fr; } .cx-cab .metro { grid-column: 1 / -1; }
@@ -599,9 +601,18 @@ function render() {
   h += `<p class="pie">Demo con datos inventados · nada se guarda · al recargar vuelve a empezar</p>`;
   h += guia();
   if (S.modal) h += modal();
-  if (S.login) h += '<div id="login-ov"></div>';
+  if (S.login) h += '<div id="login-ov"></div>';   // se arma en renderLogin()
   const sy = window.scrollY;
+  // La ventanita de ingreso, si ya está armada, se conserva tal cual (si se
+  // rehace, su animación vuelve a empezar y parpadea).
+  const ovPrev = S.login ? $('#login-ov') : null;
+  // Las animaciones de entrada, solo al llegar a una pantalla nueva: en cada
+  // toque dentro de la misma pantalla, todo queda quieto.
+  const clave = (S.yo || '-') + '|' + (S.yo ? S.tab : S.sector);
+  app.classList.toggle('quieto', clave === render.clave);
+  render.clave = clave;
   app.innerHTML = h;
+  if (ovPrev && ovPrev.dataset.k) { const ph = $('#login-ov'); if (ph) ph.replaceWith(ovPrev); }
   if (S.login) renderLogin();
   window.scrollTo(0, sy);
   pintarGuia();
@@ -640,15 +651,24 @@ function pantallaIngreso() {
     </div></div>`; }).join('')}
   </div>`;
 }
+/* La ventanita de ingreso se arma UNA vez; después solo cambian las letras
+   y se suman los tildes. Antes se rehacía entera con cada letra y su
+   animación de entrada se reiniciaba: la pantalla parpadeaba. */
 function renderLogin() {
   const L = S.login, ov = $('#login-ov'); if (!L || !ov) return;
   const k = L.k;
-  ov.outerHTML = `<div class="login-ov" id="login-ov"><div class="login" style="--k:${colorDe(k)}">
-    ${avatar(k)}<h3>${G[k].n}</h3><p>${G[k].jefaAnest ? 'Jefa de Anestesiología' : FUNC[G[k].f].n}</p>
-    <div class="campo"><small>Correo</small><span class="${L.pass ? '' : 'cursor'}">${L.mail}</span></div>
-    <div class="campo"><small>Contraseña</small><span class="${L.pass && !L.ok.length ? 'cursor' : ''}">${'•'.repeat(L.pass)}</span></div>
-    <ul class="chequeos">${L.ok.map((t) => `<li><i>✓</i>${t}</li>`).join('')}</ul>
-  </div></div>`;
+  if (ov.dataset.k !== k) {
+    ov.outerHTML = `<div class="login-ov" id="login-ov" data-k="${k}"><div class="login" style="--k:${colorDe(k)}">
+      ${avatar(k)}<h3>${G[k].n}</h3><p>${G[k].jefaAnest ? 'Jefa de Anestesiología' : FUNC[G[k].f].n}</p>
+      <div class="campo"><small>Correo</small><span id="lg-mail" class="cursor"></span></div>
+      <div class="campo"><small>Contraseña</small><span id="lg-pass"></span></div>
+      <ul class="chequeos" id="lg-ok"></ul>
+    </div></div>`;
+  }
+  const mail = $('#lg-mail'), pass = $('#lg-pass'), ok = $('#lg-ok');
+  mail.textContent = L.mail; mail.className = L.pass ? '' : 'cursor';
+  pass.textContent = '•'.repeat(L.pass); pass.className = L.pass && !L.ok.length ? 'cursor' : '';
+  for (let i = ok.children.length; i < L.ok.length; i++) ok.insertAdjacentHTML('beforeend', `<li><i>✓</i>${L.ok[i]}</li>`);
 }
 
 /* --- Hoy: lo que tiene que hacer esta persona --- */

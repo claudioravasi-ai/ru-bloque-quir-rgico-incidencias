@@ -4684,21 +4684,19 @@
   .pv-uso { background: #f43f5e; box-shadow: 0 0 0 0 rgba(244,63,94,.6); animation: tbBadge 1.4s infinite; }
   .pv-turnos { background: #10b981; box-shadow: 0 0 8px #10b981; } .pv-libre { background: #cbd5e1; }
   .pv-pista { position: relative; height: 34px; border-radius: 10px; background: repeating-linear-gradient(90deg, var(--sup2, #f1f5f9) 0 calc(100% / var(--hs, 12) - 1px), var(--line) calc(100% / var(--hs, 12) - 1px) calc(100% / var(--hs, 12))); }
-  /* Urgencias y emergencias las 24 h: una franja por hora debajo de lo programado. */
-  .pv-fila.con-urg .pv-pista { height: 44px; }
-  .pv-fila.con-urg .pv-b { bottom: 13px; }
-  .pv-urg { position: absolute; left: 0; right: 0; bottom: 2px; height: 8px; pointer-events: none; }
-  .pv-urg i { position: absolute; top: 0; bottom: 0; border-radius: 3px; margin: 0 1px; pointer-events: auto;
-    background: repeating-linear-gradient(135deg, rgba(239,68,68,.55) 0 4px, rgba(239,68,68,.22) 4px 8px); }
-  .pv-urg i.ahora { background: repeating-linear-gradient(135deg, #ef4444 0 4px, #f97316 4px 8px); box-shadow: 0 0 10px rgba(239,68,68,.8); animation: pvUrgLat 1.4s ease-in-out infinite; }
-  @keyframes pvUrgLat { 50% { opacity: .55; } }
-  .pv-b.urg { box-shadow: 0 0 0 2px #ef4444, 0 4px 10px -4px #ef4444; }
+  /* Urgencias y emergencias: ambulancia y un titileo suave y continuo. */
+  .pv-b.urg { background: linear-gradient(120deg, #ef4444, #b91c1c); box-shadow: 0 0 0 2px #fecaca, 0 4px 12px -4px #ef4444;
+    animation: pvCrece .7s cubic-bezier(.2,.9,.3,1.1) both, pvUrgTit 1.6s .7s ease-in-out infinite; }
+  .pv-b.urg.emerg { background: linear-gradient(120deg, #dc2626, #7f1d1d); }
+  @keyframes pvUrgTit { 50% { opacity: .45; } }
+  .pv-amb { font-style: normal; font-size: .85rem; line-height: 26px; margin-right: 3px; }
+  .pv-b.urg { display: flex; align-items: center; justify-content: flex-start; }
   .pv-urg-borde { grid-column: 2; justify-self: start; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; border: 0; border-radius: 999px; padding: 1px 7px; font: 700 .6rem/1.5 inherit; font-family: inherit; color: #fff; background: #ef4444; cursor: pointer; text-align: left; }
-  .pv-urg-ley { display: inline-block; width: 18px; height: 8px; border-radius: 3px; background: repeating-linear-gradient(135deg, rgba(239,68,68,.75) 0 4px, rgba(239,68,68,.3) 4px 8px); }
+  .pv-urg-ley { font-style: normal; font-size: .8rem; animation: pvUrgTit 1.6s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .pv-b.urg, .pv-urg-ley { animation: none; } }
   .pv-rango { display: inline-flex; margin-top: 6px; padding: 2px; border-radius: 999px; background: var(--sup2, #f1f5f9); border: 1px solid var(--line); }
   .pv-rango button { white-space: nowrap; border: 0; background: none; padding: 3px 9px; border-radius: 999px; font: 700 .66rem/1.2 inherit; font-family: inherit; color: var(--muted); cursor: pointer; }
   .pv-rango button.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
-  @media (prefers-reduced-motion: reduce) { .pv-urg i.ahora { animation: none; } }
   .pv-b { position: absolute; top: 4px; bottom: 4px; min-width: 18px; border: 0; border-radius: 8px; padding: 0 7px; overflow: hidden; cursor: pointer; font: inherit; text-align: left;
     color: #fff; background: linear-gradient(120deg, var(--c), color-mix(in srgb, var(--c) 70%, #000)); box-shadow: 0 4px 10px -4px var(--c);
     transform-origin: left center; animation: pvCrece .7s cubic-bezier(.2,.9,.3,1.1) both; transition: transform .2s, filter .2s, z-index 0s; }
@@ -8515,7 +8513,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.22.1';
+const APP_VERSION = '3.22.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -13712,27 +13710,23 @@ function panelVivo(st) {
       const dur = Number(c.duracionMin) || (pvMin(c.horaFin) && pvMin(c.horaInicio) ? pvMin(c.horaFin) - pvMin(c.horaInicio) : 120);
       const e = ESTC[estadoVisible(c)] || { color: '#94a3b8', label: '' };
       const mio = u && c.cirujanoEmail === u.email;
-      const txt = (c.urgencia ? '🚑 ' : '') + (conSesion ? `${c.horaProg || ''} · ${c.procedimiento || ''}` : (c.urgencia ? 'Urgencia' : e.label || 'Turno'));
-      return `<button class="pv-b ${mio ? 'mio' : ''} ${c.estado === 'en_curso' ? 'curso' : ''} ${c.urgencia ? 'urg' : ''}" style="left:${pct(ini).toFixed(2)}%;width:${Math.max(3, pct(ini + dur) - pct(ini)).toFixed(2)}%;--c:${e.color}"
-        ${conSesion ? `onclick="cxFichaOcultar();openCirugia(${c.id})" onmouseenter="cxFicha(this,${c.id})" onmouseleave="cxFichaOcultar()" onfocus="cxFicha(this,${c.id})" onblur="cxFichaOcultar()"` : `disabled title="${esc(e.label || 'Turno')}"`}><span>${esc(txt)}</span></button>`;
+      // Urgencia o emergencia (prioridad 1 = riesgo vital): ambulancia, la palabra y un titileo suave; lo programado queda fijo.
+      const urgN = c.urgencia ? (c.prioridad === 1 ? 'Emergencia' : 'Urgencia') : '';
+      const txt = c.urgencia ? `${urgN}${conSesion ? ` · ${c.horaProg || ''} · ${c.procedimiento || ''}` : ''}` : (conSesion ? `${c.horaProg || ''} · ${c.procedimiento || ''}` : (e.label || 'Turno'));
+      return `<button class="pv-b ${mio ? 'mio' : ''} ${c.estado === 'en_curso' ? 'curso' : ''} ${c.urgencia ? 'urg' : ''} ${c.prioridad === 1 && c.urgencia ? 'emerg' : ''}" style="left:${pct(ini).toFixed(2)}%;width:${Math.max(3, pct(ini + dur) - pct(ini)).toFixed(2)}%;--c:${e.color}"
+        ${conSesion ? `onclick="cxFichaOcultar();openCirugia(${c.id})" onmouseenter="cxFicha(this,${c.id})" onmouseleave="cxFichaOcultar()" onfocus="cxFicha(this,${c.id})" onblur="cxFichaOcultar()"` : `disabled title="${esc(e.label || 'Turno')}"`}>${c.urgencia ? '<i class="pv-amb" aria-hidden="true">🚑</i>' : ''}<span>${esc(txt)}</span></button>`;
     }).join('');
-    /* Quirófano 1, Endoscopía y Obstetricia ofrecen el turno libre de
-       urgencia/emergencia en la hora que corre, las 24 h: una franja roja por
-       hora debajo de lo programado, con la hora actual encendida. Las
-       urgencias que caen fuera del rango a la vista se cuentan en los bordes. */
-    let urgFr = '', urgFuera = '';
-    if (sa.urgHoraria) {
-      const hAct = ahora.getHours();
-      const fr = Array.from({ length: PV_HASTA - PV_DESDE }, (_, k) => PV_DESDE + k).map((h) =>
-        `<i class="${h === hAct ? 'ahora' : ''}" style="left:${pct(h * 60).toFixed(2)}%;width:${(pct((h + 1) * 60) - pct(h * 60)).toFixed(2)}%" title="${String(h).padStart(2, '0')}–${String((h + 1) % 24).padStart(2, '0')} h · turno libre de urgencia y emergencia${h === hAct ? ' (la hora que corre)' : ''}"></i>`).join('');
+    /* Las urgencias y emergencias que caen fuera del horario a la vista se
+       cuentan al lado del nombre de la sala (tocar pasa a la vista de 24 h). */
+    let urgFuera = '';
+    {
       const urg = cx.filter((c) => c.urgencia), hm = (c) => pvMin(c.horaInicio) ?? pvMin(c.horaProg);
       const antes = urg.filter((c) => hm(c) != null && hm(c) < PV_DESDE * 60).length, desp = urg.filter((c) => hm(c) != null && hm(c) >= PV_HASTA * 60).length;
-      urgFr = `<div class="pv-urg" aria-label="Urgencias y emergencias las 24 horas">${fr}</div>`;
-      urgFuera = antes + desp ? `<button class="pv-urg-borde" onclick="pvVer24(true)" title="${[antes ? antes + ' urgencia(s) antes de las ' + String(PV_DESDE).padStart(2, '0') + ' h' : '', desp ? desp + ' después de las ' + PV_HASTA + ' h' : ''].filter(Boolean).join(' · ')} — tocar para ver las 24 h">🚑 +${antes + desp}</button>` : '';
+      urgFuera = antes + desp ? `<button class="pv-urg-borde" onclick="pvVer24(true)" title="${[antes ? antes + ' antes de las ' + String(PV_DESDE).padStart(2, '0') + ' h' : '', desp ? desp + ' después de las ' + PV_HASTA + ' h' : ''].filter(Boolean).join(' · ')} — tocar para ver las 24 h">🚑 +${antes + desp}</button>` : '';
     }
-    return `<div class="pv-fila ${sa.urgHoraria ? 'con-urg' : ''}">
+    return `<div class="pv-fila">
       <div class="pv-sala"><span class="pv-luz pv-${luz}"></span><b>${esc(sa.tipo === 'endo' ? 'Endoscopía' : /obstetr/i.test(sa.nombre) ? 'Obstetricia' : sa.nombre)}</b><small>${cx.length ? cx.length + ' turno' + (cx.length > 1 ? 's' : '') : 'libre'}${sa.urgHoraria ? ' · 🚑 24 h' : ''}</small>${urgFuera}</div>
-      <div class="pv-pista">${bloques}${urgFr}</div>
+      <div class="pv-pista">${bloques}</div>
     </div>`;
   }).join('');
   const linea = ahoraMin >= PV_DESDE * 60 && ahoraMin <= PV_HASTA * 60 ? `<div class="pv-ahora" id="pv-ahora" style="left:${pct(ahoraMin).toFixed(2)}%"><span>${ahora.toTimeString().slice(0, 5)}</span></div>` : '';
@@ -13752,7 +13746,7 @@ function panelVivo(st) {
       <div class="pv-cuerpo">${filas}<div class="pv-capa-ahora">${linea}</div></div>
       <div class="pv-ley pv-ley-est">${[...new Set(delDia.map((c) => estadoVisible(c)))].filter((k) => ESTC[k]).map((k) => `<span title="${esc(ESTC[k].desc || '')}"><i class="pv-est" style="--c:${ESTC[k].color}"></i>${esc(ESTC[k].label)}</span>`).join('')}</div>
       <div class="pv-ley"><span><i class="pv-luz pv-uso"></i>en uso</span><span><i class="pv-luz pv-turnos"></i>con turnos</span><span><i class="pv-luz pv-libre"></i>libre</span>
-        ${u ? '<span><i class="pv-mio"></i>sus cirugías</span>' : ''}<span><i class="pv-urg-ley"></i>urgencias y emergencias las 24 h (Quirófano 1, Endoscopía y Obstetricia)</span><span class="pv-ley-r">Toque una cirugía para ver su ficha · ${delDia.length} en el día</span></div>
+        ${u ? '<span><i class="pv-mio"></i>sus cirugías</span>' : ''}<span><i class="pv-urg-ley">🚑</i>urgencia o emergencia (titila; las programadas quedan fijas)</span><span class="pv-ley-r">Toque una cirugía para ver su ficha · ${delDia.length} en el día</span></div>
     </div>
   </div>`;
 }
