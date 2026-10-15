@@ -12,6 +12,7 @@ node, pandoc ni LibreOffice. El PDF sale de una versión HTML del mismo contenid
 impresa con Chrome sin interfaz.
 """
 import html
+import json
 import os
 import re
 import subprocess
@@ -367,7 +368,46 @@ def escribir_pdf(ruta):
         shutil.copyfile(salida, ruta)
 
 
+# ═════════════════════════════════════════ JSON (pantalla «Manual y Libro Blanco»)
+ICONOS_USO = ['🧭', '👤', '🩺', '🚑', '🏥', '🔎', '🗂', '📝', '📊', '📦', '📣', '🔒', '⭐', '✨', '⏱']
+
+
+def html_de(texto):
+    """**negrita** → <b>, el resto escapado."""
+    return ''.join(f'<b>{x(t)}</b>' if b else x(t) for t, b in trozos(texto))
+
+
+def escribir_json(ruta):
+    """El mismo contenido, por capítulos, para leerlo dentro de la app: cada
+    `h1` es un capítulo; `h2`/`h3`, subtítulos; `ul`, viñetas; `nota`, recuadro."""
+    caps, cap = [], None
+    for b in C.BLOQUES:
+        tipo = b[0]
+        if tipo == 'h1':
+            m = re.match(r'^(\d+)\.\s*(.+)$', b[1])
+            cap = {'id': 'mu%d' % (len(caps) + 1), 'n': len(caps) + 1, 't': m.group(2) if m else b[1], 'b': []}
+            cap['i'] = ICONOS_USO[(cap['n'] - 1) % len(ICONOS_USO)]
+            caps.append(cap)
+        elif cap is None:
+            continue
+        elif tipo in ('h2', 'h3'):
+            cap['b'].append(['h', html_de(b[1])])
+        elif tipo == 'p':
+            cap['b'].append(['p', html_de(b[1])])
+        elif tipo == 'ul':
+            cap['b'].append(['lista', [html_de(i) for i in b[1]]])
+        elif tipo == 'nota':
+            cap['b'].append(['ojo', html_de(b[1])])
+        elif tipo == 'tabla':
+            cap['b'].append(['tabla', [html_de(c) for c in b[1]], [[html_de(c) for c in f] for f in b[2]]])
+    with open(ruta, 'w', encoding='utf-8') as f:
+        json.dump({'version': C.VERSION, 'caps': caps}, f, ensure_ascii=False, separators=(',', ':'))
+
+
 if __name__ == '__main__':
+    js = os.path.join(RAIZ, 'manual', 'manual-uso.json')
+    escribir_json(js)
+    print('JSON:', js, os.path.getsize(js), 'bytes')
     docx = os.path.join(RAIZ, f'HRU-Quirofanos-Manual-Funcional-v{C.VERSION}.docx')
     pdf = os.path.join(RAIZ, 'manual-funcional-hru-quirofanos.pdf')
     escribir_word(docx)

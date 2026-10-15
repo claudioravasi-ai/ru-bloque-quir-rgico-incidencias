@@ -44,6 +44,7 @@ button { font-family: inherit; cursor: pointer; }
 .btn:disabled { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
 .btn.fant { background: var(--glass2); color: var(--ink); box-shadow: none; border: 1px solid var(--line); }
 .btn.chico { padding: 6px 10px; font-size: .76rem; border-radius: 10px; }
+.volver-app { --k: #f1f5f9; background: linear-gradient(90deg, #14b8a6, #3b82f6); color: #fff; box-shadow: 0 8px 22px -10px #3b82f6; white-space: nowrap; }
 
 /* ---------- escenas / pestañas ---------- */
 .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 16px 0 12px; }
@@ -191,6 +192,15 @@ table.mes { border-collapse: separate; border-spacing: 3px; font-size: .72rem; m
 .peli { background: linear-gradient(90deg, #f43f5e, #a855f7) !important; color: #fff !important; }
 .narr { position: fixed; left: 50%; top: 84px; transform: translateX(-50%); z-index: 40; max-width: min(720px, calc(100% - 24px)); padding: 12px 18px; border-radius: 16px; text-align: center;
   background: linear-gradient(120deg, rgba(168,85,247,.95), rgba(244,63,94,.95)); font-weight: 800; font-size: .95rem; box-shadow: 0 20px 40px -16px #a855f7; animation: entra .35s; pointer-events: none; }
+.guia-foco { position: relative; z-index: 6; outline: 3px solid #fde047 !important; outline-offset: 4px; border-radius: 12px; animation: guiaLat 1.1s ease-in-out infinite !important; }
+@keyframes guiaLat { 50% { outline-color: #f472b6; box-shadow: 0 0 0 12px rgba(253,224,71,.22); } }
+.burbuja { position: absolute; z-index: 45; padding: 12px 14px; border-radius: 16px; background: #fef9c3; color: #1c1917; box-shadow: 0 20px 40px -14px rgba(0,0,0,.6); animation: entra .3s cubic-bezier(.2,1.3,.4,1); font-size: .86rem; }
+.burbuja b { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: #a16207; }
+.burbuja p { margin: 4px 0 8px; line-height: 1.4; } .burbuja > div { display: flex; gap: 6px; flex-wrap: wrap; }
+.burbuja .btn { --k: #f59e0b; } .burbuja .btn.fant { color: #44403c; background: rgba(0,0,0,.06); border-color: rgba(0,0,0,.1); }
+.burbuja::after { content: ''; position: absolute; left: 50%; width: 14px; height: 14px; background: #fef9c3; transform: translateX(-50%) rotate(45deg); }
+.burbuja.abajo::after { top: -7px; } .burbuja.arriba::after { bottom: -7px; }
+.burbuja.centro { position: fixed; left: 50%; top: 96px; transform: translateX(-50%); width: min(420px, calc(100% - 24px)); } .burbuja.centro::after { display: none; }
 .foco { position: relative; z-index: 5; outline: 3px solid #fff !important; outline-offset: 3px; animation: focoA 1s ease-in-out infinite !important; }
 @keyframes focoA { 50% { outline-color: #f472b6; box-shadow: 0 0 0 10px rgba(244,114,182,.25); } }
 .toasts { position: fixed; right: 14px; top: 84px; z-index: 50; display: grid; gap: 8px; width: min(340px, calc(100% - 28px)); }
@@ -262,9 +272,30 @@ canvas#conf { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
       hay recuento inicial).
    ===================================================================== */
 const $ = (s) => document.querySelector(s);
+/* Volver a la app donde se la dejó: si el manual se abrió desde la app en otra
+   pestaña, se cierra esta y queda la de la app tal como estaba; si se abrió en
+   la misma ventana, se vuelve atrás; si llegó por un enlace suelto, abre la app. */
+function volverApp() {
+  const planB = () => {
+    // Abierto en la misma ventana desde la app: atrás deja la app tal cual.
+    if (history.length > 1) { history.back(); return; }
+    let desde = '';
+    try { desde = new URLSearchParams(location.search).get('desde') || ''; } catch (e) {}
+    location.href = '../' + (/^#[a-z]+$/.test(desde) ? desde : '');
+  };
+  try {
+    if (window.opener && !window.opener.closed) {
+      try { window.opener.focus(); } catch (e) {}
+      window.close();
+      // Cerrar no es instantáneo: si a los 400 ms sigue abierta, plan B.
+      setTimeout(() => { if (!window.closed) planB(); }, 400);
+      return;
+    }
+  } catch (e) {}
+  planB();
+}
 const pad = (n) => String(n).padStart(2, '0');
-const espera = (ms) => new Promise((r) => setTimeout(r, ms / VEL));
-let VEL = 1;
+const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* ---------- La gente (inventada) ---------- */
 const FUNC = {
@@ -283,6 +314,7 @@ const G = {
   molina: { n: 'Dr. Iván Molina', f: 'anest', mail: 'imolina' },
   quiroga: { n: 'Dra. Ana Quiroga', f: 'anest', mail: 'aquiroga' },
   herrera: { n: 'Dr. Luis Herrera', f: 'anest', mail: 'lherrera' },
+  ortiz: { n: 'Dr. Ezequiel Ortiz', f: 'anest', mail: 'eortiz', serv: 'Anestesiología · itinerante' },
   ruiz: { n: 'Lic. Marta Ruiz', f: 'enf', mail: 'mruiz' },
   sosa: { n: 'Enf. Jorge Sosa', f: 'enf', mail: 'jsosa' },
   gomez: { n: 'Inst. Carla Gómez', f: 'inst', mail: 'cgomez' },
@@ -293,8 +325,10 @@ const G = {
   jefatura: { n: 'Jefatura de Quirófanos', f: 'jefe', mail: 'jefatura' },
   direccion: { n: 'Dirección Médica', f: 'dir', mail: 'direccion' },
 };
-const ANEST = ['bianchi', 'arce', 'paz', 'molina', 'quiroga', 'herrera'];
-const PCOL = { bianchi: '#e879f9', arce: '#a78bfa', paz: '#818cf8', molina: '#c084fc', quiroga: '#f0abfc', herrera: '#7dd3fc' };
+/* Los seis de la rotación, más un itinerante que solo cubre licencias. */
+const ROTA = ['bianchi', 'arce', 'paz', 'molina', 'quiroga', 'herrera'];
+const ANEST = ROTA.concat(['ortiz']);
+const PCOL = { bianchi: '#e879f9', arce: '#a78bfa', paz: '#818cf8', molina: '#c084fc', quiroga: '#f0abfc', herrera: '#7dd3fc', ortiz: '#fda4af' };
 const colorDe = (k) => G[k].jefaAnest ? 'var(--jefa)' : FUNC[G[k].f].c;
 const ini = (n) => n.replace(/^(Dra?|Lic|Enf|Inst)\.\s*/, '').split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
 const avatar = (k, extra = '') => `<span class="av" style="--k:${colorDe(k)}">${k === 'jefatura' ? '🏥' : k === 'direccion' ? '🔎' : ini(G[k].n)}${extra}</span>`;
@@ -341,9 +375,9 @@ const ALDRETE = [['Actividad', ['Ninguna', 'Mueve 2 miembros', 'Mueve 4 miembros
 let S;
 function nuevo() {
   S = {
-    yo: null, tab: null, min: 7 * 60 + 25, abierta: 'cx1', narr: '', bandeja: false, peli: false, modal: null, login: null,
+    yo: null, tab: null, min: 7 * 60 + 25, abierta: 'cx1', bandeja: false, modal: null, login: null,
     llegada: {}, avisos: {}, log: [], ui: { chk: {}, cnt: {}, ald: {} }, diaCob: HOY,
-    sol: [], sector: (S && S.sector) || 'todos', mision: '', silencio: false,
+    sol: [], sector: (S && S.sector) || 'todos', mision: '', silencio: false, guiaOn: false, vistos: {}, ultFoco: null, festejado: false,
     mes: { estado: 'borrador', g: {} },
     cx: [
       { id: 'cx1', sala: 'Q1', hora: '08:00', fin: '09:30', proc: 'Apendicectomía laparoscópica', pac: 'Paciente de ejemplo A', cir: 'ferrari' },
@@ -373,12 +407,16 @@ function sugerencia() {
   ANEST.forEach((k) => { g[k] = Array(NDIAS + 1).fill(''); });
   for (let d = 1; d <= NDIAS; d++) {
     const gi = (d + off) % 6, fi = (d - 1 + off) % 6;
-    let guard = ANEST[gi];
-    if (G[guard] && lic.has(d) && guard === 'quiroga') guard = ANEST[(gi + 2) % 6];
+    let guard = ROTA[gi];
+    if (lic.has(d) && guard === 'quiroga') guard = ROTA[(gi + 2) % 6];
     g[guard][d] = 'G';
-    if (!lic.has(d) || ANEST[fi] !== 'quiroga') g[ANEST[fi]][d] = g[ANEST[fi]][d] || 'F';
-    if (!finde(d)) for (let j = 1; j <= 5; j++) { const k = ANEST[(gi + j) % 6]; if (!g[k][d]) g[k][d] = 'P'; }
+    if (!lic.has(d) || ROTA[fi] !== 'quiroga') g[ROTA[fi]][d] = g[ROTA[fi]][d] || 'F';
     if (lic.has(d)) g.quiroga[d] = 'L';
+    if (!finde(d)) {
+      for (let j = 1; j <= 5; j++) { const k = ROTA[(gi + j) % 6]; if (!g[k][d]) g[k][d] = 'P'; }
+      // Si una licencia deja la planta corta, entra el itinerante.
+      if (ROTA.filter((k) => g[k][d] === 'P').length < 4) g.ortiz[d] = 'P';
+    }
   }
   return g;
 }
@@ -387,7 +425,8 @@ function cobertura(d) {
   ANEST.forEach((k) => { const v = S.mes.g[k][d]; if (r[v]) r[v].push(k); });
   // Orden de puestos: rotación a partir de la guardia, como la sugerencia.
   const off = (6 - (HOY % 6)) % 6, gi = (d + off) % 6;
-  r.P.sort((a, b) => ((ANEST.indexOf(a) - gi + 6) % 6) - ((ANEST.indexOf(b) - gi + 6) % 6));
+  const ord = (k) => ROTA.includes(k) ? (ROTA.indexOf(k) - gi + 6) % 6 : 99;   // el itinerante, al final
+  r.P.sort((a, b) => ord(a) - ord(b));
   r.puestos = PUESTOS.map(([id, n], i) => ({ id, n, k: r.P[i] || null }));
   r.ok = finde(d) ? r.G.length === 1 : r.G.length === 1 && r.P.length >= 4;
   return r;
@@ -559,18 +598,19 @@ function render() {
   }
   h += `<p class="pie">Demo con datos inventados · nada se guarda · al recargar vuelve a empezar</p>`;
   h += guia();
-  if (S.narr) h += `<div class="narr">${S.narr}</div>`;
   if (S.modal) h += modal();
   if (S.login) h += '<div id="login-ov"></div>';
   const sy = window.scrollY;
   app.innerHTML = h;
   if (S.login) renderLogin();
   window.scrollTo(0, sy);
+  pintarGuia();
 }
 function barra() {
   const k = S.yo, sala = k ? salaActual(k) : null, av = k ? (S.avisos[k] || []) : [], nuevos = av.filter((a) => !a.leido).length;
   return `<div class="top">
     <div class="marca"><span><b>✚</b></span><div>HRU · Quirófanos<small>Demo del recorrido del equipo</small></div></div>
+    <button class="btn volver-app" data-a="volver-app" onclick="volverApp()" title="Volver a la app de Quirófanos, donde la dejó">← Volver a la app</button>
     <div class="reloj"><small>${DS[DIA.getDay()]} ${HOY}/${MES + 1}</small>${reloj()}</div>
     <div class="esp"></div>
     ${k ? `<div class="yo" style="--k:${colorDe(k)}">${avatar(k)}<div><b>${G[k].n}</b><small>${G[k].jefaAnest ? 'Jefa de Anestesiología' : FUNC[G[k].f].n}${sala ? `<em>En ${salaDe(sala.sala).n}</em>` : ''}</small></div></div>
@@ -586,12 +626,12 @@ function pantallaIngreso() {
   const caps = escSector(S.sector);
   return `<div class="ingreso">
     <h1>Manual interactivo · <span>todo el equipo</span>,<br>cada paso en su orden.</h1>
-    <p class="sub">Elija su sector: verá qué hace en la app, capítulo por capítulo. <b>▶ Mirar</b> lo muestra solo; <b>✋ Probarlo yo</b> lo deja hacerlo a usted. Nada de esto toca la app real: son datos inventados y al cerrar se borran.</p>
+    <p class="sub">Elija su sector y toque <b>🧭 Empezar acá</b> en un capítulo, o <b>🧭 Guíame paso a paso</b> abajo para el recorrido completo: la app le va marcando qué tocar y, cuando lo toca, pasa al paso siguiente. Nada de esto toca la app real: son datos inventados y al cerrar se borran.</p>
     <div class="sectores">${SECTORES.map(([k, n, i, c]) => `<button class="${S.sector === k ? 'on' : ''}" style="--k:${c}" data-a="sec-${k}" onclick="S.sector='${k}';render()">${i} ${n}</button>`).join('')}</div>
     <div class="intro-sec" style="--k:${sec[3]}">${sec[2]} ${sec[4]}</div>
     <div class="caps">${caps.map(([e, i], n) => `<div class="cap" style="--k:${sec[3]};animation-delay:${n * 40}ms"><span class="num">${n + 1}</span>
       <div><b>${e.t}</b><small>${e.d}</small><span class="quien">${avatar(e.k)} como ${G[e.k].n}</span></div>
-      <div class="bts"><button class="btn fant chico" data-a="mirar-${i}" onclick="mirar(${i})">▶ Mirar</button><button class="btn chico" style="--k:${sec[3]}" onclick="probar(${i})">✋ Probarlo yo</button></div></div>`).join('')}</div>
+      <div class="bts"><button class="btn chico" style="--k:${sec[3]}" onclick="empezarGuia(${i})">🧭 Empezar acá</button></div></div>`).join('')}</div>
     <h2 style="font-size:1.05rem;margin-top:24px">…o entre libremente con cualquier persona</h2>
     ${grupos.map(([n, f]) => { const ks = Object.keys(G).filter((k) => (G[k].f === f || (f === 'jefe' && G[k].f === 'dir')) && filtra(k)); if (!ks.length) return '';
       return `<div class="sector" style="--k:${FUNC[f].c}"><b>${FUNC[f].i} ${n}</b><div class="gente">
@@ -687,7 +727,7 @@ function accion(c, paso, rol) {
       `${dif.length ? `<div class="aviso-mal">⚠ No coincide: ${dif.join(' · ')}. Vuelvan a contar.</div>` : ''}
       <div class="cont">${RECUENTO.map(([k, n]) => `<div class="${dif.some((d) => d.startsWith(n)) ? 'mal' : ''}">${n}${paso === 'rec2' ? ` <small style="color:var(--mut)">(inicial ${c.rec1[k] || 0})</small>` : ''}<span>
         <button onclick="S.ui.cnt['${id + paso}'].${k}=Math.max(0,(S.ui.cnt['${id + paso}'].${k}||0)-1);render()" aria-label="Uno menos">−</button><output>${v[k] || 0}</output>
-        <button onclick="S.ui.cnt['${id + paso}'].${k}=(S.ui.cnt['${id + paso}'].${k}||0)+1;render()" aria-label="Uno más">+</button></span></div>`).join('')}</div>
+        <button data-a="mas-${id + paso}-${k}" onclick="S.ui.cnt['${id + paso}'].${k}=(S.ui.cnt['${id + paso}'].${k}||0)+1;render()" aria-label="Uno más">+</button></span></div>`).join('')}</div>
       <button class="btn" data-a="rec-${id}-${paso}" onclick="recuento('${id}','${paso}')">${paso === 'rec1' ? 'Firmar el recuento inicial' : dif.length ? 'Cargar el recuento corregido' : 'Firmar el recuento final'}</button>`);
   }
   if (paso === 'rec2' && rol === 'enf') {
@@ -786,14 +826,15 @@ function proximo() {
   return { k, t: `${ACCION[act.k]} en Quirófano 1 (como ${ROL[x.rol].n})` };
 }
 function guia() {
-  const p = proximo();
+  const f = S.guiaOn ? focoGuia() : null, p = proximo();
+  const quien = f && f.o ? f.o.k : null;
   return `<div class="guia">
-    <button class="btn peli" data-a="peli" onclick="${S.peli ? 'pararPeli()' : 'pelicula()'}">${S.peli ? '⏸ Parar' : '▶ Ver la película'}</button>
-    ${S.peli ? `<button class="btn fant chico" onclick="VEL=VEL===1?2.2:1;render()">${VEL === 1 ? '⏩ Más rápido' : '▶ Normal'}</button>` : ''}
-    <div class="txt"><small>${S.mision ? 'Su misión' : '¿Qué sigue?'}</small>${S.mision ? `<span class="mision">✋ ${S.mision}</span>` : p ? `Le toca a <b>${G[p.k].n}</b>: ${p.t}.` : '🎉 El recorrido de Quirófano 1 está completo. Pruebe las otras salas o la vista de Jefatura.'}</div>
-    ${p && !S.peli ? (S.yo === p.k ? '<span class="sello validada">Es usted</span>' : `<button class="btn" style="--k:${colorDe(p.k)}" onclick="entrar('${p.k}', true)">Entrar como ${G[p.k].n.split(' ').slice(0, 2).join(' ')}</button>`) : ''}
+    ${S.guiaOn ? `<button class="btn fant chico" onclick="salirGuia()">✋ Salir de la guía</button>` : `<button class="btn peli" data-a="guiame" onclick="empezarGuia()">🧭 Guíame paso a paso</button>`}
+    <div class="txt"><small>${S.guiaOn ? 'Guía paso a paso' : '¿Qué sigue?'}</small>${S.guiaOn ? f.txt : p ? `Le toca a <b>${G[p.k].n}</b>: ${p.t}.` : '🎉 El recorrido de Quirófano 1 está completo. Pruebe las otras salas o la vista de Jefatura.'}</div>
+    ${S.guiaOn ? (quien && S.yo !== quien ? `<button class="btn" data-a="guia-entrar" style="--k:${colorDe(quien)}" onclick="entrar('${quien}', true)">Entrar como ${G[quien].n.split(' ').slice(0, 2).join(' ')}</button>` : '')
+      : p ? (S.yo === p.k ? '<span class="sello validada">Es usted</span>' : `<button class="btn" style="--k:${colorDe(p.k)}" onclick="entrar('${p.k}', true)">Entrar como ${G[p.k].n.split(' ').slice(0, 2).join(' ')}</button>`) : ''}
     ${S.yo ? `<button class="btn fant chico" onclick="salir()">📘 Volver al manual</button>` : ''}
-    <button class="btn fant chico" onclick="if(confirm('¿Empezar de nuevo el demo?')){pararPeli();nuevo();render()}">↺ Reiniciar</button>
+    <button class="btn fant chico" onclick="if(confirm('¿Empezar de nuevo el demo?')){nuevo();render()}">↺ Reiniciar</button>
   </div>`;
 }
 function modal() {
@@ -810,7 +851,7 @@ function toast(txt, color) {
   if (S && S.silencio) return;
   const t = document.createElement('div'); t.className = 'toast'; t.style.setProperty('--k', color || '#a78bfa'); t.innerHTML = txt;
   $('#toasts').prepend(t);
-  setTimeout(() => t.classList.add('fuera'), 3800 / Math.max(1, VEL * .8)); setTimeout(() => t.remove(), 4300);
+  setTimeout(() => t.classList.add('fuera'), 3800); setTimeout(() => t.remove(), 4300);
   while ($('#toasts').children.length > 4) $('#toasts').lastChild.remove();
 }
 function festejo(n = 160) {
@@ -830,6 +871,7 @@ const aMin = (h) => { const [x, y] = h.split(':').map(Number); return x * 60 + y
 const deMin = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
 function vistaNueva() {
   const f = S.ui.form = S.ui.form || { proc: '', sala: 'Q3', hora: '13:00', dur: '60', anest: 'General', ins: '' };
+  if (S.guiaOn && !f.proc) f.proc = 'Colecistectomía laparoscópica';   // en la guía, el ejemplo ya viene escrito
   const opt = (arr, v) => arr.map((x) => `<option ${String(x[0]) === String(v) ? 'selected' : ''} value="${x[0]}">${x[1]}</option>`).join('');
   const horas = []; for (let m = 8 * 60; m <= 14 * 60; m += 30) horas.push([deMin(m), deMin(m) + ' h']);
   const mias = S.sol.filter((x) => x.cir === S.yo);
@@ -896,106 +938,132 @@ const SECTORES = [
 const hacer = (k, fn) => { const p = S.yo; S.yo = k; fn(); S.yo = p; };
 const ESC = [
   { sec: ['jefa'], k: 'bianchi', tab: 'lista', t: 'Armar la lista del mes', d: 'Sugerir la cobertura con un toque, revisar los días en rojo y enviarla a Jefatura.', hint: 'Toque «✨ Sugerir cobertura» y después «📨 Enviar a Jefatura».',
-    ya() { const g = sugerencia(); ANEST.forEach((k) => { for (let d = 1; d <= NDIAS; d++) if (S.mes.g[k][d] !== 'L') S.mes.g[k][d] = g[k][d]; }); hacer('bianchi', enviarLista); },
-    async anim(h) { await h.como('bianchi'); await h.narra('La Jefa de Anestesia arma la lista del mes. La app sugiere la cobertura en un toque.');
-      await h.toca('tab-lista', () => { S.tab = 'lista'; render(); }, 700); await h.toca('sugerir', () => sugerir(), 800); await espera(NDIAS * 30 + 600);
-      await h.narra('Cada día queda cubierto: 4 de planta, 1 de guardia de 24 h y el franco después de la guardia.', 2400); await h.toca('enviar', enviarLista); } },
+    ya() { const g = sugerencia(); ANEST.forEach((k) => { for (let d = 1; d <= NDIAS; d++) if (S.mes.g[k][d] !== 'L') S.mes.g[k][d] = g[k][d]; }); hacer('bianchi', enviarLista); } },
   { sec: ['jefe'], k: 'jefatura', tab: 'lista', t: 'Validar la lista de Anestesia', d: 'La Jefatura recibe el aviso, revisa y valida. Desde ahí cada anestesiólogo ve sus días.', hint: 'Toque «✅ Validar la lista».',
-    ya() { hacer('jefatura', validarLista); },
-    async anim(h) { await h.como('jefatura'); await h.narra('La Jefatura de Quirófanos recibe el aviso y valida la lista.');
-      await h.toca('tab-lista', () => { S.tab = 'lista'; render(); }, 600); await h.toca('validar', validarLista); } },
+    ya() { hacer('jefatura', validarLista); } },
   { sec: ['jefe', 'dir', 'anest', 'jefa'], k: 'jefatura', tab: 'cob', t: 'Coberturas de guardia y planta', d: 'Por día: quién está en cada sala, quién hace la guardia, quién tiene franco o licencia, y si ya llegó.', hint: 'Toque distintos días arriba para ver la cobertura de cada uno.',
-    ya() {}, async anim(h) { await h.como('jefatura'); await h.toca('tab-cob', () => { S.tab = 'cob'; render(); }, 600);
-      await h.narra('Coberturas del día: quién está en cada sala, la guardia y los francos.', 2600);
-      await h.toca('tab-prog', () => { S.tab = 'prog'; render(); }, 600); await h.narra('Y las cirugías programadas de hoy, sala por sala, con la hora actual.', 2600); } },
+    ya() {} },
   { sec: ['cir'], k: 'ferrari', tab: 'nueva', t: 'Pedir una cirugía', d: 'El cirujano completa la solicitud; si la sala está ocupada a esa hora, la app no la deja pasar.', hint: 'Escriba un procedimiento y toque «📨 Enviar a Jefatura».',
-    ya() { hacer('ferrari', () => { S.ui.form = { proc: 'Colecistectomía laparoscópica', sala: 'Q3', hora: '13:00', dur: '60', anest: 'General', ins: '' }; enviarSolicitud(); }); },
-    async anim(h) { await h.como('ferrari'); await h.narra('El cirujano pide una cirugía nueva desde su cuenta.');
-      await h.toca('tab-nueva', () => { S.tab = 'nueva'; render(); }, 600);
-      S.ui.form = { proc: '', sala: 'Q3', hora: '13:00', dur: '60', anest: 'General', ins: '' };
-      const t = 'Colecistectomía laparoscópica'; for (let i = 1; i <= t.length; i += 2) { if (!h.vivo()) throw 0; S.ui.form.proc = t.slice(0, i); render(); await espera(40); } S.ui.form.proc = t;
-      await h.toca('f-enviar', enviarSolicitud); } },
+    ya() { hacer('ferrari', () => { S.ui.form = { proc: 'Colecistectomía laparoscópica', sala: 'Q3', hora: '13:00', dur: '60', anest: 'General', ins: '' }; enviarSolicitud(); }); } },
   { sec: ['jefe', 'cir'], k: 'jefatura', tab: 'sol', t: 'Confirmar la solicitud', d: 'La Jefatura la confirma: entra en la programación, se arma su recorrido y se avisa al cirujano y al anestesiólogo de la sala.', hint: 'Toque «✅ Confirmar y programar».',
-    ya() { const x = S.sol.find((y) => y.estado === 'pendiente'); if (x) hacer('jefatura', () => resolverSol(x.id, true)); },
-    async anim(h) { await h.como('jefatura'); await h.narra('La Jefatura la confirma y queda programada.');
-      await h.toca('tab-sol', () => { S.tab = 'sol'; render(); }, 600); const x = S.sol.find((y) => y.estado === 'pendiente'); if (x) await h.toca('conf-' + x.id, () => resolverSol(x.id, true)); } },
+    ya() { const x = S.sol.find((y) => y.estado === 'pendiente'); if (x) hacer('jefatura', () => resolverSol(x.id, true)); } },
   { sec: ['anest'], k: 'arce', tab: 'hoy', t: 'Llegar y tomar la sala', d: 'Primero marca la llegada; después confirma su cirugía. Si intenta tomar otra sala, la app lo frena salvo «cambio de sala».', hint: 'Toque «Llegué» y después «Confirmo que doy la anestesia» en Quirófano 1.',
-    ya() { hacer('arce', () => { S.llegada.arce = reloj(); anotar('cx1', 'anest'); }); },
-    async anim(h) { await h.como('arce'); await h.narra('El anestesiólogo entra con su cuenta: arriba se ve SU nombre y lo que le toca hoy según la lista.', 2600);
-      await h.toca('llegue', llegue); h.abrir('cx1'); await h.toca('anotar-cx1-anest', () => anotar('cx1', 'anest'));
-      await h.narra('Ya está en Quirófano 1. Si intenta tomar otra sala, la app lo frena…', 2200);
-      h.abrir('cx2'); await h.toca('cambio-cx2-anest', () => anotar('cx2', 'anest'), 1000); await espera(1800); await h.toca('modal-no', () => { S.modal = null; render(); }, 600);
-      await h.narra('…salvo que sea un «cambio de sala», que deja el otro puesto libre y avisado.', 2200); } },
+    ya() { hacer('arce', () => { S.llegada.arce = reloj(); anotar('cx1', 'anest'); }); } },
   { sec: ['enf'], k: 'ruiz', tab: 'hoy', t: 'Anotarse como circulante', d: 'La enfermera elige su sala. Mientras esa cirugía no tenga la Salida, no puede anotarse en otra.', hint: 'Abra Quirófano 1 y toque «Me anoto como circulante».',
-    ya() { hacer('ruiz', () => anotar('cx1', 'circ')); },
-    async anim(h) { await h.como('ruiz'); h.abrir('cx1'); await h.narra('Enfermería se anota como circulante en Quirófano 1.'); await h.toca('anotar-cx1-circ', () => anotar('cx1', 'circ')); } },
+    ya() { hacer('ruiz', () => anotar('cx1', 'circ')); } },
   { sec: ['inst'], k: 'gomez', tab: 'hoy', t: 'Anotarse como instrumentadora', d: 'Sin anotarse en la cirugía, el recuento inicial no se habilita. Con esto el equipo queda completo.', hint: 'Abra Quirófano 1 y toque «Me anoto como instrumentador/a».',
-    ya() { hacer('gomez', () => anotar('cx1', 'inst')); },
-    async anim(h) { await h.como('gomez'); h.abrir('cx1'); await h.narra('Instrumentación se anota. Sin esto, el recuento inicial no se habilita.'); await h.toca('anotar-cx1-inst', () => anotar('cx1', 'inst'));
-      await h.narra('El equipo está completo: la app avisa sola a quienes firman la Entrada.', 2000); } },
+    ya() { hacer('gomez', () => anotar('cx1', 'inst')); } },
   { sec: ['enf', 'anest'], k: 'ruiz', tab: 'hoy', t: 'Entrada (Lista OMS)', d: 'Enfermería repasa punto por punto y firma; después firma Anestesia. Hasta no marcar todo, el botón no se habilita.', hint: 'Marque los 5 puntos y toque «Firmar Entrada». Después entre como Dr. Arce y firme él.',
-    ya() { hacer('ruiz', () => firmar(S.cx[0], 'entrada', 'enf')); hacer('arce', () => firmar(S.cx[0], 'entrada', 'anest')); },
-    async anim(h) { await h.como('ruiz'); h.abrir('cx1'); await h.narra('Entrada: Enfermería repasa la Lista de Verificación punto por punto.');
-      await h.tildar('cx1entradaenf', 5); await h.toca('firmar-cx1entradaenf', () => firmar(S.cx[0], 'entrada', 'enf'));
-      await h.como('arce'); h.abrir('cx1'); await h.tildar('cx1entradaanest', 3); await h.toca('firmar-cx1entradaanest', () => firmar(S.cx[0], 'entrada', 'anest')); } },
+    ya() { hacer('ruiz', () => firmar(S.cx[0], 'entrada', 'enf')); hacer('arce', () => firmar(S.cx[0], 'entrada', 'anest')); } },
   { sec: ['inst'], k: 'gomez', tab: 'hoy', t: 'Recuento inicial', d: 'Con los botones − / + (más fácil con guantes). Solo lo firma la instrumentadora anotada en esa cirugía.', hint: 'Cargue gasas, compresas, agujas e instrumental y firme el recuento inicial.',
-    ya() { hacer('gomez', () => { S.ui.cnt.cx1rec1 = { gasas: 10, compresas: 5, agujas: 3, instr: 42 }; recuento('cx1', 'rec1'); }); },
-    async anim(h) { await h.como('gomez'); h.abrir('cx1'); await h.narra('Recuento inicial con − / + (más fácil con guantes).');
-      await h.contar('cx1', 'rec1', { gasas: 10, compresas: 5, agujas: 3, instr: 42 }); await h.toca('rec-cx1-rec1', () => recuento('cx1', 'rec1')); } },
+    ya() { hacer('gomez', () => { S.ui.cnt.cx1rec1 = { gasas: 10, compresas: 5, agujas: 3, instr: 42 }; recuento('cx1', 'rec1'); }); } },
   { sec: ['cir', 'anest', 'enf'], k: 'ferrari', tab: 'hoy', t: 'Pausa quirúrgica', d: 'Antes de la incisión firman cirujano, anestesia y enfermería, cada uno desde su cuenta.', hint: 'Firme la Pausa como cirujano; después entre como Arce y como Ruiz.',
-    ya() { hacer('ferrari', () => firmar(S.cx[0], 'pausa', 'cir')); hacer('arce', () => firmar(S.cx[0], 'pausa', 'anest')); hacer('ruiz', () => firmar(S.cx[0], 'pausa', 'enf')); },
-    async anim(h) { await h.narra('Pausa: cirujano, anestesia y enfermería confirman en voz alta.');
-      await h.como('ferrari'); h.abrir('cx1'); await h.toca('pausa-cx1-cir', () => firmar(S.cx[0], 'pausa', 'cir'));
-      await h.como('arce'); h.abrir('cx1'); await h.toca('pausa-cx1-anest', () => firmar(S.cx[0], 'pausa', 'anest'));
-      await h.como('ruiz'); h.abrir('cx1'); await h.toca('pausa-cx1-enf', () => firmar(S.cx[0], 'pausa', 'enf')); } },
+    ya() { hacer('ferrari', () => firmar(S.cx[0], 'pausa', 'cir')); hacer('arce', () => firmar(S.cx[0], 'pausa', 'anest')); hacer('ruiz', () => firmar(S.cx[0], 'pausa', 'enf')); } },
   { sec: ['inst', 'enf'], k: 'gomez', tab: 'hoy', t: 'Recuento final y cofirma', d: 'Si falta una gasa, la app no deja seguir hasta que coincida. Después cofirma Enfermería.', hint: 'Cargue el recuento final (pruebe con una gasa menos) y fírmelo.',
-    ya() { hacer('gomez', () => { S.ui.cnt.cx1rec2 = { gasas: 10, compresas: 5, agujas: 3, instr: 42 }; recuento('cx1', 'rec2'); }); hacer('ruiz', () => firmar(S.cx[0], 'rec2', 'enf')); },
-    async anim(h) { await h.como('gomez'); h.abrir('cx1'); await h.narra('Recuento final. Falta una gasa: la app no deja seguir.');
-      await h.contar('cx1', 'rec2', { gasas: 9, compresas: 5, agujas: 3, instr: 42 }); await h.toca('rec-cx1-rec2', () => recuento('cx1', 'rec2')); await espera(1600);
-      await h.narra('Vuelven a contar, aparece la gasa y ahora sí coincide.'); S.ui.cnt.cx1rec2.gasas = 10; render(); await espera(600);
-      await h.toca('rec-cx1-rec2', () => recuento('cx1', 'rec2')); await h.como('ruiz'); h.abrir('cx1'); await h.toca('cofirma-cx1', () => firmar(S.cx[0], 'rec2', 'enf')); } },
+    ya() { hacer('gomez', () => { S.ui.cnt.cx1rec2 = { gasas: 10, compresas: 5, agujas: 3, instr: 42 }; recuento('cx1', 'rec2'); }); hacer('ruiz', () => firmar(S.cx[0], 'rec2', 'enf')); } },
   { sec: ['enf'], k: 'ruiz', tab: 'hoy', t: 'Salida', d: 'Enfermería cierra la Lista de Verificación. Recién ahí puede anotarse en otra sala.', hint: 'Marque los 4 puntos y firme la Salida.',
-    ya() { hacer('ruiz', () => firmar(S.cx[0], 'salida', 'enf')); },
-    async anim(h) { await h.como('ruiz'); h.abrir('cx1'); await h.narra('Salida: Enfermería cierra la Lista de Verificación.');
-      await h.tildar('cx1salidaenf', 4); await h.toca('firmar-cx1salidaenf', () => firmar(S.cx[0], 'salida', 'enf')); } },
+    ya() { hacer('ruiz', () => firmar(S.cx[0], 'salida', 'enf')); } },
   { sec: ['anest'], k: 'arce', tab: 'hoy', t: 'Alta de recuperación (Aldrete)', d: 'Con 9 o más, el paciente puede salir de recuperación y el recorrido queda completo.', hint: 'Revise la escala y toque «Dar el alta de recuperación».',
-    ya() { hacer('arce', () => aldrete('cx1')); },
-    async anim(h) { await h.como('arce'); h.abrir('cx1'); await h.narra('Recuperación: alta con la escala de Aldrete.'); await h.toca('ald-cx1', () => aldrete('cx1')); } },
+    ya() { hacer('arce', () => aldrete('cx1')); } },
   { sec: ['anest', 'jefa'], k: 'arce', tab: 'mimes', t: 'Mi mes', d: 'Cada anestesiólogo ve su calendario: días de planta con su sala, guardias, francos y horas del mes.', hint: 'Mire sus días; el día de hoy está marcado con borde blanco.',
-    ya() {}, async anim(h) { await h.como('arce'); await h.toca('tab-mimes', () => { S.tab = 'mimes'; render(); }, 600); await h.narra('Su calendario del mes: planta con la sala, guardias, francos y horas.', 3000); } },
+    ya() {} },
   { sec: ['jefe', 'dir'], k: 'direccion', tab: 'vivo', t: 'Tablero en vivo', d: 'Todas las salas: en qué paso está cada cirugía y a quién espera. La Jefatura puede avisar; la Dirección, solo mirar.', hint: 'Recorra las tarjetas de cada sala y los últimos movimientos.',
-    ya() {}, async anim(h) { await h.como('direccion'); S.tab = 'vivo'; render(); await h.narra('🎉 Cada firma con su nombre y su hora, a la vista de la Jefatura y la Dirección.', 3500); } },
+    ya() {} },
 ];
 const escSector = (sec) => ESC.map((e, i) => [e, i]).filter(([e]) => sec === 'todos' || e.sec.includes(sec));
 function preparar(hasta) { nuevo(); S.silencio = true; for (let i = 0; i < hasta; i++) ESC[i].ya(); S.silencio = false; S.yo = null; S.modal = null; }
 
-let corriendo = 0;
-function pararPeli() { corriendo++; S.peli = false; S.narr = ''; VEL = 1; render(); }
-async function correr(lista) {
-  const yo = ++corriendo; S.peli = true; render();
-  const vivo = () => yo === corriendo;
-  const h = {
-    vivo,
-    narra: async (t, ms = 2200) => { if (!vivo()) throw 0; S.narr = t; render(); await espera(ms); },
-    toca: async (sel, fn, ms = 900) => {
-      if (!vivo()) throw 0;
-      render(); const el = document.querySelector(`[data-a="${sel}"]`);
-      if (el) { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('foco'); }
-      await espera(ms); if (!vivo()) throw 0; fn(); await espera(500);
-    },
-    como: async (k) => { if (!vivo()) throw 0; if (S.yo === k) return; S.yo = null; S.narr = ''; render(); await espera(300); await entrar(k); },
-    abrir: (id) => { S.abierta = id; render(); },
-    tildar: async (key, n) => { for (let j = 0; j < n; j++) { if (!vivo()) throw 0; (S.ui.chk[key] = S.ui.chk[key] || [])[j] = true; render(); const el = document.querySelector(`[data-a="chk-${key}-${j}"]`); if (el) el.scrollIntoView({ block: 'center' }); await espera(260); } },
-    contar: async (id, paso, vals) => { S.ui.cnt[id + paso] = {}; for (const [k, v] of Object.entries(vals)) { for (let i = 1; i <= Math.min(v, 6); i++) { if (!vivo()) throw 0; S.ui.cnt[id + paso][k] = i; render(); await espera(70); } S.ui.cnt[id + paso][k] = v; render(); await espera(200); } },
-  };
-  try {
-    for (const e of lista) await e.anim(h);
-    if (vivo()) { S.narr = ''; S.peli = false; render(); }
-  } catch (e) { if (e !== 0) throw e; }
+/* ---------- Guía paso a paso ----------
+   En lugar de una película, la app le marca a la persona QUÉ tocar (un aro que
+   late y un globito). Cuando lo toca, el demo avanza y marca lo siguiente.
+   Se calcula siempre del estado: si la persona se sale del camino, la guía la
+   vuelve a llevar. */
+function empezarGuia(i) {
+  if (i != null) { preparar(i); if (i > 2) S.vistos.cob = S.vistos.prog = true; if (i > 14) S.vistos.mimes = true; if (i > 15) S.vistos.vivo = true; }
+  S.guiaOn = true; S.mision = ''; S.ultFoco = null; render(); scrollTo({ top: 0, behavior: 'smooth' });
 }
-function pelicula() { preparar(0); S.narr = '🎬 Un día en el bloque quirúrgico del HRU, paso a paso.'; correr(ESC); }
-function mirar(i) { corriendo++; preparar(i); correr([ESC[i]]); }
-async function probar(i) { corriendo++; preparar(i); S.peli = false; S.narr = ''; S.mision = ESC[i].hint; await entrar(ESC[i].k, true); S.tab = ESC[i].tab; S.abierta = 'cx1'; render(); scrollTo({ top: 0, behavior: 'smooth' }); }
+function salirGuia() { S.guiaOn = false; render(); }
+function visto(k) { S.vistos[k] = true; S.ultFoco = null; render(); }
+/* El próximo objetivo: quién, en qué pestaña y qué tocar. */
+function objetivo() {
+  const paso = (k, tab, sel, txt, extra) => Object.assign({ k, tab, sel, txt }, extra || {});
+  if (S.mes.estado === 'borrador') {
+    const faltan = Array.from({ length: NDIAS }, (_, i) => i + 1).some((d) => !cobertura(d).ok);
+    return faltan ? paso('bianchi', 'lista', 'sugerir', 'La Jefa de Anestesia arma la lista del mes. Toque «Sugerir cobertura» y mire cómo se llena sola.')
+      : paso('bianchi', 'lista', 'enviar', 'Todos los días quedaron cubiertos (🟢). Ahora toque «Enviar a Jefatura».');
+  }
+  if (S.mes.estado === 'enviada') return paso('jefatura', 'lista', 'validar', 'La Jefatura revisa la lista que le mandaron. Toque «Validar la lista».');
+  if (!S.vistos.cob) return paso('jefatura', 'cob', null, 'Coberturas del día: quién está en cada sala, la guardia de 24 h y los francos. Puede tocar otros días arriba.', { info: 'cob' });
+  if (!S.vistos.prog) return paso('jefatura', 'prog', null, 'Programación de hoy, sala por sala; la línea rosa es la hora actual y debajo de cada sala, su anestesiólogo.', { info: 'prog' });
+  if (!S.sol.length) {
+    return paso('ferrari', 'nueva', 'f-enviar', 'El cirujano pide una cirugía. Ya completamos el formulario de ejemplo: toque «Enviar a Jefatura».');
+  }
+  const pend = S.sol.find((x) => x.estado === 'pendiente');
+  if (pend) return paso('jefatura', 'sol', 'conf-' + pend.id, 'Llegó la solicitud. Toque «Confirmar y programar»: entra en la programación y se avisa al cirujano y al anestesiólogo.');
+  const c = S.cx[0], e = estado(c), act = e.p[e.a];
+  if (act) {
+    const x = act.firmas.find((y) => !y.f), k = x.k || { anest: 'arce', circ: 'ruiz', enf: 'ruiz', inst: 'gomez', cir: 'ferrari' }[x.rol];
+    const base = (sel, txt) => paso(k, 'hoy', sel, txt, { cx: 'cx1' });
+    if (G[k].f === 'anest' && !S.llegada[k]) return paso(k, 'hoy', 'llegue', 'Primero el anestesiólogo marca que llegó. Toque «Llegué».');
+    const key = 'cx1' + act.k + x.rol;
+    if (act.k === 'equipo') return base(`anotar-cx1-${x.rol}`, { anest: 'Toque «Confirmo que doy la anestesia» en el Quirófano 1.', circ: 'La enfermera se anota en su sala: toque «Me anoto como circulante».', inst: 'La instrumentadora se anota: sin esto no se habilita el recuento. Toque «Me anoto como instrumentador/a».' }[x.rol]);
+    if (CHECK[act.k + '.' + x.rol]) {
+      const marc = S.ui.chk[key] || [], j = CHECK[act.k + '.' + x.rol].findIndex((_, q) => !marc[q]);
+      return j >= 0 ? base(`chk-${key}-${j}`, `${act.n}: marque este punto de la lista (${j + 1} de ${CHECK[act.k + '.' + x.rol].length}).`)
+        : base(`firmar-${key}`, `Lista completa. Toque «Firmar ${act.n}».`);
+    }
+    if (act.k === 'rec1') {
+      const v = S.ui.cnt.cx1rec1 || {};
+      return RECUENTO.some(([q]) => v[q]) ? base('rec-cx1-rec1', 'Cuando termine de contar, toque «Firmar el recuento inicial».') : base('mas-cx1rec1-gasas', 'Recuento inicial: toque «+» para contar las gasas (y lo mismo con lo demás).');
+    }
+    if (act.k === 'rec2' && x.rol === 'inst') {
+      const v = S.ui.cnt.cx1rec2 || {};
+      return RECUENTO.some(([q]) => v[q]) ? base('rec-cx1-rec2', 'Toque «Firmar el recuento final». Si no coincide con el inicial, la app no deja seguir.') : base('mas-cx1rec2-gasas', 'Recuento final: cuente otra vez con «+». Tiene que dar lo mismo que al empezar.');
+    }
+    if (act.k === 'rec2') return base('cofirma-cx1', 'Enfermería cofirma el recuento. Toque «Cofirmo: el recuento coincide».');
+    if (act.k === 'pausa') return base(`pausa-cx1-${x.rol}`, `Pausa antes de la incisión: toque «Confirmo la Pausa (${ROL[x.rol].n})».`);
+    if (act.k === 'recup') return base('ald-cx1', 'Último paso: revise la escala de Aldrete y toque «Dar el alta de recuperación».');
+  }
+  if (!S.vistos.mimes) return paso('arce', 'mimes', null, 'Cada anestesiólogo ve su mes: días de planta con la sala, guardias, francos y horas.', { info: 'mimes' });
+  if (!S.vistos.vivo) return paso('direccion', 'vivo', null, 'La Dirección Médica ve todas las salas en vivo, con cada firma, quién y a qué hora. Solo mira.', { info: 'vivo' });
+  return null;
+}
+/* Qué tocar AHORA para llegar al objetivo: primero entrar como esa persona,
+   después la pestaña, después abrir la cirugía, y recién ahí la acción. */
+function focoGuia() {
+  const o = objetivo();
+  if (!o) return { fin: true, txt: '🎉 ¡Listo! Recorrió todo: la lista del mes, la solicitud y la cirugía completa, paso a paso y en orden.' };
+  if (S.modal) return { sel: 'modal-no', txt: 'Ese paso no le toca ahora. Toque «Cancelar» y siga con la guía.' };
+  if (S.yo !== o.k) return { sel: 'guia-entrar', txt: `Ahora le toca a ${G[o.k].n}. Toque acá para entrar con su cuenta.`, o };
+  if (S.tab !== o.tab) return { sel: 'tab-' + o.tab, txt: 'Toque esta pestaña.', o };
+  if (o.cx && S.abierta !== o.cx) return { sel: 'abrir-' + o.cx, txt: 'Abra la cirugía del Quirófano 1.', o };
+  if (o.info) return { sel: null, info: o.info, txt: o.txt, o };
+  return { sel: o.sel, txt: o.txt, o };
+}
+function pintarGuia() {
+  document.querySelectorAll('.guia-foco').forEach((x) => x.classList.remove('guia-foco'));
+  const b = $('#burbuja'); if (b) b.remove();
+  if (!S.guiaOn || S.login) return;
+  const f = focoGuia();
+  const el = f.sel ? document.querySelector(`[data-a="${f.sel}"]`) : null;
+  const bu = document.createElement('div'); bu.id = 'burbuja'; bu.className = 'burbuja' + (el ? '' : ' centro');
+  bu.innerHTML = `<b>${f.fin ? '🧭 Guía terminada' : el ? '👆 Toque lo marcado' : '👀 Mire esta pantalla'}</b><p>${f.txt}</p>
+    <div>${f.info ? `<button class="btn chico" onclick="visto('${f.info}')">Seguir ▶</button>` : ''}${f.fin ? '<button class="btn chico" onclick="salirGuia()">Cerrar</button>' : '<button class="btn fant chico" onclick="salirGuia()">Salir de la guía</button>'}</div>`;
+  document.body.appendChild(bu);
+  if (el) {
+    el.classList.add('guia-foco');
+    const r = el.getBoundingClientRect(), bw = Math.min(320, innerWidth - 24), arriba = r.top > innerHeight * .55;
+    bu.style.width = bw + 'px';
+    bu.style.left = Math.max(12, Math.min(innerWidth - bw - 12, r.left + r.width / 2 - bw / 2)) + scrollX + 'px';
+    bu.classList.add(arriba ? 'arriba' : 'abajo');
+    bu.style.top = (arriba ? r.top + scrollY - bu.offsetHeight - 14 : r.bottom + scrollY + 14) + 'px';
+    if (S.ultFoco !== f.sel) { S.ultFoco = f.sel; if (r.top < 70 || r.bottom > innerHeight - 160) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+  }
+  if (f.fin && !S.festejado) { S.festejado = true; festejo(); }
+}
+addEventListener('scroll', () => { if (S && S.guiaOn) { const el = document.querySelector('.guia-foco'), bu = $('#burbuja'); if (el && bu && !bu.classList.contains('centro')) { const r = el.getBoundingClientRect(); bu.style.top = (bu.classList.contains('arriba') ? r.top + scrollY - bu.offsetHeight - 14 : r.bottom + scrollY + 14) + 'px'; } } }, { passive: true });
+addEventListener('resize', () => { if (S && S.guiaOn) pintarGuia(); });
+
 
 nuevo(); render();
 addEventListener('click', (e) => { if (S.bandeja && !e.target.closest('.campana')) { S.bandeja = false; render(); } });

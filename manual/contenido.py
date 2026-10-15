@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.22.0'
+VERSION = '3.22.1'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -476,6 +476,7 @@ BLOQUES = [
     'Instalada como aplicación, abre desde la pantalla de inicio de la computadora y del teléfono.',
     'Sin conexión sigue funcionando contra la copia local y guarda los cambios para enviarlos cuando vuelve la red. El indicador del encabezado dice si todo está sincronizado o si queda algo sin enviar.',
     'El Libro Blanco de Quirófanos, este manual y la foto del lema quedan guardados para consultarse sin conexión.',
+    '**Manual y Libro Blanco** (el librito del menú, con o sin cuenta): una pantalla con dos solapas, **Libro Blanco** y **Manual de uso**, como el manual de la app del barrio. Cada capítulo se abre y se cierra con un toque (de a uno), y el **buscador** mira también adentro del texto y resalta lo encontrado; entiende algunos sinónimos («recuento» encuentra también «conteo»). Cada capítulo del Libro Blanco tiene **Ver en el PDF oficial** en su página: **el PDF sigue siendo el documento oficial** y las tablas se ven completas ahí. El texto se baja solo al abrir esta pantalla y después queda guardado para consultarlo sin conexión.',
     'Cuando se publica una versión nueva, la app se actualiza sola si la pantalla no tiene nada escrito; si hay un formulario a medio completar, muestra un aviso y espera a que el profesional decida.',
     'Cada persona elige su apariencia con paletas de salud —**Quirófano verde** (el verde de los ambos y los paños), **Azul hospitalario** (el azul institucional), **Salvia y arena** (tonos cálidos de clínica de bienestar) o **Guardia nocturna**, oscura para el turno de 24 horas—. Cada una cambia el encabezado de cada pantalla, la barra superior, el menú, el fondo y los botones. La elección queda en su dispositivo.',
     '**Botón Volver:** abajo a la izquierda, en todas las secciones, lleva a la sección anterior y a la misma altura de la página en que se la dejó (en el celular es un círculo con una flecha).',
@@ -497,10 +498,17 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.22'),
+('h2', 'Versión 3.22.1 — Libro Blanco por solapas, urgencias en vivo y guía paso a paso'),
+('ul', [
+    '**Manual y Libro Blanco** dentro de la app, por solapas y con buscador (sección 12).',
+    '**Quirófanos en vivo** marca en el Quirófano 1, Endoscopía y Obstetricia una **franja roja por hora para las urgencias y emergencias de las 24 h**, con la hora que corre encendida; las urgencias llevan 🚑 y borde rojo, y las que caen fuera de 08–20 h se cuentan al lado del nombre de la sala (🚑 +1). El selector **08–20 h / 24 h** muestra el día entero; se recuerda en cada equipo.',
+    '**Manual interactivo:** en lugar de la película, **🧭 Guíame paso a paso** marca con un aro y un globito qué tocar y avanza cuando se toca; cada capítulo tiene **🧭 Empezar acá**. Se abre en **otra pestaña** (la app queda como estaba, también si Mi pulso está midiendo) y tiene **← Volver a la app**, que la deja en la misma pantalla. Antes se abría dos veces.',
+]),
+
 ('h2', 'Versión 3.22 — Anestesiología, portales del equipo y rediseños'),
 ('ul', [
     '**Mi pulso en quirófano (prueba piloto)** para el cirujano que quiera: reloj por Bluetooth, cirugía relajada, moderada o exigente según su propio nivel y consejo de descanso; los datos quedan solo en su equipo y se borran a los 30 días (sección 3.2 ter).',
-    '**Manual interactivo** (botón 🎬 en el menú y en la pantalla de ingreso, con o sin cuenta): cada sector —cirujanos, anestesiólogos, Jefa de Anestesia, Enfermería, Instrumentación, Jefatura y Dirección— elige su sección y ve capítulo por capítulo cómo funciona, con **▶ Mirar** (se juega solo) o **✋ Probarlo yo**, desde el ingreso hasta la cirugía terminada, la lista mensual de Anestesiología y las coberturas de guardia y planta. Usa datos inventados, no toca la app real, se descarga solo al abrirlo y no queda guardado en el teléfono.',
+    '**Manual interactivo** (botón 🎬 en el menú y en la pantalla de ingreso, con o sin cuenta): cada sector —cirujanos, anestesiólogos, Jefa de Anestesia, Enfermería, Instrumentación, Jefatura y Dirección— elige su sección y recorre capítulo por capítulo cómo funciona, con **🧭 Guíame paso a paso** (la app marca qué tocar), desde el ingreso hasta la cirugía terminada, la lista mensual de Anestesiología y las coberturas de guardia y planta. Usa datos inventados, no toca la app real, se descarga solo al abrirlo y no queda guardado en el teléfono.',
     '**Firmas de quien está anotado** y **una persona, una sala** (con «cambio de sala»); el nombre, la función y la sala de quien usa cada portal, arriba; «Le toca:» dicho con lo que hay que hacer.',
     '**Ingreso** en una sola columna en todas las pantallas: la foto arriba y el formulario abajo.',
     '**Estadísticas públicas** rediseñadas como **Pulso de la semana** (mosaico por intervención y balanza programadas/urgencias), con las mismas seis cifras de siempre.',
@@ -522,7 +530,7 @@ BLOQUES = [
 ('ul', [
     '**Compromiso al ingresar:** cada profesional, al entrar con su usuario, lee y acepta un compromiso (credenciales personales, normas del bloque, deberes y derechos, confidencialidad y valor de constancia). La aceptación queda en su legajo con fecha y hora; con «No volver a mostrármelo» no aparece más. Si no acepta, no ingresa.',
     '**Cierre por inactividad a los 10 minutos** con aviso y cuenta regresiva, **guardado temporario** y pregunta para **seguir donde lo dejó**.',
-    '**Panel como centro de mando:** saludo con reloj en vivo y cuenta regresiva al próximo cierre de solicitudes. **Quirófanos en vivo**: cuatro píldoras que se tocan (parte de hoy, en curso, en validación, suspendidas del mes) y una línea de tiempo de 8 a 20 h por sala, con cada cirugía como un bloque del color de su estado, la línea de la hora actual que avanza sola, la luz de cada sala (en uso, con turnos, libre) y las cirugías propias marcadas en dorado. Tocar un bloque abre la ficha; sin sesión no se ve ningún paciente.',
+    '**Panel como centro de mando:** saludo con reloj en vivo y cuenta regresiva al próximo cierre de solicitudes. **Quirófanos en vivo**: cuatro píldoras que se tocan (parte de hoy, en curso, en validación, suspendidas del mes) y una línea de tiempo de 8 a 20 h por sala (o de 24 h, desde la 3.22.1, con las urgencias marcadas), con cada cirugía como un bloque del color de su estado, la línea de la hora actual que avanza sola, la luz de cada sala (en uso, con turnos, libre) y las cirugías propias marcadas en dorado. Tocar un bloque abre la ficha; sin sesión no se ve ningún paciente.',
     '**Roles de Enfermería e Instrumentación** con cuenta propia: Mi Sala (equipo de cada cirugía, Lista de Verificación por fases, recuento que frena la Salida si no coincide, cajas e insumos) y Relevo de turno (sección 3.2). Los insumos los verifica Instrumentación en lugar de Farmacia.',
     '**Reconocimiento entre colegas** (solapa nueva, un único voto para médicos, enfermería e instrumentación): Distinción del mes por voto secreto con valores, Servicio del mes, Vocación HRU del año, Muro de gratitud con filtro y aviso a la Jefatura, e insignias personales.',
     '**Premio de oro de la semana:** de lunes a domingo la app cuenta lo que cada cirujano operó como cirujano principal en todo el bloque —programadas, urgencias, endoscopías y cesáreas, ya realizadas—. Quien va primero lo ve en el Panel con un mensaje de aliento. El lunes, el ganador ve al abrir la app la copa de oro con papelitos de colores (2 segundos) y su mensaje; el premio queda en su legajo y en un **medallero** en sus Estadísticas (pasar el mouse o tocar una copa repite el festejo). Los integrantes de su especialidad ven un aviso de 2 segundos que se borra solo; a ellos no les queda nada guardado. Si hay empate, la copa es compartida.',
