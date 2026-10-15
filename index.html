@@ -3157,6 +3157,89 @@
   .serv-chip button { border: none; background: none; cursor: pointer; color: var(--muted); font-size: 0.85rem; padding: 0 4px; }
 
   /* ---- Tablero público de la semana ---- */
+  /* 3.22 · Mi pulso en quirófano (piloto) */
+  .pl-piloto { display: inline-block; vertical-align: middle; font-size: .62rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: rgba(244,63,94,.14); color: #e11d48; margin-left: 6px; }
+  .pl-consent, .pl-inicio, .pl-vivo, .pl-res, .pl-hist { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 18px; margin-bottom: 14px; }
+  .pl-consent h3, .pl-hist h3 { margin: 0 0 10px; color: var(--ink); } .pl-hist h3 small { font-weight: 500; color: var(--muted); font-size: .76rem; }
+  .pl-consent ul { margin: 0 0 14px; padding-left: 18px; display: grid; gap: 8px; font-size: .9rem; line-height: 1.5; color: var(--ink); }
+  .pl-acepto { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 14px; background: rgba(244,63,94,.07); margin-bottom: 12px; font-size: .88rem; cursor: pointer; }
+  .pl-acepto input { width: 18px; height: 18px; flex: none; margin-top: 2px; }
+  .pl-inicio label { display: grid; gap: 6px; font-weight: 700; font-size: .84rem; margin-bottom: 12px; } .pl-inicio select { padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--sup1, #fff); color: var(--ink); font: inherit; max-width: 100%; }
+  .pl-acc { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pl-nota { font-size: .78rem; color: var(--muted); margin: 10px 0 0; line-height: 1.45; }
+  .pl-vivo { --z: #64748b; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; border-color: color-mix(in srgb, var(--z) 40%, var(--line)); background: linear-gradient(120deg, color-mix(in srgb, var(--z) 10%, var(--card)), var(--card)); }
+  .pl-cora { width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center; align-content: center; background: color-mix(in srgb, var(--z) 14%, transparent); border: 3px solid var(--z); }
+  .pl-cora i { font-style: normal; color: var(--z); font-size: 1.4rem; animation: plLat 1s ease-in-out infinite; } .pl-cora b { font-size: 2.4rem; font-weight: 900; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; } .pl-cora small { color: var(--muted); font-size: .72rem; }
+  @keyframes plLat { 15% { transform: scale(1.35); } 30% { transform: scale(1); } 45% { transform: scale(1.2); } 60% { transform: scale(1); } }
+  .pl-vivo-txt { display: grid; gap: 4px; } .pl-vivo-txt b { color: var(--z); font-size: 1.05rem; } .pl-vivo-txt small { color: var(--muted); font-size: .8rem; }
+  .pl-graf, .pl-vivo .pl-acc, .pl-vivo .pl-nota { grid-column: 1 / -1; } .pl-spark { width: 100%; height: 70px; display: block; }
+  .pl-res { --n: #64748b; border-color: color-mix(in srgb, var(--n) 45%, var(--line)); animation: apSube .5s both; }
+  .pl-res-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .pl-badge { font-size: 1.15rem; font-weight: 900; color: var(--n); } .pl-sim { font-size: .7rem; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: var(--line); color: var(--muted); }
+  .pl-medidor { height: 12px; border-radius: 6px; margin: 12px 0; background: linear-gradient(90deg, #16a34a, #f59e0b 50%, #dc2626); position: relative; opacity: .9; }
+  .pl-medidor i { position: absolute; inset: 0 auto 0 0; border-right: 4px solid var(--ink); border-radius: 6px 0 0 6px; background: rgba(255,255,255,.0); }
+  .pl-cifras { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-bottom: 10px; }
+  .pl-cifras span { padding: 10px; border-radius: 14px; background: color-mix(in srgb, var(--n) 7%, transparent); font-size: .72rem; color: var(--muted); } .pl-cifras b { display: block; font-size: 1.3rem; color: var(--ink); }
+  .pl-consejo { margin: 10px 0 0; padding: 12px; border-radius: 14px; background: color-mix(in srgb, var(--n) 10%, transparent); color: var(--ink); line-height: 1.5; font-size: .9rem; }
+  .pl-hist-f { display: grid; grid-template-columns: auto minmax(0, 1fr) 90px auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+  .pl-hist-f b { display: block; font-size: .86rem; color: var(--ink); } .pl-hist-f small { color: var(--muted); font-size: .74rem; } .pl-hist-f .pl-spark { height: 26px; }
+  .pl-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .pl-x { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: .9rem; padding: 6px; }
+  .pulso-flot { --z: #64748b; position: fixed; right: 14px; bottom: 84px; z-index: 900; display: flex; align-items: center; gap: 5px; padding: 8px 14px; border-radius: 999px; border: 2px solid var(--z); background: var(--card); color: var(--ink); cursor: pointer; box-shadow: 0 12px 30px -12px var(--z); font-family: inherit; }
+  .pulso-flot i { font-style: normal; color: var(--z); animation: plLat 1s ease-in-out infinite; } .pulso-flot b { font-size: 1.1rem; font-variant-numeric: tabular-nums; } .pulso-flot small { color: var(--muted); font-size: .7rem; }
+  @media (max-width: 560px) { .pl-vivo { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; } .pl-hist-f { grid-template-columns: auto minmax(0, 1fr) auto; } .pl-hist-f .pl-spark { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .pl-cora i, .pulso-flot i { animation: none; } }
+
+  /* 3.22 · Pulso de la semana */
+  .ap { display: grid; gap: 14px; max-width: 1100px; margin: 0 auto; }
+  .ap-hero { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); align-items: center; gap: 10px; padding: 22px; border-radius: 26px; color: #fff;
+    background: linear-gradient(125deg, var(--h1, #0f766e), var(--h2, #1e3a8a) 60%, var(--h3, #6d28d9)); box-shadow: 0 30px 60px -36px rgba(15,23,42,.6); }
+  .ap-hero::after { content: ''; position: absolute; inset: -40% -10% auto auto; width: 60%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.18), transparent 65%); animation: apLuz 9s ease-in-out infinite alternate; pointer-events: none; }
+  @keyframes apLuz { to { transform: translate(-20%, 20%) scale(1.2); } }
+  .ap-kick { display: inline-flex; align-items: center; gap: 8px; font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .9; }
+  .ap-vivo { width: 9px; height: 9px; border-radius: 50%; background: #f87171; animation: apLat 1.4s infinite; }
+  @keyframes apLat { 0% { box-shadow: 0 0 0 0 rgba(248,113,113,.7); } 70% { box-shadow: 0 0 0 10px rgba(248,113,113,0); } 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0); } }
+  .ap-total { display: flex; align-items: center; gap: 14px; margin: 10px 0 14px; }
+  .ap-total b { font-size: clamp(3rem, 9vw, 4.8rem); font-weight: 900; line-height: .9; letter-spacing: -.04em; font-variant-numeric: tabular-nums; text-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .ap-total span { font-weight: 700; font-size: 1rem; line-height: 1.25; } .ap-total small { font-weight: 500; opacity: .8; font-size: .8rem; }
+  .ap-semana { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ap-dia { display: grid; justify-items: center; gap: 4px; font-size: .66rem; font-weight: 800; opacity: .6; }
+  .ap-dia i { width: 26px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.25); }
+  .ap-dia.pasado { opacity: .95; } .ap-dia.pasado i { background: rgba(255,255,255,.9); }
+  .ap-dia.hoy { opacity: 1; } .ap-dia.hoy i { background: #fde047; box-shadow: 0 0 12px #fde047; }
+  .ap-ecg { width: 100%; height: 90px; }
+  .ap-ecg path { fill: none; stroke: rgba(255,255,255,.9); stroke-width: 2.5; stroke-linejoin: round; stroke-dasharray: 520; stroke-dashoffset: 520; animation: apEcg 2.6s linear infinite; filter: drop-shadow(0 0 6px rgba(255,255,255,.6)); }
+  @keyframes apEcg { 60% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -520; } }
+  .ap-areas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 12px; }
+  .ap-area { display: grid; gap: 10px; padding: 16px; border-radius: 22px; background: var(--card); border: 1px solid color-mix(in srgb, var(--a) 30%, var(--line)); position: relative; overflow: hidden; animation: apSube .5s both; }
+  .ap-area::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--a); }
+  @keyframes apSube { from { opacity: 0; transform: translateY(14px); } }
+  .ap-area header { display: flex; align-items: center; gap: 10px; }
+  .ap-ico { width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center; font-size: 1.2rem; background: color-mix(in srgb, var(--a) 16%, transparent); }
+  .ap-area header div { flex: 1; min-width: 0; } .ap-area header b { display: block; color: var(--ink); } .ap-area header small { color: var(--muted); font-size: .74rem; }
+  .ap-area header strong { font-size: 2rem; font-weight: 900; color: var(--a); font-variant-numeric: tabular-nums; }
+  .ap-mosaico { display: flex; flex-wrap: wrap; gap: 4px; min-height: 34px; align-content: flex-start; }
+  .ap-mosaico i { width: 14px; height: 14px; border-radius: 4px; background: var(--a); animation: apPop .4s both; }
+  .ap-mosaico i.u { background: #ef4444; }
+  @keyframes apPop { from { opacity: 0; transform: scale(.2); } }
+  .ap-mosaico em { font-size: .78rem; color: var(--muted); font-style: normal; }
+  .ap-split { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--line); gap: 2px; }
+  .ap-split span { background: var(--a); } .ap-split span.u { background: #ef4444; }
+  .ap-area footer { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: .76rem; color: var(--muted); }
+  .ap-dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--a); margin-right: 5px; } .ap-dot.u { background: #ef4444; }
+  .ap-escala { font-size: .68rem; color: var(--muted); }
+  .ap-balanza { padding: 16px; border-radius: 22px; background: var(--card); border: 1px solid var(--line); }
+  .ap-bal-top { display: flex; justify-content: space-between; gap: 10px; font-size: .86rem; color: var(--muted); } .ap-bal-top b { color: var(--ink); font-size: 1.1rem; }
+  .ap-bal-barra { position: relative; height: 14px; margin: 12px 0; border-radius: 7px; background: linear-gradient(90deg, #ef4444, #f97316); }
+  .ap-bal-barra span { position: absolute; inset: 0 auto 0 0; border-radius: 7px 0 0 7px; background: linear-gradient(90deg, #2563eb, #14b8a6); }
+  .ap-bal-barra i { position: absolute; top: 50%; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid var(--ink); transform: translate(-50%, -50%); box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+  .ap-balanza p { margin: 0; font-size: .86rem; color: var(--ink); }
+  .ap-nota { margin: 0; font-size: .8rem; color: var(--muted); line-height: 1.5; }
+  @media (max-width: 640px) {
+    .ap-hero { grid-template-columns: minmax(0, 1fr); padding: 18px; } .ap-ecg { height: 56px; }
+    .ap-total { gap: 10px; } .ap-dia i { width: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .ap *, .ap *::before, .ap *::after, .ap-hero::after { animation: none !important; } .ap-ecg path { stroke-dashoffset: 0; } }
   .est-pub-grid {
     display: grid; gap: 14px;
     grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -4908,13 +4991,26 @@
   }
 
   /* ================= 3.22 · ACCESO ================= */
-  .ax { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; width: 100%; max-width: 1180px; margin: 0 auto; align-items: start; }
+  /* Una sola columna en todas las pantallas: la foto arriba, el formulario abajo. */
+  .ax { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; width: 100%; max-width: 760px; margin: 0 auto; align-items: start; }
   .ax-lema .lema-hero { max-width: none; margin: 0; }
-  @media (min-width: 1040px) {
-    .ax { grid-template-columns: minmax(0, 1.05fr) minmax(400px, .95fr); }
-    .ax-lema { position: sticky; top: 76px; }
-    .ax-lema .lema-foto { height: 360px; }
+  .ax-lema .lema-foto { height: clamp(150px, 34vw, 320px); }
+  .ax-lema .lema-foto img { object-position: center 30%; }
+  @media (max-width: 480px) {
+    .ax { gap: 12px; }
+    .ax-card { padding: 16px; border-radius: 20px; }
+    .ax-cab h1 { font-size: 1.2rem; } .ax-sello { width: 42px; height: 42px; }
+    .ax-funcs { grid-template-columns: minmax(0, 1fr); }
+    .ax-lema .lema-kicker { font-size: .8rem; } .ax-lema .lema-frase { font-size: .78rem; } .ax-lema .lema-sub { font-size: .8rem; }
   }
+  .ax-manual { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 14px; padding: 12px 14px; border-radius: 16px; cursor: pointer; text-align: left; font-family: inherit;
+    border: 1px solid color-mix(in srgb, #a855f7 40%, var(--line)); background: linear-gradient(120deg, rgba(168,85,247,.14), rgba(20,184,166,.12)); color: var(--ink); transition: transform .15s; }
+  .ax-manual:hover { transform: translateY(-2px); }
+  .ax-manual > span:first-child { font-size: 1.5rem; } .ax-manual b { display: block; font-size: .9rem; } .ax-manual small { color: var(--muted); font-size: .76rem; line-height: 1.35; }
+  .manual-btn { display: flex; align-items: center; gap: 10px; width: calc(100% - 20px); margin: 6px 10px 2px; padding: 9px 11px; border-radius: 14px; cursor: pointer; font-family: inherit; text-align: left;
+    border: 1px solid rgba(168,85,247,.35); background: linear-gradient(120deg, rgba(168,85,247,.16), rgba(20,184,166,.12)); color: inherit; }
+  .manual-btn span:first-child { font-size: 1.2rem; } .manual-btn b { display: block; font-size: .8rem; } .manual-btn small { font-size: .66rem; opacity: .75; }
+  @media (min-width: 900px) { .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .manual-btn .mb-txt { display: none; } .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .manual-btn { justify-content: center; padding: 9px 0; } }
   .ax-card { position: relative; min-width: 0; border-radius: 24px; padding: 22px; background: var(--card); border: 1px solid var(--line);
     box-shadow: 0 30px 60px -36px rgba(15,23,42,.45); overflow: hidden; isolation: isolate; }
   .ax-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 120px; z-index: -1;
@@ -5617,6 +5713,11 @@
      destaca por contraste, no por adorno. */
   .fl-cabecera { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px solid var(--line); }
   .fl-cabecera small { font-size: .66rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .fl-yo { display: inline-flex; align-items: center; gap: 9px; padding: 4px 12px 4px 4px; border-radius: 999px; background: color-mix(in srgb, var(--k) 12%, transparent); border: 1px solid color-mix(in srgb, var(--k) 35%, transparent); }
+  .fl-yo-av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--k); color: #fff; font-weight: 800; font-size: .72rem; letter-spacing: .02em; }
+  .fl-yo b { display: block; font-size: .82rem; color: var(--ink); line-height: 1.15; }
+  .fl-yo small { letter-spacing: .04em !important; text-transform: none !important; font-size: .68rem !important; }
+  .fl-yo em { font-style: normal; color: var(--k); font-weight: 700; }
   .fl-cabecera h1 { margin: 2px 0 0; font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; color: var(--ink); }
   .fl-intro { margin: 0 0 12px; font-size: .84rem; color: var(--muted); max-width: 720px; line-height: 1.5; }
   .fl-bloq { padding: 14px; border: 1px dashed var(--line-fuerte, var(--line)); border-radius: 10px; text-align: center; }
@@ -5762,6 +5863,8 @@
       </span>
       <span class="lb3-leer" aria-hidden="true">Leer<b>›</b></span>
     </button>
+    <!-- Manual interactivo: archivo aparte, se descarga solo al abrirlo y no queda guardado en la app -->
+    <button class="manual-btn" onclick="abrirManualInteractivo()" aria-label="Abrir el manual interactivo"><span>🎬</span><span class="mb-txt"><b>Manual interactivo</b><small>Vea cómo funciona cada sector</small></span></button>
     <div class="nav-buscar" role="search">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="nav-q" type="search" placeholder="Ir a…" autocomplete="off" aria-label="Buscar una sección del menú"
@@ -10857,6 +10960,277 @@ function initTema() {
   document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') cerrarTemaMenu(); });
 }
 
+/* ================= 3.22 · MI PULSO EN QUIRÓFANO (prueba piloto) =================
+   El cirujano que quiere conecta su reloj o banda por Bluetooth (perfil
+   estándar «Heart Rate», 0x180D) desde Chrome en Android o en una computadora.
+   La app mide su frecuencia cardíaca durante la cirugía y al terminar le dice
+   si fue relajada, moderada o exigente COMPARADA CON SU PROPIO NIVEL, y le
+   aconseja seguir o descansar.
+   Protección de datos (Ley 25.326, dato de salud = sensible):
+   · Voluntario, con consentimiento explícito y retiro en cualquier momento.
+   · Queda SOLO en este equipo (localStorage, clave por cuenta). No se manda a
+     la base, ni a la Jefatura, ni a nadie. No hay ruta nueva en Firebase.
+   · Se guardan resúmenes (un promedio por minuto), no los latidos uno a uno,
+     y se borran solos a los 30 días.
+   · De la cirugía solo se guarda el procedimiento y la sala: nada del paciente.
+   · Es una orientación, no un diagnóstico médico. */
+const PULSO_DIAS = 30;
+const PULSO_NIVEL = {
+  relajada: { n: 'Relajada', c: '#16a34a', i: '🌿', consejo: 'Su ritmo se mantuvo cerca de su nivel habitual. Puede seguir operando con normalidad; recuerde hidratarse.' },
+  moderada: { n: 'Moderada', c: '#f59e0b', i: '⚡', consejo: 'Hubo tramos de exigencia. Antes de la próxima cirugía tómese unos 10 minutos: agua, algo de comer y estirar.' },
+  exigente: { n: 'Exigente', c: '#dc2626', i: '🔥', consejo: 'Su corazón trabajó bastante por encima de su nivel habitual durante buena parte de la cirugía. Le sugerimos un descanso de 20 a 30 minutos antes de la próxima y, si puede, que la siguiente no sea de alta complejidad.' },
+};
+let pulso = null;          // la medición en curso (solo en memoria)
+let pulsoUltimo = null;    // el resultado recién calculado, para mostrarlo
+function pulsoClave(mail) { return 'hruq_pulso_' + anestK(mail); }
+function pulsoLeer(mail) {
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(pulsoClave(mail)) || 'null'); } catch (e) {}
+  d = d || { consent: null, bases: [], ses: [] };
+  const lim = Date.now() - PULSO_DIAS * 864e5;
+  d.ses = (d.ses || []).filter((x) => x.t0 >= lim);   // vencen solas
+  d.bases = (d.bases || []).slice(-5);
+  return d;
+}
+function pulsoGuardar(mail, d) { try { localStorage.setItem(pulsoClave(mail), JSON.stringify(d)); return true; } catch (e) { return false; } }
+const pulsoMediana = (a) => { if (!a.length) return null; const b = a.slice().sort((x, y) => x - y), m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+
+/* Lectura del paquete estándar de frecuencia cardíaca (Bluetooth SIG 0x2A37). */
+function pulsoParse(dv) {
+  const f = dv.getUint8(0); let i = 1;
+  const hr = f & 1 ? dv.getUint16(i, true) : dv.getUint8(i); i += f & 1 ? 2 : 1;
+  if (f & 8) i += 2;                       // energía gastada: no se usa
+  const rr = [];
+  if (f & 16) for (; i + 1 < dv.byteLength; i += 2) rr.push(dv.getUint16(i, true) / 1024 * 1000);
+  return { hr, rr };
+}
+function pulsoMuestra(hr, rr, t) {
+  if (!pulso || !(hr >= 35 && hr <= 220)) return;
+  pulso.m.push({ t: t || Date.now(), hr });
+  (rr || []).forEach((x) => { if (x >= 300 && x <= 2000) pulso.rr.push({ t: t || Date.now(), v: x }); });
+  pulsoPintarVivo();
+}
+/* RMSSD: la variabilidad entre latidos. Baja cuando hay estrés o esfuerzo. */
+function pulsoRmssd(rr) {
+  let s = 0, n = 0;
+  for (let i = 1; i < rr.length; i++) { const d = rr[i].v - rr[i - 1].v; if (Math.abs(d) < 200) { s += d * d; n++; } }
+  return n >= 20 ? Math.sqrt(s / n) : null;
+}
+function pulsoAnalizar(m, rr, basePersonal) {
+  if (m.length < 2) return null;
+  const t0 = m[0].t, dur = (m[m.length - 1].t - t0) / 60000;
+  if (dur < 5) return { corto: true, dur };
+  // Nivel de arranque: los primeros 3 minutos (o el primer 20 % si es corta).
+  const corte = t0 + Math.min(3, dur * 0.2) * 60000;
+  const ini = m.filter((x) => x.t <= corte).map((x) => x.hr), resto = m.filter((x) => x.t > corte);
+  const baseIni = pulsoMediana(ini);
+  const base = basePersonal ? Math.round((basePersonal + baseIni) / 2) : Math.round(baseIni);
+  const umbral = Math.max(base + 15, base * 1.2);
+  const hrs = resto.map((x) => x.hr), avg = hrs.reduce((a, b) => a + b, 0) / hrs.length;
+  const pctAlto = 100 * hrs.filter((x) => x >= umbral).length / hrs.length;
+  const rmIni = pulsoRmssd(rr.filter((x) => x.t <= corte)), rm = pulsoRmssd(rr.filter((x) => x.t > corte));
+  const caida = rmIni && rm ? Math.max(0, Math.min(1, (rmIni - rm) / rmIni)) : null;
+  const elev = Math.max(0, Math.min(1, (avg - base) / 30));
+  const score = Math.round(100 * (0.45 * pctAlto / 100 + 0.35 * elev + 0.20 * (caida == null ? elev : caida)));
+  const nivel = score < 35 ? 'relajada' : score < 65 ? 'moderada' : 'exigente';
+  // Un promedio por minuto: alcanza para el dibujo y no guarda latido por latido.
+  const serie = []; for (let k = 0; k < Math.ceil(dur); k++) { const v = m.filter((x) => x.t >= t0 + k * 60000 && x.t < t0 + (k + 1) * 60000).map((x) => x.hr); if (v.length) serie.push(Math.round(v.reduce((a, b) => a + b, 0) / v.length)); }
+  return { dur: Math.round(dur), base, baseIni: Math.round(baseIni), avg: Math.round(avg), max: Math.max(...hrs), pctAlto: Math.round(pctAlto),
+    rmssd: rm ? Math.round(rm) : null, rmssdIni: rmIni ? Math.round(rmIni) : null, score, nivel, serie };
+}
+
+/* ---- Conectar el reloj (Web Bluetooth) ---- */
+function pulsoPuedeBT() { return !!(navigator.bluetooth && window.isSecureContext); }
+async function pulsoConectar() {
+  const u = usuarioActual(); if (!u) return;
+  if (!pulsoPuedeBT()) { alert('Este navegador no puede conectarse a relojes por Bluetooth. Use Chrome en un teléfono Android o en una computadora (en iPhone y iPad no es posible), o pruebe la simulación.'); return; }
+  try {
+    const dev = await navigator.bluetooth.requestDevice({ filters: [{ services: ['heart_rate'] }] });
+    const gatt = await dev.gatt.connect();
+    const car = await (await gatt.getPrimaryService('heart_rate')).getCharacteristic('heart_rate_measurement');
+    pulsoIniciar(u, { tipo: 'bt', nombre: dev.name || 'Reloj', dev, car });
+    car.addEventListener('characteristicvaluechanged', (e) => { const r = pulsoParse(e.target.value); pulsoMuestra(r.hr, r.rr); });
+    dev.addEventListener('gattserverdisconnected', () => { if (pulso && pulso.dev === dev) { pulso.cortado = true; pulsoPintarVivo(); } });
+    await car.startNotifications();
+  } catch (e) {
+    if (e && e.name === 'NotFoundError') return;   // cerró la ventana sin elegir
+    alert('No se pudo conectar con el reloj. Revise que tenga activado «Transmitir frecuencia cardíaca» (Garmin) o que la banda esté puesta, y vuelva a intentar.\n\n(' + (e && e.message || e) + ')');
+    pulsoCortar();
+  }
+}
+/* Simulación: para conocer la herramienta sin reloj. Queda marcada como tal. */
+function pulsoSimular(rapida) {
+  const u = usuarioActual(); if (!u) return;
+  const vel = rapida ? 60 : 1;                 // rápida: 1 minuto por segundo
+  pulsoIniciar(u, { tipo: 'sim', nombre: 'Simulación' + (rapida ? ' rápida' : ''), vel });
+  const base = 68 + Math.round(Math.random() * 8), pico = 18 + Math.round(Math.random() * 28);
+  let t = Date.now(), k = 0;
+  pulso.timer = setInterval(() => {
+    if (!pulso) return;
+    for (let j = 0; j < (rapida ? 60 : 1); j++) {
+      k++; t += 1000;
+      const min = k / 60, carga = min < 3 ? 0 : Math.sin(Math.min(1, (min - 3) / 25) * Math.PI) * pico;
+      const hr = Math.round(base + carga + (Math.random() - .5) * 6);
+      const rrv = 60000 / hr, ruido = Math.max(8, 45 - carga);
+      pulsoMuestra(hr, [rrv + (Math.random() - .5) * ruido, rrv + (Math.random() - .5) * ruido], t);
+    }
+  }, 1000);
+}
+function pulsoIniciar(u, x) {
+  pulsoCortar();
+  const sel = $('pl-cx'), cx = sel && sel.value ? salaCir(sel.value) : null;
+  pulso = Object.assign({ mail: u.email, t0: Date.now(), m: [], rr: [], cx: cx ? { id: cx.id, proc: cx.procedimiento || '', sala: cx.quirofano || cx.sala || '' } : null }, x);
+  pulsoUltimo = null;
+  if (view === 'pulso') renderPulso(); else pulsoPintarVivo();
+}
+function pulsoCortar() {
+  if (!pulso) return;
+  if (pulso.timer) clearInterval(pulso.timer);
+  try { if (pulso.car) pulso.car.stopNotifications().catch(() => {}); } catch (e) {}
+  try { if (pulso.dev && pulso.dev.gatt.connected) pulso.dev.gatt.disconnect(); } catch (e) {}
+  pulso = null;
+  const f = $('pulso-flot'); if (f) f.remove();
+}
+function pulsoTerminar(guardar) {
+  if (!pulso) return;
+  const p = pulso, d = pulsoLeer(p.mail);
+  const r = guardar ? pulsoAnalizar(p.m, p.rr, pulsoMediana(d.bases)) : null;
+  pulsoCortar();
+  if (r && !r.corto) {
+    const ses = Object.assign({ id: 'p' + p.t0, t0: p.t0, cx: p.cx, sim: p.tipo === 'sim', disp: p.nombre }, r);
+    d.ses.unshift(ses);
+    if (!ses.sim) d.bases.push(r.baseIni);          // la simulación no toca su nivel habitual
+    pulsoGuardar(p.mail, d);
+    const hoy = hoyISO(), exHoy = d.ses.filter((x) => !x.sim && x.nivel === 'exigente' && new Date(x.t0).toISOString().slice(0, 10) === hoy).length;
+    pulsoUltimo = Object.assign({ exHoy }, ses);
+  } else if (r && r.corto) pulsoUltimo = { corto: true };
+  if (view === 'pulso') renderPulso();
+}
+
+/* ---- Pantalla ---- */
+function pulsoZona(hr, base) {
+  if (!base) return { n: 'Midiendo su nivel de arranque…', c: '#64748b' };
+  if (hr >= base + 35) return { n: 'Muy por encima de su nivel', c: '#dc2626' };
+  if (hr >= Math.max(base + 15, base * 1.2)) return { n: 'Por encima de su nivel', c: '#f59e0b' };
+  return { n: 'En su nivel habitual', c: '#16a34a' };
+}
+function pulsoSpark(vals, w, h, color) {
+  if (vals.length < 2) return '';
+  const mn = Math.min(...vals) - 3, mx = Math.max(...vals) + 3;
+  const pts = vals.map((v, i) => `${(i / (vals.length - 1) * w).toFixed(1)},${(h - (v - mn) / (mx - mn) * h).toFixed(1)}`).join(' ');
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="pl-spark"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linejoin="round"/></svg>`;
+}
+function pulsoPintarVivo() {
+  if (!pulso) return;
+  const ult = pulso.m[pulso.m.length - 1], hr = ult ? ult.hr : null;
+  const d = pulsoLeer(pulso.mail), t0m = pulso.m.length ? pulso.m[0].t : pulso.t0;
+  const ini = pulso.m.filter((x) => x.t <= t0m + 180000).map((x) => x.hr);
+  const yaBase = ult && ult.t > t0m + 180000;
+  const bp = pulsoMediana(d.bases), base = yaBase ? Math.round(bp ? (bp + pulsoMediana(ini)) / 2 : pulsoMediana(ini)) : null;
+  const z = hr ? pulsoZona(hr, base) : { n: 'Esperando la primera lectura…', c: '#64748b' };
+  const seg = ult ? Math.round((ult.t - t0m) / 1000) : 0;
+  const reloj = `${Math.floor(seg / 3600) ? Math.floor(seg / 3600) + ' h ' : ''}${Math.floor(seg / 60) % 60} min`;
+  if (view === 'pulso' && $('pl-hr')) {
+    $('pl-hr').textContent = hr || '—';
+    $('pl-zona').textContent = pulso.cortado ? 'Se cortó la conexión con el reloj: lo medido hasta acá se conserva.' : z.n;
+    $('pl-vivo').style.setProperty('--z', pulso.cortado ? '#64748b' : z.c);
+    $('pl-tiempo').textContent = reloj + (base ? ` · su nivel de arranque: ${base} lpm` : '');
+    const ult10 = pulso.m.slice(-600).filter((_, i, a) => i % Math.max(1, Math.floor(a.length / 120)) === 0).map((x) => x.hr);
+    $('pl-graf').innerHTML = pulsoSpark(ult10, 300, 70, z.c);
+  }
+  let f = $('pulso-flot');
+  if (view !== 'pulso') {
+    if (!f) { f = document.createElement('button'); f.id = 'pulso-flot'; f.className = 'pulso-flot'; f.onclick = () => go('pulso'); f.setAttribute('aria-label', 'Ver mi pulso'); document.body.appendChild(f); }
+    f.style.setProperty('--z', z.c);
+    f.innerHTML = `<i>❤</i><b>${hr || '—'}</b><small>lpm</small>`;
+  } else if (f) f.remove();
+}
+function renderPulso() {
+  const u = usuarioActual();
+  if (!u) { go('acceso'); return; }
+  const d = pulsoLeer(u.email);
+  const cab = `<div class="page-head"><div class="head-row"><div class="head-icon">${ICONS.activity}</div><div>
+    <h1 class="page-title">Mi pulso en quirófano <span class="pl-piloto">Prueba piloto</span></h1>
+    <p class="page-sub">Conecte su reloj y, al terminar, la app le dice si la cirugía fue relajada o exigente para usted y si conviene un descanso.</p></div></div></div>`;
+  if (!d.consent) {
+    $('main').innerHTML = cab + `<div class="pl-consent">
+      <h3>Antes de empezar</h3>
+      <ul>
+        <li><b>Es voluntario.</b> Nadie se lo puede pedir ni exigir, y puede dejarlo cuando quiera.</li>
+        <li><b>Qué mide:</b> su frecuencia cardíaca y, si el reloj la envía, la variabilidad entre latidos, solo mientras usted tenga la medición abierta.</li>
+        <li><b>Dónde queda:</b> solo en este teléfono o computadora. <b>No se manda a la base del hospital, ni a la Jefatura, ni a nadie.</b> Use su propio equipo, no uno compartido.</li>
+        <li><b>Cuánto dura:</b> se guarda un resumen por cirugía (un promedio por minuto, no cada latido) y se borra solo a los ${PULSO_DIAS} días. Puede borrarlo todo antes con un botón.</li>
+        <li><b>De la cirugía</b> solo se anota el procedimiento y la sala: nada del paciente.</li>
+        <li><b>No es un diagnóstico médico.</b> Es una orientación que compara la cirugía con su propio nivel habitual. Si siente palpitaciones, dolor de pecho o mareos, deje la cirugía en manos del equipo y consulte.</li>
+        <li><b>Relojes:</b> los que transmiten la frecuencia por Bluetooth (Garmin con «Transmitir frecuencia cardíaca», Polar, Coros, bandas de pecho). El Apple Watch necesita una app que la transmita. Funciona en <b>Chrome en Android o en una computadora</b>; en iPhone y iPad no es posible.</li>
+      </ul>
+      <label class="pl-acepto"><input type="checkbox" id="pl-acepto" onchange="$('pl-activar').disabled=!this.checked"> Entiendo y quiero participar de la prueba piloto (Ley 25.326: dato de salud, consentimiento libre e informado).</label>
+      <button class="btn btn-primary" id="pl-activar" disabled onclick="pulsoActivar()">Activar Mi pulso</button>
+    </div>`;
+    return;
+  }
+  const hoy = hoyISO();
+  const mias = DB.cirugias.filter((c) => c.fecha === hoy && c.cirujanoEmail === u.email && !['suspendida', 'cancelada', 'rechazada'].includes(c.estado)).sort((a, b) => String(a.horaProg).localeCompare(String(b.horaProg)));
+  const vivo = pulso && pulso.mail === u.email ? `<div class="pl-vivo" id="pl-vivo">
+      <div class="pl-cora"><i>❤</i><b id="pl-hr">—</b><small>lpm</small></div>
+      <div class="pl-vivo-txt"><b id="pl-zona">Esperando la primera lectura…</b><small id="pl-tiempo"></small>
+        <small>${esc(pulso.nombre)}${pulso.cx ? ' · ' + esc(pulso.cx.proc) + ' · ' + esc(pulso.cx.sala) : ''}</small></div>
+      <div class="pl-graf" id="pl-graf"></div>
+      <div class="pl-acc"><button class="btn btn-primary" onclick="pulsoTerminar(true)">Terminar y ver el resultado</button><button class="btn btn-outline" onclick="if(confirm('¿Cancelar la medición sin guardar nada?'))pulsoTerminar(false)">Cancelar sin guardar</button></div>
+      <p class="pl-nota">Los primeros 3 minutos sirven para tomar su nivel de arranque: si puede, conéctelo antes de lavarse.</p>
+    </div>` : `<div class="pl-inicio">
+      <label>Cirugía <select id="pl-cx"><option value="">Sin vincular a una cirugía</option>${mias.map((c) => `<option value="${esc(String(c.id))}">${esc(c.horaProg || '')} h · ${esc(c.procedimiento || '')} · ${esc(c.quirofano || c.sala || '')}</option>`).join('')}</select></label>
+      <div class="pl-acc">
+        <button class="btn btn-primary" onclick="pulsoConectar()" ${pulsoPuedeBT() ? '' : 'disabled'}>⌚ Conectar mi reloj</button>
+        <button class="btn btn-outline" onclick="pulsoSimular(false)">🧪 Probar sin reloj</button>
+        <button class="btn btn-outline" onclick="pulsoSimular(true)" title="Un minuto simulado por segundo">⏩ Simulación rápida</button>
+      </div>
+      ${pulsoPuedeBT() ? '' : '<p class="pl-nota">Este navegador no se puede conectar a relojes por Bluetooth (pasa en iPhone, iPad y algunos navegadores). Use Chrome en Android o en una computadora. Mientras tanto, puede conocer la herramienta con la simulación.</p>'}
+    </div>`;
+  const R = pulsoUltimo;
+  const res = !R ? '' : R.corto ? '<div class="pl-res"><p>La medición duró menos de 5 minutos: es muy poco para evaluar la cirugía, así que no se guardó.</p></div>' : (() => {
+    const N = PULSO_NIVEL[R.nivel];
+    return `<div class="pl-res" style="--n:${N.c}">
+      <div class="pl-res-top"><span class="pl-badge">${N.i} Cirugía ${N.n.toLowerCase()}</span>${R.sim ? '<span class="pl-sim">Simulación</span>' : ''}</div>
+      <div class="pl-medidor"><i style="width:${R.score}%"></i></div>
+      <div class="pl-cifras"><span><b>${R.avg}</b>promedio (lpm)</span><span><b>${R.max}</b>máximo</span><span><b>${R.base}</b>su nivel</span><span><b>${R.pctAlto}%</b>del tiempo por encima</span>${R.rmssd ? `<span><b>${R.rmssd}</b>variabilidad (ms)${R.rmssdIni ? ` · al empezar ${R.rmssdIni}` : ''}</span>` : ''}<span><b>${R.dur}</b>minutos</span></div>
+      ${pulsoSpark(R.serie, 300, 60, N.c)}
+      <p class="pl-consejo"><b>Consejo:</b> ${N.consejo}${R.exHoy >= 2 ? ` <b>Es su cirugía exigente número ${R.exHoy} de hoy:</b> considere hablar con la Jefatura para redistribuir lo que le queda.` : ''}</p>
+      <p class="pl-nota">Orientativo, no es un diagnóstico médico. Compara esta cirugía con su propio nivel de arranque${d.bases.length ? ' y sus mediciones anteriores' : ''}.</p>
+    </div>`;
+  })();
+  const hist = d.ses.map((x) => { const N = PULSO_NIVEL[x.nivel];
+    return `<div class="pl-hist-f"><span class="pl-dot" style="background:${N.c}"></span><div><b>${esc(new Date(x.t0).toLocaleDateString('es-AR'))} · ${N.n}</b><small>${x.cx ? esc(x.cx.proc) + ' · ' + esc(x.cx.sala) + ' · ' : ''}${x.dur} min · promedio ${x.avg} lpm${x.sim ? ' · simulación' : ''}</small></div>${pulsoSpark(x.serie, 90, 26, N.c)}<button class="pl-x" title="Borrar esta medición" onclick="pulsoBorrar('${x.id}')">✕</button></div>`; }).join('');
+  $('main').innerHTML = cab + vivo + res + `
+    <div class="pl-hist"><h3>Mis mediciones <small>· solo en este equipo · se borran solas a los ${PULSO_DIAS} días</small></h3>
+      ${hist || '<p class="pl-nota">Todavía no hay mediciones guardadas.</p>'}
+      <div class="pl-acc" style="margin-top:12px"><button class="btn btn-outline" onclick="pulsoBorrarTodo(false)">Borrar todas mis mediciones</button><button class="btn btn-outline" onclick="pulsoBorrarTodo(true)">Dejar la prueba piloto</button></div>
+    </div>`;
+  pulsoPintarVivo();
+}
+function pulsoActivar() {
+  const u = usuarioActual(); if (!u) return;
+  const d = pulsoLeer(u.email); d.consent = { t: nowDT(), v: 1 };
+  if (!pulsoGuardar(u.email, d)) { alert('Este navegador no permite guardar datos en el equipo (¿ventana privada?). La prueba piloto necesita guardar sus mediciones acá.'); return; }
+  renderPulso();
+}
+function pulsoBorrar(id) {
+  const u = usuarioActual(); if (!u) return;
+  const d = pulsoLeer(u.email); d.ses = d.ses.filter((x) => x.id !== id); pulsoGuardar(u.email, d);
+  if (pulsoUltimo && pulsoUltimo.id === id) pulsoUltimo = null;
+  renderPulso();
+}
+async function pulsoBorrarTodo(salir) {
+  const u = usuarioActual(); if (!u) return;
+  const ok = await preguntar(salir ? 'Se borran todas sus mediciones y su nivel habitual de este equipo, y se desactiva Mi pulso. ¿Seguro?' : 'Se borran todas sus mediciones de este equipo. ¿Seguro?', { titulo: salir ? 'Dejar la prueba piloto' : 'Borrar mediciones', tono: 'pregunta', si: 'Sí, borrar', no: 'Cancelar' });
+  if (!ok) return;
+  if (pulso && pulso.mail === u.email) pulsoCortar();
+  if (salir) { try { localStorage.removeItem(pulsoClave(u.email)); } catch (e) {} }
+  else { const d = pulsoLeer(u.email); d.ses = []; d.bases = []; pulsoGuardar(u.email, d); }
+  pulsoUltimo = null;
+  renderPulso();
+}
+
 /* ================= SIDEBAR ================= */
 function renderSidebar() {
   const u = usuarioActual();
@@ -10899,6 +11273,7 @@ function renderSidebar() {
     items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'modulos', icon: ICONS.layers, label: 'Módulos Quirúrgicos', badge: modulosIncompletos(u).length || null, badgeAmber: true });
     if (!jefe) items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
+    items.push({ id: 'pulso', icon: ico(ICONS.activity, 18), label: 'Mi pulso (piloto)', badge: pulso ? '❤' : null });
     items.push({ id: 'perfil', icon: ICONS.user.replace('14', '18'), label: 'Mi Perfil' });
     items.push({ id: 'reconocimiento', icon: ICO_CORAZON, label: 'Reconocimiento' });
   }
@@ -10981,7 +11356,7 @@ function renderSidebar() {
    Raycast y la «luz» que se desliza detrás del ítem que se señala, como el
    indicador animado de Headless UI/Radix. */
 const NAV_TONOS = {
-  panel: '#38bdf8', grilla: '#34d399', recordatorios: '#fbbf24', estpublicas: '#a78bfa',
+  panel: '#38bdf8', grilla: '#34d399', recordatorios: '#fbbf24', estpublicas: '#a78bfa', pulso: '#f43f5e',
   consentimientos: '#f472b6', mis: '#60a5fa', reclamos: '#fb923c', modulos: '#c084fc',
   estadisticas: '#a78bfa', perfil: '#2dd4bf', comunicados: '#facc15', programacion: '#4ade80',
   excepcion: '#f87171', confidenciales: '#94a3b8', kpis: '#22d3ee', usuarios: '#818cf8', reconocimiento: '#fb7185', sala: '#2dd4bf', relevo: '#fbbf24', anestesia: '#a78bfa', portales: '#38bdf8',
@@ -11063,6 +11438,7 @@ const TITULOS = {
   reconocimiento: 'Reconocimiento',
   sala: 'Mi Sala', relevo: 'Relevo de turno',
   anestesia: 'Portal de Anestesiología', portales: 'Portales del equipo',
+  pulso: 'Mi pulso en quirófano',
 };
 /* ---- Guarda de salida del generador de consentimientos ----
    Si el cirujano deja la pantalla con un turno provisional sin consentimiento
@@ -11342,11 +11718,21 @@ function renderSala() {
   if (!salaDia) salaDia = hoyISO();
   $('main').innerHTML = `
     <div class="fl-cabecera">
-      <div><small>${esc(u ? FUNCIONES[funcionDe(u)].n : 'Jefatura')}</small><h1>Mi Sala</h1></div>
+      <div>${flYoChip(u ? '' : 'Jefatura')}<h1>Mi Sala</h1></div>
       ${flDiaNav('salaDia', salaDia)}
     </div>
     <p class="fl-intro">Cada cirugía avanza paso a paso. Usted ve primero lo que le toca; cuando termina su parte, se habilita el paso siguiente y la app le avisa al que sigue.</p>
     ${flujoLista(salaDia, 'sala')}`;
+}
+/* Quién está usando el portal: nombre, función y la sala donde está ahora. */
+function flYoChip(rotulo) {
+  const u = usuarioActual();
+  const n = u ? u.nombre : jefe ? JEFATURA : 'Dirección Médica';
+  const ini = u ? String(n).replace(/^(Dra?|Lic|Enf|Inst|Tec)\.\s*/i, '').split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 2).join('').toUpperCase() : jefe ? '🏥' : '🔎';
+  const func = u ? FUNCIONES[funcionDe(u)].n : (rotulo && rotulo !== n ? rotulo : jefe ? 'Supervisión' : 'Solo lectura');
+  const enSala = u && esEquipoSala(u) ? flOcupadoEn({ id: '', fecha: hoyISO() }, u) : null;
+  return `<div class="fl-yo" style="--k:${u ? anestColor(anestK(u.email)) : '#0ea5e9'}"><span class="fl-yo-av">${esc(ini || '•')}</span>
+    <span><b>${esc(n)}</b><small>${esc(func)}${rotulo && u ? ' · ' + esc(rotulo) : ''}${enSala ? ` · <em>En ${esc(enSala.quirofano || enSala.sala)}</em>` : ''}</small></span></div>`;
 }
 /* Navegación de días, compartida por las vistas del recorrido. */
 function flDiaNav(variable, valor) {
@@ -11473,9 +11859,37 @@ function salaSumar(idInput, n) {
 }
 function salaCir(id) { return DB.cirugias.find((x) => String(x.id) === String(id)); }
 function salaGuardar(c, hist) { pushHist(c, hist); upsert('cirugias', c); flRepintar(); }
-function salaAnotarme(id, k) {
+/* Una persona, una sala: ¿ya figura en otra cirugía del mismo día que todavía
+   no terminó (no firmó la Salida)? */
+function flOcupadoEn(c, u) {
+  const fin = ['realizada', 'finalizada', 'suspendida', 'cancelada', 'rechazada'];
+  const anest = funcionDe(u) === 'anestesiologia';
+  return DB.cirugias.find((x) => String(x.id) !== String(c.id) && x.fecha === c.fecha && !fin.includes(x.estado) && !lvqCompleta(x, 'salida')
+    && (anest ? (x.anest && x.anest.e === u.email) : Object.values(x.equipoSala || {}).some((p) => p && p.email === u.email)));
+}
+/* Si está en otra sala, solo puede pasar a esta como «cambio de sala»: deja
+   libre el otro puesto y queda registrado en las dos cirugías. */
+async function flCambioSala(c, u) {
+  const otra = flOcupadoEn(c, u); if (!otra) return true;
+  const ok = await preguntar(`Usted figura en ${otra.quirofano || otra.sala} · ${otra.procedimiento} (${otra.horaProg || ''} h), que todavía no terminó.\n\nUna persona no puede estar en dos salas a la vez. ¿Es un cambio de sala? Si confirma, deja libre ese puesto (queda registrado) y pasa a ${c.quirofano || c.sala}.`,
+    { titulo: 'Ya está en otra sala', tono: 'pregunta', si: 'Sí, es un cambio de sala', no: 'Cancelar' });
+  if (!ok) return false;
+  if (funcionDe(u) === 'anestesiologia') {
+    delete otra.anest;
+    if (otra.anestesista === u.nombre) otra.anestesista = '';
+    anestGuardarPres(otra.fecha, (p) => { p.cx = String(p.cx || '').split(',').filter((x) => x && x !== String(otra.id)).join(','); p.h.push(nowDT().slice(11, 16) + '|-' + otra.id); return p; });
+  } else {
+    Object.keys(otra.equipoSala || {}).forEach((k) => { if (otra.equipoSala[k] && otra.equipoSala[k].email === u.email) delete otra.equipoSala[k]; });
+  }
+  pushHist(otra, `${u.nombre} dejó la sala por cambio a ${c.quirofano || c.sala} (${c.procedimiento})`);
+  upsert('cirugias', otra);
+  return true;
+}
+async function salaAnotarme(id, k) {
   const c = salaCir(id), u = usuarioActual(); if (!c || !u) return;
   c.equipoSala = c.equipoSala || {};
+  if (c.equipoSala[k]) { alert('Ese puesto ya tiene a alguien anotado.'); return; }
+  if (!(await flCambioSala(c, u))) return;
   if (c.equipoSala[k]) { alert('Ese puesto ya tiene a alguien anotado.'); return; }
   c.equipoSala[k] = { nombre: u.nombre, email: u.email, t: nowDT() };
   salaGuardar(c, `${u.nombre} se anotó como ${SALA_PUESTOS[k].n} de la sala`);
@@ -11776,7 +12190,7 @@ function renderAnestesia(embebido) {
   const tabsHTML = `<div class="fl-tabs" role="tablist">${tabs.map(([k, t]) => `<button role="tab" class="${anestTab === k ? 'on' : ''}" aria-selected="${anestTab === k}" onclick="anestTab='${k}';${embebido ? 'renderPortales()' : 'renderAnestesia()'}">${t}</button>`).join('')}</div>`;
   const cuerpo = anestTab === 'hoy' ? anestHoyHTML() : anestTab === 'mes' ? anestMesHTML() : anestIndicadoresHTML();
   const html = embebido ? tabsHTML + cuerpo : `
-    <div class="fl-cabecera"><div><small>Anestesiología${esJefeAnest(u) ? ' · Jefe/a de Servicio' : ''}</small><h1>Portal de Anestesiología</h1></div></div>
+    <div class="fl-cabecera"><div>${flYoChip(esJefeAnest(u) ? 'Jefe/a de Servicio' : u ? '' : jefe ? 'Jefatura' : 'solo lectura')}<h1>Portal de Anestesiología</h1></div></div>
     ${tabsHTML}${cuerpo}`;
   if (embebido) return html;
   $('main').innerHTML = html;
@@ -11834,6 +12248,7 @@ async function anestElegir(id) {
       { titulo: 'Cirugía ya tomada', tono: 'pregunta', si: 'Sí, figurar yo', no: 'Cancelar' });
     if (!ok) return;
   }
+  if (!yaMio && !(await flCambioSala(c, u))) return;
   const previo = c.anest ? c.anest.n : '';
   if (yaMio) {
     delete c.anest;
@@ -12187,7 +12602,7 @@ function renderPortales() {
   if (!salaDia) salaDia = hoyISO();
   const jefeAct = DB.usuarios.find((x) => esJefeAnest(x));
   $('main').innerHTML = `
-    <div class="fl-cabecera"><div><small>${jefe ? 'Jefatura de Quirófanos' : 'Dirección Médica · solo lectura'}</small><h1>Portales del equipo</h1></div>${portalTab === 'dia' ? flDiaNav('salaDia', salaDia) : ''}</div>
+    <div class="fl-cabecera"><div>${flYoChip(jefe ? 'Jefatura de Quirófanos' : 'solo lectura')}<h1>Portales del equipo</h1></div>${portalTab === 'dia' ? flDiaNav('salaDia', salaDia) : ''}</div>
     <div class="fl-tabs">${[['dia', 'Recorrido del día'], ['anest', 'Anestesiología del mes']].map(([k, t]) => `<button class="${portalTab === k ? 'on' : ''}" onclick="portalTab='${k}';renderPortales()">${t}</button>`).join('')}</div>
     ${portalTab === 'dia'
       ? `<p class="fl-intro">Todas las cirugías del día con su recorrido: en qué paso está cada una y a quién espera. ${jefe ? 'Puede avisar a quien falta o firmar en nombre de la Jefatura.' : ''}</p>${flujoLista(salaDia, jefe ? 'jefe' : 'dir')}`
@@ -12281,6 +12696,9 @@ const FLUJO = [
   { k: 'salida', n: 'Salida', d: 'Antes de dejar la sala', roles: ['enf'], lvq: true },
   { k: 'recup', n: 'Recuperación', d: 'Alta con la escala de Aldrete', roles: ['anest'] },
 ];
+/* Lo que hay que HACER en cada paso, dicho con verbo («Le toca: …»). */
+const FL_ACCION = { equipo: 'anotarse en esta cirugía', entrada: 'firmar la Entrada', rec1: 'hacer el recuento inicial', pausa: 'confirmar la Pausa',
+  rec2: 'hacer el recuento final', salida: 'firmar la Salida', recup: 'dar el alta de recuperación (Aldrete)' };
 let flAbierta = null, flArea = '', flMias = true;
 
 /* Quién ocupa cada rol en esta cirugía. */
@@ -12327,9 +12745,15 @@ function flMisRoles(c) {
   if (!u) return [];
   const f = funcionDe(u), eq = c.equipoSala || {}, yo = (p) => p && p.email === u.email;
   const r = [];
-  if (f === 'anestesiologia') r.push('anest');
-  if (f === 'enfermeria') { r.push('enf'); if (!eq.circulante || yo(eq.circulante)) r.push('circ'); }
-  if (f === 'instrumentacion') r.push('inst');
+  // Cada firma es de la persona anotada en ESTA cirugía. Con el puesto libre,
+  // lo único que se puede hacer es anotarse (paso «Equipo»); el resto se
+  // habilita recién después, y solo para quien se anotó.
+  if (f === 'anestesiologia' && (!c.anest || c.anest.e === u.email)) r.push('anest');
+  if (f === 'enfermeria') {
+    if (!eq.circulante || yo(eq.circulante)) r.push('circ');
+    const enf = flPersona(c, 'enf'); if (enf && enf.e === u.email) r.push('enf');
+  }
+  if (f === 'instrumentacion' && (!eq.instrumentadora || yo(eq.instrumentadora))) r.push('inst');
   if (f === 'medico' && c.cirujanoEmail === u.email) r.push('cir');
   return r;
 }
@@ -12366,8 +12790,8 @@ function flTarjeta(c, modo) {
   const id = JSON.stringify(c.id);
   const linea = e.pasos.map((p) => `<i class="${p.estado}" title="${esc(p.n)}"></i>`).join('');
   const estadoTxt = !act ? '<b class="fl-ok">✓ Recorrido completo</b>'
-    : meToca ? `<b class="fl-toca">Le toca: ${esc(act.n)}</b>`
-    : `<span class="fl-espera">Esperando: ${esperan.map((x) => esc(x.quien ? x.quien.n : FL_ROLES[x.rol].n)).join(', ')} · ${esc(act.n)}</span>`;
+    : meToca ? `<b class="fl-toca">Le toca: ${esc(FL_ACCION[act.k] || act.n)}</b>`
+    : `<span class="fl-espera">Esperando a ${esperan.map((x) => esc(x.quien ? x.quien.n : FL_ROLES[x.rol].n + ' (sin anotar)')).join(', ')} para ${esc(FL_ACCION[act.k] || act.n)}</span>`;
   return `<article class="fl-card ${meToca ? 'toca' : ''} ${abierta ? 'abierta' : ''}">
     <button class="fl-cab" onclick="flAbierta=${abierta ? 'null' : id};flRepintar()" aria-expanded="${abierta}">
       <span class="fl-hora">${esc(c.horaProg || '—')}</span>
@@ -16881,46 +17305,70 @@ function estDonut(pct, color) {
             stroke-linecap="round" transform="rotate(-90 21 21)"></circle>
   </svg>`;
 }
+/* 3.22 · «Pulso de la semana»: las mismas seis cifras públicas de siempre
+   (nada de pacientes ni de profesionales), contadas como un latido: el total
+   que sube, la semana que avanza, un mosaico donde cada cuadradito es una
+   intervención y la balanza entre lo programado y la urgencia. */
+const EST_AREAS = [
+  { k: 'cx', n: 'Quirófanos', i: '🔪', c: '#3b82f6', d: 'Cirugías' },
+  { k: 'endo', n: 'Endoscopía', i: '🔬', c: '#14b8a6', d: 'Endoscopías' },
+  { k: 'ces', n: 'Obstetricia', i: '👶', c: '#d946ef', d: 'Cesáreas' },
+];
 function renderEstPublicas() {
   // Sin nube todavía, se muestra lo que se pueda calcular acá mismo.
   const d = estPublicas || (DB.cirugias.length ? contarSemanaPublica() : null);
   const { desde, hasta } = semanaEnCurso();
-  const total = d ? EST_PUB_GRUPOS.reduce((s, g) => s + (Number(d[g.k]) || 0), 0) : 0;
-  const tarjetas = EST_PUB_GRUPOS.map((g) => {
-    const n = d ? (Number(d[g.k]) || 0) : 0;
-    const pct = total ? (n * 100 / total) : 0;
-    return `<div class="card est-pub-card">
-      <div class="est-pub-anillo">
-        ${estDonut(pct, g.color)}
-        <div class="est-pub-num">${n}</div>
-      </div>
-      <div class="est-pub-label">${g.label}</div>
-      <div class="est-pub-pct">${total ? pct.toFixed(0) + '% del total' : 'sin registros'}</div>
-    </div>`;
+  const v = (k) => d ? (Number(d[k]) || 0) : 0;
+  const total = EST_PUB_GRUPOS.reduce((s, g) => s + v(g.k), 0);
+  const prog = v('cx_prog') + v('endo_prog') + v('ces_prog'), urg = total - prog;
+  const hoy = hoyISO(), diaN = Math.round((new Date(hoy + 'T12:00:00') - new Date(desde + 'T12:00:00')) / 864e5);
+  const dias = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'].map((x, i) => `<span class="ap-dia ${i < diaN ? 'pasado' : i === diaN ? 'hoy' : ''}"><i></i>${x}</span>`).join('');
+  const pctU = total ? Math.round(urg * 100 / total) : 0;
+  const areas = EST_AREAS.map((a, n) => {
+    const pr = v(a.k + '_prog'), ur = v(a.k + '_urg'), t = pr + ur;
+    // Un cuadradito por intervención; si hay muchas, cada uno vale más.
+    const paso = Math.max(1, Math.ceil(t / 48));
+    let q = 0;
+    const cuad = (cant, cls) => Array.from({ length: Math.ceil(cant / paso) }, () => `<i class="${cls}" style="animation-delay:${200 + (q++) * 25}ms"></i>`).join('');
+    return `<article class="ap-area" style="--a:${a.c};animation-delay:${n * 90}ms">
+      <header><span class="ap-ico">${a.i}</span><div><b>${a.n}</b><small>${a.d} cerradas</small></div><strong data-cuenta="${t}">${t}</strong></header>
+      <div class="ap-mosaico" aria-hidden="true">${cuad(pr, 'p')}${cuad(ur, 'u')}${t ? '' : '<em>Todavía sin registros esta semana</em>'}</div>
+      <div class="ap-split"><span style="flex:${pr || 0.0001}"></span><span class="u" style="flex:${ur || 0.0001}"></span></div>
+      <footer><span><i class="ap-dot"></i>${pr} programada${pr === 1 ? '' : 's'}</span><span><i class="ap-dot u"></i>${ur} de urgencia</span></footer>
+      ${paso > 1 ? `<small class="ap-escala">Cada cuadradito = ${paso} intervenciones</small>` : ''}
+    </article>`;
   }).join('');
   $('main').innerHTML = `
-    <div class="page-head">
-      <div>
-        <h1 class="page-title">Actividad de la semana</h1>
-        <p class="page-sub">Cirugías realizadas del ${fmtFecha(desde)} al ${fmtFecha(hasta)} — Hospital Regional Ushuaia</p>
-      </div>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
-        <div style="font-size:2.6rem;font-weight:800;line-height:1">${total}</div>
-        <div style="color:var(--muted)">
-          ${total === 1 ? 'intervención realizada' : 'intervenciones realizadas'} en la semana en curso.
-          Se actualiza sola a medida que el bloque cierra cada parte.
+    <section class="ap">
+      <div class="ap-hero">
+        <div class="ap-hero-txt">
+          <span class="ap-kick"><i class="ap-vivo"></i>Pulso de la semana · Hospital Regional Ushuaia</span>
+          <div class="ap-total"><b data-cuenta="${total}">${total}</b><span>${total === 1 ? 'intervención realizada' : 'intervenciones realizadas'}<br><small>del ${fmtFecha(desde)} al ${fmtFecha(hasta)}</small></span></div>
+          <div class="ap-semana">${dias}</div>
         </div>
+        <svg class="ap-ecg" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 40 H70 L80 40 L88 18 L96 62 L104 8 L112 52 L120 40 H180 L190 40 L198 22 L206 58 L214 14 L222 46 L230 40 H300" />
+        </svg>
       </div>
-    </div>
-    <div class="est-pub-grid">${tarjetas}</div>
-    <div class="card" style="margin-top:16px;color:var(--muted);font-size:0.88rem">
-      ${ICONS.info.replace('18', '14')}
-      Cifras agregadas de actividad cumplida. <b>No incluyen ningún dato de pacientes</b> ni de
-      profesionales. Una cirugía se suma cuando su caso queda cerrado —operada, con su parte y sus trámites completos—; los turnos programados y no operados no se cuentan.
-      ${d && d.actualizado ? `<br>Última actualización: ${fmtDT(new Date(d.actualizado).toISOString().slice(0, 16))}` : ''}
-    </div>`;
+      <div class="ap-areas">${areas}</div>
+      <div class="ap-balanza">
+        <div class="ap-bal-top"><span>📅 Programadas <b>${prog}</b></span><span>Urgencias <b>${urg}</b> 🚑</span></div>
+        <div class="ap-bal-barra"><span style="width:${total ? 100 - pctU : 50}%"></span><i style="left:${total ? 100 - pctU : 50}%"></i></div>
+        <p>${!total ? 'Cuando el bloque cierre los primeros casos de la semana, la balanza se mueve sola.' : pctU >= 50 ? `La urgencia fue el <b>${pctU} %</b> de la actividad: semana exigente para el equipo.` : `El <b>${100 - pctU} %</b> fue actividad programada; la urgencia, el ${pctU} %.`}</p>
+      </div>
+      <p class="ap-nota">${ICONS.info.replace('18', '14')} Cifras agregadas de actividad cumplida. <b>No incluyen ningún dato de pacientes</b> ni de profesionales. Una cirugía se suma cuando su caso queda cerrado —operada, con su parte y sus trámites completos—; los turnos programados y no operados no se cuentan.
+        ${d && d.actualizado ? `<br>Última actualización: ${fmtDT(new Date(d.actualizado).toISOString().slice(0, 16))}` : ''}</p>
+    </section>`;
+  apContar();
+}
+/* Los números suben desde cero (salvo que el equipo pida menos movimiento). */
+function apContar() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.ap [data-cuenta]').forEach((el) => {
+    const fin = Number(el.dataset.cuenta) || 0; if (!fin) return;
+    const t0 = performance.now(), dur = 900;
+    (function paso(t) { const f = Math.min(1, Math.max(0, (t - t0) / dur)); el.textContent = Math.round(fin * (1 - Math.pow(1 - f, 3))); if (f < 1) requestAnimationFrame(paso); })(t0);
+  });
 }
 
 /* ================= ESTADÍSTICAS VISUALES (3.17.0) =================
@@ -17796,6 +18244,13 @@ function reabrirReclamo(id) {
 /* ================= ACCESO PROFESIONAL (alta e ingreso) ================= */
 /* El lema, en el único lugar por el que pasan todos y donde nadie está apurado:
    la puerta de entrada. En la grilla o en el parte competiría con el trabajo. */
+/* El manual interactivo vive en demo/manual-interactivo.html: se abre en otra
+   pestaña, se descarga solo cuando alguien lo pide y el service worker no lo
+   guarda, así no pesa ni enlentece la app. Funciona con o sin sesión. */
+function abrirManualInteractivo() {
+  const w = window.open('demo/manual-interactivo.html?v=' + encodeURIComponent(APP_VERSION), '_blank', 'noopener');
+  if (!w) location.href = 'demo/manual-interactivo.html?v=' + encodeURIComponent(APP_VERSION);
+}
 function lemaHeroHTML() {
   return `<figure class="lema-hero">
     <div class="lema-foto"><img src="equipo-quirurgico.jpg" width="960" height="577" decoding="async"
@@ -17925,6 +18380,7 @@ function renderAcceso() {
         <button class="ax-btn" onclick="doAlta()">${ICONS.userPlus} Crear cuenta</button>
         <p class="ax-nota">La cuenta queda <b>pendiente de autorización de la Jefatura de Quirófanos</b> y con la habilitación incompleta hasta que cargue la documentación en Mi Perfil.</p>
       </div>`}
+      <button class="ax-manual" onclick="abrirManualInteractivo()"><span>🎬</span><span><b>¿Primera vez? Manual interactivo</b><small>Elija su sector (cirugía, anestesia, enfermería, instrumentación, jefatura) y vea o pruebe cada paso, sin cuenta y sin tocar datos reales.</small></span></button>
     </div></div>`;
   if (!login) servPickPintar('alta');
 }
@@ -28170,6 +28626,7 @@ Object.assign(VIEWS, {
   excepcion: renderExcepcion,
   acceso: renderAcceso,
   perfil: renderPerfil,
+  pulso: renderPulso,
   modulos: renderModulos,
 });
 

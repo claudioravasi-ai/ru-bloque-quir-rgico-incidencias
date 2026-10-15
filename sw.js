@@ -14,7 +14,7 @@
 /* Al publicar cambios hay que subir esta constante (y APP_VERSION en
    index.html): es lo que hace que los dispositivos ya instalados descarten la
    copia cacheada y estrenen la versión nueva. */
-const VERSION = 'hru-quirofanos-v60';
+const VERSION = 'hru-quirofanos-v61';
 const SHELL = [
   './',
   './index.html',
@@ -64,6 +64,9 @@ self.addEventListener('fetch', (e) => {
 
   const scope = new URL('./', self.location.href).pathname;
   if (!url.pathname.startsWith(scope)) return;
+  // Los demos y el manual interactivo (carpeta demo/) no se guardan: se
+  // descargan solo cuando alguien los abre y no ocupan lugar en la app.
+  if (url.pathname.startsWith(scope + 'demo/')) return;
 
   const esHTML = req.mode === 'navigate'
     || (req.headers.get('accept') || '').includes('text/html');
@@ -73,7 +76,9 @@ self.addEventListener('fetch', (e) => {
       fetch(req)
         .then((res) => {
           const copia = res.clone();
-          caches.open(VERSION).then((c) => c.put('./index.html', copia)).catch(() => {});
+          // Solo la app misma se guarda como respaldo sin conexión.
+          const esApp = url.pathname === scope || url.pathname === scope + 'index.html';
+          if (esApp && res.ok) caches.open(VERSION).then((c) => c.put('./index.html', copia)).catch(() => {});
           return res;
         })
         .catch(() => caches.match('./index.html').then((r) => r || caches.match('./')))
