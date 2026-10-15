@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.20.0'
+VERSION = '3.21.0'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -121,7 +121,7 @@ BLOQUES = [
 ('p', 'Quedan exentos de esta regla las urgencias, las emergencias, los turnos de prioridad P1 y P2 y los turnos que carga la Jefatura en nombre de un profesional, que no está frente a la pantalla para guardar el documento.'),
 ('h3', 'Paso 3 bis — El pase del paciente'),
 ('p', '**También para endoscopías y cesáreas programadas.** El pase vale igual para los turnos programados de la Sala de Endoscopía y del Quirófano de Obstetricia, con las mismas condiciones. Cambian las palabras: el paciente de endoscopía ve «Mi estudio» («Tu estudio está confirmado», médico/a, destino ENDO) y la de cesárea, «Mi cesárea» (obstetra, destino OBST). Antes de ingresar con el código, el portal dice «Mi turno». Las urgencias, también las de endoscopía y las cesáreas de urgencia, no llevan pase.'),
-('p', 'Si la cirugía es programada (no urgencia ni emergencia), tiene los tres requisitos marcados y el consentimiento quedó guardado, la aplicación ofrece el **pase del paciente**: una tarjeta tipo pase de embarque, de colores vivos, con un **código QR**, el nombre de pila del paciente, la cirugía, el día, la hora, el quirófano, el cirujano y el estado del turno. **Apenas se genera, el pase le llega solo al correo del paciente**: lo manda el servicio del hospital, sin abrir el correo de nadie, y la ventana muestra «Pase enviado a pa•••@…» con la fecha y la hora (o, si falló, el motivo). Debajo, un mosaico de botones de colores: **Reenviar el pase por correo**, **Dar vuelta** (instrucciones), **Imprimir**, **Copiar enlace**, **WhatsApp** y **Ver como paciente**.'),
+('p', 'Si la cirugía es programada (no urgencia ni emergencia), tiene los tres requisitos marcados y el consentimiento quedó guardado, la aplicación ofrece el **pase del paciente**: una tarjeta tipo pase de embarque, de colores vivos, con un **código QR**, el nombre de pila del paciente, la cirugía, el día, la hora, el quirófano, el cirujano y el estado del turno. **Apenas se genera, el pase le llega solo al correo del paciente**: lo manda el servicio del hospital, sin abrir el correo de nadie, y desde la 3.21 la ventana solo muestra un recuadro si el envío **falló**, con el motivo. Debajo, un mosaico de botones de colores: **Reenviar el pase por correo**, **Dar vuelta** (instrucciones), **Imprimir** (frente y dorso lado a lado, en **una sola hoja A4**), **WhatsApp** y **Ver como paciente**. Si el cirujano armó su **tarjeta de presentación** en Mi Perfil, el correo del pase la lleva al pie, con su foto.'),
 ('ul', [
     'Para emitirlo se confirman el **correo** y el **DNI** del paciente y se tilda que el paciente fue informado y aceptó recibir los códigos en ese correo.',
     'El paciente escanea el QR, escribe su DNI y recibe en su correo un **código de 8 letras y números**, que vence a los 10 minutos y sirve para **un solo ingreso**. Cada vez que entra recibe uno nuevo.',
@@ -161,13 +161,14 @@ BLOQUES = [
 ('p', 'A partir de las 20:00 h del día anterior a una cirugía, si el cirujano tiene la aplicación abierta, recibe un recordatorio y un **aviso hablado**, con voz femenina y pausada: «buenas noches, le recuerdo que mañana tiene una cirugía programada; la primera, a las 10 de la mañana». Dice cuántas cirugías y a qué hora es la primera, y **nunca pronuncia nombres de pacientes ni procedimientos**, porque la app se usa en pasillos y vestuarios. Habla una sola vez por jornada. Si el teléfono tiene el sonido bloqueado, habla al primer toque de pantalla. Se apaga junto con el sonido de los avisos.'),
 ('h3', 'Paso 9 — Lo que el cirujano consulta después'),
 ('ul', [
-    '**Mis Solicitudes** — es también donde se pide un turno nuevo. Arranca por el **mes en curso**; con las flechas se pasa a otros meses, **Ver el histórico** lista todos los meses y, para lo anterior a los últimos quince meses, **Traer de la base** lo busca a pedido. Los turnos sin resolver aparecen siempre arriba, sean del mes que sean.',
+    '**Mis Solicitudes** — es también donde se pide un turno nuevo. Muestra solo la **semana en curso, de lunes a domingo**, con una tira de los siete días, y **se renueva sola cada lunes**; con las flechas se pasa a otras semanas. **Traer mi historial y bajarlo en PDF** abre el historial entre dos fechas, ordenado por fecha, y lo baja en un PDF prolijo que se arma en el propio equipo. Lo anterior a los últimos quince meses se trae de la base a pedido, en una sola consulta. Los turnos sin resolver aparecen siempre arriba, sean de la semana que sean.',
     '**Consentimientos Informados** — solo los que emitió el cirujano, en solo lectura y descargables en PDF. Arranca por **Esta semana** (los generados o con cirugía en la semana) y **Traer el historial** muestra todos. Un consentimiento nuevo se genera siempre desde su turno (**Lo que sigue › Generar el consentimiento**).',
-    '**Módulos Quirúrgicos** — sus módulos del período en todos sus servicios, como cirujano y como primer ayudante.',
+    '**Módulos Quirúrgicos** — arriba, el pantallazo del período (anillo A·B·C, fichas que cuentan solas y la actividad día por día) y **Descargar en Excel** del mes elegido: **Por cirujano** (sus cirugías y ayudantías, de cualquier servicio) o **Servicio completo** (todas las cirugías del mes de la especialidad, con los ayudantes de otras especialidades que intervinieron). Sin importes en pesos, con la especialidad de cada integrante, editable y lista para imprimir en una hoja apaisada.',
     '**Estadísticas** — la actividad de sus servicios y su propia producción.',
-    '**Reclamos** — comunicación formal y confidencial con la Jefatura.',
-    '**Nueva Incidencia** — reporte de eventos adversos y fallas de proceso.',
-    '**Mi Perfil** — documentación habilitante, servicios y cambio de contraseña. Para sumar o quitar un servicio hay que pedírselo a la Jefatura.',
+    '**Reclamos** — comunicación formal y confidencial con la Jefatura. Se ven los del **mes en curso** y los que siguen abiertos; el resto, en el historial a pedido, que se baja en PDF.',
+    '**Informar Incidencia** (botón del Panel) — reporte de eventos adversos y fallas de proceso. Desde la 3.21 ya no figura en el menú lateral, igual que el Parte Quirúrgico, que se abre con **Parte del día**.',
+    '**Reconocimiento** — reconocimiento entre colegas, no un premio en dinero. (1) **Distinción del mes**: un voto secreto por mes a un colega (nunca a uno mismo), eligiendo de 1 a 3 valores —Compañerismo, Ética, Presencia, Cordialidad, Lealtad, Docencia, Entrega—; se puede cambiar hasta el último día a las 23:59. El día 1 un servicio automático del hospital cuenta los votos: con menos de 5 votos válidos queda desierta, el empate es compartido y se publica solo quién ganó y sus valores más elegidos, nunca cuántos votos sacó nadie. También se publica el **Servicio del mes** y, en enero, **Vocación HRU** del año. El ganador ve una ceremonia al abrir la app y la distinción queda en su legajo y en su tarjeta. (2) **Muro de gratitud**: notas breves con el nombre de quien las escribe; un filtro frena insultos, el autor o la Jefatura las borran y el botón ⚑ avisa a la Jefatura. (3) **Mis insignias**: cada uno ve, solo él, cuántas veces lo reconocieron por cada valor (bronce 1, plata 3, oro 6, diamante 10).',
+    '**Mi Perfil** — su **tarjeta de presentación** (cinco estilos de infografía, seis colores, adornos, frase propia y foto sacada con la cámara o elegida de un archivo), la documentación habilitante, servicios y cambio de contraseña. Para sumar o quitar un servicio hay que pedírselo a la Jefatura.',
 ]),
 ('h2', '3.1. Los estados de un turno'),
 ('tabla', ['Estado', 'Qué significa', 'Quién lo produce'], [
@@ -195,6 +196,17 @@ BLOQUES = [
 ('p', 'En la ficha de la cirugía, el apartado de módulos dice **«Todavía no computa en Módulos Quirúrgicos: se imputa cuando la cirugía quede Finalizada»** mientras el caso no esté cerrado, y **«Computa en Módulos Quirúrgicos»** cuando ya lo está.'),
 
 # ─────────────────────────────────────────────────────────────── 4
+('h2', '3.2. Enfermería e Instrumentación quirúrgica'),
+('p', 'Desde la 3.21, enfermeras/os (circulantes y técnicas/os de anestesia) e instrumentadoras/es entran con **su propia cuenta**: al darse de alta eligen su **función**, la Jefatura las autoriza y aceptan el compromiso de ingreso. Su habilitación pide matrícula, seguro, RCP y vacunas (no título de especialista). No programan cirugías ni figuran como cirujanos o ayudantes; su lugar en la app es **Mi Sala** y el **Relevo de turno**, además de Reclamos, Reconocimiento y Mi Perfil.'),
+('ul', [
+    '**Mi Sala:** las cirugías del día por sala. Cada uno se anota en su puesto —Instrumentación, Circulante o Enfermería/técnica de anestesia— con «Me anoto»; el anestesiólogo/a se registra en la Entrada.',
+    '**Lista de Verificación por fases, responsabilidad del equipo:** la **Entrada** (antes de la inducción) la coordina Enfermería y firman Enfermería y Anestesia; la **Pausa** (antes de la incisión) la dirige el cirujano —que la registra al tocar Iniciar— y Enfermería firma su presencia; la **Salida** (antes de dejar la sala) la coordina Enfermería y el cirujano la confirma al cargar el parte. Lo que Enfermería ya firmó no se le vuelve a pedir al cirujano.',
+    '**Recuento** de gasas, compresas, agujas e instrumental al abrir y al cerrar: lo carga Instrumentación y lo cofirma Enfermería. **Si no coincide, la Salida queda frenada** —tampoco el cirujano puede cerrar— y la Jefatura recibe al instante una incidencia confidencial. Se corrige cargando un recuento nuevo; el anterior queda en el historial.',
+    '**Cajas de instrumental** con lote y vencimiento de la esterilización (la app marca VENCIDA si corresponde) e **insumos e implantes** usados: los registra Instrumentación, que es también quien da por verificados los insumos de la cirugía (antes lo marcaba Farmacia).',
+    '**Relevo de turno:** quién estuvo en cada sala (sale solo de lo anotado en Mi Sala) y las novedades que deja escritas quien se va, por sala y turno.',
+    'Todo queda con nombre, cuenta y hora; nada se borra: se corrige agregando.',
+]),
+
 ('h1', '4. Urgencias y emergencias'),
 ('p', 'La programación diaria y la guardia son dos carriles separados. El Quirófano 1, la Sala de Endoscopía y el Quirófano de Obstetricia ofrecen, además de su grilla programada, **un turno libre de urgencia en la hora que corre**, las 24 horas, todos los días, esté la sala habilitada o no. Cada sala ofrece el suyo: cirugías de urgencia en el Quirófano 1, endoscopías de urgencia en Endoscopía y cesáreas de urgencia en Obstetricia.'),
 ('ul', [
@@ -366,7 +378,7 @@ BLOQUES = [
 ('h2', '11.1. Reclamos'),
 ('p', 'El canal formal del profesional con la Jefatura, para desacuerdos y pedidos. Cada reclamo lo ven solo su autor y la Jefatura. Tiene hilo completo, con fecha y hora de cada mensaje, y un plazo de respuesta de 48 horas hábiles. Mientras está abierto, ambas partes reciben recordatorios. Los eventos adversos no van por reclamo: van por incidencia.'),
 ('h2', '11.2. Incidencias'),
-('p', 'Cualquier persona del bloque puede reportar una incidencia desde **Nueva Incidencia**, **con o sin cuenta**. Se rige por el **Principio de Cultura Justa**: se reportan eventos para analizar el sistema, no para buscar culpables. El reportante deja sus datos para que la respuesta le llegue a su correo institucional.'),
+('p', 'Cualquier persona del bloque puede reportar una incidencia desde el botón **Informar Incidencia** del Panel, **con o sin cuenta**. Se rige por el **Principio de Cultura Justa**: se reportan eventos para analizar el sistema, no para buscar culpables. El reportante deja sus datos para que la respuesta le llegue a su correo institucional.'),
 ('tabla', ['Categoría', 'Qué comprende', 'Plazo de reporte'], [
     ['A', 'Efectos adversos clínicos graves: paciente, sitio o procedimiento equivocado, objeto retenido, muerte inesperada', 'Inmediato, menos de 2 h'],
     ['B', 'Efectos adversos clínicos moderados: infección de sitio quirúrgico, hemorragia que requirió transfusión', 'Inmediato, menos de 2 h'],
@@ -399,8 +411,14 @@ BLOQUES = [
     'Las incidencias las lee solo la Jefatura. Los reclamos, solo su autor y la Jefatura.',
     'La agenda del bloque (días, salas, turnos abiertos y reservas por especialidad) no tiene datos de pacientes ni de profesionales: la leen todas las cuentas y la escribe solo la Jefatura.',
     'Los consentimientos los ve el profesional que los emitió; el archivo completo, la Jefatura.',
+    'Enfermería e Instrumentación ven la grilla, el parte y las cirugías del día con los datos del paciente que necesitan para trabajar; no ven módulos, estadísticas de médicos ni consentimientos. El relevo de turno lo leen las cuentas del hospital y cada novedad queda con el correo real de quien la escribió.',
     'El aviso hablado nunca pronuncia nombres de pacientes.',
     '**Pase del paciente:** el QR y el enlace llevan solo una llave al azar, sin nombre, DNI ni diagnóstico. El paciente no entra a la base: habla con un servicio del hospital que verifica su DNI y el código de un solo uso enviado a su correo, y le muestra solo su cirugía. El correo y la huella del DNI se guardan aparte, ninguna cuenta de la app los lee, y se borran cuando el pase caduca.',
+    '**Tarjeta de presentación:** la foto se achica en el propio equipo (240 × 240) antes de guardarse. La ven los profesionales del bloque y los pacientes a los que ese cirujano les genera el pase; se quita cuando se quiera.',
+    '**Guardado temporario:** si la sesión se cierra por inactividad con algo a medio cargar, los campos (nunca la contraseña) quedan en ese mismo equipo hasta 12 horas, solo para esa cuenta, y se borran al retomarlos o al decir que no.',
+    '**Reconocimiento:** el voto es secreto de verdad: la base deja que cada cuenta lea y escriba solo su propio voto (ni la Jefatura los ve), pone la hora del servidor y no admite votarse a uno mismo. Los cuenta un servicio automático del hospital, que publica el resultado sin cantidades y deja a cada uno sus propios números, que solo él puede leer. En el Muro de gratitud cada nota queda atada a la cuenta real de quien la escribe.',
+    '**Premio de oro:** el conteo se hace en cada equipo con los turnos que ya tiene; lo único que se guarda es el premio en el legajo del propio ganador. Nadie ve el ranking de otros colegas.',
+    '**PDF y Excel** se arman en el equipo de quien los pide: los datos no pasan por ningún servicio externo. Contienen datos de salud y hay que guardarlos en lugar seguro.',
     'Los datos de salud reciben el tratamiento de dato sensible que exige la Ley 25.326.',
 ]),
 ('h2', '12.3. Continuidad'),
@@ -409,7 +427,8 @@ BLOQUES = [
     'Sin conexión sigue funcionando contra la copia local y guarda los cambios para enviarlos cuando vuelve la red. El indicador del encabezado dice si todo está sincronizado o si queda algo sin enviar.',
     'El Libro Blanco de Quirófanos, este manual y la foto del lema quedan guardados para consultarse sin conexión.',
     'Cuando se publica una versión nueva, la app se actualiza sola si la pantalla no tiene nada escrito; si hay un formulario a medio completar, muestra un aviso y espera a que el profesional decida.',
-    'Cada persona elige su apariencia —Clínico sobrio, Acero quirúrgico, Papel clínico o Guardia nocturna, esta última oscura para el turno de 24 horas—, y la elección queda en su dispositivo.',
+    'Cada persona elige su apariencia —Aurora austral, Lavanda, Amanecer fueguino o Guardia nocturna, esta última oscura para el turno de 24 horas—, y la elección queda en su dispositivo.',
+    '**Cierre por inactividad:** con una sesión abierta, a los 9 minutos sin uso aparece «¿Sigue ahí?» con la cuenta regresiva del último minuto; a los 10, la sesión se cierra sola. Si quedaba algo sin terminar, al volver a entrar la app pregunta si quiere seguir donde lo dejó.',
 ]),
 
 # ─────────────────────────────────────────────────────────────── 13
@@ -426,7 +445,23 @@ BLOQUES = [
 ]),
 
 # ─────────────────────────────────────────────────────────────── 14
-('h1', '14. Novedades de las versiones 3.12 a 3.20'),
+('h1', '14. Novedades de las versiones 3.12 a 3.21'),
+('h2', 'Versión 3.21 — Diseño nuevo, compromiso al ingresar y cierre por inactividad'),
+('ul', [
+    '**Compromiso al ingresar:** cada profesional, al entrar con su usuario, lee y acepta un compromiso (credenciales personales, normas del bloque, deberes y derechos, confidencialidad y valor de constancia). La aceptación queda en su legajo con fecha y hora; con «No volver a mostrármelo» no aparece más. Si no acepta, no ingresa.',
+    '**Cierre por inactividad a los 10 minutos** con aviso y cuenta regresiva, **guardado temporario** y pregunta para **seguir donde lo dejó**.',
+    '**Panel como centro de mando:** saludo con reloj en vivo y cuenta regresiva al próximo cierre de solicitudes. **Quirófanos en vivo**: cuatro píldoras que se tocan (parte de hoy, en curso, en validación, suspendidas del mes) y una línea de tiempo de 8 a 20 h por sala, con cada cirugía como un bloque del color de su estado, la línea de la hora actual que avanza sola, la luz de cada sala (en uso, con turnos, libre) y las cirugías propias marcadas en dorado. Tocar un bloque abre la ficha; sin sesión no se ve ningún paciente.',
+    '**Roles de Enfermería e Instrumentación** con cuenta propia: Mi Sala (equipo de cada cirugía, Lista de Verificación por fases, recuento que frena la Salida si no coincide, cajas e insumos) y Relevo de turno (sección 3.2). Los insumos los verifica Instrumentación en lugar de Farmacia.',
+    '**Reconocimiento entre colegas** (solapa nueva, un único voto para médicos, enfermería e instrumentación): Distinción del mes por voto secreto con valores, Servicio del mes, Vocación HRU del año, Muro de gratitud con filtro y aviso a la Jefatura, e insignias personales.',
+    '**Premio de oro de la semana:** de lunes a domingo la app cuenta lo que cada cirujano operó como cirujano principal en todo el bloque —programadas, urgencias, endoscopías y cesáreas, ya realizadas—. Quien va primero lo ve en el Panel con un mensaje de aliento. El lunes, el ganador ve al abrir la app la copa de oro con papelitos de colores (2 segundos) y su mensaje; el premio queda en su legajo y en un **medallero** en sus Estadísticas (pasar el mouse o tocar una copa repite el festejo). Los integrantes de su especialidad ven un aviso de 2 segundos que se borra solo; a ellos no les queda nada guardado. Si hay empate, la copa es compartida.',
+    '**Menú lateral nuevo:** íconos de color, una luz que acompaña a la opción señalada y el buscador **Ir a…** (también con Ctrl K o ⌘K). Salieron del menú *Parte Quirúrgico* y *Nueva Incidencia* (se abren desde el Panel). *Descargas* nace cerrada. El **Libro Blanco** es un librito en 3D que se abre al pasar el mouse.',
+    '**Estados del turno como línea de metro**: el camino normal en siete estaciones y los desvíos aparte; tocar una estación explica qué significa.',
+    '**Día cerrado:** cartel luminoso «Quirófanos cerrados» con dos salidas: **Pedir la apertura** (arma el pedido a la Jefatura en Reclamos) e **Ir al turno de urgencia**.',
+    '**Módulos Quirúrgicos:** pantallazo de colores, selector de período en píldora, gráficos nuevos (columnas apiladas con acumulado y mosaico de 100 cuadritos) y **Excel por cirujano o por servicio completo**. La planilla CSV con importes queda solo para la Dirección Médica.',
+    '**Mis Solicitudes por semana**, **Reclamos del mes** e historiales a pedido con **PDF** armado en el equipo.',
+    '**Consentimientos**, **Estadísticas**, **Canal de Reclamos** y **Mi Perfil** rediseñados; **pase del paciente** con el dorso que ya no se encima, impresión en una sola hoja y sin el botón repetido «Copiar enlace».',
+    '**Apariencias nuevas** (Aurora austral, Lavanda, Amanecer fueguino; Guardia nocturna sigue) y botones de la barra superior con color. En Guardia nocturna se arregló el texto blanco sobre blanco de la ventana *Equipo quirúrgico y módulos*.',
+]),
 ('h2', 'Versión 3.20 — El pase llega solo por correo'),
 ('ul', [
     '**El pase del paciente se envía solo a su correo** al generarlo, desde el servicio del hospital; se puede reenviar con un toque.',
