@@ -14,7 +14,7 @@
 /* Al publicar cambios hay que subir esta constante (y APP_VERSION en
    index.html): es lo que hace que los dispositivos ya instalados descarten la
    copia cacheada y estrenen la versión nueva. */
-const VERSION = 'hru-quirofanos-v65';
+const VERSION = 'hru-quirofanos-v70';
 const SHELL = [
   './',
   './index.html',
@@ -100,10 +100,41 @@ self.addEventListener('fetch', (e) => {
   );
 });
 
+/* (3.23) Aviso de cierre de la lista que manda el Apps Script por Firebase
+   Cloud Messaging. Llega aunque la app esté cerrada o sin sesión: el navegador
+   despierta a este worker, que muestra la notificación (con sonido y vibración
+   del teléfono) y, si hay una pestaña de la app abierta, le pide que lo diga en voz. */
+self.addEventListener('push', (e) => {
+  let p = {};
+  try { p = e.data ? e.data.json() : {}; } catch (err) { p = {}; }
+  const d = p.data || p;
+  const titulo = d.titulo || 'HRU Quirófanos — Aviso';
+  e.waitUntil(Promise.all([
+    self.registration.showNotification(titulo, {
+      body: d.texto || '', tag: d.tag || 'hru-aviso', renotify: true, requireInteraction: true,
+      icon: 'icon-192.png', badge: 'icon-192.png', vibrate: [400, 150, 400, 150, 400],
+      actions: d.acuse ? [{ action: 'recibido', title: '✓ Recibido' }] : [],
+      data: { acuse: d.acuse || '', dia: d.dia || '', k: d.k || '', f: d.f || '' },
+    }),
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((lista) => lista.forEach((c) => c.postMessage({ tipo: 'aviso-cierre', voz: d.voz || '' }))),
+  ]));
+});
+/* Tocar la notificación (o «Recibido») confirma la recepción ante el Apps Script. */
+function acusar(n) {
+  const a = (n && n.data) || {};
+  if (!a.acuse) return Promise.resolve();
+  return fetch(a.acuse, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ accion: 'acuse', dia: a.dia, k: a.k, f: a.f, via: 'push' }) }).catch(() => {});
+}
+
 /* Notificaciones: si el navegador entrega el aviso al worker, al tocarlo se
    enfoca la pestaña de la app en lugar de abrir una nueva. */
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
+  const conf = acusar(e.notification);
+  e.waitUntil(conf);
+  if (e.action === 'recibido') return;
   e.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((lista) => {
       for (const c of lista) {
