@@ -5324,6 +5324,30 @@
   .an-jefe { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; margin-bottom: 12px; background: var(--card); border: 1px solid var(--line); }
   .an-jefe select { padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--sup1, #fff); color: var(--ink); font-family: inherit; }
   .an-jefe small { font-size: .72rem; color: var(--muted); flex-basis: 100%; }
+  .pq-tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; } .pq-tabs button { white-space: nowrap; }
+  .pq-jefe { padding: 14px 16px; border-radius: 16px; margin-bottom: 14px; border: 2px solid color-mix(in srgb, #7c3aed 40%, var(--line)); background: linear-gradient(135deg, color-mix(in srgb, #7c3aed 12%, var(--card)), var(--card)); }
+  .pq-jefe-cab { display: flex; gap: 12px; align-items: center; } .pq-jefe-cab b { font-size: .95rem; color: var(--ink); } .pq-jefe-cab small { display: block; font-size: .78rem; color: var(--muted); }
+  .pq-ic { font-size: 1.7rem; line-height: 1; flex: none; }
+  .pq-jefe-sel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; font-size: .8rem; font-weight: 800; color: var(--ink); }
+  .pq-jefe-sel select { flex: 1; min-width: 0; max-width: 340px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--sup1, #fff); color: var(--ink); font-family: inherit; font-size: .85rem; }
+  .pq-aviso { margin-top: 10px; padding: 9px 12px; border-radius: 12px; font-size: .8rem; background: color-mix(in srgb, #f59e0b 14%, var(--card)); color: var(--ink); }
+  .pq-como { margin-top: 10px; font-size: .8rem; } .pq-como summary { cursor: pointer; font-weight: 800; color: #7c3aed; }
+  .pq-como ol { margin: 8px 0 0; padding-left: 20px; color: var(--muted); } .pq-como li { margin: 4px 0; } .pq-como b { color: var(--ink); }
+  .pq-hero { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-radius: 16px; margin-bottom: 12px; background: linear-gradient(135deg, color-mix(in srgb, var(--c) 18%, var(--card)), var(--card)); border: 1px solid color-mix(in srgb, var(--c) 32%, var(--line)); }
+  .pq-hero b { display: block; font-size: 1rem; color: var(--ink); } .pq-hero small { font-size: .78rem; color: var(--muted); }
+  .pq-acc { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .pq-bloque { padding: 12px 14px; border-radius: 14px; margin-bottom: 12px; background: var(--card); border: 1px solid var(--line); }
+  .pq-bloque.mal { border-color: color-mix(in srgb, #e11d48 45%, var(--line)); }
+  .pq-bloque h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: .9rem; color: var(--ink); }
+  .pq-n { min-width: 22px; height: 22px; padding: 0 7px; border-radius: 11px; display: inline-grid; place-items: center; font-size: .72rem; font-weight: 900; color: #fff; background: var(--c, #64748b); }
+  .pq-bloque.mal .pq-n { background: #e11d48; }
+  .pq-item { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: .84rem; color: var(--ink); }
+  .pq-bloque h3 + .pq-item { border-top: 0; } .pq-item > span { min-width: 0; flex: 1 1 220px; } .pq-item small { display: block; color: var(--muted); font-size: .74rem; }
+  .pq-gente { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+  .pq-p { display: flex; gap: 9px; align-items: center; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--line); font-size: .82rem; color: var(--ink); }
+  .pq-p .av { width: 32px; height: 32px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: .7rem; font-weight: 900; color: #fff; background: var(--c); }
+  .pq-p.libre .av { background: #94a3b8; } .pq-p small { display: block; color: var(--muted); font-size: .72rem; }
+  .pq-vacio { margin: 0; font-size: .8rem; color: var(--muted); }
   .pt-gente { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; font-size: .8rem; color: var(--ink); }
   .pt-gente span { padding: 3px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); }
   .pt-tabla { border-radius: 14px; border: 1px solid var(--line); background: var(--card); overflow-x: auto; }
@@ -8513,7 +8537,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.22.2';
+const APP_VERSION = '3.22.3';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -12232,8 +12256,7 @@ function renderAnestesia(embebido) {
   if (!embebido && !esAnestesia(u) && !jefe && !director) { go('acceso'); return; }
   if (!anestDia) anestDia = hoyISO();
   if (!anestMes) anestMes = anestMesPorDefecto();
-  const tabs = embebido ? [['mes', 'Disponibilidad del mes'], ['ind', 'Indicadores']] : [['hoy', 'Hoy'], ['mes', esJefeAnest(u) ? 'Disponibilidad del mes' : 'Mi mes'], ['ind', 'Indicadores']];
-  if (embebido && anestTab === 'hoy') anestTab = 'mes';
+  const tabs = embebido ? [['hoy', 'Hoy'], ['mes', 'Disponibilidad del mes'], ['ind', 'Indicadores']] : [['hoy', 'Hoy'], ['mes', esJefeAnest(u) ? 'Disponibilidad del mes' : 'Mi mes'], ['ind', 'Indicadores']];
   const tabsHTML = `<div class="fl-tabs" role="tablist">${tabs.map(([k, t]) => `<button role="tab" class="${anestTab === k ? 'on' : ''}" aria-selected="${anestTab === k}" onclick="anestTab='${k}';${embebido ? 'renderPortales()' : 'renderAnestesia()'}">${t}</button>`).join('')}</div>`;
   const cuerpo = anestTab === 'hoy' ? anestHoyHTML() : anestTab === 'mes' ? anestMesHTML() : anestIndicadoresHTML();
   const html = embebido ? tabsHTML + cuerpo : `
@@ -12643,20 +12666,40 @@ function anestIndicadoresHTML() {
    la disponibilidad, designa al Jefe/a de Anestesiología y puede trabajar
    cada cirugía desde Mi Sala. */
 let portalTab = 'dia';
+const PORTAL_TABS = [['dia', '🗺️ Recorrido del día'], ['anest', '💤 Anestesiología'], ['enf', '🧭 Enfermería y técnicos'], ['inst', '🧰 Instrumentación']];
 function renderPortales() {
   if (!jefe && !director) { go('acceso'); return; }
-  if (!['dia', 'anest'].includes(portalTab)) portalTab = 'dia';
+  if (!PORTAL_TABS.some(([k]) => k === portalTab)) portalTab = 'dia';
   if (!salaDia) salaDia = hoyISO();
-  const jefeAct = DB.usuarios.find((x) => esJefeAnest(x));
+  const cuerpo = portalTab === 'dia'
+    ? `<p class="fl-intro">Todas las cirugías del día con su recorrido: en qué paso está cada una y a quién espera. ${jefe ? 'Puede avisar a quien falta o firmar en nombre de la Jefatura.' : ''}</p>${flujoLista(salaDia, jefe ? 'jefe' : 'dir')}`
+    : portalTab === 'anest' ? portalJefeAnestHTML() + renderAnestesia(true)
+    : portalEquipoHTML(portalTab);
   $('main').innerHTML = `
-    <div class="fl-cabecera"><div>${flYoChip(jefe ? 'Jefatura de Quirófanos' : 'solo lectura')}<h1>Portales del equipo</h1></div>${portalTab === 'dia' ? flDiaNav('salaDia', salaDia) : ''}</div>
-    <div class="fl-tabs">${[['dia', 'Recorrido del día'], ['anest', 'Anestesiología del mes']].map(([k, t]) => `<button class="${portalTab === k ? 'on' : ''}" onclick="portalTab='${k}';renderPortales()">${t}</button>`).join('')}</div>
-    ${portalTab === 'dia'
-      ? `<p class="fl-intro">Todas las cirugías del día con su recorrido: en qué paso está cada una y a quién espera. ${jefe ? 'Puede avisar a quien falta o firmar en nombre de la Jefatura.' : ''}</p>${flujoLista(salaDia, jefe ? 'jefe' : 'dir')}`
-      : `${jefe ? `<div class="an-jefe"><b>Jefe/a de Servicio de Anestesiología</b>
-          <select onchange="portalJefeAnest(this.value)"><option value="">— Sin designar —</option>${anestPlantel().map((p) => `<option value="${esc(p.email)}" ${jefeAct && jefeAct.email === p.email ? 'selected' : ''}>${esc(p.nombre)}</option>`).join('')}</select>
-          <small>Es quien carga la disponibilidad del mes. Solo la Jefatura lo designa.</small></div>` : ''}
-        ${renderAnestesia(true)}`}`;
+    <div class="fl-cabecera"><div>${flYoChip(jefe ? 'Jefatura de Quirófanos' : 'solo lectura')}<h1>Portales del equipo</h1></div>${['dia', 'enf', 'inst'].includes(portalTab) ? flDiaNav('salaDia', salaDia) : ''}</div>
+    <div class="fl-tabs pq-tabs" role="tablist">${PORTAL_TABS.map(([k, t]) => `<button role="tab" aria-selected="${portalTab === k}" class="${portalTab === k ? 'on' : ''}" onclick="portalTab='${k}';flAbierta=null;renderPortales()">${t}</button>`).join('')}</div>
+    ${cuerpo}`;
+}
+/* 3.22.3 · Designación del Jefe/a de Servicio de Anestesiología, a la vista
+   y explicada: antes era un desplegable chico que quedaba vacío (sin decir
+   por qué) mientras ningún anestesiólogo/a tuviera la cuenta autorizada. */
+function portalJefeAnestHTML() {
+  const plantel = anestPlantel();
+  const act = DB.usuarios.find((x) => esJefeAnest(x));
+  const pend = DB.usuarios.filter((x) => esAnestesia(x) && estadoCuenta(x) === 'pendiente').length;
+  return `<div class="pq-jefe">
+    <div class="pq-jefe-cab"><span class="pq-ic">👑</span><div><b>Jefe/a de Servicio de Anestesiología</b>
+      <small>${act ? `Designado/a: <strong>${esc(act.nombre)}</strong>. Carga la disponibilidad de cada mes desde su portal.` : 'Sin designar: nadie puede cargar la disponibilidad del mes.'}</small></div></div>
+    ${jefe ? (plantel.length
+      ? `<label class="pq-jefe-sel"><span>Elegir</span><select onchange="portalJefeAnest(this.value)"><option value="">— Sin designar —</option>${plantel.map((p) => `<option value="${esc(p.email)}" ${act && act.email === p.email ? 'selected' : ''}>${esc(p.nombre)}</option>`).join('')}</select></label>`
+      : `<div class="pq-aviso">Todavía no hay anestesiólogos/as con cuenta autorizada: por eso no hay a quién elegir.${pend ? ` <button class="fl-link" onclick="go('usuarios')">${pend} cuenta(s) de Anestesiología esperan su autorización →</button>` : ''}</div>`) : ''}
+    <details class="pq-como"><summary>¿Cómo se designa?</summary><ol>
+      <li>El anestesiólogo/a pide el alta en la app (<i>Acceso Profesional › Solicitar alta</i>) eligiendo la función <b>Anestesiología</b>, verifica su correo y completa Mi Perfil.</li>
+      <li>La Jefatura lo autoriza en <b>Profesionales</b>. Desde ese momento aparece en esta lista.</li>
+      <li>La Jefatura lo elige acá. Hay uno/a solo/a: elegir a otro le quita la designación al anterior, y queda registrado.</li>
+      <li>En su <b>Portal de Anestesiología</b>, «Mi mes» pasa a ser <b>Disponibilidad del mes</b>: desde el día 15 la app le pide quién cubre cada sala el mes siguiente.</li>
+      <li>Cuando la envía, la Jefatura recibe el aviso y la valida o la devuelve en esta misma solapa, en «Disponibilidad del mes».</li></ol></details>
+  </div>`;
 }
 function portalJefeAnest(mail) {
   if (!jefe) return;
@@ -12666,6 +12709,65 @@ function portalJefeAnest(mail) {
   });
   if (typeof toastTurno === 'function') toastTurno(mail ? 'Jefe/a de Anestesiología designado/a' : 'Sin Jefe/a de Anestesiología designado/a', '#7c3aed');
   renderPortales();
+}
+
+/* 3.22.3 · Portales de Enfermería (circulantes y técnicas/os de anestesia) y
+   de Instrumentación quirúrgica, para la Jefatura (y la Dirección, a
+   consultar). No se guarda nada nuevo: todo sale de lo que el equipo anota en
+   Mi Sala (c.equipoSala, las firmas del recorrido, c.recuento, c.cajas,
+   c.insumosUsados) y de las cuentas de cada función. */
+const PQ_EQUIPOS = {
+  enf: { func: 'enfermeria', n: 'Enfermería y técnicos de anestesia', i: '🧭', c: '#0d9488', puestos: ['circulante', 'tecAnestesia'], roles: ['circ', 'enf'], falta: 'circulante', faltaN: 'circulante' },
+  inst: { func: 'instrumentacion', n: 'Instrumentación quirúrgica', i: '🧰', c: '#d97706', puestos: ['instrumentadora'], roles: ['inst'], falta: 'instrumentadora', faltaN: 'instrumentador/a' },
+};
+function pqIni(n) { return String(n || '').replace(/^(Dra?|Lic|Enf|Inst|Tec)\.\s*/i, '').split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 2).join('').toUpperCase() || '•'; }
+function pqPct(a, b) { return b ? Math.round(a / b * 100) + ' %' : '—'; }
+function portalEquipoHTML(k) {
+  const q = PQ_EQUIPOS[k], d = salaDia || hoyISO(), cx = salaCirugias(d);
+  const gente = DB.usuarios.filter((x) => funcionDe(x) === q.func && cuentaAprobada(x)).sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es'));
+  const pend = DB.usuarios.filter((x) => funcionDe(x) === q.func && estadoCuenta(x) === 'pendiente').length;
+  const cxTxt = (c) => `${esc(c.horaProg || '—')} h · ${esc(c.quirofano || c.sala)} · ${esc(c.procedimiento || '')}`;
+  // Dónde está cada uno hoy (sale de lo que se anotó en Mi Sala).
+  const donde = {};
+  cx.forEach((c) => q.puestos.forEach((pu) => { const x = (c.equipoSala || {})[pu]; if (x && x.email) (donde[x.email] = donde[x.email] || []).push({ c, pu }); }));
+  const fuera = Object.keys(donde).filter((m) => !gente.some((g) => g.email === m));
+  const personas = gente.map((g) => ({ n: g.nombre, e: g.email })).concat(fuera.map((m) => ({ n: donde[m][0].c.equipoSala[donde[m][0].pu].nombre, e: m })));
+  const sinPuesto = cx.filter((c) => !(c.equipoSala || {})[q.falta]);
+  const esperan = [];
+  cx.forEach((c) => { const e = flEstado(c), p = e.pasos[e.activo]; if (!p) return; p.firmas.filter((x) => !x.f && q.roles.includes(x.rol)).forEach((x) => esperan.push({ c, p, x })); });
+  const dif = k === 'inst' ? cx.filter((c) => recuentoDif(c)) : [];
+  const vencidas = k === 'inst' ? cx.flatMap((c) => (c.cajas || []).filter((j) => j.vence && j.vence < (c.fecha || hoyISO())).map((j) => ({ c, j }))) : [];
+  const sinVerif = k === 'inst' ? cx.filter((c) => !(c.coordinacion && c.coordinacion.insumos) && !['realizada', 'finalizada'].includes(c.estado)) : [];
+  // El mes del día elegido, sobre las cirugías ya operadas.
+  const mes = d.slice(0, 7);
+  const cm = DB.cirugias.filter((c) => String(c.fecha || '').startsWith(mes) && ['realizada', 'finalizada'].includes(c.estado));
+  const conPuesto = cm.filter((c) => (c.equipoSala || {})[q.falta]).length;
+  const kpis = k === 'enf'
+    ? [[pqPct(conPuesto, cm.length), 'Con circulante anotada', '#0d9488'], [pqPct(cm.filter((c) => lvqCompleta(c, 'entrada')).length, cm.length), 'Entrada firmada', '#2563eb'], [pqPct(cm.filter((c) => lvqCompleta(c, 'salida')).length, cm.length), 'Salida firmada', '#7c3aed'], [cm.length, 'Cirugías operadas', '#64748b']]
+    : [[pqPct(conPuesto, cm.length), 'Con instrumentador/a', '#d97706'], [pqPct(cm.filter((c) => c.recuento && c.recuento.inicial && c.recuento.final).length, cm.length), 'Recuento completo', '#2563eb'], [cm.filter((c) => recuentoDif(c)).length, 'Recuentos con diferencia', '#be123c'], [cm.length, 'Cirugías operadas', '#64748b']];
+  const avisar = (o) => jefe ? `<button class="fl-avisar" onclick="flAvisar(${JSON.stringify(o.c.id)},'${o.p.k}','${o.x.rol}')">🔔 ${(o.c.pedidos || {})[o.p.k + '.' + o.x.rol] ? 'Volver a avisar' : 'Avisar'}</button>` : '';
+  return `<div class="pq" style="--c:${q.c}">
+    <div class="pq-hero"><span class="pq-ic">${q.i}</span><div><b>${esc(q.n)}</b><small>${gente.length} con cuenta autorizada${pend ? ` · ${pend} esperan autorización` : ''} · ${cx.length} cirugía(s) ${d === hoyISO() ? 'hoy' : 'el ' + esc(fmtFecha(d))}</small></div></div>
+    ${jefe ? `<div class="pq-acc"><button class="fl-btn" onclick="go('sala')">Abrir Mi Sala, como la ve el equipo</button>${k === 'enf' ? `<button class="fl-link" onclick="go('relevo')">Relevo de turno →</button>` : ''}${pend ? `<button class="fl-link" onclick="go('usuarios')">Autorizar cuentas (${pend}) →</button>` : ''}</div>` : ''}
+    <div class="an-kpis">${kpis.map(([v, t, c]) => `<div class="an-kpi" style="--c:${c}"><b>${v}</b><span>${t}</span><small>${esc(nombreMes(mes))} · ya operadas</small></div>`).join('')}</div>
+    <div class="pq-bloque"><h3>👥 Quién está en cada sala</h3>
+      ${personas.length ? `<div class="pq-gente">${personas.map((p) => { const en = donde[p.e] || []; return `<div class="pq-p ${en.length ? '' : 'libre'}"><span class="av">${esc(pqIni(p.n))}</span><span><b>${esc(p.n)}</b><small>${en.length ? en.map((o) => `${esc(SALA_PUESTOS[o.pu].n)} · ${esc(o.c.quirofano || o.c.sala)} ${esc(o.c.horaProg || '')} h`).join('<br>') : 'Sin anotarse en ninguna cirugía'}</small></span></div>`; }).join('')}</div>`
+        : `<p class="pq-vacio">Todavía no hay cuentas de ${esc(FUNCIONES[q.func].n)} autorizadas. Cada integrante pide el alta eligiendo su función y la Jefatura la autoriza en Profesionales.</p>`}
+    </div>
+    <div class="pq-bloque"><h3>✍️ Esperan su firma ${esperan.length ? `<span class="pq-n">${esperan.length}</span>` : ''}</h3>
+      ${esperan.length ? esperan.map((o) => `<div class="pq-item"><span><b>${esc(FL_ACCION[o.p.k] || o.p.n)}</b><small>${cxTxt(o.c)} · ${o.x.quien ? esc(o.x.quien.n) : esc(FL_ROLES[o.x.rol].n) + ' sin anotar'}</small></span>${avisar(o)}</div>`).join('') : '<p class="pq-vacio">Nada pendiente de este equipo en este momento.</p>'}
+    </div>
+    <div class="pq-bloque"><h3>🚪 Cirugías sin ${esc(q.faltaN)} ${sinPuesto.length ? `<span class="pq-n">${sinPuesto.length}</span>` : ''}</h3>
+      ${sinPuesto.length ? sinPuesto.map((c) => `<div class="pq-item"><span><b>${cxTxt(c)}</b><small>${esc(c.cirujano || '')}</small></span></div>`).join('') : `<p class="pq-vacio">Todas las cirugías del día tienen ${esc(q.faltaN)}.</p>`}
+    </div>
+    ${k === 'inst' ? `
+    <div class="pq-bloque ${dif.length ? 'mal' : ''}"><h3>🧮 Recuentos con diferencia ${dif.length ? `<span class="pq-n">${dif.length}</span>` : ''}</h3>
+      ${dif.length ? dif.map((c) => `<div class="pq-item"><span><b>${cxTxt(c)}</b><small>${recuentoDif(c).map(esc).join(' · ')}</small></span></div>`).join('') : '<p class="pq-vacio">Ningún recuento con diferencia.</p>'}</div>
+    <div class="pq-bloque ${vencidas.length ? 'mal' : ''}"><h3>📦 Cajas vencidas ${vencidas.length ? `<span class="pq-n">${vencidas.length}</span>` : ''}</h3>
+      ${vencidas.length ? vencidas.map((o) => `<div class="pq-item"><span><b>${esc(o.j.nombre)}</b><small>Lote ${esc(o.j.lote || '—')} · venció ${esc(fmtFecha(o.j.vence))} · ${cxTxt(o.c)}</small></span></div>`).join('') : '<p class="pq-vacio">Ninguna caja vencida registrada.</p>'}</div>
+    <div class="pq-bloque"><h3>💊 Insumos sin verificar ${sinVerif.length ? `<span class="pq-n">${sinVerif.length}</span>` : ''}</h3>
+      ${sinVerif.length ? sinVerif.map((c) => `<div class="pq-item"><span><b>${cxTxt(c)}</b><small>${(c.insumosUsados || []).length} insumo(s) cargado(s)</small></span></div>`).join('') : '<p class="pq-vacio">Todas las cirugías del día tienen los insumos verificados.</p>'}</div>` : ''}
+  </div>`;
 }
 
 /* ---- Recordatorios de Anestesiología ---- */
@@ -20149,9 +20251,12 @@ function tryJefeLogin() { openJefeModal(); }
 async function jefeLogout() {
   jefe = false;
   sessionStorage.removeItem('hru_jefe');
-  if (['confidenciales', 'programacion', 'kpis', 'usuarios', 'comunicados'].includes(view)) view = 'panel';
+  // 3.22.3: antes solo dejaba cinco pantallas de Jefatura; en Portales, Flujo,
+  // Mi Sala o Relevo quedaba a la vista lo último hasta cambiar de solapa.
+  // Quien cierra la sesión de jefe no deja nada abierto: siempre al Panel.
+  view = 'panel';
   cambioDeIdentidad(false);
-  go(view);
+  go('panel');
   // Se suelta la identidad de Jefatura y se vuelve al pase anónimo, para que la
   // app siga funcionando para el cirujano y para quien entra sin sesión.
   await volverAlPaseAnonimo();
