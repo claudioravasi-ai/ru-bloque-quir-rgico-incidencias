@@ -8537,7 +8537,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.22.3';
+const APP_VERSION = '3.22.4';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -18559,7 +18559,7 @@ function renderAcceso() {
         <button class="ax-btn" onclick="doAlta()">${ICONS.userPlus} Crear cuenta</button>
         <p class="ax-nota">La cuenta queda <b>pendiente de autorización de la Jefatura de Quirófanos</b> y con la habilitación incompleta hasta que cargue la documentación en Mi Perfil.</p>
       </div>`}
-      <button class="ax-manual" onclick="abrirManualInteractivo()"><span>🎬</span><span><b>¿Primera vez? Manual interactivo</b><small>Elija su sector (cirugía, anestesia, enfermería, instrumentación, jefatura) y vea o pruebe cada paso, sin cuenta y sin tocar datos reales.</small></span></button>
+      <button class="ax-manual" onclick="abrirManualInteractivo()"><span>🎬</span><span><b>¿Primera vez? Manual interactivo</b><small>Paso a paso: el alta de cada integrante, su portal, una cirugía programada con el QR del paciente y una urgencia. Sin cuenta y sin tocar datos reales.</small></span></button>
     </div></div>`;
   if (!login) servPickPintar('alta');
 }
