@@ -8634,7 +8634,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.23.2';
+const APP_VERSION = '3.23.3';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10815,23 +10815,34 @@ function cargarScriptUnaVez(src) {
   if (document.querySelector(`script[src="${src}"]`)) return Promise.resolve();
   return new Promise((ok, mal) => { const sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = mal; document.head.appendChild(sc); });
 }
+/* 3.23.3 · Estado del anotado de ESTE teléfono, para el cartel de Recordatorios:
+   null (todavía no se intentó), { e: 'ok', correo } o { e: 'error', msg }. */
+let pushEstado = null;
 async function pushAsegurar() {
   if (pushListo || !cloudOn || jefe || permisoNotif() !== 'granted') return;
   const u = usuarioActual();
   if (!u || !u.email || esEquipoSala(u) || !cuentaAprobada(u) || !recUid()) return;
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) { pushEstado = { e: 'error', msg: 'este navegador no admite avisos con la app cerrada' }; return; }
   pushListo = true;
   try {
     await cargarScriptUnaVez('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
     const reg = await navigator.serviceWorker.ready;
     const token = await firebase.messaging().getToken(Object.assign({ serviceWorkerRegistration: reg }, FCM_VAPID ? { vapidKey: FCM_VAPID } : {}));
-    if (!token) return;
+    if (!token) { pushEstado = { e: 'error', msg: 'Firebase no entregó la dirección de este teléfono' }; return; }
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
     const h = [...new Uint8Array(buf)].slice(0, 12).map((x) => x.toString(16).padStart(2, '0')).join('');
     const k = recClave(u.email);
     await firebase.database().ref(`avisos/disp/${k}/${h}`).set({ t: token, alta: firebase.database.ServerValue.TIMESTAMP });
     try { localStorage.setItem('hruq_push', k + '|' + h); } catch (e) {}
-  } catch (e) { console.warn('Avisos push: no se pudo anotar este equipo', e); }
+    pushEstado = { e: 'ok', correo: u.email };
+  } catch (e) { console.warn('Avisos push: no se pudo anotar este equipo', e); pushEstado = { e: 'error', msg: String((e && (e.code || e.message)) || e).slice(0, 140) }; }
+  if (view === 'recordatorios') renderRecordatorios();
+}
+/* «Reintentar» del cartel: vuelve a anotar este teléfono ya mismo. */
+function pushReintentar(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Anotando…'; }
+  pushListo = false; pushEstado = null;
+  pushAsegurar().then(() => { if (view === 'recordatorios') renderRecordatorios(); });
 }
 /* «Dejar de recibir en este equipo» (por ejemplo, una computadora compartida). */
 async function pushQuitarEsteEquipo() {
@@ -22926,7 +22937,14 @@ function remTile(id, tono, icono, titulo, resumen, cuerpo) {
 function remTileNotif() {
   const p = permisoNotif();
   const expl = 'Reciba en el dispositivo los avisos críticos: emergencias sin incisión, retrasos mayores a 60 minutos, informes operatorios fuera de plazo y cierre del ciclo de programación.';
-  if (p === 'granted') return remTile('rem-notif-ok', 'teal', ICONS.bell.replace('16', '18'), 'Notificaciones activadas', 'Este dispositivo recibe los avisos críticos.',
+  /* 3.23.3 · Si es médico, el cartel dice si ESTE teléfono quedó anotado para el
+     aviso de cierre (y con qué correo), o qué falló, con «Reintentar». */
+  const uN = usuarioActual(), medico = !!(uN && uN.email && !jefe && !esEquipoSala(uN) && cuentaAprobada(uN));
+  if (p === 'granted' && medico && pushEstado && pushEstado.e === 'error') return remTile('rem-notif-push', 'ambar', ICONS.bell.replace('16', '18'), 'Falta anotar este teléfono para el aviso de cierre', 'Las notificaciones están activadas, pero el aviso con la app cerrada no le llegaría.',
+    `<p>No se pudo anotar este teléfono (${esc(pushEstado.msg || 'sin detalle')}). Revise que tenga internet y toque <b>Reintentar</b>. Mientras tanto, el aviso le llega igual por correo a <b>${esc(uN.email)}</b>.</p>
+     <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pushReintentar(this)">${ICONS.refresh} Reintentar</button></div>`);
+  const resOk = medico && pushEstado && pushEstado.e === 'ok' ? `✓ Este teléfono recibe el aviso de cierre (como ${pushEstado.correo}).` : medico && !pushEstado && cloudOn ? 'Anotando este teléfono para el aviso de cierre…' : 'Este dispositivo recibe los avisos críticos.';
+  if (p === 'granted') return remTile('rem-notif-ok', 'teal', ICONS.bell.replace('16', '18'), 'Notificaciones activadas', resOk,
     `<p>Los avisos críticos aparecen como notificación del dispositivo mientras la app esté abierta, incluso en segundo plano o instalada en la pantalla de inicio. Tocar la notificación lleva directo a la cirugía, al reclamo o a la sección que la originó.</p>
      <p><b>Aviso de cierre de la lista:</b> el viernes (y la víspera de un feriado), a las 12:00, este equipo recibe el aviso aunque la app esté cerrada o haya cerrado la sesión, con el sonido del teléfono. Toque <b>Recibido</b> para que la Jefatura sepa que le llegó; si no confirma, a las 12:30 se le repite. También le llega por correo.</p>
      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="probarNotif(this)">${ICONS.bell} Enviar una de prueba</button>
