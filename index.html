@@ -4527,7 +4527,7 @@
   .cm-envio.ok { background: linear-gradient(120deg, #047857, #10b981); box-shadow: 0 10px 24px -14px #059669; }
   .cm-envio-i { font-size: 1.7rem; animation: cmLate 2s ease-in-out infinite; }
   @keyframes cmLate { 50% { transform: scale(1.15); } }
-  .cm-envio > div { flex: 1; min-width: 220px; } .cm-envio b { display: block; font-size: .98rem; } .cm-envio small { display: block; font-size: .78rem; opacity: .95; margin-top: 2px; }
+  .cm-envio > div { flex: 1; min-width: 220px; } .cm-envio > div > b { display: block; font-size: .98rem; } .cm-envio small b { display: inline; font-size: 1.05em; } .cm-envio small { display: block; font-size: .78rem; opacity: .95; margin-top: 2px; }
   .cm-envio-acc { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
   .cm-envio .btn-outline { background: rgba(255,255,255,.15) !important; color: #fff !important; border-color: rgba(255,255,255,.5) !important; }
   .cm-ley { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 0 0 12px; font-size: .78rem; font-weight: 700; color: var(--muted); }
@@ -4576,6 +4576,19 @@
   .cm-env-sec { border-radius: 12px; padding: 8px; margin-bottom: 8px; border-left: 5px solid var(--c); background: color-mix(in srgb, var(--c) 6%, #fff); }
   .cm-env-sec header { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; font-size: .82rem; } .cm-env-sec header b { color: var(--c); } .cm-env-sec header span { color: #64748b; } .cm-env-sec header em { margin-left: auto; font-style: normal; font-weight: 900; color: #16a34a; }
   @media (prefers-reduced-motion: reduce) { .cm-envio-i, .cm-cama { animation: none !important; } }
+
+  /* ================= 3.27 · Ingresos del día (Admisión) ================= */
+  .ing-sec { border-radius: 18px; background: var(--card); border: 1px solid var(--line); padding: 10px; margin-bottom: 14px; }
+  .ing-sec > header { display: flex; align-items: baseline; gap: 10px; margin: 2px 4px 8px; } .ing-sec > header b { font-size: 1rem; } .ing-sec > header span { color: var(--muted); font-size: .8rem; } .ing-sec em { color: #b91c1c; font-style: normal; font-weight: 800; }
+  .ing-f { display: grid; grid-template-columns: 64px minmax(0, 1.6fr) minmax(0, .9fr) minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 6px; background: var(--sup2, #f8fafc); }
+  .ing-f.prio { border-color: #fca5a5; background: #fff1f2; }
+  .ing-h b { display: block; font-size: 1.1rem; } .ing-h small { color: var(--muted); font-size: .7rem; }
+  .ing-p b { font-size: .92rem; } .ing-p small { display: block; color: var(--muted); font-size: .74rem; } .ing-p .ing-dx { color: var(--ink); font-weight: 600; }
+  .ing-e { display: grid; gap: 4px; justify-items: start; } .ing-aut { font-size: .72rem; font-weight: 800; } .ing-aut.ok { color: #15803d; } .ing-aut.no { color: #b45309; }
+  .ing-cama { display: inline-grid; gap: 1px; border-radius: 10px; padding: 5px 9px; font-size: .78rem; font-weight: 800; color: #fff; background: var(--c); box-shadow: 0 6px 14px -8px var(--c); }
+  .ing-cama small { font-weight: 600; opacity: .9; font-size: .66rem; } .ing-cama.no { color: #b91c1c; background: #fee2e2; box-shadow: none; }
+  .ing-a { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
+  @media (max-width: 900px) { .ing-f { grid-template-columns: 54px minmax(0, 1fr); } .ing-e, .ing-c { grid-column: 2; } .ing-a { grid-column: 1 / -1; justify-content: flex-start; } }
 
   /* ================= 3.21 · Tarjeta-infografía (v2) ================= */
   .pf-acentos { display: flex; gap: 8px; margin-bottom: 10px; }
@@ -6191,6 +6204,19 @@
   .sidebar .manual-btn { transition: transform .2s; }
   @media (min-width: 901px) { .app.rail .sidebar .libro-btn { height: 46px !important; padding-top: 4px !important; padding-bottom: 4px !important; } }
   @media (prefers-reduced-motion: reduce) { .sidebar .brand-icon, .sidebar .libro-btn .lb3-libro, .sidebar .manual-btn > span:first-child { animation: none !important; } }
+  /* 3.26 · Sin la fila de las tres líneas: una chinche chica arriba a la derecha (fijar/soltar el menú),
+     y en el menú plegado el propio logo hace de botón. */
+  @media (min-width: 901px) {
+    .app.rail .rail-pin { position: absolute; top: 18px; right: 12px; width: 30px; height: 30px; margin: 0; border-radius: 50%; z-index: 4;
+      background: rgba(255,255,255,.07); color: #94a3b8; transition: transform .3s cubic-bezier(.3,1.4,.5,1), background .2s, color .2s; }
+    .app.rail .rail-pin:hover { transform: scale(1.12); color: #fff; background: rgba(255,255,255,.14); }
+    .app.rail .rail-pin svg { transition: transform .35s cubic-bezier(.3,1.4,.5,1); transform: rotate(35deg); }
+    .app.rail.pin .rail-pin { color: #5eead4; background: rgba(45,212,191,.16); box-shadow: 0 0 0 1px rgba(45,212,191,.35); }
+    .app.rail.pin .rail-pin svg { transform: rotate(0); }
+    .app.rail .sidebar .brand { padding-right: 40px !important; }
+    .app.rail:not(.pin) .sidebar:not(:hover):not(:focus-within) .rail-pin { display: none !important; }
+    .app.rail .sidebar .brand-icon { cursor: pointer; }
+  }
 
 </style>
 </head>
@@ -8827,7 +8853,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.26.0';
+const APP_VERSION = '3.27.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10669,6 +10695,7 @@ function calcRecordatorios() {
   /* ---- 3.25 · Reprogramación por falta de cama ---- */
   rcRecordatorios(add);
   camasRecordatorios(add);
+  admisRecordatorios(add);
 
   /* ---- 4 bis. Turno sin resolver: la fecha pasó y nadie lo cerró ----
      Al día siguiente del turno, al cirujano dueño y a la Jefatura. Se repite
@@ -11025,7 +11052,7 @@ let pushEstado = null;
 async function pushAsegurar() {
   if (pushListo || !cloudOn || jefe || permisoNotif() !== 'granted') return;
   // 3.26 · La Jefatura de Enfermería también anota su teléfono: a las 06:30 le llega el recordatorio del mapa de camas.
-  const ue = soloEnfermeria() && firebase.auth().currentUser && firebase.auth().currentUser.email ? { email: firebase.auth().currentUser.email } : null;
+  const ue = (soloEnfermeria() || soloAdmision()) && firebase.auth().currentUser && firebase.auth().currentUser.email ? { email: firebase.auth().currentUser.email } : null;
   const u = ue || usuarioActual();
   if (!u || !u.email || (!ue && (esEquipoSala(u) || !cuentaAprobada(u) || !recUid()))) return;
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) { pushEstado = { e: 'error', msg: 'este navegador no admite avisos con la app cerrada' }; return; }
@@ -11723,6 +11750,18 @@ function renderSidebar() {
   const pendRem = remSinLeer();
   const nRem = pendRem.length;
   const nCrit = pendRem.filter((r) => r.nivel === 'crit').length;
+  // 3.27 · Admisión y Egresos: Ingresos del día y Mapa de camas.
+  if (soloAdmision()) {
+    $('nav').innerHTML = `<div class="nav-sep">Admisión y Egresos</div>
+      <button class="nav-btn ${view === 'ingresos' ? 'active' : ''}" onclick="go('ingresos')"><span class="nv-ico" style="--h:#ea580c">🗂️</span><span class="nv-lbl">Ingresos del día</span>${nRem ? `<span class="nav-badge">${nRem}</span>` : ''}</button>
+      <button class="nav-btn ${view === 'camas' ? 'active' : ''}" onclick="go('camas')"><span class="nv-ico" style="--h:#16a34a">🛏️</span><span class="nv-lbl">Mapa de camas</span></button>
+      <button class="nav-btn ${view === 'recordatorios' ? 'active' : ''}" onclick="go('recordatorios')"><span class="nv-ico" style="--h:#fbbf24">${ICONS.bellRing}</span><span class="nv-lbl">Avisos</span></button>`;
+    navLuzIniciar(); renderBottomNav();
+    $('sidebar-bottom').innerHTML = `<div class="jefe-session"><div class="jefe-session-name">🗂️ Admisión y Egresos</div><div class="jefe-session-sub">Ingresos y camas</div>
+      <button class="jefe-logout" onclick="admisLogout()">${ICONS.logout} Cerrar sesión</button></div>
+      <div class="confidential-note"><div style="opacity:0.75">Versión ${APP_VERSION} · ${cloudOn ? 'base compartida en Firebase' : 'modo local'}</div></div>`;
+    return;
+  }
   // 3.26 · La Jefatura de Enfermería entra solo al Mapa de camas.
   if (soloEnfermeria()) {
     $('nav').innerHTML = `<div class="nav-sep">Jefatura de Enfermería</div><button class="nav-btn ${view === 'camas' ? 'active' : ''}" onclick="go('camas')"><span class="nv-ico" style="--h:#16a34a">🛏️</span><span class="nv-lbl">Mapa de camas</span>${nRem ? `<span class="nav-badge">${nRem}</span>` : ''}</button>`;
@@ -11787,6 +11826,7 @@ function renderSidebar() {
     if (!u) items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'portales', icon: ICONS.users, label: 'Portales del equipo' });
     items.push({ id: 'camas', icon: '🛏️', label: 'Mapa de camas' });
+    items.push({ id: 'ingresos', icon: '🗂️', label: 'Ingresos del día' });
     items.push({ id: 'kpis', icon: ICONS.chart, label: 'Indicadores' });
     items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
     const pendCta = DB.usuarios.filter((x) => estadoCuenta(x) === 'pendiente').length;
@@ -11844,6 +11884,9 @@ function renderSidebar() {
   bottom += jefenf
     ? `<div class="jefe-session"><div class="jefe-session-name">🛏️ Jefatura de Enfermería</div><button class="jefe-logout" onclick="jefEnfLogout()">${ICONS.logout} Cerrar sesión de Enfermería</button></div>`
     : `<button class="jefe-access" onclick="openJefEnfModal()">🛏️ Acceso Jefatura de Enfermería</button>`;
+  bottom += admis
+    ? `<div class="jefe-session"><div class="jefe-session-name">🗂️ Admisión y Egresos</div><button class="jefe-logout" onclick="admisLogout()">${ICONS.logout} Cerrar sesión de Admisión</button></div>`
+    : `<button class="jefe-access" onclick="openAdmisModal()">🗂️ Acceso Admisión y Egresos</button>`;
   bottom += `<div class="confidential-note">Canal único y válido para la gestión quirúrgica del HRU. Las incidencias son confidenciales: solo la Jefatura accede a su contenido.
     <div style="margin-top:8px;opacity:0.75">Versión ${APP_VERSION} · ${cloudOn ? 'base compartida en Firebase' : 'modo local'}</div></div>`;
   $('sidebar-bottom').innerHTML = bottom;
@@ -11925,7 +11968,7 @@ try { if (/Mac|iPhone|iPad/.test(navigator.platform)) document.addEventListener(
 /* ================= NAVEGACIÓN ================= */
 const VIEWS = {};
 const TITULOS = {
-  panel: 'Panel', grilla: 'Programación Diaria', parte: 'Parte Quirúrgico', recordatorios: 'Recordatorios', camas: 'Mapa de camas',
+  panel: 'Panel', grilla: 'Programación Diaria', parte: 'Parte Quirúrgico', recordatorios: 'Recordatorios', camas: 'Mapa de camas', ingresos: 'Ingresos del día',
   nueva: 'Nueva Incidencia', confidenciales: 'Incidencias Confidenciales',
   solicitud: 'Nueva solicitud quirúrgica', mis: 'Mis Solicitudes', reclamos: 'Reclamos',
   perfil: 'Mi Perfil', programacion: 'Programación', confidenciales: 'Incidencias Confidenciales',
@@ -12007,7 +12050,10 @@ function go(v, silencioso) {
   }
   // 3.26 · Jefatura de Enfermería: solo el Mapa de camas.
   if (soloEnfermeria() && v !== 'camas') v = 'camas';
-  if (v === 'camas' && !jefe && !jefenf && !usuarioActual()) { closeDrawer(); openJefEnfModal(); return; }
+  // 3.27 · Admisión y Egresos: Ingresos del día, Mapa de camas y Avisos.
+  if (soloAdmision() && !['ingresos', 'camas', 'recordatorios'].includes(v)) v = 'ingresos';
+  if (v === 'ingresos' && !admis && !jefe) { closeDrawer(); openAdmisModal(); return; }
+  if (v === 'camas' && !jefe && !jefenf && !admis && !usuarioActual()) { closeDrawer(); openJefEnfModal(); return; }
   if (v === 'confidenciales' && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['programacion', 'kpis', 'usuarios', 'comunicados', 'excepcion'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['solicitud', 'mis', 'perfil', 'consentimientos'].includes(v) && !usuarioActual() && !jefe) { v = 'acceso'; }
@@ -12082,7 +12128,11 @@ function renderBottomNav() {
   const nav = $('bottomnav');
   if (!nav) return;
   const n = remSinLeer().length;
-  const items = soloEnfermeria() ? [
+  const items = soloAdmision() ? [
+    { id: 'ingresos', icon: '🗂️', label: 'Ingresos' },
+    { id: 'camas', icon: '🛏️', label: 'Camas' },
+    { id: 'recordatorios', icon: ICONS.bellRing, label: 'Avisos', badge: n },
+  ] : soloEnfermeria() ? [
     { id: 'camas', icon: '🛏️', label: 'Camas' },
     { id: 'recordatorios', icon: ICONS.bellRing, label: 'Avisos', badge: n },
   ] : [
@@ -16440,6 +16490,89 @@ async function pulseraAlAbrir() {
     openLVQ(c.id, 'inicio');
     setTimeout(() => { const ch = document.querySelector('.lvq-chk[data-fase="entrada"]'); if (ch) { ch.checked = true; if (typeof checkLVQReady === 'function') checkLVQReady(); } }, 120);
   }
+}
+
+/* ================= 3.27 · INGRESO DE ADMISIÓN Y EGRESOS =================
+   Admisión tiene su propia entrada («Acceso Admisión y Egresos», con la cuenta
+   del sector, rol `admision`), con un menú de dos secciones:
+     · Ingresos del día — los pacientes de hoy y de mañana, por área, con
+       «Anotar cama», «Pulsera», «Autorizar» y la ficha;
+     · Mapa de camas — en vivo, con «✓ Recibido» del envío de Enfermería.
+   Con la sesión abierta no se le vuelve a pedir la credencial en cada trámite
+   (la cuenta ya está verificada); sin sesión, todo sigue como antes. */
+let admis = sessionStorage.getItem('hru_admis') === '1';
+const soloAdmision = () => admis && !jefe && !director && !usuarioActual() && !jefenf;
+function openAdmisModal() {
+  pedirCredencial({ titulo: 'Admisión y Egresos', desc: 'Ingrese el correo y la contraseña de la cuenta del sector de Admisión y Egresos. Entra a Ingresos del día y al Mapa de camas.',
+    rol: 'admision', nombreRol: 'Admisión y Egresos', sesion: true,
+    onOk: async () => { admis = true; sessionStorage.setItem('hru_admis', '1'); resuscribir(); cambioDeIdentidad(true); go('ingresos'); } });
+}
+async function admisLogout() {
+  admis = false; sessionStorage.removeItem('hru_admis');
+  if (cloudOn && !jefe && !jefenf) await volverAlPaseAnonimo();
+  cambioDeIdentidad(false); go('panel');
+}
+let ingDia = '';
+function renderIngresos() {
+  const hoy = hoyISO();
+  if (!ingDia) ingDia = hoy;
+  const d = ingDia;
+  const env = DB.camas.find((x) => x.id === 'envio-' + hoy);
+  const R = camasResumen();
+  const lista = DB.cirugias.filter((c) => c.fecha === d && ['pendiente', 'validada', 'confirmada', 'en_curso', 'realizada'].includes(c.estado)).sort(ordenPrelacion);
+  const fila = (c) => {
+    const k = camaDe(c), S = k ? SECTORES_CAMA[k.s] : null;
+    const aut = authOk(c), rc = rcActivo(c);
+    return `<div class="ing-f${rcVeces(c) ? ' prio' : ''}">
+      <div class="ing-h"><b>${esc(c.horaProg || '—')}</b><small>${esc(String(c.quirofano || '').replace(/^Quir[oó]fano\s*/i, 'Q').replace(/^Sala de Endoscop[ií]a.*$/i, 'Endoscopía').replace(/^Q de Obstetricia.*$|^Qde Obstetricia.*$/i, 'Obstetricia').replace(/^Q\s*Obstetricia.*$/i, 'Obstetricia'))}</small></div>
+      <div class="ing-p"><b>${esc(c.paciente?.nombre || 's/d')}</b>${rcSello(c, true)}<small>DNI ${esc(c.paciente?.dni || '—')} · ${c.paciente?.edad ?? '—'} años · ${esc(c.obraSocial || 'sin obra social')} · ☎ ${esc(c.paciente?.telefono || '—')}</small>
+        <small class="ing-dx">${esc(c.diagnostico || '')} · ${esc(c.procedimiento || '')}</small></div>
+      <div class="ing-e">${estChip(c)}<span class="ing-aut ${aut ? 'ok' : 'no'}">${aut ? '✓ Autorizada' : c.auth === 'NO AUTORIZADO' ? '✕ No autorizada' : '⏳ Falta autorizar'}</span></div>
+      <div class="ing-c">${k ? `<span class="ing-cama" style="--c:${S.c}">🛏 ${esc(S.corto)} · Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}<small>Int. ${S.int}</small></span>` : '<span class="ing-cama no">🛏 Sin cama</span>'}</div>
+      <div class="ing-a">
+        ${rc ? `<button class="btn btn-sm btn-red" onclick="openCirugia(${c.id})">Reprogramación: dar el OK</button>`
+          : c.estado === 'pendiente' && !aut ? `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ Autorizar</button>` : ''}
+        ${camaPuedeCargarse(c) ? `<button class="btn btn-sm ${k ? 'btn-outline' : 'btn-green'}" onclick="pedirCama(${c.id})">🛏 ${k ? 'Cambiar cama' : 'Anotar cama'}</button>` : ''}
+        ${k ? `<button class="btn btn-sm btn-outline" onclick="reimprimirPulsera(${c.id})">🏷️ Pulsera</button>` : ''}
+        <button class="btn btn-sm btn-outline" onclick="openCirugia(${c.id})">Ficha</button>
+      </div></div>`;
+  };
+  $('main').innerHTML = `
+    <div class="page-head"><div class="head-row"><div class="head-icon">🗂️</div><div>
+      <h1 class="page-title">Ingresos del día</h1><p class="page-sub">Admisión y Egresos · cama, pulsera y autorización de cada paciente</p></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-sm ${d === hoy ? 'btn-blue' : 'btn-outline'}" onclick="ingDia='${hoy}';renderIngresos()">Hoy</button>
+        <button class="btn btn-sm ${d === sumarDias(hoy, 1) ? 'btn-blue' : 'btn-outline'}" onclick="ingDia='${sumarDias(hoy, 1)}';renderIngresos()">Mañana</button>
+        <input type="date" value="${d}" onchange="ingDia=this.value;renderIngresos()" style="padding:8px 10px;border-radius:10px;border:1px solid var(--line);font-family:inherit">
+      </div></div>
+    <div class="cm-envio ${env ? (env.recibido ? 'ok' : 'env') : ''}" style="cursor:pointer" onclick="if(!event.target.closest('button'))go('camas')">
+      <span class="cm-envio-i">${env ? (env.recibido ? '✅' : '📥') : '⏰'}</span>
+      <div><b>${env ? (env.recibido ? `Mapa de camas recibido · ${esc(env.recibido.por || '')} · ${esc(String(env.recibido.t || '').slice(11, 16))} h` : `Enfermería envió el mapa de camas a las ${esc(String(env.t || '').slice(11, 16))} h`) : 'Todavía no llegó el mapa de camas de hoy'}</b>
+        <small>Ahora en vivo: ${Object.keys(R).map((s) => `${SECTORES_CAMA[s].corto} <b>${R[s].libre}</b> libre${R[s].libre === 1 ? '' : 's'}`).join(' · ')}</small>
+        <span class="cm-envio-acc">${env && !env.recibido ? `<button class="btn btn-sm btn-green" onclick="camasRecibido('${hoy}')">✓ Recibido — ver las camas</button>` : ''}${env ? `<button class="btn btn-sm btn-outline" onclick="camasVerEnvio('${hoy}')">👁 Ver lo enviado</button>` : ''}<button class="btn btn-sm btn-outline" onclick="go('camas')">🛏 Mapa en vivo</button></span></div>
+    </div>
+    ${Object.keys(PARTE_AREAS).map((a) => {
+      const L = lista.filter((c) => areaDe(c) === a);
+      if (!L.length) return '';
+      const sinCamaN = L.filter((c) => !camaDe(c) && camaPuedeCargarse(c)).length;
+      return `<section class="ing-sec"><header><b>${esc(PARTE_AREAS[a].b)}</b><span>${L.length} paciente${L.length === 1 ? '' : 's'}${sinCamaN ? ` · <em>${sinCamaN} sin cama</em>` : ''}</span></header>${L.map(fila).join('')}</section>`;
+    }).join('') || `<div class="empty">No hay pacientes programados para el ${fmtFecha(d)}.</div>`}
+    <p class="form-note">La cama se anota desde la víspera. Al guardarla, en el mapa pasa a rojo y se imprime la pulsera.</p>`;
+}
+function admisRecordatorios(add) {
+  if (!admis) return;
+  const hoy = hoyISO(), h = new Date().getHours() * 60 + new Date().getMinutes();
+  const env = DB.camas.find((x) => x.id === 'envio-' + hoy);
+  if (env && !env.recibido) add({ key: 'admis-camas-' + hoy + '-' + (env.envios || 1), nivel: 'crit', notif: true, vista: 'ingresos',
+    titulo: '📥 Llegó el mapa de camas de Enfermería', texto: `Enviado a las ${String(env.t || '').slice(11, 16)} h. Tocá «✓ Recibido» para verlo y confirmarle a Enfermería.`, cuando: 'Hoy' });
+  if (!env && h >= 7 * 60 + 15 && h < 12 * 60) add({ key: 'admis-sinmapa-' + hoy, nivel: 'warn', vista: 'camas', titulo: 'Todavía no llegó el mapa de camas', texto: 'Enfermería no lo envió. Igual podés ver el mapa en vivo.', cuando: 'Hoy' });
+  const sinCama = DB.cirugias.filter((c) => c.fecha === hoy && c.estado === 'confirmada' && !camaDe(c));
+  if (sinCama.length && h >= 6 * 60) add({ key: 'admis-sincama-' + hoy + '-' + sinCama.length, nivel: 'info', vista: 'ingresos', titulo: `${sinCama.length} paciente${sinCama.length > 1 ? 's' : ''} de hoy sin cama`, texto: sinCama.slice(0, 4).map((c) => `${c.horaProg} ${c.paciente?.nombre || ''}`).join(' · '), cuando: 'Ingresos del día' });
+  DB.cirugias.filter((c) => rcActivo(c) && c.reprogCama.estado === 'esperando_equipo' && !(c.reprogCama.oks || {}).adm).forEach((c) => add({
+    key: 'admis-rc-' + c.id + '-' + c.reprogCama.pid, nivel: 'crit', notif: true, vista: 'ingresos', cirugia: c.id,
+    titulo: `Falta SU OK — reprogramación por falta de cama (×${rcVeces(c)})`, texto: `${c.paciente?.nombre || ''} · ${fmtFecha(c.fecha)} ${c.horaProg} h · ${c.quirofano}`, cuando: 'Prioridad máxima' }));
+  const pend = DB.cirugias.filter((c) => c.estado === 'pendiente' && !c.auth && !rcActivo(c) && c.fecha >= hoy && c.fecha <= sumarDias(hoy, 3));
+  if (pend.length) add({ key: 'admis-aut-' + hoy + '-' + pend.length, nivel: 'warn', vista: 'ingresos', titulo: `${pend.length} turno${pend.length > 1 ? 's' : ''} para autorizar`, texto: pend.slice(0, 4).map((c) => `${fmtFecha(c.fecha)} ${c.horaProg} ${c.paciente?.nombre || ''}`).join(' · '), cuando: 'Próximos 3 días' });
 }
 
 /* ================= TURNOS SIN RESOLVER =================
@@ -23897,6 +24030,8 @@ function pedirDireccion(titulo, desc, onOk) {
     onOk });
 }
 function pedirAdmision(titulo, desc, onOk) {
+  // 3.27 · Con la sesión de Admisión abierta, la cuenta ya está verificada.
+  if (admis) { onOk(); return; }
   pedirCredencial({ titulo, desc, rol: 'admision', nombreRol: 'Admisión y Egresos',
     onOk });
 }
@@ -30642,6 +30777,7 @@ Object.assign(VIEWS, {
   panel: renderPanel,
   parte: renderParte,
   camas: renderCamas,
+  ingresos: renderIngresos,
   reconocimiento: renderReconocimiento,
   sala: renderSala,
   relevo: renderRelevo,
@@ -30676,7 +30812,10 @@ document.addEventListener('DOMContentLoaded', () => {
   $('shield-slot').innerHTML = ICONS.shieldCheck;
   $('ingresar-icon').innerHTML = ICONS.shield.replace('18', '15').replace('18', '15');
   $('hamburger').innerHTML = ICONS.menu;
-  $('rail-pin').innerHTML = ICONS.menu;
+  // 3.26 · Ya no es una fila con las tres líneas: es una chinche chica a la derecha del nombre.
+  $('rail-pin').innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/></svg>';
+  $('rail-pin').title = 'Fijar el menú abierto';
+  { const bi = $('i-activity'); if (bi) { bi.title = 'Fijar o soltar el menú'; bi.addEventListener('click', () => { if (window.innerWidth > 900) togglePin(); }); } }
   // El menú vuelve anclado si así se dejó la última vez.
   try {
     if (localStorage.getItem('hru_menu_fijo') === '1') {
