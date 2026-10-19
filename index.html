@@ -207,6 +207,9 @@
     padding: 8px 10px; border-radius: 8px; font-family: inherit;
   }
   .jefe-access:hover { color: #d1d5db; }
+  /* 3.28 · Todos los accesos con el mismo ícono de línea y el texto alineado a la izquierda, aunque baje de renglón. */
+  .jefe-access { text-align: left; line-height: 1.25; }
+  .jefe-access > svg { flex: none; width: 18px; height: 18px; }
   .jefe-session {
     background: #1b2733; border: 1px solid #24435a; border-radius: 10px; padding: 12px 14px;
   }
@@ -811,6 +814,7 @@
   .fx-pill.ok { background: color-mix(in srgb, var(--green) 16%, transparent); color: var(--green); }
   .fx-pill.bad { background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); }
   .fx-checks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .fx-aaot { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 10px; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, #7c3aed 8%, transparent); border: 1px solid color-mix(in srgb, #7c3aed 25%, transparent); font-size: .82rem; }
   .fx-btn { margin-top: 12px; }
   .fx-pie { margin-top: 8px; font-size: 0.8rem; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   /* Los renglones de Admisión, Jefatura y excepciones: rótulo a la izquierda y
@@ -1777,6 +1781,7 @@
   .ci-doc .mb-blq { font-size: 0.76rem; font-weight: 700; margin-top: 4px; color: #1c5d8c; }
   .ci-doc .meta { text-align: center; font-size: 0.72rem; color: #444; }
   .ci-doc .cita { font-size: 0.7rem; font-style: italic; color: #333; }
+  .ci-doc .aaot-doc { font-size: 0.74rem; border: 1px solid #999; padding: 6px 8px; border-radius: 4px; }
   .ci-doc .firmas { margin-top: 34px; display: flex; justify-content: space-between; gap: 10px; }
   .ci-doc .firma { width: 46%; text-align: center; border-top: 1px solid #000; padding-top: 4px; font-size: 0.72rem; }
   .ci-doc .legal { font-size: 0.66rem; color: #555; border-top: 1px dotted #bbb; margin-top: 18px; padding-top: 6px; }
@@ -3640,9 +3645,10 @@
   .fl-listo b { display: block; font-size: 1.1rem; margin: 6px 0 2px; }
   .fl-listo i { display: inline-flex; width: 48px; height: 48px; border-radius: 50%; align-items: center; justify-content: center; color: #fff; background: #10b981; animation: auPop .5s cubic-bezier(.2,1.6,.4,1); }
 
-  .fl-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .fl-dos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+  .fl-dos > * { min-width: 0; }   /* 3.28 · los títulos largos no ensanchan la columna en el celular */
   .fl-panel { border-radius: 20px; padding: 14px; background: var(--fl-card); border: 1px solid var(--fl-line); }
-  .fl-panel h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: .92rem; font-weight: 900; color: var(--fl-ink); }
+  .fl-panel h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; font-size: .92rem; font-weight: 900; color: var(--fl-ink); }
   .fl-panel h3 em { margin-left: auto; font-style: normal; font-size: .72rem; font-weight: 800; color: var(--fl-mut); }
   .fl-linea { list-style: none; margin: 0; padding: 0; position: relative; }
   .fl-linea::before { content: ""; position: absolute; left: 44px; top: 6px; bottom: 6px; width: 2px; background: var(--fl-line); }
@@ -3677,7 +3683,7 @@
   .fl-todo > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; font-weight: 800; font-size: .9rem; color: var(--fl-ink); padding: 12px 14px; border-radius: 14px; border: 1px dashed var(--fl-line); }
   .fl-todo > summary::-webkit-details-marker { display: none; }
   .fl-todo[open] > summary { margin-bottom: 10px; }
-  @media (max-width: 860px) { .fl-tubo { grid-template-columns: repeat(4, minmax(0, 1fr)); } .fl-dos { grid-template-columns: 1fr; } }
+  @media (max-width: 860px) { .fl-tubo { grid-template-columns: repeat(4, minmax(0, 1fr)); } .fl-dos { grid-template-columns: minmax(0, 1fr); } }
   @media (max-width: 560px) {
     .fl-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fl-tubo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .fl-t { flex-wrap: wrap; gap: 10px; } .fl-main { flex: 1 1 calc(100% - 60px); } .fl-go { width: 100%; justify-content: center; }
@@ -4516,6 +4522,146 @@
   .rc-oks li.no i { background: #dc2626; }
   .rc-oks li b { font-size: .84rem; } .rc-oks li small { grid-column: 2; font-size: .74rem; color: #64748b; }
   .rc-oks li .btn, .rc-oks li .rc-tel { grid-column: 3; grid-row: 1 / span 2; }
+  .pa-card h4 { margin: 0 0 6px; } .pa-doc { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; background: #f0fdfa; border: 1px solid #99f6e4; }
+  .pa-doc .pa-ico { font-size: 1.5rem; } .pa-doc b { display: block; font-size: .86rem; } .pa-doc small { font-size: .74rem; color: #64748b; }
+
+  /* ===== 3.27.1 · Portal de Anestesiología estilo infografía ===== */
+  .anx { --anx1: #0f766e; --anx2: #1e3a8a; --anx3: #7c3aed; }
+  .anx-hero { position: relative; overflow: hidden; border-radius: 22px; padding: 16px 18px 14px; margin: 0 0 14px; color: #fff;
+    background: radial-gradient(120% 140% at 0% 0%, #14b8a6 0%, var(--anx1) 30%, var(--anx2) 75%, #312e81 100%); box-shadow: 0 18px 40px rgba(15,118,110,.28); }
+  .anx-hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(60% 80% at 100% 0%, rgba(167,139,250,.35), transparent 60%); pointer-events: none; }
+  .anx-hero > * { position: relative; z-index: 1; }
+  .anx-hero .fl-yo { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.25); color: #fff; } .anx-hero .fl-yo * { color: #fff !important; }
+  .anx-ecg { position: absolute !important; left: 0; right: 0; bottom: 54px; width: 100%; height: 70px; z-index: 0 !important; opacity: .55; }
+  .anx-ecg path { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+  .anx-ecg-base { stroke: rgba(255,255,255,.18); stroke-width: 1.5; }
+  .anx-ecg-luz { stroke: #5eead4; stroke-width: 2.5; stroke-dasharray: 160 1400; filter: drop-shadow(0 0 4px #5eead4); animation: anxEcg 3.2s linear infinite; }
+  @keyframes anxEcg { from { stroke-dashoffset: 1560; } to { stroke-dashoffset: 0; } }
+  .anx-hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .anx-kick { display: block; font-size: .68rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; opacity: .8; margin-top: 8px; }
+  .anx-hero h1 { margin: 2px 0 0; font-size: 1.55rem; font-weight: 800; letter-spacing: -.02em; color: #fff; }
+  .anx-hero.chico h1 { font-size: 1.2rem; }
+  .anx-anillo { position: relative; width: 84px; height: 84px; flex: none; display: grid; place-items: center; text-align: center; }
+  .anx-anillo svg, .anx-gauge svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+  .anx-an-f { fill: none; stroke: rgba(255,255,255,.18); stroke-width: 3.2; }
+  .anx-an-v { fill: none; stroke: #5eead4; stroke-width: 3.2; stroke-linecap: round; animation: anxAnillo 1.1s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes anxAnillo { from { stroke-dasharray: 0 100; } }
+  .anx-anillo b { font-size: 1.2rem; font-weight: 900; line-height: 1; margin-top: 18px; } .anx-anillo small { font-size: .55rem; text-transform: uppercase; letter-spacing: .08em; opacity: .85; margin-bottom: 18px; }
+  .anx-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+  .anx-kpi { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 8px; padding: 9px 10px; border-radius: 14px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); backdrop-filter: blur(6px); }
+  .anx-kpi i { grid-row: span 2; font-style: normal; font-size: 1.2rem; width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: rgba(255,255,255,.16); }
+  .anx-kpi b { font-size: 1.35rem; font-weight: 900; line-height: 1; } .anx-kpi span { font-size: .68rem; opacity: .88; line-height: 1.2; }
+  .anx-tabs { position: relative; display: grid !important; grid-template-columns: repeat(var(--n), 1fr); gap: 0 !important; padding: 4px; border: 0 !important; border-radius: 999px; background: color-mix(in srgb, var(--anx1) 10%, var(--card)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--anx1) 22%, transparent); }
+  .anx-tabs button { position: relative; z-index: 1; border: 0 !important; margin: 0 !important; padding: 9px 6px !important; border-radius: 999px; font-weight: 800 !important; transition: color .3s; }
+  .anx-tabs button.on { color: #fff !important; }
+  .anx-tab-luz { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / var(--n)); transform: translateX(calc(100% * var(--i))); border-radius: 999px;
+    background: linear-gradient(120deg, var(--anx1), var(--anx2)); box-shadow: 0 6px 16px rgba(15,118,110,.35); transition: transform .45s cubic-bezier(.3,1.3,.5,1); }
+  .anx-llegada { position: relative; overflow: hidden; border-left-width: 0 !important; border-radius: 18px !important; background: linear-gradient(90deg, color-mix(in srgb, #f59e0b 10%, var(--card)), var(--card)) !important; }
+  .anx-llegada.ok { background: linear-gradient(90deg, color-mix(in srgb, #10b981 14%, var(--card)), var(--card)) !important; }
+  .anx-llegada .fl-num { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #f59e0b !important; border: 0 !important; position: relative; }
+  .anx-llegada.ok .fl-num { background: #10b981 !important; }
+  .anx-latido { width: 12px; height: 12px; border-radius: 50%; background: #fff; }
+  .anx-llegada:not(.ok) .fl-num::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 3px solid #f59e0b; animation: anxPulso 1.4s ease-out infinite; }
+  @keyframes anxPulso { from { transform: scale(1); opacity: .9; } to { transform: scale(1.9); opacity: 0; } }
+  .anx-tilde { width: 22px; height: 22px; } .anx-tilde path { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 24; animation: anxTilde .6s .15s ease-out both; }
+  @keyframes anxTilde { from { stroke-dashoffset: 24; } to { stroke-dashoffset: 0; } }
+  .anx-llegue { background: linear-gradient(120deg, #f59e0b, #ea580c) !important; color: #fff !important; border: 0 !important; border-radius: 999px !important; padding: 11px 18px !important; font-weight: 800 !important; box-shadow: 0 8px 20px rgba(234,88,12,.35); animation: anxRespira 2s ease-in-out infinite; }
+  @keyframes anxRespira { 50% { transform: scale(1.04); box-shadow: 0 10px 26px rgba(234,88,12,.5); } }
+  .anx-linea { margin: 12px 0 14px; padding: 12px 12px 10px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 8px 22px rgba(15,23,42,.06); }
+  .anx-linea-cab { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .anx-linea-cab b { font-size: .95rem; color: var(--ink); } .anx-linea-cab span { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: .7rem; color: var(--muted); }
+  .anx-linea-cab i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--c); margin-right: -6px; }
+  .anx-linea-cab i.mia { background: none; box-shadow: 0 0 0 2px #f59e0b; border-radius: 50%; }
+  .anx-grilla { --sw: 38px; position: relative; padding-top: 16px; overflow: hidden; }
+  .anx-horas { position: absolute; top: 0; left: var(--sw); right: 0; height: 100%; pointer-events: none; }
+  .anx-horas span { position: absolute; top: 0; transform: translateX(-50%); font-size: .62rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .anx-horas span::after { content: ''; position: absolute; top: 14px; left: 50%; width: 1px; height: 1000px; background: var(--line); opacity: .7; }
+  .anx-fila { display: grid; grid-template-columns: var(--sw) 1fr; align-items: center; min-height: 38px; position: relative; }
+  .anx-sala { font-size: .72rem; font-weight: 800; color: var(--muted); }
+  .anx-pista { position: relative; height: 32px; border-radius: 9px; background: color-mix(in srgb, var(--ink) 4%, transparent); overflow: visible; }
+  .anx-bar { position: absolute; top: 3px; bottom: 3px; display: flex; align-items: center; gap: 4px; padding: 0 6px; border: 0; border-radius: 8px; overflow: hidden; cursor: pointer; text-align: left; color: #fff; font: inherit;
+    background: color-mix(in srgb, var(--c) 55%, #fff); transform-origin: left center; transition: transform .2s, box-shadow .2s; }
+  .anx-bar-p { position: absolute; inset: 0 auto 0 0; width: var(--p); background: var(--c); z-index: 0; transition: width .6s; }
+  .anx-bar b, .anx-bar small, .anx-bar em { position: relative; z-index: 1; white-space: nowrap; } .anx-bar b { font-size: .7rem; } .anx-bar small { font-size: .64rem; opacity: .92; overflow: hidden; text-overflow: ellipsis; } .anx-bar em { font-style: normal; font-size: .7rem; }
+  .anx-bar:hover, .anx-bar.on { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 18px color-mix(in srgb, var(--c) 45%, transparent); z-index: 2; }
+  .anx-bar.mia { box-shadow: 0 0 0 2px #f59e0b, 0 0 14px rgba(245,158,11,.55); }
+  .anx-ahora { position: absolute; top: 12px; bottom: 0; width: 2px; background: #ef4444; z-index: 3; pointer-events: none; }
+  .anx-ahora::before { content: ''; position: absolute; top: -4px; left: -4px; width: 10px; height: 10px; border-radius: 50%; background: #ef4444; animation: anxPulsoR 1.6s ease-out infinite; }
+  .anx-ahora span { position: absolute; top: -14px; left: 6px; font-size: .58rem; font-weight: 900; color: #ef4444; text-transform: uppercase; }
+  @keyframes anxPulsoR { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,.6); } 100% { box-shadow: 0 0 0 10px rgba(239,68,68,0); } }
+  .anx-ayuda { display: block; margin-top: 6px; font-size: .68rem; color: var(--muted); }
+  .anx .fl-card { border-radius: 16px; border-left: 4px solid var(--anx1); box-shadow: 0 4px 14px rgba(15,23,42,.05); transition: transform .2s, box-shadow .2s; }
+  .anx .fl-card:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(15,23,42,.1); }
+  .anx .fl-card.toca { border-left-color: #f59e0b; }
+  .anx .fl-linea i { transition: background .4s; } .anx .fl-linea i.activo { animation: anxTitila 1.2s ease-in-out infinite; }
+  @keyframes anxTitila { 50% { opacity: .35; } }
+  .anx-flash { animation: anxFlash 1.2s ease 2; } @keyframes anxFlash { 40% { box-shadow: 0 0 0 4px rgba(13,148,136,.45); } }
+  .anx .an-kpi { border-radius: 18px; transition: transform .2s; } .anx .an-kpi:hover { transform: translateY(-3px); }
+  .anx-gauge { display: grid !important; grid-template-columns: 68px minmax(0, 1fr); align-items: center; gap: 14px; grid-column: span 2; text-align: left; }
+  .anx-g-ring { position: relative; width: 68px; height: 68px; }
+  .anx-g-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+  .anx-g-ring b { position: absolute !important; inset: 0; display: grid !important; place-items: center; margin: 0 !important; font-size: .95rem !important; line-height: 1 !important; color: var(--c); font-variant-numeric: tabular-nums; }
+  .anx-g-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; } .anx-g-txt span { font-weight: 800; color: var(--ink); } .anx-g-txt small { color: var(--muted); }
+  .anx-gauge .anx-an-f { stroke: color-mix(in srgb, var(--c) 18%, transparent); } .anx-gauge .anx-an-v { stroke: var(--c); }
+  
+  .anx .an-uso i { transform-origin: left; animation: anxCrece .9s cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--d, 0ms); }
+  @keyframes anxCrece { from { transform: scaleX(0); } }
+  .anx-entra .anx-cuerpo > *, .anx-entra .fl-card, .anx-entra .anx-fila { animation: anxSube .5s cubic-bezier(.2,.8,.2,1) both; }
+  .anx-entra .fl-card:nth-of-type(2) { animation-delay: 60ms; } .anx-entra .fl-card:nth-of-type(3) { animation-delay: 120ms; } .anx-entra .fl-card:nth-of-type(n+4) { animation-delay: 180ms; }
+  .anx-entra .anx-bar { animation: anxBarra .7s cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--d); }
+  @keyframes anxSube { from { opacity: 0; transform: translateY(12px); } }
+  @keyframes anxBarra { from { transform: scaleX(0); opacity: 0; } }
+  @media (max-width: 640px) {
+    .anx-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .anx-hero h1 { font-size: 1.25rem; } .anx-anillo { width: 70px; height: 70px; }
+    .anx-bar small { display: none; } .anx-grilla { --sw: 30px; }
+  }
+
+  .anx-rl { margin: 0 0 14px; padding: 12px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 8px 22px rgba(15,23,42,.06); }
+  .anx-rl-cab { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px; margin-bottom: 10px; } .anx-rl-cab b { color: var(--ink); } .anx-rl-cab small { color: var(--muted); font-size: .72rem; }
+  .anx-rl-tira { display: grid; gap: 0; }
+  .anx-cx { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "n t d" "n m m"; gap: 4px 10px; align-items: center; padding: 10px; border-radius: 14px; border: 1px solid var(--line); border-left: 4px solid var(--c); background: color-mix(in srgb, var(--c) 5%, var(--card)); }
+  .anx-cx.encurso { box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 50%, transparent); }
+  .anx-cx-n { grid-area: n; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; color: #fff; background: var(--c); }
+  .anx-cx.hecha .anx-cx-n::after { content: '✓'; } .anx-cx.hecha .anx-cx-n { font-size: 0; } .anx-cx.hecha .anx-cx-n::after { font-size: .9rem; }
+  .anx-cx-t { grid-area: t; min-width: 0; } .anx-cx-t b { display: block; font-size: .84rem; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .anx-cx-t small { font-size: .72rem; color: var(--muted); }
+  .anx-cx-marcas { grid-area: m; display: flex; flex-wrap: wrap; gap: 6px; }
+  .anx-cx-marcas span { display: inline-flex; align-items: center; gap: 4px; font-size: .74rem; padding: 3px 8px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); }
+  .anx-cx-marcas span.ok { background: #dcfce7; color: #166534; }
+  .anx-cx-marcas button { border: 0; border-radius: 99px; padding: 3px 9px; font: 800 .7rem inherit; font-family: inherit; color: #fff; background: linear-gradient(120deg, #f59e0b, #ea580c); cursor: pointer; }
+  .anx-cx-dur { grid-area: d; text-align: right; } .anx-cx-dur small { display: block; font-size: .6rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); } .anx-cx-dur b { font-size: .95rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .anx-rec { position: relative; display: flex; align-items: center; gap: 10px; margin: 0 0 0 14px; padding: 8px 0 8px 22px; border-left: 3px dashed var(--line); }
+  .anx-rec > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 5px 10px; border-radius: 10px; background: color-mix(in srgb, var(--ink) 4%, transparent); }
+  .anx-rec small { font-size: .64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); } .anx-rec b { font-size: .9rem; font-variant-numeric: tabular-nums; } .anx-rec em { font-style: normal; font-size: .66rem; color: var(--muted); }
+  .anx-rec.ok { border-left-color: #10b981; } .anx-rec.ok b { color: #059669; }
+  .anx-rec.warn { border-left-color: #f59e0b; } .anx-rec.warn b { color: #b45309; }
+  .anx-rec.bad { border-left-color: #ef4444; } .anx-rec.bad b { color: #dc2626; }
+  .anx-rec.vivo > div { background: #fef3c7; } .anx-rec.vivo em { color: #b45309; font-weight: 800; animation: anxTitila 1.2s ease-in-out infinite; }
+  .anx-rec-flecha { position: absolute; left: -7px; top: 50%; width: 11px; height: 11px; margin-top: -6px; border-radius: 50%; background: currentColor; color: var(--line); }
+  .anx-rec.ok .anx-rec-flecha { color: #10b981; } .anx-rec.warn .anx-rec-flecha { color: #f59e0b; } .anx-rec.bad .anx-rec-flecha { color: #ef4444; }
+  .anx-rl-tot { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  .anx-rl-tot > div { padding: 9px 10px; border-radius: 12px; background: linear-gradient(140deg, color-mix(in srgb, var(--anx1) 10%, var(--card)), var(--card)); border: 1px solid var(--line); }
+  .anx-rl-tot small { display: block; font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .anx-rl-tot b { display: block; font-size: 1.05rem; color: var(--ink); font-variant-numeric: tabular-nums; } .anx-rl-tot b.ok { color: #059669; } .anx-rl-tot b.bad { color: #dc2626; }
+  .anx-rl-tot span { font-size: .66rem; color: var(--muted); }
+  .anx-rl-barra { height: 8px; border-radius: 99px; margin-top: 10px; background: repeating-linear-gradient(45deg, #fcd34d, #fcd34d 6px, #fde68a 6px, #fde68a 12px); overflow: hidden; }
+  .anx-rl-barra i { display: block; height: 100%; background: linear-gradient(90deg, var(--anx1), #10b981); border-radius: 99px; transform-origin: left; animation: anxCrece 1s cubic-bezier(.2,.8,.2,1) both; }
+  @media (max-width: 640px) { .anx-rl-tot { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (prefers-reduced-motion: reduce) {
+    .anx *, .anx *::before, .anx *::after { animation: none !important; transition: none !important; }
+  }
+  .pa-chip { display: inline-block; font-size: .7rem; font-weight: 800; padding: 2px 8px; border-radius: 99px; background: #ccfbf1; color: #115e59; margin: 0 6px; }
+  .fl-card .pa-card { margin: 10px 12px; padding: 10px 12px; border-radius: 14px; border: 1px solid #99f6e4; background: #fff; }
+  .pa-acc { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; } .pa-prog { margin-top: 6px; font-size: .8rem; font-weight: 700; color: #0f766e; }
+  .rc-nota-guardar { flex-basis: 100%; margin: 0 0 6px; }
+  .rc-acc2 { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rc-flash { animation: rcFlash 1.4s ease 2; }
+  @keyframes rcFlash { 0%, 100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); } 40% { box-shadow: 0 0 0 6px rgba(22,163,74,.45); } }
+  .rc-paso { display: inline-block; font-size: .68rem; font-weight: 800; padding: 2px 8px; border-radius: 99px; margin-right: 4px; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; vertical-align: middle; }
+  .rc-paso.pac { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; } .rc-paso.ok { background: #dcfce7; color: #166534; border-color: #86efac; }
+  .rc-pac-resp { display: grid; gap: 2px; border-radius: 12px; padding: 10px 12px; margin: 10px 0; background: #f5f3ff; border: 1px solid #ddd6fe; font-size: .86rem; }
+  .rc-pac-resp.ok { background: #f0fdf4; border-color: #86efac; } .rc-pac-resp.no { background: #fef2f2; border-color: #fca5a5; }
+  .rc-pase-vista { min-height: 0; padding: 0; max-width: 460px; } .rc-pase-vista button { pointer-events: none; opacity: .7; } .rc-pase-vista .pp-vivo { display: none; }
   .rc-tel { display: grid; gap: 4px; }
   @media (max-width: 560px) { .rc-sectores { grid-template-columns: 1fr; } .rc-oks li { grid-template-columns: 26px 1fr; } .rc-oks li .btn, .rc-oks li .rc-tel { grid-column: 1 / -1; grid-row: auto; } }
   @media (prefers-reduced-motion: reduce) { .rc-sello { animation: none; } }
@@ -5603,6 +5749,18 @@
   .an-kpi { --c: #2563eb; padding: 13px; border-radius: 16px; background: linear-gradient(160deg, color-mix(in srgb, var(--c) 12%, var(--card)), var(--card)); border: 1px solid color-mix(in srgb, var(--c) 28%, var(--line)); display: flex; flex-direction: column; gap: 2px; }
   .an-kpi b { font-size: 1.5rem; font-weight: 900; color: var(--c); } .an-kpi span { font-size: .8rem; font-weight: 800; color: var(--ink); } .an-kpi small { font-size: .68rem; color: var(--muted); }
   .an-uso { display: grid; grid-template-columns: 120px 1fr 50px; gap: 10px; align-items: center; margin: 8px 0; font-size: .8rem; }
+  /* 3.28 · Recambio largo: motivo y causas del mes */
+  .rec-pide { margin-top: 6px; padding: 8px; border-radius: 10px; background: color-mix(in srgb, #ef4444 8%, transparent); border: 1px dashed color-mix(in srgb, #ef4444 45%, transparent); }
+  .rec-pide b { display: block; font-size: .78rem; margin-bottom: 6px; }
+  .rec-pide div { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rec-pide button { font: inherit; font-size: .74rem; padding: 5px 9px; border-radius: 99px; cursor: pointer; border: 1px solid color-mix(in srgb, var(--c) 50%, transparent); background: color-mix(in srgb, var(--c) 12%, var(--card, #fff)); color: inherit; }
+  .rec-pide button:hover { background: color-mix(in srgb, var(--c) 25%, var(--card, #fff)); }
+  .rec-causa { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 2px 8px; border-radius: 99px; font-size: .72rem; background: color-mix(in srgb, var(--c, #94a3b8) 15%, transparent); border: 1px solid color-mix(in srgb, var(--c, #94a3b8) 40%, transparent); }
+  .rec-causa.falta { --c: #ef4444; font-style: italic; }
+  .rec-cambiar { border: 0; background: none; cursor: pointer; font-size: .8rem; padding: 0 2px; color: inherit; }
+  .rec-bar { grid-template-columns: minmax(120px, 190px) 1fr auto; }
+  .rec-bar i { background: var(--c) !important; }
+  .rec-bar small { grid-column: 1 / -1; margin-top: -6px; opacity: .7; }
   .an-uso div { height: 10px; border-radius: 99px; background: var(--sup2, #f1f5f9); overflow: hidden; } .an-uso i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #7c3aed, #2dd4bf); }
   .an-jefe { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; margin-bottom: 12px; background: var(--card); border: 1px solid var(--line); }
   .an-jefe select { padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--sup1, #fff); color: var(--ink); font-family: inherit; }
@@ -6105,6 +6263,7 @@
   .fl-linea { display: flex; gap: 3px; }
   .fl-linea i { width: 14px; height: 4px; border-radius: 2px; background: var(--line); }
   .fl-linea i.hecho { background: var(--ink); } .fl-linea i.activo { background: var(--acento); }
+  ol.fl-linea { display: block; }   /* 3.28 · la lista «Hoy en los quirófanos» comparte el nombre: va en columna, no en fila */
   .fl-estado { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 14px 11px 14px; font-size: .78rem; flex-wrap: wrap; }
   .fl-toca { color: var(--acento); } .fl-ok { color: var(--ink); } .fl-espera { color: var(--muted); }
   .fl-pasos { list-style: none; margin: 0; padding: 4px 14px 14px; border-top: 1px solid var(--line); }
@@ -6595,6 +6754,7 @@ const ICONS = {
   volumen: I('<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 4.9a10 10 0 0 1 0 14.2"/>', 15),
   volumenOff: I('<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/>', 15),
   info: I('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>', 18),
+  cama: I('<path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>'),   // 3.28 · Jefatura de Enfermería
   clipboard: I('<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>'),
   chart: I('<path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8" rx="1"/><rect x="12" y="6" width="3" height="12" rx="1"/><rect x="17" y="13" width="3" height="5" rx="1"/>'),
   play: I('<polygon points="6 3 20 12 6 21 6 3"/>', 15),
@@ -8853,7 +9013,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.27.0';
+const APP_VERSION = '3.28.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -9765,7 +9925,7 @@ function estChip(c) {
 function prioChip(c) {
   const pe = prioridadEfectiva(c);
   const p = PRIOS[pe] || { color: '#94a3b8', label: 'Sin prioridad', desc: 'Prioridad sin cargar' };
-  let html = rcSello(c, true) + `<span class="prio-chip" style="background:${p.color}" title="${esc(p.desc)}">P${pe} · ${p.label}</span>`;
+  let html = rcSello(c, true) + rcPasoChip(c) + `<span class="prio-chip" style="background:${p.color}" title="${esc(p.desc)}">P${pe} · ${p.label}</span>`;
   if (pe === 5 && c.prioridad === 6) {
     html += ` <span class="alert90" title="Alerta automática: paciente con más de 90 días en lista de espera">${ICONS.bell.replace('16', '12')} ${esperaDias(c)} días de espera</span>`;
   }
@@ -11757,7 +11917,7 @@ function renderSidebar() {
       <button class="nav-btn ${view === 'camas' ? 'active' : ''}" onclick="go('camas')"><span class="nv-ico" style="--h:#16a34a">🛏️</span><span class="nv-lbl">Mapa de camas</span></button>
       <button class="nav-btn ${view === 'recordatorios' ? 'active' : ''}" onclick="go('recordatorios')"><span class="nv-ico" style="--h:#fbbf24">${ICONS.bellRing}</span><span class="nv-lbl">Avisos</span></button>`;
     navLuzIniciar(); renderBottomNav();
-    $('sidebar-bottom').innerHTML = `<div class="jefe-session"><div class="jefe-session-name">🗂️ Admisión y Egresos</div><div class="jefe-session-sub">Ingresos y camas</div>
+    $('sidebar-bottom').innerHTML = `<div class="jefe-session"><div class="jefe-session-name">${ICONS.clipboard} Admisión y Egresos</div><div class="jefe-session-sub">Ingresos y camas</div>
       <button class="jefe-logout" onclick="admisLogout()">${ICONS.logout} Cerrar sesión</button></div>
       <div class="confidential-note"><div style="opacity:0.75">Versión ${APP_VERSION} · ${cloudOn ? 'base compartida en Firebase' : 'modo local'}</div></div>`;
     return;
@@ -11766,7 +11926,7 @@ function renderSidebar() {
   if (soloEnfermeria()) {
     $('nav').innerHTML = `<div class="nav-sep">Jefatura de Enfermería</div><button class="nav-btn ${view === 'camas' ? 'active' : ''}" onclick="go('camas')"><span class="nv-ico" style="--h:#16a34a">🛏️</span><span class="nv-lbl">Mapa de camas</span>${nRem ? `<span class="nav-badge">${nRem}</span>` : ''}</button>`;
     navLuzIniciar(); renderBottomNav();
-    $('sidebar-bottom').innerHTML = `<div class="jefe-session"><div class="jefe-session-name">🛏️ Jefatura de Enfermería</div><div class="jefe-session-sub">Solo el Mapa de camas</div>
+    $('sidebar-bottom').innerHTML = `<div class="jefe-session"><div class="jefe-session-name">${ICONS.cama} Jefatura de Enfermería</div><div class="jefe-session-sub">Solo el Mapa de camas</div>
       <button class="jefe-logout" onclick="jefEnfLogout()">${ICONS.logout} Cerrar sesión</button></div>
       <div class="confidential-note"><div style="opacity:0.75">Versión ${APP_VERSION} · ${cloudOn ? 'base compartida en Firebase' : 'modo local'}</div></div>`;
     return;
@@ -11882,11 +12042,11 @@ function renderSidebar() {
        </div>`
     : `<button class="jefe-access" onclick="openJefeModal()">${ICONS.shield} Acceso Jefe</button>`;
   bottom += jefenf
-    ? `<div class="jefe-session"><div class="jefe-session-name">🛏️ Jefatura de Enfermería</div><button class="jefe-logout" onclick="jefEnfLogout()">${ICONS.logout} Cerrar sesión de Enfermería</button></div>`
-    : `<button class="jefe-access" onclick="openJefEnfModal()">🛏️ Acceso Jefatura de Enfermería</button>`;
+    ? `<div class="jefe-session"><div class="jefe-session-name">${ICONS.cama} Jefatura de Enfermería</div><button class="jefe-logout" onclick="jefEnfLogout()">${ICONS.logout} Cerrar sesión de Enfermería</button></div>`
+    : `<button class="jefe-access" onclick="openJefEnfModal()">${ICONS.cama} Acceso Jefatura de Enfermería</button>`;
   bottom += admis
-    ? `<div class="jefe-session"><div class="jefe-session-name">🗂️ Admisión y Egresos</div><button class="jefe-logout" onclick="admisLogout()">${ICONS.logout} Cerrar sesión de Admisión</button></div>`
-    : `<button class="jefe-access" onclick="openAdmisModal()">🗂️ Acceso Admisión y Egresos</button>`;
+    ? `<div class="jefe-session"><div class="jefe-session-name">${ICONS.clipboard} Admisión y Egresos</div><button class="jefe-logout" onclick="admisLogout()">${ICONS.logout} Cerrar sesión de Admisión</button></div>`
+    : `<button class="jefe-access" onclick="openAdmisModal()">${ICONS.clipboard} Acceso Admisión y Egresos</button>`;
   bottom += `<div class="confidential-note">Canal único y válido para la gestión quirúrgica del HRU. Las incidencias son confidenciales: solo la Jefatura accede a su contenido.
     <div style="margin-top:8px;opacity:0.75">Versión ${APP_VERSION} · ${cloudOn ? 'base compartida en Firebase' : 'modo local'}</div></div>`;
   $('sidebar-bottom').innerHTML = bottom;
@@ -12589,6 +12749,7 @@ const ALDRETE = [
   { k: 'o', n: 'Saturación O₂', o: ['< 90 % con O₂', '> 90 % con O₂', '> 92 % aire ambiente'] },
 ];
 const ANEST_TIEMPOS = [
+  { k: 'ent', n: 'Entrada del paciente a sala', i: '🚶' },   // 3.27.1 · para medir el recambio entre cirugías
   { k: 'ia', n: 'Inicio de anestesia', i: '💤' }, { k: 'inc', n: 'Incisión', i: '✂️' },
   { k: 'fin', n: 'Fin de la cirugía', i: '🩹' }, { k: 'sal', n: 'Salida de sala', i: '🚪' },
 ];
@@ -12736,13 +12897,259 @@ function renderAnestesia(embebido) {
   if (!anestDia) anestDia = hoyISO();
   if (!anestMes) anestMes = anestMesPorDefecto();
   const tabs = embebido ? [['hoy', 'Hoy'], ['mes', 'Disponibilidad del mes'], ['ind', 'Indicadores']] : [['hoy', 'Hoy'], ['mes', esJefeAnest(u) ? 'Disponibilidad del mes' : 'Mi mes'], ['ind', 'Indicadores']];
-  const tabsHTML = `<div class="fl-tabs" role="tablist">${tabs.map(([k, t]) => `<button role="tab" class="${anestTab === k ? 'on' : ''}" aria-selected="${anestTab === k}" onclick="anestTab='${k}';${embebido ? 'renderPortales()' : 'renderAnestesia()'}">${t}</button>`).join('')}</div>`;
+  const ti = tabs.findIndex(([k]) => k === anestTab);
+  const tabsHTML = `<div class="fl-tabs anx-tabs" role="tablist" style="--n:${tabs.length};--i:${Math.max(0, ti)}"><span class="anx-tab-luz" aria-hidden="true"></span>${tabs.map(([k, t]) => `<button role="tab" class="${anestTab === k ? 'on' : ''}" aria-selected="${anestTab === k}" onclick="anestTab='${k}';${embebido ? 'renderPortales()' : 'renderAnestesia()'}">${{ hoy: '◉ ', mes: '▦ ', ind: '◔ ' }[k]}${t}</button>`).join('')}</div>`;
   const cuerpo = anestTab === 'hoy' ? anestHoyHTML() : anestTab === 'mes' ? anestMesHTML() : anestIndicadoresHTML();
-  const html = embebido ? tabsHTML + cuerpo : `
-    <div class="fl-cabecera"><div>${flYoChip(esJefeAnest(u) ? 'Jefe/a de Servicio' : u ? '' : jefe ? 'Jefatura' : 'solo lectura')}<h1>Portal de Anestesiología</h1></div></div>
-    ${tabsHTML}${cuerpo}`;
+  // 3.27.1 · Estilo infografía: las entradas animadas corren solo al cambiar de solapa o de día.
+  const clave = anestTab + '|' + anestDia + '|' + (embebido ? 'e' : 'p');
+  const entra = anxUltima !== clave; anxUltima = clave;
+  const html = `<div class="anx${entra ? ' anx-entra' : ''}">${anxHeroHTML(u, embebido)}${tabsHTML}<div class="anx-cuerpo">${cuerpo}</div></div>`;
+  setTimeout(anxAnimar, 0);
   if (embebido) return html;
   $('main').innerHTML = html;
+}
+
+/* ================= 3.27.1 · PORTAL DE ANESTESIOLOGÍA ESTILO INFOGRAFÍA =================
+   Cabecera con el trazado de un monitor (ECG que se dibuja), contadores que
+   suben, anillo del avance del día, «Llegué» con pulso, LÍNEA DEL DÍA por sala
+   (cada cirugía es una barra en su hora; tocarla abre su tarjeta) y los
+   indicadores con anillos y barras que crecen. Todo respeta «reducir movimiento». */
+let anxUltima = '';
+const ANX_AREA = { qx: { n: 'Quirófanos', c: '#0d9488' }, endo: { n: 'Endoscopía', c: '#7c3aed' }, obs: { n: 'Obstetricia', c: '#db2777' } };
+function anxArea(c) { return c.sala === 'END' ? 'endo' : c.sala === 'QOBS' ? 'obs' : 'qx'; }
+function anxDatos(d) {
+  const u = usuarioActual();
+  const todas = salaCirugias(d);
+  const mias = u ? todas.filter(flEsMia) : [];
+  const base = mias.length ? mias : todas;
+  let pasos = 0, hechos = 0, firmas = 0;
+  base.forEach((c) => { const e = flEstado(c); pasos += e.pasos.length; hechos += e.hechos; });
+  todas.forEach((c) => { const e = flEstado(c); const p = e.pasos[e.activo]; if (p && p.firmas.some((x) => !x.f && flMisRoles(c).includes(x.rol))) firmas++; });
+  return { todas, mias, firmas, partes: todas.filter((c) => c.parteAnest).length, pct: pasos ? Math.round(hechos / pasos * 100) : 0, deMias: !!mias.length };
+}
+function anxHeroHTML(u, embebido) {
+  const d = anestDia || hoyISO(), x = anxDatos(d);
+  const kpi = (n, t, ic) => `<div class="anx-kpi"><i>${ic}</i><b data-n="${n}">${n}</b><span>${t}</span></div>`;
+  const ecg = 'M0 40 L60 40 L72 40 L80 30 L88 40 L104 40 L112 52 L120 6 L128 60 L136 40 L160 40 L172 34 L188 40 L260 40 L272 40 L280 30 L288 40 L304 40 L312 52 L320 6 L328 60 L336 40 L360 40 L372 34 L388 40 L460 40 L472 40 L480 30 L488 40 L504 40 L512 52 L520 6 L528 60 L536 40 L560 40 L572 34 L588 40 L640 40';
+  return `<header class="anx-hero${embebido ? ' chico' : ''}">
+    <svg class="anx-ecg" viewBox="0 0 640 70" preserveAspectRatio="none" aria-hidden="true"><path class="anx-ecg-base" d="${ecg}"/><path class="anx-ecg-luz" d="${ecg}"/></svg>
+    <div class="anx-hero-top">
+      <div>${embebido ? '' : flYoChip(esJefeAnest(u) ? 'Jefe/a de Servicio' : u ? '' : jefe ? 'Jefatura' : 'solo lectura')}
+        <small class="anx-kick">${esc(fmtDiaLargo(d))}</small>
+        <h1>Portal de Anestesiología</h1></div>
+      <div class="anx-anillo" style="--p:${x.pct}" title="Avance del recorrido ${x.deMias ? 'de sus cirugías' : 'del día'}"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9" class="anx-an-f"/><circle cx="18" cy="18" r="15.9" class="anx-an-v" style="stroke-dasharray:${x.pct} 100"/></svg><b data-n="${x.pct}" data-suf="%">${x.pct}%</b><small>${x.deMias ? 'mi recorrido' : 'del día'}</small></div>
+    </div>
+    <div class="anx-kpis">
+      ${kpi(x.todas.length, 'cirugías del día', '🩺')}
+      ${kpi(x.mias.length, 'a mi nombre', '👤')}
+      ${kpi(x.firmas, 'esperan mi firma', '✍️')}
+      ${kpi(x.partes, 'partes pre-anestésicos', '💉')}
+    </div>
+  </header>`;
+}
+/* Línea del día: una fila por sala, la cirugía en su hora y con su duración. */
+function anxLineaHTML(d) {
+  const todas = salaCirugias(d); if (!todas.length) return '';
+  const H0 = 7, H1 = 21, span = (H1 - H0) * 60;
+  const mn = (h) => { const m = String(h || '').match(/(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
+  const salas = [...new Set(todas.map((c) => c.sala))];
+  const ahora = new Date(), nowMin = ahora.getHours() * 60 + ahora.getMinutes();
+  const pctNow = d === hoyISO() && nowMin >= H0 * 60 && nowMin <= H1 * 60 ? (nowMin - H0 * 60) / span * 100 : null;
+  const horas = []; for (let h = H0; h <= H1; h += 2) horas.push(`<span style="left:${(h - H0) * 60 / span * 100}%">${String(h).padStart(2, '0')}</span>`);
+  const fila = (sid) => {
+    const cx = todas.filter((c) => c.sala === sid);
+    const barras = cx.map((c, i) => {
+      const ini = mn(c.horaProg); if (ini == null) return '';
+      const l = Math.max(0, Math.min(98, (ini - H0 * 60) / span * 100));
+      const w = Math.max(4, Math.min(100 - l, (Number(c.duracionMin) || 90) / span * 100));
+      const e = flEstado(c), a = ANX_AREA[anxArea(c)];
+      return `<button class="anx-bar${flEsMia(c) ? ' mia' : ''}${String(flAbierta) === String(c.id) ? ' on' : ''}" style="left:${l}%;width:${w}%;--c:${a.c};--d:${i * 90}ms;--p:${Math.round(e.hechos / e.pasos.length * 100)}%"
+        onclick="anxIr(${JSON.stringify(c.id)})" title="${esc(c.horaProg + ' h · ' + (c.procedimiento || '') + ' · ' + e.hechos + '/' + e.pasos.length + ' pasos')}">
+        <span class="anx-bar-p"></span><b>${esc(c.horaProg || '')}</b><small>${esc(c.procedimiento || '')}</small>${c.parteAnest ? '<em>💉</em>' : ''}</button>`;
+    }).join('');
+    const sa = sala(sid);
+    return `<div class="anx-fila"><span class="anx-sala">${esc(sa && sa.nombre ? sa.nombre.replace('Quirófano', 'Q') : sid)}</span><div class="anx-pista">${barras}</div></div>`;
+  };
+  return `<section class="anx-linea" aria-label="Línea del día">
+    <div class="anx-linea-cab"><b>Línea del día</b><span>${Object.entries(ANX_AREA).map(([, a]) => `<i style="--c:${a.c}"></i>${a.n}`).join('')}<i class="mia"></i>a mi nombre</span></div>
+    <div class="anx-grilla"><div class="anx-horas">${horas.join('')}</div>${salas.map(fila).join('')}
+      ${pctNow != null ? `<div class="anx-ahora" style="left:calc(var(--sw) + (100% - var(--sw)) * ${pctNow / 100})"><span>ahora</span></div>` : ''}</div>
+    <small class="anx-ayuda">Toque una barra para abrir su recorrido. El relleno muestra cuántos pasos están hechos.</small>
+  </section>`;
+}
+function anxIr(id) {
+  flAbierta = id; flMias = false; flArea = '';
+  flRepintar();
+  setTimeout(() => { const el = document.querySelector('.anx .fl-card.abierta'); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.add('anx-flash'); } }, 60);
+}
+
+/* ================= 3.27.1 · MI LÍNEA DEL DÍA: TIEMPOS ENTRE CIRUGÍAS =================
+   Para el anestesiólogo/a que lleva una línea (por ejemplo, 4 cirugías en un
+   quirófano): cada cirugía con su tiempo en sala (entrada → salida del
+   paciente) y, entre una y otra, el RECAMBIO (salida del paciente anterior →
+   entrada del siguiente). Cronómetro en vivo mientras corre un recambio y
+   totales parciales y del día. Se marca acá mismo con «Entró» / «Salió». */
+const RECAMBIO_META = 30;   // minutos: verde hasta 30, ámbar hasta 45, rojo después
+/* 3.28 · Recambio largo: pasados 45 min se pide el motivo (uno de la lista) y
+   el mes muestra el indicador de causas. Se guarda en la cirugía que ENTRA,
+   dentro de sus tiempos: `tiempos.recCausa`, `recNota`, `recPor`. */
+const RECAMBIO_LARGO = 45;
+const RECAMBIO_CAUSAS = [
+  { k: 'limpieza', n: 'Limpieza de sala', i: '🧽', c: '#0ea5e9' },
+  { k: 'camillero', n: 'Camillero / traslado', i: '🛏️', c: '#f59e0b' },
+  { k: 'paciente', n: 'Paciente no listo', i: '🧍', c: '#ef4444' },
+  { k: 'instrumental', n: 'Instrumental / esterilización', i: '🧰', c: '#8b5cf6' },
+  { k: 'equipo', n: 'Equipo quirúrgico demorado', i: '⏳', c: '#10b981' },
+  { k: 'otro', n: 'Otro motivo', i: '📝', c: '#64748b' },
+];
+function recCausa(k) { return RECAMBIO_CAUSAS.find((x) => x.k === k) || null; }
+/* Minutos de recambio antes de esta cirugía (salida del paciente anterior en
+   la misma sala y el mismo día → entrada de este), o null si falta un dato. */
+function recambioAntes(c) {
+  if (!c || !c.tiempos || !c.tiempos.ent) return null;
+  const g = DB.cirugias.filter((x) => x.fecha === c.fecha && x.sala === c.sala && x.estado !== 'suspendida')
+    .sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+  const i = g.findIndex((x) => String(x.id) === String(c.id));
+  if (i < 1) return null;
+  const ps = anxMin((g[i - 1].tiempos || {}).sal), en = anxMin(c.tiempos.ent);
+  return ps != null && en != null && en >= ps ? en - ps : null;
+}
+function recPideCausa(c) { const r = recambioAntes(c); return r != null && r > RECAMBIO_LARGO && !(c.tiempos || {}).recCausa; }
+async function recElegirCausa(id, k) {
+  const c = salaCir(id); if (!c || !recCausa(k)) return;
+  let nota = '';
+  if (k === 'otro') {
+    nota = await pedirTexto('Otro motivo del recambio largo\n\n¿Qué lo demoró? Una frase, sin datos del paciente.', { si: 'Guardar el motivo', campo: { label: 'Motivo', placeholder: 'Ej.: faltó la mesa de tracción', requerido: true } });
+    if (nota == null) return;
+    nota = String(nota).trim().slice(0, 120);
+    if (!nota) { alert('Escriba el motivo en una frase.'); return; }
+  }
+  c.tiempos = Object.assign({}, c.tiempos || {}, { recCausa: k, recPor: anestQuien() });
+  if (nota) c.tiempos.recNota = nota; else delete c.tiempos.recNota;
+  pushHist(c, `Recambio largo (${recambioAntes(c)} min) — motivo: ${recCausa(k).n}${nota ? ': ' + nota : ''} · ${anestQuien()}`);
+  upsert('cirugias', c); VIEWS[view]();
+}
+function recCausaHTML(c, puede) {
+  const t = c.tiempos || {}, ca = recCausa(t.recCausa), id = JSON.stringify(c.id);
+  if (ca) return `<span class="rec-causa" style="--c:${ca.c}">${ca.i} ${esc(ca.n)}${t.recNota ? ': ' + esc(t.recNota) : ''}${puede ? ` <button class="rec-cambiar" onclick="recBorrarCausa(${esc(id)})" title="Cambiar el motivo">✎</button>` : ''}</span>`;
+  if (!puede) return '<span class="rec-causa falta">sin motivo cargado</span>';
+  return `<div class="rec-pide"><b>Pasó de ${RECAMBIO_LARGO} min: ¿qué lo demoró?</b><div>${RECAMBIO_CAUSAS.map((x) =>
+    `<button style="--c:${x.c}" onclick="recElegirCausa(${esc(id)},'${x.k}')">${x.i} ${esc(x.n)}</button>`).join('')}</div></div>`;
+}
+function recBorrarCausa(id) {
+  const c = salaCir(id); if (!c || !c.tiempos) return;
+  c.tiempos = Object.assign({}, c.tiempos); delete c.tiempos.recCausa; delete c.tiempos.recNota; delete c.tiempos.recPor;
+  VIEWS[view]();
+}
+/* Indicador del mes: recambios largos y sus causas. */
+function recCausasMesHTML(ym) {
+  const largos = DB.cirugias.filter((c) => String(c.fecha || '').startsWith(ym) && c.tiempos && c.tiempos.ent)
+    .map((c) => ({ c, r: recambioAntes(c) })).filter((x) => x.r != null && x.r > RECAMBIO_LARGO);
+  const n = largos.length;
+  const cuenta = RECAMBIO_CAUSAS.map((x) => ({ x, v: largos.filter((l) => l.c.tiempos.recCausa === x.k) }));
+  const sin = largos.filter((l) => !recCausa(l.c.tiempos.recCausa)).length;
+  const max = Math.max(1, sin, ...cuenta.map((y) => y.v.length));
+  const prom = (a) => a.length ? Math.round(a.reduce((s, l) => s + l.r, 0) / a.length) : null;
+  const top = cuenta.slice().sort((a, b) => b.v.length - a.v.length)[0];
+  return `<div class="card rec-ind"><div class="card-title">Causas de recambio largo</div>
+    <div class="card-sub">Recambios de más de ${RECAMBIO_LARGO} min entre una cirugía y la siguiente en la misma sala · ${n} en el mes</div>
+    ${n ? cuenta.filter((y) => y.v.length).sort((a, b) => b.v.length - a.v.length).map((y, i) => `<div class="an-uso rec-bar" style="--d:${i * 80}ms;--c:${y.x.c}">
+        <span>${y.x.i} ${esc(y.x.n)}</span><div><i style="width:${Math.round(y.v.length / max * 100)}%"></i></div>
+        <b>${y.v.length} · ${Math.round(y.v.length / n * 100)} %</b><small>promedio ${prom(y.v)} min</small></div>`).join('')
+      + (sin ? `<div class="an-uso rec-bar" style="--c:#cbd5e1"><span>❔ Sin motivo cargado</span><div><i style="width:${Math.round(sin / max * 100)}%"></i></div><b>${sin} · ${Math.round(sin / n * 100)} %</b><small>falta elegirlo</small></div>` : '')
+      + (top && top.v.length ? `<p class="form-note">La causa más frecuente del mes es <b>${esc(top.x.n.toLowerCase())}</b>: es por donde más tiempo de quirófano se puede recuperar.</p>` : '')
+      : `<p class="form-note">Ningún recambio pasó de ${RECAMBIO_LARGO} min este mes (o todavía no se marcaron las entradas y salidas de sala).</p>`}
+  </div>`;
+}
+function anxMin(h) { const m = String(h || '').match(/(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : null; }
+function anxDur(m) { if (m == null || isNaN(m)) return '—'; const h = Math.floor(m / 60), r = m % 60; return h ? `${h} h ${String(r).padStart(2, '0')} min` : `${r} min`; }
+function anxLineasDelDia(d) {
+  const u = usuarioActual(), todas = salaCirugias(d);
+  if (u && esAnestesia(u)) { const mias = todas.filter((c) => c.anest && c.anest.e === u.email); return mias.length ? [{ t: 'Mi línea', cx: mias }] : []; }
+  // Jefatura / Dirección: una línea por sala con dos o más cirugías.
+  const por = {}; todas.forEach((c) => { (por[c.sala] = por[c.sala] || []).push(c); });
+  return Object.entries(por).filter(([, cx]) => cx.length >= 2).map(([sid, cx]) => ({ t: (sala(sid) || {}).nombre || sid, cx }));
+}
+function anxRecambioHTML(d) {
+  const lineas = anxLineasDelDia(d); if (!lineas.length) return '';
+  const u = usuarioActual();
+  const ahora = new Date(), nowMin = ahora.getHours() * 60 + ahora.getMinutes(), hoy = d === hoyISO();
+  const linea = (L) => {
+    const cx = L.cx.slice().sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+    let totRec = 0, nRec = 0, totSala = 0, nSala = 0;
+    const partes = [];
+    cx.forEach((c, i) => {
+      const t = c.tiempos || {}, ent = anxMin(t.ent), sal = anxMin(t.sal), id = JSON.stringify(c.id);
+      const puede = jefe || (u && c.anest && c.anest.e === u.email);
+      if (i > 0) {
+        const prev = cx[i - 1].tiempos || {}, ps = anxMin(prev.sal);
+        let rec = null, vivo = false;
+        if (ps != null && ent != null) rec = ent - ps;
+        else if (ps != null && ent == null && hoy) { rec = nowMin - ps; vivo = true; }
+        if (rec != null && rec >= 0 && !vivo) { totRec += rec; nRec++; }
+        const tono = rec == null ? 'gris' : rec <= RECAMBIO_META ? 'ok' : rec <= RECAMBIO_META * 1.5 ? 'warn' : 'bad';
+        partes.push(`<div class="anx-rec ${tono}${vivo ? ' vivo' : ''}">
+          <span class="anx-rec-flecha"></span>
+          <div><small>Recambio ${i}</small><b ${vivo ? `class="anx-vivo" data-desde="${esc(prev.sal)}"` : ''}>${rec == null ? (ps == null ? 'arranca cuando sale el paciente anterior' : 'falta marcar la entrada') : anxDur(rec)}</b>
+          ${vivo ? '<em>en curso</em>' : rec != null ? `<em>meta ${RECAMBIO_META} min</em>` : ''}
+          ${!vivo && rec != null && rec > RECAMBIO_LARGO ? recCausaHTML(c, puede) : ''}</div></div>`);
+      }
+      const enSala = ent != null && sal != null ? sal - ent : null;
+      if (enSala != null && enSala >= 0) { totSala += enSala; nSala++; }
+      const enCurso = ent != null && sal == null;
+      partes.push(`<div class="anx-cx${sal != null ? ' hecha' : enCurso ? ' encurso' : ''}" style="--c:${ANX_AREA[anxArea(c)].c}">
+        <span class="anx-cx-n">${i + 1}</span>
+        <div class="anx-cx-t"><b>${esc(c.horaProg || '—')} · ${esc(c.procedimiento || '')}</b><small>${esc(c.quirofano || '')}${c.paciente && c.paciente.nombre ? ' · ' + esc(c.paciente.nombre) : ''}</small></div>
+        <div class="anx-cx-marcas">
+          <span class="${t.ent ? 'ok' : ''}">🚶 Entró <b>${esc(t.ent || '—')}</b>${puede && !t.ent ? `<button onclick="anestTiempo(${id},'ent','ahora')">Ahora</button>` : ''}</span>
+          <span class="${t.sal ? 'ok' : ''}">🚪 Salió <b>${esc(t.sal || '—')}</b>${puede && !t.sal && t.ent ? `<button onclick="anestTiempo(${id},'sal','ahora')">Ahora</button>` : ''}</span>
+        </div>
+        <div class="anx-cx-dur"><small>en sala</small><b ${enCurso && hoy ? `class="anx-vivo" data-desde="${esc(t.ent)}"` : ''}>${enSala != null ? anxDur(enSala) : enCurso && hoy ? anxDur(nowMin - ent) : '—'}</b></div>
+      </div>`);
+    });
+    const primero = anxMin((cx[0].tiempos || {}).ent), ultimo = anxMin((cx[cx.length - 1].tiempos || {}).sal);
+    const jornada = primero != null && ultimo != null ? ultimo - primero : null;
+    const efic = jornada ? Math.round(totSala / jornada * 100) : null;
+    return `<section class="anx-rl">
+      <div class="anx-rl-cab"><b>⏱ ${esc(L.t)} · ${cx.length} cirugías</b><small>De la salida de un paciente a la entrada del siguiente</small></div>
+      <div class="anx-rl-tira">${partes.join('')}</div>
+      <div class="anx-rl-tot">
+        <div><small>Total entre cirugías</small><b>${nRec ? anxDur(totRec) : '—'}</b><span>${nRec} recambio(s) medidos</span></div>
+        <div><small>Recambio promedio</small><b class="${nRec ? (totRec / nRec <= RECAMBIO_META ? 'ok' : 'bad') : ''}">${nRec ? anxDur(Math.round(totRec / nRec)) : '—'}</b><span>meta ${RECAMBIO_META} min</span></div>
+        <div><small>Total en sala</small><b>${nSala ? anxDur(totSala) : '—'}</b><span>${nSala} cirugía(s) completas</span></div>
+        <div><small>Jornada de la línea</small><b>${jornada != null ? anxDur(jornada) : '—'}</b><span>${efic != null ? `${efic} % con paciente en sala` : 'primera entrada → última salida'}</span></div>
+      </div>
+      ${efic != null ? `<div class="anx-rl-barra" title="Con paciente ${efic} % · recambios ${100 - efic} %"><i style="width:${efic}%"></i></div>` : ''}
+    </section>`;
+  };
+  anxRelojVivo();
+  return lineas.map(linea).join('');
+}
+/* Cronómetros en vivo (recambio y tiempo en sala en curso): uno solo para toda la app. */
+let anxReloj = null;
+function anxRelojVivo() {
+  if (anxReloj) return;
+  anxReloj = setInterval(() => {
+    const els = document.querySelectorAll('.anx-vivo[data-desde]'); if (!els.length) return;
+    const a = new Date(), seg = a.getHours() * 3600 + a.getMinutes() * 60 + a.getSeconds();
+    els.forEach((el) => { const m = anxMin(el.dataset.desde); if (m == null) return; const s = Math.max(0, seg - m * 60);
+      el.textContent = `${Math.floor(s / 3600) ? Math.floor(s / 3600) + ' h ' : ''}${String(Math.floor(s / 60) % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; });
+  }, 1000);
+}
+/* Contadores que suben (desde el último valor mostrado, no desde cero cada vez). */
+const anxValores = {};
+function anxAnimar() {
+  const quieto = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.anx [data-n]').forEach((el, i) => {
+    const fin = Number(el.dataset.n) || 0, suf = el.dataset.suf || '';
+    const key = (el.closest('.anx-kpi') ? 'k' : 'a') + i;
+    const ini = anxValores[key] != null ? anxValores[key] : 0;
+    anxValores[key] = fin;
+    if (quieto || ini === fin) { el.textContent = fin + suf; return; }
+    const t0 = performance.now(), dur = 900;
+    const paso = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(ini + (fin - ini) * e) + suf; if (k < 1) requestAnimationFrame(paso); };
+    requestAnimationFrame(paso);
+  });
 }
 
 /* ---- Hoy: check-point y programación de las tres áreas ---- */
@@ -12761,14 +13168,14 @@ function anestHoyHTML() {
   return `
     ${flDiaNav('anestDia', d)}
     ${pres && pres._error ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 18)}<div><strong>No se pudo leer el registro de llegada.</strong> ${pres._error === 'PERMISSION_DENIED' ? 'La base todavía no tiene publicadas las reglas de Anestesiología.' : 'Revise la conexión.'}</div></div>` : ''}
-    ${esAnestesia(u) ? `<div class="fl-llegada ${mia ? 'ok' : ''}">
-      <span class="fl-num">${mia ? '✓' : '0'}</span>
+    ${esAnestesia(u) ? `<div class="fl-llegada anx-llegada ${mia ? 'ok' : ''}">
+      <span class="fl-num">${mia ? '<svg viewBox="0 0 24 24" class="anx-tilde"><path d="M5 12.5l4.5 4.5L19 7"/></svg>' : '<i class="anx-latido"></i>'}</span>
       <div><b>${mia ? 'Llegada registrada · ' + esc(String(mia.t || '').slice(11, 16)) + ' h' : 'Primero: marque su llegada'}</b>
         <small>${mia ? 'Ahora confirme en qué cirugías va a estar: es el paso «Equipo» de cada una.' : 'Con eso el equipo sabe que llegó y está disponible.'}</small></div>
-      ${!mia ? `<button class="fl-btn" onclick="anestLlegue()">Llegué · estoy disponible</button>` : ''}
+      ${!mia ? `<button class="fl-btn anx-llegue" onclick="anestLlegue()"><span>Llegué · estoy disponible</span></button>` : ''}
     </div>` : `<div class="fl-presentes"><b>Presentes</b>${presentes.length ? presentes.map(([k, p]) => `<span style="--k:${anestColor(k)}"><i></i>${esc(p.n)} · ${esc(String(p.t || '').slice(11, 16))} h</span>`).join('') : '<small>Nadie marcó su llegada todavía.</small>'}</div>`}
     ${cubreTxt ? `<div class="fl-cubre"><small>Disponibilidad del día${diaUrgAutomatica(d, disp) ? ' · ' + esc(urgAutomaticaTexto(d, disp)) + ': solo guardia' : ''}</small>${cubreTxt}</div>` : ''}
-    ${esAnestesia(u) && !mia ? '<p class="fl-intro fl-bloq">🔒 Las cirugías del día se habilitan cuando marca su llegada.</p>' : flujoLista(d, jefe && !u ? 'jefe' : director && !u ? 'dir' : 'anest')}`;
+    ${esAnestesia(u) && !mia ? '<p class="fl-intro fl-bloq">🔒 Las cirugías del día se habilitan cuando marca su llegada.</p>' : anxLineaHTML(d) + anxRecambioHTML(d) + flujoLista(d, jefe && !u ? 'jefe' : director && !u ? 'dir' : 'anest')}`;
 }
 function urgAutomaticaTexto(d, disp) { return esFeriado(d, disp) ? 'Feriado' : new Date(d + 'T12:00:00').getDay() === 6 ? 'Sábado' : 'Domingo'; }
 function urgAutomaticaRotulo(d, disp) { return diaUrgAutomatica(d, disp) ? ' · ' + urgAutomaticaTexto(d, disp) : ''; }
@@ -12855,6 +13262,7 @@ function anestDetalle(c) {
           <div class="an-ald-pie"><b id="ald-tot-${c.id}">${al ? al.tot : 10}/10</b><button class="btn btn-sm btn-teal" onclick="anestAldrete(${id})">Registrar Aldrete</button></div>`
           : al ? `<p class="an-nota">Registrado por ${esc(al.por)} · ${esc(String(al.t).slice(11, 16))} h</p>` : '<p class="an-nota">Sin registrar.</p>'}
       </section>
+      ${paTarjetaHTML(c)}
     </div>
   </article>`;
 }
@@ -12875,6 +13283,11 @@ function anestTiempo(id, k, v) {
   const n = (ANEST_TIEMPOS.find((x) => x.k === k) || {}).n;
   pushHist(c, `Tiempo real — ${n}: ${val || 'borrado'}${previo ? ` (antes ${previo})` : ''} · ${anestQuien()}`);
   upsert('cirugias', c); VIEWS[view]();
+  // 3.28 · Si con esta entrada el recambio pasó de 45 min, se pide el motivo ahí mismo.
+  if (k === 'ent' && recPideCausa(c)) {
+    toastTurno(`El recambio duró ${recambioAntes(c)} min (más de ${RECAMBIO_LARGO}). Elija el motivo en la línea.`, '#ea580c');
+    setTimeout(() => { const el = document.querySelector('.rec-pide'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 80);
+  }
 }
 function anestAldreteSuma(id) {
   const t = ALDRETE.reduce((s, x) => s + Number(($(`ald-${id}-${x.k}`) || {}).value || 0), 0);
@@ -12887,6 +13300,128 @@ function anestAldrete(id) {
   c.aldrete = Object.assign(al, { tot, t: nowDT(), por: anestQuien() });
   pushHist(c, `Aldrete ${tot}/10 — ${tot >= 9 ? 'alta de recuperación' : 'sigue en recuperación'} · ${anestQuien()}`);
   upsert('cirugias', c); VIEWS[view]();
+}
+
+/* ================= 3.27.1 · PARTE ANESTÉSICO PRE-QUIRÚRGICO =================
+   Cuando el anestesiólogo/a marcó «Llegué» y está anotado en la cirugía, adjunta
+   el parte pre-quirúrgico: una FOTO del papel (la cámara del celular) o un
+   ARCHIVO (imagen o PDF). La foto se achica en el equipo antes de subir
+   —JPEG de ~1600 px, unos 150-350 KB— y el PDF se acepta hasta 900 KB.
+
+   Para que la app no se enlentezca, el archivo NO viaja con la cirugía: va a
+   su propio lugar (`anestesia/partes/<id>`). La cirugía solo lleva el rótulo
+   (`c.parteAnest`: tipo, peso, quién y cuándo). Los demás ven «Parte anestésico
+   pre-quirúrgico» y lo bajan a su equipo solo si tocan «Descargar».
+   Es un dato de salud: lo leen solo las cuentas del hospital (no el pase del
+   paciente) y lo cambia o quita quien lo subió o la Jefatura. */
+const PA_FOTO_KB = 350, PA_PDF_KB = 900, PA_LADO = 1600;
+const paCache = {};
+function paPuedeSubir(c) {
+  const u = usuarioActual();
+  if (jefe) return true;
+  if (!esAnestesia(u) || !c.anest || c.anest.e !== u.email) return false;
+  // Primero la llegada del día (el mismo candado que las cirugías del portal).
+  const pres = anestCache.pres[c.fecha];
+  return !!(pres && pres[anestK(u.email)]) || c.fecha !== hoyISO();
+}
+function paTarjetaHTML(c, enFicha) {
+  const pa = c.parteAnest, puede = paPuedeSubir(c), id = JSON.stringify(c.id);
+  const kb = pa ? (pa.kb >= 1000 ? (pa.kb / 1024).toFixed(1) + ' MB' : pa.kb + ' KB') : '';
+  const cuerpo = pa
+    ? `<div class="pa-doc"><span class="pa-ico">${pa.tipo === 'application/pdf' ? '📄' : '🖼️'}</span>
+        <div><b>Parte anestésico pre-quirúrgico</b><small>${pa.tipo === 'application/pdf' ? 'PDF' : 'Foto'} · ${kb} · ${esc(pa.por)} · ${fmtDT(pa.t)}</small></div>
+        <button class="btn btn-sm btn-teal" onclick="paDescargar(${id})">⬇ Descargar</button></div>`
+    : `<p class="an-nota">${puede ? 'Saque una foto del parte en papel o adjunte el archivo. Se achica en su equipo antes de subir.' : 'Todavía no se adjuntó. Lo sube el anestesiólogo/a de la cirugía después de marcar «Llegué».'}</p>`;
+  const acc = puede ? `<div class="pa-acc">
+      <button class="btn btn-sm ${pa ? 'btn-outline' : 'btn-teal'}" onclick="paElegir(${id}, true)">📷 ${pa ? 'Otra foto' : 'Sacar foto'}</button>
+      <button class="btn btn-sm btn-outline" onclick="paElegir(${id}, false)">📎 ${pa ? 'Cambiar archivo' : 'Adjuntar archivo'}</button>
+      ${pa ? `<button class="btn btn-sm btn-outline" onclick="paQuitar(${id})">Quitar</button>` : ''}</div>` : '';
+  const prog = `<div class="pa-prog" id="pa-prog-${c.id}" hidden></div>`;
+  return enFicha
+    ? `<section class="fx-card full pa-card"><h4>💉 <span>Parte anestésico pre-quirúrgico</span>${pa ? '<em class="fx-n ok">Adjuntado</em>' : '<em class="fx-n warn">Sin adjuntar</em>'}</h4>${cuerpo}${acc}${prog}</section>`
+    : `<section class="pa-card"><h4>Parte anestésico pre-quirúrgico</h4>${cuerpo}${acc}${prog}</section>`;
+}
+function paElegir(id, foto) {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = foto ? 'image/*' : 'image/*,application/pdf';
+  if (foto) inp.setAttribute('capture', 'environment');
+  inp.onchange = () => { const f = inp.files && inp.files[0]; if (f) paSubir(id, f); };
+  inp.click();
+}
+function paLeerDataURL(blob) { return new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = mal; r.readAsDataURL(blob); }); }
+/* Achica la foto: lado mayor 1600 px y JPEG cada vez más liviano hasta entrar en 350 KB. */
+async function paComprimir(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((ok, mal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = mal; i.src = url; });
+    let lado = PA_LADO, d = '';
+    for (let vuelta = 0; vuelta < 6; vuelta++) {
+      const k = Math.min(1, lado / Math.max(img.naturalWidth, img.naturalHeight));
+      const cv = document.createElement('canvas');
+      cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
+      const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); g.drawImage(img, 0, 0, cv.width, cv.height);
+      for (const q of [0.72, 0.6, 0.5, 0.4]) { d = cv.toDataURL('image/jpeg', q); if (d.length * 0.75 / 1024 <= PA_FOTO_KB) return d; }
+      lado = Math.round(lado * 0.8);
+    }
+    return d;
+  } finally { URL.revokeObjectURL(url); }
+}
+function paProg(id, txt) { const el = $('pa-prog-' + id); if (el) { el.hidden = !txt; el.textContent = txt || ''; } }
+async function paSubir(id, file) {
+  const c = salaCir(id); if (!c || !paPuedeSubir(c)) return;
+  const esPdf = file.type === 'application/pdf';
+  if (!esPdf && !/^image\//.test(file.type)) { avisar('Archivo no admitido\n\nSe aceptan fotos (JPG, PNG, HEIC) o PDF.'); return; }
+  if (esPdf && file.size / 1024 > PA_PDF_KB) { avisar(`El PDF pesa ${Math.round(file.size / 1024)} KB\n\nEl máximo es ${PA_PDF_KB} KB para que la app siga rápida. Mejor saque una foto del parte: la app la achica sola.`); return; }
+  paProg(id, esPdf ? 'Preparando el PDF…' : 'Achicando la foto…');
+  let d;
+  try { d = esPdf ? await paLeerDataURL(file) : await paComprimir(file); }
+  catch (e) { paProg(id, ''); avisar('No se pudo leer el archivo\n\nSi es una foto HEIC del iPhone, pruebe con «📷 Sacar foto» directamente.'); return; }
+  const kb = Math.round(d.length * 0.75 / 1024);
+  const u = usuarioActual();
+  const email = (cloudOn && firebase.auth().currentUser && firebase.auth().currentUser.email) || (u && u.email) || '';
+  const por = u ? u.nombre : JEFATURA, t = nowDT(), tipo = esPdf ? 'application/pdf' : 'image/jpeg';
+  paProg(id, `Subiendo ${kb} KB…`);
+  try { await anestEscribir('partes/' + c.id, { d, tipo, por, e: email, t, nombre: String(file.name || '').slice(0, 80) }); }
+  catch (e) { paProg(id, ''); avisar('No se pudo subir el parte' + (e && e.code === 'PERMISSION_DENIED' ? '\n\nLa base todavía no tiene publicadas las reglas del parte anestésico, o el parte lo subió otra persona.' : '\n\nRevise la conexión y vuelva a intentar.')); return; }
+  paCache[c.id] = { d, tipo };
+  const previo = c.parteAnest;
+  c.parteAnest = { tipo, kb, por, e: email, t };
+  pushHist(c, `Parte anestésico pre-quirúrgico ${previo ? 'reemplazado' : 'adjuntado'} (${tipo === 'application/pdf' ? 'PDF' : 'foto'}, ${kb} KB) · ${por}`);
+  upsert('cirugias', c);
+  paProg(id, '');
+  toastTurno(`Parte anestésico adjuntado (${kb} KB). El equipo lo ve en la cirugía y lo descarga si lo necesita.`, '#0d9488');
+  paRepintar(c.id);
+}
+async function paDescargar(id) {
+  const c = salaCir(id); if (!c || !c.parteAnest) return;
+  let a = paCache[c.id];
+  if (!a) {
+    paProg(id, 'Descargando…');
+    try { const v = await anestLeer('partes/' + c.id); if (v && v.d) a = paCache[c.id] = { d: v.d, tipo: v.tipo }; }
+    catch (e) { a = null; }
+    paProg(id, '');
+  }
+  if (!a) { avisar('No se pudo descargar el parte\n\nRevise la conexión. Si sigue sin bajar, avise a quien lo subió.'); return; }
+  const blob = await (await fetch(a.d)).blob();
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `parte-anestesico-${String(c.paciente?.nombre || 'paciente').split(/[ ,]/)[0]}-${c.fecha}.${a.tipo === 'application/pdf' ? 'pdf' : 'jpg'}`;
+  document.body.appendChild(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+}
+async function paQuitar(id) {
+  const c = salaCir(id); if (!c || !c.parteAnest || !paPuedeSubir(c)) return;
+  if (!await preguntar('¿Quitar el parte anestésico adjuntado?\n\nQueda asentado en el historial.', { si: 'Quitar', no: 'Cancelar' })) return;
+  try { await anestEscribir('partes/' + c.id, null); } catch (e) { avisar('No se pudo quitar\n\nRevise la conexión.'); return; }
+  delete paCache[c.id]; delete c.parteAnest;
+  pushHist(c, `Parte anestésico pre-quirúrgico quitado · ${anestQuien()}`);
+  upsert('cirugias', c);
+  paRepintar(c.id);
+}
+function paRepintar(id) {
+  if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) openCirugia(id);
+  if (view === 'anestesia' || view === 'portales' || view === 'sala') VIEWS[view]();
 }
 
 /* ---- Disponibilidad del mes: la línea de tiempo ---- */
@@ -13120,7 +13655,13 @@ function anestIndicadoresHTML() {
   const ocupado = {}; cx.filter((c) => c.tiempos.sal).forEach((c) => { const m = mn(c.tiempos.sal) - mn(c.tiempos.ia); if (m > 0) ocupado[c.sala] = (ocupado[c.sala] || 0) + m; });
   const jornada = (BLOQUE.horaCierre - BLOQUE.horaApertura) * 60 * Math.max(1, diasHabilesMes(ym));
   const ald = DB.cirugias.filter((c) => String(c.fecha || '').startsWith(ym) && c.aldrete);
-  const k = (v, l, s, c) => `<div class="an-kpi" style="--c:${c}"><b>${v}</b><span>${l}</span><small>${s}</small></div>`;
+  // 3.27.1 · Recambio: salida del paciente → entrada del siguiente, misma sala y mismo día.
+  const recs = []; const grupos = {};
+  DB.cirugias.filter((c) => String(c.fecha || '').startsWith(ym) && c.tiempos && (c.tiempos.ent || c.tiempos.sal)).forEach((c) => { (grupos[c.fecha + '|' + c.sala] = grupos[c.fecha + '|' + c.sala] || []).push(c); });
+  Object.values(grupos).forEach((g) => { g.sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+    for (let i = 1; i < g.length; i++) { const a = mn(g[i - 1].tiempos.sal), b = mn(g[i].tiempos.ent); if (a != null && b != null && b >= a) recs.push(b - a); } });
+  const k = (v, l, s, c) => { const pc = /%$/.test(String(v)) ? parseInt(v, 10) : null;
+    return `<div class="an-kpi${pc != null ? ' anx-gauge' : ''}" style="--c:${c}${pc != null ? ';--p:' + pc : ''}">${pc != null ? `<div class="anx-g-ring"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.9" class="anx-an-f"/><circle cx="18" cy="18" r="15.9" class="anx-an-v" style="stroke-dasharray:${pc} 100"/></svg><b data-n="${pc}" data-suf="%">${pc}%</b></div><div class="anx-g-txt"><span>${l}</span><small>${s}</small></div>` : `<b>${v}</b><span>${l}</span><small>${s}</small>`}</div>`; };
   return `
     <div class="an-mesbar">
       <button class="mp-flecha" onclick="anestMesInd=mesAnterior(anestMesInd);VIEWS[view]()" aria-label="Mes anterior">‹</button>
@@ -13132,11 +13673,13 @@ function anestIndicadoresHTML() {
       ${k(prom(demoras) != null ? prom(demoras) + ' min' : '—', 'Demora promedio', 'entre la hora programada y el inicio real', '#d97706')}
       ${k(aInc != null ? aInc + ' min' : '—', 'Anestesia → incisión', 'promedio de preparación', '#7c3aed')}
       ${k(durQx != null ? durQx + ' min' : '—', 'Duración quirúrgica', 'incisión → fin, promedio', '#2563eb')}
+      ${k(prom(recs) != null ? prom(recs) + ' min' : '—', 'Recambio entre cirugías', `salida → entrada del siguiente · ${recs.length} medido(s) · meta ${RECAMBIO_META} min`, '#ea580c')}
       ${k(ald.length ? Math.round(ald.filter((c) => c.aldrete.tot >= 9).length / ald.length * 100) + ' %' : '—', 'Altas con Aldrete ≥ 9', ald.length + ' registro(s)', '#0d9488')}
     </div>
     <div class="card"><div class="card-title">Uso de cada sala</div><div class="card-sub">De la entrada de anestesia a la salida de sala, sobre la jornada de ${BLOQUE.horaApertura} a ${BLOQUE.horaCierre} h de los días hábiles del mes</div>
-      ${SALAS.map((sa) => { const p = Math.min(100, Math.round((ocupado[sa.id] || 0) / jornada * 100)); return `<div class="an-uso"><span>${esc(sa.tipo === 'endo' ? 'Endoscopía' : sa.tipo === 'obs' ? 'Obstetricia' : sa.nombre)}</span><div><i style="width:${p}%"></i></div><b>${p} %</b></div>`; }).join('')}
-      <p class="form-note">Se calcula con ${cx.length} cirugía(s) que tienen tiempos reales cargados. Cuantos más tiempos se registren, más fiel es el indicador.</p></div>`;
+      ${SALAS.map((sa, i) => { const p = Math.min(100, Math.round((ocupado[sa.id] || 0) / jornada * 100)); return `<div class="an-uso" style="--d:${i * 80}ms"><span>${esc(sa.tipo === 'endo' ? 'Endoscopía' : sa.tipo === 'obs' ? 'Obstetricia' : sa.nombre)}</span><div><i style="width:${p}%"></i></div><b>${p} %</b></div>`; }).join('')}
+      <p class="form-note">Se calcula con ${cx.length} cirugía(s) que tienen tiempos reales cargados. Cuantos más tiempos se registren, más fiel es el indicador.</p></div>
+    ${recCausasMesHTML(ym)}`;
 }
 
 /* ================= PORTALES DEL EQUIPO (Jefatura y Dirección) =================
@@ -13426,8 +13969,9 @@ function flTarjeta(c, modo) {
       <span class="fl-tit"><b>${esc(c.procedimiento || '')}</b><small>${esc(c.quirofano || c.sala)} · ${esc(c.cirujano || '')}${(c.paciente && c.paciente.nombre) ? ' · ' + esc(c.paciente.nombre) : ''}</small></span>
       <span class="fl-prog"><span class="fl-linea">${linea}</span><small>${e.hechos}/${FLUJO.length}</small></span>
     </button>
-    <div class="fl-estado">${estadoTxt}${!abierta ? `<button class="fl-link" onclick="flAbierta=${id};flRepintar()">${meToca ? 'Hacerlo ahora →' : 'Ver el recorrido →'}</button>` : ''}</div>
-    ${abierta ? `<ol class="fl-pasos">${e.pasos.map((p, i) => flPasoHTML(c, p, i, mis, modo)).join('')}</ol>${flMaterialHTML(c, modo)}` : ''}
+    <div class="fl-estado">${estadoTxt}${c.parteAnest ? '<span class="pa-chip" title="Parte anestésico pre-quirúrgico adjuntado">💉 Parte pre-anestésico</span>' : ''}${!abierta ? `<button class="fl-link" onclick="flAbierta=${id};flRepintar()">${meToca ? 'Hacerlo ahora →' : 'Ver el recorrido →'}</button>` : ''}</div>
+    ${abierta ? `<ol class="fl-pasos">${e.pasos.map((p, i) => flPasoHTML(c, p, i, mis, modo)).join('')}</ol>${flMaterialHTML(c, modo)}${c.parteAnest || (c.anest && paPuedeSubir(c)) ? paTarjetaHTML(c) : ''}
+      <button class="fl-link" onclick="openCirugia(${id})">Abrir la ficha de la cirugía →</button>` : ''}
   </article>`;
 }
 function flPasoHTML(c, p, i, mis, modo) {
@@ -13506,7 +14050,7 @@ function flAccion(c, paso, rol) {
 }
 /* Los tiempos reales, dentro del paso en que ocurren. */
 function flTiemposHTML(c, paso, mis) {
-  const cuales = { entrada: ['ia'], pausa: ['inc'], salida: ['fin', 'sal'] }[paso];
+  const cuales = { entrada: ['ent', 'ia'], pausa: ['inc'], salida: ['fin', 'sal'] }[paso];
   if (!cuales) return '';
   const t = c.tiempos || {}, puede = mis.includes('anest') || jefe, id = JSON.stringify(c.id);
   return `<div class="fl-tiempos">${cuales.map((k) => { const x = ANEST_TIEMPOS.find((y) => y.k === k);
@@ -15881,8 +16425,12 @@ function rcOk(id, r) {
     pushHist(cc, `OK a la reprogramación por falta de cama (${fmtFecha(cc.fecha)} ${cc.horaProg} h): ${RC_ROLES[r]} — ${por}`);
     rcSiTodos(cc);
     upsert('cirugias', cc);
-    if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) openCirugia(cc.id);
+    if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) { openCirugia(cc.id); rcIrATarjeta(); }
     refreshView();
+    // 3.27.1 · Antes la ficha se redibujaba arriba y parecía que el botón no hacía nada.
+    const o = cc.reprogCama.oks, faltan = Object.keys(RC_ROLES).filter((k) => !o[k]).map((k) => RC_ROLES[k]);
+    toastTurno(faltan.length ? `OK registrado (${RC_ROLES[r]}). Faltan: ${faltan.join(', ')}. Después se le pregunta al paciente.`
+      : `OK registrado. Están los tres OK: ahora se le pregunta al paciente si puede ese día.`, '#16a34a');
   };
   if (r === 'adm') {
     const pedir = async () => { const n = await pedirTexto('Agente de Admisión que da el OK\n\nApellido y nombre: queda asentado en el turno.', { si: 'Dar el OK', campo: { label: 'Apellido y nombre', placeholder: 'Agente de Admisión', requerido: true } }); if (n && String(n).trim().length >= 3) hacer(String(n).trim()); };
@@ -15892,6 +16440,49 @@ function rcOk(id, r) {
   if (!rcPuede(c, r)) { avisar('Este OK no le corresponde\n\nLo da ' + RC_ROLES[r] + ' desde su propia sesión.'); return; }
   const u = usuarioActual();
   hacer(r === 'jef' ? JEFATURA : (u && u.nombre) || c.cirujano || '');
+}
+/* Lleva la ficha abierta hasta la tarjeta de la reprogramación y la hace titilar. */
+function rcIrATarjeta() {
+  const el = document.querySelector('#cir-modal .rc-prio'); if (!el) return;
+  el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  el.classList.remove('rc-flash'); void el.offsetWidth; el.classList.add('rc-flash');
+}
+/* En qué paso está, en pocas palabras (listas, Panel y ficha). */
+function rcPasoTexto(c) {
+  if (!c || !c.reprogCama) return '';
+  const rc = c.reprogCama, o = rc.oks || {};
+  if (rc.estado === 'confirmada' && rc.paciente && rc.paciente.ok) return 'El paciente confirmó ✓';
+  if (!rcActivo(c)) return '';
+  if (rc.estado === 'sin_lugar') return 'Sin lugar: falta abrir un turno';
+  if (rc.estado === 'esperando_paciente') {
+    const horas = rc.preguntado ? (Date.now() - new Date(rc.preguntado).getTime()) / 36e5 : 0;
+    return !(c.pase && c.pase.token) ? 'Falta el OK del paciente · llamarlo' : horas >= RC_LLAMAR_HORAS ? `Paciente sin responder ${Math.floor(horas)} h · llamarlo` : 'Falta el OK del paciente';
+  }
+  const corto = { cir: 'cirujano', adm: 'Admisión', jef: 'Jefatura' };
+  return 'Falta OK: ' + Object.keys(RC_ROLES).filter((k) => !o[k]).map((k) => corto[k]).join(', ') + ' → luego el paciente';
+}
+function rcPasoChip(c) {
+  const t = rcPasoTexto(c); if (!t) return '';
+  const ok = /confirmó/.test(t), pac = /paciente/.test(t) && !/luego/.test(t);
+  return `<span class="rc-paso${ok ? ' ok' : pac ? ' pac' : ''}" title="Reprogramación por falta de cama">${esc(t)}</span>`;
+}
+/* «Ver el seguimiento del paciente»: lo mismo que el paciente ve en su pase. */
+function rcVerPase(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c) return;
+  pintarEstiloPase();
+  const rc = c.reprogCama || {}, pac = rc.paciente;
+  const resp = pac ? `${pac.ok ? '✓ Respondió que SÍ puede' : '✕ Respondió que NO puede ese día'} · ${esc(pac.via)} · ${fmtDT(pac.t)}`
+    : rc.estado === 'esperando_paciente' ? `Se le preguntó ${rc.preguntado ? 'el ' + fmtDT(rc.preguntado) : ''} · todavía no respondió` : 'Todavía no se le preguntó: primero van los tres OK del equipo.';
+  rcModal().innerHTML = `
+    <button class="modal-close" onclick="rcCerrar()" aria-label="Cerrar">✕</button>
+    <header class="rc-hero"><span class="rc-kick">Seguimiento del paciente</span>
+      <h2>👁 Así lo ve el paciente en su pase</h2>
+      <p><b>${esc(c.paciente?.nombre || 's/d')}</b> · ☎ ${esc(c.paciente?.telefono || 'sin teléfono')}${c.pase && c.pase.ref ? ' · pase ' + esc(c.pase.ref) : ''}</p></header>
+    <div class="rc-pac-resp ${pac ? (pac.ok ? 'ok' : 'no') : ''}"><b>Respuesta del paciente</b><span>${resp}</span></div>
+    ${c.pase && c.pase.token ? `<div class="pp rc-pase-vista">${portalVistaEstado(portalFoto(c))}</div>`
+      : '<p class="rc-nota">Este paciente no tiene pase con QR o correo: no ve el seguimiento en línea. Admisión y Egresos o la Jefatura lo llaman y anotan lo que dijo con «☎ Confirmó por teléfono» o «☎ No puede ese día».</p>'}
+    <p class="rc-nota">Vista de solo lectura: los botones son los del paciente y acá no hacen nada.</p>`;
+  $('rc-overlay').classList.add('open');
 }
 /* Con los tres OK, se le pregunta al paciente. */
 function rcSiTodos(c) {
@@ -15962,6 +16553,12 @@ function rcAplicarRespuesta(c, ok, via) {
     pushHist(c, `CONFIRMADA por el paciente (${via}) — turno PRIORITARIO por falta de cama (${rcVeces(c)}.ª vez): ${fmtFecha(c.fecha)} ${c.horaProg} h en ${c.quirofano}. Validada por la Jefatura y confirmada en el parte.`);
     upsert('cirugias', c);
     rcAvisarSector('confirmada', c);
+    // Desde el pase, el servicio ya le escribió al responder; por teléfono se le avisa ahora
+    // (con un respiro para que la foto del pase llegue antes a la base).
+    if (!/^pase/.test(via) && c.pase && c.pase.token && cloudOn && PORTAL.servicio) {
+      const tk = c.pase.token;
+      setTimeout(() => portalServicio({ accion: 'avisarConfirmada', token: tk }).catch(() => {}), 2500);
+    }
   } else {
     c.reprogCama.paciente = { ok: false, via, t: nowDT() };
     rcMover(c, 'el paciente no puede ese día (' + via + ')', true);
@@ -16076,10 +16673,11 @@ function rcFichaHTML(c) {
       ${rc.estado === 'sin_lugar' ? '<p class="fx-txt warn">No hay franjas libres abiertas. Cuando la Jefatura abra un turno, la app lo toma sola.</p>' : `
       <div class="rc-prop"><small>Fecha propuesta${rc.propuestas > 1 ? ` (propuesta ${rc.propuestas})` : ''}</small><b>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg)} h</b><span>${esc(c.quirofano)}</span></div>
       <ol class="rc-oks">${['cir', 'adm', 'jef'].map(ok).join('')}
-        <li class="${pac && pac.ok ? 'ok' : pac && !pac.ok ? 'no' : ''}"><i>${pac && pac.ok ? '✓' : '·'}</i><b>Paciente</b><small>${rc.estado === 'confirmada' ? 'confirmó · ' + esc(pac.via) + ' · ' + fmtDT(pac.t) : rc.estado === 'esperando_paciente' ? (c.pase && c.pase.token ? 'se le preguntó en su pase' : 'llamar por teléfono') + ' · ☎ ' + esc(c.paciente?.telefono || '—') : 'después de los tres OK'}</small>
+        <li class="${pac && pac.ok ? 'ok' : pac && !pac.ok ? 'no' : ''}"><i>${pac && pac.ok ? '✓' : '·'}</i><b>Paciente</b><small>${rc.estado === 'confirmada' ? 'confirmó · ' + esc(pac.via) + ' · ' + fmtDT(pac.t) : rc.estado === 'esperando_paciente' ? (c.pase && c.pase.token ? 'falta su OK · se le preguntó en su pase' + (rc.preguntado ? ' el ' + fmtDT(rc.preguntado) : '') : 'falta su OK · llamarlo por teléfono') + ' · ☎ ' + esc(c.paciente?.telefono || '—') : 'falta su OK · se le pregunta después de los tres OK del equipo'}</small>
           ${rc.estado === 'esperando_paciente' && rcActivo(c) ? `<span class="rc-tel"><button class="btn btn-sm btn-green" onclick="rcTelefono(${c.id}, true)">☎ Confirmó por teléfono</button><button class="btn btn-sm btn-outline" onclick="rcTelefono(${c.id}, false)">☎ No puede ese día</button></span>` : ''}</li>
       </ol>
-      ${rcActivo(c) ? `<button class="btn btn-sm btn-outline fx-btn" onclick="rcOtraFecha(${c.id})">↻ Pedir otra fecha</button>` : ''}`}
+      <div class="rc-acc2"><button class="btn btn-sm btn-outline fx-btn" onclick="rcVerPase(${c.id})">👁 Ver el seguimiento del paciente</button>
+      ${rcActivo(c) ? `<button class="btn btn-sm btn-outline fx-btn" onclick="rcOtraFecha(${c.id})">↻ Pedir otra fecha</button>` : ''}</div>`}
     </section>`;
   }
   return h;
@@ -17965,6 +18563,7 @@ function openCirugia(id) {
 
       <div class="fx-grid">
         ${rcFichaHTML(c)}
+        ${c.parteAnest || paPuedeSubir(c) && c.anest ? paTarjetaHTML(c, true) : ''}
         ${tarjeta(ICONS.user, 'Paciente', kv([
           ['Nombre', esc(c.paciente?.nombre || 's/d')],
           ['DNI', esc(c.paciente?.dni || '—')],
@@ -17973,7 +18572,7 @@ function openCirugia(id) {
             <span class="fx-pill ${c.hce?.preop ? 'ok' : 'bad'}">${ico(c.hce?.preop ? ICONS.check : ICONS.x, 12)} Preoperatorios</span>
             <span class="fx-pill ${c.hce?.consentimiento ? 'ok' : 'bad'}">${ico(c.hce?.consentimiento ? ICONS.check : ICONS.x, 12)} Consentimiento en la HCE</span>
           </div>
-          <button class="btn btn-sm btn-outline fx-btn" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir el consentimiento' : 'Generar el consentimiento informado'}</button>`)}
+          <button class="btn btn-sm btn-outline fx-btn" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir el consentimiento' : 'Generar el consentimiento informado'}</button>${aaotFichaHTML(c)}`)}
 
         ${tarjeta(ICONS.calendar, 'Programación', kv([
           ['Fecha y hora', `${fmtFecha(c.fecha)} · ${c.horaProg || '—'} h`],
@@ -18090,6 +18689,18 @@ function fichaCamino(c) {
     { t: 'Salida y parte', ok: lvqCompleta(c, 'salida') && !!c.informe, d: hora('salida') || 'LVQ salida' },
     { t: 'Finalizada', ok: cirugiaCerrada(c), d: cirugiaCerrada(c) ? 'computa' : 'cierre' },
   ];
+  // 3.27.1 · Reprogramada por falta de cama: los OK del equipo y un paso más, el del paciente.
+  const rc = c.reprogCama;
+  if (rc) {
+    const o = rc.oks || {}, pac = rc.paciente;
+    pasos[0] = { t: 'Cirujano', ok: !!o.cir || rc.estado === 'confirmada', d: o.cir || rc.estado === 'confirmada' ? 'dio el OK' : 'falta su OK' };
+    if (o.adm || rcActivo(c)) pasos[1] = { t: 'Admisión', ok: !!o.adm, d: o.adm ? 'dio el OK' : 'falta su OK' };
+    if (rcActivo(c)) pasos[2] = { t: 'Jefatura', ok: !!o.jef, d: o.jef ? 'dio el OK' : 'falta su OK' };
+    pasos.splice(3, 0, rc.estado === 'confirmada' && pac && pac.ok ? { t: 'Paciente', ok: true, d: 'confirmó' }
+      : rc.estado === 'esperando_paciente' ? { t: 'Paciente', tono: 'warn', d: 'falta su OK' }
+      : pac && !pac.ok ? { t: 'Paciente', tono: 'bad', d: 'no podía · otra fecha' }
+      : { t: 'Paciente', d: 'tras los 3 OK' });
+  }
   const fin = { suspendida: { t: 'Suspendida', tono: 'bad', d: 'no se operó' }, anticipada: { t: 'Resuelta antes', tono: 'violeta', d: 'franja liberada' }, caducada: { t: 'Caducada', tono: 'gris', d: 'no llegó al parte' } }[c.estado];
   if (fin) pasos[pasos.length - 1] = Object.assign({ fin: true }, fin);
   const cur = fin ? -1 : pasos.findIndex((p) => !p.ok);
@@ -22855,6 +23466,7 @@ function openSlot(d, sid, fid) {
     </details>` : ''}
 
     <div class="tm-pie">
+      ${c && rcActivo(c) && puedeEditar ? '<p class="tm-ayuda rc-nota-guardar">«Guardar cambios» solo guarda los datos del turno que haya corregido arriba (paciente, cirugía, duración, equipos…). <b>No</b> es el OK a la nueva fecha: ese es el botón 🛏 de «Lo que sigue».</p>' : ''}
       ${puedeEditar ? `<button class="btn btn-blue tm-pie-main" onclick="guardarSlot()">${ICONS.check.replace('14', '16')} ${nuevo ? 'Programar turno' : 'Guardar cambios'}</button>` : ''}
       ${c && !sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email)) ? `<button class="btn btn-outline tm-pie-red" onclick="cancelarSlot(${c.id})">${ICONS.trash} Cancelar turno</button>` : ''}
       <button class="btn btn-outline" onclick="closeSlot()">Cerrar</button>
@@ -22951,6 +23563,15 @@ function tmAcciones(c, u) {
   const ci = consentimientoDeTurno(c);
   const b = [];
   let n = 0;
+  // 3.27.1 · Reprogramada por falta de cama: el OK va acá y no en «Guardar cambios».
+  if (rcActivo(c)) {
+    const o = c.reprogCama.oks || {};
+    const mioCir = c.reprogCama.estado === 'esperando_equipo' && !o.cir && rcPuede(c, 'cir');
+    const mioJef = c.reprogCama.estado === 'esperando_equipo' && !o.jef && rcPuede(c, 'jef');
+    b.push(tmBoton(++n, mioCir || mioJef ? 'falta' : 'neutro', '🛏',
+      mioCir || mioJef ? 'Dar mi OK a la nueva fecha' : 'Reprogramación por falta de cama', esc(rcPasoTexto(c)),
+      `closeSlot();openCirugia(${c.id});${mioCir ? `rcOk(${c.id},'cir')` : mioJef ? `rcOk(${c.id},'jef')` : 'rcIrATarjeta()'}`));
+  }
   b.push(tmBoton(++n, ci ? 'hecho' : 'falta', ico(ICONS.fileText, 18),
     ci ? 'Consentimiento informado' : 'Generar el consentimiento informado',
     ci ? `Guardado el ${esc(String(ci.fecha || '').split(',')[0])} · ver o reimprimir` : 'Con los datos del turno ya volcados',
@@ -26110,6 +26731,7 @@ const CI_VACIO = {
   c_esp: '', c_proc: '', c_fecha: '', c_hora: '', c_sala: '', c_anest: 'General',
   c_dx: '', c_cie10: '', c_nombre: '',
   t_desc: '', t_benef: '', t_comp: '', t_riesgo: '', t_alt: '', t_cuid: '', t_cita: '',
+  aaot: '', aaotAuto: false,   // 3.28 · consentimiento específico de la AAOT (Traumatología)
   turnoId: null,
 };
 
@@ -26180,6 +26802,274 @@ function ciVolcarTextos(f, p) {
   f.t_cita = p.cita || '';
 }
 
+/* ================= 3.28.0 · CONSENTIMIENTOS DE LA AAOT EN TRAUMATOLOGÍA =================
+   La Asociación Argentina de Ortopedia y Traumatología publica para sus socios
+   130 consentimientos informados específicos por procedimiento. En las cirugías
+   de Traumatología y Ortopedia la app elige sola el que corresponde (por la
+   práctica del nomenclador, el procedimiento y el diagnóstico del turno), lo
+   deja a la vista en la ficha y en el generador, y lo nombra en el documento
+   del hospital como parte del mismo consentimiento.
+
+   Los PDF NO se copian a la app: se abren desde aaot.org.ar. Así siempre es la
+   versión vigente de la Asociación, la app no pesa 70 MB más y no se publica
+   material de socios en otro sitio. Al abrirlo no viaja ningún dato del
+   paciente: es un enlace fijo al documento en blanco. */
+const AAOT_ESP = 'Traumatología y Ortopedia';
+const AAOT_BASE = 'https://aaot.org.ar/';
+const AAOT_CATS = ["Columna", "Miembro Superior", "Ortopedia General", "Pelvis, Cadera y Muslo", "Pierna, Tobillo y Pie", "Rodilla", "COVID-19", "Telemedicina"];
+/* [categoría, título, ruta del PDF en aaot.org.ar] */
+const AAOT_CI = [
+  [0, "Bloqueo de Articulaciones Sacroiliacas", "ej_prof/2019/Columna/Bloqueo%20de%20articulaciones%20sacroiliacas.pdf"],
+  [0, "Bloqueo de Facetas Lumbares", "ej_prof/2019/Columna/Bloqueo%20de%20facetas%20lumbares.pdf"],
+  [0, "Bloqueo de Nervio Periférico", "ej_prof/2019/Columna/Bloqueo%20de%20nervio%20periferico.pdf"],
+  [0, "Bloqueo Nervio Occipital", "ej_prof/2019/Columna/Bloqueo%20nervio%20occipital.pdf"],
+  [0, "Bloqueo Radicular Select. Cervical", "ej_prof/2019/Columna/Bloqueo%20radicular%20select.%20cervical.pdf"],
+  [0, "Bloqueo Radicular Select. Lumbar", "ej_prof/2019/Columna/Bloqueo%20radicular%20selectivo%20lumbar.pdf"],
+  [0, "Fracturas Vertebrales", "ej_prof/2019/Columna/Fracturas%20vertebrales.pdf"],
+  [0, "Hernia Discal Lumbar", "ej_prof/2019/Columna/Hernia%20discal%20lumbar.pdf"],
+  [0, "Vertebroplastia", "ej_prof/2019/Columna/Vertebroplastia.pdf"],
+  [1, "Articulación Radio Cubital Distal", "ej_prof/2019/Miembro%20superior/Articulacio%cc%81n%20radio%20cubital%20distal.pdf"],
+  [1, "Artroscopia de Hombro Fricción Subacromial", "ej_prof/2019/Miembro%20superior/Artroscopia%20de%20hombro%20friccion%20subacromial.pdf"],
+  [1, "Artroscopia Muñeca", "ej_prof/2019/Miembro%20superior/Artroscopia%20mun%cc%83eca.pdf"],
+  [1, "Artrosplastia Hombro", "ej_prof/2019/Miembro%20superior/Artrosplastia%20hombro.pdf"],
+  [1, "Bloqueo del Nervio Supraescapular", "ej_prof/2019/Miembro%20superior/Bloqueo%20del%20nervio%20supraescapular.pdf"],
+  [1, "Carpectomia Proximal", "ej_prof/2019/Miembro%20superior/Carpectomia%20proximal.pdf"],
+  [1, "Dedo en Resorte", "ej_prof/2019/Miembro%20superior/dedo%20en%20resorte.pdf"],
+  [1, "Dupuytren", "ej_prof/2019/Miembro%20superior/Dupuytren.pdf"],
+  [1, "Fractura de Escafoides Carpiano", "ej_prof/2019/Miembro%20superior/Fractura%20de%20escafoides%20carpiano.pdf"],
+  [1, "Fractura de Húmero Distal", "wp-content/uploads/2020/07/Fractura-de-humero-distal.pdf"],
+  [1, "Fractura de Húmero Proximal", "ej_prof/2019/Miembro%20superior/Fractura%20de%20hu%cc%81mero%20proximal.pdf"],
+  [1, "Fractura de Huesos Metacarpianos", "ej_prof/2019/Miembro%20superior/Fractura%20de%20huesos%20metacarpianos.pdf"],
+  [1, "Fractura de las Falanges de la Mano", "ej_prof/2019/Miembro%20superior/Fractura%20de%20las%20falanges%20de%20las%20manos.pdf"],
+  [1, "Fractura de Olecranon Cubital", "ej_prof/2019/Miembro%20superior/Fractura%20de%20olecraneon%20cubital.pdf"],
+  [1, "Fractura Diafisis Radial", "ej_prof/2019/Miembro%20superior/Fractura%20diafisis%20radial.pdf"],
+  [1, "Fracturas de Cúbito y Radio", "ej_prof/2019/Miembro%20superior/Fracturas%20de%20cubito%20y%20radio.pdf"],
+  [1, "Infección Periprotesica de Hombro", "ej_prof/2019/Miembro%20superior/Infeccio%cc%81n%20peripro%cc%81tesica%20de%20hombro.pdf"],
+  [1, "Liberación Nervio Cubital", "ej_prof/2019/Miembro%20superior/Liberacio%cc%81n%20nervio%20cubital.pdf"],
+  [1, "Luxación Recidivante de Hombro", "ej_prof/2019/Miembro%20superior/Luxacio%cc%81n%20recidivante%20de%20hombro.pdf"],
+  [1, "Muñeca", "ej_prof/2019/Miembro%20superior/Mun%cc%83eca.pdf"],
+  [1, "Radiofrecuencia Percutanea de Lesiones Óseas", "ej_prof/2019/Miembro%20superior/Radiofrecuencia%20percutanea%20de%20lesiones%20o%cc%81seas.pdf"],
+  [1, "Rizartrosis", "ej_prof/2019/Miembro%20superior/Rizartrosis.pdf"],
+  [1, "Supracondilea Niños", "ej_prof/2019/Miembro%20superior/Supracondilea%20nin%cc%83os.pdf"],
+  [1, "Tenosinovitis de Quervain", "ej_prof/2019/Miembro%20superior/Tenosinuvitis%20de%20Quervain.pdf"],
+  [1, "Tratamiento inestabilidad ligamentaria del codo", "wp-content/uploads/2023/08/TRATAMIENTO-INESTABILIDAD-LIGAMENTARIA-DEL-CODO.pdf"],
+  [1, "Tratamiento quirúrgico de las lesiones ligamentarias de dedos", "wp-content/uploads/2022/05/TRAT_-QUIRURG_LESIONES-LIGAMETARIAS-DEDOS-MANO.pdf"],
+  [1, "Tratamiento quirúrgico de seudoartrosis infectada de miembro superior", "wp-content/uploads/2024/05/CI-PSEUDOARTROSIS-INFECTADA-DE-MIEMBRO-SUPERIOR.pdf"],
+  [1, "Tumores Partes Blandas", "ej_prof/2019/Miembro%20superior/Tumores%20partes%20blandas.pdf"],
+  [1, "Tumor Óseo", "ej_prof/2019/Miembro%20superior/Tumor%20o%cc%81seo.pdf"],
+  [1, "Tunel Carpiano", "ej_prof/2019/Miembro%20superior/Tunel%20carpiano.pdf"],
+  [2, "Alargamientos", "ej_prof/2019/Ortopedia%20general/Alargamientos.pdf"],
+  [2, "Amputación", "ej_prof/2019/Ortopedia%20general/Amputacio%cc%81n.pdf"],
+  [2, "Anestesia Local", "ej_prof/2019/Ortopedia%20general/Anestesia%20local.pdf"],
+  [2, "Aplicación Intraarticular Ácido Hialurónico", "ej_prof/2019/Ortopedia%20general/Aplicacio%cc%81n%20intraarticular%20a%cc%81cido%20hialuro%cc%81nico.pdf"],
+  [2, "Artrocentesis", "ej_prof/2019/Ortopedia%20general/Artrocentesis.pdf"],
+  [2, "Artrodesis Articular", "ej_prof/2019/Ortopedia%20general/Artrodesis%20articular.pdf"],
+  [2, "Artrodesis Instrumentada Vertebral", "ej_prof/2019/Ortopedia%20general/Artrodesis%20instrumentada.pdf"],
+  [2, "Artrolisis Rigidez Articular", "ej_prof/2019/Ortopedia%20general/Artrolisis%20rigidez%20articular.pdf"],
+  [2, "Artroscopías de Otras Articulaciones", "ej_prof/2019/Ortopedia%20general/Artroscopi%cc%81a%20de%20otras%20articulaciones.pdf"],
+  [2, "Artrosplastia Articular", "ej_prof/2019/Ortopedia%20general/Artrosplastia%20articular.pdf"],
+  [2, "Atrapamiento Nervioso", "ej_prof/2019/Ortopedia%20general/Atrapamiento%20nervioso.pdf"],
+  [2, "Biopsia", "ej_prof/2019/Ortopedia%20general/Biopsia.pdf"],
+  [2, "Demora y Fracturas", "wp-content/uploads/2024/04/CI-DEMORA-y-FRACTURAS.pdf"],
+  [2, "Dismetrías Desejes", "ej_prof/2019/Ortopedia%20general/Dismetri%cc%81as%20desejes.pdf"],
+  [2, "Entesitis Tenosinovitis", "ej_prof/2019/Ortopedia%20general/Entesitis%20tenosinovitis.pdf"],
+  [2, "Espasticidad", "ej_prof/2019/Ortopedia%20general/Espasticidad.pdf"],
+  [2, "Exostosis Ósea", "ej_prof/2019/Ortopedia%20general/Exostosis%20o%cc%81sea.pdf"],
+  [2, "Fractura Extraarticular", "ej_prof/2019/Ortopedia%20general/Fractura%20extraarticular.pdf"],
+  [2, "Ganglión Blando", "ej_prof/2019/Ortopedia%20general/Ganglio%cc%81n%20blando.pdf"],
+  [2, "Implante Cementos", "ej_prof/2019/Ortopedia%20general/Implante%20cementos.pdf"],
+  [2, "Infiltraciones", "ej_prof/2019/Ortopedia%20general/Infiltraciones.pdf"],
+  [2, "Injertos Cutáneos", "ej_prof/2019/Ortopedia%20general/Injertos%20cuta%cc%81neos.pdf"],
+  [2, "Lesión Tendinosa", "ej_prof/2019/Ortopedia%20general/Lesio%cc%81n%20tendinosa.pdf"],
+  [2, "Luxación Fractura Articular", "ej_prof/2019/Ortopedia%20general/Luxacio%cc%81n%20fractura%20articular.pdf"],
+  [2, "Movilización Bajo Anestesia", "ej_prof/2019/Ortopedia%20general/Movilizacio%cc%81n%20bajo%20anestesia.pdf"],
+  [2, "Parálisis Transferencias Osteot", "ej_prof/2019/Ortopedia%20general/Paralisis%20transferencias%20osteot.pdf"],
+  [2, "Plasma Rico en Plaquetas", "ej_prof/2019/Ortopedia%20general/Plasma%20rico%20en%20plaquetas.pdf"],
+  [2, "Pseudoartrosis Aseptica", "ej_prof/2019/Ortopedia%20general/Pseudoartrosis%20aseptica.pdf"],
+  [2, "Recambio Protésico", "ej_prof/2019/Ortopedia%20general/Recambio%20protesico.pdf"],
+  [2, "Reconstrucción Tumoral", "ej_prof/2019/Ortopedia%20general/Reconstruccio%cc%81n%20tumoral.pdf"],
+  [2, "Reparación Cartílago", "ej_prof/2019/Ortopedia%20general/Reparacio%cc%81n%20carti%cc%81lago.pdf"],
+  [2, "Reparación Nervios Periféricos", "ej_prof/2019/Ortopedia%20general/Reparacio%cc%81n%20nervios%20perife%cc%81ricos.pdf"],
+  [2, "Retiro Osteosintesis", "ej_prof/2019/Ortopedia%20general/Retiro%20osteosintesis.pdf"],
+  [2, "Síndrome Compartimental", "ej_prof/2019/Ortopedia%20general/Sindrome%20compartimental.pdf"],
+  [2, "Tenosinovitis Estenosante", "ej_prof/2019/Ortopedia%20general/Tenosinovitis%20estenosante.pdf"],
+  [2, "Terapia Adyuvante", "ej_prof/2019/Ortopedia%20general/Terapia%20adyuvante.pdf"],
+  [2, "Tratamiento Quirúrgico con radioscopía en embarazadas", "wp-content/uploads/2024/05/CI-DEL-TRATAMIENTO-QUIRURGICO-CON-RADIOSCOPIA-EN-EMBARAZADAS.pdf"],
+  [2, "Tratamiento Quirúrgico del Drenaje de absceso-hematoma", "wp-content/uploads/2022/06/CI-TRATAMIENTO-QUIRUG-DEL-DRENAJE-ABSCESO-HEMATOMA.pdf"],
+  [2, "Tratamiento Quirúrgico Epifisiolosis", "ej_prof/2019/Ortopedia%20general/Tratamiento%20quiru%cc%81rgico%20epifisiolosis.pdf"],
+  [2, "Utilización de Aloinjerto Óseo", "ej_prof/2019/Ortopedia%20general/Utilizacio%cc%81n%20de%20aloinjerto%20oseo.pdf"],
+  [3, "Artroscopia Cadera", "ej_prof/2019/Pelvis,%20cadera%20y%20Muslo/Artroscopia%20cadera.pdf"],
+  [3, "Artrosplastia Cadera", "ej_prof/2019/Pelvis,%20cadera%20y%20Muslo/Artrosplastia%20cadera.pdf"],
+  [3, "Epifisiolisis Cadera", "ej_prof/2019/Pelvis,%20cadera%20y%20Muslo/Epifisiolisis%20cadera.pdf"],
+  [3, "Femur", "ej_prof/2019/Pelvis,%20cadera%20y%20Muslo/Femur.pdf"],
+  [3, "Forage de Cadera", "ej_prof/2019/Pelvis,%20cadera%20y%20Muslo/Forage%20de%20cadera.pdf"],
+  [4, "Amputación y Desarticulaciones - Artrodesis Tobillo y Pie", "wp-content/uploads/2024/10/CI-ARTRODESIS-TOBILLO-Y-PIE.pdf"],
+  [4, "Artroscopia de Tobillo", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Artroscopia%20de%20tobillo.pdf"],
+  [4, "Artroscopía Tendoscopía en Tobillo y Pie", "wp-content/uploads/2024/10/CI-ARTROSCOPIA-TENDOSCOPIA-EN-TOBILLO-Y-PIE.pdf"],
+  [4, "Cirugía Percutánea del Pie", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Cirugi%cc%81a%20percutanea%20del%20pie.pdf"],
+  [4, "Daño de Cartílago Articular", "wp-content/uploads/2024/10/CI-DANO-DE-CARTILAGO-ARTICULAR.pdf"],
+  [4, "Enfermedad Antepie", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Enfermedad%20antepie.pdf"],
+  [4, "Espolon Calcaneo", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Espolon%20calcaneo.pdf"],
+  [4, "Espolon de Haglund", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Espolon%20de%20Haglund.pdf"],
+  [4, "Extracción de Cuerpo Extraño", "wp-content/uploads/2024/10/CI-EXTRACCION-DE-CUERPO-EXTRANO.pdf"],
+  [4, "Fascitis Plantar", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Fascitis%20plantar.pdf"],
+  [4, "Fractura de Astragalo", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Fractura%20de%20astragalo.pdf"],
+  [4, "Fractura de Calcaneo", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Fractura%20de%20calcaneo.pdf"],
+  [4, "Fractura de Huesos Metatarsianos", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Fractura%20de%20huesos%20metatarsianos.pdf"],
+  [4, "Fractura de Pilon Tibial", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Fractura%20de%20pilon%20tibial.pdf"],
+  [4, "Fractura de Tobillo", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Fractura%20de%20tobillo.pdf"],
+  [4, "Hallux Valgus Varus Rigidus y Antepie", "wp-content/uploads/2024/10/CI-HALLUX-VALGUS-VARUS-RIGIDUS-Y-ANTEPIE.pdf"],
+  [4, "Inestabilidad Articular", "wp-content/uploads/2024/10/CI-INESTABILIDAD-ARTICULAR.pdf"],
+  [4, "Lesión Tendinosa", "wp-content/uploads/2024/10/CI-LESION-TENDINOSA.pdf"],
+  [4, "Neuroma de Morton", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Neuroma%20de%20Morton.pdf"],
+  [4, "Osteomielitis", "wp-content/uploads/2024/10/CI-OSTEOMIELITIS.pdf"],
+  [4, "Otras Fracturas, Luxofracturas y Luxaciones del Pie", "wp-content/uploads/2024/10/CI-OTRAS-FRACTURAS-LUXOFRACTURAS-Y-LUXACIONES-DEL-PIE.pdf"],
+  [4, "Pie Cavo", "wp-content/uploads/2024/10/CI-PIE-CAVO.pdf"],
+  [4, "Pie Plano del Adulto", "wp-content/uploads/2024/10/CI-PIE-PLANO-DEL-ADULTO.pdf"],
+  [4, "Pie Zambo", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Pie%20zambo.pdf"],
+  [4, "Prótesis del Tobillo", "wp-content/uploads/2024/10/CI-PROTESIS-DE-TOBILLO.pdf"],
+  [4, "PRP", "wp-content/uploads/2024/10/CI-PRP.pdf"],
+  [4, "Pseudoartrosis", "wp-content/uploads/2024/10/CI-PSEUDOARTROSIS.pdf"],
+  [4, "Reconstrucción de Pie y Tobillo", "wp-content/uploads/2024/10/CI-RECONSTRUCCION-DE-PIE-Y-TOBILLO.pdf"],
+  [4, "Reparación del Tendón de Aquiles", "wp-content/uploads/2024/10/CI-REPARACION-DEL-TENDON-DE-AQUILES.pdf"],
+  [4, "Tendinopatía", "wp-content/uploads/2024/10/CI-TENDINOPATIA.pdf"],
+  [4, "Uña Encarnada", "ej_prof/2019/Pierna,%20Tobillo%20y%20pie/Un%cc%83a%20encarnada.pdf"],
+  [5, "Artroscopia LCA", "ej_prof/2019/rodilla/Artroscopia%20lca.pdf"],
+  [5, "Artroscopia Rodilla", "ej_prof/2019/rodilla/Artroscopia%20rodilla.pdf"],
+  [5, "Artrosplastia Rodilla", "ej_prof/2019/rodilla/Artrosplastia%20rodilla.pdf"],
+  [5, "Fractura de Platillo Tibial", "ej_prof/2019/rodilla/Fractura%20de%20platillo%20tibial.pdf"],
+  [5, "Fractura de Rótula", "ej_prof/2019/rodilla/Fractura%20de%20rotula.pdf"],
+  [5, "Fractura Periprotesica de Rodilla", "ej_prof/2019/rodilla/Fractura%20periprotesica%20de%20rodilla.pdf"],
+  [5, "Fractura Supracondilea de Femur", "ej_prof/2019/rodilla/Fractura%20supracondilea%20de%20femur.pdf"],
+  [5, "Infección Periprotesica de Rodilla", "ej_prof/2019/rodilla/Infeccio%cc%81n%20periprotesica%20de%20rodilla.pdf"],
+  [5, "Osteotomía Rodilla", "ej_prof/2019/rodilla/Osteotomia%20rodilla.pdf"],
+  [5, "Realineación Aparato Tensor", "ej_prof/2019/rodilla/Realineacio%cc%81n%20aparato%20tensor.pdf"],
+  [5, "Reparación Tendón Cuadricipital", "ej_prof/2019/rodilla/Reparacio%cc%81n%20tendo%cc%81n%20cuadricipital.pdf"],
+  [5, "Reparación Tendón Rotuliano", "ej_prof/2019/rodilla/Reparacio%cc%81n%20tendo%cc%81n%20rotuliano.pdf"],
+  [6, "Consentimiento Informado Consulta Presencial COVID-19", "wp-content/uploads/2020/04/Consentimiento-informado-consulta-presencial-COVID-19.pdf"],
+  [6, "Consentimiento Informado COVID-19", "wp-content/uploads/2020/04/Consentimiento-informado-COVID-19.pdf"],
+  [7, "Consentimiento Informado Telemedicina", "wp-content/uploads/2020/04/Consentimiento-informado-telemedicina.pdf"],
+];
+function aaotDe(ruta) {
+  if (!ruta || ruta === 'no') return null;
+  const r = AAOT_CI.find((x) => x[2] === ruta);
+  return r ? { cat: AAOT_CATS[r[0]], t: r[1], ruta: r[2], url: AAOT_BASE + r[2] } : null;
+}
+function esTrauma(servicioOEsp) {
+  const s = String(servicioOEsp || '');
+  return s === AAOT_ESP || CI_MAP_SERVICIO[s] === AAOT_ESP || /trauma|ortoped/i.test(s);
+}
+/* Palabras que no distinguen un procedimiento de otro: no cuentan. */
+const AAOT_VACIAS = new Set(['consentimiento', 'informado', 'cirugia', 'otras', 'otros', 'para', 'con', 'del', 'las', 'los',
+  'por', 'sin', 'derecho', 'derecha', 'izquierdo', 'izquierda', 'bilateral', 'total', 'parcial', 'reduccion', 'abierta',
+  'cerrada', 'paciente', 'medial', 'lateral', 'placa', 'tornillos', 'material', 'tecnica', 'mediante', 'nivel']);
+/* Palabras que ayudan a desempatar pero solas no alcanzan para elegir. */
+const AAOT_DEBILES = new Set(['fractura', 'fracturas', 'tratamiento', 'quirurgico', 'quirurgica', 'lesion', 'lesiones',
+  'osteosintesis', 'reparacion', 'reconstruccion', 'expuesta', 'tendon', 'articular']);
+/* El nomenclador y los cirujanos nombran distinto lo mismo que la AAOT. */
+const AAOT_SINONIMOS = [
+  [/\bfractura de cadera\b|\bcuello (de )?femur\b|\bcuello femoral\b|\b(inter|per)trocanterica\b|\bclavo endomedular\b|\benclavado\b/g, ' femur '],
+  [/\bprotesi(s|ca)\b|\breemplazo\b|\bartroplastia\b/g, ' artrosplastia '],
+  [/\bligamento cruzado anterior\b|\bplastica ligamentaria\b|\bcruzado\b/g, ' lca '],
+  [/\bmeniscectomia\b|\bmenisco\b|\bmeniscal\b/g, ' artroscopia rodilla '],
+  [/\bmanguito( rotador)?\b|\bsubacromial\b/g, ' artroscopia hombro '],
+  [/\bartroscopic[ao]\b|\bvideoartroscopia\b/g, ' artroscopia '],
+  [/\bradio distal\b|\bpouteau\b|\bcolles\b/g, ' muneca '],
+  [/\bperone\b|\bmaleolo\b|\bbimaleolar\b|\btrimaleolar\b/g, ' tobillo '],
+  [/\bhallux\b|\bjuanete\b/g, ' hallux antepie '],
+  [/\bretiro de material\b|\bextraccion de material\b/g, ' retiro osteosintesis '],
+  [/\bstc\b|\bsindrome del tunel carpiano\b/g, ' tunel carpiano '],
+  [/\bruptura\b|\brotura\b/g, ' reparacion '],
+  [/\baquileo\b/g, ' aquiles '],
+  [/\bdiscectomia\b|\bhernia de disco\b/g, ' hernia discal lumbar '],
+];
+const AAOT_CORTAS = new Set(['lca', 'pie', 'prp']);
+function aaotTexto(s) {
+  let t = ' ' + ciNormalizar(s) + ' ';
+  AAOT_SINONIMOS.forEach(([re, r]) => { t = t.replace(re, r); });
+  return t.split(' ').filter((w) => (w.length > 3 || AAOT_CORTAS.has(w)) && !AAOT_VACIAS.has(w));
+}
+/* Dos palabras «coinciden» si son iguales o comparten las primeras 7 letras
+   (artroscopia / artroscopica sí; artroscopia / artrosplastia no). */
+function aaotIgual(a, b) { return a === b || (a.length >= 7 && b.length >= 7 && a.slice(0, 7) === b.slice(0, 7)); }
+function aaotSugerir(procedimiento, practica, diagnostico) {
+  const pal = [];
+  [[practica && practica.p, 2], [procedimiento, 2], [diagnostico, 1]].forEach(([t, peso]) => {
+    if (!t) return;
+    // La primera palabra fuerte es la que nombra la cirugía: pesa un poco más.
+    let primera = true;
+    aaotTexto(t).forEach((w) => {
+      const debil = AAOT_DEBILES.has(w);
+      pal.push([w, debil ? 0 : peso * (primera ? 1.5 : 1), debil]);
+      if (!debil) primera = false;
+    });
+  });
+  if (!pal.some((x) => !x[2])) return '';
+  let mejor = '', mejorT = '', fuerte = 0, total = 0;
+  AAOT_CI.forEach((r) => {
+    if (r[0] >= 6) return;   // COVID-19 y Telemedicina no son de un procedimiento
+    const ref = aaotTexto(r[1]);
+    const usadas = new Set();
+    let f = 0, d = 0;
+    pal.forEach(([w, peso, debil]) => {
+      const hit = ref.find((x) => aaotIgual(x, w));
+      if (!hit || usadas.has(hit)) return;
+      usadas.add(hit);
+      if (debil) d += 2; else f += Math.min(hit.length, w.length) * peso;
+    });
+    const n = f + d;
+    // A igualdad de puntos gana el título más corto (el más específico).
+    if (f > 0 && (n > total || (n === total && r[1].length < mejorT.length))) { total = n; fuerte = f; mejor = r[2]; mejorT = r[1]; }
+  });
+  return fuerte >= 8 ? mejor : '';
+}
+/* El de la AAOT que va con este turno: el elegido en su consentimiento o, si
+   todavía no se generó, el que sugiere la app. */
+function aaotDeTurno(c) {
+  if (!c || !esTrauma(c.servicio)) return null;
+  const ci = consentimientoDeTurno(c);
+  if (ci && ci.datos && 'aaot' in ci.datos) return aaotDe(ci.datos.aaot);
+  return aaotDe(aaotSugerir(c.procedimiento, c.practica, c.diagnostico));
+}
+function aaotAbrir(ruta) {
+  const a = aaotDe(ruta);
+  if (!a) return;
+  const w = window.open(a.url, '_blank', 'noopener');
+  if (w === null && !navigator.onLine) alert('No hay conexión: el PDF de la AAOT se abre desde aaot.org.ar.');
+}
+function ciSetAaot(v) {
+  ciForm.aaot = v || 'no';
+  ciForm.aaotAuto = false;
+  renderConsentimientos();
+}
+/* Recuadro del generador (solo Traumatología y Ortopedia). */
+function ciAaotHTML() {
+  if (ciForm.c_esp !== AAOT_ESP) return '';
+  const a = aaotDe(ciForm.aaot);
+  const opts = AAOT_CATS.map((cat, i) => `<optgroup label="${esc(cat)}">${AAOT_CI.filter((r) => r[0] === i)
+    .map((r) => `<option value="${esc(r[2])}" ${ciForm.aaot === r[2] ? 'selected' : ''}>${esc(r[1])}</option>`).join('')}</optgroup>`).join('');
+  return `<div class="card ci-aaot" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
+    <div class="card-title" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">🦴 Consentimiento específico de la AAOT
+      <span class="ci-badge">${a ? (ciForm.aaotAuto ? 'ELEGIDO POR LA APP' : 'ELEGIDO') : 'SIN ELEGIR'}</span></div>
+    <div class="field">
+      <label>Documento de la Asociación Argentina de Ortopedia y Traumatología</label>
+      <select onchange="ciSetAaot(this.value)">
+        <option value="no" ${!a ? 'selected' : ''}>— Ninguno —</option>${opts}
+      </select>
+      <span class="hint">${a ? `${esc(a.cat)} · se imprime y firma junto con este consentimiento.` : 'No se encontró uno que coincida con la cirugía: elíjalo de la lista si corresponde.'}</span>
+    </div>
+    ${a ? `<button class="btn btn-sm btn-outline" style="margin-top:8px" onclick="aaotAbrir(${esc(JSON.stringify(a.ruta))})">${ICONS.fileText} Abrir el PDF de la AAOT para imprimir</button>` : ''}
+    <p class="form-note">Avalados por la AAOT. Se abren desde aaot.org.ar, siempre en su versión vigente; al abrirlos no se envía ningún dato del paciente.</p>
+  </div>`;
+}
+/* Renglón de la ficha de la cirugía. */
+function aaotFichaHTML(c) {
+  const a = aaotDeTurno(c);
+  if (!a) return '';
+  return `<div class="fx-aaot"><span>🦴 AAOT: <b>${esc(a.t)}</b></span>
+    <button class="btn btn-sm btn-ghost" onclick="aaotAbrir(${esc(JSON.stringify(a.ruta))})">Abrir PDF</button></div>`;
+}
+
 /* ---- Documento ---- */
 function ciDocHTML(f) {
   const rep = String(f.p_lucidez || '').includes('representante');
@@ -26245,7 +27135,8 @@ ${f.t_cuid ? `
   <p>Declaro que se me ha explicado en lenguaje claro y comprensible la naturaleza, los beneficios y los riesgos del procedimiento propuesto, así como sus alternativas y las consecuencias de no realizarlo. He podido formular preguntas, que fueron respondidas satisfactoriamente. Comprendo que la medicina no es una ciencia exacta y que no se me ha garantizado un resultado determinado. En estas condiciones, en pleno uso de mis facultades, <b>presto mi consentimiento libre y voluntario</b> para la realización del procedimiento, pudiendo revocarlo por escrito en cualquier momento antes de su ejecución.</p>
 
   <p class="cita">${esc(f.t_cita)}</p>
-
+${(() => { const a = f.c_esp === AAOT_ESP ? aaotDe(f.aaot) : null; return a ? `
+  <p class="aaot-doc"><b>Documento complementario.</b> Forma parte de este consentimiento el consentimiento informado específico de la Asociación Argentina de Ortopedia y Traumatología (AAOT) «${esc(a.t)}» (${esc(a.cat)}), que se me entregó, leí y firmo junto con el presente.</p>` : ''; })()}
   <div class="firmas">
     <div class="firma">Firma y aclaración<br>${esc(rep ? (f.r_nombre || 'Representante legal') : (f.p_nombre || 'Paciente'))}<br>DNI ${esc(rep ? f.r_dni : f.p_dni)}</div>
     <div class="firma">Firma y sello<br>${esc(f.m_nombre || 'Médico cirujano')}<br>Mat. ${esc(f.m_mat)}</div>
@@ -26314,6 +27205,7 @@ const CI_DOC_CSS = `
   .membrete .mb-sub{font-size:9.5pt;color:#333}
   .membrete .mb-blq{font-size:10.5pt;font-weight:bold;margin-top:4pt;color:#1c5d8c}
   .cita{font-size:9.5pt;font-style:italic;color:#333}
+  .aaot-doc{font-size:10pt;border:1px solid #999;padding:6px 8px}
   .firmas{margin-top:44pt;display:flex;justify-content:space-between}
   .firma{display:inline-block;width:44%;text-align:center;border-top:1px solid #000;padding-top:4pt;font-size:10pt}
   .legal{font-size:8.5pt;color:#444;border-top:1px dotted #999;margin-top:16pt;padding-top:6pt;text-align:justify}
@@ -26346,6 +27238,7 @@ function ciPintarPreview() {
 function ciSetEsp(v) {
   ciForm.c_esp = v;
   ciForm.c_proc = '';
+  if (v === AAOT_ESP && !ciForm.aaot) { ciForm.aaot = aaotSugerir(ciForm.c_nombre, null, ciForm.c_dx); ciForm.aaotAuto = !!ciForm.aaot; }
   renderConsentimientos();
 }
 function ciSetProc(v) {
@@ -26356,6 +27249,10 @@ function ciSetProc(v) {
     ciVolcarTextos(ciForm, p);
     ciForm.c_anest = p.anest;
     ciEvidencia = 'consenso cargado';
+    if (ciForm.c_esp === AAOT_ESP && (ciForm.aaotAuto || !ciForm.aaot)) {
+      const s = aaotSugerir(ciForm.c_nombre, null, ciForm.c_dx);
+      if (s) { ciForm.aaot = s; ciForm.aaotAuto = true; }
+    }
   }
   renderConsentimientos();
 }
@@ -26402,7 +27299,8 @@ function ciSugerirProc(esp, texto, practica) {
 }
 function ciDesdeTurno(c) {
   const u = usuarioActual();
-  const esp = CI_MAP_SERVICIO[c.servicio] || 'Otra especialidad';
+  // 3.28 · «Traumatología», «TRAUMA» u «Ortopedia» escritos a mano también son Traumatología y Ortopedia.
+  const esp = CI_MAP_SERVICIO[c.servicio] || (esTrauma(c.servicio) ? AAOT_ESP : 'Otra especialidad');
   const f = { ...CI_VACIO };
   f.turnoId = c.id;
   f.p_nombre = c.paciente?.nombre || '';
@@ -26434,6 +27332,8 @@ function ciDesdeTurno(c) {
     ciVolcarTextos(f, p);
     if (!f.c_anest || f.c_anest === 'A definir por anestesiólogo') f.c_anest = p.anest;
   }
+  // 3.28 · Traumatología: la app elige sola el consentimiento de la AAOT.
+  if (f.c_esp === AAOT_ESP) { f.aaot = aaotSugerir(c.procedimiento, c.practica, c.diagnostico); f.aaotAuto = !!f.aaot; }
   return f;
 }
 /* Abre el generador con los datos del turno ya volcados. Si el turno ya tiene
@@ -26444,6 +27344,10 @@ function irAConsentimiento(turnoId) {
   const previo = consentimientoDeTurno(c);
   ciForm = previo ? { ...CI_VACIO, ...previo.datos } : ciDesdeTurno(c);
   if (previo) ciForm.c_proc = ciClaveVigente(ciForm.c_esp, ciForm.c_proc);
+  // 3.28 · Los consentimientos de Traumatología guardados antes no traen el de la AAOT: se sugiere.
+  if (previo && ciForm.c_esp === AAOT_ESP && !('aaot' in (previo.datos || {}))) {
+    ciForm.aaot = aaotSugerir(c.procedimiento, c.practica, c.diagnostico); ciForm.aaotAuto = !!ciForm.aaot;
+  }
   ciEvidencia = previo ? 'recuperado del registro' : 'volcado desde la programación';
   ciTab = 'generar';
   ciIrTurno = true;
@@ -27145,6 +28049,7 @@ function renderConsentimientos() {
           </div>
         </div>
 
+        ${ciAaotHTML()}
         <div class="card" style="box-shadow:none;border:1px solid var(--line);margin-bottom:14px">
           <div class="card-title" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             Contenido clínico <span class="ci-badge" id="ci-badge">${ciEvidencia.toUpperCase()}</span>
@@ -27467,12 +28372,14 @@ function portalEstadoPaciente(c, borrado) {
   if (borrado) return { clave: 'cancelada', caducado: true };
   const vis = estadoVisible(c);
   if (['finalizada', 'anticipada', 'caducada'].includes(vis) || c.estado === 'finalizada') return { clave: vis, caducado: true };
-  const adm = c.auth === 'AUTORIZADO' ? 'ok' : c.auth === 'NO AUTORIZADO' ? 'no' : 'pend';
+  // 3.27.1 · En una reprogramación por falta de cama vale también el OK de Admisión a la nueva fecha.
+  const admRc = !!(c.reprogCama && c.reprogCama.oks && c.reprogCama.oks.adm);
+  const adm = c.auth === 'AUTORIZADO' || admRc ? 'ok' : c.auth === 'NO AUTORIZADO' ? 'no' : 'pend';
   if (c.estado === 'realizada') return { clave: 'operada', adm, jef: 'ok' };
   if (c.estado === 'en_curso') return { clave: 'en_curso', adm, jef: 'ok' };
   if (c.estado === 'suspendida') return { clave: 'suspendida', adm, jef: 'susp', motivo: (c.suspension && c.suspension.causa) || '' };
   // 3.25 · Reprogramación por falta de cama: buscando fecha o esperando su respuesta.
-  if (rcActivo(c)) return { clave: c.reprogCama.estado === 'esperando_paciente' ? 'reprog_confirmar' : 'reprog_cama', adm: 'ok', jef: 'pend' };
+  if (rcActivo(c)) return { clave: c.reprogCama.estado === 'esperando_paciente' ? 'reprog_confirmar' : 'reprog_cama', adm: admRc ? 'ok' : 'pend', jef: c.reprogCama.oks && c.reprogCama.oks.jef ? 'okrc' : 'pend' };
   if (c.estado === 'borrador') return { clave: 'reprogramando', adm, jef: 'espera' };
   if (c.estado === 'confirmada') return { clave: 'confirmada', adm, jef: 'ok' };
   if (adm === 'no') return { clave: 'no_autorizada', adm, jef: 'espera' };
@@ -27996,7 +28903,7 @@ function portalVistaEstado(f) {
     <div><b>${tit}</b><small>${txt}</small></div></li>`;
   const lo = T.o === 'o' ? 'lo' : 'la', el = T.o === 'o' ? 'el estudio' : 'la ' + T.n;
   const admTxt = { ok: `Autorizó ${el}`, no: `No ${lo} autorizó por ahora`, pend: 'Revisando la autorización' };
-  const jefTxt = { ok: `Confirmó ${el} en el parte`, susp: f.motivo ? `Suspendid${T.o} · motivo: ${esc(f.motivo)}` : `${lo === 'lo' ? 'Lo' : 'La'} suspendió`, pend: 'Verificando sala, insumos y equipo', espera: 'Espera a Admisión y Egresos' };
+  const jefTxt = { ok: `Confirmó ${el} en el parte`, okrc: 'Dio el OK a la nueva fecha', susp: f.motivo ? `Suspendid${T.o} · motivo: ${esc(f.motivo)}` : `${lo === 'lo' ? 'Lo' : 'La'} suspendió`, pend: 'Verificando sala, insumos y equipo', espera: 'Espera a Admisión y Egresos' };
   const diaEst = f.clave === 'en_curso' ? 'pend' : f.clave === 'operada' ? 'ok' : 'espera';
   return `
     <section class="pp-estado pp-${t[0]}">
@@ -28006,6 +28913,7 @@ function portalVistaEstado(f) {
       ${sub ? `<p>${sub}</p>` : ''}
       ${f.clave === 'suspendida' && f.motivo ? `<p class="pp-motivo">Motivo: <b>${esc(f.motivo)}</b></p>` : ''}
       ${f.sinCama ? `<p class="pp-motivo">Prioridad: se suspendió ${f.sinCama} vez${f.sinCama > 1 ? 'es' : ''} por falta de cama.</p>` : ''}
+      ${f.sinCama && f.clave === 'confirmada' ? '<p class="pp-motivo">✓ Están todos los OK: tu cirujano/a, Admisión y Egresos, la Jefatura de Quirófanos y vos.</p>' : ''}
     </section>
     ${f.reprog ? `<section class="pp-card pp-reprog">
       <small>Nueva fecha propuesta</small>
@@ -28022,7 +28930,8 @@ function portalVistaEstado(f) {
       <ol class="pp-linea">
         ${paso('ok', `${T.N} solicitad${T.o}`, `Por ${esc(f.cirujano || 'tu ' + T.medico)}`)}
         ${paso(f.adm === 'ok' ? 'ok' : f.adm === 'no' ? 'no' : 'pend', 'Admisión y Egresos', admTxt[f.adm] || admTxt.pend)}
-        ${paso(f.jef === 'ok' ? 'ok' : f.jef === 'susp' ? 'no' : f.jef === 'pend' ? 'pend' : 'espera', 'Jefatura de Quirófanos', jefTxt[f.jef] || jefTxt.espera)}
+        ${paso(f.jef === 'ok' || f.jef === 'okrc' ? 'ok' : f.jef === 'susp' ? 'no' : f.jef === 'pend' ? 'pend' : 'espera', 'Jefatura de Quirófanos', jefTxt[f.jef] || jefTxt.espera)}
+        ${f.sinCama ? paso(f.clave === 'reprog_confirmar' ? 'pend' : ['confirmada', 'en_curso', 'operada'].includes(f.clave) ? 'ok' : 'espera', 'Vos', f.clave === 'reprog_confirmar' ? 'Falta tu OK a la nueva fecha' : ['confirmada', 'en_curso', 'operada'].includes(f.clave) ? 'Confirmaste la nueva fecha' : 'Te preguntamos cuando el equipo dé su OK') : ''}
         ${paso(diaEst, `Día ${T.del} ${T.n}`, f.fecha ? `${esc(fmtDiaLargo(f.fecha))} · ${esc(f.hora)} h` : 'A confirmar')}
       </ol>
     </section>
