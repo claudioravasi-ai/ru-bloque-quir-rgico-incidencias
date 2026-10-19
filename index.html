@@ -4408,6 +4408,68 @@
   body[data-tema] .conn, body[data-tema] .conn.local { background: linear-gradient(120deg, #0f766e, #14b8a6) !important; box-shadow: 0 6px 14px -8px #0f766e; }
   body[data-tema] .conn.off, body[data-tema] .conn.alerta { background: linear-gradient(120deg, #be123c, #e11d48) !important; }
 
+  /* ================= 3.24 · Barra superior solo con dibujos =================
+     Tres botones sin texto: la luz de sincronización (verde = todo enviado,
+     marrón = sin conexión o con cambios esperando), la paleta que se pinta
+     sola y la campanita con el número de pendientes. El nombre de cada uno
+     queda en aria-label y en el globito. Instalar la app está en Descargas. */
+  .tb-oculto { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  body[data-tema] .topbar .top-btn .lbl { display: none !important; }
+  body[data-tema] .topbar .top-btn { width: 42px; height: 42px; padding: 0 !important; justify-content: center; gap: 0; border-radius: 14px !important; }
+  body[data-tema] .topbar .top-btn svg { width: 24px; height: 24px; overflow: visible; }
+  body[data-tema] #tema-btn svg, body[data-tema] #bell-btn svg { animation: none; }
+  body[data-tema] .topbar .top-badge { top: -6px; right: -6px; }
+
+  /* La luz: una sola LED, sin chip ni texto. Se ve también en el teléfono. */
+  body[data-tema] .conn, body[data-tema] .conn.local, body[data-tema] .conn.off, body[data-tema] .conn.alerta {
+    display: inline-flex !important; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0 !important;
+    background: transparent !important; border: 0 !important; box-shadow: none !important; cursor: pointer; border-radius: 50%; }
+  body[data-tema] .conn:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+  body[data-tema] .conn .dotc { width: 9px; height: 9px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #dcfce7 0 14%, #4ade80 32%, #16a34a 62%, #14532d 100%) !important;
+    box-shadow: 0 0 0 1.5px rgba(255,255,255,.55), 0 0 6px 2px rgba(34,197,94,.75) !important; animation: ledVerde 2.6s ease-in-out infinite !important; }
+  body[data-tema] .conn.off .dotc, body[data-tema] .conn.local .dotc, body[data-tema] .conn.alerta .dotc {
+    background: radial-gradient(circle at 35% 30%, #f5e1c8 0 12%, #b7793f 34%, #8a4b1c 62%, #4a2509 100%) !important;
+    box-shadow: 0 0 0 1.5px rgba(255,255,255,.45), 0 0 5px 2px rgba(146,84,32,.7) !important; animation: ledMarron 1.3s ease-in-out infinite !important; }
+  @keyframes ledVerde { 50% { box-shadow: 0 0 0 1.5px rgba(255,255,255,.55), 0 0 10px 4px rgba(34,197,94,.45); } }
+  @keyframes ledMarron { 50% { filter: brightness(.65); box-shadow: 0 0 0 2px rgba(255,255,255,.3), 0 0 3px 1px rgba(146,84,32,.4); } }
+
+  /* La paleta: las manchas laten por turno y el pincel pinta. */
+  .tb-pal .pm { transform-box: fill-box; transform-origin: center; animation: palMancha 2.4s ease-in-out infinite; }
+  .tb-pal .pm2 { animation-delay: .3s; } .tb-pal .pm3 { animation-delay: .6s; } .tb-pal .pm4 { animation-delay: .9s; }
+  @keyframes palMancha { 0%, 60%, 100% { transform: scale(1); } 30% { transform: scale(1.45); } }
+  .tb-pal .pinc { transform-box: view-box; transform-origin: 21px 13.6px; animation: palPincel 2.4s ease-in-out infinite; }
+  @keyframes palPincel { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(16deg); } }
+  #tema-btn:hover .tb-pal { animation: palGiro .8s ease; }
+  @keyframes palGiro { to { transform: rotate(360deg); } }
+
+  /* La campanita: se mece suave siempre y fuerte cuando hay pendientes. */
+  .tb-cam .cam, .tb-cam .bad { transform-box: view-box; transform-origin: 12px 3px; }
+  .tb-cam .cam { animation: camSuave 4s ease-in-out infinite; }
+  .tb-cam .bad { animation: camSuave 4s ease-in-out infinite reverse; }
+  #bell-btn:has(.top-badge:not([style*="none"])) .tb-cam .cam { animation: camFuerte 2.2s ease-in-out infinite; }
+  #bell-btn:has(.top-badge:not([style*="none"])) .tb-cam .bad { animation: camBadajo 2.2s ease-in-out infinite; }
+  @keyframes camSuave { 0%, 80%, 100% { transform: rotate(0); } 86% { transform: rotate(7deg); } 93% { transform: rotate(-6deg); } }
+  @keyframes camFuerte { 0%, 55%, 100% { transform: rotate(0); } 62% { transform: rotate(18deg); } 70% { transform: rotate(-16deg); } 78% { transform: rotate(11deg); } 86% { transform: rotate(-7deg); } 93% { transform: rotate(3deg); } }
+  @keyframes camBadajo { 0%, 55%, 100% { transform: rotate(0); } 62% { transform: rotate(-12deg) translateX(-1px); } 70% { transform: rotate(14deg) translateX(1px); } 78% { transform: rotate(-9deg); } 86% { transform: rotate(6deg); } }
+
+  /* Instalar (Descargas del menú): la flecha baja al teléfono y se prende la pantalla. */
+  .nav-ins .nsb-ico svg { width: 20px; height: 20px; overflow: visible; }
+  .tb-ins .fl { animation: insBaja 1.8s ease-in-out infinite; }
+  @keyframes insBaja { 0% { transform: translateY(-4px); opacity: 0; } 25% { opacity: 1; } 70% { transform: translateY(2px); opacity: 1; } 100% { transform: translateY(3px); opacity: 0; } }
+  .tb-ins .pt { opacity: 0; animation: insPantalla 1.8s ease-in-out infinite; }
+  @keyframes insPantalla { 0%, 60% { opacity: 0; } 75%, 90% { opacity: .9; } 100% { opacity: 0; } }
+
+  @media (max-width: 900px) {
+    body[data-tema] .topbar .top-btn { width: 38px; height: 38px; border-radius: 12px !important; }
+    body[data-tema] .topbar .top-btn svg { width: 22px; height: 22px; }
+    body[data-tema] .conn, body[data-tema] .conn.local, body[data-tema] .conn.off, body[data-tema] .conn.alerta { width: 20px; height: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body[data-tema] .conn .dotc, .tb-pal, .tb-pal *, .tb-cam *, .tb-ins * { animation: none !important; }
+    .tb-ins .fl, .tb-ins .pt { opacity: 1; }
+  }
+
   /* ================= 3.21 · Tarjeta-infografía (v2) ================= */
   .pf-acentos { display: flex; gap: 8px; margin-bottom: 10px; }
   .pf-ac { width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--card); background: var(--c); cursor: pointer; box-shadow: 0 0 0 1.5px var(--line); transition: transform .2s; }
@@ -6032,12 +6094,8 @@
     </button>
     <!-- Manual interactivo: archivo aparte, se descarga solo al abrirlo y no queda guardado en la app -->
     <button class="manual-btn" onclick="abrirManualInteractivo()" aria-label="Abrir el manual interactivo"><span>🎬</span><span class="mb-txt"><b>Manual interactivo</b><small>Vea cómo funciona cada sector</small></span></button>
-    <div class="nav-buscar" role="search">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input id="nav-q" type="search" placeholder="Ir a…" autocomplete="off" aria-label="Buscar una sección del menú"
-        oninput="navFiltrar(this.value)" onkeydown="navTecla(event)">
-      <kbd id="nav-kbd">Ctrl K</kbd>
-    </div>
+    <!-- 3.24: sin el buscador «Ir a…» (pedido de Claudio); el código que lo usaba
+         ya contempla que no esté. -->
     <nav class="nav" id="nav"></nav>
     <div class="sidebar-bottom" id="sidebar-bottom"></div>
   </aside>
@@ -6046,7 +6104,7 @@
       <button class="hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Abrir menú"></button>
       <div class="topbar-title" id="topbar-title">Panel</div>
       <div class="topbar-spacer"></div>
-      <span class="conn" id="conn-chip" onclick="explicarConexion()" title="Estado de la sincronización"><span class="dotc"></span><span id="conn-text">Conectado</span></span>
+      <span class="conn" id="conn-chip" role="button" tabindex="0" onclick="explicarConexion()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();explicarConexion();}" title="Estado de la sincronización" aria-label="Estado de la sincronización"><span class="dotc" aria-hidden="true"></span><span id="conn-text" class="tb-oculto">Conectado</span></span>
       <div class="tema-wrap">
         <button class="top-btn" id="tema-btn" onclick="toggleTemaMenu(event)"
                 aria-haspopup="true" aria-expanded="false" aria-label="Apariencia">
@@ -6054,8 +6112,7 @@
         </button>
         <div class="tema-menu" id="tema-menu" role="menu" aria-label="Apariencia"></div>
       </div>
-      <button class="top-btn" id="install-btn" style="display:none" onclick="promptInstall()" aria-label="Instalar aplicación"><span id="install-ico"></span><span class="lbl">Instalar</span></button>
-      <button class="top-btn" id="bell-btn" onclick="openRecordatorios()" aria-label="Recordatorios"><span id="bell-ico"></span><span class="lbl">Recordatorios</span><span class="top-badge" id="bell-badge" style="display:none">0</span></button>
+      <button class="top-btn" id="bell-btn" onclick="openRecordatorios()" aria-label="Recordatorios" title="Recordatorios"><span id="bell-ico"></span><span class="lbl">Recordatorios</span><span class="top-badge" id="bell-badge" style="display:none">0</span></button>
     </header>
     <main class="main" id="main"></main>
     <div class="volver-dock"><button type="button" class="volver-btn" id="volver-btn" hidden onclick="volverAtras()"></button></div>
@@ -8634,7 +8691,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.23.3';
+const APP_VERSION = '3.24.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -14555,12 +14612,14 @@ function setEstado(id, estado) {
 }
 
 /* ================= PARTE QUIRÚRGICO (agenda pública) ================= */
+/* Lo que entra en el Parte, en pantalla y en papel (3.24: se imprime desde acá). */
+const ESTADOS_PARTE = ['confirmada', 'en_curso', 'realizada', 'finalizada', 'suspendida'];
 function renderParte() {
   if (!parteFecha) parteFecha = hoyISO();
   const f = parteFecha;
   const publicado = partePublicado(f) || jefe;
   const lista = DB.cirugias
-    .filter((c) => c.fecha === f && ['confirmada', 'en_curso', 'realizada', 'finalizada', 'suspendida'].includes(c.estado))
+    .filter((c) => c.fecha === f && ESTADOS_PARTE.includes(c.estado))
     .sort(ordenPrelacion);
 
   let contenido;
@@ -14591,6 +14650,7 @@ function renderParte() {
         <button class="btn btn-outline btn-sm" onclick="setParteFecha('${hoyISO()}')">Hoy</button>
         <button class="btn btn-outline btn-sm" onclick="setParteFecha('${sumarDias(hoyISO(), 1)}')">Mañana</button>
         <input type="date" value="${f}" onchange="setParteFecha(this.value)" style="padding:9px 13px;border:none;border-radius:10px;font-family:inherit;font-weight:600;box-shadow:0 1px 3px rgba(23,28,36,0.06)">
+        ${publicado && lista.length ? `<button class="btn btn-blue btn-sm" onclick="imprimirParte('${f}')">${ICONS.fileText} Imprimir parte</button>` : ''}
       </div>
     </div>
 
@@ -21288,7 +21348,6 @@ function renderProgDiaria() {
         </div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm" onclick="imprimirParte('${d}')">${ICONS.fileText} Imprimir parte</button>
         ${jefe ? `<button class="btn btn-outline btn-sm" onclick="openJefaturaDia()">${ICONS.shield.replace('18', '15')} Jefatura</button>` : ''}
       </div>
     </div>
@@ -22777,55 +22836,126 @@ function confirmarCancelacion(titulo, desc, onOk) {
 
 
 /* ---- Parte quirúrgico imprimible del día ---- */
+/* 3.24 · Hoja A4 apaisada: todo el parte en UNA página. Suma obra social,
+   teléfono del paciente, equipamiento especial pedido por el cirujano,
+   ayudante, duración, prequirúrgico y un resumen arriba con el equipamiento a
+   preparar por sala. Si no entra, la letra se achica sola hasta que entre. */
 function imprimirParte(d) {
+  // Mismas cirugías que muestra el Parte; las que no tienen sala de la grilla
+  // salen al final con el quirófano que tengan anotado.
+  const delParte = DB.cirugias.filter((c) => c.fecha === d && ESTADOS_PARTE.includes(c.estado));
+  const sinSala = delParte.filter((c) => !SALAS.some((s) => s.id === c.sala));
+  const especial = (c) => {
+    const r = c.recursos || {};
+    const l = (c.equipos || []).slice();
+    if (r.implante) l.push('Implante' + (r.implanteDetalle ? ': ' + r.implanteDetalle : ''));
+    if (r.hemoderivados) l.push('Reserva de hemoderivados');
+    return l;
+  };
   const filas = [];
-  SALAS.forEach((s) => {
-    const turnos = DB.cirugias.filter((c) => c.fecha === d && c.sala === s.id).sort(ordenPrelacion);
+  const necesita = {};   // equipamiento → ["Q1 08:00", …] para el resumen
+  [...SALAS, ...(sinSala.length ? [{ id: null, nombre: 'Otros quirófanos / sin sala' }] : [])].forEach((s) => {
+    const turnos = (s.id === null ? sinSala : delParte.filter((c) => c.sala === s.id)).sort(ordenPrelacion);
     if (!turnos.length) return;
-    filas.push(`<tr><td colspan="8" class="sala">${esc(s.nombre)}</td></tr>`);
+    filas.push(`<tr><td colspan="11" class="sala">${esc(s.nombre)} <span>· ${turnos.length} cirugía${turnos.length === 1 ? '' : 's'}</span></td></tr>`);
     turnos.forEach((c) => {
       const pe = prioridadEfectiva(c);
-      filas.push(`<tr>
-        <td>${esc(c.horaProg || '')}</td>
-        <td>${esc(c.paciente?.nombre || '')}<br><small>DNI ${esc(c.paciente?.dni || '—')} · ${c.paciente?.edad ?? '—'} años</small></td>
-        <td>${esc(c.diagnostico || '')}${c.cie10 ? '<br><small>CIE-10: ' + esc(c.cie10) + '</small>' : ''}</td>
+      const ay = ayudanteDe(c);
+      const esp = especial(c);
+      esp.forEach((x) => { const k = x.split(':')[0]; (necesita[k] = necesita[k] || []).push(`${c.quirofano || s.nombre} ${c.horaProg || ''}`.trim()); });
+      const p = c.paciente || {};
+      const hce = c.hce || {};
+      filas.push(`<tr class="${c.urgencia ? 'urg' : ''}${c.estado === 'suspendida' ? ' susp' : ''}">
+        <td class="hora"><b>${esc(c.horaProg || '—')}</b><small>${c.duracionMin ? c.duracionMin + ' min' : ''}</small></td>
+        <td><b>${esc(p.nombre || '')}</b><small>DNI ${esc(p.dni || '—')} · ${p.edad ?? '—'} años${p.pediatrico ? ' · <b>PEDIÁTRICO</b>' : ''}</small></td>
+        <td>${esc(c.obraSocial || 'Sin declarar')}</td>
+        <td class="nw">${esc(p.telefono || '—')}</td>
+        <td>${esc(c.diagnostico || '')}${c.cie10 ? '<small>CIE-10 ' + esc(c.cie10) + '</small>' : ''}</td>
         <td>${esc(c.procedimiento || '')}</td>
-        <td>${esc(c.cirujano || '')}<br><small>${esc(c.servicio || '')}</small></td>
-        <td>${esc(c.anestesista || '—')}<br><small>${esc(c.anestesia || '')}</small></td>
-        <td>P${pe} — ${PRIOS[pe].label}${c.urgencia ? '<br><small><b>URGENCIA</b></small>' : ''}</td>
-        <td>${ESTC[c.estado].label}<br><small>${authExenta(c) ? 'Sin aut. (urgencia)' : esc(c.auth || 'Pend. aut.')}</small>
-          ${c.auth === 'NO AUTORIZADO' && c.authMotivo ? `<div class="req-sub" style="color:var(--red)">Motivo: ${esc(c.authMotivo)}</div>` : ''}</td>
+        <td>${esc(c.cirujano || '')}<small>${esc(c.servicio || '')}${ay ? '<br>Ayud.: ' + esc(ay.nombre) : ''}</small></td>
+        <td>${esc(c.anestesista || '—')}<small>${esc(c.anestesia || '')}</small></td>
+        <td class="esp">${esp.length ? esp.map((x) => `<span>${esc(x)}</span>`).join('') : '<i>—</i>'}</td>
+        <td>P${pe} ${esc(PRIOS[pe].label)}${c.urgencia ? '<small><b>URGENCIA</b></small>' : ''}</td>
+        <td>${esc(ESTC[c.estado].label)}<small>${authExenta(c) ? 'Sin aut. (urgencia)' : esc(c.auth || 'Pend. aut.')}</small>
+          <small>${hce.preop ? '✓' : '✗'} Preqx · ${hce.consentimiento ? '✓' : '✗'} Consent.</small></td>
       </tr>`);
     });
   });
+  const urg = delParte.filter((c) => c.urgencia).length;
+  const susp = delParte.filter((c) => c.estado === 'suspendida').length;
+  const resumen = `<div class="res">
+      <div><b>${delParte.length}</b> cirugía${delParte.length === 1 ? '' : 's'}${urg ? ` · <b>${urg}</b> urgencia${urg === 1 ? '' : 's'}` : ''}${susp ? ` · <b>${susp}</b> suspendida${susp === 1 ? '' : 's'}` : ''}</div>
+      <div class="eq"><b>Equipamiento a preparar:</b> ${Object.keys(necesita).length
+        ? Object.keys(necesita).map((k) => `<span>${esc(k)} <small>(${esc(necesita[k].join(', '))})</small></span>`).join('')
+        : 'ninguno especial'}</div>
+    </div>`;
   const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
     <title>Parte Quirúrgico HRU — ${d}</title>
     <style>
-      body{font-family:Arial,Helvetica,sans-serif;padding:22px;font-size:11px;color:#111}
-      h1{font-size:16px;text-align:center;margin:0 0 4px}
-      h2{font-size:12px;text-align:center;font-weight:normal;margin:0 0 14px;color:#444}
-      table{width:100%;border-collapse:collapse}
-      th{background:#1a3a7a;color:#fff;padding:6px;border:1px solid #999;font-size:9px;text-align:left}
-      td{padding:5px 6px;border:1px solid #ccc;vertical-align:top}
-      small{color:#555;font-size:9px}
-      td.sala{background:#dce8ff;font-weight:800;font-size:12px}
-      .pie{margin-top:16px;font-size:9px;color:#555;text-align:center}
-      @media print{ body{padding:0} }
-    </style></head><body>
-    <h1>Hospital Regional Ushuaia — Parte Quirúrgico</h1>
-    <h2>${fmtDiaLargo(d)} · Emitido ${fmtDT(nowDT())}</h2>
+      @page { size: A4 landscape; margin: 8mm; }
+      *{box-sizing:border-box}
+      html,body{margin:0}
+      body{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#111;padding:0}
+      #hoja{width:281mm}
+      .cab{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1a3a7a;padding-bottom:4px;margin-bottom:5px}
+      h1{font-size:15px;margin:0;color:#1a3a7a}
+      h2{font-size:11px;font-weight:normal;margin:2px 0 0;color:#444}
+      .emit{font-size:9px;color:#555;text-align:right}
+      .res{display:flex;gap:14px;align-items:baseline;background:#f1f5fb;border:1px solid #c9d6ee;border-radius:4px;padding:4px 7px;margin-bottom:5px;font-size:9.5px}
+      .res .eq{flex:1}
+      .res .eq span{display:inline-block;margin-right:10px}
+      table{width:100%;border-collapse:collapse;table-layout:fixed}
+      th{background:#1a3a7a;color:#fff;padding:4px 4px;border:1px solid #8796b5;font-size:8.5px;text-align:left;text-transform:uppercase;letter-spacing:.02em}
+      td{padding:3px 4px;border:1px solid #c8c8c8;vertical-align:top;word-wrap:break-word;line-height:1.25}
+      td small{display:block;color:#555;font-size:8.5px}
+      td.sala{background:#dce8ff;font-weight:800;font-size:10.5px;padding:3px 6px}
+      td.sala span{font-weight:normal;color:#334}
+      td.hora b{font-size:11px}
+      td.nw{white-space:nowrap}
+      td.esp span{display:block;background:#fff4d6;border:1px solid #e8c56a;border-radius:3px;padding:0 3px;margin:0 0 2px;font-size:8.5px;font-weight:700}
+      td.esp i{color:#999}
+      tr.urg td{background:#fff1f1}
+      tr.susp td{color:#888;text-decoration:line-through}
+      tr.susp td.sala{text-decoration:none}
+      tr{page-break-inside:avoid}
+      .pie{margin-top:5px;font-size:8px;color:#555;display:flex;justify-content:space-between;gap:12px}
+      .pie b{color:#8a1c1c}
+      @media screen{ body{margin:10px auto} }
+    </style></head><body><div id="hoja">
+    <div class="cab">
+      <div><h1>Hospital Regional Ushuaia — Parte Quirúrgico</h1><h2>${fmtDiaLargo(d)}</h2></div>
+      <div class="emit">Emitido ${fmtDT(nowDT())}${(usuarioActual() || {}).nombre ? '<br>por ' + esc(usuarioActual().nombre) : ''}</div>
+    </div>
+    ${resumen}
     <table>
-      <thead><tr><th>Hora</th><th>Paciente</th><th>Diagnóstico</th><th>Procedimiento</th><th>Cirujano</th><th>Anestesia</th><th>Prioridad</th><th>Estado</th></tr></thead>
-      <tbody>${filas.join('') || '<tr><td colspan="8" style="text-align:center;padding:20px">Sin turnos programados para la fecha.</td></tr>'}</tbody>
+      <colgroup><col style="width:5%"><col style="width:12%"><col style="width:8%"><col style="width:7.5%"><col style="width:11%"><col style="width:11%"><col style="width:10.5%"><col style="width:8%"><col style="width:10%"><col style="width:7%"><col style="width:10%"></colgroup>
+      <thead><tr><th>Hora</th><th>Paciente</th><th>Obra social</th><th>Teléfono</th><th>Diagnóstico</th><th>Procedimiento</th><th>Cirujano</th><th>Anestesia</th><th>Equipamiento especial</th><th>Prioridad</th><th>Estado</th></tr></thead>
+      <tbody>${filas.join('') || '<tr><td colspan="11" style="text-align:center;padding:20px">Sin cirugías en el parte de esta fecha.</td></tr>'}</tbody>
     </table>
-    <div class="pie">Documento generado por la App HRU Quirófanos — canal único y válido para la gestión quirúrgica del hospital.
-    El parte se publica a las ${BLOQUE.publicacionParte} h del día hábil previo.</div>
+    <div class="pie"><span>App HRU Quirófanos — canal único y válido para la gestión quirúrgica del hospital. El parte se publica a las ${BLOQUE.publicacionParte} h del día hábil previo.</span>
+      <span><b>Contiene datos personales y de salud (Ley 25.326):</b> uso interno del bloque quirúrgico; no dejar a la vista ni fotografiar; destruir al terminar la jornada.</span></div>
+    </div>
+    <script>
+      // Que entre en UNA hoja apaisada (A4 menos márgenes ≈ 281 × 194 mm): si
+      // es más alta, se achica todo y se ensancha lo mismo, para que el ancho
+      // impreso siga siendo el de la hoja; se repite hasta que entra.
+      (function () {
+        var mm = 96 / 25.4, alto = 192 * mm, h = document.getElementById('hoja'), z = 1;
+        for (var i = 0; i < 12; i++) {
+          var r = h.getBoundingClientRect().height;
+          if (r <= alto || z <= 0.35) break;
+          z = Math.max(0.35, z * Math.min(0.97, alto / r));
+          h.style.zoom = z;
+          h.style.width = (281 / z) + 'mm';
+        }
+      })();
+    <\/script>
     </body></html>`;
   const w = window.open('', '_blank');
   if (!w) { alert('El navegador bloqueó la ventana emergente. Habilite las ventanas emergentes para imprimir el parte.'); return; }
   w.document.write(html);
   w.document.close();
-  setTimeout(() => w.print(), 400);
+  setTimeout(() => w.print(), 500);
 }
 
 /* ================= VISTA: RECORDATORIOS ================= */
@@ -23027,29 +23157,135 @@ function pintarPopRecordatorios() {
 }
 function closeRecordatorios() { $('rem-overlay').classList.remove('open'); }
 
-/* ================= INSTALACIÓN (PWA) ================= */
+/* ================= INSTALACIÓN (PWA) =================
+   3.24 · «Instalar esta app» (teléfono con la flecha) es la primera opción de
+   Descargas, en el menú de la izquierda, y se esconde cuando la app ya se
+   abrió instalada.
+
+   · Chrome / Edge / Samsung Internet en Android, Windows, Mac, Linux y
+     ChromeOS: el navegador avisa que se puede instalar (beforeinstallprompt) y
+     con un toque aparece su ventana «Instalar»; se confirma y queda el ícono.
+   · iPhone / iPad y Safari de Mac: Apple no deja que una página se instale
+     sola. El botón abre una guía de dos pasos con lo que hay que tocar.
+   · Enlace abierto desde WhatsApp, Gmail, Instagram…: esas ventanas no
+     instalan; la guía dice cómo pasar al navegador. */
 let deferredPrompt = null;
+const TB_PALETA = `<svg class="tb-pal" viewBox="0 0 24 24" aria-hidden="true">
+  <path d="M12 2.2C6.5 2.2 2.2 6.4 2.2 11.8c0 5.3 4.3 9.9 9.6 9.9 1 0 1.7-.8 1.7-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.4-.7-.4-1.1 0-.9.8-1.7 1.7-1.7h2c3 0 5.5-2.4 5.5-5.4 0-4.7-4.4-8.4-9.8-8.4z" fill="rgba(255,255,255,.2)" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+  <circle class="pm pm1" cx="7.2" cy="11.6" r="1.7" fill="#fde047"/>
+  <circle class="pm pm2" cx="9" cy="7" r="1.7" fill="#f472b6"/>
+  <circle class="pm pm3" cx="13.8" cy="5.9" r="1.7" fill="#38bdf8"/>
+  <circle class="pm pm4" cx="17.6" cy="9.4" r="1.7" fill="#4ade80"/>
+  <g class="pinc"><path d="M15.2 21.5 21 13.6" stroke="#fef3c7" stroke-width="2" stroke-linecap="round"/><path d="M14.4 22.6c-.2-1 .2-1.7 1-2.1l.8.6c-.1.9-.7 1.4-1.8 1.5z" fill="#fde047"/></g>
+</svg>`;
+const TB_CAMPANA = `<svg class="tb-cam" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+  <g class="cam"><path d="M12 3a1 1 0 0 1 1 1v.4a6 6 0 0 1 5 5.9c0 5.4 2.5 7.2 2.5 7.2h-17S6 15.7 6 10.3a6 6 0 0 1 5-5.9V4a1 1 0 0 1 1-1z" fill="rgba(255,255,255,.22)"/></g>
+  <g class="bad"><path d="M10.2 20.4a2 2 0 0 0 3.6 0" stroke-width="2.2"/></g>
+</svg>`;
+const TB_INSTALAR = `<svg class="tb-ins" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="6" y="2.5" width="12" height="19" rx="2.6" fill="rgba(255,255,255,.16)"/>
+  <path d="M10.5 18.6h3"/>
+  <rect class="pt" x="9" y="12.6" width="6" height="3.6" rx="1" fill="#fff" stroke="none"/>
+  <g class="fl"><path d="M12 5.6v6"/><path d="m9.4 9.2 2.6 2.6 2.6-2.6"/></g>
+</svg>`;
+
+function appInstalada() {
+  try {
+    return window.navigator.standalone === true
+      || ['standalone', 'fullscreen', 'minimal-ui', 'window-controls-overlay']
+        .some((m) => window.matchMedia && window.matchMedia(`(display-mode: ${m})`).matches);
+  } catch (e) { return false; }
+}
+function pintarInstalar() {
+  const b = $('nav-ins');
+  if (b) b.hidden = appInstalada();
+}
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  const b = $('install-btn');
-  if (b) b.style.display = 'inline-flex';
+  pintarInstalar();
 });
 window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
-  const b = $('install-btn');
-  if (b) b.style.display = 'none';
+  pintarInstalar();
+  avisar('Listo: la app quedó instalada\n\nLa va a encontrar con el ícono de HRU Quirófanos en la pantalla de inicio, en el escritorio o entre sus aplicaciones.', { tono: 'ok' });
 });
+
+/* Qué equipo y qué navegador es, para darle a cada uno sus pasos. */
+function instalarDonde() {
+  const ua = navigator.userAgent || '';
+  const ios = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  return {
+    ios,
+    android: /Android/i.test(ua),
+    mac: /Macintosh/.test(ua) && !ios,
+    dentroDeOtraApp: /FBAN|FBAV|FB_IAB|Instagram|WhatsApp|Line\/|GSA\/|LinkedInApp|Twitter|; wv\)/i.test(ua),
+    samsung: /SamsungBrowser/i.test(ua),
+    firefox: /Firefox|FxiOS/i.test(ua),
+    edge: /Edg(e|A|iOS)?\//i.test(ua),
+    safari: /Safari/i.test(ua) && !/Chrome|Chromium|CriOS|FxiOS|EdgiOS|Edg\//i.test(ua),
+  };
+}
+function pasosInstalar() {
+  const d = instalarDonde();
+  const T = 'Instalar HRU Quirófanos\n\n';
+  if (d.dentroDeOtraApp) return T + 'Abrió el enlace desde otra aplicación (WhatsApp, Gmail, Instagram…) y esas ventanas no permiten instalar.\n\n'
+    + '1. Toque los tres puntos ⋮ (o el ícono de compartir) arriba o abajo.\n2. Elija «Abrir en el navegador» (Chrome o Safari).\n3. Ya en el navegador, vuelva a tocar el botón Instalar (el teléfono con la flecha).';
+  if (d.ios) return T + 'En iPhone y iPad Apple no deja que la app se instale sola: son dos toques.\n\n'
+    + '1. Toque el botón Compartir (el cuadrado con la flecha hacia arriba ⬆): en el iPhone está abajo en el centro; en el iPad, arriba a la derecha.\n'
+    + '2. Baje en la lista y toque «Agregar a inicio» (o «Agregar a pantalla de inicio») → «Agregar».\n\n'
+    + 'Listo: queda el ícono en la pantalla de inicio y se abre a pantalla completa, como cualquier app.';
+  if (d.android) return T + (d.samsung
+    ? '1. Toque el menú ☰ abajo a la derecha.\n2. Elija «Agregar página a» → «Pantalla de inicio».\n3. Confirme con «Agregar».'
+    : d.firefox
+      ? '1. Toque el menú ⋮.\n2. Elija «Instalar» (o «Agregar a la pantalla de inicio»).\n3. Confirme.'
+      : '1. Toque el menú ⋮ arriba a la derecha.\n2. Elija «Instalar app» (o «Agregar a la pantalla principal»).\n3. Confirme con «Instalar».')
+    + '\n\nSi no aparece la opción, actualice Chrome desde Play Store y vuelva a abrir el enlace. Si ya estaba instalada, búsquela entre sus aplicaciones.';
+  if (d.mac && d.safari) return T + '1. En la barra de menú de arriba, abra «Archivo».\n2. Elija «Agregar al Dock».\n3. Confirme con «Agregar».\n\nQueda en el Dock y en Launchpad, como cualquier programa (necesita macOS Sonoma o más nuevo; si no aparece, use Chrome o Edge).';
+  if (d.firefox) return T + 'Firefox de computadora no instala aplicaciones web.\n\nAbra este mismo enlace en Chrome o en Edge y toque de nuevo el botón Instalar.';
+  return T + 'Este navegador no ofreció la instalación automática. Suele pasar porque ya está instalada en este equipo: búsquela como «HRU Quirófanos» en el escritorio o entre sus aplicaciones.\n\n'
+    + 'Si no la encuentra: arriba a la derecha, en la barra de direcciones, toque el ícono de instalar (' + (d.edge ? 'un cuadrado con un +' : 'una pantalla con una flecha') + ') y después «Instalar».';
+}
+/* ¿Ya está instalada en este equipo aunque ahora se abrió en el navegador?
+   (Chrome y Edge lo saben gracias a «related_applications» del manifiesto.) */
+async function yaInstaladaAca() {
+  try {
+    if (!navigator.getInstalledRelatedApps) return false;
+    return (await navigator.getInstalledRelatedApps()).length > 0;
+  } catch (e) { return false; }
+}
+/* Chrome avisa que se puede instalar unos segundos después de abrir la página:
+   si se toca el botón antes, se espera ese aviso en vez de mostrar pasos. */
+function esperarAvisoInstalar(ms) {
+  if (deferredPrompt) return Promise.resolve(deferredPrompt);
+  return new Promise((ok) => {
+    const t = setTimeout(() => { window.removeEventListener('beforeinstallprompt', f); ok(deferredPrompt); }, ms);
+    const f = () => { clearTimeout(t); setTimeout(() => ok(deferredPrompt), 0); };
+    window.addEventListener('beforeinstallprompt', f, { once: true });
+  });
+}
 async function promptInstall() {
-  if (!deferredPrompt) {
-    alert('Para instalar la app:\n\n· Android / Chrome: menú ⋮ → "Instalar aplicación" o "Agregar a pantalla principal".\n· iPhone / iPad (Safari): botón Compartir → "Agregar a pantalla de inicio".\n· Escritorio: icono de instalación en la barra de direcciones.');
+  if (appInstalada()) { avisar('Ya está instalada\n\nEstá usando HRU Quirófanos como aplicación instalada en este equipo.', { tono: 'ok' }); return; }
+  const d = instalarDonde();
+  // Donde el navegador sabe instalar con un toque (Chrome, Edge, Samsung…),
+  // se le da un momento para que avise.
+  if (!deferredPrompt && !d.ios && !d.dentroDeOtraApp && !(d.mac && d.safari) && !d.firefox) await esperarAvisoInstalar(3000);
+  if (!deferredPrompt && await yaInstaladaAca()) {
+    avisar('Ya está instalada en este equipo\n\nBúsquela como «HRU Quirófanos» en el escritorio, en la pantalla de inicio o entre sus aplicaciones, y ábrala desde ahí.', { tono: 'ok' });
     return;
   }
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  const b = $('install-btn');
-  if (b) b.style.display = 'none';
+  if (deferredPrompt) {
+    // El navegador permite instalar con un solo toque: aparece su ventana.
+    const ev = deferredPrompt;
+    deferredPrompt = null;
+    try {
+      ev.prompt();
+      const r = await ev.userChoice;
+      if (r && r.outcome === 'accepted') return;   // «appinstalled» da el aviso
+    } catch (e) { /* si el navegador lo rechaza, se muestran los pasos */ }
+    return;
+  }
+  avisar(pasosInstalar(), { icono: 'download', kicker: 'Instalar la app' });
 }
 
 /* ================= ACTUALIZACIÓN AUTOMÁTICA =================
@@ -26852,10 +27088,20 @@ function toggleDescargas() {
 
 function navDescargasHTML() {
   const lista = descargasVisibles();
-  if (!lista.length) return '';
+  const instalar = !appInstalada();
+  if (!lista.length && !instalar) return '';
   const TONOS = ['#f472b6', '#38bdf8', '#34d399', '#a78bfa', '#fb923c'];
-  const filas = lista.map((d, i) => `
-    <button class="nav-sub-btn" style="--h:${TONOS[i % TONOS.length]};--i:${i}" onclick="abrirDescarga('${d.id}')">
+  // 3.24 · Primero, instalar ESTA app en el equipo (para todos, con o sin sesión).
+  const filaInstalar = instalar ? `
+    <button class="nav-sub-btn nav-ins" id="nav-ins" style="--h:#10b981;--i:0" onclick="closeDrawer();promptInstall()">
+      <span class="nsb-ico">${TB_INSTALAR}</span>
+      <span class="nsb-txt">
+        <span class="nsb-tit">Instalar esta app</span>
+        <span class="nsb-sub">Ícono en el inicio · celular, tablet o PC</span>
+      </span>
+    </button>` : '';
+  const filas = filaInstalar + lista.map((d, i) => `
+    <button class="nav-sub-btn" style="--h:${TONOS[i % TONOS.length]};--i:${i + (instalar ? 1 : 0)}" onclick="abrirDescarga('${d.id}')">
       <span class="nsb-ico">${ico(ICONS[d.icono] || ICONS.download, 16)}</span>
       <span class="nsb-txt">
         <span class="nsb-tit">${esc(d.nombre)}</span>
@@ -29239,13 +29485,13 @@ document.addEventListener('DOMContentLoaded', () => {
       $('rail-pin').setAttribute('aria-label', 'Soltar el menú');
     }
   } catch (e) {}
-  $('bell-ico').innerHTML = ICONS.bell;
+  $('bell-ico').innerHTML = TB_CAMPANA;
   $('cred-slot').innerHTML = ICONS.shieldCheck;
   // Enter confirma, como hacía la ventana de clave que esto reemplazó.
   ['cred-mail', 'cred-clave'].forEach((id) => $(id).addEventListener('keydown',
     (e) => { if (e.key === 'Enter') { e.preventDefault(); confirmarCredencial(); } }));
-  $('install-ico').innerHTML = ICONS.download;
-  $('tema-ico').innerHTML = ICONS.paleta;
+  $('tema-ico').innerHTML = TB_PALETA;
+  pintarInstalar();
   initTema();
   $('libro-ico').innerHTML = ICONS.book;
 
