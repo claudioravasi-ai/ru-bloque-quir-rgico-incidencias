@@ -4470,6 +4470,113 @@
     .tb-ins .fl, .tb-ins .pt { opacity: 1; }
   }
 
+  /* ================= 3.25 · Cama de internación y reprogramación por falta de cama ================= */
+  .rc-modal { max-width: 560px; padding-top: 52px !important; }
+  /* La X queda arriba, por fuera del cartel de color, siempre a la vista. */
+  .rc-modal .modal-close { z-index: 5; top: 10px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: #fff !important; color: #0f172a !important; box-shadow: 0 4px 14px -4px rgba(15,23,42,.45); display: grid; place-items: center; font-size: 1rem; }
+  .rc-hero { border-radius: 16px; padding: 16px 18px; margin: -6px 0 14px; color: #fff; background: linear-gradient(120deg, #1d4ed8, #7c3aed 55%, #db2777); }
+  .rc-hero h2 { margin: 4px 0; color: #fff; font-size: 1.3rem; }
+  .rc-hero p { margin: 0; font-size: .86rem; opacity: .95; }
+  .rc-kick { font-size: .68rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; opacity: .9; }
+  .rc-t { font-size: .74rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: #475569; margin: 6px 0 8px; }
+  .rc-sectores { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .rc-sector { position: relative; display: block; cursor: pointer; border-radius: 14px; padding: 10px 12px 10px 14px; border: 2px solid #e2e8f0; background: #fff; transition: transform .15s, border-color .15s, box-shadow .15s; }
+  .rc-sector input { position: absolute; opacity: 0; }
+  .rc-sector b { display: block; font-size: .84rem; color: #0f172a; line-height: 1.25; }
+  .rc-sector small { display: block; margin-top: 4px; font-size: .74rem; color: #64748b; }
+  .rc-sector small span { font-weight: 900; color: var(--c); font-size: .9rem; }
+  .rc-sector::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 4px; border-radius: 4px; background: var(--c); }
+  .rc-sector.sel { border-color: var(--c); box-shadow: 0 8px 20px -10px var(--c); transform: translateY(-1px); background: color-mix(in srgb, var(--c) 7%, #fff); }
+  .rc-fila { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .rc-fila label, .rc-lbl { display: flex; flex-direction: column; justify-content: flex-end; font-size: .78rem; font-weight: 800; color: #334155; min-width: 0; }
+  .rc-fila input, .rc-lbl input { display: block; width: 100%; height: 44px; margin: 5px 0 0 !important; padding: 0 12px !important; border-radius: 10px !important; border: 1.5px solid #cbd5e1 !important; background: #fff !important; color: #0f172a !important; font: inherit; font-size: 1rem; font-weight: 700; box-sizing: border-box; box-shadow: none !important; }
+  .rc-fila input:focus, .rc-lbl input:focus { outline: none; border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.18) !important; }
+  .rc-sector.sel::after { content: '✓'; position: absolute; top: 8px; right: 10px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: var(--c); font-weight: 900; font-size: .8rem; }
+  .rc-sector b { padding-right: 24px; }
+  .rc-lbl { margin-top: 10px; }
+  .rc-acc { display: grid; gap: 8px; margin-top: 14px; }
+  .rc-acc .btn { justify-content: center; }
+  .rc-nota { font-size: .76rem; color: #64748b; line-height: 1.45; margin: 10px 0 0; }
+  .rc-sello { display: inline-flex; align-items: center; gap: 4px; font-weight: 900; font-size: .72rem; letter-spacing: .03em; color: #fff; background: linear-gradient(120deg, #dc2626, #ea580c); border-radius: 99px; padding: 3px 10px; box-shadow: 0 4px 12px -4px #dc2626; animation: rcLatido 2.2s ease-in-out infinite; margin-right: 4px; }
+  .rc-sello.chico { font-size: .64rem; padding: 2px 8px; }
+  @keyframes rcLatido { 50% { box-shadow: 0 0 0 4px rgba(220,38,38,.18), 0 4px 12px -4px #dc2626; } }
+  .rc-card .rc-cama { display: grid; gap: 3px; border-radius: 12px; padding: 10px 12px; background: color-mix(in srgb, var(--c) 9%, #fff); border-left: 5px solid var(--c); }
+  .rc-cama > b { color: var(--c); font-size: .95rem; }
+  .rc-cama span { font-size: .9rem; color: #0f172a; }
+  .rc-cama small { color: #64748b; font-size: .74rem; }
+  .rc-int { justify-self: start; font-weight: 900; color: #fff; background: var(--c); border-radius: 99px; padding: 3px 12px; text-decoration: none; font-size: .82rem; }
+  .rc-prio { border: 2px solid #fca5a5 !important; background: linear-gradient(135deg, #fff1f2, #fff7ed) !important; }
+  .rc-prop { display: grid; gap: 2px; text-align: center; border-radius: 12px; padding: 10px; background: #fff; border: 1px dashed #f59e0b; margin: 8px 0; }
+  .rc-prop small { font-size: .68rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #b45309; }
+  .rc-prop b { font-size: 1.05rem; color: #7c2d12; } .rc-prop span { color: #92400e; font-size: .85rem; }
+  .rc-oks { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; }
+  .rc-oks li { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 2px 8px; padding: 7px 9px; border-radius: 10px; background: #fff; border: 1px solid #fde68a; }
+  .rc-oks li i { grid-row: span 2; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 900; color: #fff; background: #f59e0b; }
+  .rc-oks li.ok { border-color: #86efac; background: #f0fdf4; } .rc-oks li.ok i { background: #16a34a; }
+  .rc-oks li.no i { background: #dc2626; }
+  .rc-oks li b { font-size: .84rem; } .rc-oks li small { grid-column: 2; font-size: .74rem; color: #64748b; }
+  .rc-oks li .btn, .rc-oks li .rc-tel { grid-column: 3; grid-row: 1 / span 2; }
+  .rc-tel { display: grid; gap: 4px; }
+  @media (max-width: 560px) { .rc-sectores { grid-template-columns: 1fr; } .rc-oks li { grid-template-columns: 26px 1fr; } .rc-oks li .btn, .rc-oks li .rc-tel { grid-column: 1 / -1; grid-row: auto; } }
+  @media (prefers-reduced-motion: reduce) { .rc-sello { animation: none; } }
+
+  /* ================= 3.26 · Mapa de camas ================= */
+  .cm-envio { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border-radius: 16px; padding: 12px 14px; margin: 0 0 12px; color: #fff;
+    background: linear-gradient(120deg, #b45309, #ea580c); box-shadow: 0 10px 24px -14px #ea580c; }
+  .cm-envio.env { background: linear-gradient(120deg, #1d4ed8, #0891b2); box-shadow: 0 10px 24px -14px #1d4ed8; }
+  .cm-envio.ok { background: linear-gradient(120deg, #047857, #10b981); box-shadow: 0 10px 24px -14px #059669; }
+  .cm-envio-i { font-size: 1.7rem; animation: cmLate 2s ease-in-out infinite; }
+  @keyframes cmLate { 50% { transform: scale(1.15); } }
+  .cm-envio > div { flex: 1; min-width: 220px; } .cm-envio b { display: block; font-size: .98rem; } .cm-envio small { display: block; font-size: .78rem; opacity: .95; margin-top: 2px; }
+  .cm-envio-acc { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .cm-envio .btn-outline { background: rgba(255,255,255,.15) !important; color: #fff !important; border-color: rgba(255,255,255,.5) !important; }
+  .cm-ley { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 0 0 12px; font-size: .78rem; font-weight: 700; color: var(--muted); }
+  .cm-ley span { display: inline-flex; align-items: center; gap: 6px; } .cm-ley i { width: 14px; height: 14px; border-radius: 4px; background: var(--e); box-shadow: 0 2px 6px -2px var(--e); }
+  .cm-ley b { color: var(--ink); }
+  .cm-secs { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+  .cm-sec { border-radius: 18px; padding: 12px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 12px 26px -20px var(--c); position: relative; overflow: hidden; }
+  .cm-sec::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--c); }
+  .cm-sec header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .cm-sec header > div { flex: 1; min-width: 0; } .cm-sec header b { display: block; color: var(--c); font-size: .95rem; } .cm-sec header small { color: var(--muted); font-size: .74rem; }
+  .cm-libres { border-radius: 12px; padding: 4px 10px; background: #16a34a; color: #fff; font-size: .74rem; white-space: nowrap; box-shadow: 0 6px 14px -8px #16a34a; }
+  .cm-libres b { font-size: 1.05rem; color: #fff !important; display: inline !important; }
+  .cm-mini { display: flex; height: 6px; border-radius: 6px; overflow: hidden; margin: 0 0 10px; gap: 2px; }
+  .cm-mini span { flex: var(--n, 1); background: var(--e); font-size: 0; }
+  .cm-habs { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 6px; }
+  .cm-habs.uci { grid-template-columns: 1fr; }
+  .cm-hab { border-radius: 12px; padding: 5px 5px 6px; background: color-mix(in srgb, var(--c) 6%, transparent); border: 1px dashed color-mix(in srgb, var(--c) 30%, transparent); }
+  .cm-hab > small { display: block; font-size: .64rem; font-weight: 800; color: var(--muted); margin: 0 0 3px 2px; }
+  .cm-camas { display: flex; flex-wrap: wrap; gap: 4px; }
+  .cm-cama { position: relative; flex: 1 1 32px; min-width: 32px; max-width: 48px; height: 48px; border: 0; border-radius: 10px; padding: 4px 2px 3px; cursor: pointer; color: #fff; font: inherit; align-content: center; gap: 1px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--e) 82%, #fff), var(--e)); box-shadow: 0 5px 12px -7px var(--e); display: grid; place-items: center; transition: transform .15s, box-shadow .15s; }
+  .cm-cama svg { width: 22px; height: 15px; fill: currentColor; opacity: .95; }
+  .cm-cama b { font-size: .66rem; line-height: 1; } .cm-cama small { display: block; font-size: .52rem; font-weight: 900; line-height: 1; letter-spacing: .02em; background: rgba(0,0,0,.18); border-radius: 4px; padding: 1px 3px; }
+  .cm-cama:not(:disabled):hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 9px 16px -8px var(--e); }
+  .cm-cama:disabled { cursor: default; } .cm-cama.e-fuera { background: repeating-linear-gradient(45deg, #111827 0 5px, #1f2937 5px 10px); }
+  .cm-cama.e-adesocupar { animation: cmTitila 1.6s ease-in-out infinite; }
+  @keyframes cmTitila { 50% { filter: brightness(1.18); } }
+  .cm-cama.e-libre:not(:disabled) { animation: cmLibre 2.4s ease-in-out infinite; }
+  @keyframes cmLibre { 50% { box-shadow: 0 0 0 3px rgba(22,163,74,.25), 0 5px 12px -7px #16a34a; } }
+  .cm-cama.elegida, .cm-cama.mia { outline: 3px solid #0f172a; outline-offset: 2px; }
+  .cm-ed { display: flex; gap: 3px; margin-top: 4px; } .cm-ed button { flex: 1; border: 0; border-radius: 6px; padding: 2px 0; font-size: .6rem; font-weight: 800; cursor: pointer; background: color-mix(in srgb, var(--c) 15%, #fff); color: var(--c); }
+  .cm-addhab { border: 2px dashed var(--c); border-radius: 12px; background: transparent; color: var(--c); font-weight: 800; cursor: pointer; min-height: 60px; }
+  .cm-ops { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; margin: 4px 0 10px; }
+  .cm-op { position: relative; display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 12px; border: 2px solid #e2e8f0; cursor: pointer; background: #fff; }
+  .cm-op input { position: absolute; opacity: 0; } .cm-op i { width: 22px; height: 22px; border-radius: 6px; background: var(--e); flex: none; box-shadow: 0 4px 10px -4px var(--e); }
+  .cm-op b { font-size: .84rem; color: #0f172a; } .cm-op.sel { border-color: var(--e); background: color-mix(in srgb, var(--e) 9%, #fff); }
+  .cm-hero { background: linear-gradient(120deg, var(--c), color-mix(in srgb, var(--c) 60%, #0f172a)) !important; }
+  .rc-lbl select { display: block; width: 100%; margin-top: 5px; padding: 10px; border-radius: 10px; border: 1.5px solid #cbd5e1; font: inherit; }
+  .rc-mapa { margin: 10px 0 2px; border-radius: 14px; padding: 8px; background: color-mix(in srgb, var(--c) 6%, #fff); border: 1px solid color-mix(in srgb, var(--c) 30%, #fff); }
+  .rc-mapa-h { display: flex; justify-content: space-between; gap: 8px; font-size: .76rem; margin-bottom: 6px; } .rc-mapa-h b { color: var(--c); } .rc-mapa-h span { color: #64748b; }
+  .cm-habs.mini { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 4px; } .cm-habs.mini .cm-cama { height: 34px; min-width: 24px; }
+  .cm-habs.mini .cm-hab { --c: inherit; background: #fff; }
+  .rc-sin { margin: 6px 0 0; font-weight: 800; color: #b91c1c; font-size: .8rem; }
+  .cm-env-sec .cm-habs.mini, .rc-mapa .cm-habs.mini { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); }
+  .cm-env-sec .cm-habs.mini.uci, .rc-mapa .cm-habs.mini.uci { grid-template-columns: 1fr; }
+  .cm-env-sec { border-radius: 12px; padding: 8px; margin-bottom: 8px; border-left: 5px solid var(--c); background: color-mix(in srgb, var(--c) 6%, #fff); }
+  .cm-env-sec header { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; font-size: .82rem; } .cm-env-sec header b { color: var(--c); } .cm-env-sec header span { color: #64748b; } .cm-env-sec header em { margin-left: auto; font-style: normal; font-weight: 900; color: #16a34a; }
+  @media (prefers-reduced-motion: reduce) { .cm-envio-i, .cm-cama { animation: none !important; } }
+
   /* ================= 3.21 · Tarjeta-infografía (v2) ================= */
   .pf-acentos { display: flex; gap: 8px; margin-bottom: 10px; }
   .pf-ac { width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--card); background: var(--c); cursor: pointer; box-shadow: 0 0 0 1.5px var(--line); transition: transform .2s; }
@@ -4860,7 +4967,8 @@
     color: #fff; background: linear-gradient(120deg, var(--c), color-mix(in srgb, var(--c) 70%, #000)); box-shadow: 0 4px 10px -4px var(--c);
     transform-origin: left center; animation: pvCrece .7s cubic-bezier(.2,.9,.3,1.1) both; transition: transform .2s, filter .2s, z-index 0s; }
   @keyframes pvCrece { from { transform: scaleX(0); opacity: 0; } }
-  .pv-b span { font-size: .68rem; font-weight: 700; white-space: nowrap; line-height: 26px; }
+  .pv-b span { font-size: .68rem; font-weight: 700; white-space: nowrap; line-height: 26px; overflow: hidden; text-overflow: ellipsis; display: block; min-width: 0; flex: 1; }
+  .pv-b { display: flex; align-items: center; }
   .pv-b:hover { transform: scaleY(1.18); filter: brightness(1.1); z-index: 2; }
   .pv-b.mio { outline: 2px solid #facc15; outline-offset: 1px; }
   .pv-b.curso { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.18) 0 8px, transparent 8px 16px), linear-gradient(120deg, var(--c), var(--c)); background-size: 200% 100%; animation: pvRayas 1.2s linear infinite; }
@@ -4878,7 +4986,10 @@
     .pv-pildoras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .pv-cab, .pv-fila { grid-template-columns: 92px 1fr; gap: 8px; }
     .pv-capa-ahora { left: 100px; }
-    .pv-b span { display: none; }
+    /* 3.24.1 · En el celular también se lee qué cirugía es (antes se escondía). */
+    .pv-b { padding: 0 4px; }
+    .pv-b span { display: block; font-size: .58rem; line-height: 26px; overflow: hidden; text-overflow: ellipsis; }
+    .pv-b .pv-amb { display: none; }
   }
   @media (prefers-reduced-motion: reduce) { .pv-p, .pv-b, .pv-fila, .pv-uso, .pv-p.vivo .pv-p-i { animation: none !important; } }
 
@@ -6056,6 +6167,31 @@
     .fl-llegada { grid-template-columns: auto minmax(0, 1fr); } .fl-llegada > .fl-btn { grid-column: 1 / -1; }
   }
   /* ---- fin de los estilos de la 3.22 ---- */
+
+  /* ================= 3.26 · Cabecera del menú más angosta, viva y animada ================= */
+  .sidebar .brand { padding: 2px 6px 10px !important; gap: 9px !important; }
+  .sidebar .brand-icon { width: 34px !important; height: 34px !important; min-width: 34px; border-radius: 11px !important; animation: sbLatido 2.6s ease-in-out infinite; }
+  @keyframes sbLatido { 0%, 70%, 100% { transform: scale(1); } 76% { transform: scale(1.12); } 84% { transform: scale(.98); } 90% { transform: scale(1.07); } }
+  .sidebar .brand-name { font-size: .95rem !important; line-height: 1.1; }
+  .sidebar .brand-sub { font-size: .66rem !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar .libro-btn { height: 46px !important; min-height: 0; margin-top: 8px !important; padding: 4px 10px 4px 8px !important; border-radius: 13px !important; gap: 9px !important; }
+  .sidebar .libro-btn .lb3 { transform: scale(.68); transform-origin: center; margin: -7px -6px; }
+  .sidebar .libro-btn .lb3-libro { animation: sbLibro 4s ease-in-out infinite; }
+  @keyframes sbLibro { 0%, 100% { transform: rotateY(-24deg) rotateX(6deg); } 50% { transform: rotateY(-40deg) rotateX(8deg) translateY(-2px); } }
+  .sidebar .libro-btn .lb3-kick, .sidebar .libro-btn .libro-sub { display: none !important; }
+  .sidebar .libro-btn .libro-tit { font-size: .9rem !important; line-height: 1.1; }
+  .sidebar .libro-btn .lb3-leer { transform: scale(.85); transform-origin: right center; }
+  .sidebar .libro-btn:hover .lb3-libro { animation-duration: 1.2s; }
+  .sidebar .manual-btn { height: 40px; margin: 6px 10px 2px !important; padding: 4px 10px !important; border-radius: 12px !important; gap: 8px !important; }
+  .sidebar .manual-btn > span:first-child { display: inline-block; font-size: 1.05rem !important; animation: sbClaqueta 3.2s ease-in-out infinite; transform-origin: 20% 80%; }
+  @keyframes sbClaqueta { 0%, 78%, 100% { transform: rotate(0); } 84% { transform: rotate(-16deg); } 90% { transform: rotate(4deg); } 95% { transform: rotate(-6deg); } }
+  .sidebar .manual-btn b { font-size: .78rem !important; }
+  .sidebar .manual-btn small { display: none !important; }
+  .sidebar .manual-btn:hover { transform: translateX(3px); }
+  .sidebar .manual-btn { transition: transform .2s; }
+  @media (min-width: 901px) { .app.rail .sidebar .libro-btn { height: 46px !important; padding-top: 4px !important; padding-bottom: 4px !important; } }
+  @media (prefers-reduced-motion: reduce) { .sidebar .brand-icon, .sidebar .libro-btn .lb3-libro, .sidebar .manual-btn > span:first-child { animation: none !important; } }
+
 </style>
 </head>
 <body data-tema="sobrio">
@@ -8691,7 +8827,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.24.0';
+const APP_VERSION = '3.26.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -8904,15 +9040,15 @@ const FIREBASE_CONFIG = {
    3. Si la nube está caída, la escritura se encola y se reenvía al reconectar.
    4. Cada snapshot de la nube también se espeja en localStorage, de modo que
       la próxima apertura sin red muestre los últimos datos conocidos. */
-const COLS = ['incidencias', 'cirugias', 'usuarios', 'reclamos', 'agenda', 'consentimientos', 'config', 'comunicados'];
+const COLS = ['incidencias', 'cirugias', 'usuarios', 'reclamos', 'agenda', 'consentimientos', 'config', 'comunicados', 'camas'];
 /* Espejo local con prefijo propio. La app de incidencias embebida corre en el
    mismo origen de GitHub Pages y usa la clave 'hru_incidencias_v2': si ambas
    escribieran ahí se pisarían. Comparten los datos por Firebase (nodo
    'incidencias'), no por localStorage. */
-const LOCAL_KEYS = { incidencias: 'hruq_incidencias_v1', cirugias: 'hruq_cirugias_v1', usuarios: 'hruq_usuarios_v1', reclamos: 'hruq_reclamos_v1', agenda: 'hruq_agenda_v1', consentimientos: 'hruq_consentimientos_v1', config: 'hruq_config_v1', comunicados: 'hruq_comunicados_v1' };
-const LEGACY_KEYS = { incidencias: 'hru_incidencias_v2', cirugias: 'hru_cirugias_v1', usuarios: 'hru_usuarios_v1', reclamos: 'hru_reclamos_v1', agenda: '', consentimientos: '', config: '', comunicados: '' };
+const LOCAL_KEYS = { incidencias: 'hruq_incidencias_v1', cirugias: 'hruq_cirugias_v1', usuarios: 'hruq_usuarios_v1', reclamos: 'hruq_reclamos_v1', agenda: 'hruq_agenda_v1', consentimientos: 'hruq_consentimientos_v1', config: 'hruq_config_v1', comunicados: 'hruq_comunicados_v1' , camas: 'hruq_camas_v1' };
+const LEGACY_KEYS = { incidencias: 'hru_incidencias_v2', cirugias: 'hru_cirugias_v1', usuarios: 'hru_usuarios_v1', reclamos: 'hru_reclamos_v1', agenda: '', consentimientos: '', config: '', comunicados: '' , camas: '' };
 const QUEUE_KEY = 'hruq_cola_v1';
-const DB = { incidencias: [], cirugias: [], usuarios: [], reclamos: [], agenda: [], consentimientos: [], config: [], comunicados: [] };
+const DB = { incidencias: [], cirugias: [], usuarios: [], reclamos: [], agenda: [], consentimientos: [], config: [], comunicados: [], camas: [] };
 const refs = {};      // la referencia de cada colección: es con la que se ESCRIBE
 const escuchas = {};  // lo que se ESCUCHA, que en `cirugias` es una consulta acotada
 
@@ -9082,7 +9218,7 @@ async function seedLocal(col) {
 
    Los cirujanos quedan fuera de este cambio: siguen entrando con su propia
    contraseña, que ellos eligen y que nunca estuvo en el código. */
-const ROLES = ['jefatura', 'direccion', 'admision'];
+const ROLES = ['jefatura', 'direccion', 'admision', 'enfermeria'];   // 3.26 · enfermeria = Jefatura de Enfermería (mapa de camas)
 
 /* Preguntarle a la base si este correo es el de tal rol.
    Con las reglas cerradas, `roles/<rol>` solo se deja leer a quien ya es ese
@@ -9587,8 +9723,12 @@ function prioridadEfectiva(c) {
   return c.prioridad;
 }
 function esperaDias(c) { return c.fechaSolicitud ? diasEntre(c.fechaSolicitud, hoyISO()) : 0; }
+/* 3.25 · La reprogramación por falta de cama va primero, por encima de todo lo
+   programado (más veces sin cama, más arriba). */
+function rcPeso(c) { return c && c.reprogCama && !['suspendida', 'caducada', 'anticipada'].includes(c.estado) ? -(c.reprogCama.n || 1) : 0; }
 function ordenPrelacion(a, b) {
-  return prioridadEfectiva(a) - prioridadEfectiva(b)
+  return rcPeso(a) - rcPeso(b)
+    || prioridadEfectiva(a) - prioridadEfectiva(b)
     || String(a.horaProg || '').localeCompare(String(b.horaProg || ''))
     || String(a.fechaSolicitud || '').localeCompare(String(b.fechaSolicitud || ''));
 }
@@ -9598,8 +9738,8 @@ function estChip(c) {
 }
 function prioChip(c) {
   const pe = prioridadEfectiva(c);
-  const p = PRIOS[pe];
-  let html = `<span class="prio-chip" style="background:${p.color}" title="${esc(p.desc)}">P${pe} · ${p.label}</span>`;
+  const p = PRIOS[pe] || { color: '#94a3b8', label: 'Sin prioridad', desc: 'Prioridad sin cargar' };
+  let html = rcSello(c, true) + `<span class="prio-chip" style="background:${p.color}" title="${esc(p.desc)}">P${pe} · ${p.label}</span>`;
   if (pe === 5 && c.prioridad === 6) {
     html += ` <span class="alert90" title="Alerta automática: paciente con más de 90 días en lista de espera">${ICONS.bell.replace('16', '12')} ${esperaDias(c)} días de espera</span>`;
   }
@@ -10526,6 +10666,10 @@ function calcRecordatorios() {
     });
   });
 
+  /* ---- 3.25 · Reprogramación por falta de cama ---- */
+  rcRecordatorios(add);
+  camasRecordatorios(add);
+
   /* ---- 4 bis. Turno sin resolver: la fecha pasó y nadie lo cerró ----
      Al día siguiente del turno, al cirujano dueño y a la Jefatura. Se repite
      cada día hasta que alguien lo resuelve o la app lo cierra sola. */
@@ -10746,6 +10890,7 @@ function calcRecordatorios() {
    es una apertura de la app, así que si tiene avisos sin ver le suena el tono
    una vez, igual que a quien abre la app desde cero. */
 function cambioDeIdentidad(entra) {
+  if (entra && pulseraPend) setTimeout(pulseraAlAbrir, 700);
   // El desplegable de la campana puede haber quedado abierto con los avisos del
   // anterior: se cierra antes de recalcular, no vaya a quedar a la vista.
   closeRecordatorios();
@@ -10772,6 +10917,8 @@ function revisarRecordatorios() {
   sonarAvisosPendientes();
   // Y desde las 20 h, el aviso hablado de lo que se opera mañana.
   avisarVozVispera();
+  // 3.25 · Respuestas del paciente a la reprogramación y lugar que se abrió.
+  rcVigilar();
   // Los seis contadores del tablero abierto, si cambiaron.
   publicarEstadisticasSemana();
   // El correo verificado del profesional con sesión, si todavía no consta.
@@ -10877,8 +11024,10 @@ function cargarScriptUnaVez(src) {
 let pushEstado = null;
 async function pushAsegurar() {
   if (pushListo || !cloudOn || jefe || permisoNotif() !== 'granted') return;
-  const u = usuarioActual();
-  if (!u || !u.email || esEquipoSala(u) || !cuentaAprobada(u) || !recUid()) return;
+  // 3.26 · La Jefatura de Enfermería también anota su teléfono: a las 06:30 le llega el recordatorio del mapa de camas.
+  const ue = soloEnfermeria() && firebase.auth().currentUser && firebase.auth().currentUser.email ? { email: firebase.auth().currentUser.email } : null;
+  const u = ue || usuarioActual();
+  if (!u || !u.email || (!ue && (esEquipoSala(u) || !cuentaAprobada(u) || !recUid()))) return;
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) { pushEstado = { e: 'error', msg: 'este navegador no admite avisos con la app cerrada' }; return; }
   pushListo = true;
   try {
@@ -11574,6 +11723,15 @@ function renderSidebar() {
   const pendRem = remSinLeer();
   const nRem = pendRem.length;
   const nCrit = pendRem.filter((r) => r.nivel === 'crit').length;
+  // 3.26 · La Jefatura de Enfermería entra solo al Mapa de camas.
+  if (soloEnfermeria()) {
+    $('nav').innerHTML = `<div class="nav-sep">Jefatura de Enfermería</div><button class="nav-btn ${view === 'camas' ? 'active' : ''}" onclick="go('camas')"><span class="nv-ico" style="--h:#16a34a">🛏️</span><span class="nv-lbl">Mapa de camas</span>${nRem ? `<span class="nav-badge">${nRem}</span>` : ''}</button>`;
+    navLuzIniciar(); renderBottomNav();
+    $('sidebar-bottom').innerHTML = `<div class="jefe-session"><div class="jefe-session-name">🛏️ Jefatura de Enfermería</div><div class="jefe-session-sub">Solo el Mapa de camas</div>
+      <button class="jefe-logout" onclick="jefEnfLogout()">${ICONS.logout} Cerrar sesión</button></div>
+      <div class="confidential-note"><div style="opacity:0.75">Versión ${APP_VERSION} · ${cloudOn ? 'base compartida en Firebase' : 'modo local'}</div></div>`;
+    return;
+  }
   let items = [
     { id: 'panel', icon: ICONS.grid, label: 'Panel' },
     { id: 'grilla', icon: ICONS.calPlus, label: 'Programación Diaria' },
@@ -11628,6 +11786,7 @@ function renderSidebar() {
     if (!u) items.push({ id: 'consentimientos', icon: ico(ICONS.fileText, 18), label: 'Consentimientos Informados' });
     if (!u) items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'portales', icon: ICONS.users, label: 'Portales del equipo' });
+    items.push({ id: 'camas', icon: '🛏️', label: 'Mapa de camas' });
     items.push({ id: 'kpis', icon: ICONS.chart, label: 'Indicadores' });
     items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
     const pendCta = DB.usuarios.filter((x) => estadoCuenta(x) === 'pendiente').length;
@@ -11682,6 +11841,9 @@ function renderSidebar() {
          <button class="jefe-logout" onclick="jefeLogout()">${ICONS.logout} Cerrar sesión de jefe</button>
        </div>`
     : `<button class="jefe-access" onclick="openJefeModal()">${ICONS.shield} Acceso Jefe</button>`;
+  bottom += jefenf
+    ? `<div class="jefe-session"><div class="jefe-session-name">🛏️ Jefatura de Enfermería</div><button class="jefe-logout" onclick="jefEnfLogout()">${ICONS.logout} Cerrar sesión de Enfermería</button></div>`
+    : `<button class="jefe-access" onclick="openJefEnfModal()">🛏️ Acceso Jefatura de Enfermería</button>`;
   bottom += `<div class="confidential-note">Canal único y válido para la gestión quirúrgica del HRU. Las incidencias son confidenciales: solo la Jefatura accede a su contenido.
     <div style="margin-top:8px;opacity:0.75">Versión ${APP_VERSION} · ${cloudOn ? 'base compartida en Firebase' : 'modo local'}</div></div>`;
   $('sidebar-bottom').innerHTML = bottom;
@@ -11763,7 +11925,7 @@ try { if (/Mac|iPhone|iPad/.test(navigator.platform)) document.addEventListener(
 /* ================= NAVEGACIÓN ================= */
 const VIEWS = {};
 const TITULOS = {
-  panel: 'Panel', grilla: 'Programación Diaria', parte: 'Parte Quirúrgico', recordatorios: 'Recordatorios',
+  panel: 'Panel', grilla: 'Programación Diaria', parte: 'Parte Quirúrgico', recordatorios: 'Recordatorios', camas: 'Mapa de camas',
   nueva: 'Nueva Incidencia', confidenciales: 'Incidencias Confidenciales',
   solicitud: 'Nueva solicitud quirúrgica', mis: 'Mis Solicitudes', reclamos: 'Reclamos',
   perfil: 'Mi Perfil', programacion: 'Programación', confidenciales: 'Incidencias Confidenciales',
@@ -11843,6 +12005,9 @@ function go(v, silencioso) {
     salirDelConsentimiento(v, silencioso);
     return;
   }
+  // 3.26 · Jefatura de Enfermería: solo el Mapa de camas.
+  if (soloEnfermeria() && v !== 'camas') v = 'camas';
+  if (v === 'camas' && !jefe && !jefenf && !usuarioActual()) { closeDrawer(); openJefEnfModal(); return; }
   if (v === 'confidenciales' && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['programacion', 'kpis', 'usuarios', 'comunicados', 'excepcion'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['solicitud', 'mis', 'perfil', 'consentimientos'].includes(v) && !usuarioActual() && !jefe) { v = 'acceso'; }
@@ -11917,7 +12082,10 @@ function renderBottomNav() {
   const nav = $('bottomnav');
   if (!nav) return;
   const n = remSinLeer().length;
-  const items = [
+  const items = soloEnfermeria() ? [
+    { id: 'camas', icon: '🛏️', label: 'Camas' },
+    { id: 'recordatorios', icon: ICONS.bellRing, label: 'Avisos', badge: n },
+  ] : [
     { id: 'panel', icon: ICONS.grid, label: 'Panel' },
     { id: 'grilla', icon: ICONS.calPlus, label: 'Turnos' },
     { id: 'parte', icon: ICONS.calendarBig, label: 'Parte' },
@@ -14059,6 +14227,8 @@ function cxFicha(el, id) {
     <span class="cxf-l">${esc(c.horaProg || '—')} h · ${esc(c.quirofano || c.sala || '')}</span>
     <span class="cxf-l">${esc(c.cirujano || '')}${c.paciente && c.paciente.nombre ? ' · ' + esc(c.paciente.nombre) : ''}</span>
     ${equipo.length ? `<span class="cxf-l">${equipo.map(esc).join(' · ')}</span>` : ''}
+    ${camaDe(c) ? `<span class="cxf-l">🛏 ${esc(camaTexto(c, true))}</span>` : ''}
+    ${rcVeces(c) ? `<span class="cxf-l" style="color:#fca5a5;font-weight:800">Prioridad · sin cama ×${rcVeces(c)}</span>` : ''}
     ${fl && ['validada', 'confirmada', 'en_curso', 'realizada'].includes(c.estado) ? `<div class="cxf-rec"><span class="fl-linea">${fl.pasos.map((p) => `<i class="${p.estado}"></i>`).join('')}</span><small>${act ? 'Paso ' + (fl.activo + 1) + ' de 7: ' + esc(act.n) : 'Recorrido completo'}</small></div>` : ''}
     <small class="cxf-pie">Toque para abrir la ficha completa</small>`;
   const r = el.getBoundingClientRect();
@@ -14069,6 +14239,12 @@ function cxFicha(el, id) {
   f.style.left = x + 'px'; f.style.top = y + 'px';
   f.classList.add('on');
 }
+/* 3.24.1 · Sin sesión, tocar un turno explica por qué no se ve el detalle
+   (antes el botón quedaba apagado y parecía que la app no respondía). */
+async function pvSinSesion() {
+  if (await preguntar('Ingrese para ver el detalle\n\nEl resumen y la ficha de cada cirugía tienen datos de pacientes: solo los ve el equipo con sesión iniciada (Acceso Profesional o Jefatura).',
+    { tono: 'info', si: 'Ingresar', no: 'Ahora no' })) go('acceso');
+}
 function cxFichaOcultar() {
   const f = $('cx-ficha'); if (!f) return;
   f.classList.remove('on');
@@ -14076,6 +14252,14 @@ function cxFichaOcultar() {
   cxFichaT = setTimeout(() => { if (!f.classList.contains('on')) f.style.display = 'none'; }, 160);
 }
 window.addEventListener('scroll', () => cxFichaOcultar(), { passive: true });
+/* 3.24.1 · Blindaje del resumen al pasar el mouse y de la ficha al tocar: un
+   dato raro en UNA cirugía no puede dejar el tablero sin respuesta. La ficha
+   se busca sin importar si el número llegó como texto, y si algo falla la app
+   lo dice en vez de quedarse quieta. */
+(function () {
+  const ficha = cxFicha;
+  window.cxFicha = function (el, id) { try { ficha(el, id); } catch (e) { console.error('cxFicha', e); } };
+})();
 function pvMin(hhmm) { const m = String(hhmm || '').match(/(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : null; }
 /* 3.23.2 · Dibujos animados de las píldoras de Actividad quirúrgica
    (mismo lenguaje que el circuito de incidencias). */
@@ -14108,7 +14292,7 @@ function panelVivo(st) {
       const urgN = c.urgencia ? (c.prioridad === 1 ? 'Emergencia' : 'Urgencia') : '';
       const txt = c.urgencia ? `${urgN}${conSesion ? ` · ${c.horaProg || ''} · ${c.procedimiento || ''}` : ''}` : (conSesion ? `${c.horaProg || ''} · ${c.procedimiento || ''}` : (e.label || 'Turno'));
       return `<button class="pv-b ${mio ? 'mio' : ''} ${c.estado === 'en_curso' ? 'curso' : ''} ${c.urgencia ? 'urg' : ''} ${c.prioridad === 1 && c.urgencia ? 'emerg' : ''}" style="left:${pct(ini).toFixed(2)}%;width:${Math.max(3, pct(ini + dur) - pct(ini)).toFixed(2)}%;--c:${e.color}"
-        ${conSesion ? `onclick="cxFichaOcultar();openCirugia(${c.id})" onmouseenter="cxFicha(this,${c.id})" onmouseleave="cxFichaOcultar()" onfocus="cxFicha(this,${c.id})" onblur="cxFichaOcultar()"` : `disabled title="${esc(e.label || 'Turno')}"`}>${c.urgencia ? '<i class="pv-amb" aria-hidden="true">🚑</i>' : ''}<span>${esc(txt)}</span></button>`;
+        ${conSesion ? `onclick="cxFichaOcultar();openCirugia(${c.id})" onmouseenter="cxFicha(this,${c.id})" onmouseleave="cxFichaOcultar()" onfocus="cxFicha(this,${c.id})" onblur="cxFichaOcultar()"` : `onclick="pvSinSesion()" title="${esc(e.label || 'Turno')} · ingrese para ver el detalle"`}>${c.urgencia ? '<i class="pv-amb" aria-hidden="true">🚑</i>' : ''}<span>${esc(txt)}</span></button>`;
     }).join('');
     /* Las urgencias y emergencias que caen fuera del horario a la vista se
        cuentan al lado del nombre de la sala (tocar pasa a la vista de 24 h). */
@@ -14650,7 +14834,7 @@ function renderParte() {
         <button class="btn btn-outline btn-sm" onclick="setParteFecha('${hoyISO()}')">Hoy</button>
         <button class="btn btn-outline btn-sm" onclick="setParteFecha('${sumarDias(hoyISO(), 1)}')">Mañana</button>
         <input type="date" value="${f}" onchange="setParteFecha(this.value)" style="padding:9px 13px;border:none;border-radius:10px;font-family:inherit;font-weight:600;box-shadow:0 1px 3px rgba(23,28,36,0.06)">
-        ${publicado && lista.length ? `<button class="btn btn-blue btn-sm" onclick="imprimirParte('${f}')">${ICONS.fileText} Imprimir parte</button>` : ''}
+        ${publicado && lista.length ? Object.keys(PARTE_AREAS).filter((a) => delParteArea(f, a).length).map((a) => `<button class="btn btn-blue btn-sm" onclick="imprimirParte('${f}', '${a}')">${ICONS.fileText} Imprimir · ${esc(PARTE_AREAS[a].b)}</button>`).join('') : ''}
       </div>
     </div>
 
@@ -15037,14 +15221,14 @@ function accionesCirugia(c, rol) {
   // El circuito de la programada tiene un orden y el botón lo respeta: mientras
   // Admisión y Egresos no acepte, lo único que se ofrece es su trámite; recién
   // con la aceptación aparece la validación de la Jefatura.
-  if (c.estado === 'pendiente' && jefe && !vencido) {
+  if (c.estado === 'pendiente' && jefe && !vencido && !rcActivo(c)) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${!c.auth ? '1º Aceptación de Admisión y Egresos' : authBotonTexto(c)}</button>`);
   }
-  if (c.estado === 'pendiente' && jefe && authOk(c) && !vencido) {
+  if (c.estado === 'pendiente' && jefe && authOk(c) && !vencido && !rcActivo(c)) {
     a.push(`<button class="btn btn-sm btn-green" onclick="validarCirugia(${c.id}, this)">${ICONS.check} Validar y confirmar en el parte</button>`);
   }
   // Turnos de la versión anterior, que quedaron detenidos en «Validada».
-  if (c.estado === 'validada' && jefe && !vencido) {
+  if (c.estado === 'validada' && jefe && !vencido && !rcActivo(c)) {
     a.push(`<button class="btn btn-sm btn-green" onclick="confirmarCirugia(${c.id})">${ICONS.check} Confirmar en el parte</button>`);
   }
   // El turno confirmado en el parte arranca con la LVQ. La urgencia que entró
@@ -15114,6 +15298,7 @@ async function delCirugia(id) {
 function validarCirugia(id, btn) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
+  if (rcActivo(c)) { avisar('Reprogramación por falta de cama\n\nEste turno se confirma con el OK del cirujano, de Admisión y Egresos y de la Jefatura, y después con la respuesta del paciente. Use los botones de la tarjeta «Reprogramación prioritaria» de la ficha.'); return; }
   // Un segundo toque sobre un turno ya validado no hace nada, pero lo dice.
   if (['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado)) {
     toastTurno('Este turno ya estaba validado y confirmado en el parte', '#059669');
@@ -15162,6 +15347,7 @@ function selloValidada(c) {
 function confirmarCirugia(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
+  if (rcActivo(c)) { avisar('Reprogramación por falta de cama\n\nEste turno se confirma con el OK del cirujano, de Admisión y Egresos y de la Jefatura, y después con la respuesta del paciente. Use los botones de la tarjeta «Reprogramación prioritaria» de la ficha.'); return; }
   // Un turno no entra al parte oficial sin la autorización de Admisión y Egresos.
   if (!authOk(c)) {
     alert('No se puede confirmar en el parte: el turno no tiene la autorización de Admisión y Egresos.\n\nEstado actual: ' + (c.auth || 'PENDIENTE') + '.'
@@ -15390,6 +15576,870 @@ function suspenderTurno(c, causa, det) {
     desglose: `[Generada automáticamente por el sistema] Suspensión no planificada de cirugía: ${c.procedimiento} (${c.paciente?.nombre}, ${fmtFecha(c.fecha)}, ${c.quirofano}). Causa registrada: ${causa}. ${det}`,
     informante: { nombre: 'Sistema HRU Quirófanos', dni: '—', telefono: '—', mail: 'sistema@hru.gob.ar' },
   });
+}
+
+/* ================= 3.25 · CAMA DE INTERNACIÓN Y REPROGRAMACIÓN POR FALTA DE CAMA =================
+   Vale igual para Quirófanos centrales, Endoscopía y Obstetricia/Ginecología.
+
+   1) PASO 4 «CAMA». El día del turno (desde la víspera), cuando el paciente
+      ingresa, Admisión y Egresos anota en qué sector, habitación y cama quedó
+      (con su credencial; la Jefatura, con su sesión). Se ve en la ficha, en el
+      resumen del Panel, en el pase del paciente y en el parte impreso, con el
+      interno del sector para llamarlo a quirófano:
+        Sala General de Adultos 1035 · Internación General Pediátrica 1012 ·
+        Maternidad (Gineco y Obstetricia) 1608 · UCI 1034.
+
+   2) «NO HAY CAMA». Suspende el turno con esa causa (y la incidencia D de
+      siempre) y la app arma SOLA un turno nuevo en la primera franja libre de
+      un turno abierto por la Jefatura, en una sala del mismo tipo (la misma
+      sala primero), sin mirar el cierre de la lista: es la llave de prioridad.
+      El turno nuevo:
+        · va primero en el orden de prelación, por encima de todo lo programado;
+        · lleva el sello «SIN CAMA ×N» (N = veces que se suspendió por falta de
+          cama en la cadena de turnos) en tarjetas, ficha, parte y pase;
+        · hereda los datos, la coordinación, el consentimiento y el pase del
+          paciente (el mismo QR sigue sirviendo).
+      Si no hay ninguna franja libre en los próximos RC_DIAS días, la Jefatura
+      recibe un aviso crítico y la app vuelve a buscar sola cuando abre turnos.
+
+   3) TRES OK. Cirujano (su sesión), Admisión (credencial) y Jefatura (sesión)
+      dan el OK a la fecha propuesta. Cualquiera puede pedir OTRA fecha: la app
+      pasa a la franja libre siguiente y los OK vuelven a cero.
+
+   4) PACIENTE. Con los tres OK, el Apps Script le manda un correo al paciente
+      (sin datos de salud: solo «entrá a tu pase») y en su pase ve la fecha
+      propuesta con «Sí, puedo» / «No puedo ese día». Sin pase o sin correo,
+      Admisión o la Jefatura anotan «confirmó por teléfono».
+        · Sí → turno CONFIRMADO en el parte; aviso CRÍTICO con sonido al
+          cirujano y a la Jefatura (y correo a Admisión/Jefatura si el Apps
+          Script tiene ADMISION_CORREO / JEFATURA_CORREO).
+        · No → la app busca la franja siguiente y vuelve al paso 3.
+
+   Cada respuesta del paciente va atada al identificador de la propuesta (`pid`):
+   una respuesta vieja no puede confirmar una fecha nueva. Todo lo aplica una
+   sesión con permiso de escritura (Jefatura o el cirujano dueño) y es
+   idempotente: dos equipos abiertos a la vez no lo aplican dos veces. */
+const SECTORES_CAMA = {
+  adultos:    { n: 'Sala General de Adultos', corto: 'Adultos', int: '1035', c: '#2563eb' },
+  pediatria:  { n: 'Sala de Internación General Pediátrica', corto: 'Pediatría', int: '1012', c: '#7c3aed' },
+  maternidad: { n: 'Sala de Internación Maternidad (Gineco y Obstetricia)', corto: 'Maternidad', int: '1608', c: '#db2777' },
+  uci:        { n: 'UCI', corto: 'UCI', int: '1034', c: '#dc2626' },
+};
+const CAUSA_SIN_CAMA = 'Falta de cama de internación / UTI';
+const RC_DIAS = 45;                 // cuántos días hacia adelante se busca lugar
+const RC_LLAMAR_HORAS = 24;         // sin respuesta del paciente: hay que llamarlo
+let rcCtx = null;
+
+function camaDe(c) { return c && c.cama && SECTORES_CAMA[c.cama.s] ? c.cama : null; }
+function camaTexto(c, corto) {
+  const k = camaDe(c); if (!k) return '';
+  const s = SECTORES_CAMA[k.s];
+  return `${corto ? s.corto : s.n} · Hab. ${k.hab} · Cama ${k.cama} · Int. ${s.int}`;
+}
+function sectorSugerido(c) {
+  if (c && c.paciente && c.paciente.pediatrico) return 'pediatria';
+  if ((c && c.sala && sala(c.sala).tipo === 'obs') || /gine|obst/i.test((c && c.servicio) || '')) return 'maternidad';
+  return 'adultos';
+}
+/* Se anota desde la víspera hasta que el caso se cierra. */
+function camaPuedeCargarse(c) {
+  return !!c && ['confirmada', 'en_curso', 'realizada'].includes(c.estado) && c.fecha <= sumarDias(hoyISO(), 1);
+}
+/* Cuántas veces se suspendió por falta de cama, contando la cadena de turnos. */
+function rcVeces(c) { return (c && c.reprogCama && c.reprogCama.n) || 0; }
+function rcActivo(c) { return !!(c && c.reprogCama && ['pendiente', 'validada'].includes(c.estado)); }
+function rcSello(c, chico) {
+  const n = rcVeces(c); if (!n) return '';
+  return `<span class="rc-sello${chico ? ' chico' : ''}" title="Reprogramada con prioridad: se suspendió ${n} vez${n > 1 ? 'es' : ''} por falta de cama">🛏✕ SIN CAMA ×${n}</span>`;
+}
+function rcOrigen(c) { return c && c.reprogCama ? DB.cirugias.find((x) => String(x.id) === String(c.reprogCama.de)) || null : null; }
+
+/* ---- Buscar la primera franja libre (día por día, la más temprana primero) ---- */
+function rcClaveFranja(d, sid, fid) { return d + '|' + sid + '|' + fid; }
+function rcBuscarFranja(base, desde, excluir, despuesDe) {
+  const tipo = sala(base.sala || 'Q2').tipo;
+  const salas = SALAS.filter((s) => s.tipo === tipo).sort((a, b) => (a.id === base.sala ? -1 : b.id === base.sala ? 1 : 0));
+  // Al menos 2 h para avisar y preparar; y, si se pide «otra fecha», más tarde que la actual.
+  const limite = Math.max(Date.now() + 2 * 36e5, despuesDe || 0);
+  for (let i = 0; i <= RC_DIAS; i++) {
+    const d = sumarDias(desde, i);
+    const cand = [];
+    salas.forEach((s, orden) => s.franjas.forEach((f) => {
+      if (!turnoHabilitado(d, s.id, f.p)) return;
+      if (turnoEn(d, s.id, f.id)) return;
+      if ((excluir || []).includes(rcClaveFranja(d, s.id, f.id))) return;
+      if (inicioDeFranja(d, f).getTime() <= limite) return;
+      cand.push({ d, s, f, orden });
+    }));
+    cand.sort((a, b) => inicioDeFranja(a.d, a.f) - inicioDeFranja(b.d, b.f) || a.orden - b.orden);
+    if (cand.length) return cand[0];
+  }
+  return null;
+}
+function rcPonerEn(c, slot) {
+  Object.assign(c, { sala: slot.s.id, franja: slot.f.id, quirofano: slot.s.nombre, diaGrilla: slot.d,
+    fecha: fechaDeFranja(slot.d, slot.f), horaProg: slot.f.t });
+}
+
+/* ---- 1) La cama ---- */
+function rcModal() {
+  let ov = $('rc-overlay');
+  if (!ov) {
+    ov = document.createElement('div'); ov.className = 'overlay'; ov.id = 'rc-overlay';
+    ov.innerHTML = '<div class="modal modal-white rc-modal" id="rc-modal"></div>';
+    ov.addEventListener('click', (e) => { if (e.target === ov) rcCerrar(); });
+    document.body.appendChild(ov);
+  }
+  return $('rc-modal');
+}
+function rcCerrar() { const o = $('rc-overlay'); if (o) o.classList.remove('open'); rcCtx = null; }
+function pedirCama(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c) return;
+  if (!camaPuedeCargarse(c)) { avisar('Todavía no\n\nLa cama se anota desde la víspera del turno y hasta que se cierra el caso, con el turno confirmado en el parte.'); return; }
+  if (jefe) { openCama(c.id); return; }
+  pedirAdmision('Cama de internación — Admisión y Egresos',
+    'Anotar el sector, la habitación y la cama del paciente. Ingrese el correo y la contraseña del sector de Admisión y Egresos del HRU.',
+    () => openCama(c.id));
+}
+function openCama(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c) return;
+  rcCtx = { id: c.id };
+  let k = camaDe(c) || {};
+  // 3.26 · Si Enfermería le reservó una cama, se ofrece esa.
+  if (!k.s) { const r = DB.camas.find((x) => x.e === 'reservada' && String(x.cir) === String(c.id)); if (r) k = { s: r.s, hab: r.hab, cama: r.cama }; }
+  const sel = k.s || sectorSugerido(c);
+  rcModal().innerHTML = `
+    <button class="modal-close" onclick="rcCerrar()" aria-label="Cerrar">✕</button>
+    <header class="rc-hero"><span class="rc-kick">Paso 4 · Admisión y Egresos</span>
+      <h2>🛏 Cama de internación</h2>
+      <p><b>${esc(c.paciente?.nombre || 's/d')}</b> · ${esc(c.procedimiento || '')}<br>${esc(c.quirofano || '')} · ${fmtFecha(c.fecha)} · ${esc(c.horaProg || '—')} h</p></header>
+    <p class="rc-t">Sector donde quedó internado</p>
+    <div class="rc-sectores">${Object.entries(SECTORES_CAMA).map(([key, s]) => `
+      <label class="rc-sector${key === sel ? ' sel' : ''}" style="--c:${s.c}">
+        <input type="radio" name="rc-s" value="${key}" ${key === sel ? 'checked' : ''} onchange="document.querySelectorAll('.rc-sector').forEach((l)=>l.classList.toggle('sel', l.querySelector('input').checked)); $('rc-hab').value=''; $('rc-cama').value=''; rcPintarMapa()">
+        <b>${esc(s.n)}</b><small>Interno <span>${s.int}</span> · ${camasResumen()[key].libre} libres</small></label>`).join('')}</div>
+    <div id="rc-mapa-w">${rcMapaHTML(sel, c)}</div>
+    <div class="rc-fila">
+      <label>Habitación *<input id="rc-hab" inputmode="numeric" maxlength="8" value="${esc(k.hab || '')}" placeholder="Ej: 12"></label>
+      <label>Cama *<input id="rc-cama" maxlength="8" value="${esc(k.cama || '')}" placeholder="Ej: 3 o B"></label>
+    </div>
+    <label class="rc-lbl">Agente que lo registra *<input id="rc-agente" value="${esc(k.por || '')}" placeholder="Apellido y nombre"></label>
+    <p class="pass-error" id="rc-err"></p>
+    <div class="rc-acc">
+      <button class="btn btn-blue" onclick="guardarCama()">${ico(ICONS.check, 16)} Guardar cama</button>
+      <button class="btn btn-red" onclick="sinCama()">🛏✕ No hay cama: suspender y reprogramar</button>
+    </div>
+    <p class="rc-nota">«No hay cama» suspende el turno y la app busca sola el primer turno libre, con prioridad sobre todo lo programado. Después lo aprueban el cirujano, Admisión y la Jefatura, y por último el paciente.</p>`;
+  $('rc-overlay').classList.add('open');
+}
+function rcErr(t) { const e = $('rc-err'); if (e) { e.textContent = t; e.style.display = 'block'; } }
+async function guardarCama() {
+  const c = DB.cirugias.find((x) => String(x.id) === String(rcCtx && rcCtx.id)); if (!c) return;
+  const s = (document.querySelector('input[name="rc-s"]:checked') || {}).value;
+  const hab = $('rc-hab').value.trim(), cama = $('rc-cama').value.trim(), por = $('rc-agente').value.trim();
+  if (!s || !SECTORES_CAMA[s]) return rcErr('Elija el sector.');
+  if (!hab || !cama) return rcErr('Complete la habitación y la cama.');
+  if (por.length < 3) return rcErr('Escriba el apellido y nombre de quien lo registra.');
+  // 3.26 · ¿Esa cama figura ocupada por otro paciente en el mapa?
+  const enMapa = camaDoc(s, hab, cama);
+  if (enMapa && ['ocupada', 'fuera'].includes(enMapa.e) && String(enMapa.cir) !== String(c.id)
+    && !await preguntar(`Esa cama figura «${CAMA_EST[enMapa.e].n}» en el mapa\n\nHab. ${hab} · Cama ${cama}. ¿Asignarla igual? Avise a Enfermería para que corrija el mapa.`, { si: 'Asignar igual', tono: 'aviso' })) return;
+  const ventana = window.open('', '_blank');   // la pulsera: se abre ya, en el gesto del usuario
+  const vieja = camaDe(c);
+  const antes = camaTexto(c);
+  c.cama = { s, hab, cama, por, t: nowDT() };
+  // El mapa: la cama anterior queda libre y la nueva pasa a ROJO con las iniciales.
+  if (vieja && camaId(vieja.s, vieja.hab, vieja.cama) !== camaId(s, hab, cama)) {
+    const dv = camaDoc(vieja.s, vieja.hab, vieja.cama);
+    if (dv && String(dv.cir) === String(c.id)) camaPoner(vieja.s, vieja.hab, vieja.cama, { e: 'libre', por: por + ' (Admisión)' });
+  }
+  camaPoner(s, hab, cama, { e: 'ocupada', cir: c.id, ini: iniciales(c.paciente && c.paciente.nombre), por: por + ' (Admisión)' });
+  pushHist(c, `${antes ? 'Cambio de cama' : 'Internado'}: ${camaTexto(c)} — registró ${por} (Admisión y Egresos)${antes ? ' · antes: ' + antes : ''}`);
+  upsert('cirugias', c);
+  rcCerrar();
+  toastTurno('Cama registrada: ' + camaTexto(c, true) + ' · imprimiendo la pulsera', '#059669');
+  // La pulsera, nueva cada vez que cambia la cama (el sello lleva los datos de ese momento).
+  await pulseraArmar(c, por);
+  imprimirPulsera(c.id, ventana);
+  if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) openCirugia(c.id);
+}
+
+/* ---- 2) No hay cama ---- */
+async function sinCama() {
+  const c = DB.cirugias.find((x) => String(x.id) === String(rcCtx && rcCtx.id)); if (!c) return;
+  const por = $('rc-agente').value.trim();
+  if (por.length < 3) return rcErr('Escriba el apellido y nombre de quien lo registra.');
+  if (!['confirmada', 'en_curso'].includes(c.estado)) return rcErr('Solo se suspende un turno confirmado que todavía no terminó.');
+  const n = rcVeces(c) + 1;
+  if (!await preguntar(`Suspender por falta de cama\n\nEl turno de ${c.paciente?.nombre || 'el paciente'} (${fmtFecha(c.fecha)} ${c.horaProg || ''} h) se suspende por falta de cama (${n}.ª vez) y la app busca sola el primer turno libre, con prioridad sobre todo lo programado.`,
+    { tono: 'aviso', si: 'Suspender y reprogramar', no: 'Volver' })) return;
+  rcCerrar();
+  suspenderTurno(c, CAUSA_SIN_CAMA, `No hubo cama de internación disponible el día del turno (${n}.ª vez). Registró ${por} (Admisión y Egresos). La app reprograma con prioridad.`);
+  c.sinCamaN = n;
+  const nuevo = rcCrearTurno(c, n, por);
+  if (!nuevo) {
+    c.rcPendiente = { n, por, t: nowDT() };
+    pushHist(c, 'Reprogramación prioritaria: no hay ninguna franja libre abierta en los próximos ' + RC_DIAS + ' días. La Jefatura recibe el aviso; la app vuelve a buscar sola cuando se abran turnos.');
+  }
+  upsert('cirugias', c);
+  if (nuevo) avisar(`Reprogramada con prioridad\n\nNueva fecha propuesta: ${fmtDiaLargo(nuevo.fecha)} · ${nuevo.horaProg} h · ${nuevo.quirofano}.\n\nAhora la tienen que aprobar el cirujano, Admisión y Egresos y la Jefatura; después se le pregunta al paciente.`, { tono: 'ok' });
+  else avisar('Suspendida — sin lugar todavía\n\nNo hay ninguna franja libre abierta en los próximos ' + RC_DIAS + ' días. La Jefatura recibe un aviso crítico para abrir un turno; la app arma la reprogramación sola apenas haya lugar.', { tono: 'aviso' });
+  refreshView();
+}
+/* Arma el turno nuevo (la cirugía suspendida queda tal cual, para las estadísticas). */
+function rcCrearTurno(orig, n, por) {
+  const slot = rcBuscarFranja(orig, sumarDias(hoyISO() > orig.fecha ? hoyISO() : orig.fecha, 1), []);
+  if (!slot) return null;
+  const copia = JSON.parse(JSON.stringify(orig));
+  ['id', 'estado', 'suspension', 'historial', 'lvq', 'horaInicioReal', 'horaFinReal', 'informe', 'muestras', 'cama', 'auth', 'authAgente', 'authFecha', 'authMotivo',
+    'pase', 'rcPendiente', 'sinCamaN', 'tiempos', 'aldrete', 'recuento', 'pedidos', 'excepcion', 'registroTardio', 'reabierto', '_m'].forEach((k) => delete copia[k]);
+  const nuevo = Object.assign(copia, {
+    id: Date.now(), estado: 'pendiente', urgencia: false,
+    reprogCama: { de: orig.id, n, por: por || '', desde: nowDT(), pid: portalAzar(10, PORTAL_ABC), oks: {}, estado: 'esperando_equipo', propuestas: 1, excluidas: [] },
+    historial: [{ t: nowDT(), a: `Turno armado por la app: reprogramación PRIORITARIA por falta de cama (${n}.ª vez). Turno anterior: ${fmtFecha(orig.fecha)} ${orig.horaProg || ''} h en ${orig.quirofano || ''}. Esperan el OK el cirujano, Admisión y Egresos y la Jefatura.` }],
+  });
+  rcPonerEn(nuevo, slot);
+  // El pase del paciente pasa al turno nuevo: el mismo QR sigue sirviendo.
+  if (orig.pase && orig.pase.token && !orig.pase.caducado) {
+    nuevo.pase = orig.pase;
+    delete portalFirmas[orig.pase.token];
+    orig.paseMovidoA = nuevo.id;
+    delete orig.pase;
+  }
+  pushHist(orig, `Reprogramación prioritaria armada por la app para el ${fmtFecha(nuevo.fecha)} ${nuevo.horaProg} h (${nuevo.quirofano}).`);
+  upsert('cirugias', nuevo);
+  rcAvisarSector('okAdmision', nuevo);
+  return nuevo;
+}
+
+/* ---- 3) Los tres OK y «otra fecha» ---- */
+const RC_ROLES = { cir: 'Cirujano/a', adm: 'Admisión y Egresos', jef: 'Jefatura de Quirófanos' };
+function rcPuede(c, r) {
+  const u = usuarioActual();
+  if (r === 'cir') return !!(u && c.cirujanoEmail === u.email);
+  if (r === 'jef') return !!jefe;
+  return true;   // Admisión: confirma con su credencial
+}
+function rcOk(id, r) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!rcActivo(c)) return;
+  const pid = c.reprogCama.pid;
+  const hacer = (por) => {
+    const cc = DB.cirugias.find((x) => String(x.id) === String(id));
+    if (!rcActivo(cc) || cc.reprogCama.pid !== pid) { avisar('La propuesta cambió\n\nMientras confirmaba, alguien pidió otra fecha. Revise la nueva y vuelva a dar el OK.'); return; }
+    cc.reprogCama.oks[r] = { por, t: nowDT() };
+    if (r === 'adm') { cc.auth = 'AUTORIZADO'; cc.authAgente = por; cc.authFecha = nowDT(); }
+    pushHist(cc, `OK a la reprogramación por falta de cama (${fmtFecha(cc.fecha)} ${cc.horaProg} h): ${RC_ROLES[r]} — ${por}`);
+    rcSiTodos(cc);
+    upsert('cirugias', cc);
+    if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) openCirugia(cc.id);
+    refreshView();
+  };
+  if (r === 'adm') {
+    const pedir = async () => { const n = await pedirTexto('Agente de Admisión que da el OK\n\nApellido y nombre: queda asentado en el turno.', { si: 'Dar el OK', campo: { label: 'Apellido y nombre', placeholder: 'Agente de Admisión', requerido: true } }); if (n && String(n).trim().length >= 3) hacer(String(n).trim()); };
+    pedirAdmision('OK de Admisión — reprogramación por falta de cama', 'Confirmar la nueva fecha. Ingrese el correo y la contraseña del sector de Admisión y Egresos.', pedir);
+    return;
+  }
+  if (!rcPuede(c, r)) { avisar('Este OK no le corresponde\n\nLo da ' + RC_ROLES[r] + ' desde su propia sesión.'); return; }
+  const u = usuarioActual();
+  hacer(r === 'jef' ? JEFATURA : (u && u.nombre) || c.cirujano || '');
+}
+/* Con los tres OK, se le pregunta al paciente. */
+function rcSiTodos(c) {
+  const o = c.reprogCama.oks;
+  if (!(o.cir && o.adm && o.jef)) return;
+  c.estado = 'validada';
+  c.reprogCama.estado = 'esperando_paciente';
+  c.reprogCama.preguntado = nowDT();
+  pushHist(c, 'Los tres OK están: se le pregunta al paciente si puede el ' + fmtFecha(c.fecha) + ' a las ' + c.horaProg + ' h.');
+  if (c.pase && c.pase.token && !c.pase.caducado) setTimeout(() => rcAvisarPaciente(c), 300);
+}
+async function rcOtraFecha(id, motivoDe) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!rcActivo(c)) return;
+  if (motivoDe !== 'paciente' && !await preguntar('Buscar otra fecha\n\nLa app pasa a la franja libre siguiente y los OK vuelven a cero.', { si: 'Buscar otra fecha' })) return;
+  rcMover(c, motivoDe === 'paciente' ? 'el paciente no puede ese día' : 'lo pidió ' + (jefe ? JEFATURA : (usuarioActual() && usuarioActual().nombre) || 'el equipo'));
+  upsert('cirugias', c);
+  if (motivoDe !== 'paciente' && $('cir-overlay') && $('cir-overlay').classList.contains('open')) openCirugia(c.id);
+  refreshView();
+}
+/* «Otra fecha»: si el paciente no puede, se saltea ese DÍA entero; si lo pide
+   el equipo, se pasa a un horario posterior (nunca la misma hora en otra sala). */
+function rcMover(c, motivo, diaEntero) {
+  const rc = c.reprogCama;
+  rc.excluidas = (rc.excluidas || []).concat(rcClaveFranja(diaDeGrilla(c), c.sala, c.franja));
+  const antes = `${fmtFecha(c.fecha)} ${c.horaProg} h`;
+  const fActual = franjaDe(c.sala, c.franja);
+  const iniActual = fActual ? inicioDeFranja(diaDeGrilla(c), fActual).getTime() : 0;
+  const slot = diaEntero ? rcBuscarFranja(c, sumarDias(diaDeGrilla(c), 1), rc.excluidas) : rcBuscarFranja(c, diaDeGrilla(c), rc.excluidas, iniActual);
+  rc.oks = {}; rc.pid = portalAzar(10, PORTAL_ABC); rc.propuestas = (rc.propuestas || 1) + 1;
+  rc.estado = 'esperando_equipo'; delete rc.preguntado; delete rc.paciente;   // la respuesta anterior queda en el historial
+  c.estado = 'pendiente'; c.auth = null;
+  if (slot) {
+    // Se libera la franja vieja y se toma la nueva.
+    rcPonerEn(c, slot);
+    pushHist(c, `Otra fecha (${motivo}): de ${antes} a ${fmtFecha(c.fecha)} ${c.horaProg} h en ${c.quirofano}. Los OK vuelven a cero.`);
+  } else {
+    rc.estado = 'sin_lugar';
+    pushHist(c, `Otra fecha (${motivo}): no hay más franjas libres abiertas. La Jefatura recibe el aviso para abrir un turno.`);
+  }
+  rcAvisarSector('okAdmision', c);
+}
+/* ---- 4) El paciente ---- */
+async function rcAvisarPaciente(c) {
+  if (!c.pase || !c.pase.token) return;
+  if (!cloudOn || !PORTAL.servicio) return;   // en modo local se ve directo en el pase
+  try { await portalServicio({ accion: 'avisarReprog', token: c.pase.token }); } catch (e) {}
+}
+function rcAvisarSector(que, c) {
+  if (!cloudOn || !PORTAL.servicio) return;
+  portalServicio({ accion: 'avisarSector', que, ref: String(c.id).slice(-6), token: (c.pase && c.pase.token) || '' }).catch(() => {});
+}
+function rcTelefono(id, ok) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c || !c.reprogCama || c.reprogCama.estado !== 'esperando_paciente') return;
+  const anotar = async () => {
+    const n = await pedirTexto(`${ok ? 'El paciente CONFIRMÓ por teléfono' : 'El paciente NO puede ese día'}\n\n${c.paciente?.nombre || ''} · ☎ ${c.paciente?.telefono || 'sin teléfono cargado'}\nFecha propuesta: ${fmtDiaLargo(c.fecha)} · ${c.horaProg} h · ${c.quirofano}\n\nApellido y nombre de quien habló con el paciente:`, { si: 'Registrar', campo: { label: 'Apellido y nombre', placeholder: 'Quién habló con el paciente', requerido: true } });
+    if (!n || String(n).trim().length < 3) return;
+    rcAplicarRespuesta(c, ok, 'teléfono · ' + String(n).trim());
+  };
+  if (jefe) { anotar(); return; }
+  pedirAdmision('Respuesta del paciente — Admisión y Egresos', 'Registrar lo que dijo el paciente por teléfono. Ingrese el correo y la contraseña del sector de Admisión y Egresos.', anotar);
+}
+function rcAplicarRespuesta(c, ok, via) {
+  if (!c.reprogCama || c.reprogCama.estado !== 'esperando_paciente') return false;
+  if (ok) {
+    c.estado = 'confirmada';
+    c.reprogCama.estado = 'confirmada';
+    c.reprogCama.paciente = { ok: true, via, t: nowDT() };
+    pushHist(c, `CONFIRMADA por el paciente (${via}) — turno PRIORITARIO por falta de cama (${rcVeces(c)}.ª vez): ${fmtFecha(c.fecha)} ${c.horaProg} h en ${c.quirofano}. Validada por la Jefatura y confirmada en el parte.`);
+    upsert('cirugias', c);
+    rcAvisarSector('confirmada', c);
+  } else {
+    c.reprogCama.paciente = { ok: false, via, t: nowDT() };
+    rcMover(c, 'el paciente no puede ese día (' + via + ')', true);
+    upsert('cirugias', c);
+  }
+  refreshView();
+  revisarRecordatorios();
+  return true;
+}
+/* Lo corre `revisarRecordatorios`: respuestas del pase y búsquedas pendientes. */
+let rcVigilando = false;
+async function rcVigilar() {
+  const u = usuarioActual();
+  if ((!jefe && !u) || rcVigilando) return;
+  rcVigilando = true;
+  try {
+    // a) Suspendidas por falta de cama que todavía no encontraron lugar.
+    DB.cirugias.filter((c) => c.rcPendiente && c.estado === 'suspendida').filter(remMia).forEach((c) => {
+      const nuevo = rcCrearTurno(c, c.rcPendiente.n, c.rcPendiente.por);
+      if (nuevo) { delete c.rcPendiente; upsert('cirugias', c); }
+    });
+    // b) Reprogramaciones sin lugar: cuando la Jefatura abre un turno, se toma.
+    DB.cirugias.filter((c) => rcActivo(c) && c.reprogCama.estado === 'sin_lugar').filter(remMia).forEach((c) => {
+      const slot = rcBuscarFranja(c, sumarDias(hoyISO(), 0), c.reprogCama.excluidas || []);
+      if (!slot) return;
+      rcPonerEn(c, slot); c.reprogCama.estado = 'esperando_equipo';
+      pushHist(c, `Se abrió lugar: nueva fecha propuesta ${fmtFecha(c.fecha)} ${c.horaProg} h en ${c.quirofano}.`);
+      upsert('cirugias', c);
+    });
+    // c) Respuestas del paciente desde su pase.
+    for (const c of DB.cirugias.filter((x) => rcActivo(x) && x.reprogCama.estado === 'esperando_paciente' && x.pase && x.pase.token).filter(remMia)) {
+      let r = null;
+      if (!cloudOn) r = (portalDemoLeer()[c.pase.token] || {}).resp || null;
+      else { try { r = (await firebase.database().ref('portalRespuesta/' + c.pase.token).once('value')).val(); } catch (e) { r = null; } }
+      if (r && r.pid === c.reprogCama.pid) rcAplicarRespuesta(c, !!r.ok, 'pase del paciente');
+    }
+  } finally { rcVigilando = false; }
+}
+
+/* ---- Avisos (campanita) ---- */
+function rcRecordatorios(add) {
+  const u = usuarioActual();
+  const ahora = Date.now();
+  DB.cirugias.filter((c) => c.rcPendiente && c.estado === 'suspendida' && jefe).forEach((c) => add({
+    key: 'rc-sinlugar-' + c.id, nivel: 'crit', vista: 'grilla', cirugia: c.id,
+    titulo: `Sin lugar para reprogramar — ${c.paciente?.nombre || 's/d'} (SIN CAMA ×${c.rcPendiente.n})`,
+    texto: `Se suspendió por falta de cama y no hay franjas libres abiertas en ${RC_DIAS} días. Abra un turno en la agenda: la app lo toma sola con prioridad.`,
+    cuando: 'Prioridad máxima',
+  }));
+  DB.cirugias.filter(rcActivo).filter(remMia).forEach((c) => {
+    const rc = c.reprogCama, o = rc.oks || {};
+    const quien = `${c.paciente?.nombre || 's/d'} · ${fmtFecha(c.fecha)} ${c.horaProg} h · ${c.quirofano}`;
+    if (rc.estado === 'sin_lugar') {
+      if (jefe) add({ key: 'rc-sinlugar2-' + c.id + '-' + rc.pid, nivel: 'crit', vista: 'grilla', cirugia: c.id,
+        titulo: `Sin lugar para la reprogramación — ${c.paciente?.nombre || 's/d'} (SIN CAMA ×${rcVeces(c)})`,
+        texto: 'No quedan franjas libres abiertas. Abra un turno: la app lo toma sola.', cuando: 'Prioridad máxima' });
+      return;
+    }
+    if (rc.estado === 'esperando_equipo') {
+      const mio = (jefe && !o.jef) || (u && c.cirujanoEmail === u.email && !o.cir);
+      const faltan = Object.keys(RC_ROLES).filter((k) => !o[k]).map((k) => RC_ROLES[k]);
+      add({ key: 'rc-ok-' + c.id + '-' + rc.pid, nivel: mio ? 'crit' : 'warn', vista: jefe ? 'programacion' : 'mis', cirugia: c.id, notif: mio,
+        titulo: `${mio ? 'Falta SU OK' : 'Esperando OK'} — reprogramación por falta de cama (×${rcVeces(c)})`,
+        texto: `${quien}. Faltan: ${faltan.join(', ')}. Tiene prioridad sobre todo lo programado.`, cuando: 'Prioridad máxima' });
+    }
+    if (rc.estado === 'esperando_paciente') {
+      const horas = rc.preguntado ? (ahora - new Date(rc.preguntado).getTime()) / 36e5 : 0;
+      const sinPase = !(c.pase && c.pase.token);
+      add({ key: 'rc-pac-' + c.id + '-' + rc.pid + (sinPase || horas >= RC_LLAMAR_HORAS ? '-llamar' : ''), nivel: sinPase || horas >= RC_LLAMAR_HORAS ? 'crit' : 'info',
+        vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
+        titulo: sinPase ? `Llamar al paciente — ${c.paciente?.nombre || 's/d'}` : horas >= RC_LLAMAR_HORAS ? `El paciente no respondió en ${RC_LLAMAR_HORAS} h — llamarlo` : `Esperando la respuesta del paciente`,
+        texto: `${quien}. ${sinPase ? 'No tiene pase con correo: confirmar por teléfono' : 'Se le preguntó en su pase'} (☎ ${c.paciente?.telefono || 'sin teléfono'}).`,
+        cuando: 'Reprogramación por falta de cama' });
+    }
+  });
+  // Confirmadas: aviso crítico con sonido hasta que cada uno lo mira.
+  DB.cirugias.filter((c) => c.reprogCama && c.reprogCama.estado === 'confirmada' && c.estado === 'confirmada' && c.fecha >= hoyISO()).filter(remMia).forEach((c) => {
+    const t = c.reprogCama.paciente && c.reprogCama.paciente.t;
+    if (t && ahora - new Date(t).getTime() > 72 * 36e5) return;
+    add({ key: 'rc-conf-' + c.id + '-' + c.reprogCama.pid, nivel: 'crit', notif: true, vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
+      titulo: `PRIORIDAD · Reprogramación confirmada (SIN CAMA ×${rcVeces(c)})`,
+      texto: `${c.paciente?.nombre || 's/d'} confirmó: ${fmtDiaLargo(c.fecha)} · ${c.horaProg} h · ${c.quirofano}. Quedó en el parte con prioridad.`,
+      cuando: fmtFecha(c.fecha) });
+  });
+}
+
+/* ---- En la ficha ---- */
+function rcFichaHTML(c) {
+  const k = camaDe(c);
+  let h = '';
+  // La cama (paso 4)
+  if (['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado) || k) {
+    const s = k && SECTORES_CAMA[k.s];
+    h += `<section class="fx-card full rc-card${k ? ' ok' : ''}"><h4>🛏 <span>Internación · paso 4</span>${k ? '<em class="fx-n ok">Cama asignada</em>' : '<em class="fx-n warn">Sin cama</em>'}</h4>
+      ${k ? `<div class="rc-cama" style="--c:${s.c}"><b>${esc(s.n)}</b><span>Habitación <b>${esc(k.hab)}</b> · Cama <b>${esc(k.cama)}</b></span>
+          <a class="rc-int" href="tel:${s.int}">☎ Interno ${s.int}</a><small>Registró ${esc(k.por)} · ${fmtDT(k.t)}${c.pulsera ? ` · pulsera SHA-256 ${esc(selloCorto(c.pulsera.sello).slice(0, 9))}…` : ''}</small>
+          <button class="btn btn-sm btn-outline" style="justify-self:start" onclick="reimprimirPulsera(${c.id})">🏷️ ${c.pulsera ? 'Reimprimir la pulsera' : 'Imprimir la pulsera'}</button></div>`
+        : '<p class="fx-txt">Admisión y Egresos anota el sector, la habitación y la cama cuando el paciente ingresa (desde la víspera). Así se lo ubica para llamarlo a quirófano.</p>'}
+      ${camaPuedeCargarse(c) ? `<button class="btn btn-sm btn-outline fx-btn" onclick="pedirCama(${c.id})">🛏 ${k ? 'Cambiar la cama' : 'Anotar la cama'} · o «No hay cama»</button>` : ''}
+    </section>`;
+  }
+  // La reprogramación
+  const rc = c.reprogCama;
+  if (rc) {
+    const o = rc.oks || {};
+    const orig = rcOrigen(c);
+    const ok = (r) => `<li class="${o[r] ? 'ok' : ''}"><i>${o[r] ? '✓' : '·'}</i><b>${RC_ROLES[r]}</b><small>${o[r] ? esc(o[r].por) + ' · ' + fmtDT(o[r].t) : 'pendiente'}</small>
+        ${!o[r] && rcActivo(c) && rc.estado === 'esperando_equipo' && rcPuede(c, r) ? `<button class="btn btn-sm btn-green" onclick="rcOk(${c.id}, '${r}')">Dar el OK</button>` : ''}</li>`;
+    const pac = rc.paciente;
+    h += `<section class="fx-card full rc-card rc-prio"><h4>${rcSello(c)} <span>Reprogramación prioritaria por falta de cama</span></h4>
+      <p class="fx-txt">Se suspendió <b>${rcVeces(c)} vez${rcVeces(c) > 1 ? 'es' : ''}</b> por falta de cama${orig ? ` (último turno: ${fmtFecha(orig.fecha)} ${esc(orig.horaProg || '')} h)` : ''}. Este turno va <b>primero</b>, por encima de todo lo programado.</p>
+      ${rc.estado === 'sin_lugar' ? '<p class="fx-txt warn">No hay franjas libres abiertas. Cuando la Jefatura abra un turno, la app lo toma sola.</p>' : `
+      <div class="rc-prop"><small>Fecha propuesta${rc.propuestas > 1 ? ` (propuesta ${rc.propuestas})` : ''}</small><b>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg)} h</b><span>${esc(c.quirofano)}</span></div>
+      <ol class="rc-oks">${['cir', 'adm', 'jef'].map(ok).join('')}
+        <li class="${pac && pac.ok ? 'ok' : pac && !pac.ok ? 'no' : ''}"><i>${pac && pac.ok ? '✓' : '·'}</i><b>Paciente</b><small>${rc.estado === 'confirmada' ? 'confirmó · ' + esc(pac.via) + ' · ' + fmtDT(pac.t) : rc.estado === 'esperando_paciente' ? (c.pase && c.pase.token ? 'se le preguntó en su pase' : 'llamar por teléfono') + ' · ☎ ' + esc(c.paciente?.telefono || '—') : 'después de los tres OK'}</small>
+          ${rc.estado === 'esperando_paciente' && rcActivo(c) ? `<span class="rc-tel"><button class="btn btn-sm btn-green" onclick="rcTelefono(${c.id}, true)">☎ Confirmó por teléfono</button><button class="btn btn-sm btn-outline" onclick="rcTelefono(${c.id}, false)">☎ No puede ese día</button></span>` : ''}</li>
+      </ol>
+      ${rcActivo(c) ? `<button class="btn btn-sm btn-outline fx-btn" onclick="rcOtraFecha(${c.id})">↻ Pedir otra fecha</button>` : ''}`}
+    </section>`;
+  }
+  return h;
+}
+
+/* ================= 3.26 · MAPA DE CAMAS EN VIVO Y PULSERA DEL PACIENTE =================
+   La JEFATURA DE ENFERMERÍA (cuenta propia, rol `enfermeria` en `roles`) entra
+   solo a esta sección. Mantiene al día cuatro esquemas —Adultos, Pediatría,
+   Maternidad y UCI— con el estado de cada cama:
+     🟩 libre · 🟥 ocupada · 🟧 a desocupar (con la hora estimada) ·
+     🟨 reservada (para una cirugía) · ⬛ fuera de servicio.
+   Las habitaciones y las camas se agregan y se sacan desde «Editar salas».
+
+   A las 07:00 la disponibilidad «se envía» a Admisión y Egresos: el Apps Script
+   (reloj `relojCamas`) sella la foto del día y le manda el resumen por correo
+   (sin datos de pacientes); la Jefatura de Enfermería puede además tocar
+   «Enviar ahora». Pero el mapa es EN VIVO: cada cambio se ve al instante en la
+   ventana de la cama de Admisión, que elige la cama tocando un cuadrado verde
+   (o el amarillo reservado para esa cirugía). Al guardar, la cama pasa a ROJO.
+
+   PULSERA: al guardar la cama, la app arma e imprime la pulsera del paciente
+   —QR, apellido y nombre, DNI, patología, sector/habitación/cama, quién le dio
+   ingreso y un sello SHA-256 de esos datos— para cortar con tijera y pegar en
+   la muñeca. El QR lleva solo una llave al azar (sin datos): escaneado con la
+   cámara abre la app; con sesión del hospital abre la ficha, comprueba el sello
+   y arranca la LVQ de Entrada con el punto 1 (identidad) ya confirmado. */
+const CAMA_EST = {
+  libre:      { n: 'Libre', c: '#16a34a' },
+  ocupada:    { n: 'Ocupada', c: '#dc2626' },
+  adesocupar: { n: 'A desocupar', c: '#ea580c' },
+  reservada:  { n: 'Reservada', c: '#eab308' },
+  fuera:      { n: 'Fuera de servicio', c: '#111827' },
+};
+const habsDe = (n, camas) => Array.from({ length: n }, (_, i) => ({ n: String(i + 1), camas: Array.from({ length: camas }, (_, k) => String(k + 1)) }));
+const CAMAS_DEF = {
+  adultos: habsDe(10, 2), pediatria: habsDe(12, 2), maternidad: habsDe(8, 3),
+  uci: [{ n: 'UCI', camas: ['1', '2', '3', '4', '5', '6', '7'] }],
+};
+let jefenf = sessionStorage.getItem('hru_jefenf') === '1';
+let cmEditar = false;
+const soloEnfermeria = () => jefenf && !jefe && !director && !usuarioActual();
+const puedeEditarCamas = () => jefenf || jefe;
+const cmLimpio = (x) => String(x == null ? '' : x).trim().replace(/[^A-Za-z0-9]/g, '_').slice(0, 12);
+const camaId = (s, hab, cama) => `b-${s}-${cmLimpio(hab)}-${cmLimpio(cama)}`;
+
+function camasConf() {
+  const d = DB.camas.find((x) => x.id === 'conf');
+  const out = {};
+  Object.keys(SECTORES_CAMA).forEach((k) => {
+    const habs = comoLista(d && d.sect && d.sect[k] && d.sect[k].habs).map((h) => ({ n: String(h.n), camas: comoLista(h.camas).map(String) }));
+    out[k] = habs.length ? habs : JSON.parse(JSON.stringify(CAMAS_DEF[k]));
+  });
+  return out;
+}
+function camaDoc(s, hab, cama) { return DB.camas.find((x) => x.id === camaId(s, hab, cama)) || null; }
+function camaEst(s, hab, cama) { const d = camaDoc(s, hab, cama); return d && CAMA_EST[d.e] ? d.e : 'libre'; }
+function camasResumen() {
+  const conf = camasConf(), R = {};
+  Object.keys(conf).forEach((s) => {
+    R[s] = { libre: 0, ocupada: 0, adesocupar: 0, reservada: 0, fuera: 0, total: 0 };
+    conf[s].forEach((h) => h.camas.forEach((c) => { R[s][camaEst(s, h.n, c)]++; R[s].total++; }));
+  });
+  return R;
+}
+function camaPoner(s, hab, cama, datos) {
+  const doc = Object.assign({ id: camaId(s, hab, cama), s, hab: String(hab), cama: String(cama) }, datos, { t: nowDT() });
+  upsert('camas', doc);
+  return doc;
+}
+const iniciales = (n) => String(n || '').split(/[\s,]+/).filter(Boolean).slice(0, 3).map((p) => p[0].toUpperCase()).join('');
+const CAMA_SVG = '<svg viewBox="0 0 32 22" aria-hidden="true"><rect x="2" y="9" width="28" height="7" rx="2"/><rect x="3" y="4" width="8" height="5" rx="2" opacity=".75"/><rect x="2" y="16" width="3" height="5" rx="1"/><rect x="27" y="16" width="3" height="5" rx="1"/></svg>';
+
+/* ---- La vista «Mapa de camas» ---- */
+function renderCamas() {
+  const conf = camasConf(), R = camasResumen(), hoy = hoyISO();
+  const env = DB.camas.find((x) => x.id === 'envio-' + hoy);
+  const editar = puedeEditarCamas();
+  const tot = Object.keys(CAMA_EST).reduce((o, k) => (o[k] = Object.values(R).reduce((a, r) => a + r[k], 0), o), {});
+  const camBtn = (s, h, c) => {
+    const d = camaDoc(s, h.n, c), e = camaEst(s, h.n, c);
+    const cir = d && d.cir ? DB.cirugias.find((x) => String(x.id) === String(d.cir)) : null;
+    const pie = e === 'ocupada' ? (d && d.ini) || (cir ? iniciales(cir.paciente && cir.paciente.nombre) : '')
+      : e === 'adesocupar' ? (d && d.hasta ? d.hasta : '') : e === 'reservada' ? (cir ? cir.horaProg || 'Qx' : 'res.') : '';
+    const tit = `Hab. ${h.n} · Cama ${c} · ${CAMA_EST[e].n}${d && d.nota ? ' · ' + d.nota : ''}${cir ? ` · ${cir.procedimiento || ''} ${fmtFecha(cir.fecha)} ${cir.horaProg || ''} h` : ''}`;
+    return `<button class="cm-cama e-${e}" style="--e:${CAMA_EST[e].c}" title="${esc(tit)}" ${editar ? `onclick="camaTocar('${s}','${esc(h.n)}','${esc(c)}')"` : 'disabled'}>
+      ${CAMA_SVG}<b>${esc(c)}</b>${pie ? `<small>${esc(pie)}</small>` : ''}</button>`;
+  };
+  $('main').innerHTML = `
+    <div class="page-head"><div class="head-row"><div class="head-icon">🛏️</div><div>
+      <h1 class="page-title">Mapa de camas</h1>
+      <p class="page-sub">En vivo · lo mantiene la Jefatura de Enfermería y lo ve Admisión y Egresos al dar ingreso</p></div></div>
+      ${editar ? `<div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm ${cmEditar ? 'btn-blue' : 'btn-outline'}" onclick="cmEditar=!cmEditar;renderCamas()">✏️ ${cmEditar ? 'Listo, dejar de editar' : 'Editar salas'}</button>
+        <button class="btn btn-sm btn-green" onclick="camasEnviar()">📤 Enviar ahora a Admisión</button></div>` : ''}
+    </div>
+    <div class="cm-envio ${env ? (env.recibido ? 'ok' : 'env') : ''}">
+      <span class="cm-envio-i">${env ? (env.recibido ? '✅' : '📤') : '⏰'}</span>
+      <div><b>${env ? (env.recibido ? `✓ Recibido por Admisión · ${esc(env.recibido.por || '')} · ${esc(String(env.recibido.t || '').slice(11, 16))} h` : `Enviado a Admisión a las ${esc(String(env.t || '').slice(11, 16))} h · esperando «Recibido»`) : 'Hoy antes de las 07:00: enviar las camas a Admisión y Egresos'}</b>
+      <small>${env ? `${env.via === 'auto' ? 'Envío automático' : 'Enviada por ' + esc(env.por || 'Jefatura de Enfermería')} · ${env.resumen ? Object.keys(env.resumen).map((s) => `${SECTORES_CAMA[s] ? SECTORES_CAMA[s].corto : s}: ${env.resumen[s].libre} libre${env.resumen[s].libre === 1 ? '' : 's'}`).join(' · ') : ''}. Después de esa hora el mapa sigue en vivo: Admisión ve cada cambio al instante.` : 'El mapa es en vivo y se puede cambiar en todo momento (las urgencias mandan). El envío deja sellada la foto de las 07:00.'}</small>
+      ${env ? `<span class="cm-envio-acc"><button class="btn btn-sm btn-outline" onclick="camasVerEnvio('${hoy}')">👁 Ver lo enviado</button>${!env.recibido && !soloEnfermeria() ? `<button class="btn btn-sm btn-green" onclick="camasRecibido('${hoy}')">✓ Recibido (Admisión)</button>` : ''}</span>` : ''}</div>
+    </div>
+    <div class="cm-ley">${Object.entries(CAMA_EST).map(([k, v]) => `<span style="--e:${v.c}"><i></i>${v.n} <b>${tot[k]}</b></span>`).join('')}</div>
+    <div class="cm-secs">${Object.keys(conf).map((s) => {
+      const S = SECTORES_CAMA[s], r = R[s];
+      return `<section class="cm-sec" style="--c:${S.c}">
+        <header><div><b>${esc(S.n)}</b><small>☎ Interno ${S.int} · ${r.total} camas</small></div>
+          <span class="cm-libres"><b>${r.libre}</b> libre${r.libre === 1 ? '' : 's'}</span></header>
+        <div class="cm-mini">${Object.keys(CAMA_EST).map((k) => r[k] ? `<span style="--e:${CAMA_EST[k].c};--n:${r[k]}">${r[k]}</span>` : '').join('')}</div>
+        <div class="cm-habs${s === 'uci' ? ' uci' : ''}">${conf[s].map((h, hi) => `
+          <div class="cm-hab"><small>${s === 'uci' ? 'UCI' : 'Hab. ' + esc(h.n)}</small>
+            <div class="cm-camas">${h.camas.map((c) => camBtn(s, h, c)).join('')}</div>
+            ${cmEditar && editar ? `<div class="cm-ed"><button onclick="camasEditar('${s}',${hi},'+cama')" title="Agregar cama">＋ cama</button><button onclick="camasEditar('${s}',${hi},'-cama')" title="Sacar la última cama">－ cama</button><button onclick="camasEditar('${s}',${hi},'-hab')" title="Sacar la habitación">🗑</button></div>` : ''}
+          </div>`).join('')}
+          ${cmEditar && editar ? `<button class="cm-addhab" onclick="camasEditar('${s}',-1,'+hab')">＋ Habitación</button>` : ''}
+        </div></section>`;
+    }).join('')}</div>
+    <p class="form-note">Toque una cama para cambiar su estado. Las camas que ocupa Admisión al dar ingreso pasan solas a rojo, con las iniciales del paciente.</p>`;
+}
+
+/* ---- Cambiar el estado de una cama ---- */
+let cmCtx = null;
+function camaTocar(s, hab, cama) {
+  if (!puedeEditarCamas()) return;
+  cmCtx = { s, hab, cama };
+  const d = camaDoc(s, hab, cama) || {}, e = camaEst(s, hab, cama);
+  const hoy = hoyISO(), man = sumarDias(hoy, 1);
+  const cands = DB.cirugias.filter((c) => ['confirmada', 'validada', 'pendiente'].includes(c.estado) && (c.fecha === hoy || c.fecha === man) && !camaDe(c))
+    .sort((a, b) => (a.fecha + a.horaProg).localeCompare(b.fecha + b.horaProg));
+  rcModal().innerHTML = `
+    <button class="modal-close" onclick="rcCerrar()" aria-label="Cerrar">✕</button>
+    <header class="rc-hero cm-hero" style="--c:${SECTORES_CAMA[s].c}"><span class="rc-kick">${esc(SECTORES_CAMA[s].n)}</span>
+      <h2>🛏 ${s === 'uci' ? 'UCI' : 'Habitación ' + esc(hab)} · Cama ${esc(cama)}</h2><p>Estado actual: <b>${CAMA_EST[e].n}</b>${d.t ? ' · ' + fmtDT(d.t) : ''}</p></header>
+    <div class="cm-ops">${Object.entries(CAMA_EST).map(([k, v]) => `<label class="cm-op${k === e ? ' sel' : ''}" style="--e:${v.c}"><input type="radio" name="cm-e" value="${k}" ${k === e ? 'checked' : ''} onchange="cmOpcion()"><i></i><b>${v.n}</b></label>`).join('')}</div>
+    <div id="cm-hasta-w" class="rc-lbl" style="display:${e === 'adesocupar' ? 'block' : 'none'}">Se desocupa aproximadamente a las<input type="time" id="cm-hasta" value="${esc(d.hasta || '')}"></div>
+    <div id="cm-cir-w" class="rc-lbl" style="display:${e === 'reservada' ? 'block' : 'none'}">Reservada para la cirugía
+      <select id="cm-cir"><option value="">— sin cirugía (reserva general) —</option>${cands.map((c) => `<option value="${c.id}" ${String(d.cir) === String(c.id) ? 'selected' : ''}>${fmtFecha(c.fecha)} ${esc(c.horaProg || '')} h · ${esc(c.quirofano || '')} · ${esc(iniciales(c.paciente && c.paciente.nombre))} · ${esc(c.procedimiento || '')}</option>`).join('')}</select></div>
+    <label class="rc-lbl">Nota (opcional)<input id="cm-nota" maxlength="80" value="${esc(d.nota || '')}" placeholder="Ej: aislamiento, alta pendiente de la tarde"></label>
+    <div class="rc-acc"><button class="btn btn-blue" onclick="camaGuardarEstado()">${ico(ICONS.check, 16)} Guardar</button></div>`;
+  $('rc-overlay').classList.add('open');
+}
+function cmOpcion() {
+  const v = (document.querySelector('input[name="cm-e"]:checked') || {}).value;
+  document.querySelectorAll('.cm-op').forEach((l) => l.classList.toggle('sel', l.querySelector('input').checked));
+  $('cm-hasta-w').style.display = v === 'adesocupar' ? 'block' : 'none';
+  $('cm-cir-w').style.display = v === 'reservada' ? 'block' : 'none';
+}
+function camaGuardarEstado() {
+  if (!cmCtx) return;
+  const { s, hab, cama } = cmCtx;
+  const e = (document.querySelector('input[name="cm-e"]:checked') || {}).value || 'libre';
+  const previo = camaDoc(s, hab, cama) || {};
+  const datos = { e, nota: $('cm-nota').value.trim(), por: jefe ? JEFATURA : 'Jefatura de Enfermería' };
+  if (e === 'adesocupar') datos.hasta = $('cm-hasta').value || '';
+  if (e === 'reservada') datos.cir = $('cm-cir').value || '';
+  if (e === 'ocupada' && previo.cir) { datos.cir = previo.cir; datos.ini = previo.ini || ''; }
+  camaPoner(s, hab, cama, datos);
+  rcCerrar();
+  toastTurno(`Cama ${cama} (${s === 'uci' ? 'UCI' : 'Hab. ' + hab}): ${CAMA_EST[e].n}`, CAMA_EST[e].c);
+  if (view === 'camas') renderCamas();
+}
+/* ---- Editar habitaciones y camas ---- */
+async function camasEditar(s, hi, que) {
+  const conf = camasConf();
+  const habs = conf[s];
+  if (que === '+hab') {
+    const sug = String((Math.max(0, ...habs.map((h) => Number(h.n) || 0)) + 1));
+    const n = await pedirTexto('Nueva habitación\n\nNúmero o nombre de la habitación.', { si: 'Agregar', campo: { label: 'Habitación', valor: sug, requerido: true } });
+    if (!n || !String(n).trim()) return;
+    if (habs.some((h) => h.n === String(n).trim())) { avisar('Ya existe esa habitación.'); return; }
+    habs.push({ n: String(n).trim(), camas: s === 'maternidad' ? ['1', '2', '3'] : ['1', '2'] });
+  } else {
+    const h = habs[hi]; if (!h) return;
+    if (que === '+cama') h.camas.push(String((Math.max(0, ...h.camas.map((c) => Number(c) || 0)) + 1)));
+    if (que === '-cama' || que === '-hab') {
+      const quitar = que === '-hab' ? h.camas.slice() : [h.camas[h.camas.length - 1]];
+      const usadas = quitar.filter((c) => !['libre', 'fuera'].includes(camaEst(s, h.n, c)));
+      if (usadas.length) { avisar(`No se puede sacar\n\n${que === '-hab' ? 'La habitación tiene' : 'La cama está'} ${usadas.length > 1 ? 'camas' : ''} ocupada${usadas.length > 1 ? 's' : ''}, reservada${usadas.length > 1 ? 's' : ''} o a desocupar. Pásela${usadas.length > 1 ? 's' : ''} a Libre primero.`); return; }
+      if (que === '-hab') { if (!await preguntar(`Sacar la habitación ${h.n}\n\nSe quitan sus ${h.camas.length} camas del mapa.`, { si: 'Sacar', tono: 'aviso' })) return; habs.splice(hi, 1); }
+      else { if (h.camas.length <= 1) { avisar('La habitación tiene una sola cama: para sacarla, saque la habitación.'); return; } h.camas.pop(); }
+      quitar.forEach((c) => { const d = camaDoc(s, h.n, c); if (d) removeDoc('camas', d.id); });
+    }
+  }
+  const sect = {};
+  Object.keys(conf).forEach((k) => { sect[k] = { habs: conf[k] }; });
+  upsert('camas', { id: 'conf', sect, por: jefe ? JEFATURA : 'Jefatura de Enfermería', t: nowDT() });
+  renderCamas();
+}
+/* ---- Envío a Admisión ----
+   La Jefatura de Enfermería toca «Enviar a Admisión» (a las 06:30 le suena el
+   recordatorio, también con la app cerrada). Queda la foto sellada del momento
+   —solo estados de camas, sin pacientes— y Admisión recibe el correo con
+   «✓ Recibido». Al tocarlo (en el correo o en la app) se le abre lo enviado y a
+   Enfermería le llega «Recibido por Admisión». Si a las 07:00 no se envió, el
+   Apps Script manda solo la foto del mapa tal como está, marcada «automático». */
+function camasFoto() {
+  const conf = camasConf(), det = {};
+  Object.keys(conf).forEach((s) => { det[s] = []; conf[s].forEach((h) => h.camas.forEach((c) => {
+    const d = camaDoc(s, h.n, c) || {}; const e = camaEst(s, h.n, c);
+    det[s].push(Object.assign({ h: h.n, c, e }, e === 'adesocupar' && d.hasta ? { hasta: d.hasta } : {}));
+  })); });
+  return { resumen: camasResumen(), detalle: det };
+}
+async function camasEnviar() {
+  if (!puedeEditarCamas()) return;
+  const hoy = hoyISO(), F = camasFoto(), R = F.resumen;
+  const previo = DB.camas.find((x) => x.id === 'envio-' + hoy);
+  if (!await preguntar(`${previo ? 'Volver a enviar' : 'Enviar'} el mapa de camas a Admisión y Egresos\n\n${Object.keys(R).map((s) => `· ${SECTORES_CAMA[s].corto}: ${R[s].libre} libres · ${R[s].adesocupar} a desocupar · ${R[s].reservada} reservadas · ${R[s].ocupada} ocupadas`).join('\n')}`, { si: 'Enviar a Admisión' })) return;
+  upsert('camas', Object.assign({ id: 'envio-' + hoy, fecha: hoy, via: 'manual', por: jefe ? JEFATURA : 'Jefatura de Enfermería', t: nowDT(), envios: ((previo && previo.envios) || 0) + 1 }, F));
+  if (cloudOn && PORTAL.servicio) portalServicio({ accion: 'camasEnviadas', fecha: hoy }).catch(() => {});
+  toastTurno('📤 Enviado a Admisión y Egresos', '#059669');
+  if (view === 'camas') renderCamas();
+}
+/* Admisión confirma que lo recibió (en la app; en el correo es el botón firmado). */
+function camasRecibido(fecha) {
+  const env = DB.camas.find((x) => x.id === 'envio-' + fecha); if (!env) return;
+  const anotar = async () => {
+    const n = await pedirTexto('Recibido por Admisión y Egresos\n\nApellido y nombre de quien lo recibe:', { si: '✓ Recibido', campo: { label: 'Apellido y nombre', placeholder: 'Agente de Admisión', requerido: true } });
+    if (!n || String(n).trim().length < 3) return;
+    const e2 = DB.camas.find((x) => x.id === 'envio-' + fecha);
+    e2.recibido = { por: String(n).trim(), t: nowDT(), via: 'app' };
+    upsert('camas', e2);
+    if (cloudOn && PORTAL.servicio) portalServicio({ accion: 'camasRecibidas', fecha }).catch(() => {});
+    camasVerEnvio(fecha);
+  };
+  if (jefe) { anotar(); return; }
+  pedirAdmision('Mapa de camas — Admisión y Egresos', 'Confirmar que Admisión recibió la disponibilidad de camas. Ingrese el correo y la contraseña del sector.', anotar);
+}
+/* Lo que envió Enfermería, tal cual (la foto de ese momento). */
+function camasVerEnvio(fecha) {
+  const env = DB.camas.find((x) => x.id === 'envio-' + fecha); if (!env) return;
+  const det = env.detalle || {};
+  rcModal().innerHTML = `
+    <button class="modal-close" onclick="rcCerrar()" aria-label="Cerrar">✕</button>
+    <header class="rc-hero cm-hero" style="--c:#0f766e"><span class="rc-kick">Enviado por ${esc(env.por || 'Jefatura de Enfermería')}${env.via === 'auto' ? ' · automático' : ''}</span>
+      <h2>📤 Camas disponibles · ${esc(String(env.t || '').slice(11, 16))} h</h2>
+      <p>${esc(fmtDiaLargo(env.fecha))}${env.recibido ? ` · ✓ Recibido por ${esc(env.recibido.por || 'Admisión')} a las ${esc(String(env.recibido.t || '').slice(11, 16))} h` : ''}</p></header>
+    ${Object.keys(SECTORES_CAMA).map((s) => {
+      const S = SECTORES_CAMA[s], r = (env.resumen || {})[s] || {}, L = comoLista(det[s]);
+      const porHab = {}; L.forEach((x) => { (porHab[x.h] = porHab[x.h] || []).push(x); });
+      return `<section class="cm-env-sec" style="--c:${S.c}"><header><b>${esc(S.corto)}</b><span>☎ ${S.int}</span><em>${r.libre || 0} libre${r.libre === 1 ? '' : 's'}</em></header>
+        <div class="cm-habs mini${s === 'uci' ? ' uci' : ''}">${Object.keys(porHab).map((h) => `<div class="cm-hab"><small>${s === 'uci' ? 'UCI' : 'Hab. ' + esc(h)}</small><div class="cm-camas">${porHab[h].map((x) => `<span class="cm-cama e-${x.e}" style="--e:${(CAMA_EST[x.e] || CAMA_EST.libre).c}" title="${esc((CAMA_EST[x.e] || CAMA_EST.libre).n)}${x.hasta ? ' · ' + esc(x.hasta) : ''}">${CAMA_SVG}<b>${esc(x.c)}</b>${x.hasta ? `<small>${esc(x.hasta)}</small>` : ''}</span>`).join('')}</div></div>`).join('')}</div></section>`;
+    }).join('')}
+    <div class="cm-ley">${Object.entries(CAMA_EST).map(([k, v]) => `<span style="--e:${v.c}"><i></i>${v.n}</span>`).join('')}</div>
+    <p class="rc-nota">Es la foto del momento del envío. El mapa sigue en vivo: al dar ingreso, la ventana de la cama muestra el estado de ahora.</p>`;
+  $('rc-overlay').classList.add('open');
+}
+
+/* ---- Ingreso de la Jefatura de Enfermería ---- */
+function openJefEnfModal() {
+  pedirCredencial({ titulo: 'Jefatura de Enfermería', desc: 'Ingrese el correo y la contraseña de la cuenta de Jefatura de Enfermería. Esta cuenta entra solo al Mapa de camas.',
+    rol: 'enfermeria', nombreRol: 'Jefatura de Enfermería', sesion: true,
+    onOk: async () => { jefenf = true; sessionStorage.setItem('hru_jefenf', '1'); resuscribir(); cambioDeIdentidad(true); go('camas'); } });
+}
+async function jefEnfLogout() {
+  jefenf = false; cmEditar = false; sessionStorage.removeItem('hru_jefenf');
+  if (cloudOn && !jefe) await volverAlPaseAnonimo();
+  cambioDeIdentidad(false); go('panel');
+}
+function camasRecordatorios(add) {
+  if (!jefenf && !jefe) return;
+  const ahora = new Date(), hoy = hoyISO();
+  const env = DB.camas.find((x) => x.id === 'envio-' + hoy);
+  const h = ahora.getHours() * 60 + ahora.getMinutes();
+  // 06:30: aviso fuerte y con sonido (con la app cerrada llega como push desde el Apps Script).
+  if (jefenf && !env && h >= 6 * 60 + 30 && h < 12 * 60) add({ key: 'camas-0630-' + hoy, nivel: 'crit', notif: true, vista: 'camas',
+    titulo: '🛏 Enviá el mapa de camas a Admisión', texto: 'Revisá los cuatro esquemas y tocá «Enviar a Admisión». Admisión lo necesita para dar ingreso a los pacientes de hoy.', cuando: h < 7 * 60 ? 'Antes de las 07:00' : 'Vencido: 07:00 h',
+    voz: 'Jefatura de Enfermería: recuerde enviar el mapa de camas a Admisión y Egresos.' });
+  if (jefenf && env && env.recibido) add({ key: 'camas-rec-' + hoy + '-' + (env.envios || 1), nivel: 'info', notif: true, vista: 'camas',
+    titulo: '✓ Admisión recibió el mapa de camas', texto: `Lo recibió ${env.recibido.por || 'Admisión y Egresos'} a las ${String(env.recibido.t || '').slice(11, 16)} h.`, cuando: 'Hoy' });
+  if (jefe && env && !env.recibido && h >= 7 * 60 + 30 && h < 12 * 60) add({ key: 'camas-norec-' + hoy, nivel: 'warn', vista: 'camas',
+    titulo: 'Admisión todavía no confirmó el mapa de camas', texto: `Enfermería lo envió a las ${String(env.t || '').slice(11, 16)} h y falta el «Recibido» de Admisión.`, cuando: 'Hoy' });
+}
+
+/* ---- En la ventana de la cama de Admisión: el mapa del sector, para tocar ---- */
+function rcMapaHTML(s, c) {
+  const conf = camasConf()[s] || [];
+  const k = camaDe(c);
+  const libres = conf.reduce((n, h) => n + h.camas.filter((x) => camaEst(s, h.n, x) === 'libre').length, 0);
+  return `<div class="rc-mapa" style="--c:${SECTORES_CAMA[s].c}"><div class="rc-mapa-h"><b>Mapa en vivo · ${esc(SECTORES_CAMA[s].corto)}</b><span>${libres} libre${libres === 1 ? '' : 's'} · toque una cama verde</span></div>
+    <div class="cm-habs mini${s === 'uci' ? ' uci' : ''}">${conf.map((h) => `<div class="cm-hab"><small>${s === 'uci' ? 'UCI' : 'Hab. ' + esc(h.n)}</small><div class="cm-camas">${h.camas.map((x) => {
+      const d = camaDoc(s, h.n, x), e = camaEst(s, h.n, x);
+      const mia = (d && String(d.cir) === String(c.id)) || (k && k.s === s && k.hab === h.n && k.cama === x);
+      const ok = e === 'libre' || mia;
+      return `<button type="button" class="cm-cama e-${e}${mia ? ' mia' : ''}" style="--e:${CAMA_EST[e].c}" ${ok ? `onclick="rcElegirCama('${esc(h.n)}','${esc(x)}')"` : 'disabled'} title="${esc(CAMA_EST[e].n)}${mia ? ' · de este paciente' : ''}">${CAMA_SVG}<b>${esc(x)}</b></button>`;
+    }).join('')}</div></div>`).join('')}</div>
+    ${libres ? '' : '<p class="rc-sin">No hay camas libres en este sector.</p>'}</div>`;
+}
+function rcElegirCama(hab, cama) {
+  $('rc-hab').value = hab; $('rc-cama').value = cama;
+  document.querySelectorAll('.rc-mapa .cm-cama').forEach((b) => b.classList.remove('elegida'));
+  const b = [...document.querySelectorAll('.rc-mapa .cm-cama')].find((x) => x.closest('.cm-hab').querySelector('small').textContent.replace('Hab. ', '') === hab && x.querySelector('b').textContent === cama);
+  if (b) b.classList.add('elegida');
+}
+function rcPintarMapa() {
+  const c = DB.cirugias.find((x) => String(x.id) === String(rcCtx && rcCtx.id)); if (!c) return;
+  const s = (document.querySelector('input[name="rc-s"]:checked') || {}).value || 'adultos';
+  const w = $('rc-mapa-w'); if (!w) return;
+  w.innerHTML = rcMapaHTML(s, c);
+  const hab = $('rc-hab') && $('rc-hab').value, cama = $('rc-cama') && $('rc-cama').value;
+  if (hab && cama) rcElegirCama(hab, cama);
+}
+
+/* ---- La pulsera ---- */
+function pulseraUrl(tk) { return `${location.origin}${location.pathname}?pulsera=${tk}`; }
+async function pulseraSello(c, p) {
+  const pa = c.paciente || {};
+  return sha256Hex([p.tk, c.id, soloDigitos(pa.dni), String(pa.nombre || '').trim().toUpperCase(), String(c.diagnostico || '').trim(), p.por, p.t].join('|'));
+}
+async function pulseraArmar(c, por) {
+  const p = { tk: portalAzar(22, PORTAL_ABC), por: por || '', t: nowDT() };
+  p.sello = await pulseraSello(c, p);
+  c.pulsera = p;
+  pushHist(c, `Pulsera impresa · sello SHA-256 ${p.sello.slice(0, 16)}… · ingreso registrado por ${p.por}`);
+  upsert('cirugias', c);
+  return p;
+}
+const selloCorto = (h) => String(h || '').slice(0, 16).toUpperCase().replace(/(.{4})/g, '$1 ').trim();
+async function pulseraHTML(c) {
+  await cargarQR();
+  const p = c.pulsera, pa = c.paciente || {}, k = camaDe(c), S = k ? SECTORES_CAMA[k.s] : null;
+  const qr = window.qrcode ? qrSvg(pulseraUrl(p.tk)) : '';
+  const banda = (copia) => `<div class="banda">
+      <div class="pega">PEGAR<br>▸</div>
+      <div class="qr">${qr}</div>
+      <div class="datos">
+        <b class="nom">${esc(String(pa.nombre || '').toUpperCase())}</b>
+        <span>DNI <b>${esc(pa.dni || '—')}</b> · ${pa.edad ?? '—'} años${pa.pediatrico ? ' · <b>PEDIÁTRICO</b>' : ''}${pa.nacimiento ? ' · Nac. ' + esc(fmtFecha(pa.nacimiento)) : ''}</span>
+        <span class="pat">⚕ ${esc(c.diagnostico || c.procedimiento || '')}</span>
+      </div>
+      <div class="ubic" style="--c:${S ? S.c : '#334155'}">${S ? `<b>${esc(S.corto)}</b><span>Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}</span><small>Int. ${S.int}</small>` : ''}</div>
+      <div class="firma"><small>Ingreso ${esc(fmtDT(p.t))}</small><span>Admisión: <b>${esc(p.por)}</b></span><i>Firma ____________</i>
+        <code>SHA-256 ${esc(selloCorto(p.sello))}</code></div>
+      <div class="pega">◂<br>PEGAR</div>
+      ${copia ? '<em class="copia">COPIA</em>' : ''}
+    </div>`;
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Pulsera — ${esc(pa.nombre || '')}</title>
+    <style>
+      @page { size: A4 landscape; margin: 10mm; }
+      * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #0f172a; background: #e2e8f0; }
+      .hoja { width: 277mm; margin: 0 auto; background: #fff; padding: 8mm 0; }
+      @media screen { body { padding: 16px; } .hoja { padding: 10mm; box-shadow: 0 10px 30px -12px rgba(0,0,0,.35); border-radius: 6px; width: 297mm; }
+        .barra { width: 297mm; max-width: 100%; margin: 0 auto 10px; text-align: right; } .barra button { font: 700 14px inherit; font-family: inherit; padding: 10px 16px; border: 0; border-radius: 10px; background: #1e3a8a; color: #fff; cursor: pointer; } }
+      @media print { body { background: #fff; } .barra, .ayuda { display: none; } .hoja { width: 100%; padding: 0; } }
+      h1 { font-size: 13px; margin: 0 0 2mm; color: #334155; text-align: center; letter-spacing: .04em; }
+      .corte { border: .5mm dashed #64748b; border-radius: 3mm; padding: 1.5mm; margin: 0 auto 7mm; width: 262mm; position: relative; }
+      .corte::before { content: '✂'; position: absolute; left: -5mm; top: -3.2mm; font-size: 5mm; color: #64748b; }
+      .banda { position: relative; display: grid; grid-template-columns: 14mm 24mm 1fr 30mm 52mm 14mm; align-items: center; gap: 2.5mm; height: 27mm; border-radius: 2.5mm; overflow: hidden; background: linear-gradient(90deg, #eff6ff, #fff 30%, #fff 70%, #f5f3ff); border: .3mm solid #94a3b8; }
+      .pega { height: 100%; display: grid; place-items: center; text-align: center; font-size: 2.4mm; font-weight: 800; color: #94a3b8; background: repeating-linear-gradient(45deg, #f1f5f9 0 2mm, #e2e8f0 2mm 4mm); letter-spacing: .06em; }
+      .qr svg { width: 23mm; height: 23mm; display: block; }
+      .datos { display: grid; gap: .6mm; min-width: 0; }
+      .nom { font-size: 5.2mm; line-height: 1.05; letter-spacing: .01em; }
+      .datos span { font-size: 3.1mm; color: #334155; }
+      .pat { font-weight: 800; color: #b91c1c !important; font-size: 3.4mm !important; }
+      .ubic { height: 21mm; border-radius: 2mm; background: var(--c); color: #fff; display: grid; align-content: center; text-align: center; padding: 1mm; }
+      .ubic b { font-size: 3.6mm; } .ubic span { font-size: 3mm; font-weight: 700; } .ubic small { font-size: 2.6mm; opacity: .9; }
+      .firma { display: grid; gap: .5mm; font-size: 2.7mm; color: #334155; }
+      .firma i { font-style: normal; margin-top: 1.5mm; }
+      .firma code { font-family: ui-monospace, Menlo, monospace; font-size: 2.6mm; color: #1e3a8a; background: #eef2ff; border-radius: 1mm; padding: .4mm 1mm; }
+      .copia { position: absolute; right: 16mm; top: 1mm; font-style: normal; font-size: 2.4mm; font-weight: 900; color: #94a3b8; letter-spacing: .1em; }
+      .ayuda { width: 262mm; margin: 0 auto; font-size: 12px; color: #475569; line-height: 1.5; }
+    </style></head><body>
+    <div class="barra"><button onclick="window.print()">🖨 Imprimir la pulsera</button></div>
+    <div class="hoja">
+      <h1>HOSPITAL REGIONAL USHUAIA · PULSERA DE IDENTIFICACIÓN DEL PACIENTE</h1>
+      <div class="corte">${banda(false)}</div>
+      <div class="corte">${banda(true)}</div>
+      <p class="ayuda">✂ Corte por la línea de puntos y pegue los extremos «PEGAR» alrededor de la muñeca. La copia queda en la historia clínica. El QR no lleva datos: con la app del hospital abre la ficha, comprueba el sello SHA-256 y arranca la LVQ de Entrada con la identidad confirmada.</p>
+    </div></body></html>`;
+}
+async function imprimirPulsera(id, ventana) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c || !c.pulsera) return;
+  const w = ventana || window.open('', '_blank');
+  if (!w) { alert('El navegador bloqueó la ventana emergente. Habilite las ventanas emergentes para imprimir la pulsera.'); return; }
+  w.document.open(); w.document.write(await pulseraHTML(c)); w.document.close();
+  setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 700);
+}
+async function reimprimirPulsera(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c || !camaDe(c)) return;
+  const w = window.open('', '_blank');
+  if (!c.pulsera) await pulseraArmar(c, c.cama.por);
+  imprimirPulsera(c.id, w);
+}
+/* ---- Escanear la pulsera ---- */
+const PULSERA_TK = (new URLSearchParams(location.search).get('pulsera') || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 40);
+let pulseraPend = PULSERA_TK || '';
+async function pulseraAlAbrir() {
+  if (!pulseraPend) return;
+  const u = usuarioActual();
+  if (!u && !jefe) {
+    avisar('Pulsera de paciente del HRU\n\nPara abrir la ficha, ingrese con su cuenta del hospital. Apenas entre, la app la abre sola.');
+    go('acceso');
+    return;
+  }
+  const tk = pulseraPend; pulseraPend = '';
+  try { history.replaceState(null, '', location.pathname + (forceLocal ? '?local' : '') + location.hash); } catch (e) {}
+  const c = DB.cirugias.find((x) => x.pulsera && x.pulsera.tk === tk);
+  if (!c) { avisar('Pulsera no encontrada\n\nEsta pulsera no corresponde a ninguna cirugía activa. Verifique la identidad del paciente de forma manual (nombre y DNI).', { tono: 'peligro' }); return; }
+  const ok = (await pulseraSello(c, c.pulsera)) === c.pulsera.sello;
+  pushHist(c, `Pulsera escaneada por ${jefe ? JEFATURA : u.nombre} · sello ${ok ? 'válido' : 'NO coincide con los datos actuales'}`);
+  upsert('cirugias', c);
+  openCirugia(c.id);
+  if (!ok) { avisar('El sello de la pulsera NO coincide\n\nLos datos del paciente cambiaron después de imprimirla. Verifique la identidad de forma manual y reimprima la pulsera desde la ficha.', { tono: 'peligro' }); return; }
+  const puede = c.estado === 'confirmada' && (jefe || (u && c.cirujanoEmail === u.email));
+  if (await preguntar(`✓ Identidad verificada con la pulsera\n\n${c.paciente?.nombre || ''} · DNI ${c.paciente?.dni || '—'}\n${c.procedimiento || ''} · ${c.quirofano || ''} ${c.horaProg || ''} h\nSello SHA-256 ${selloCorto(c.pulsera.sello)} ✓`,
+    { tono: 'ok', si: puede ? 'Iniciar la LVQ de Entrada' : 'Ver la ficha', no: 'Cerrar' }) && puede) {
+    closeCirugia();
+    openLVQ(c.id, 'inicio');
+    setTimeout(() => { const ch = document.querySelector('.lvq-chk[data-fase="entrada"]'); if (ch) { ch.checked = true; if (typeof checkLVQReady === 'function') checkLVQReady(); } }, 120);
+  }
 }
 
 /* ================= TURNOS SIN RESOLVER =================
@@ -16781,6 +17831,7 @@ function openCirugia(id) {
       ${fichaSiguiente(c)}
 
       <div class="fx-grid">
+        ${rcFichaHTML(c)}
         ${tarjeta(ICONS.user, 'Paciente', kv([
           ['Nombre', esc(c.paciente?.nombre || 's/d')],
           ['DNI', esc(c.paciente?.dni || '—')],
@@ -16870,6 +17921,18 @@ function openCirugia(id) {
   $('cir-overlay').classList.add('open');
   $('cir-modal').scrollTop = 0;
 }
+(function () {
+  const abrir = openCirugia;
+  window.openCirugia = function (id) {
+    const c = DB.cirugias.find((x) => String(x.id) === String(id));
+    if (!c) { avisar('No se encontró la cirugía\n\nPuede haberse borrado o movido. Actualice la pantalla y vuelva a intentar.'); return; }
+    try { return abrir(c.id); }
+    catch (e) {
+      console.error('openCirugia', e);
+      avisar('No se pudo abrir la ficha\n\nHay un dato de esta cirugía que la app no pudo leer. Avise a la Jefatura con esta referencia:\n· ' + String(e && e.message || e).slice(0, 160), { tono: 'aviso' });
+    }
+  };
+})();
 /* ---- El camino del caso, en seis pasos ----
    Verde lo cumplido, ámbar lo diferido (urgencias), rojo lo rechazado o lo que
    quedó sin resolver, y un anillo en el paso donde está parado. Si el turno
@@ -16886,12 +17949,16 @@ function fichaCamino(c) {
       : authExenta(c) ? { t: 'Admisión', tono: 'warn', d: 'diferida' } : { t: 'Admisión', d: 'pendiente' },
     jefaturaPendienteDiferida(c) ? { t: 'Jefatura', tono: 'warn', d: 'diferida' }
       : { t: 'Jefatura', ok: confirmado, d: confirmado ? 'en el parte' : 'pendiente' },
+    // 3.25 · Paso 4: la cama que anota Admisión el día del ingreso.
+    camaDe(c) ? { t: 'Cama', ok: true, d: SECTORES_CAMA[c.cama.s].corto + ' · ' + c.cama.hab + '/' + c.cama.cama }
+      : c.estado === 'suspendida' && c.suspension && c.suspension.causa === CAUSA_SIN_CAMA ? { t: 'Cama', tono: 'bad', d: 'no hubo cama' }
+      : { t: 'Cama', ok: lvqCompleta(c, 'entrada') && !!c.lvq, d: lvqCompleta(c, 'entrada') ? 'sin registrar' : 'internación' },
     { t: 'Quirófano', ok: lvqCompleta(c, 'entrada') && lvqCompleta(c, 'pausa'), d: hora('pausa') || 'LVQ entrada' },
     { t: 'Salida y parte', ok: lvqCompleta(c, 'salida') && !!c.informe, d: hora('salida') || 'LVQ salida' },
     { t: 'Finalizada', ok: cirugiaCerrada(c), d: cirugiaCerrada(c) ? 'computa' : 'cierre' },
   ];
   const fin = { suspendida: { t: 'Suspendida', tono: 'bad', d: 'no se operó' }, anticipada: { t: 'Resuelta antes', tono: 'violeta', d: 'franja liberada' }, caducada: { t: 'Caducada', tono: 'gris', d: 'no llegó al parte' } }[c.estado];
-  if (fin) pasos[5] = Object.assign({ fin: true }, fin);
+  if (fin) pasos[pasos.length - 1] = Object.assign({ fin: true }, fin);
   const cur = fin ? -1 : pasos.findIndex((p) => !p.ok);
   const vencido = sinResolver(c);
   return `<ol class="fx-camino">${pasos.map((p, i) => {
@@ -16909,6 +17976,13 @@ function fichaSiguiente(c) {
       `La fecha (${fmtFecha(c.fecha)}) pasó y el turno sigue en «${esc(ESTC[c.estado].label)}»: nadie lo inició, lo suspendió ni lo cerró.
       ${jefe || (u && c.cirujanoEmail === u.email) ? 'Toque <b>Resolver turno</b> e indique qué pasó.' : ''}
       Si nadie lo resuelve, la app lo cierra sola el <b>${fmtFecha(cierreAdminFecha(c))}</b>.`);
+  }
+  if (rcActivo(c)) {
+    const rc = c.reprogCama, o = rc.oks || {};
+    const falta = rc.estado === 'sin_lugar' ? 'que la Jefatura abra un turno (no hay franjas libres)'
+      : rc.estado === 'esperando_paciente' ? 'la respuesta del paciente' : Object.keys(RC_ROLES).filter((k) => !o[k]).map((k) => 'el OK de ' + RC_ROLES[k]).join(', ');
+    return caja('bad', ICONS.zap, `Reprogramación PRIORITARIA — sin cama ×${rcVeces(c)}`,
+      `Fecha propuesta: <b>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg)} h · ${esc(c.quirofano)}</b>.<br>Falta ${esc(falta)}.`);
   }
   if (c.estado === 'suspendida' && c.suspension) {
     return caja('bad', ICONS.x, 'Suspendida — ' + esc(c.suspension.causa),
@@ -22206,6 +23280,7 @@ let authCtx = null;
 function pedirAutorizacion(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
+  if (rcActivo(c)) { avisar('Reprogramación por falta de cama\n\nEste turno se confirma con el OK del cirujano, de Admisión y Egresos y de la Jefatura, y después con la respuesta del paciente. Use los botones de la tarjeta «Reprogramación prioritaria» de la ficha.'); return; }
   const dif = authExenta(c);
   // Turno programado: la carpeta llega completa o no llega. La urgencia entra
   // igual, porque regulariza después.
@@ -22836,14 +23911,31 @@ function confirmarCancelacion(titulo, desc, onOk) {
 
 
 /* ---- Parte quirúrgico imprimible del día ---- */
-/* 3.24 · Hoja A4 apaisada: todo el parte en UNA página. Suma obra social,
-   teléfono del paciente, equipamiento especial pedido por el cirujano,
-   ayudante, duración, prequirúrgico y un resumen arriba con el equipamiento a
-   preparar por sala. Si no entra, la letra se achica sola hasta que entre. */
-function imprimirParte(d) {
-  // Mismas cirugías que muestra el Parte; las que no tienen sala de la grilla
-  // salen al final con el quirófano que tengan anotado.
-  const delParte = DB.cirugias.filter((c) => c.fecha === d && ESTADOS_PARTE.includes(c.estado));
+/* 3.24.1 · Parte impreso rediseñado: hoja A4 apaisada centrada (en pantalla y
+   en papel), con
+   · cabecera con fecha grande y números del día (cirugías, urgencias, salas,
+     horas programadas);
+   · «Para preparar»: cada equipamiento especial con sala y hora;
+   · por sala, una línea de tiempo 08–20 h con los turnos y la tabla;
+   · por cirugía: paciente (DNI, edad, teléfono, obra social), diagnóstico y
+     procedimiento, equipo, equipamiento, prioridad y estado, y una columna
+     «Control» para anotar a mano ingreso, inicio y fin;
+   · firmas de Jefatura y Enfermería, y el aviso de datos personales.
+   Si son muchas cirugías la letra se achica sola hasta lo legible (unas 14
+   entran en una hoja; si hay más, siguen en otra con los títulos de las
+   columnas). Sin zoom: queda igual en Chrome, Safari y Edge. */
+/* 3.25 · Un parte por área, cada uno en su PDF y con el mismo diseño. */
+const PARTE_AREAS = {
+  qx:   { t: 'Parte Quirúrgico', sub: 'Quirófanos centrales', b: 'Quirófanos centrales' },
+  endo: { t: 'Parte de Endoscopía', sub: 'Sala de Endoscopía Digestiva', b: 'Endoscopía' },
+  obs:  { t: 'Parte de Obstetricia', sub: 'Cesáreas y cirugías gineco-obstétricas', b: 'Obstetricia y cesáreas' },
+};
+function areaDe(c) { const s = SALAS.find((x) => x.id === c.sala); return s ? s.tipo : 'qx'; }
+function delParteArea(d, area) { return DB.cirugias.filter((c) => c.fecha === d && ESTADOS_PARTE.includes(c.estado) && areaDe(c) === area); }
+function imprimirParte(d, area) {
+  area = PARTE_AREAS[area] ? area : 'qx';
+  const AR = PARTE_AREAS[area];
+  const delParte = delParteArea(d, area);
   const sinSala = delParte.filter((c) => !SALAS.some((s) => s.id === c.sala));
   const especial = (c) => {
     const r = c.recursos || {};
@@ -22852,102 +23944,161 @@ function imprimirParte(d) {
     if (r.hemoderivados) l.push('Reserva de hemoderivados');
     return l;
   };
-  const filas = [];
-  const necesita = {};   // equipamiento → ["Q1 08:00", …] para el resumen
-  [...SALAS, ...(sinSala.length ? [{ id: null, nombre: 'Otros quirófanos / sin sala' }] : [])].forEach((s) => {
+  const corto = (n) => String(n || '').replace(/^Quir[oó]fano\s*/i, 'Q').replace(/^Sala de Endoscop[ií]a.*$/i, 'Endosc.').replace(/^Obstetricia.*$/i, 'Obst.');
+  const PRIO_COL = { 1: '#b91c1c', 2: '#ea580c', 3: '#d97706', 4: '#2563eb', 5: '#0891b2', 6: '#475569' };
+  const mins = (h) => { const m = String(h || '').match(/(\d{1,2}):(\d{2})/); return m ? +m[1] * 60 + +m[2] : null; };
+  const T0 = 8 * 60, T1 = 20 * 60;
+  const necesita = {};
+  let minutos = 0;
+  const grupos = [...SALAS.filter((s) => s.tipo === area), ...(sinSala.length ? [{ id: null, nombre: 'Otros quirófanos / sin sala' }] : [])].map((s) => {
     const turnos = (s.id === null ? sinSala : delParte.filter((c) => c.sala === s.id)).sort(ordenPrelacion);
-    if (!turnos.length) return;
-    filas.push(`<tr><td colspan="11" class="sala">${esc(s.nombre)} <span>· ${turnos.length} cirugía${turnos.length === 1 ? '' : 's'}</span></td></tr>`);
-    turnos.forEach((c) => {
+    if (!turnos.length) return '';
+    // Línea de tiempo de la sala (08 a 20 h).
+    const bloques = turnos.map((c) => {
+      const ini = mins(c.horaProg); if (ini == null) return '';
+      const dur = Number(c.duracionMin) || 90;
+      const a = Math.max(0, (ini - T0) / (T1 - T0)), b = Math.min(1, (ini + dur - T0) / (T1 - T0));
+      if (b <= 0 || a >= 1) return '';
+      return `<i class="${c.urgencia ? 'u' : ''}${c.estado === 'suspendida' ? ' s' : ''}" style="left:${(a * 100).toFixed(2)}%;width:${Math.max(1.2, (b - a) * 100).toFixed(2)}%">${esc(c.horaProg || '')}</i>`;
+    }).join('');
+    const filas = turnos.map((c) => {
       const pe = prioridadEfectiva(c);
+      const P = PRIOS[pe] || { label: '—' };
       const ay = ayudanteDe(c);
       const esp = especial(c);
-      esp.forEach((x) => { const k = x.split(':')[0]; (necesita[k] = necesita[k] || []).push(`${c.quirofano || s.nombre} ${c.horaProg || ''}`.trim()); });
+      esp.forEach((x) => { const k = x.split(':')[0]; (necesita[k] = necesita[k] || []).push(`${corto(c.quirofano || s.nombre)} ${c.horaProg || ''}`.trim()); });
+      if (c.estado !== 'suspendida') minutos += Number(c.duracionMin) || 0;
       const p = c.paciente || {};
       const hce = c.hce || {};
-      filas.push(`<tr class="${c.urgencia ? 'urg' : ''}${c.estado === 'suspendida' ? ' susp' : ''}">
-        <td class="hora"><b>${esc(c.horaProg || '—')}</b><small>${c.duracionMin ? c.duracionMin + ' min' : ''}</small></td>
-        <td><b>${esc(p.nombre || '')}</b><small>DNI ${esc(p.dni || '—')} · ${p.edad ?? '—'} años${p.pediatrico ? ' · <b>PEDIÁTRICO</b>' : ''}</small></td>
-        <td>${esc(c.obraSocial || 'Sin declarar')}</td>
-        <td class="nw">${esc(p.telefono || '—')}</td>
-        <td>${esc(c.diagnostico || '')}${c.cie10 ? '<small>CIE-10 ' + esc(c.cie10) + '</small>' : ''}</td>
-        <td>${esc(c.procedimiento || '')}</td>
-        <td>${esc(c.cirujano || '')}<small>${esc(c.servicio || '')}${ay ? '<br>Ayud.: ' + esc(ay.nombre) : ''}</small></td>
-        <td>${esc(c.anestesista || '—')}<small>${esc(c.anestesia || '')}</small></td>
-        <td class="esp">${esp.length ? esp.map((x) => `<span>${esc(x)}</span>`).join('') : '<i>—</i>'}</td>
-        <td>P${pe} ${esc(PRIOS[pe].label)}${c.urgencia ? '<small><b>URGENCIA</b></small>' : ''}</td>
-        <td>${esc(ESTC[c.estado].label)}<small>${authExenta(c) ? 'Sin aut. (urgencia)' : esc(c.auth || 'Pend. aut.')}</small>
-          <small>${hce.preop ? '✓' : '✗'} Preqx · ${hce.consentimiento ? '✓' : '✗'} Consent.</small></td>
-      </tr>`);
-    });
-  });
+      const est = ESTC[c.estado] || { label: c.estado };
+      const aut = authExenta(c) ? 'Sin aut. (urgencia)' : (c.auth || 'Pend. aut.');
+      const autOk = authExenta(c) || /^AUTORIZADO$/i.test(c.auth || '');
+      return `<tr class="${c.urgencia ? 'urg' : ''}${c.estado === 'suspendida' ? ' susp' : ''}">
+        <td class="h"><b>${esc(c.horaProg || '—')}</b><small>${c.duracionMin ? c.duracionMin + ' min' : ''}</small></td>
+        <td class="pac"><b>${esc(p.nombre || '')}</b> <span class="os">${esc(c.obraSocial || 'Sin obra social')}</span>${p.pediatrico ? ' <em class="tag ped">PEDIÁTRICO</em>' : ''}
+          <small>DNI ${esc(p.dni || '—')} · ${p.edad ?? '—'} años · ☎ ${esc(p.telefono || '—')}</small>
+          ${camaDe(c) ? `<span class="cama">🛏 ${esc(camaTexto(c, true))}</span>` : '<span class="cama no">🛏 Cama: ____ Hab.: ____</span>'}</td>
+        <td><b class="proc">${esc(c.procedimiento || '')}</b><small>${esc(c.diagnostico || '')}${c.cie10 ? ' · CIE-10 ' + esc(c.cie10) : ''}</small></td>
+        <td class="eq"><span><u>Cir.</u> ${esc(c.cirujano || '—')}${c.servicio ? ` <u>· ${esc(c.servicio)}</u>` : ''}</span>${ay ? `<span><u>Ay.</u> ${esc(ay.nombre)}</span>` : ''}
+          <span><u>Anest.</u> ${esc(c.anestesista || '—')}${c.anestesia ? ' · ' + esc(c.anestesia) : ''}</span></td>
+        <td class="esp">${esp.length ? esp.map((x) => `<span>${esc(x)}</span>`).join('') : '<i>Ninguno</i>'}</td>
+        <td class="est">${rcVeces(c) ? `<em class="tag sincama">SIN CAMA ×${rcVeces(c)} · PRIORIDAD</em>` : ''}<em class="tag" style="--c:${PRIO_COL[pe] || '#475569'}">P${pe} ${esc(P.label)}</em>${c.urgencia ? '<em class="tag" style="--c:#b91c1c">URGENCIA</em>' : ''}
+          <small><b>${esc(est.label)}</b> · <span class="${autOk ? 'ok' : 'no'}">${esc(aut)}</span> · <span class="${hce.preop ? 'ok' : 'no'}">${hce.preop ? '✓' : '✗'} Preqx.</span> · <span class="${hce.consentimiento ? 'ok' : 'no'}">${hce.consentimiento ? '✓' : '✗'} Consent.</span></small></td>
+        <td class="ctl"><span><i></i><i></i><i></i></span></td>
+      </tr>`;
+    }).join('');
+    const primero = turnos.map((c) => c.horaProg).filter(Boolean).sort()[0] || '';
+    return `<tr class="grp"><td colspan="7"><div class="gh"><b>${esc(s.nombre)}</b><span>${turnos.length} cirugía${turnos.length === 1 ? '' : 's'}${primero ? ' · desde ' + esc(primero) + ' h' : ''}</span>
+        <div class="tl">${bloques}${[8, 10, 12, 14, 16, 18, 20].map((h) => `<s style="left:${((h * 60 - T0) / (T1 - T0) * 100).toFixed(2)}%">${h}</s>`).join('')}</div></div></td></tr>${filas}`;
+  }).join('');
   const urg = delParte.filter((c) => c.urgencia).length;
-  const susp = delParte.filter((c) => c.estado === 'suspendida').length;
-  const resumen = `<div class="res">
-      <div><b>${delParte.length}</b> cirugía${delParte.length === 1 ? '' : 's'}${urg ? ` · <b>${urg}</b> urgencia${urg === 1 ? '' : 's'}` : ''}${susp ? ` · <b>${susp}</b> suspendida${susp === 1 ? '' : 's'}` : ''}</div>
-      <div class="eq"><b>Equipamiento a preparar:</b> ${Object.keys(necesita).length
-        ? Object.keys(necesita).map((k) => `<span>${esc(k)} <small>(${esc(necesita[k].join(', '))})</small></span>`).join('')
-        : 'ninguno especial'}</div>
-    </div>`;
+  const salas = new Set(delParte.map((c) => c.sala || c.quirofano)).size;
+  const hs = `${Math.floor(minutos / 60)} h${minutos % 60 ? ' ' + (minutos % 60) + ' m' : ''}`;
+  const u = usuarioActual();
+  const [dSem, ...dResto] = fmtDiaLargo(d).split(' ');
   const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
-    <title>Parte Quirúrgico HRU — ${d}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>${esc(AR.t)} HRU — ${d}</title>
     <style>
-      @page { size: A4 landscape; margin: 8mm; }
-      *{box-sizing:border-box}
-      html,body{margin:0}
-      body{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#111;padding:0}
-      #hoja{width:281mm}
-      .cab{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1a3a7a;padding-bottom:4px;margin-bottom:5px}
-      h1{font-size:15px;margin:0;color:#1a3a7a}
-      h2{font-size:11px;font-weight:normal;margin:2px 0 0;color:#444}
-      .emit{font-size:9px;color:#555;text-align:right}
-      .res{display:flex;gap:14px;align-items:baseline;background:#f1f5fb;border:1px solid #c9d6ee;border-radius:4px;padding:4px 7px;margin-bottom:5px;font-size:9.5px}
-      .res .eq{flex:1}
-      .res .eq span{display:inline-block;margin-right:10px}
-      table{width:100%;border-collapse:collapse;table-layout:fixed}
-      th{background:#1a3a7a;color:#fff;padding:4px 4px;border:1px solid #8796b5;font-size:8.5px;text-align:left;text-transform:uppercase;letter-spacing:.02em}
-      td{padding:3px 4px;border:1px solid #c8c8c8;vertical-align:top;word-wrap:break-word;line-height:1.25}
-      td small{display:block;color:#555;font-size:8.5px}
-      td.sala{background:#dce8ff;font-weight:800;font-size:10.5px;padding:3px 6px}
-      td.sala span{font-weight:normal;color:#334}
-      td.hora b{font-size:11px}
-      td.nw{white-space:nowrap}
-      td.esp span{display:block;background:#fff4d6;border:1px solid #e8c56a;border-radius:3px;padding:0 3px;margin:0 0 2px;font-size:8.5px;font-weight:700}
-      td.esp i{color:#999}
-      tr.urg td{background:#fff1f1}
-      tr.susp td{color:#888;text-decoration:line-through}
-      tr.susp td.sala{text-decoration:none}
-      tr{page-break-inside:avoid}
-      .pie{margin-top:5px;font-size:8px;color:#555;display:flex;justify-content:space-between;gap:12px}
-      .pie b{color:#8a1c1c}
-      @media screen{ body{margin:10px auto} }
-    </style></head><body><div id="hoja">
-    <div class="cab">
-      <div><h1>Hospital Regional Ushuaia — Parte Quirúrgico</h1><h2>${fmtDiaLargo(d)}</h2></div>
-      <div class="emit">Emitido ${fmtDT(nowDT())}${(usuarioActual() || {}).nombre ? '<br>por ' + esc(usuarioActual().nombre) : ''}</div>
-    </div>
-    ${resumen}
-    <table>
-      <colgroup><col style="width:5%"><col style="width:12%"><col style="width:8%"><col style="width:7.5%"><col style="width:11%"><col style="width:11%"><col style="width:10.5%"><col style="width:8%"><col style="width:10%"><col style="width:7%"><col style="width:10%"></colgroup>
-      <thead><tr><th>Hora</th><th>Paciente</th><th>Obra social</th><th>Teléfono</th><th>Diagnóstico</th><th>Procedimiento</th><th>Cirujano</th><th>Anestesia</th><th>Equipamiento especial</th><th>Prioridad</th><th>Estado</th></tr></thead>
-      <tbody>${filas.join('') || '<tr><td colspan="11" style="text-align:center;padding:20px">Sin cirugías en el parte de esta fecha.</td></tr>'}</tbody>
-    </table>
-    <div class="pie"><span>App HRU Quirófanos — canal único y válido para la gestión quirúrgica del hospital. El parte se publica a las ${BLOQUE.publicacionParte} h del día hábil previo.</span>
-      <span><b>Contiene datos personales y de salud (Ley 25.326):</b> uso interno del bloque quirúrgico; no dejar a la vista ni fotografiar; destruir al terminar la jornada.</span></div>
+      @page { size: A4 landscape; margin: 9mm; }
+      * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html, body { margin: 0; padding: 0; }
+      body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #0f172a; background: #e2e8f0; }
+      .hoja { --k: 1; width: 279mm; margin: 0 auto; font-size: calc(10px * var(--k)); line-height: 1.18; background: #fff; }
+      @media screen { body { padding: 18px 12px 40px; } .hoja { padding: 9mm; width: calc(279mm + 18mm); box-shadow: 0 10px 40px -12px rgba(15,23,42,.35); border-radius: 6px; }
+        .barra { width: calc(279mm + 18mm); max-width: 100%; margin: 0 auto 12px; display: flex; gap: 8px; justify-content: flex-end; }
+        .barra button { font: 600 14px/1 inherit; font-family: inherit; padding: 10px 16px; border-radius: 10px; border: 0; cursor: pointer; background: #1e3a8a; color: #fff; } }
+      @media print { body { background: #fff; } .barra { display: none; } .hoja { width: 100%; } }
+      .cab { display: grid; grid-template-columns: auto 1fr auto; gap: 1.512em; align-items: stretch; border-radius: 1.134em; overflow: hidden; background: linear-gradient(110deg, #0f2a5f, #1e40af 60%, #0e7490); color: #fff; padding: 1.134em 1.512em; }
+      .fecha { display: grid; place-items: center; background: rgba(255,255,255,.14); border-radius: 0.945em; padding: 0.567em 1.512em; text-align: center; }
+      .fecha b { display: block; font-size: 2.5em; line-height: 1; }
+      .fecha small { display: block; font-size: .9em; letter-spacing: .08em; text-transform: uppercase; opacity: .9; }
+      .tit small { display: block; font-size: .85em; letter-spacing: .12em; text-transform: uppercase; opacity: .85; }
+      .tit h1 { margin: 0.189em 0 0; font-size: 1.9em; letter-spacing: -.01em; }
+      .tit span { font-size: .95em; opacity: .9; }
+      .kpis { display: flex; gap: 0.756em; align-items: center; }
+      .kpi { background: #fff; color: #0f172a; border-radius: 0.945em; padding: 0.567em 1.134em; text-align: center; min-width: 6.426em; }
+      .kpi b { display: block; font-size: 1.7em; line-height: 1.05; color: #1e40af; }
+      .kpi.r b { color: #b91c1c; }
+      .kpi small { font-size: .78em; color: #475569; text-transform: uppercase; letter-spacing: .04em; }
+      .prep { display: flex; flex-wrap: wrap; gap: 0.567em; align-items: center; margin: 0.945em 0; padding: 0.756em 1.134em; border: 0.113em dashed #d97706; border-radius: 0.945em; background: #fffbeb; }
+      .prep > b { font-size: .95em; text-transform: uppercase; letter-spacing: .05em; color: #92400e; margin-right: 0.378em; }
+      .prep span { background: #fff; border: 0.113em solid #f59e0b; border-radius: 1.89em; padding: 0.227em 0.945em; font-weight: 700; }
+      .prep span small { font-weight: 400; color: #78350f; }
+      .prep i { color: #92400e; }
+      .tabla { border: 0.113em solid #cbd5e1; border-radius: 0.945em; overflow: hidden; border-collapse: separate; border-spacing: 0; margin-top: 0.6em; }
+      thead { display: table-header-group; }
+      tr.grp td { padding: 0; border-top: 0.113em solid #cbd5e1; }
+      .gh { display: grid; grid-template-columns: auto auto 1fr; gap: 1.13em; align-items: center; padding: 0.45em 1.13em; background: #eff6ff; border-left: 0.53em solid #1e40af; }
+      .gh b { font-size: 1.15em; color: #1e3a8a; }
+      .gh > span { color: #475569; }
+      .tl { position: relative; height: 1.89em; background: repeating-linear-gradient(90deg, #dbeafe 0 calc(100%/12 - 0.113em), #bfdbfe calc(100%/12 - 0.113em) calc(100%/12)); border-radius: 0.454em; margin-bottom: 0.983em; }
+      .tl i { position: absolute; top: 0.227em; bottom: 0.227em; background: #1e40af; color: #fff; border-radius: 0.34em; font-style: normal; font-size: .72em; font-weight: 700; padding-left: 0.302em; overflow: hidden; white-space: nowrap; }
+      .tl i.u { background: #b91c1c; } .tl i.s { background: #94a3b8; }
+      .tl s { position: absolute; top: 100%; transform: translateX(-50%); text-decoration: none; font-size: .68em; color: #64748b; }
+      table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+      th { background: #f8fafc; color: #334155; font-size: .78em; text-transform: uppercase; letter-spacing: .04em; text-align: left; padding: 0.454em 0.605em; border-bottom: 0.113em solid #cbd5e1; }
+      td { padding: 0.529em 0.605em; vertical-align: top; border-top: 0.076em solid #e2e8f0; word-wrap: break-word; }
+      td small { display: block; color: #475569; font-size: .88em; margin-top: 0.113em; }
+      td.h b { font-size: 1.35em; color: #1e3a8a; }
+      td.pac b, .proc { font-size: 1.05em; }
+      .os { display: inline-block; background: #ecfeff; color: #155e75; border: 0.08em solid #a5f3fc; border-radius: 0.38em; padding: 0 0.5em; font-weight: 700; font-size: .85em; }
+      td.eq span { display: block; } td.eq u { text-decoration: none; color: #64748b; font-size: .85em; }
+      td.esp span { display: inline-block; margin: 0 0.3em 0.25em 0; background: #fef3c7; border-left: 0.34em solid #f59e0b; border-radius: 0.3em; padding: 0.1em 0.5em; font-weight: 700; font-size: .9em; }
+      td.esp i { color: #94a3b8; }
+      .tag { display: inline-block; font-style: normal; font-weight: 800; font-size: .82em; color: var(--c); border: 0.095em solid var(--c); border-radius: 0.378em; padding: 0 0.454em; margin: 0 0.302em 0.189em 0; }
+      .tag.ped { --c: #7c3aed; }
+      .tag.sincama { --c: #fff; background: #dc2626; border-color: #dc2626; }
+      .cama { display: block; margin-top: .3em; font-weight: 800; color: #1d4ed8; font-size: .9em; }
+      .cama.no { color: #94a3b8; font-weight: 400; }
+      .ok { color: #047857; } .no { color: #b91c1c; font-weight: 700; }
+      td.ctl span { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6em; margin-top: 1.1em; }
+      td.ctl i { border-bottom: 0.08em dotted #64748b; height: 1.2em; }
+      th.ctlh small { display: block; text-transform: none; letter-spacing: 0; font-weight: 400; color: #64748b; }
+      tr.urg td { background: #fef2f2; } tr.urg td.h { box-shadow: inset 0.378em 0 0 #b91c1c; }
+      tr.susp td { color: #94a3b8; } tr.susp .proc, tr.susp td.pac b { text-decoration: line-through; }
+      tr { break-inside: avoid; }
+      .pie { display: grid; grid-template-columns: 1fr 1fr 1.6fr; gap: 2.268em; margin-top: 1.134em; align-items: end; font-size: .82em; color: #475569; }
+      .firma { border-top: 0.113em solid #334155; padding-top: 0.378em; text-align: center; margin-top: 2.646em; }
+      .ints { grid-column: 1 / -1; order: -1; font-weight: 700; color: #1e3a8a; text-align: center; }
+      .ley { border-left: 0.378em solid #b91c1c; padding-left: 0.756em; } .ley b { color: #b91c1c; }
+      .vacio { text-align: center; padding: 5.292em; color: #64748b; font-size: 1.3em; border: 0.113em dashed #cbd5e1; border-radius: 1.134em; margin-top: 1.134em; }
+    </style></head><body>
+    <div class="barra"><button onclick="window.print()">🖨 Imprimir o guardar en PDF</button></div>
+    <div class="hoja" id="hoja">
+      <div class="cab">
+        <div class="fecha"><small>${esc(dSem)}</small><b>${esc(d.slice(8, 10))}</b><small>${esc(dResto.slice(2).join(' ') || '')}</small></div>
+        <div class="tit"><small>Hospital Regional Ushuaia · ${esc(AR.sub)}</small><h1>${esc(AR.t)}</h1>
+          <span>${esc(fmtDiaLargo(d))} · emitido ${esc(fmtDT(nowDT()))}${u && u.nombre ? ' por ' + esc(u.nombre) : jefe ? ' por la Jefatura' : ''}</span></div>
+        <div class="kpis">
+          <div class="kpi"><b>${delParte.length}</b><small>cirugías</small></div>
+          <div class="kpi r"><b>${urg}</b><small>urgencias</small></div>
+          <div class="kpi"><b>${salas}</b><small>salas</small></div>
+          <div class="kpi"><b>${hs}</b><small>programadas</small></div>
+        </div>
+      </div>
+      <div class="prep"><b>🧰 Para preparar</b>${Object.keys(necesita).length
+        ? Object.keys(necesita).map((k) => `<span>${esc(k)} <small>· ${esc(necesita[k].join(' · '))}</small></span>`).join('')
+        : '<i>Sin equipamiento especial pedido</i>'}</div>
+      ${grupos ? `<table class="tabla">
+        <colgroup><col style="width:6%"><col style="width:17%"><col style="width:18%"><col style="width:17%"><col style="width:12%"><col style="width:16%"><col style="width:14%"></colgroup>
+        <thead><tr><th>Hora</th><th>Paciente · obra social</th><th>Procedimiento · diagnóstico</th><th>Equipo</th><th>Equipamiento especial</th><th>Prioridad · estado</th><th class="ctlh">Ingresó · Inicio · Fin<small>(hora, a mano)</small></th></tr></thead>
+        <tbody>${grupos}</tbody></table>` : '<div class="vacio">Sin cirugías en el parte de esta fecha.</div>'}
+      <div class="pie">
+        <div class="firma">Jefatura de Quirófanos · firma y sello</div>
+        <div class="firma">Enfermería del bloque · firma</div>
+        <div class="ints">☎ Internos para llamar al paciente: Adultos 1035 · Pediatría 1012 · Maternidad 1608 · UCI 1034</div>
+        <div class="ley"><b>Datos personales y de salud (Ley 25.326).</b> Uso interno del bloque quirúrgico: no dejar a la vista, no fotografiar, destruir al terminar la jornada. Generado por la App HRU Quirófanos; el parte se publica a las ${BLOQUE.publicacionParte} h del día hábil previo.</div>
+      </div>
     </div>
     <script>
-      // Que entre en UNA hoja apaisada (A4 menos márgenes ≈ 281 × 194 mm): si
-      // es más alta, se achica todo y se ensancha lo mismo, para que el ancho
-      // impreso siga siendo el de la hoja; se repite hasta que entra.
+      // Que entre en UNA hoja (A4 apaisada menos márgenes ≈ 279 × 192 mm): se
+      // achica la letra de a poco hasta que entra, sin bajar de lo legible
+      // (unas 14 cirugías); si son más, sigue en otra hoja con los títulos.
       (function () {
-        var mm = 96 / 25.4, alto = 192 * mm, h = document.getElementById('hoja'), z = 1;
-        for (var i = 0; i < 12; i++) {
-          var r = h.getBoundingClientRect().height;
-          if (r <= alto || z <= 0.35) break;
-          z = Math.max(0.35, z * Math.min(0.97, alto / r));
-          h.style.zoom = z;
-          h.style.width = (281 / z) + 'mm';
-        }
+        var mm = 96 / 25.4, alto = 183 * mm, h = document.getElementById('hoja'), k = 1;
+        var med = function () { var p = getComputedStyle(h); return h.getBoundingClientRect().height - (parseFloat(p.paddingTop) || 0) - (parseFloat(p.paddingBottom) || 0); };
+        while (med() > alto && k > 0.72) { k = Math.round((k - 0.02) * 100) / 100; h.style.setProperty('--k', k); }
       })();
     <\/script>
     </body></html>`;
@@ -22955,7 +24106,7 @@ function imprimirParte(d) {
   if (!w) { alert('El navegador bloqueó la ventana emergente. Habilite las ventanas emergentes para imprimir el parte.'); return; }
   w.document.write(html);
   w.document.close();
-  setTimeout(() => w.print(), 500);
+  setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 600);
 }
 
 /* ================= VISTA: RECORDATORIOS ================= */
@@ -25172,9 +26323,12 @@ function ciPendientesDe(u) {
     && !['suspendida', 'realizada', 'finalizada', 'anticipada', 'caducada', 'borrador'].includes(c.estado)
     && c.sala && !consentimientoDeTurno(c)).length;
 }
-function consentimientoDeTurno(c) {
+function consentimientoDeTurno(c, prof) {
   if (!c) return null;
-  return DB.consentimientos.find((x) => String(x.turnoId) === String(c.id)) || null;
+  const ci = DB.consentimientos.find((x) => String(x.turnoId) === String(c.id)) || null;
+  // 3.25 · El turno armado por falta de cama usa el consentimiento del turno suspendido.
+  if (!ci && c.reprogCama && c.reprogCama.de && (prof || 0) < 5) return consentimientoDeTurno(rcOrigen(c), (prof || 0) + 1);
+  return ci;
 }
 
 /* ---- Alcance del registro de consentimientos ----
@@ -26070,6 +27224,13 @@ body.portal-pac .pp-input::placeholder{color:#9ca3af;-webkit-text-fill-color:#9c
 .pp-datos small{display:block;font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#a78bfa}
 .pp-datos b{display:block;font-size:.88rem;line-height:1.35;color:#111827;overflow-wrap:anywhere}
 .pp-pie{font-size:.74rem;line-height:1.5;color:#6b7280;text-align:center;padding:6px 8px}
+.pp-reprog{border:2px solid #f59e0b;background:linear-gradient(135deg,#fffbeb,#fff7ed);text-align:center}
+.pp-reprog small,.pp-cama small{display:block;font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#b45309}
+.pp-reprog b{display:block;font-size:1.25rem;color:#7c2d12;margin:4px 0}
+.pp-reprog span{display:block;font-size:.9rem;color:#92400e}
+.pp-reprog-acc{display:grid;gap:8px;margin-top:12px}
+.pp-gracias{margin:12px 0 0;font-weight:800;color:#047857}
+.pp-cama{border-left:5px solid #2563eb}.pp-cama small{color:#1d4ed8}.pp-cama b{display:block;font-size:.95rem;margin-top:3px;color:#1e3a8a}
 @media (prefers-reduced-motion:reduce){.pp-vivo span,.pp-p-pend .pp-p-ico{animation:none}}
 `;
 
@@ -26175,6 +27336,8 @@ function portalEstadoPaciente(c, borrado) {
   if (c.estado === 'realizada') return { clave: 'operada', adm, jef: 'ok' };
   if (c.estado === 'en_curso') return { clave: 'en_curso', adm, jef: 'ok' };
   if (c.estado === 'suspendida') return { clave: 'suspendida', adm, jef: 'susp', motivo: (c.suspension && c.suspension.causa) || '' };
+  // 3.25 · Reprogramación por falta de cama: buscando fecha o esperando su respuesta.
+  if (rcActivo(c)) return { clave: c.reprogCama.estado === 'esperando_paciente' ? 'reprog_confirmar' : 'reprog_cama', adm: 'ok', jef: 'pend' };
   if (c.estado === 'borrador') return { clave: 'reprogramando', adm, jef: 'espera' };
   if (c.estado === 'confirmada') return { clave: 'confirmada', adm, jef: 'ok' };
   if (adm === 'no') return { clave: 'no_autorizada', adm, jef: 'espera' };
@@ -26190,6 +27353,10 @@ function portalFoto(c, borrado) {
     nombre: primerNombre(c.paciente && c.paciente.nombre), proc: c.procedimiento || '',
     fecha: c.fecha || '', hora: c.horaProg || '', lugar: c.quirofano || '', cirujano: c.cirujano || '',
     ref: (c.pase && c.pase.ref) || '', act: ahoraServidor(),
+    // 3.25 · Dónde está internado y, si la hay, la fecha nueva que se le pregunta.
+    cama: camaDe(c) ? camaTexto(c) : '',
+    sinCama: rcVeces(c),
+    reprog: rcActivo(c) && c.reprogCama.estado === 'esperando_paciente' ? { pid: c.reprogCama.pid, fecha: c.fecha, hora: c.horaProg, lugar: c.quirofano } : null,
   };
 }
 
@@ -26680,6 +27847,8 @@ function ppTitulos(T) {
     confirmada: ['ok', `¡${tu} está confirmad${T.o}!`, ''],
     suspendida: ['no', `${tu} fue suspendid${T.o}`, `Tu ${T.medico} se va a comunicar con vos para reprogramar${lo}.`],
     reprogramando: ['gr', `${tu} se está reprogramando`, 'Todavía no tiene día y hora nuevos. Te lo mostramos acá apenas quede asignado.'],
+    reprog_cama: ['az', `${tu} se reprograma con prioridad`, `No hubo cama de internación el día previsto. Tu ${T.n} va primero en la lista: el equipo está confirmando la nueva fecha.`],
+    reprog_confirmar: ['pe', `¿Podés venir en la nueva fecha?`, 'Confirmá abajo si podés venir ese día. Tu respuesta le llega al equipo en el momento.'],
     en_curso: ['vi', `${tu} está en curso`, T.equipo],
     operada: ['ok', `${T.N} realizad${T.o}`, `${tu} ya se hizo. El pase se cierra cuando el equipo complete los registros.`],
   };
@@ -26701,7 +27870,19 @@ function portalVistaEstado(f) {
       <h1>${t[1]}</h1>
       ${sub ? `<p>${sub}</p>` : ''}
       ${f.clave === 'suspendida' && f.motivo ? `<p class="pp-motivo">Motivo: <b>${esc(f.motivo)}</b></p>` : ''}
+      ${f.sinCama ? `<p class="pp-motivo">Prioridad: se suspendió ${f.sinCama} vez${f.sinCama > 1 ? 'es' : ''} por falta de cama.</p>` : ''}
     </section>
+    ${f.reprog ? `<section class="pp-card pp-reprog">
+      <small>Nueva fecha propuesta</small>
+      <b>${esc(fmtDiaLargo(f.reprog.fecha))}</b>
+      <span>${esc(f.reprog.hora)} h · Hospital Regional Ushuaia · ${esc(f.reprog.lugar || '')}</span>
+      ${portal.respondido === f.reprog.pid ? '<p class="pp-gracias">✓ ¡Gracias! Tu respuesta ya le llegó al equipo.</p>' : `
+      <div class="pp-reprog-acc">
+        <button class="pp-btn" onclick="portalResponderReprog(true)">✓ Sí, puedo venir</button>
+        <button class="pp-link" onclick="portalResponderReprog(false)">No puedo ese día</button>
+      </div>`}
+    </section>` : ''}
+    ${f.cama ? `<section class="pp-card pp-cama"><small>Tu internación</small><b>🛏 ${esc(f.cama)}</b></section>` : ''}
     <section class="pp-card">
       <ol class="pp-linea">
         ${paso('ok', `${T.N} solicitad${T.o}`, `Por ${esc(f.cirujano || 'tu ' + T.medico)}`)}
@@ -26787,6 +27968,23 @@ async function portalConsultar() {
     portal.paso = res.error === 'caducado' ? 'caducado' : 'dni';
     portal.error = res.error === 'sesion' ? PORTAL_ERRORES.sesion : '';
   }
+  renderPortal();
+}
+/* 3.25 · Respuesta del paciente a la nueva fecha (va atada a la propuesta). */
+async function portalResponderReprog(ok) {
+  const f = portal.foto || {};
+  if (!f.reprog) return;
+  if (!ok && !confirm('¿Seguro que no podés ese día? Te vamos a proponer otra fecha.')) return;
+  let res;
+  if (!cloudOn) {
+    const m = portalDemoLeer();
+    m[PORTAL_TOKEN] = Object.assign(m[PORTAL_TOKEN] || {}, { resp: { pid: f.reprog.pid, ok: !!ok, t: nowDT() } });
+    portalDemoGuardar(m); res = { ok: true };
+  } else {
+    try { res = await portalServicio({ accion: 'responderReprog', token: PORTAL_TOKEN, sesion: portal.sesion, pid: f.reprog.pid, ok: !!ok }); } catch (e) { res = { error: 'red' }; }
+  }
+  if (res && res.ok) portal.respondido = f.reprog.pid;
+  else portal.error = PORTAL_ERRORES[(res && res.error) || 'red'] || PORTAL_ERRORES.red;
   renderPortal();
 }
 function portalSalir() { clearInterval(portal.timer); Object.assign(portal, { paso: 'dni', sesion: '', foto: null, error: '' }); renderPortal(); }
@@ -29443,6 +30641,7 @@ Object.assign(VIEWS, {
   recordatorios: renderRecordatorios,
   panel: renderPanel,
   parte: renderParte,
+  camas: renderCamas,
   reconocimiento: renderReconocimiento,
   sala: renderSala,
   relevo: renderRelevo,
@@ -29531,6 +30730,8 @@ document.addEventListener('DOMContentLoaded', () => {
     remLista = calcRecordatorios();
     go(vistaDelHash());
     revisarRecordatorios();
+    // 3.26 · Se abrió escaneando la pulsera de un paciente.
+    setTimeout(pulseraAlAbrir, 400);
     // Recálculo periódico: los plazos dependen del reloj, no solo de los datos.
     if (remTimer) clearInterval(remTimer);
     remTimer = setInterval(revisarRecordatorios, 60000);

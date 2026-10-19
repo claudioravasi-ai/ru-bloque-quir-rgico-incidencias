@@ -353,6 +353,63 @@ button.acto-c:hover { transform: translateY(-3px); box-shadow: var(--sh); }
 }
 @media (max-width: 400px) { .marca > div { display: none; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* 3.25 · cama y reprogramación */
+.sects{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 8px}
+.sect{position:relative;border-radius:12px;padding:8px 8px 8px 12px;border:2px solid color-mix(in srgb,var(--c) 25%,transparent);background:color-mix(in srgb,var(--c) 7%,var(--sup,#fff));overflow:hidden}
+.sect::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.sect em{font-style:normal;font-size:1.1rem}.sect b{display:block;font-size:.72rem;line-height:1.2;color:var(--ink)}
+.sect small{font-size:.66rem;color:var(--mut)}.sect small span{font-weight:900;color:var(--c);font-size:.8rem}
+.sect.on{border-color:var(--c);box-shadow:0 6px 16px -8px var(--c);animation:sectOn 1.8s ease-in-out infinite}
+@keyframes sectOn{50%{transform:translateY(-2px)}}
+.sello{display:inline-block;font-weight:900;font-size:.7rem;color:#fff;background:linear-gradient(120deg,#dc2626,#ea580c);border-radius:99px;padding:3px 10px;box-shadow:0 4px 12px -4px #dc2626;animation:sello 2s ease-in-out infinite}
+.sello.chico{font-size:.6rem;padding:2px 7px}
+@keyframes sello{50%{box-shadow:0 0 0 5px rgba(220,38,38,.2),0 4px 12px -4px #dc2626}}
+.prio{background:linear-gradient(135deg,color-mix(in srgb,#dc2626 8%,var(--sup,#fff)),color-mix(in srgb,#f59e0b 10%,var(--sup,#fff)))!important}
+.busca{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:4px 0 10px}
+.busca div{border-radius:10px;padding:7px 4px;text-align:center;font-size:.7rem;opacity:0;animation:busca .45s calc(var(--i)*.35s) ease forwards}
+.busca .no{background:color-mix(in srgb,#94a3b8 18%,transparent);color:var(--mut)}.busca .no small{text-decoration:line-through}
+.busca .si{background:#16a34a;color:#fff;box-shadow:0 6px 14px -6px #16a34a}
+.busca b,.busca small{display:block}
+@keyframes busca{from{opacity:0;transform:translateY(6px) scale(.9)}to{opacity:1;transform:none}}
+.oks3{display:grid;gap:5px;margin:8px 0}
+.campana{font-size:2.6rem;text-align:center;animation:campana 1.2s ease-in-out infinite;transform-origin:50% 10%}
+@keyframes campana{0%,60%,100%{transform:rotate(0)}70%{transform:rotate(18deg)}80%{transform:rotate(-16deg)}90%{transform:rotate(9deg)}}
+.partes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 10px}
+.partes>*{border:0;border-radius:12px;padding:10px 6px;text-align:center;color:#fff;background:var(--c);font:inherit;font-size:1.1rem;box-shadow:0 8px 18px -10px var(--c)}
+.partes b{display:block;font-size:.66rem;margin-top:3px}
+.partes span{opacity:.75}
+.mini-parte{padding:0!important;overflow:hidden}
+.mp-h{background:linear-gradient(110deg,#0f2a5f,#1e40af 60%,#0e7490);color:#fff;font-weight:800;font-size:.78rem;padding:7px 10px}
+.mp-f{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:8px 10px;font-size:.74rem;color:var(--ink);background:#fef2f2}
+.mp-f>b{color:#1e3a8a;font-size:.9rem}.mp-f i{font-style:normal;font-weight:800;color:#155e75;background:#ecfeff;border-radius:4px;padding:0 4px;font-size:.62rem}
+.mp-f small{display:block;color:#1d4ed8;font-weight:700;font-size:.64rem;margin-top:2px}
+.mp-ints{font-size:.62rem;font-weight:700;text-align:center;color:#1e3a8a;padding:5px;border-top:1px dashed #cbd5e1}
+@media (prefers-reduced-motion:reduce){.sect.on,.sello,.campana,.busca div{animation:none;opacity:1}}
+
+/* 3.26 · mapa de camas y pulsera */
+.alarma{text-align:center;border-radius:16px;padding:16px 10px;color:#fff;background:linear-gradient(135deg,#dc2626,#ea580c);box-shadow:0 12px 26px -12px #dc2626;margin-bottom:10px;animation:alarma 1s ease-in-out infinite}
+.alarma b{display:block;font-size:.95rem;margin-top:4px}.alarma small{font-size:.72rem;opacity:.95}
+@keyframes alarma{50%{transform:scale(1.025)}}
+.mm{border-radius:12px;border:1px solid color-mix(in srgb,#2563eb 30%,transparent);padding:7px;background:color-mix(in srgb,#2563eb 5%,var(--sup,#fff));margin-bottom:6px}
+.mm-h{display:flex;gap:8px;align-items:center;font-size:.72rem;margin-bottom:5px}.mm-h b{color:#2563eb}.mm-h span{color:var(--mut)}.mm-h em{margin-left:auto;font-style:normal;font-weight:900;color:#fff;background:#16a34a;border-radius:8px;padding:1px 7px}
+.mm-habs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.mm-habs>div{border:1px dashed color-mix(in srgb,#2563eb 30%,transparent);border-radius:8px;padding:3px}
+.mm-habs small{display:block;font-size:.56rem;font-weight:800;color:var(--mut)}
+.mm-habs span{display:flex;gap:3px}
+.mm-habs i{flex:1;font-style:normal;border-radius:6px;color:#fff;background:var(--e);text-align:center;font-size:.7rem;line-height:1.1;padding:3px 0;box-shadow:0 4px 8px -5px var(--e);transition:background .4s}
+.mm-habs i b{display:block;font-size:.55rem}
+.mm-habs i.foco-cama{animation:cmLibreM 1s ease-in-out infinite}
+@keyframes cmLibreM{50%{box-shadow:0 0 0 4px rgba(22,163,74,.35)}}
+.mm-ley{display:flex;flex-wrap:wrap;gap:4px 8px;font-size:.62rem;font-weight:700;color:var(--mut);margin:2px 0 6px}
+.mm-ley span::before{content:'';display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--e);margin-right:3px;vertical-align:-1px}
+.pulsera{display:grid;grid-template-columns:18px 46px 1fr 50px 70px 18px;align-items:center;gap:5px;border:1.5px dashed #64748b;border-radius:10px;padding:3px;background:linear-gradient(90deg,#eff6ff,#fff 35%,#fff 70%,#f5f3ff);margin:6px 0;overflow:hidden}
+.pulsera .pg{writing-mode:vertical-rl;font-size:.45rem;font-weight:900;color:#94a3b8;background:repeating-linear-gradient(45deg,#f1f5f9 0 3px,#e2e8f0 3px 6px);height:100%;display:grid;place-items:center;border-radius:5px}
+.pulsera .pq svg{width:44px;height:44px;display:block}
+.pulsera .pd b{display:block;font-size:.68rem;color:#0f172a}.pulsera .pd small{display:block;font-size:.55rem;color:#475569}.pulsera .pd em{font-style:normal;font-weight:900;color:#b91c1c;font-size:.58rem}
+.pulsera .pu{background:#2563eb;color:#fff;border-radius:6px;font-size:.52rem;font-weight:800;text-align:center;padding:4px 2px;line-height:1.3}
+.pulsera .pf small{display:block;font-size:.5rem;color:#334155}.pulsera .pf code{display:block;font-size:.48rem;color:#1e3a8a;background:#eef2ff;border-radius:3px;padding:1px 2px;margin-top:2px}
+@media (prefers-reduced-motion:reduce){.alarma,.mm-habs i.foco-cama{animation:none}}
 </style>
 </head>
 <body>
@@ -418,6 +475,8 @@ const R = {
   adm:   { n: 'Admisión y Egresos', f: 'Autoriza el turno', c: 'var(--adm)', i: '🗂️' },
   jef:   { n: 'Jefatura de Quirófanos', f: 'Valida, confirma y supervisa', c: 'var(--jef)', i: '🏥' },
   pac:   { n: 'Ana', f: 'Paciente', c: 'var(--pac)', i: '📱' },
+  pac2:  { n: 'Rosa', f: 'Paciente · reprogramada', c: 'var(--pac)', i: '📱' },
+  jenf:  { n: 'Lic. Andrea Molina', f: 'Jefatura de Enfermería', c: 'var(--enf)', i: '🛏️' },
   tab:   { n: 'Quirófanos en vivo', f: 'Lo ven Jefatura y Admisión', c: 'var(--mal)', i: '📡' },
 };
 const av = (k) => `<span class="av" style="--k:${R[k].c}">${R[k].i}</span>`;
@@ -453,6 +512,8 @@ function inicial() {
   return {
     p: { prog: false, pase: false, esc: false, adm: 'pend', jef: 'espera', llego: false, enf: false, inst: false, ent: false, rec1: false, pausa: false, ini: false, rec2: false, sal: false, recup: false, qr: false },
     u: { carga: false, adm: false, jef: false, anest: false, eq: false, ini: false, sal: false },
+    c: { sin: false, cir: false, adm: false, jef: false, pac: false },
+    m: { pinto: false, envio: false, recibido: false, ingreso: false },
   };
 }
 
@@ -659,6 +720,7 @@ function pacHTML(S) {
   return `<div class="pac-hola"><b>Hola, Ana 👋</b><small>${CASO.proc}</small><small>${CASO.dia} · ${CASO.sala} · ${R.cir.n}</small></div>
     ${p.recup ? `<div class="hecho-mini">✓ Tu cirugía terminó. El pase se cierra solo.</div>` : ''}
     <ul class="tl">${it.map(([n, c, s]) => `<li class="${c}"><i>${c === 'ok' ? '✓' : c === 'act' ? '●' : ''}</i><div><b>${n}</b>${s ? `<small>${s}</small>` : ''}</div></li>`).join('')}</ul>
+    ${p.cama && !p.recup ? '<div class="s-card k" style="--k:var(--cir)"><small style="font-weight:800;color:var(--cir)">TU INTERNACIÓN</small><p style="margin:2px 0 0;color:var(--ink)"><b>🛏 Sala General de Adultos · Hab. 12 · Cama 3</b></p></div>' : ''}
     <div class="vivo">Se actualiza solo · hace instantes</div>
     ${p.recup ? btn('reabrir', '🔄 Volver a abrir el QR', '', 'var(--pac)') : ''}
     <p class="nota" style="margin:8px 0 0">🔒 Sin diagnóstico ni datos de otras personas.</p>`;
@@ -761,11 +823,141 @@ function scrReclamo() {
     ${btn('responder', '📨 Responder y cerrar', '', 'var(--jef)')}`;
 }
 
+
+/* ---------- 3.25 · Cama de internación y reprogramación por falta de cama ---------- */
+const SECT = [
+  ['Sala General de Adultos', '1035', '#2563eb', '🧑'],
+  ['Internación General Pediátrica', '1012', '#7c3aed', '🧒'],
+  ['Maternidad (Gineco y Obstetricia)', '1608', '#db2777', '🤰'],
+  ['UCI', '1034', '#dc2626', '❤️‍🩹'],
+];
+const sectoresHTML = (sel) => `<div class="sects">${SECT.map(([n, int, c, i], k) => `<div class="sect${k === sel ? ' on' : ''}" style="--c:${c}"><em>${i}</em><b>${n}</b><small>Interno <span>${int}</span></small></div>`).join('')}</div>`;
+const SELLO = '<span class="sello">🛏✕ SIN CAMA ×1</span>';
+const REP = { pac: 'Rosa Maidana', proc: 'Hernioplastia inguinal', dia: 'Martes 20 · 10:00 h', nuevo: 'Lunes 26 · 08:00 h', sala: 'Quirófano 3' };
+function scrCama() {
+  return `<div class="s-h"><div><b>🛏️ Paso 4 · Cama de internación</b><small>El día de la cirugía, cuando la paciente ingresa</small></div></div>
+    <div class="s-card k" style="--k:var(--adm)"><h4>${CASO.pac} · ${CASO.proc}</h4><p>${CASO.dia} · ${CASO.sala}</p></div>
+    <div class="paso-n"><span>1</span> Sector donde queda internada</div>
+    ${sectoresHTML(0)}
+    <div class="campos">${campo('Habitación', '12', false, true)}${campo('Cama', '3', false, true)}</div>
+    ${btn('cama', '🛏️ Guardar cama', '', 'var(--adm)')}
+    ${info('Así el equipo la ubica al instante para llamarla a quirófano: la cama y el interno del sector aparecen en la ficha, en el resumen del Panel, en el parte impreso y en el teléfono de la paciente.', '¿Para qué sirve?')}`;
+}
+function scrSinCama() {
+  return `<div class="s-h"><div><b>🛏️ Paso 4 · Cama de internación</b><small>Martes 20 · 07:05 h · ingresa ${REP.pac}</small></div></div>
+    <div class="s-card k" style="--k:var(--adm)"><h4>${REP.proc}</h4><p>${REP.dia} · ${REP.sala}</p></div>
+    ${sectoresHTML(0)}
+    <div class="alerta"><span class="tag mal">Sin camas libres</span><p style="font-size:.8rem;margin:6px 0 0">Las cuatro salas están completas. Sin cama no se opera.</p></div>
+    ${btn('sincama', '🛏✕ No hay cama: suspender y reprogramar', 'mal')}`;
+}
+function scrBusca() {
+  const dias = [['Mié 21', 'lleno'], ['Jue 22', 'lleno'], ['Vie 23', 'lleno'], ['Lun 26', 'libre · 08:00']];
+  return `<div class="s-h"><div><b>🤖 La app busca sola</b><small>Primer turno libre, en una sala del mismo tipo</small></div></div>
+    <div class="busca">${dias.map(([d, e], i) => `<div class="${e === 'lleno' ? 'no' : 'si'}" style="--i:${i}"><b>${d}</b><small>${e}</small></div>`).join('')}</div>
+    <div class="s-card k prio" style="--k:var(--mal)">${SELLO}<h4 style="margin-top:6px">Nueva fecha propuesta</h4><p><b>${REP.nuevo}</b> · ${REP.sala}</p>
+      <p class="nota">Va <b>primera</b> en la lista del día, por encima de todo lo programado.</p></div>
+    ${btn('visto', 'Ver quién tiene que dar el OK →', '', 'var(--jef)')}`;
+}
+function oksHTML(S) {
+  const o = S.c;
+  const fila = (k, ok, quien) => `<div class="fila">${av(k)}<div class="esp"><b>${quien}</b><small>${ok ? 'OK ✓' : 'pendiente'}</small></div>${ok ? '<span class="tag ok">✓</span>' : ''}</div>`;
+  return `<div class="oks3">${fila('cir', o.cir, 'Cirujano/a')}${fila('adm', o.adm, 'Admisión y Egresos')}${fila('jef', o.jef, 'Jefatura de Quirófanos')}</div>`;
+}
+function scrOk(S, k) {
+  const t = { cir: 'okcir', adm: 'okadm', jef: 'okjef' }[k];
+  return `<div class="s-h"><div><b>✅ Los tres OK</b><small>Cada uno desde su sesión · cualquiera puede pedir otra fecha</small></div></div>
+    <div class="s-card k prio" style="--k:var(--mal)">${SELLO}<h4 style="margin-top:6px">${REP.pac} · ${REP.proc}</h4><p>Propuesta: <b>${REP.nuevo}</b> · ${REP.sala}</p></div>
+    ${oksHTML(S)}
+    <div class="dos">${btn(t, '✓ Dar el OK', 'ok')}${info('La app pasa a la franja libre siguiente y los tres OK vuelven a cero. Si la paciente no puede ese día, se saltea el día entero.', '↻ Pedir otra fecha')}</div>`;
+}
+function scrAvisoPrio() {
+  return `<div class="campana">🔔</div>
+    <div class="s-card k prio" style="--k:var(--mal)"><span class="tag mal">PRIORIDAD · con sonido</span><h4 style="margin-top:6px">Reprogramación confirmada ${SELLO}</h4>
+      <p>${REP.pac} confirmó: <b>${REP.nuevo}</b> · ${REP.sala}. Quedó en el parte con prioridad.</p>
+      <p class="nota">Les llega a la Jefatura y al cirujano como aviso crítico (suena y salta en el teléfono) y por correo a Admisión.</p></div>
+    <ul class="hist"><li><b>07:05</b> · Suspendida por falta de cama (1.ª vez)</li><li><b>07:06</b> · La app propuso el lunes 26 · 08:00</li><li><b>09:40</b> · OK del cirujano, Admisión y Jefatura</li><li><b>10:12</b> · La paciente confirmó desde su pase</li></ul>
+    ${btn('parte', '🖨 Ver el parte del día →', '', 'var(--jef)')}`;
+}
+function scrPartes() {
+  return `<div class="s-h"><div><b>🖨 El parte del día, por área</b><small>Un PDF para cada una, mismo diseño</small></div></div>
+    <div class="partes"><button data-t="imprimir" style="--c:#1e40af">🏥<b>Quirófanos centrales</b></button><span style="--c:#0e7490">🔬<b>Endoscopía</b></span><span style="--c:#db2777">🤰<b>Obstetricia y cesáreas</b></span></div>
+    <div class="s-card mini-parte"><div class="mp-h">Parte Quirúrgico · Lun 26</div>
+      <div class="mp-f"><b>08:00</b><div><b>${REP.pac}</b> <i>OSEF</i><small>☎ 2901-400111 · 🛏 Adultos · Hab. 12 · Cama 3 · Int. 1035</small></div><span class="sello chico">SIN CAMA ×1</span></div>
+      <div class="mp-ints">☎ Adultos 1035 · Pediatría 1012 · Maternidad 1608 · UCI 1034</div></div>`;
+}
+/* El teléfono de la paciente de esta historia. */
+function pac2HTML(S) {
+  const c = S.c;
+  if (c.pac) return `<div class="pac-hola"><b>Hola, Rosa 👋</b><small>${REP.proc}</small></div>
+    <div class="hecho-mini">✓ ¡Confirmada! ${REP.nuevo} · ${REP.sala}</div>
+    <p class="nota">Tu cirugía tiene prioridad: se suspendió 1 vez por falta de cama.</p>`;
+  if (c.jef) return `<div class="pac-hola"><b>Hola, Rosa 👋</b><small>Te llegó un correo: «Tenés una nueva fecha para confirmar»</small></div>
+    <div class="s-card k prio" style="--k:var(--ama);text-align:center"><small style="font-weight:800;color:var(--ama)">NUEVA FECHA PROPUESTA</small><h4>${REP.nuevo}</h4><p>${REP.sala}</p>
+    ${btn('si', '✓ Sí, puedo venir', 'ok')}${info('La app busca otro día y les vuelve a pedir el OK al cirujano, a Admisión y a la Jefatura.', 'No puedo ese día')}</div>`;
+  if (c.sin) return `<div class="pac-hola"><b>Hola, Rosa 👋</b><small>${REP.proc}</small></div>
+    <div class="s-card k" style="--k:var(--cir)"><h4>Tu cirugía se reprograma con prioridad</h4><p>No hubo cama de internación el día previsto. Vas primera en la lista: el equipo está confirmando la nueva fecha.</p></div>
+    <div class="vivo">Se actualiza solo · hace instantes</div>`;
+  return `<div class="pac-hola"><b>Hola, Rosa 👋</b><small>${REP.proc} · ${REP.dia}</small></div><div class="hecho-mini">✓ Confirmada · hoy ingresás</div>`;
+}
+
+
+/* ---------- 3.26 · Mapa de camas en vivo y pulsera ---------- */
+const MC = { e: { l: '#16a34a', o: '#dc2626', d: '#ea580c', r: '#eab308', f: '#111827' } };
+function mapaMini(S, sector, ocupar) {
+  // Un esquema chico de Adultos (5 habitaciones × 2 camas) que cambia con el estado.
+  const base = [['o', 'o'], ['o', 'd'], ['f', 'l'], ['l', 'l'], ['l', 'l']];
+  if (S.m.pinto) base[3][1] = 'r';
+  if (S.m.ingreso) base[3][0] = 'o';
+  return `<div class="mm"><div class="mm-h" style="--c:#2563eb"><b>Sala General de Adultos</b><span>☎ 1035</span><em>${base.flat().filter((x) => x === 'l').length} libres</em></div>
+    <div class="mm-habs">${base.map((h, i) => `<div><small>Hab. ${i + 1}</small><span>${h.map((e, k) => `<i class="${ocupar && i === 3 && k === 0 && !S.m.ingreso ? 'foco-cama' : ''}" style="--e:${MC.e[e]}" ${ocupar && i === 3 && k === 0 && !S.m.ingreso ? 'data-t="tocar"' : ''}>🛏<b>${k + 1}</b></i>`).join('')}</span></div>`).join('')}</div></div>`;
+}
+const leyMini = `<div class="mm-ley"><span style="--e:#16a34a">Libre</span><span style="--e:#dc2626">Ocupada</span><span style="--e:#ea580c">A desocupar</span><span style="--e:#eab308">Reservada</span><span style="--e:#111827">Fuera de servicio</span></div>`;
+function scrAlarma() {
+  return `<div class="alarma"><div class="campana">⏰</div><b>06:30 · Enviá el mapa de camas a Admisión</b><small>Suena fuerte aunque la app y el teléfono estén cerrados</small></div>
+    ${btn('abrir', '🛏 Abrir el mapa de camas', '', 'var(--enf)')}`;
+}
+function scrPintar(S) {
+  return `<div class="s-h"><div><b>🛏 Mapa de camas</b><small>Solo esta sección · Jefatura de Enfermería</small></div></div>
+    ${mapaMini(S, 'adultos')}${leyMini}
+    <p class="nota">Toque una cama para cambiarla. «Editar salas» agrega o saca habitaciones y camas. Son 4 esquemas: Adultos, Pediatría, Maternidad y UCI.</p>
+    ${btn('pintar', '🟨 Reservar la Hab. 4 · Cama 2 para la cirugía de las 10:00', '', '#ca8a04')}`;
+}
+function scrEnviarMapa(S) {
+  return `<div class="s-h"><div><b>🛏 Mapa de camas</b><small>06:52 · todo revisado</small></div></div>
+    ${mapaMini(S)}
+    ${btn('enviar', '📤 Enviar a Admisión', 'ok')}`;
+}
+function scrRecibido(S) {
+  return `<div class="s-h"><div><b>📧 Llegó el mapa de camas</b><small>Admisión y Egresos · 07:03</small></div></div>
+    <div class="s-card k" style="--k:var(--enf)"><p style="margin:0">Enviado por <b>Lic. Andrea Molina</b> (Jefatura de Enfermería) a las 06:52.</p><p class="nota" style="margin:4px 0 0">Adultos: 4 libres · Pediatría: 20 · Maternidad: 18 · UCI: 2</p></div>
+    ${btn('recibido', '✓ Recibido — ver las camas', 'ok')}`;
+}
+function scrIngresoMapa(S) {
+  return `<div class="s-h"><div><b>🛏 Paso 4 · Cama de internación</b><small>Pérez, Juan Carlos · Hernioplastia · 08:00 · Q2</small></div></div>
+    <p class="nota" style="margin:0 0 6px">El mapa en vivo del sector, dentro de la misma ventana: toque una cama <b style="color:#16a34a">verde</b>.</p>
+    ${mapaMini(S, 'adultos', true)}
+    ${info('Al guardar, la cama pasa a rojo en el mapa de Enfermería (con las iniciales del paciente) y la app imprime la pulsera.', '¿Y después?')}`;
+}
+function scrPulsera() {
+  return `<div class="s-h"><div><b>🏷️ Pulsera del paciente</b><small>Se imprime sola al guardar la cama</small></div></div>
+    <div class="pulsera"><span class="pg">PEGAR</span><span class="pq">${qrSVG()}</span><span class="pd"><b>PÉREZ, JUAN CARLOS</b><small>DNI 20.868.112 · 52 años</small><em>⚕ Hernia inguinal derecha</em></span>
+      <span class="pu">Adultos<br>Hab. 4 · C1</span><span class="pf"><small>Admisión: Ruiz, Marta</small><code>SHA-256 D49F A6F5…</code></span><span class="pg">PEGAR</span></div>
+    <p class="nota">✂ Se corta con tijera y se pega en la muñeca. El QR no lleva datos: solo abre la ficha con la app del hospital.</p>
+    ${btn('pegar', '✂ Cortar y pegar en la muñeca', '', 'var(--adm)')}`;
+}
+function scrEscaneo() {
+  return `<div class="camara"><span>Apuntá a la pulsera del paciente</span></div>
+    <div class="s-card k" style="--k:var(--ok,#15803d)"><h4>✓ Identidad verificada</h4><p>Pérez, Juan Carlos · DNI 20.868.112<br>Sello SHA-256 D49F A6F5 ✓</p></div>
+    ${btn('lvq', '▶ Iniciar la LVQ de Entrada (punto 1 ✓)', '', 'var(--enf)')}`;
+}
+
 /* ---------- pantallas completas: portada y final ---------- */
 const ACTOS = [
   { k: 'reg', n: 'Registro', i: '🪪', c: 'var(--cir)', d: 'El alta de cada integrante y la autorización de la Jefatura.' },
   { k: 'por', n: 'Portales', i: '🧭', c: 'var(--anest)', d: 'Lo primero, el panel central y el flujo de cada uno.' },
   { k: 'prog', n: 'Cirugía programada', i: '📅', c: 'var(--enf)', d: 'Del turno al QR de la paciente, la LVQ y el cierre.' },
+  { k: 'mapa', n: 'Mapa de camas y pulsera', i: '🏷️', c: 'var(--enf)', d: 'Enfermería envía las camas a las 07:00, Admisión ocupa una y sale la pulsera con QR.' },
+  { k: 'cama', n: 'Sin cama: prioridad', i: '🛏️', c: 'var(--adm)', d: 'No hubo cama: la app reprograma sola, tres OK y la paciente confirma.' },
   { k: 'urg', n: 'Urgencia', i: '🚑', c: 'var(--mal)', d: 'En horario y fuera de horario.' },
   { k: 'cie', n: 'Estadísticas y cierre', i: '🏆', c: 'var(--ama)', d: 'Números, copa de oro, incidencias y reclamos.' },
 ];
@@ -791,6 +983,8 @@ function finalHTML() {
       <div class="acto-c" style="--k:var(--cir)"><i>🪪</i><b>Registro</b><small>Cada uno pide el alta con su función; la Jefatura autoriza y designa al Jefe/a de Anestesiología.</small></div>
       <div class="acto-c" style="--k:var(--anest)"><i>🧭</i><b>Portales</b><small>Lo primero (perfil, llegada, lista, sala, cajas), el panel central y un flujo en orden.</small></div>
       <div class="acto-c" style="--k:var(--enf)"><i>📅</i><b>Programada</b><small>Turno → QR → Admisión → Jefatura → equipo → LVQ → gasas → Pausa → cirugía → Salida → Recuperación → QR cerrado.</small></div>
+      <div class="acto-c" style="--k:var(--enf)"><i>🏷️</i><b>Camas y pulsera</b><small>06:30 aviso, Enfermería envía el mapa, Admisión «Recibido», la cama pasa a rojo y la pulsera abre la LVQ.</small></div>
+      <div class="acto-c" style="--k:var(--adm)"><i>🛏️</i><b>Sin cama</b><small>La app reprograma sola con prioridad; tres OK, la paciente confirma y queda marcado «SIN CAMA ×N».</small></div>
       <div class="acto-c" style="--k:var(--mal)"><i>🚑</i><b>Urgencia</b><small>Opera sin esperar. Fuera de horario, Admisión y Jefatura regularizan después; en horario, validan en el momento.</small></div>
       <div class="acto-c" style="--k:var(--ama)"><i>🏆</i><b>Calidad</b><small>Estadísticas, copa de oro semanal, incidencias con seguimiento y reclamos con respuesta.</small></div>
     </div>
@@ -841,6 +1035,7 @@ PR({ e: 'Programar y pase QR', r: 'prog', q: 'cir', h: 'Lun 09:11', tit: 'El pas
 PR({ e: 'Programar y pase QR', r: 'prog', q: 'cir', h: 'Lun 09:12', tit: 'La paciente escanea el QR', txt: `${CASO.pac.split(' ')[0]} apunta la cámara al QR. Para entrar, la app le pide su DNI y un código de un solo uso que le llega al correo. Desde ahí sigue su cirugía en vivo, sin llamar a nadie.`, t: 'escanear', go: 'En el teléfono de Ana, toque «Escanear el QR»', ver: () => scrPase(true), hacer: (S) => { S.p.esc = true; }, ok: 'Ana ya ve su cirugía: «Admisión y Egresos · revisando tu turno».' });
 PR({ e: 'Admisión y Jefatura', r: 'adm', q: 'adm', h: 'Lun 11:40', tit: 'Admisión y Egresos autoriza', txt: 'Admisión revisa los requisitos y la cobertura, y dictamina. Mire el teléfono de Ana: cambia en el mismo momento.', t: 'autorizar', go: 'Toque «Autorizar»', ver: scrAdmision, hacer: (S) => { S.p.adm = 'ok'; S.p.jef = 'pend'; }, ok: 'Autorizada. En el teléfono de Ana: «Admisión ✓ · Jefatura validando…».' });
 PR({ e: 'Admisión y Jefatura', r: 'jef', q: 'jef', h: 'Lun 12:05', tit: 'La Jefatura valida… o cancela', txt: 'La Jefatura de Quirófanos ve el turno en «Ahora te toca», ordenado por urgencia. Puede validarlo y confirmarlo en el parte, o cancelarlo (toque «Cancelar» para ver qué pasaría).', t: 'validar', go: 'Toque «Validar y confirmar»', ver: scrJefatura, hacer: (S) => { S.p.jef = 'ok'; }, ok: 'Validada y confirmada en el parte. Ana lo ve al instante.' });
+PR({ e: 'Ingreso y cama', r: 'cama', q: 'adm', h: 'Jue 07:05', tit: 'Paso 4: Admisión anota la cama', txt: 'Jueves, 07:05. Ana ingresa al hospital. Admisión y Egresos anota en qué sector, habitación y cama queda internada. Cada sector tiene su interno para llamarla a quirófano: <b>Adultos 1035 · Pediatría 1012 · Maternidad 1608 · UCI 1034</b>.', t: 'cama', go: 'Toque «Guardar cama»', ver: scrCama, hacer: (S) => { S.p.cama = true; }, ok: 'Cama registrada: aparece en la ficha, en el parte y en el teléfono de Ana.' });
 PR({ e: 'Llega el equipo', r: 'eq', q: 'anest', h: 'Jue 07:32', tit: 'El día de la cirugía: la anestesióloga da el OK', txt: 'Jueves, 07:32. La Dra. Paz llega y marca «Llegué». Es la puerta del día: sin llegada no se toman cirugías ni se firma.', t: 'llegue', go: 'Toque «Llegué»', ver: scrLlegue, hacer: (S) => { S.p.llego = true; }, ok: 'Anestesia presente. Ya figura en la cirugía de las 08:00.' });
 PR({ e: 'Llega el equipo', r: 'eq', q: 'enf', h: 'Jue 07:40', tit: 'La enfermera toma la cirugía', txt: 'La Lic. Molina se anota como circulante. Una persona, una sala: desde ahora sus firmas son de esta cirugía.', t: 'tomar', go: 'Toque «Anotarme» en Circulante', ver: (S) => scrSala(S, 'enf'), hacer: (S) => { S.p.enf = true; }, ok: 'Circulante anotada.' });
 PR({ e: 'Llega el equipo', r: 'eq', q: 'inst', h: 'Jue 07:44', tit: 'La instrumentadora toma la cirugía', txt: 'Carla Ruiz se anota y verifica las cajas. Sin instrumentadora anotada no hay recuento inicial, y sin recuento no se sigue.', t: 'tomar', go: 'Toque «Anotarme» en Instrumentación', ver: (S) => scrSala(S, 'inst'), hacer: (S) => { S.p.inst = true; }, ok: 'Equipo completo. Ana ve «Tu equipo está listo».' });
@@ -853,6 +1048,27 @@ PR({ e: 'Cirugía y cierre', r: 'sal', q: 'cir', h: 'Jue 09:41', tit: 'Final de 
 PR({ e: 'Recuperación y QR', r: 'rec', q: 'anest', h: 'Jue 10:35', tit: 'Se activa el módulo de Recuperación', txt: 'La paciente pasa a recuperación. La anestesióloga completa la escala de Aldrete: con 9 o más, alta.', t: 'alta', go: 'Toque «Dar el alta de recuperación»', ver: scrAldrete, hacer: (S) => { S.p.recup = true; }, ok: 'Alta de recuperación. Ana ve «Tu cirugía terminó».' });
 PR({ e: 'Recuperación y QR', r: 'fin', q: 'cir', h: 'Jue 10:36', tit: 'El QR de la paciente se cierra', txt: 'Con la cirugía finalizada, el pase caduca solo: el QR deja de abrir para siempre. Compruébelo en el teléfono de Ana.', t: 'reabrir', go: 'En el teléfono de Ana, toque «Volver a abrir el QR»', ver: () => scrResumen(false), hacer: (S) => { S.p.qr = true; }, ok: 'El QR ya no abre nada: sus datos quedan protegidos.' });
 PR({ e: 'Recuperación y QR', r: 'fin+', q: 'cir', h: 'Jue 10:37', tit: 'Caso cerrado', txt: 'Todos los tiempos quedaron registrados solos y van a las estadísticas. El teléfono de Ana muestra el pase cerrado.', t: 'seguir', go: 'Toque «Seguir: una urgencia»', ver: () => scrResumen(true), ok: 'Ahora, una urgencia.' });
+
+/* Acto · Mapa de camas y pulsera (3.26) */
+const MP = (o) => P(Object.assign({ a: 'mapa' }, o));
+MP({ e: 'El mapa de las 07:00', r: 'al', q: 'jenf', h: 'Mar 06:30', tit: '06:30 · suena el recordatorio', txt: 'La Jefatura de Enfermería tiene su propia cuenta y entra <b>solo</b> al Mapa de camas. A las 06:30 le suena un aviso fuerte —aunque la app y el teléfono estén cerrados— para que envíe las camas del día a Admisión.', t: 'abrir', go: 'Toque «Abrir el mapa de camas»', ver: scrAlarma, ok: 'Mapa abierto.' });
+MP({ e: 'El mapa de las 07:00', r: 'pin', q: 'jenf', h: 'Mar 06:40', tit: 'Pinta las camas', txt: 'Cuatro esquemas —Adultos (10 habitaciones × 2), Pediatría (12 × 2), Maternidad (8 × 3) y UCI (7 camas)— y cada cama con su color: 🟩 libre · 🟥 ocupada · 🟧 a desocupar (con la hora) · 🟨 reservada · ⬛ fuera de servicio. Todo editable, en todo momento: las urgencias mandan.', t: 'pintar', go: 'Toque el botón amarillo', ver: scrPintar, hacer: (S) => { S.m.pinto = true; }, ok: 'Cama reservada para la cirugía de las 10:00.' });
+MP({ e: 'El mapa de las 07:00', r: 'env', q: 'jenf', h: 'Mar 06:52', tit: 'Enviar a Admisión', txt: 'Con el mapa al día, toca «Enviar a Admisión». Queda la foto sellada de ese momento y Admisión recibe un correo con «✓ Recibido». Si a las 07:00 nadie lo envió, la app manda sola la foto tal como está.', t: 'enviar', go: 'Toque «Enviar a Admisión»', ver: scrEnviarMapa, hacer: (S) => { S.m.envio = true; }, ok: 'Enviado. Ahora espera el «Recibido».' });
+MP({ e: 'Admisión recibe', r: 'rec', q: 'adm', h: 'Mar 07:03', tit: 'Admisión toca «Recibido»', txt: 'En el correo (o en la app), Admisión toca «✓ Recibido»: se le abre el mapa que mandó Enfermería y a la Jefatura de Enfermería le llega «Recibido por Admisión ✓», con nombre y hora.', t: 'recibido', go: 'Toque «Recibido — ver las camas»', ver: scrRecibido, hacer: (S) => { S.m.recibido = true; }, ok: 'A Enfermería le llegó: «Recibido por Admisión ✓ 07:03».' });
+MP({ e: 'Ingreso y pulsera', r: 'ing', q: 'adm', h: 'Mar 07:10', tit: 'Ingresa el paciente: cama verde → roja', txt: 'Al anotar la cama, Admisión ve el mapa en vivo del sector y toca una cama verde. Al guardar, en el mapa de Enfermería esa cama pasa a <b>rojo</b>, con las iniciales del paciente.', t: 'tocar', go: 'Toque la cama verde marcada (Hab. 4 · Cama 1)', ver: scrIngresoMapa, hacer: (S) => { S.m.ingreso = true; }, ok: 'Hab. 4 · Cama 1: ocupada. Se imprime la pulsera.' });
+MP({ e: 'Ingreso y pulsera', r: 'pul', q: 'adm', h: 'Mar 07:11', tit: 'La pulsera sale sola', txt: 'QR, apellido y nombre, DNI, patología, sector/habitación/cama, quién le dio ingreso y un sello <b>SHA-256</b> de esos datos. Sale en tira: se corta con tijera y se pega en la muñeca (la copia va a la historia clínica).', t: 'pegar', go: 'Toque «Cortar y pegar en la muñeca»', ver: scrPulsera, ok: 'Pulsera puesta.' });
+MP({ e: 'Ingreso y pulsera', r: 'lvq', q: 'enf', h: 'Mar 07:55', tit: 'En quirófano: se escanea y arranca la LVQ', txt: 'La enfermera escanea la pulsera con el teléfono. Con su sesión del hospital, la app abre la ficha, comprueba el sello (si los datos cambiaron, avisa) y arranca la LVQ de Entrada con el punto 1 —identidad del paciente— ya confirmado.', t: 'lvq', go: 'Toque «Iniciar la LVQ de Entrada»', ver: scrEscaneo, fiesta: true, ok: 'LVQ de Entrada iniciada con la identidad confirmada.' });
+
+/* Acto · Sin cama: reprogramación con prioridad (3.25) */
+const CM = (o) => P(Object.assign({ a: 'cama', lado: pac2HTML }, o));
+CM({ e: 'No hay cama', r: 'sin', q: 'adm', h: 'Mar 07:05', tit: 'Ingresa Rosa… y no hay cama', txt: `Martes 20, 07:05. ${REP.pac} llega para su ${REP.proc.toLowerCase()} pero las cuatro salas están completas. Sin cama no se opera: Admisión toca «No hay cama».`, t: 'sincama', go: 'Toque «No hay cama: suspender y reprogramar»', ver: scrSinCama, hacer: (S) => { S.c.sin = true; }, ok: 'Suspendida por falta de cama (1.ª vez). La app ya está buscando lugar.' });
+CM({ e: 'La app busca sola', r: 'bus', q: 'jef', h: 'Mar 07:06', tit: 'La app arma la nueva fecha', txt: 'Sin que nadie haga nada, la app recorre los días que la Jefatura abrió y toma el <b>primer turno libre</b> en una sala del mismo tipo. El turno nuevo lleva el sello <b>SIN CAMA ×1</b> y va primero en la lista, por encima de todo lo programado. Vale igual para Endoscopía y Obstetricia.', t: 'visto', go: 'Toque «Ver quién tiene que dar el OK»', ver: scrBusca, ok: 'Turno prioritario armado. Ahora, los tres OK.' });
+CM({ e: 'Los tres OK', r: 'cir', q: 'cir', h: 'Mar 08:10', tit: 'OK del cirujano', txt: 'Al Dr. Sosa le salta un aviso crítico: «Falta SU OK». Revisa la fecha y la aprueba. Si no le sirve, toca «Pedir otra fecha» y la app pasa a la franja siguiente.', t: 'okcir', go: 'Toque «Dar el OK»', ver: (S) => scrOk(S, 'cir'), hacer: (S) => { S.c.cir = true; }, ok: 'OK del cirujano.' });
+CM({ e: 'Los tres OK', r: 'adm', q: 'adm', h: 'Mar 09:20', tit: 'OK de Admisión y Egresos', txt: 'Admisión recibe el aviso también por correo. Confirma con la credencial del sector y su nombre queda asentado.', t: 'okadm', go: 'Toque «Dar el OK»', ver: (S) => scrOk(S, 'adm'), hacer: (S) => { S.c.adm = true; }, ok: 'OK de Admisión.' });
+CM({ e: 'Los tres OK', r: 'jef', q: 'jef', h: 'Mar 09:40', tit: 'OK de la Jefatura', txt: 'Con el tercer OK, la app le pregunta a la paciente: le manda un correo (sin datos de salud) y la fecha aparece en su pase. Si no tiene pase, Admisión la llama y anota «confirmó por teléfono».', t: 'okjef', go: 'Toque «Dar el OK»', ver: (S) => scrOk(S, 'jef'), hacer: (S) => { S.c.jef = true; }, ok: 'Los tres OK: se le pregunta a Rosa.' });
+CM({ e: 'La paciente confirma', r: 'pac', q: 'pac2', h: 'Mar 10:12', tit: 'Rosa confirma desde su teléfono', txt: 'Rosa abre su pase (DNI + código del correo) y ve la nueva fecha. Si toca «No puedo ese día», la app busca otro día y vuelve a pedir los tres OK.', t: 'si', go: 'En el teléfono de Rosa, toque «Sí, puedo venir»', ver: pac2HTML, lado: null, hacer: (S) => { S.c.pac = true; }, ok: '¡Confirmada! Queda en el parte con prioridad.' });
+CM({ e: 'Prioridad y parte', r: 'fin', q: 'jef', h: 'Mar 10:12', tit: 'Aviso con PRIORIDAD y sonido', txt: 'A la Jefatura y al cirujano les suena un aviso crítico: «Reprogramación confirmada». Y en el historial queda explícito por qué: cuántas veces se suspendió por falta de cama, quién dio cada OK y cómo respondió la paciente.', t: 'parte', fiesta: true, go: 'Toque «Ver el parte del día»', ver: scrAvisoPrio, ok: 'Todo queda asentado y bien marcado.' });
+CM({ e: 'Prioridad y parte', r: 'parte', q: 'jef', h: 'Lun 07:00', tit: 'Tres partes, uno por área', txt: 'El parte del día sale en tres PDF separados y con el mismo diseño: <b>Quirófanos centrales</b>, <b>Endoscopía</b> y <b>Obstetricia y cesáreas</b>. Cada paciente lleva su cama con el interno, y la reprogramada, el sello rojo «SIN CAMA ×1 · PRIORIDAD».', t: 'imprimir', go: 'Toque «Quirófanos centrales»', ver: scrPartes, ok: 'Listo: así se ve en el papel.' });
 
 /* Acto 4 · Urgencia */
 const UR = (o) => P(Object.assign({ a: 'urg', tab: true }, o));
@@ -887,10 +1103,14 @@ function leerGuardado() { try { return JSON.parse(localStorage.getItem(LLAVE) ||
 // En la portada no se guarda: así «Seguir donde quedé» no se pierde al volver a ella.
 function guardar() { if (cur === 0) return; try { localStorage.setItem(LLAVE, JSON.stringify({ cur, elec: ELEC })); } catch (e) {} }
 
-const RIEL_PROG = [['prog', 'Programada'], ['adm', 'Admisión'], ['jef', 'Jefatura'], ['eq', 'Equipo'], ['ent', 'LVQ Entrada'], ['rec1', 'Gasas'], ['pau', 'Pausa'], ['ini', 'Cirugía'], ['rec2', 'Recuento final'], ['sal', 'LVQ Salida'], ['rec', 'Recuperación'], ['fin', 'QR cerrado']];
+const RIEL_MAPA = [['al', '06:30'], ['pin', 'Mapa'], ['env', 'Enviar'], ['rec', 'Recibido'], ['ing', 'Cama roja'], ['pul', 'Pulsera'], ['lvq', 'LVQ']];
+const RIEL_CAMA = [['sin', 'Sin cama'], ['bus', 'Nueva fecha'], ['cir', 'OK cirujano'], ['adm', 'OK Admisión'], ['jef', 'OK Jefatura'], ['pac', 'Paciente'], ['fin', 'Prioridad'], ['parte', 'Parte']];
+const RIEL_PROG = [['prog', 'Programada'], ['adm', 'Admisión'], ['jef', 'Jefatura'], ['cama', 'Cama'], ['eq', 'Equipo'], ['ent', 'LVQ Entrada'], ['rec1', 'Gasas'], ['pau', 'Pausa'], ['ini', 'Cirugía'], ['rec2', 'Recuento final'], ['sal', 'LVQ Salida'], ['rec', 'Recuperación'], ['fin', 'QR cerrado']];
 function rielHTML(st) {
   let est;
   if (st.a === 'prog') est = RIEL_PROG;
+  else if (st.a === 'cama') est = RIEL_CAMA;
+  else if (st.a === 'mapa') est = RIEL_MAPA;
   else if (st.a === 'urg') est = fuera()
     ? [['urg', 'Urgencia'], ['eq', 'Guardia'], ['ini', 'LVQ + cirugía'], ['sal', 'Salida'], ['adm', 'Admisión'], ['jef', 'Jefatura'], ['fin', 'Finalizada']]
     : [['urg', 'Urgencia'], ['adm', 'Admisión'], ['jef', 'Jefatura'], ['eq', 'Equipo'], ['ini', 'LVQ + cirugía'], ['sal', 'Salida'], ['fin', 'Finalizada']];
@@ -906,7 +1126,7 @@ function rielHTML(st) {
 function devHTML(k, hora, html, lado, qf) {
   return `<div class="dev${lado ? ' lado' : ''}" style="--k:${R[k].c}"><div class="dev-in">
     <div class="dev-st"><span>${hora || ''}</span><span class="isla"></span><span>5G ▮▮▮</span></div>
-    <div class="dev-who">${av(k)}<div><b>${R[k].n}</b><small>${qf || R[k].f}</small></div><span class="app">${k === 'pac' ? 'Portal paciente' : 'HRU'}</span></div>
+    <div class="dev-who">${av(k)}<div><b>${R[k].n}</b><small>${qf || R[k].f}</small></div><span class="app">${k.startsWith('pac') ? 'Portal paciente' : 'HRU'}</span></div>
     <div class="scr">${html}</div></div></div>`;
 }
 function mapaHTML(L) {
@@ -941,7 +1161,7 @@ function render() {
         <div class="nav"><button class="tb" data-t="ant">← Anterior</button><button class="tb foco-btn" data-t="foco">👇 Ir a lo marcado</button><span class="esp"></span><span class="atajos">Teclas ← →</span><button class="tb" data-t="sig">Saltar paso →</button></div>
       </section></div><div class="col-esc">
       ${rielHTML(st)}
-      <div class="escenario">${devHTML(st.q, val(st.h), st.ver(S), false, st.qf)}${st.pac ? devHTML('pac', val(st.h), pacHTML(S), true) : ''}${st.tab ? devHTML('tab', val(st.h), tabHTML(S), true) : ''}</div></div></div>`;
+      <div class="escenario">${devHTML(st.q, val(st.h), st.ver(S), false, st.qf)}${st.pac ? devHTML('pac', val(st.h), pacHTML(S), true) : ''}${st.tab ? devHTML('tab', val(st.h), tabHTML(S), true) : ''}${st.lado ? devHTML('pac2', val(st.h), st.lado(S), true) : ''}</div></div></div>`;
     [].concat(st.t || []).forEach((t) => { const el = document.querySelector(`.escenario [data-t="${t}"]`); if (el) el.classList.add('foco'); });
     // Dentro de cada pantalla, que lo marcado quede a la vista.
     document.querySelectorAll('.escenario .foco').forEach((el) => { const s = el.closest('.scr'); if (s && s.scrollHeight > s.clientHeight) s.scrollTop = Math.max(0, el.offsetTop - s.clientHeight / 2); });
