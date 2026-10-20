@@ -14,7 +14,7 @@
 /* Al publicar cambios hay que subir esta constante (y APP_VERSION en
    index.html): es lo que hace que los dispositivos ya instalados descarten la
    copia cacheada y estrenen la versión nueva. */
-const VERSION = 'hru-quirofanos-v80';
+const VERSION = 'hru-quirofanos-v81';
 const SHELL = [
   './',
   './index.html',
@@ -114,12 +114,22 @@ self.addEventListener('push', (e) => {
       body: d.texto || '', tag: d.tag || 'hru-aviso', renotify: true, requireInteraction: true,
       icon: 'icon-192.png', badge: 'icon-192.png', vibrate: [400, 150, 400, 150, 400],
       actions: d.acuse ? [{ action: 'recibido', title: '✓ Recibido' }] : [],
-      data: { acuse: d.acuse || '', dia: d.dia || '', k: d.k || '', f: d.f || '' },
+      data: { acuse: d.acuse || '', dia: d.dia || '', k: d.k || '', f: d.f || '', vista: vistaDeAviso(d) },
     }),
     self.clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then((lista) => lista.forEach((c) => c.postMessage({ tipo: 'aviso-cierre', voz: d.voz || '' }))),
   ]));
 });
+/* (3.31) Pantalla a la que lleva cada aviso. Si el Apps Script no la manda, se
+   deduce de la etiqueta (sirve también para los avisos de versiones anteriores). */
+function vistaDeAviso(d) {
+  if (/^[a-z]+$/.test(d.vista || '')) return d.vista;
+  const tag = String(d.tag || '');
+  if (tag.indexOf('equipos-') === 0) return 'propuesta';
+  if (tag.indexOf('guardia-vispera-') === 0) return 'guardias';
+  if (tag.indexOf('anest-') === 0) return 'anestesia';
+  return 'recordatorios';
+}
 /* Tocar la notificación (o «Recibido») confirma la recepción ante el Apps Script. */
 function acusar(n) {
   const a = (n && n.data) || {};
@@ -130,18 +140,24 @@ function acusar(n) {
 
 /* Notificaciones: si el navegador entrega el aviso al worker, al tocarlo se
    enfoca la pestaña de la app en lugar de abrir una nueva. */
+/* (3.31) Abre la app EN la pantalla del aviso (…#guardias, …#propuesta). Si ya
+   está abierta, la trae al frente y le pide ir ahí; si no se puede enfocar
+   (pasa en algunos Android con la app instalada), abre una ventana nueva en
+   lugar de quedarse sin hacer nada. Un solo waitUntil para todo. */
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
-  const conf = acusar(e.notification);
-  e.waitUntil(conf);
-  if (e.action === 'recibido') return;
-  e.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((lista) => {
-      for (const c of lista) {
-        if (c.url.includes(self.registration.scope) && 'focus' in c) return c.focus();
-      }
-      return self.clients.openWindow ? self.clients.openWindow('./') : null;
-    })
-  );
+  const datos = e.notification.data || {};
+  const vista = /^[a-z]+$/.test(datos.vista || '') ? datos.vista : '';
+  const url = new URL('./' + (vista ? '#' + vista : ''), self.registration.scope).href;
+  const abrir = () => (self.clients.openWindow ? self.clients.openWindow(url) : null);
+  e.waitUntil(Promise.all([
+    acusar(e.notification),
+    e.action === 'recibido' ? null : self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((lista) => {
+      const app = lista.find((c) => c.url.indexOf(self.registration.scope) === 0 && c.url.indexOf('/demo/') < 0);
+      if (!app) return abrir();
+      if (vista) app.postMessage({ tipo: 'ir', vista });
+      return 'focus' in app ? app.focus().catch(abrir) : abrir();
+    }).catch(abrir),
+  ]));
 });
 

@@ -6647,6 +6647,109 @@
     .app.rail .sidebar .brand-icon { cursor: pointer; }
   }
 
+  /* ===== 3.31 · Equipos del día (tarjeta de los jefes/as, sobre la app) ===== */
+  .eqx-ov { z-index: 120; align-items: flex-start; overflow-y: auto; padding: 18px 12px; backdrop-filter: blur(4px); }
+  .eqx { width: min(980px, 100%); margin: auto; background: var(--card); color: var(--ink); border-radius: 26px; overflow: hidden;
+    box-shadow: 0 30px 80px -30px rgba(0,0,0,.6); animation: eqxEntra .45s cubic-bezier(.2,1.2,.4,1); }
+  @keyframes eqxEntra { from { opacity: 0; transform: translateY(26px) scale(.96); } }
+  .eqx-hero { position: relative; overflow: hidden; isolation: isolate; color: #fff; padding: 16px 20px 18px;
+    background: linear-gradient(120deg, #7c3aed, #0d9488 50%, #db2777); background-size: 200% 200%; animation: msFondo 12s ease-in-out infinite; }
+  .eqx-blob { position: absolute; z-index: -1; border-radius: 50%; filter: blur(32px); opacity: .4; animation: msBlob 11s ease-in-out infinite; }
+  .eqx-blob.b1 { width: 220px; height: 220px; background: #fde047; top: -110px; right: 8%; opacity: .3; }
+  .eqx-blob.b2 { width: 180px; height: 180px; background: #22d3ee; bottom: -90px; left: -30px; animation-delay: -4s; }
+  .eqx-blob.b3 { width: 140px; height: 140px; background: #f472b6; top: 30%; right: 40%; animation-delay: -7s; }
+  .eqx-x { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 0; cursor: pointer;
+    background: rgba(255,255,255,.22); color: #fff; font-size: 1rem; transition: transform .2s; }
+  .eqx-x:hover { transform: rotate(90deg) scale(1.08); }
+  .eqx-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-right: 44px; font-size: .74rem; }
+  .eqx-vivo { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+    background: rgba(0,0,0,.22); padding: 4px 10px; border-radius: 999px; }
+  .eqx-vivo i { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 0 rgba(74,222,128,.8); animation: eqxPulso 1.6s infinite; }
+  @keyframes eqxPulso { 70% { box-shadow: 0 0 0 9px rgba(74,222,128,0); } 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
+  .eqx-ult { opacity: .92; background: rgba(255,255,255,.14); padding: 4px 10px; border-radius: 999px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .eqx-hero h2 { margin: 10px 0 6px; font-size: clamp(1.35rem, 4vw, 1.9rem); letter-spacing: -.02em; color: #fff; }
+  .eqx-dia { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.16); padding: 4px; border-radius: 999px; backdrop-filter: blur(6px); }
+  .eqx-dia b { font-size: 1rem; } .eqx-dia small { opacity: .9; }
+  .eqx-dia button { width: 30px; height: 30px; border-radius: 50%; border: 0; background: rgba(255,255,255,.25); color: #fff; font-size: 1.1rem; cursor: pointer; }
+  .eqx-dia button:disabled { opacity: .35; cursor: default; }
+  .eqx-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+  .eqx-kpis span { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.25); border-radius: 14px; padding: 8px 10px; font-size: .72rem; display: flex; flex-direction: column; animation: msSube .5s both; }
+  .eqx-kpis b { font-size: 1.4rem; line-height: 1.1; }
+  .eqx-kpis .mal { background: rgba(254,202,202,.28); } .eqx-kpis .bien { background: rgba(187,247,208,.25); }
+  .eqx-cuerpo { padding: 16px; display: grid; gap: 14px; }
+  .eqx-secs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .eqx-sec { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px; position: relative;
+    border: 1.5px solid color-mix(in srgb, var(--c) 40%, var(--line)); background: color-mix(in srgb, var(--c) 8%, var(--card)); }
+  .eqx-sec > i { font-style: normal; font-size: 1.3rem; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 18%, var(--card)); }
+  .eqx-sec > span:not(.eqx-sec-acc) { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+  .eqx-sec b { font-size: .9rem; } .eqx-sec small { color: var(--muted); font-size: .72rem; }
+  .eqx-sec.ok { background: linear-gradient(135deg, color-mix(in srgb, var(--c) 22%, var(--card)), var(--card)); }
+  .eqx-sec.ok small { color: color-mix(in srgb, var(--c) 80%, var(--ink)); font-weight: 700; }
+  .eqx-sec.mio:not(.ok) { animation: msToca 2s ease-in-out infinite; }
+  .eqx-sec-acc { display: flex; flex: none; gap: 6px; align-items: center; }
+  .eqx-ok { border: 0; border-radius: 999px; padding: 8px 12px; font-weight: 800; color: #fff; cursor: pointer; background: var(--c); box-shadow: 0 8px 18px -10px var(--c); transition: transform .15s; }
+  .eqx-ok:hover { transform: translateY(-1px) scale(1.03); }
+  .eqx-re { border: 1.5px solid color-mix(in srgb, var(--c) 45%, var(--line)); background: var(--card); color: var(--c); border-radius: 50%; width: 34px; height: 34px; font-size: 1rem; cursor: pointer; transition: transform .3s; }
+  .eqx-re:hover { transform: rotate(-180deg); }
+  .eqx-ayuda { margin: 0; color: var(--muted); font-size: .8rem; }
+  .eqx-salas { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+  .eqx-sala { --n: #16a34a; border-radius: 20px; padding: 12px; border: 1.5px solid color-mix(in srgb, var(--n) 35%, var(--line));
+    background: linear-gradient(160deg, color-mix(in srgb, var(--n) 11%, var(--card)), var(--card) 60%); animation: msCarta .5s both; animation-delay: calc(var(--i) * 70ms); }
+  .eqx-sala.n-alta { --n: #e11d48; } .eqx-sala.n-media { --n: #f59e0b; }
+  .eqx-sala > header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; margin-bottom: 6px; }
+  .eqx-sala > header b { font-size: 1.02rem; }
+  .eqx-niv { font-size: .7rem; font-weight: 800; color: #fff; background: var(--n); padding: 2px 8px; border-radius: 999px; }
+  .eqx-sala > header small { color: var(--muted); font-size: .72rem; margin-left: auto; }
+  .eqx-cx { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 3px; }
+  .eqx-cx li { display: flex; gap: 8px; align-items: baseline; font-size: .78rem; }
+  .eqx-cx time { font-variant-numeric: tabular-nums; font-weight: 800; color: var(--n); min-width: 40px; }
+  .eqx-cx span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .eqx-cx em { font-style: normal; }
+  .eqx-eq { display: grid; gap: 6px; }
+  .eqx-slot > button { width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer; padding: 7px 9px; border-radius: 14px;
+    border: 1.5px solid color-mix(in srgb, var(--s) 30%, var(--line)); background: var(--card); color: var(--ink); transition: transform .15s, box-shadow .15s; }
+  .eqx-slot > button:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 10px 20px -14px var(--s); }
+  .eqx-slot > button:disabled { cursor: default; opacity: 1; }
+  .eqx-av { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: .8rem; color: #fff; background: var(--k); }
+  .eqx-tx { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+  .eqx-tx small { font-size: .66rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  .eqx-tx b { font-size: .86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .eqx-lapiz { color: var(--s); font-weight: 800; }
+  .eqx-slot.vacio > button { border-style: dashed; background: color-mix(in srgb, #ef4444 6%, var(--card)); }
+  .eqx-slot.vacio .eqx-av { background: color-mix(in srgb, var(--s) 20%, var(--card)); }
+  .eqx-slot.vacio.suave > button { background: var(--card); }
+  .eqx-slot.vacio:not(.suave) .eqx-tx b { color: #dc2626; }
+  .eqx-slot.edit > button { box-shadow: 0 0 0 3px color-mix(in srgb, var(--s) 35%, transparent); }
+  .eqx-lista { margin-top: 6px; display: grid; gap: 4px; max-height: 260px; overflow-y: auto; padding: 6px; border-radius: 14px;
+    background: color-mix(in srgb, var(--s) 6%, var(--card)); border: 1px solid var(--line); animation: msSube .25s both; }
+  .eqx-lista button { display: grid; grid-template-columns: 30px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; text-align: left;
+    border: 1px solid transparent; background: var(--card); color: var(--ink); border-radius: 10px; padding: 6px 8px; cursor: pointer; }
+  .eqx-lista button:hover, .eqx-lista button.on { border-color: var(--s); }
+  .eqx-lista i { grid-row: span 2; width: 30px; height: 30px; border-radius: 50%; background: var(--k); color: #fff; font-style: normal; font-size: .72rem; font-weight: 800; display: grid; place-items: center; }
+  .eqx-lista b { font-size: .84rem; } .eqx-lista small { font-size: .7rem; color: var(--muted); }
+  .eqx-lista p { margin: 6px; font-size: .8rem; color: var(--muted); }
+  .eqx-lista .eqx-vaciar { display: block; text-align: center; color: #dc2626; font-weight: 700; font-size: .8rem; }
+  .eqx-vacio { text-align: center; padding: 30px 10px; display: grid; gap: 4px; color: var(--muted); }
+  .eqx-vacio span { font-size: 2.4rem; } .eqx-vacio b { color: var(--ink); }
+  .eqx-hist { font-size: .78rem; color: var(--muted); }
+  .eqx-hist summary { cursor: pointer; font-weight: 700; }
+  .eqx-hist div { display: grid; grid-template-columns: 46px minmax(0, 140px) 1fr; gap: 8px; padding: 3px 0; border-bottom: 1px dashed var(--line); }
+  .eqx-btn { display: flex; align-items: center; gap: 12px; width: 100%; margin: 0 0 12px; padding: 10px 14px; border: 0; border-radius: 18px; cursor: pointer; color: #fff; text-align: left;
+    background: linear-gradient(120deg, #7c3aed, #0d9488 55%, #db2777); background-size: 200% 200%; animation: msFondo 10s ease-in-out infinite; box-shadow: 0 14px 30px -18px #7c3aed; }
+  .eqx-btn > span:nth-child(2) { display: flex; flex-direction: column; flex: 1; }
+  .eqx-btn b { font-size: .98rem; } .eqx-btn small { opacity: .92; font-size: .76rem; }
+  .eqx-btn-ic { font-size: 1.5rem; width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; background: rgba(255,255,255,.2); animation: msLatido 2.4s ease-in-out infinite; }
+  .eqx-btn-fl { font-size: 1.5rem; }
+  @media (max-width: 720px) {
+    .eqx-ov { padding: 0; }
+    .eqx { border-radius: 0; min-height: 100%; }
+    .eqx-secs { grid-template-columns: 1fr; }
+    .eqx-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .eqx-salas { grid-template-columns: 1fr; }
+    .eqx-cuerpo { padding: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .eqx, .eqx-hero, .eqx-blob, .eqx-vivo i, .eqx-sec, .eqx-sala, .eqx-btn, .eqx-btn-ic, .eqx-kpis span { animation: none !important; } }
+
 </style>
 </head>
 <body data-tema="sobrio">
@@ -9283,7 +9386,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.30.0';
+const APP_VERSION = '3.31.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11420,6 +11523,7 @@ function calcRecordatorios() {
   try { anestRecordatorios(add); } catch (e) {}
   // 3.30 · Guardias de Enfermería e Instrumentación: la víspera y el pedido mensual.
   try { guRecordatorios(add); } catch (e) {}
+  try { eqRecordatorios(add); } catch (e) {}
   // 3.30 · Felicitaciones recibidas de la Jefatura de Anestesiología.
   try { saludosRecordatorios(add); } catch (e) {}
   // 3.22 · Recorrido de la cirugía: «Le toca» y los pedidos de firma de un compañero.
@@ -11525,7 +11629,7 @@ function notificarCriticos() {
     if (remNotificados[r.key] === hoy) return;
     if (remEsLeido(r)) return;   // ya lo miró: no se le vuelve a saltar al dispositivo
     remNotificados[r.key] = hoy;
-    mostrarNotifSistema('HRU Quirófanos — ' + r.titulo, { body: r.texto, tag: r.key }, () => {
+    mostrarNotifSistema('HRU Quirófanos — ' + r.titulo, { body: r.texto, tag: r.key, data: { vista: r.vista || 'recordatorios' } }, () => {
       if (r.reclamo) { reclamoAbierto = reclamoPermitido(r.reclamo) ? r.reclamo : null; go('reclamos'); marcarReclamoLeido(r.reclamo); }
       else go(r.vista || 'recordatorios');
     });
@@ -11642,6 +11746,8 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('message', (e) => {
     const d = e.data || {};
     if (d.tipo === 'aviso-cierre' && d.voz) decirEnVoz(d.voz);
+    // 3.31 · Se tocó un aviso con la app ya abierta: el worker la trae al frente y pide ir a la pantalla del aviso.
+    if (d.tipo === 'ir' && /^[a-z]+$/.test(d.vista || '') && (d.vista === 'propuesta' || VIEWS[d.vista])) go(d.vista);
   });
 }
 const AYUDA_NOTIF_BLOQUEADAS = `El navegador de este equipo tiene bloqueadas las notificaciones de la app, y una vez bloqueadas ya no vuelve a preguntar. Para habilitarlas:
@@ -12577,6 +12683,8 @@ function volverAtras() {
 }
 
 function go(v, silencioso) {
+  // 3.31 · «Equipos del día» no es una pantalla: es una ventana que se abre sobre la que esté.
+  if (v === 'propuesta') { closeDrawer(); eqPendiente = true; setTimeout(eqAlAbrir, 0); if (view && VIEWS[view] && view !== 'propuesta') return; v = 'panel'; }
   const vistaPrevia = view;
   // La franja provisional se resuelve antes de irse a otra pantalla.
   if (view === 'consentimientos' && v !== 'consentimientos' && turnoProvisionalDelFormulario()) {
@@ -12634,6 +12742,7 @@ function go(v, silencioso) {
 }
 function vistaDelHash() {
   const h = location.hash.replace('#', '');
+  if (h === 'propuesta') return 'propuesta';   // 3.31 · abre la tarjeta «Equipos del día»
   return VIEWS[h] ? h : 'panel';
 }
 
@@ -12837,6 +12946,7 @@ function renderSala() {
       </div>
       ${guTiraHTML(salaDia)}
     </section>
+    ${eqBotonHTML()}
     ${flujoLista(salaDia, 'sala')}
   </div>`;
 }
@@ -13318,7 +13428,7 @@ function renderAnestesia(embebido) {
   // 3.27.1 · Estilo infografía: las entradas animadas corren solo al cambiar de solapa o de día.
   const clave = anestTab + '|' + anestDia + '|' + (embebido ? 'e' : 'p');
   const entra = anxUltima !== clave; anxUltima = clave;
-  const html = `<div class="anx${entra ? ' anx-entra' : ''}">${anxHeroHTML(u, embebido)}${tabsHTML}<div class="anx-cuerpo">${cuerpo}</div></div>`;
+  const html = `<div class="anx${entra ? ' anx-entra' : ''}">${anxHeroHTML(u, embebido)}${embebido ? '' : eqBotonHTML()}${tabsHTML}<div class="anx-cuerpo">${cuerpo}</div></div>`;
   setTimeout(anxAnimar, 0);
   if (embebido) return html;
   $('main').innerHTML = html;
@@ -13993,13 +14103,14 @@ function anestMesHTML() {
     ${paso === 4 ? validacion + `
     ${d0 && d0.h && d0.h.length ? `<details class="an-audit"><summary>Auditoría de la disponibilidad (${d0.h.length})</summary>${d0.h.slice().reverse().map((x) => { const [t, q, a] = String(x).split('|'); return `<div><small>${esc(fmtDT(t))}</small><b>${esc(q)}</b><span>${esc(a)}</span></div>`; }).join('')}</details>` : ''}` : ''}`;
 }
-async function anestGuardarDisp(ym, cambio, accion) {
+async function anestGuardarDisp(ym, cambio, accion, mantenerEstado) {
   const base = anestCache.disp[ym] && !anestCache.disp[ym].error ? JSON.parse(JSON.stringify(anestCache.disp[ym])) : { est: 'borrador', d: {}, p: {}, h: [] };
   cambio(base);
   base.t = nowDT(); base.por = anestQuien();
   base.h = (base.h || []).concat([`${nowDT()}|${anestQuien()}|${accion}`]).slice(-120);
   // Si la cambia el Jefe/a de Anestesiología después de validada, vuelve a «enviada».
-  if (base.est === 'validada' && !jefe && accion.indexOf('Validó') !== 0) base.est = 'enviada';
+  // 3.31 · El ajuste del día desde «Equipos del día» no vuelve a pedir validación del mes.
+  if (base.est === 'validada' && !jefe && !mantenerEstado && accion.indexOf('Validó') !== 0) base.est = 'enviada';
   try { await anestEscribir('disp/' + ym, base); }
   catch (e) { alert('No se pudo guardar la disponibilidad.' + (e && e.code === 'PERMISSION_DENIED' ? '\n\n(La base todavía no tiene las reglas de Anestesiología publicadas.)' : '')); return; }
   anestCache.disp[ym] = base;
@@ -14334,6 +14445,7 @@ function renderPortales() {
     : portalJefeSectorHTML(portalTab) + `<details class="pq-gu" open><summary>🛡️ Guardias del mes de ${esc(GU_SECT[portalTab].n)}</summary>${guardiasHTML(portalTab)}</details>` + portalEquipoHTML(portalTab);
   $('main').innerHTML = `
     <div class="fl-cabecera"><div>${flYoChip(jefe ? 'Jefatura de Quirófanos' : 'solo lectura')}<h1>Portales del equipo</h1></div>${['dia', 'enf', 'inst'].includes(portalTab) ? flDiaNav('salaDia', salaDia) : ''}</div>
+    ${eqBotonHTML()}
     <div class="fl-tabs pq-tabs" role="tablist">${PORTAL_TABS.map(([k, t]) => `<button role="tab" aria-selected="${portalTab === k}" class="${portalTab === k ? 'on' : ''}" onclick="portalTab='${k}';flAbierta=null;guPincel=null;renderPortales()">${t}</button>`).join('')}</div>
     ${cuerpo}`;
 }
@@ -14700,6 +14812,7 @@ function renderGuardias() {
   $('main').innerHTML = `<div class="fl-cabecera"><div>${flYoChip('Guardias')}<h1>Guardias del mes</h1></div></div>
     ${sinNotif ? `<div class="banner banner-amber">${ico(ICONS.bell, 18)}<div><strong>Active las notificaciones</strong> para recibir la víspera de cada guardia «Mañana está de guardia con …» aunque la app esté cerrada. Mientras tanto, le llega por correo. <button class="btn btn-sm btn-outline" onclick="go('recordatorios')">Activarlas</button></div></div>` : ''}
     ${guTiraHTML(hoyISO())}
+    ${eqBotonHTML()}
     <div class="fl-tabs pq-tabs" role="tablist">${tabs.map(([k, t]) => `<button role="tab" aria-selected="${guSect === k}" class="${guSect === k ? 'on' : ''}" onclick="guSect='${k}';guPincel=null;renderGuardias()">${t}</button>`).join('')}</div>
     ${guardiasHTML(guSect)}`;
 }
@@ -14750,6 +14863,381 @@ function guRecordatorios(add) {
     if (jefe && est === 'enviada') add({ key: `gu-val-${s}-${prox}`, nivel: 'warn', notif: true, vista: 'portales',
       titulo: `Validar las guardias de ${q.n} de ${nombreMes(prox)}`, texto: `El/la ${q.jefeN} las envió. Revíselas en Portales del equipo: valídelas o devuélvalas.`, cuando: 'Enviada' });
   });
+}
+
+/* ================= 3.31 · EQUIPOS DEL DÍA (propuesta automática) =================
+   Pedido de Claudio (20-10-2026): la app arma SOLA, para cada sala con cirugías
+   programadas, un/a anestesiólogo/a, un/a enfermero/a (técnico/a de anestesia) y
+   una o dos instrumentadoras, y se lo manda la noche anterior (20 h) a los
+   Jefes/as de Anestesiología, Enfermería de Quirófano e Instrumentación en una
+   tarjeta que se abre sobre la app. Cada jefe/a cambia a su gente y confirma; los
+   tres lo ven cambiar en vivo.
+
+   Cómo elige (es una PROPUESTA: la decisión es de cada jefe/a):
+     · Salas ordenadas por complejidad: prioridad «alta complejidad / pediatría»,
+       urgencias, implantes, arco en C, hemoderivados, duración y cantidad.
+     · Anestesiología: primero lo que dice la grilla del mes para esa sala; si la
+       sala no tiene a nadie, la persona libre con menos cirugías en 30 días.
+     · Enfermería: una persona por sala, la de menos carga primero.
+     · Instrumentación: primero UNA por sala (de la más compleja a la más simple);
+       las que sobran van de 2.ª (circulante) a las salas más complejas. Sin 2.ª,
+       circula el/la enfermero/a (regla de la 3.30).
+     · Quien está de guardia ese día o sale de la guardia de la noche va al final
+       de la lista: solo se usa si no alcanza el resto (y nunca de 2.ª circulante).
+     · Solo gente con cuenta autorizada (la que trabaja en quirófano y usa la app).
+     · Una persona, una sala.
+   Al confirmar: Enfermería e Instrumentación quedan anotadas en cada cirugía de
+   la sala (c.equipoSala, marcadas `prop` para que una nueva confirmación las pueda
+   corregir; lo que la persona anotó a mano no se pisa) y Anestesiología queda en
+   la grilla del día.
+
+   EN LA BASE (texto corto, como anestesia/disp; sin datos de pacientes):
+     equipos/<AAAA-MM-DD> = { s: { Q2: 'an=k;e=k;i=k;c=k' }, p: { k: 'Nombre' },
+                              ok: { anest|enf|inst: 'Nombre|iso' }, t, por, h: ['HH:MM|quién|qué'] } */
+const EQ_HORA = 20;
+const EQ_PUESTOS = [
+  { id: 'an', s: 'anest', n: 'Anestesiología', i: '💤' },
+  { id: 'e', s: 'enf', n: 'Enfermería · téc. anestesia', i: '💉' },
+  { id: 'i', s: 'inst', n: 'Instrumentación', i: '🩺' },
+  { id: 'c', s: 'inst', n: 'Circulante (2.ª inst.)', i: '🧭' },
+];
+const EQ_SECT = { anest: { n: 'Anestesiología', i: '💤', c: '#7c3aed' }, enf: { n: 'Enfermería', i: '💉', c: '#0d9488' }, inst: { n: 'Instrumentación', i: '🩺', c: '#db2777' } };
+const EQ_NIVEL = { alta: '🔥 Alta complejidad', media: '⚡ Complejidad media', baja: '🌿 Baja complejidad' };
+let eqDia = null, eqDoc = null, eqOyente = null, eqEdit = null, eqGenerando = false, eqPendiente = location.hash === '#propuesta';
+const eqCache = {};
+
+function eqSoyJefeDe(s) { const u = usuarioActual(); return !!jefe || (s === 'anest' ? esJefeAnest(u) : esJefeSector(u, s)); }
+function eqMisSectores() { return ['anest', 'enf', 'inst'].filter(eqSoyJefeDe); }
+function eqPuedeVer() { return !!director || eqMisSectores().length > 0; }
+function eqHash(t) { let h = 0; for (const ch of String(t)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; }
+/* Puntos de complejidad de una cirugía. */
+function eqPuntos(c) {
+  let p = 1; const r = c.recursos || {}, m = Number(c.duracionMin) || 0, pr = Number(c.prioridad);
+  if (pr === 3 || (c.paciente && c.paciente.pediatrico)) p += 3;
+  if (pr === 1 || pr === 2) p += 2;
+  if (r.implante) p++; if (r.arcoC) p++; if (r.hemoderivados) p++;
+  return p + (m >= 180 ? 2 : m >= 120 ? 1 : 0);
+}
+/* Las salas del día con cirugías, de la más compleja a la más simple. */
+function eqSalas(d) {
+  const por = {};
+  salaCirugias(d).forEach((c) => { (por[c.sala] = por[c.sala] || []).push(c); });
+  return Object.entries(por).map(([id, cx]) => {
+    const max = Math.max(...cx.map(eqPuntos)), min = cx.reduce((a, c) => a + (Number(c.duracionMin) || 60), 0);
+    return { id, cx, max, min, pts: max * 2 + cx.length + Math.round(min / 120), nivel: max >= 5 ? 'alta' : max >= 3 ? 'media' : 'baja' };
+  }).sort((a, b) => b.pts - a.pts || a.id.localeCompare(b.id));
+}
+function eqMapas(doc) {
+  const out = {};
+  Object.entries((doc && doc.s) || {}).forEach(([sid, txt]) => {
+    out[sid] = {};
+    String(txt || '').split(';').filter(Boolean).forEach((x) => { const i = x.indexOf('='); if (i > 0) out[sid][x.slice(0, i)] = x.slice(i + 1); });
+  });
+  return out;
+}
+function eqTxt(m) { return EQ_PUESTOS.filter((p) => m && m[p.id]).map((p) => p.id + '=' + m[p.id]).join(';') || '-'; }
+function eqGuardiaKs(s, d) {
+  const ym = d.slice(0, 7);
+  if (s === 'anest') { anestCargarMes(ym); const a = anestCache.disp[ym], m = a && !a.error ? dispDia(a, d) : {}; return m.GUA ? [m.GUA] : []; }
+  guCargar(s, ym); const b = guDisp(s, ym); return Object.values(b ? dispDia(b, d) : {});
+}
+/* Cirugías en las que estuvo en los 30 días anteriores: reparte la carga. */
+function eqCarga(email, d) {
+  const desde = sumarDias(d, -30);
+  return DB.cirugias.filter((c) => c.fecha >= desde && c.fecha < d && ((c.anest && c.anest.e === email) || Object.values(c.equipoSala || {}).some((p) => p && p.email === email))).length;
+}
+/* La gente del sector con cuenta autorizada, en el orden en que la app la elige. */
+function eqGente(s, d) {
+  const plantel = s === 'anest' ? anestPlantel() : guPlantel(s);
+  const gd = eqGuardiaKs(s, d), gs = eqGuardiaKs(s, sumarDias(d, -1));
+  return plantel.map((u) => { const k = anestK(u.email); return { k, n: u.nombre, gua: gd.includes(k), sal: gs.includes(k), carga: eqCarga(u.email, d) }; })
+    .sort((a, b) => (Number(a.gua) + Number(a.sal)) - (Number(b.gua) + Number(b.sal)) || a.carga - b.carga || eqHash(a.k + d) - eqHash(b.k + d));
+}
+/* Arma la propuesta: recalcula los puestos de `sect` en las salas `salasRe`; el resto queda como está. */
+function eqProponer(d, actual, salasRe, sect) {
+  const salas = eqSalas(d), out = {};
+  salas.forEach((x) => {
+    out[x.id] = Object.assign({}, actual[x.id] || {});
+    if (salasRe.includes(x.id)) EQ_PUESTOS.forEach((p) => { if (sect.includes(p.s)) delete out[x.id][p.id]; });
+  });
+  const usados = new Set();
+  Object.values(out).forEach((m) => Object.values(m).forEach((k) => { if (k) usados.add(k); }));
+  const re = salas.filter((x) => salasRe.includes(x.id));
+  const tomar = (l) => { while (l.length) { const g = l.shift(); if (!usados.has(g.k)) { usados.add(g.k); return g.k; } } return ''; };
+  if (sect.includes('anest')) {
+    const ym = d.slice(0, 7), a = anestCache.disp[ym], grilla = a && !a.error ? dispDia(a, d) : {};
+    re.forEach((x) => { const k = grilla[x.id]; if (k && !usados.has(k)) { out[x.id].an = k; usados.add(k); } });
+    const l = eqGente('anest', d);
+    re.forEach((x) => { if (!out[x.id].an) { const k = tomar(l); if (k) out[x.id].an = k; } });
+  }
+  if (sect.includes('enf')) { const l = eqGente('enf', d); re.forEach((x) => { const k = tomar(l); if (k) out[x.id].e = k; }); }
+  if (sect.includes('inst')) {
+    const l = eqGente('inst', d);
+    re.forEach((x) => { const k = tomar(l); if (k) out[x.id].i = k; });
+    // La 2.ª (circulante) es opcional: no se le saca a la guardia quien tiene que cubrir las urgencias.
+    const l2 = l.filter((g) => !g.gua);
+    re.forEach((x) => { if (!out[x.id].i) return; const k = tomar(l2); if (k) out[x.id].c = k; });
+  }
+  return out;
+}
+function eqNombre(k) {
+  const ym = (eqDia || hoyISO()).slice(0, 7), a = anestCache.disp[ym];
+  return nombreDeK(k, { p: Object.assign({}, a && !a.error ? a.p : {}, eqDoc && eqDoc.p) });
+}
+/* ---- Base ---- */
+function eqLocal() { try { return JSON.parse(localStorage.getItem('hruq_equipos') || '{}'); } catch (e) { return {}; } }
+async function eqLeer(d) {
+  if (cloudOn) return (await firebase.database().ref('equipos/' + d).once('value')).val();
+  return eqLocal()[d] || null;
+}
+async function eqGuardar(d, cambio, accion) {
+  const aplicar = (cur) => {
+    const b = cur ? JSON.parse(JSON.stringify(cur)) : {};
+    b.s = b.s || {}; b.p = b.p || {}; b.ok = b.ok || {};
+    cambio(b);
+    Object.values(eqMapas(b)).forEach((m) => Object.values(m).forEach((k) => { if (k && !b.p[k]) b.p[k] = eqNombre(k); }));
+    b.t = nowDT(); b.por = anestQuien();
+    b.h = (b.h || []).concat([`${nowDT().slice(11, 16)}|${anestQuien()}|${accion}`]).slice(-80);
+    return b;
+  };
+  try {
+    if (cloudOn) { const r = await firebase.database().ref('equipos/' + d).transaction((cur) => aplicar(cur)); eqDoc = r.snapshot.val(); }
+    else {
+      const L = eqLocal(), b = aplicar(L[d] || null); L[d] = b;
+      Object.keys(L).sort().slice(0, -14).forEach((x) => delete L[x]);
+      localStorage.setItem('hruq_equipos', JSON.stringify(L)); eqDoc = b;
+    }
+  } catch (e) {
+    alert('No se pudo guardar el equipo.' + (e && /PERMISSION/i.test(String(e.code || e.message || e)) ? '\n\n(La base todavía no tiene publicadas las reglas de Equipos del día.)' : ''));
+    return false;
+  }
+  eqCache[d] = eqDoc;
+  eqPintar();
+  if (typeof revisarRecordatorios === 'function') revisarRecordatorios();
+  return true;
+}
+/* Si hay salas con cirugías que todavía no tienen propuesta, la arma sola. */
+function eqListos(d) { const ym = d.slice(0, 7); return anestCache.disp[ym] !== undefined && guCache['enf|' + ym] !== undefined && guCache['inst|' + ym] !== undefined; }
+function eqAsegurar(intento) {
+  const d = eqDia;
+  if (!d || eqGenerando || (eqDoc && eqDoc.error) || !eqMisSectores().length) return;
+  const salas = eqSalas(d), hechas = (eqDoc && eqDoc.s) || {};
+  const faltan = salas.filter((x) => !hechas[x.id]).map((x) => x.id);
+  if (!faltan.length) return;
+  if (!eqListos(d)) { if ((intento || 0) < 30) setTimeout(() => { if (eqDia === d) eqAsegurar((intento || 0) + 1); }, 300); return; }
+  eqGenerando = true;
+  eqGuardar(d, (b) => {
+    const prop = eqProponer(d, eqMapas(b), faltan, ['anest', 'enf', 'inst']);
+    faltan.forEach((sid) => { if (!b.s[sid]) b.s[sid] = eqTxt(prop[sid]); });
+  }, eqDoc && eqDoc.s ? `Propuesta automática para ${faltan.join(', ')} (cirugías nuevas)` : 'Propuesta automática').finally(() => { eqGenerando = false; });
+}
+/* ---- La tarjeta (ventana sobre la app) ---- */
+function eqSoltar() { if (eqOyente) { try { eqOyente(); } catch (e) {} eqOyente = null; } }
+function eqEscuchar() {
+  eqSoltar();
+  const d = eqDia;
+  const llego = (v) => { if (d !== eqDia) return; eqDoc = v || null; eqCache[d] = eqDoc; eqPintar(); eqAsegurar(); };
+  if (cloudOn) {
+    const ref = firebase.database().ref('equipos/' + d);
+    const fn = ref.on('value', (sn) => llego(sn.val()), (e) => { eqDoc = { error: (e && e.code) || 'red' }; eqPintar(); });
+    eqOyente = () => ref.off('value', fn);
+  } else {
+    eqLeer(d).then(llego);
+    const fn = (e) => { if (e.key === 'hruq_equipos') llego(eqLocal()[d]); };
+    window.addEventListener('storage', fn);
+    eqOyente = () => window.removeEventListener('storage', fn);
+  }
+}
+function eqAbrir(d) {
+  eqPendiente = false;
+  if (!eqPuedeVer()) {
+    avisar('Equipos del día\n\nEsta tarjeta es de la Jefatura de Quirófanos y de los/las Jefes/as de Anestesiología, Enfermería de Quirófano e Instrumentación. Ingrese con esa cuenta para verla.');
+    return;
+  }
+  eqDia = d || sumarDias(hoyISO(), 1);
+  eqEdit = null;
+  const ym = eqDia.slice(0, 7);
+  anestCargarMes(ym); guCargar('enf', ym); guCargar('inst', ym);
+  let ov = $('eqx-ov');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.className = 'overlay eqx-ov'; ov.id = 'eqx-ov';
+    ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Equipos del día');
+    ov.addEventListener('click', (e) => { if (e.target === ov) eqCerrar(); });
+    document.body.appendChild(ov);
+  }
+  ov.classList.add('open');
+  eqDoc = eqCache[eqDia] || null;
+  eqPintar();
+  eqEscuchar();
+}
+function eqCerrar() { const ov = $('eqx-ov'); if (ov) ov.classList.remove('open'); eqSoltar(); eqEdit = null; if (view && VIEWS[view]) VIEWS[view](); }
+function eqCambiarDia(n) {
+  const h = hoyISO(), nd = sumarDias(eqDia, n);
+  if (nd < h || nd > sumarDias(h, 7)) return;
+  eqAbrir(nd);
+}
+function eqEditar(sid, pid) { eqEdit = eqEdit && eqEdit.sala === sid && eqEdit.p === pid ? null : { sala: sid, p: pid }; eqPintar(); }
+function eqElegir(sid, pid, k) {
+  const p = EQ_PUESTOS.find((x) => x.id === pid);
+  if (!p || !eqSoyJefeDe(p.s)) return;
+  eqEdit = null;
+  const n = k ? eqNombre(k) : '';
+  eqGuardar(eqDia, (b) => {
+    const m = eqMapas(b); m[sid] = m[sid] || {};
+    const antes = m[sid][pid] || '';
+    // Una persona, una sala: si estaba en otro lado, se intercambian los lugares.
+    if (k) Object.entries(m).forEach(([s2, m2]) => Object.keys(m2).forEach((p2) => {
+      if (m2[p2] === k && !(s2 === sid && p2 === pid)) { if (antes) m2[p2] = antes; else delete m2[p2]; }
+    }));
+    if (k) m[sid][pid] = k; else delete m[sid][pid];
+    Object.keys(m).forEach((s2) => { if (b.s[s2] !== undefined || s2 === sid) b.s[s2] = eqTxt(m[s2]); });
+    delete b.ok[p.s];   // un cambio pide volver a confirmar ese sector
+  }, `${p.n} de ${sid}: ${n || 'vacío'}`);
+}
+async function eqRehacer(s) {
+  if (!eqSoyJefeDe(s)) return;
+  if (!(await preguntar(`¿Volver a armar la propuesta de ${EQ_SECT[s].n}?\n\nLa app elige de nuevo, con los mismos criterios, en todas las salas del día. Lo de los otros sectores no cambia.`, { titulo: 'Rehacer la propuesta', tono: 'pregunta', si: 'Rehacer', no: 'Cancelar' }))) return;
+  const salas = eqSalas(eqDia).map((x) => x.id);
+  eqGuardar(eqDia, (b) => {
+    const prop = eqProponer(eqDia, eqMapas(b), salas, [s]);
+    salas.forEach((sid) => { b.s[sid] = eqTxt(prop[sid]); });
+    delete b.ok[s];
+  }, 'Rehízo la propuesta de ' + EQ_SECT[s].n);
+}
+async function eqConfirmar(s) {
+  if (!eqSoyJefeDe(s)) return;
+  const d = eqDia, salas = eqSalas(d), m = eqMapas(eqDoc);
+  const falta = salas.filter((x) => EQ_PUESTOS.some((p) => p.s === s && p.id !== 'c' && !(m[x.id] || {})[p.id])).map((x) => anestNomFila(sala(x.id)));
+  if (falta.length && !(await preguntar(`Quedan sin ${EQ_SECT[s].n.toLowerCase()}: ${falta.join(', ')}.\n\n¿Confirmar igual?`, { titulo: 'Falta gente', tono: 'pregunta', si: 'Confirmar igual', no: 'Volver' }))) return;
+  if (!(await eqGuardar(d, (b) => { b.ok[s] = anestQuien() + '|' + nowDT(); }, 'Confirmó ' + EQ_SECT[s].n))) return;
+  eqAplicar(s, d, salas, eqMapas(eqDoc));
+  if (typeof toastTurno === 'function') toastTurno(`✓ ${EQ_SECT[s].n}: equipo confirmado`, EQ_SECT[s].c);
+}
+/* Lo confirmado pasa a cada cirugía (Enfermería e Instrumentación) o a la grilla del día (Anestesiología). */
+function eqAplicar(s, d, salas, m) {
+  if (s === 'anest') {
+    const ym = d.slice(0, 7);
+    anestGuardarDisp(ym, (b) => {
+      const dm = dispDia(b, d);
+      salas.forEach((x) => { const k = (m[x.id] || {}).an; if (k) { dm[x.id] = k; b.p = b.p || {}; b.p[k] = eqNombre(k); } });
+      dispSetDia(b, d, dm);
+    }, `Equipos del día ${Number(d.slice(8))}: confirmó las salas`, true);
+    return;
+  }
+  salas.forEach((x) => {
+    const mm = m[x.id] || {};
+    x.cx.forEach((c) => {
+      c.equipoSala = c.equipoSala || {};
+      let cambio = false;
+      const poner = (pu, k) => {
+        const prev = c.equipoSala[pu];
+        if (prev && !prev.prop) return;   // lo que la persona anotó a mano no se pisa
+        const u = k ? DB.usuarios.find((z) => anestK(z.email) === k) : null;
+        if (!u) { if (prev && prev.prop) { delete c.equipoSala[pu]; cambio = true; } return; }
+        if (prev && prev.email === u.email) return;
+        c.equipoSala[pu] = { nombre: u.nombre, email: u.email, f: funcionDe(u), t: nowDT(), prop: 1 };
+        cambio = true;
+      };
+      if (s === 'enf') { poner('tecAnestesia', mm.e); if (!mm.c) { const pc = c.equipoSala.circulante; if (!pc || (pc.prop && pc.f === 'enfermeria')) poner('circulante', mm.e); } }
+      else { poner('instrumentadora', mm.i); if (mm.c) poner('circulante', mm.c); }
+      if (cambio) { pushHist(c, `Equipo de sala (${EQ_SECT[s].n}) asignado por ${anestQuien()} desde «Equipos del día»`); upsert('cirugias', c); }
+    });
+  });
+}
+function eqSlotHTML(x, p, mm) {
+  const k = mm[p.id], n = k ? eqNombre(k) : '', puede = eqSoyJefeDe(p.s);
+  const edit = eqEdit && eqEdit.sala === x.id && eqEdit.p === p.id;
+  const vacioTxt = p.id === 'c' ? (mm.e ? 'Circula el/la enfermero/a' : 'Sin 2.ª instrumentador/a') : 'Sin asignar';
+  return `<div class="eqx-slot ${k ? '' : 'vacio'} ${p.id === 'c' && !k ? 'suave' : ''} ${edit ? 'edit' : ''}" style="--k:${k ? anestColor(k) : 'var(--muted)'};--s:${EQ_SECT[p.s].c}">
+    <button type="button" ${puede ? `onclick="eqEditar('${x.id}','${p.id}')" aria-expanded="${edit}"` : 'disabled'}>
+      <span class="eqx-av">${k ? esc(anestIniciales(n)) : p.i}</span>
+      <span class="eqx-tx"><small>${p.i} ${esc(p.n)}</small><b>${k ? esc(n) : vacioTxt}</b></span>
+      ${puede ? '<span class="eqx-lapiz" aria-hidden="true">✎</span>' : ''}</button>
+    ${edit ? eqListaHTML(x, p, k) : ''}</div>`;
+}
+function eqListaHTML(x, p, kAct) {
+  const donde = {};
+  Object.entries(eqMapas(eqDoc)).forEach(([sid, mm]) => Object.values(mm).forEach((k) => { donde[k] = sid; }));
+  const l = eqGente(p.s, eqDia);
+  return `<div class="eqx-lista" role="listbox">${l.map((g) => {
+    const en = donde[g.k];
+    return `<button type="button" role="option" aria-selected="${g.k === kAct}" class="${g.k === kAct ? 'on' : ''}" onclick="eqElegir('${x.id}','${p.id}','${esc(g.k)}')">
+      <i style="--k:${anestColor(g.k)}">${esc(anestIniciales(g.n))}</i><b>${esc(g.n)}</b>
+      <small>${en ? (en === x.id ? 'en esta sala' : '↔ está en ' + esc(anestNomFila(sala(en)))) : '✓ libre'}${g.gua ? ' · 🛡️ de guardia' : ''}${g.sal ? ' · sale de guardia' : ''} · ${g.carga} cx en 30 días</small></button>`;
+  }).join('') || `<p>No hay cuentas autorizadas de ${esc(EQ_SECT[p.s].n)}.</p>`}
+  ${kAct ? `<button type="button" class="eqx-vaciar" onclick="eqElegir('${x.id}','${p.id}','')">Dejar vacío</button>` : ''}</div>`;
+}
+function eqPintar() {
+  const ov = $('eqx-ov');
+  if (!ov || !ov.classList.contains('open')) { eqSoltar(); return; }
+  const d = eqDia, h0 = hoyISO(), salas = eqSalas(d), m = eqMapas(eqDoc), ok = (eqDoc && !eqDoc.error && eqDoc.ok) || {};
+  const hist = (eqDoc && eqDoc.h) || [], ult = hist.length ? String(hist[hist.length - 1]).split('|') : null;
+  const ncx = salas.reduce((a, x) => a + x.cx.length, 0);
+  const asign = salas.reduce((a, x) => a + EQ_PUESTOS.filter((p) => (m[x.id] || {})[p.id]).length, 0);
+  const huecos = salas.reduce((a, x) => a + EQ_PUESTOS.filter((p) => p.id !== 'c' && !(m[x.id] || {})[p.id]).length, 0);
+  const diaTxt = d === h0 ? 'Hoy' : d === sumarDias(h0, 1) ? 'Mañana' : fmtDiaLargo(d);
+  const sec = (s) => {
+    const q = EQ_SECT[s], o = ok[s] ? String(ok[s]).split('|') : null, mio = eqSoyJefeDe(s);
+    return `<div class="eqx-sec ${o ? 'ok' : ''} ${mio ? 'mio' : ''}" style="--c:${q.c}">
+      <i>${q.i}</i><span><b>${q.n}</b><small>${o ? '✓ Confirmó ' + esc(o[0]) + ' · ' + esc(String(o[1] || '').slice(11, 16)) + ' h' : 'Esperando confirmación'}</small></span>
+      ${mio && salas.length && eqDoc && !eqDoc.error ? `<span class="eqx-sec-acc">${o ? '' : `<button type="button" class="eqx-ok" onclick="eqConfirmar('${s}')">✓ Confirmar</button>`}<button type="button" class="eqx-re" title="Rehacer la propuesta de ${q.n}" aria-label="Rehacer la propuesta de ${q.n}" onclick="eqRehacer('${s}')">↻</button></span>` : ''}</div>`;
+  };
+  ov.innerHTML = `<div class="eqx">
+    <header class="eqx-hero">
+      <span class="eqx-blob b1"></span><span class="eqx-blob b2"></span><span class="eqx-blob b3"></span>
+      <button type="button" class="eqx-x" onclick="eqCerrar()" aria-label="Cerrar">✕</button>
+      <div class="eqx-top"><span class="eqx-vivo"><i></i>En vivo</span>${ult ? `<span class="eqx-ult">${esc(ult[0])} · ${esc(ult[1])}: ${esc(ult[2] || '')}</span>` : ''}</div>
+      <h2>🪄 Equipos del día</h2>
+      <div class="eqx-dia"><button type="button" onclick="eqCambiarDia(-1)" ${d <= h0 ? 'disabled' : ''} aria-label="Día anterior">‹</button><b>${esc(diaTxt)}</b><small>${esc(fmtDiaLargo(d))}</small><button type="button" onclick="eqCambiarDia(1)" ${d >= sumarDias(h0, 7) ? 'disabled' : ''} aria-label="Día siguiente">›</button></div>
+      <div class="eqx-kpis"><span><b>${salas.length}</b>salas</span><span><b>${ncx}</b>cirugías</span><span><b>${asign}</b>puestos cubiertos</span><span class="${huecos ? 'mal' : 'bien'}"><b>${huecos}</b>${huecos ? 'sin cubrir' : 'todo cubierto'}</span></div>
+    </header>
+    <div class="eqx-cuerpo">
+      ${eqDoc && eqDoc.error ? `<div class="banner banner-amber"><div><strong>No se pudo leer la base.</strong> ${eqDoc.error === 'PERMISSION_DENIED' ? 'Faltan publicar las reglas de «Equipos del día» en Firebase.' : 'Revise la conexión y vuelva a abrir la tarjeta.'}</div></div>` : ''}
+      <div class="eqx-secs">${['anest', 'enf', 'inst'].map(sec).join('')}</div>
+      ${salas.length ? `<p class="eqx-ayuda">La app eligió sola según la grilla de Anestesiología, las guardias, quién tiene cuenta, la carga de los últimos 30 días y la complejidad de cada sala. ${eqMisSectores().length ? 'Toque un nombre para cambiarlo (si esa persona estaba en otra sala, se intercambian) y después «Confirmar».' : ''}</p>
+      <div class="eqx-salas">${salas.map((x, i) => `<article class="eqx-sala n-${x.nivel}" style="--i:${i}">
+        <header><b>${esc(anestNomFila(sala(x.id)))}</b><span class="eqx-niv">${EQ_NIVEL[x.nivel]}</span><small>${x.cx.length} cirugía${x.cx.length === 1 ? '' : 's'} · ${Math.round(x.min / 60 * 10) / 10} h</small></header>
+        <ol class="eqx-cx">${x.cx.map((c) => `<li><time>${esc(c.horaProg || '—')}</time><span>${esc(c.procedimiento || 'Cirugía')}</span>${eqPuntos(c) >= 5 ? '<em title="Alta complejidad">🔥</em>' : ''}</li>`).join('')}</ol>
+        <div class="eqx-eq">${EQ_PUESTOS.map((p) => eqSlotHTML(x, p, m[x.id] || {})).join('')}</div>
+      </article>`).join('')}</div>`
+    : `<div class="eqx-vacio"><span>🌙</span><b>No hay cirugías programadas ${d === sumarDias(h0, 1) ? 'para mañana' : 'ese día'}.</b><small>Cuando se programen, la app arma sola la propuesta de equipos.</small></div>`}
+      ${hist.length ? `<details class="eqx-hist"><summary>Cambios (${hist.length})</summary>${hist.slice().reverse().map((x) => { const [t, q, a] = String(x).split('|'); return `<div><small>${esc(t)}</small><b>${esc(q)}</b><span>${esc(a || '')}</span></div>`; }).join('')}</details>` : ''}
+    </div></div>`;
+  setTimeout(() => { const l = ov.querySelector('.eqx-slot.edit'); if (l && l.scrollIntoView) l.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 30);
+}
+/* Botón de entrada en Mi Sala, Guardias, Anestesiología y Portales (solo jefes/as). */
+function eqBotonHTML() {
+  if (!eqPuedeVer()) return '';
+  const man = sumarDias(hoyISO(), 1), doc = eqCache[man], mis = eqMisSectores();
+  const pend = doc && doc.ok ? mis.filter((s) => !doc.ok[s]) : mis;
+  const n = eqSalas(man).length;
+  return `<button type="button" class="eqx-btn" onclick="eqAbrir()"><span class="eqx-btn-ic">🪄</span><span><b>Equipos de mañana</b><small>${n ? `${n} sala${n === 1 ? '' : 's'} · ${pend.length ? 'falta confirmar' : '✓ confirmado'}` : 'sin cirugías programadas'}</small></span><span class="eqx-btn-fl">›</span></button>`;
+}
+/* Aviso en la app (y en el teléfono) la noche anterior, desde las 20 h. */
+function eqRecordatorios(add) {
+  const mis = eqMisSectores();
+  if (!mis.length || new Date().getHours() < EQ_HORA) return;
+  const man = sumarDias(hoyISO(), 1), n = eqSalas(man).length;
+  if (!n) return;
+  if (eqCache[man] === undefined) {
+    eqCache[man] = null;
+    eqLeer(man).then((v) => { eqCache[man] = v || null; if (typeof revisarRecordatorios === 'function') revisarRecordatorios(); }).catch(() => {});
+  }
+  const ok = (eqCache[man] && eqCache[man].ok) || {};
+  const pend = mis.filter((s) => !ok[s]);
+  if (!pend.length) return;
+  add({ key: 'equipos-' + man, nivel: jefe ? 'warn' : 'crit', notif: true, vista: 'propuesta',
+    titulo: `Equipos de mañana: revise y confirme ${pend.map((s) => EQ_SECT[s].n).join(', ')}`,
+    texto: `La app ya armó los equipos de las ${n} sala${n === 1 ? '' : 's'} de mañana (${fmtDiaLargo(man)}). Ábrala, cambie a quien haga falta y toque «Confirmar».`,
+    cuando: 'Esta noche' });
+}
+/* Se abrió desde el aviso (…#propuesta): espera a que la sesión esté lista. */
+function eqAlAbrir(intento) {
+  if (!eqPendiente) return;
+  if (eqPuedeVer()) { eqAbrir(); return; }
+  if ((intento || 0) < 40) setTimeout(() => eqAlAbrir((intento || 0) + 1), 250);
+  else { eqPendiente = false; eqAbrir(); }   // sin permiso: eqAbrir explica de quién es la tarjeta
 }
 
 /* ---- Recordatorios de Anestesiología ---- */
@@ -26324,12 +26812,23 @@ function mostrarAvisoActualizacion() {
   const bar = $('update-bar');
   if (bar) bar.classList.add('open');
 }
+/* 3.31 · Arreglo del «parpadeo eterno» al abrir la app desde un aviso. El aviso
+   despierta al service worker y el teléfono aprovecha para bajar la versión
+   nueva; al abrirse, la app la estrenaba y además forzaba una recarga a los
+   1,5 s. Mientras el worker viejo seguía ocupado con el aviso, el nuevo no
+   llegaba a tomar el control, la página volvía a encontrarlo «en espera» y se
+   recargaba otra vez: así, sin fin. Ahora no se fuerza ninguna recarga (la hace
+   `controllerchange` cuando el worker nuevo de verdad toma el control) y, si ya
+   se recargó por una actualización hace menos de 30 s, no se insiste: la
+   versión nueva queda para la próxima vez que se abra la app. */
+function swRecargaReciente() { try { return Date.now() - Number(sessionStorage.getItem('hru_sw_recarga') || 0) < 30000; } catch (e) { return false; } }
+function swMarcarRecarga() { try { sessionStorage.setItem('hru_sw_recarga', String(Date.now())); } catch (e) {} }
 function aplicarActualizacion() {
   const bar = $('update-bar');
+  if (swRecargaReciente()) { if (bar) bar.classList.remove('open'); return; }
   if (bar) $('update-txt').textContent = 'Actualizando…';
   if (swEsperando) swEsperando.postMessage('skipWaiting');
-  // Si el worker no responde, la recarga forzada alcanza igual.
-  setTimeout(() => location.reload(), 1500);
+  setTimeout(() => { if (bar) bar.classList.remove('open'); }, 8000);
 }
 function vigilarWorker(reg) {
   const nuevo = reg.installing || reg.waiting;
@@ -26362,8 +26861,9 @@ function initActualizaciones() {
   const teniaControlador = !!navigator.serviceWorker.controller;
   let recargando = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (recargando || !teniaControlador) return;
+    if (recargando || !teniaControlador || swRecargaReciente()) return;
     recargando = true;
+    swMarcarRecarga();
     location.reload();
   });
 }
@@ -32878,6 +33378,8 @@ document.addEventListener('DOMContentLoaded', () => {
     revisarRecordatorios();
     // 3.26 · Se abrió escaneando la pulsera de un paciente.
     setTimeout(pulseraAlAbrir, 400);
+    // 3.31 · Se abrió tocando el aviso de «Equipos de mañana» (…#propuesta).
+    setTimeout(eqAlAbrir, 500);
     // Recálculo periódico: los plazos dependen del reloj, no solo de los datos.
     if (remTimer) clearInterval(remTimer);
     remTimer = setInterval(revisarRecordatorios, 60000);
