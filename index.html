@@ -991,6 +991,117 @@
   .an-ver button.on[style] { background: var(--k); color: #fff; }
   .an-sig-v { white-space: nowrap; flex: none; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 9px 14px; font: 600 .8rem/1 inherit; font-family: inherit; cursor: pointer; }
   .an-sig-v:hover { border-color: var(--ink); }
+  /* 3.30 · Guardias del mes de Enfermería e Instrumentación */
+  .gu-info { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; margin: 10px 0; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--gc) 35%, var(--line)); background: linear-gradient(135deg, color-mix(in srgb, var(--gc) 12%, var(--card)), var(--card)); }
+  .gu-info .gu-ic { font-size: 1.5rem; } .gu-info b { display: block; font-size: .9rem; color: var(--ink); } .gu-info small { display: block; font-size: .78rem; color: var(--muted); line-height: 1.45; } .gu-info small b { display: inline; font-size: inherit; }
+  .gu .an-g-sala b { white-space: normal; font-size: .72rem; line-height: 1.1; } .gu .an-g-sala small { color: var(--muted); letter-spacing: .02em; text-transform: none; font-size: .58rem; font-weight: 700; }
+  .gu .an-g-sala.opc b { color: var(--muted); }
+  .an-c.opc { background: repeating-linear-gradient(135deg, color-mix(in srgb, #0d9488 14%, transparent) 0 4px, transparent 4px 8px); border: 1px dashed color-mix(in srgb, #0d9488 35%, var(--line)); }
+  .an-c.mia { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--k); animation: guLate 2.4s ease-in-out infinite; }
+  @keyframes guLate { 50% { transform: scale(1.08); } }
+  .gu .an-grid button.an-c { cursor: pointer; }
+  .gu-acc { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
+  .gu-acc .an-tool { flex: 1 1 220px; border: 1px solid var(--line); background: var(--card); }
+  .gu-pop { width: min(330px, calc(100vw - 16px)); }
+  .gu-ficha { display: flex; gap: 12px; padding: 10px 8px; border-radius: 12px; background: color-mix(in srgb, var(--k) 10%, transparent); }
+  .gu-ficha > i { flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font: 900 .9rem/1 inherit; font-style: normal; color: #fff; background: var(--k); box-shadow: 0 6px 14px -8px var(--k); }
+  .gu-ficha b { font-size: .95rem; } .gu-ficha small { display: block; color: var(--muted) !important; font-size: .74rem; }
+  .gu-ficha ul { list-style: none; margin: 6px 0 0; padding: 0; font-size: .78rem; display: grid; gap: 3px; } .gu-ficha a { color: var(--blue, #2563eb); word-break: break-all; }
+  .gu-vacio { margin: 6px 8px; font-size: .82rem; color: var(--muted); }
+  .gu-con { display: flex; flex-direction: column; gap: 4px; padding: 8px; } .gu-con > small, .gu-cambiar { font-size: .66rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) !important; padding: 4px 8px 0; }
+  .an-pop-l .gu-con span { flex: none; display: flex; flex-direction: row; align-items: center; gap: 8px; font-size: .8rem; min-width: 0; } .gu-con span i { width: 24px; height: 24px; font-size: .55rem; border-radius: 7px; background: var(--k); }
+  .an-pop-l .gu-con em { font-style: normal; font-weight: 600; color: var(--muted); font-size: .72rem; } .gu-con .nadie { color: var(--muted); font-style: italic; }
+  .gu-tira { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; width: 100%; margin: 12px 0 4px; padding: 8px 10px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-family: inherit; text-align: left; cursor: pointer; }
+  .gu-tira > small { font-size: .7rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; opacity: .85; width: 100%; }
+  .gu-tira span { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; } .gu-tira span i { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; font: 900 .55rem/1 inherit; font-style: normal; color: #fff; background: var(--k); }
+  .gu-tira em { font-style: normal; opacity: .75; font-size: .7rem; } .gu-tira .gu-nota { padding: 2px 8px; border-radius: 999px; background: rgba(250,204,21,.25); font-size: .7rem; font-weight: 800; }
+  .ms-hero .gu-tira { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.35); color: #fff; backdrop-filter: blur(6px); }
+  .pq-gu { margin: 0 0 14px; } .pq-gu > summary { cursor: pointer; font-weight: 800; padding: 8px 0; color: var(--ink); }
+  /* 3.30 · Ingresos del día de la Jefatura: solo lectura, secuencia en vivo y «Preguntar» */
+  .ij { --ij1: #0f766e; --ij2: #2563eb; --ij3: #ea580c; }
+  .ij-hero { position: relative; overflow: hidden; border-radius: 24px; padding: 18px; color: #fff; margin-bottom: 14px; background: linear-gradient(125deg, var(--ij1), var(--ij2) 55%, var(--ij3)); background-size: 200% 200%; animation: ijFondo 14s ease-in-out infinite; }
+  @keyframes ijFondo { 50% { background-position: 100% 50%; } }
+  .ij-hero h1 { margin: 6px 0 2px; font-size: 1.5rem; color: #fff; } .ij-hero p { margin: 0; opacity: .9; font-size: .86rem; }
+  .ij-vivo { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.18); font-weight: 800; font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; }
+  .ij-vivo i { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 0 rgba(74,222,128,.7); animation: ijLuz 1.6s infinite; }
+  @keyframes ijLuz { 70% { box-shadow: 0 0 0 8px rgba(74,222,128,0); } 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
+  .ij-hero-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 10px; }
+  .ij-dias { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,.18); }
+  .ij-dias button { border: 0; border-radius: 999px; padding: 7px 14px; background: none; color: #fff; font-weight: 700; font-size: .8rem; font-family: inherit; cursor: pointer; } .ij-dias button.on { background: #fff; color: var(--ij2); }
+  .ij-kpis { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 14px; align-items: stretch; }
+  .ij-kpis > div { border-radius: 16px; padding: 10px; background: rgba(255,255,255,.16); display: flex; flex-direction: column; justify-content: center; }
+  .ij-kpis b { font-size: 1.4rem; line-height: 1; } .ij-kpis small { font-size: .7rem; opacity: .85; } .ij-kpis .mal { background: rgba(254,202,202,.32); }
+  .ij-kpis .ij-anillo { width: 74px; aspect-ratio: 1; border-radius: 50%; align-items: center; background: conic-gradient(#fff calc(var(--p) * 360deg), rgba(255,255,255,.2) 0); position: relative; padding: 0; }
+  .ij-anillo::before { content: ''; position: absolute; inset: 7px; border-radius: 50%; background: color-mix(in srgb, var(--ij2) 80%, #000); }
+  .ij-kpis .ij-anillo b { position: relative; font-size: 1rem; } .ij-kpis .ij-anillo small { position: relative; font-size: .55rem; }
+  .ij-env { display: block; width: 100%; margin-top: 12px; padding: 9px 12px; border: 1px solid rgba(255,255,255,.35); border-radius: 12px; background: rgba(0,0,0,.12); color: #fff; font-weight: 600; font-size: .8rem; line-height: 1.3; font-family: inherit; text-align: left; cursor: pointer; }
+  .ij-libres { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; } .ij-libres span { padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.92); color: var(--c); font-size: .74rem; font-weight: 700; }
+  .ij-cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 14px; align-items: start; }
+  @media (max-width: 860px) { .ij-cols { grid-template-columns: 1fr; } .ij-kpis { grid-template-columns: auto repeat(2, minmax(0, 1fr)); } .ij-kpis .ij-anillo { grid-row: span 2; align-self: center; } .ij-kpis > div:not(.ij-anillo) { padding: 8px 10px; } }
+  .ij h2 { font-size: 1rem; margin: 0 0 10px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .ij-lista { list-style: none; margin: 0; padding: 0 0 0 18px; position: relative; display: grid; gap: 8px; }
+  .ij-lista::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: linear-gradient(var(--ij1), var(--ij2), var(--line)); }
+  .ij-p { position: relative; border-radius: 16px; border: 1px solid var(--line); background: var(--card); animation: ijEntra .4s both; animation-delay: var(--d); }
+  @keyframes ijEntra { from { opacity: 0; transform: translateX(-8px); } }
+  .ij-p::before { content: ''; position: absolute; left: -16px; top: 18px; width: 11px; height: 11px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px var(--card); }
+  .ij-p.sin { border-style: dashed; }
+  .ij-p-cab { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; background: none; color: var(--ink); font-family: inherit; text-align: left; cursor: pointer; }
+  .ij-n { flex: none; width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; font-weight: 900; font-size: .8rem; color: #fff; background: var(--c); }
+  .ij-t { flex: 1; min-width: 0; display: flex; flex-direction: column; } .ij-t b { font-size: .88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ij-t small { font-size: .72rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ij-cama { flex: none; display: grid; grid-template-columns: auto auto; column-gap: 6px; align-items: center; padding: 6px 10px; border-radius: 12px; background: color-mix(in srgb, var(--c) 14%, transparent); color: var(--c); }
+  .ij-cama i { grid-row: span 2; font-style: normal; font-size: 1.1rem; } .ij-cama b { font-size: .8rem; } .ij-cama small { font-size: .66rem; opacity: .85; }
+  .ij-cama.no { background: var(--sup2, #f1f5f9); color: var(--muted); }
+  .ij-det { padding: 0 12px 12px 50px; font-size: .8rem; color: var(--muted); } .ij-det p { margin: 0 0 8px; }
+  .ij-preg { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; } .ij-preg span { font-weight: 800; color: var(--ink); }
+  .ij-preg button, .ij-dest button { border: 1px solid color-mix(in srgb, var(--c) 40%, var(--line)); background: color-mix(in srgb, var(--c) 10%, var(--card)); color: var(--c); border-radius: 999px; padding: 7px 12px; font-weight: 700; font-size: .76rem; font-family: inherit; cursor: pointer; }
+  .ij-ask { position: sticky; top: 76px; border-radius: 20px; border: 1px solid var(--line); background: var(--card); padding: 14px; }
+  .ij-dest { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .ij-dest button { display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 16px; padding: 12px 8px; transition: transform .15s; }
+  .ij-dest button i { font-style: normal; font-size: 1.4rem; } .ij-dest button:hover { transform: translateY(-2px); } .ij-dest button.on { background: var(--c); color: #fff; }
+  .ij-form { margin-top: 10px; padding: 10px; border-radius: 14px; background: color-mix(in srgb, var(--c) 8%, transparent); display: grid; gap: 8px; } .ij-form > small { font-size: .74rem; color: var(--muted); }
+  .ij-sug { display: flex; flex-direction: column; gap: 6px; } .ij-sug button { text-align: left; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 12px; padding: 8px 10px; font-weight: 600; font-size: .78rem; line-height: 1.3; font-family: inherit; cursor: pointer; } .ij-sug button:hover { border-color: var(--c); }
+  .cq-f { display: flex; gap: 6px; } .cq-f input { flex: 1; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--sup1, #fff); color: var(--ink); font-family: inherit; }
+  .ij-ayuda { font-size: .76rem; color: var(--muted); margin: 10px 0; }
+  .ij-hilo { display: grid; gap: 8px; margin-top: 12px; max-height: 420px; overflow-y: auto; }
+  .cq-it { border-left: 3px solid var(--c, #ea580c); padding: 6px 10px; border-radius: 0 12px 12px 0; background: var(--sup2, rgba(100,116,139,.08)); } .cq-it small { font-size: .68rem; color: var(--muted); } .cq-it p { margin: 2px 0; font-size: .8rem; color: var(--ink); } .cq-it em { font-size: .72rem; color: var(--muted); }
+  .cq-r { font-size: .8rem; color: #15803d; font-weight: 600; } .cq-r small { font-weight: 400; }
+  .ij-tel { font-size: .72rem; color: var(--muted); margin: 12px 0 0; }
+  .cq-rec { border-radius: 16px; border: 2px solid var(--line); padding: 12px; margin: 12px 0; display: grid; gap: 8px; background: var(--card); } .cq-rec.pend { border-color: #ea580c; }
+  .cq-rec header { display: flex; justify-content: space-between; gap: 8px; } .cq-rec header span { font-size: .76rem; color: var(--muted); }
+  .cm-solo { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border-radius: 14px; margin: 10px 0; border: 1px dashed var(--line); background: var(--card); } .cm-solo > span { font-size: 1.4rem; } .cm-solo div { flex: 1; min-width: 200px; } .cm-solo small { display: block; color: var(--muted); font-size: .76rem; }
+  /* 3.30 · Pedir el paciente: llamar al sector de internación desde el celular */
+  .fl-llamar { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; background: #16a34a; color: #fff !important; font-weight: 800; font-size: .78rem; text-decoration: none; box-shadow: 0 6px 14px -8px #16a34a; }
+  .fl-llamar small { font-weight: 600; opacity: .9; }
+  .fl-llamar.sin { background: var(--sup2, #e2e8f0); color: var(--muted) !important; box-shadow: none; }
+  @media (prefers-reduced-motion: reduce) { .ij-hero, .ij-vivo i, .ij-p { animation: none !important; } }
+  /* 3.30 · El rol de Anestesiología en el recambio */
+  .anx-rol { display: flex; gap: 10px; align-items: flex-start; margin: 8px 0 10px; padding: 10px 12px; border-radius: 14px; background: linear-gradient(135deg, color-mix(in srgb, #7c3aed 14%, var(--card)), var(--card)); border: 1px solid color-mix(in srgb, #7c3aed 35%, var(--line)); }
+  .anx-rol span { font-size: 1.3rem; } .anx-rol p { margin: 0; font-size: .78rem; color: var(--ink); line-height: 1.45; }
+  .rec-pide > small { display: block; font-size: .72rem; color: var(--muted); margin: 2px 0 6px; }
+  /* 3.30 · Estadísticas del plantel de Anestesiología */
+  .apl .an-mesbar { flex-wrap: wrap; } .apl-per { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--sup2, #f1f5f9); margin-left: auto; } .apl-per button { border: 0; border-radius: 999px; padding: 7px 14px; background: none; color: var(--ink); font-weight: 700; font-size: .8rem; font-family: inherit; cursor: pointer; } .apl-per button.on { background: #7c3aed; color: #fff; }
+  .apl-top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px; margin: 12px 0; border-radius: 20px; color: #fff; background: linear-gradient(120deg, #7c3aed, #db2777 60%, #f59e0b); box-shadow: 0 14px 30px -18px #7c3aed; }
+  .apl-copa { font-size: 2.4rem; animation: aplCopa 2.6s ease-in-out infinite; } @keyframes aplCopa { 50% { transform: rotate(-8deg) scale(1.08); } }
+  .apl-top div { flex: 1; min-width: 180px; } .apl-top small { opacity: .85; font-size: .74rem; } .apl-top b { display: block; font-size: 1.2rem; } .apl-top p { margin: 2px 0 0; font-size: .8rem; opacity: .92; }
+  .apl-top .fl-btn { background: #fff; color: #7c3aed; }
+  .apl-cols { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 14px; align-items: start; } @media (max-width: 860px) { .apl-cols { grid-template-columns: 1fr; } }
+  .apl-f { display: flex; gap: 10px; align-items: flex-start; padding: 10px 6px; border-bottom: 1px solid var(--line); animation: ijEntra .4s both; animation-delay: var(--d); } .apl-f.yo { background: color-mix(in srgb, var(--k) 8%, transparent); border-radius: 12px; }
+  .apl-av { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-style: normal; font-weight: 900; font-size: .7rem; color: #fff; background: var(--k); }
+  .apl-f-t { flex: 1; min-width: 0; } .apl-f-t > b { font-size: .86rem; color: var(--ink); } .apl-f-t em { font-style: normal; color: var(--muted); font-weight: 600; }
+  .apl-bar { height: 8px; border-radius: 8px; background: var(--sup2, #f1f5f9); margin: 5px 0; overflow: hidden; } .apl-bar u { display: block; height: 100%; width: calc(var(--p) * 100%); background: var(--k); border-radius: 8px; animation: aplCrece .8s ease-out both; } @keyframes aplCrece { from { width: 0; } }
+  .apl-dos { display: flex; gap: 2px; height: 5px; border-radius: 5px; overflow: hidden; margin-top: 4px; } .apl-dos i { background: var(--c); }
+  .apl-dos-l { display: flex; gap: 10px; font-size: .66rem; color: var(--muted); } .apl-dos-l span::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 2px; background: var(--c); margin-right: 4px; }
+  .apl-esp { display: block; font-size: .68rem; color: var(--muted); margin-top: 4px; }
+  .apl-n { font-size: 1.3rem; font-weight: 900; color: var(--k); min-width: 32px; text-align: right; }
+  .apl-fel { flex: none; border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 6px 8px; cursor: pointer; font-size: 1rem; } .apl-fel:hover { transform: scale(1.1); }
+  .apl-e small { grid-column: 1 / -1; font-size: .68rem; color: var(--muted); }
+  /* 3.30 · Escalera de la autorización en la ficha */
+  .aut-esc { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; padding: 12px 14px; margin-bottom: 12px; border-radius: 16px; border: 2px solid #f59e0b; background: color-mix(in srgb, #f59e0b 10%, var(--card)); }
+  .aut-esc.e2 { border-color: #ea580c; background: color-mix(in srgb, #ea580c 10%, var(--card)); }
+  .aut-esc.e3 { border-color: #e11d48; background: color-mix(in srgb, #e11d48 10%, var(--card)); animation: cmLate 2s ease-in-out infinite; }
+  .aut-esc-pasos { display: flex; gap: 4px; } .aut-esc-pasos span { padding: 4px 8px; border-radius: 999px; font-size: .7rem; font-weight: 800; background: var(--sup2, #f1f5f9); color: var(--muted); }
+  .aut-esc-pasos span.on { background: #e11d48; color: #fff; } .aut-esc.e1 .aut-esc-pasos span.on { background: #f59e0b; } .aut-esc.e2 .aut-esc-pasos span.on { background: #ea580c; }
+  .aut-esc-t { flex: 1; min-width: 220px; display: grid; gap: 6px; justify-items: start; } .aut-esc-t b { color: var(--ink); } .aut-esc-t small { color: var(--muted); font-size: .8rem; }
+  @media (prefers-reduced-motion: reduce) { .aut-esc.e3 { animation: none; } }
   .an-pop { position: fixed; z-index: 9999; width: min(300px, calc(100vw - 16px)); max-height: min(380px, 70vh); display: flex; flex-direction: column; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 20px 40px -16px rgba(15,23,42,.45); animation: anPop .16s ease-out; }
   @keyframes anPop { from { opacity: 0; transform: translateY(-4px) scale(.97); } }
   .an-pop header { display: grid; grid-template-columns: 1fr auto; padding: 10px 12px 8px; border-bottom: 1px solid var(--line); }
@@ -9172,7 +9283,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.29.0';
+const APP_VERSION = '3.30.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11026,24 +11137,9 @@ function calcRecordatorios() {
       });
     });
 
-  /* ---- 3 bis. Autorización de Admisión y Egresos pendiente ---- */
-  DB.cirugias.filter((c) => ['pendiente', 'validada'].includes(c.estado) && !authOk(c) && c.fecha >= hoy)
-    .forEach((c) => {
-      const inicio = new Date(c.fecha + 'T' + (c.horaProg || '08:00') + ':00');
-      const horas = (inicio - ahora) / 36e5;
-      if (horas > 48) return;
-      const mio = u && c.cirujanoEmail === u.email;
-      if (!jefe && !mio) return;
-      add({
-        key: 'auth-' + c.id, nivel: c.auth === 'NO AUTORIZADO' ? 'crit' : (horas <= 24 ? 'crit' : 'warn'),
-        vista: 'grilla', cirugia: c.id,
-        titulo: c.auth === 'NO AUTORIZADO' ? `Turno NO AUTORIZADO en el parte` : `Turno sin autorización de Admisión`,
-        texto: c.auth === 'NO AUTORIZADO'
-          ? `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.quirofano}, ${c.horaProg} h). Motivo del rechazo: ${c.authMotivo || 'sin motivo registrado'}.`
-          : `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.quirofano}, ${c.horaProg} h). Sin la autorización de Admisión y Egresos la Jefatura no puede validar el turno, así que tampoco llega al parte.`,
-        cuando: `Cirugía ${humanoRestante(inicio - ahora)}`,
-      });
-    });
+  /* ---- 3 bis. Autorización de Admisión y Egresos pendiente ----
+     3.30 · Escalera por días hábiles (5 · 3 · 48 h), ver autRecordatorios. */
+  try { autRecordatorios(add); } catch (e) {}
 
   /* ---- 3 ter. Trámite administrativo diferido, todavía sin regularizar ----
      Vale también para las cirugías ya realizadas: la excepción libera de pedir
@@ -11113,6 +11209,8 @@ function calcRecordatorios() {
   rcRecordatorios(add);
   camasRecordatorios(add);
   admisRecordatorios(add);
+  // 3.30 · Consultas rápidas de la Jefatura de Quirófanos a Enfermería y Admisión.
+  try { consultasRecordatorios(add); } catch (e) {}
 
   /* ---- 4 bis. Turno sin resolver: la fecha pasó y nadie lo cerró ----
      Al día siguiente del turno, al cirujano dueño y a la Jefatura. Se repite
@@ -11320,6 +11418,10 @@ function calcRecordatorios() {
 
   // 3.22 · Disponibilidad mensual y llegada diaria de Anestesiología.
   try { anestRecordatorios(add); } catch (e) {}
+  // 3.30 · Guardias de Enfermería e Instrumentación: la víspera y el pedido mensual.
+  try { guRecordatorios(add); } catch (e) {}
+  // 3.30 · Felicitaciones recibidas de la Jefatura de Anestesiología.
+  try { saludosRecordatorios(add); } catch (e) {}
   // 3.22 · Recorrido de la cirugía: «Le toca» y los pedidos de firma de un compañero.
   try { flujoRecordatorios(add); } catch (e) {}
 
@@ -11482,7 +11584,10 @@ async function pushAsegurar() {
   const ue = (soloEnfermeria() || soloAdmision()) && firebase.auth().currentUser && firebase.auth().currentUser.email ? { email: firebase.auth().currentUser.email } : null;
   const u = ue || usuarioActual();
   // 3.29 · El Jefe/a de Anestesiología también: le llega el pedido mensual de la disponibilidad.
-  if (!u || !u.email || (!ue && ((esEquipoSala(u) && !esJefeAnest(u)) || !cuentaAprobada(u) || !recUid()))) return;
+  // 3.30 · Y todo el equipo de sala (Enfermería, Instrumentación, Anestesiología): la
+  // víspera de cada guardia el Apps Script les manda «Mañana está de guardia con …».
+  // El aviso de cierre sigue yendo solo a los médicos (lo filtra el Apps Script).
+  if (!u || !u.email || (!ue && (!cuentaAprobada(u) || !recUid()))) return;
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) { pushEstado = { e: 'error', msg: 'este navegador no admite avisos con la app cerrada' }; return; }
   pushListo = true;
   try {
@@ -12216,12 +12321,14 @@ function renderSidebar() {
   if (u && esAnestesia(u)) {
     items.push({ sep: 'Anestesiología' });
     items.push({ id: 'anestesia', icon: ICONS.clipboard, label: 'Portal de Anestesiología' });
+    items.push({ id: 'guardias', icon: ICONS.calPlus, label: 'Guardias del mes' });
     items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'reconocimiento', icon: ICO_CORAZON, label: 'Reconocimiento' });
     items.push({ id: 'perfil', icon: ICONS.user.replace('14', '18'), label: 'Mi Perfil' });
   } else if (u && esEquipoSala(u)) {
     items.push({ sep: FUNCIONES[funcionDe(u)].n });
     items.push({ id: 'sala', icon: ICONS.clipboard, label: 'Mi Sala' });
+    items.push({ id: 'guardias', icon: ICONS.calPlus, label: 'Guardias del mes' });
     items.push({ id: 'relevo', icon: ICONS.refresh, label: 'Relevo de turno' });
     items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'reconocimiento', icon: ICO_CORAZON, label: 'Reconocimiento' });
@@ -12329,7 +12436,7 @@ const NAV_TONOS = {
   panel: '#38bdf8', grilla: '#34d399', recordatorios: '#fbbf24', estpublicas: '#a78bfa', pulso: '#f43f5e',
   consentimientos: '#f472b6', mis: '#60a5fa', reclamos: '#fb923c', modulos: '#c084fc',
   estadisticas: '#a78bfa', perfil: '#2dd4bf', comunicados: '#facc15', programacion: '#4ade80',
-  excepcion: '#f87171', confidenciales: '#94a3b8', kpis: '#22d3ee', usuarios: '#818cf8', reconocimiento: '#fb7185', sala: '#2dd4bf', relevo: '#fbbf24', anestesia: '#a78bfa', portales: '#38bdf8',
+  excepcion: '#f87171', confidenciales: '#94a3b8', kpis: '#22d3ee', usuarios: '#818cf8', reconocimiento: '#fb7185', sala: '#2dd4bf', relevo: '#fbbf24', anestesia: '#a78bfa', portales: '#38bdf8', guardias: '#f472b6',
 };
 function navNorm(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
 function navLuzIr(btn) {
@@ -12407,7 +12514,7 @@ const TITULOS = {
   modulos: 'Módulos Quirúrgicos',
   reconocimiento: 'Reconocimiento',
   sala: 'Mi Sala', relevo: 'Relevo de turno',
-  anestesia: 'Portal de Anestesiología', portales: 'Portales del equipo',
+  anestesia: 'Portal de Anestesiología', portales: 'Portales del equipo', guardias: 'Guardias del mes',
   pulso: 'Mi pulso en quirófano',
   libro: 'Manual y Libro Blanco',
 };
@@ -12492,6 +12599,7 @@ function go(v, silencioso) {
   if (v === 'anestesia' && !esAnestesia(usuarioActual())) { v = (jefe || director) ? 'portales' : 'acceso'; }
   if (v === 'portales' && !jefe && !director) { closeDrawer(); openJefeModal(); return; }
   if (['sala', 'relevo'].includes(v) && !usuarioActual() && !jefe) { v = 'acceso'; }
+  if (v === 'guardias' && !usuarioActual() && !jefe && !director) { v = 'acceso'; }
   // Desde el menú, «Consentimientos» abre el registro; el generador solo se
   // abre desde un turno (irAConsentimiento), con sus datos ya volcados.
   if (v === 'consentimientos') { if (!ciIrTurno) { ciTab = ciTab === 'pendientes' ? 'pendientes' : 'registro'; ciAlcance = 'semana'; } ciIrTurno = false; }
@@ -12671,11 +12779,23 @@ function renderPanel() {
    verificados los insumos de la cirugía (antes lo marcaba Farmacia).
    Cada registro queda con nombre, cuenta y hora; nada se borra: se corrige
    agregando. */
+/* 3.30 · Pedido de Claudio: en cada cirugía (programada o de guardia) el/la
+   enfermero/a hace de enfermero/a y técnico/a de anestesia; la instrumentadora,
+   de instrumentadora, y una 2.ª instrumentadora circula. Si no hay una
+   segunda, circula el/la mismo/a enfermero/a (puede anotarse en los dos). */
 const SALA_PUESTOS = {
-  instrumentadora: { n: 'Instrumentación', i: '🩺', func: 'instrumentacion' },
-  circulante: { n: 'Circulante', i: '🧭', func: 'enfermeria' },
-  tecAnestesia: { n: 'Enf./técnica de anestesia', i: '💉', func: 'enfermeria' },
+  tecAnestesia: { n: 'Enfermería · téc. de anestesia', i: '💉', funcs: ['enfermeria'] },
+  instrumentadora: { n: 'Instrumentación', i: '🩺', funcs: ['instrumentacion'] },
+  circulante: { n: 'Circulante', i: '🧭', funcs: ['instrumentacion', 'enfermeria'] },
 };
+/* ¿Puede anotarse en ese puesto? Una persona, un puesto por cirugía, salvo el/la
+   enfermero/a, que además puede circular. */
+function salaPuedoPuesto(c, k, u) {
+  const eq = c.equipoSala || {}, f = u ? funcionDe(u) : '';
+  if (!u || eq[k] || !SALA_PUESTOS[k].funcs.includes(f)) return false;
+  const yoEn = Object.keys(SALA_PUESTOS).filter((x) => eq[x] && eq[x].email === u.email);
+  return !yoEn.length || (f === 'enfermeria' && k === 'circulante' && yoEn.join() === 'tecAnestesia') || (f === 'enfermeria' && k === 'tecAnestesia' && yoEn.join() === 'circulante');
+}
 const RECUENTO_ITEMS = [{ k: 'gasas', n: 'Gasas' }, { k: 'compresas', n: 'Compresas' }, { k: 'agujas', n: 'Agujas' }, { k: 'instrumental', n: 'Instrumental (piezas)' }];
 let salaDia = null, salaFiltro = '', salaAbierta = null, salaMias = false;
 const salaPaso = {};
@@ -12715,6 +12835,7 @@ function renderSala() {
         ${kpi(toca, 'me toca', '✍️', 'flMias=true;flToca=true', flToca, toca ? 'late' : '')}
         ${kpi(libres, 'puestos libres', '➕', "flMias=false;flToca=false;flArea=''", false)}
       </div>
+      ${guTiraHTML(salaDia)}
     </section>
     ${flujoLista(salaDia, 'sala')}
   </div>`;
@@ -12753,7 +12874,6 @@ function salaTarjeta(c) {
   const sig = salaSiguiente(c);
   const fase = (k, t, quien, ok, det) => `<button type="button" class="ms2-fase ${ok ? 'ok' : ''} ${!ok && sig === k ? 'sig' : ''}" onclick="salaIr(${JSON.stringify(c.id)},'${k}')"><i>${ok ? '✓' : sig === k ? '▶' : '·'}</i><div><b>${t}</b><small>${quien}</small>${det ? `<em>${det}</em>` : ''}</div></button>`;
   const firma = (f) => f ? `${esc(f.nombre)} · ${esc(String(f.t || '').slice(11, 16))} h` : '';
-  const yoEn = Object.keys(SALA_PUESTOS).find((k) => eq[k] && u && eq[k].email === u.email);
   return `<article class="ms2-card" style="--c:${e.color}">
     <header onclick="salaAbierta=${abierta ? 'null' : JSON.stringify(c.id)};renderSala()">
       <span class="ms2-hora">${esc(c.horaProg || '—')}</span>
@@ -12763,7 +12883,7 @@ function salaTarjeta(c) {
       <span class="ms2-chev">${abierta ? '▴' : '▾'}</span>
     </header>
     <div class="ms2-equipo">${Object.entries(SALA_PUESTOS).map(([k, p]) => {
-      const q = eq[k]; const puedo = u && !q && p.func === miFunc && !yoEn;
+      const q = eq[k]; const puedo = salaPuedoPuesto(c, k, u);
       return `<div class="ms2-puesto ${q ? 'ok' : ''}"><span>${p.i}</span><div><small>${p.n}</small><b>${q ? esc(q.nombre) : '—'}</b></div>
         ${puedo ? `<button onclick="salaAnotarme(${JSON.stringify(c.id)},'${k}')">Me anoto</button>` : ''}
         ${q && u && q.email === u.email ? `<button class="ms2-x" onclick="salaDesanotarme(${JSON.stringify(c.id)},'${k}')" title="Quitarme">✕</button>` : ''}</div>`; }).join('')}
@@ -12888,9 +13008,10 @@ async function salaAnotarme(id, k) {
   const c = salaCir(id), u = usuarioActual(); if (!c || !u) return;
   c.equipoSala = c.equipoSala || {};
   if (c.equipoSala[k]) { alert('Ese puesto ya tiene a alguien anotado.'); return; }
+  if (!salaPuedoPuesto(c, k, u)) { alert(k === 'circulante' ? 'La circulante es la 2.ª instrumentador/a o, si no hay, el/la enfermero/a de la sala.' : 'Ese puesto es de otra función.'); return; }
   if (!(await flCambioSala(c, u))) return;
   if (c.equipoSala[k]) { alert('Ese puesto ya tiene a alguien anotado.'); return; }
-  c.equipoSala[k] = { nombre: u.nombre, email: u.email, t: nowDT() };
+  c.equipoSala[k] = { nombre: u.nombre, email: u.email, f: funcionDe(u), t: nowDT() };
   salaGuardar(c, `${u.nombre} se anotó como ${SALA_PUESTOS[k].n} de la sala`);
 }
 function salaDesanotarme(id, k) {
@@ -13189,10 +13310,11 @@ function renderAnestesia(embebido) {
   if (!embebido && !esAnestesia(u) && !jefe && !director) { go('acceso'); return; }
   if (!anestDia) anestDia = hoyISO();
   if (!anestMes) anestMes = anestMesPorDefecto();
-  const tabs = embebido ? [['hoy', 'Hoy'], ['mes', 'Disponibilidad del mes'], ['ind', 'Indicadores']] : [['hoy', 'Hoy'], ['mes', esJefeAnest(u) ? 'Disponibilidad del mes' : 'Mi mes'], ['ind', 'Indicadores']];
+  const tabs = embebido ? [['hoy', 'Hoy'], ['mes', 'Disponibilidad del mes'], ['ind', 'Indicadores'], ['plantel', 'Plantel']] : [['hoy', 'Hoy'], ['mes', esJefeAnest(u) ? 'Disponibilidad del mes' : 'Mi mes'], ['ind', 'Indicadores']].concat(esJefeAnest(u) ? [['plantel', 'Mi plantel']] : []);
+  if (!tabs.some(([k]) => k === anestTab)) anestTab = 'hoy';
   const ti = tabs.findIndex(([k]) => k === anestTab);
-  const tabsHTML = `<div class="fl-tabs anx-tabs" role="tablist" style="--n:${tabs.length};--i:${Math.max(0, ti)}"><span class="anx-tab-luz" aria-hidden="true"></span>${tabs.map(([k, t]) => `<button role="tab" class="${anestTab === k ? 'on' : ''}" aria-selected="${anestTab === k}" onclick="anestTab='${k}';${embebido ? 'renderPortales()' : 'renderAnestesia()'}">${{ hoy: '◉ ', mes: '▦ ', ind: '◔ ' }[k]}${t}</button>`).join('')}</div>`;
-  const cuerpo = anestTab === 'hoy' ? anestHoyHTML() : anestTab === 'mes' ? anestMesHTML() : anestIndicadoresHTML();
+  const tabsHTML = `<div class="fl-tabs anx-tabs" role="tablist" style="--n:${tabs.length};--i:${Math.max(0, ti)}"><span class="anx-tab-luz" aria-hidden="true"></span>${tabs.map(([k, t]) => `<button role="tab" class="${anestTab === k ? 'on' : ''}" aria-selected="${anestTab === k}" onclick="anestTab='${k}';${embebido ? 'renderPortales()' : 'renderAnestesia()'}">${{ hoy: '◉ ', mes: '▦ ', ind: '◔ ', plantel: '🏆 ' }[k]}${t}</button>`).join('')}</div>`;
+  const cuerpo = anestTab === 'hoy' ? anestHoyHTML() : anestTab === 'mes' ? anestMesHTML() : anestTab === 'plantel' ? anestPlantelHTML() : anestIndicadoresHTML();
   // 3.27.1 · Estilo infografía: las entradas animadas corren solo al cambiar de solapa o de día.
   const clave = anestTab + '|' + anestDia + '|' + (embebido ? 'e' : 'p');
   const entra = anxUltima !== clave; anxUltima = clave;
@@ -13286,13 +13408,20 @@ const RECAMBIO_META = 30;   // minutos: verde hasta 30, ámbar hasta 45, rojo de
 /* 3.28 · Recambio largo: pasados 45 min se pide el motivo (uno de la lista) y
    el mes muestra el indicador de causas. Se guarda en la cirugía que ENTRA,
    dentro de sus tiempos: `tiempos.recCausa`, `recNota`, `recPor`. */
-const RECAMBIO_LARGO = 45;
+/* 3.30 · Pedido de Claudio: el recambio lo marca ANESTESIOLOGÍA (salida de un
+   paciente y entrada del siguiente en el mismo quirófano) y TODA demora tiene
+   su causa: se pide el motivo apenas pasa la meta de 30 min (antes, a los 45),
+   y el indicador suma los minutos perdidos por causa. */
+const RECAMBIO_LARGO = RECAMBIO_META;
 const RECAMBIO_CAUSAS = [
   { k: 'limpieza', n: 'Limpieza de sala', i: '🧽', c: '#0ea5e9' },
   { k: 'camillero', n: 'Camillero / traslado', i: '🛏️', c: '#f59e0b' },
   { k: 'paciente', n: 'Paciente no listo', i: '🧍', c: '#ef4444' },
   { k: 'instrumental', n: 'Instrumental / esterilización', i: '🧰', c: '#8b5cf6' },
   { k: 'equipo', n: 'Equipo quirúrgico demorado', i: '⏳', c: '#10b981' },
+  { k: 'cirujano', n: 'Cirujano/a no presente', i: '🩺', c: '#db2777' },
+  { k: 'anestesia', n: 'Preparación anestésica', i: '💤', c: '#7c3aed' },
+  { k: 'cama', n: 'Cama / internación del paciente', i: '🏥', c: '#0d9488' },
   { k: 'otro', n: 'Otro motivo', i: '📝', c: '#64748b' },
 ];
 function recCausa(k) { return RECAMBIO_CAUSAS.find((x) => x.k === k) || null; }
@@ -13326,7 +13455,7 @@ function recCausaHTML(c, puede) {
   const t = c.tiempos || {}, ca = recCausa(t.recCausa), id = JSON.stringify(c.id);
   if (ca) return `<span class="rec-causa" style="--c:${ca.c}">${ca.i} ${esc(ca.n)}${t.recNota ? ': ' + esc(t.recNota) : ''}${puede ? ` <button class="rec-cambiar" onclick="recBorrarCausa(${esc(id)})" title="Cambiar el motivo">✎</button>` : ''}</span>`;
   if (!puede) return '<span class="rec-causa falta">sin motivo cargado</span>';
-  return `<div class="rec-pide"><b>Pasó de ${RECAMBIO_LARGO} min: ¿qué lo demoró?</b><div>${RECAMBIO_CAUSAS.map((x) =>
+  return `<div class="rec-pide"><b>Pasó la meta de ${RECAMBIO_META} min: ¿qué lo demoró?</b><small>Lo marca Anestesiología. Elija la causa principal: así se sabe dónde se pierde tiempo de quirófano.</small><div>${RECAMBIO_CAUSAS.map((x) =>
     `<button style="--c:${x.c}" onclick="recElegirCausa(${esc(id)},'${x.k}')">${x.i} ${esc(x.n)}</button>`).join('')}</div></div>`;
 }
 function recBorrarCausa(id) {
@@ -13343,15 +13472,18 @@ function recCausasMesHTML(ym) {
   const sin = largos.filter((l) => !recCausa(l.c.tiempos.recCausa)).length;
   const max = Math.max(1, sin, ...cuenta.map((y) => y.v.length));
   const prom = (a) => a.length ? Math.round(a.reduce((s, l) => s + l.r, 0) / a.length) : null;
-  const top = cuenta.slice().sort((a, b) => b.v.length - a.v.length)[0];
-  return `<div class="card rec-ind"><div class="card-title">Causas de recambio largo</div>
-    <div class="card-sub">Recambios de más de ${RECAMBIO_LARGO} min entre una cirugía y la siguiente en la misma sala · ${n} en el mes</div>
-    ${n ? cuenta.filter((y) => y.v.length).sort((a, b) => b.v.length - a.v.length).map((y, i) => `<div class="an-uso rec-bar" style="--d:${i * 80}ms;--c:${y.x.c}">
+  // 3.30 · Minutos perdidos = lo que pasó de la meta, sumado por causa.
+  const perd = (a) => a.reduce((s, l) => s + Math.max(0, l.r - RECAMBIO_META), 0);
+  const totPerd = perd(largos);
+  const top = cuenta.slice().sort((a, b) => perd(b.v) - perd(a.v))[0];
+  return `<div class="card rec-ind"><div class="card-title">Demoras en el recambio, por causa</div>
+    <div class="card-sub">Lo marca Anestesiología: salida de un paciente → entrada del siguiente en el mismo quirófano. Recambios que pasaron la meta de ${RECAMBIO_META} min · ${n} en el mes${n ? ` · <b>${anxDur(totPerd)} perdidos</b> por encima de la meta` : ''}</div>
+    ${n ? cuenta.filter((y) => y.v.length).sort((a, b) => perd(b.v) - perd(a.v)).map((y, i) => `<div class="an-uso rec-bar" style="--d:${i * 80}ms;--c:${y.x.c}">
         <span>${y.x.i} ${esc(y.x.n)}</span><div><i style="width:${Math.round(y.v.length / max * 100)}%"></i></div>
-        <b>${y.v.length} · ${Math.round(y.v.length / n * 100)} %</b><small>promedio ${prom(y.v)} min</small></div>`).join('')
+        <b>${y.v.length} · ${Math.round(y.v.length / n * 100)} %</b><small>promedio ${prom(y.v)} min · ${anxDur(perd(y.v))} perdidos</small></div>`).join('')
       + (sin ? `<div class="an-uso rec-bar" style="--c:#cbd5e1"><span>❔ Sin motivo cargado</span><div><i style="width:${Math.round(sin / max * 100)}%"></i></div><b>${sin} · ${Math.round(sin / n * 100)} %</b><small>falta elegirlo</small></div>` : '')
-      + (top && top.v.length ? `<p class="form-note">La causa más frecuente del mes es <b>${esc(top.x.n.toLowerCase())}</b>: es por donde más tiempo de quirófano se puede recuperar.</p>` : '')
-      : `<p class="form-note">Ningún recambio pasó de ${RECAMBIO_LARGO} min este mes (o todavía no se marcaron las entradas y salidas de sala).</p>`}
+      + (top && top.v.length ? `<p class="form-note">La causa que más minutos hizo perder este mes es <b>${esc(top.x.n.toLowerCase())}</b> (${anxDur(perd(top.v))}): es por donde más tiempo de quirófano se puede recuperar.</p>` : '')
+      : `<p class="form-note">Ningún recambio pasó la meta de ${RECAMBIO_META} min este mes (o todavía no se marcaron las entradas y salidas de sala).</p>`}
   </div>`;
 }
 function anxMin(h) { const m = String(h || '').match(/(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : null; }
@@ -13405,6 +13537,7 @@ function anxRecambioHTML(d) {
     const efic = jornada ? Math.round(totSala / jornada * 100) : null;
     return `<section class="anx-rl">
       <div class="anx-rl-cab"><b>⏱ ${esc(L.t)} · ${cx.length} cirugías</b><small>De la salida de un paciente a la entrada del siguiente</small></div>
+      <div class="anx-rol"><span>💤</span><p><b>Este tiempo lo mide Anestesiología.</b> Usted marca «Salió» y «Entró» en el momento, y si el recambio pasa de ${RECAMBIO_META} min, la causa. Con eso el hospital sabe cuánto quirófano se pierde y por qué: es la medida más fiel de la eficiencia del bloque.</p></div>
       <div class="anx-rl-tira">${partes.join('')}</div>
       <div class="anx-rl-tot">
         <div><small>Total entre cirugías</small><b>${nRec ? anxDur(totRec) : '—'}</b><span>${nRec} recambio(s) medidos</span></div>
@@ -13578,7 +13711,7 @@ function anestTiempo(id, k, v) {
   upsert('cirugias', c); VIEWS[view]();
   // 3.28 · Si con esta entrada el recambio pasó de 45 min, se pide el motivo ahí mismo.
   if (k === 'ent' && recPideCausa(c)) {
-    toastTurno(`El recambio duró ${recambioAntes(c)} min (más de ${RECAMBIO_LARGO}). Elija el motivo en la línea.`, '#ea580c');
+    toastTurno(`El recambio duró ${recambioAntes(c)} min (la meta es ${RECAMBIO_META}). Elija la causa de la demora en la línea.`, '#ea580c');
     setTimeout(() => { const el = document.querySelector('.rec-pide'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 80);
   }
 }
@@ -14051,6 +14184,96 @@ function anestEstado(est) {
     if (est === 'borrador') b.dev = { por: anestQuien(), t: nowDT() }; if (est === 'enviada') delete b.dev; }, txt);
 }
 
+/* ================= 3.30 · ESTADÍSTICAS DEL PLANTEL DE ANESTESIOLOGÍA =================
+   Pedido de Claudio (20-10-2026): el/la Jefe/a de Anestesiología ve sus
+   cirugías y las de todo su plantel, discriminadas por especialidad, adultos o
+   pediátricas, programadas o urgencias, y los totales; destaca a quien más
+   cirugías hizo y le puede mandar sus felicitaciones con un botón y un texto
+   sugerido. El saludo queda en la cuenta de quien lo recibe (`u.saludos`,
+   últimos 10) y le aparece como aviso; también se puede mandar por correo. */
+let anestPlMes = null, anestPlAnual = false;
+function anestCxDe(c) {
+  if (c.anest && c.anest.e) return anestK(c.anest.e);
+  const n = String(c.anestesista || '').trim().toLowerCase(); if (!n) return '';
+  const u = anestPlantel().find((x) => String(x.nombre).trim().toLowerCase() === n);
+  return u ? anestK(u.email) : '';
+}
+function anestPlantelHTML() {
+  const u = usuarioActual(), hoy = hoyISO();
+  if (!anestPlMes) anestPlMes = hoy.slice(0, 7);
+  const per = anestPlAnual ? anestPlMes.slice(0, 4) : anestPlMes;
+  const cx = DB.cirugias.filter((c) => String(c.fecha || '').startsWith(per) && c.fecha <= hoy && !['suspendida', 'caducada', 'anticipada', 'pendiente'].includes(c.estado) && anestCxDe(c));
+  const gente = anestPlantel().map((p) => ({ k: anestK(p.email), n: p.nombre, u: p }));
+  const filas = gente.map((p) => {
+    const mias = cx.filter((c) => anestCxDe(c) === p.k);
+    const esp = {}; mias.forEach((c) => { const e = servicioCanonico(c.servicio) || c.servicio || 'Sin especialidad'; esp[e] = (esp[e] || 0) + 1; });
+    return { ...p, mias, tot: mias.length, urg: mias.filter((c) => c.urgencia).length, ped: mias.filter((c) => c.paciente && c.paciente.pediatrico).length, esp };
+  }).sort((a, b) => b.tot - a.tot);
+  const T = { tot: cx.length, urg: cx.filter((c) => c.urgencia).length, ped: cx.filter((c) => c.paciente && c.paciente.pediatrico).length };
+  const esp = {}; cx.forEach((c) => { const e = servicioCanonico(c.servicio) || c.servicio || 'Sin especialidad'; esp[e] = (esp[e] || 0) + 1; });
+  const espL = Object.entries(esp).sort((a, b) => b[1] - a[1]), maxE = Math.max(1, ...espL.map((x) => x[1]));
+  const top = filas[0] && filas[0].tot ? filas[0] : null, maxT = Math.max(1, ...filas.map((f) => f.tot));
+  const yo = u ? filas.find((f) => f.k === anestK(u.email)) : null;
+  const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+  const perTxt = anestPlAnual ? 'el año ' + per : nombreMes(per);
+  const barra = (a, b, c1, c2, l1, l2) => `<div class="apl-dos"><i style="flex:${a || 0.0001};--c:${c1}"></i><i style="flex:${b || 0.0001};--c:${c2}"></i></div><small class="apl-dos-l"><span style="--c:${c1}">${l1} <b>${a}</b></span><span style="--c:${c2}">${l2} <b>${b}</b></span></small>`;
+  return `<div class="apl">
+    <div class="an-mesbar">
+      <button class="mp-flecha" onclick="anestPlMes=${anestPlAnual ? `(Number(anestPlMes.slice(0,4))-1)+anestPlMes.slice(4)` : 'mesAnterior(anestPlMes)'};VIEWS[view]()" aria-label="Anterior">‹</button>
+      <div><small>Estadísticas del plantel ·</small><b>${esc(perTxt)}</b></div>
+      <button class="mp-flecha" onclick="anestPlMes=${anestPlAnual ? `(Number(anestPlMes.slice(0,4))+1)+anestPlMes.slice(4)` : 'mesSiguiente(anestPlMes)'};VIEWS[view]()" aria-label="Siguiente">›</button>
+      <span class="apl-per"><button class="${anestPlAnual ? '' : 'on'}" onclick="anestPlAnual=false;VIEWS[view]()">Mes</button><button class="${anestPlAnual ? 'on' : ''}" onclick="anestPlAnual=true;VIEWS[view]()">Año</button></span>
+    </div>
+    <div class="an-kpis">
+      <div class="an-kpi" style="--c:#7c3aed"><b>${T.tot}</b><span>Cirugías del plantel</span><small>${esc(perTxt)}</small></div>
+      <div class="an-kpi" style="--c:#2563eb"><b>${T.tot - T.urg}</b><span>Programadas</span><small>${pct(T.tot - T.urg, T.tot)} %</small></div>
+      <div class="an-kpi" style="--c:#dc2626"><b>${T.urg}</b><span>Urgencias</span><small>${pct(T.urg, T.tot)} %</small></div>
+      <div class="an-kpi" style="--c:#0d9488"><b>${T.tot - T.ped}</b><span>Adultos</span><small>${pct(T.tot - T.ped, T.tot)} %</small></div>
+      <div class="an-kpi" style="--c:#f59e0b"><b>${T.ped}</b><span>Pediátricas</span><small>${pct(T.ped, T.tot)} %</small></div>
+      ${yo ? `<div class="an-kpi" style="--c:#db2777"><b>${yo.tot}</b><span>Mis cirugías</span><small>${pct(yo.tot, T.tot)} % del plantel</small></div>` : ''}
+    </div>
+    ${top ? `<section class="apl-top"><span class="apl-copa">🏆</span><div><small>Quien más cirugías hizo en ${esc(perTxt)}</small><b>${esc(top.n)}</b><p>${top.tot} cirugías · ${top.tot - top.urg} programadas · ${top.urg} urgencias · ${top.ped} pediátricas</p></div>
+      ${esJefeAnest(u) && anestK(u.email) !== top.k ? `<button class="fl-btn" onclick="anestFelicitar('${esc(top.u.email)}')">👏 Enviar felicitaciones</button>` : ''}</section>` : ''}
+    <div class="apl-cols">
+      <section class="card"><div class="card-title">Por anestesiólogo/a</div><div class="card-sub">Total, programadas/urgencias y adultos/pediátricas de cada uno</div>
+        ${filas.length ? filas.map((f, i) => `<div class="apl-f ${yo && f.k === yo.k ? 'yo' : ''}" style="--k:${anestColor(f.k)};--p:${(f.tot / maxT).toFixed(3)};--d:${i * 60}ms">
+          <i class="apl-av">${esc(anestIniciales(f.n))}</i>
+          <div class="apl-f-t"><b>${i === 0 && f.tot ? '🏆 ' : ''}${esc(f.n)}${yo && f.k === yo.k ? ' <em>(usted)</em>' : ''}</b>
+            <div class="apl-bar"><u></u></div>
+            ${barra(f.tot - f.urg, f.urg, '#2563eb', '#dc2626', 'Prog.', 'Urg.')}
+            ${barra(f.tot - f.ped, f.ped, '#0d9488', '#f59e0b', 'Adultos', 'Pediát.')}
+            ${Object.keys(f.esp).length ? `<small class="apl-esp">${Object.entries(f.esp).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([e, n]) => `${esc(e)} ${n}`).join(' · ')}</small>` : ''}</div>
+          <span class="apl-n">${f.tot}</span>
+          ${esJefeAnest(u) && anestK(u.email) !== f.k && f.tot ? `<button class="apl-fel" title="Enviar felicitaciones" onclick="anestFelicitar('${esc(f.u.email)}')">👏</button>` : ''}
+        </div>`).join('') : '<p class="pq-vacio">Todavía no hay anestesiólogos/as con cuenta autorizada.</p>'}
+      </section>
+      <section class="card"><div class="card-title">Por especialidad</div><div class="card-sub">Cirugías con anestesiólogo/a del plantel en ${esc(perTxt)}</div>
+        ${espL.length ? espL.map(([e, n], i) => { const L = cx.filter((c) => (servicioCanonico(c.servicio) || c.servicio || 'Sin especialidad') === e), ug = L.filter((c) => c.urgencia).length, pd = L.filter((c) => c.paciente && c.paciente.pediatrico).length;
+          return `<div class="an-uso apl-e" style="--d:${i * 60}ms"><span>${esc(e)}</span><div><i style="width:${Math.round(n / maxE * 100)}%"></i></div><b>${n}</b><small>${n - ug} prog. · ${ug} urg. · ${n - pd} adultos · ${pd} pediát.</small></div>`; }).join('')
+          : '<p class="form-note">Sin cirugías con anestesiólogo/a asignado en este período. Se cuentan las que tienen al anestesiólogo/a confirmado en la cirugía.</p>'}
+      </section>
+    </div>
+  </div>`;
+}
+async function anestFelicitar(mail) {
+  const u = usuarioActual(), p = DB.usuarios.find((x) => x.email === mail); if (!p || !esJefeAnest(u)) return;
+  const per = anestPlAnual ? 'el año ' + anestPlMes.slice(0, 4) : nombreMes(anestPlMes);
+  const n = DB.cirugias.filter((c) => String(c.fecha || '').startsWith(anestPlAnual ? anestPlMes.slice(0, 4) : anestPlMes) && c.fecha <= hoyISO() && !['suspendida', 'caducada', 'anticipada', 'pendiente'].includes(c.estado) && anestCxDe(c) === anestK(mail)).length;
+  const sug = `¡Felicitaciones, ${String(p.nombre).replace(/^(Dra?|Lic)\.?\s+/i, '').split(' ')[0]}! En ${per} intervino en ${n} cirugía${n === 1 ? '' : 's'}. Gracias por su compromiso y su trabajo con el equipo y los pacientes del Bloque Quirúrgico. — ${u.nombre}, Jefatura de Anestesiología`;
+  const txt = await pedirTexto(`Felicitaciones para ${p.nombre}\n\nLe llega como aviso en la app. Puede cambiar el texto.`, { si: '👏 Enviar', campo: { label: 'Mensaje', valor: sug, requerido: true, multilinea: true } });
+  if (!txt || !String(txt).trim()) return;
+  p.saludos = (p.saludos || []).concat([{ de: u.nombre, txt: String(txt).trim().slice(0, 400), t: nowDT() }]).slice(-10);
+  upsert('usuarios', p);
+  toastTurno(`Felicitaciones enviadas a ${p.nombre}`, '#7c3aed');
+  if (await preguntar('¿También por correo?\n\nAbre su correo con el mismo mensaje, para que quede por escrito.', { si: 'Abrir el correo', no: 'No, listo' }))
+    location.href = `mailto:${encodeURIComponent(p.email)}?subject=${encodeURIComponent('Felicitaciones — Anestesiología HRU')}&body=${encodeURIComponent(String(txt).trim())}`;
+}
+/* Los saludos recibidos (de los últimos 7 días) le aparecen a quien los recibe. */
+function saludosRecordatorios(add) {
+  const u = usuarioActual(); if (!u || !Array.isArray(u.saludos)) return;
+  u.saludos.filter((s) => diasEntre(String(s.t).slice(0, 10), hoyISO()) <= 7).forEach((s) => add({ key: 'saludo-' + s.t, nivel: 'info', notif: true, vista: 'recordatorios',
+    titulo: `👏 ${s.de} le envió sus felicitaciones`, texto: s.txt, cuando: fmtDT(s.t) }));
+}
 /* ---- Indicadores de puntualidad y uso ---- */
 let anestMesInd = null;   // los indicadores arrancan en el mes que corre (la disponibilidad, en el próximo)
 function anestIndicadoresHTML() {
@@ -14108,10 +14331,10 @@ function renderPortales() {
   const cuerpo = portalTab === 'dia'
     ? `<p class="fl-intro">Todas las cirugías del día con su recorrido: en qué paso está cada una y a quién espera. ${jefe ? 'Puede avisar a quien falta o firmar en nombre de la Jefatura.' : ''}</p>${flujoLista(salaDia, jefe ? 'jefe' : 'dir')}`
     : portalTab === 'anest' ? portalJefeAnestHTML() + renderAnestesia(true)
-    : portalEquipoHTML(portalTab);
+    : portalJefeSectorHTML(portalTab) + `<details class="pq-gu" open><summary>🛡️ Guardias del mes de ${esc(GU_SECT[portalTab].n)}</summary>${guardiasHTML(portalTab)}</details>` + portalEquipoHTML(portalTab);
   $('main').innerHTML = `
     <div class="fl-cabecera"><div>${flYoChip(jefe ? 'Jefatura de Quirófanos' : 'solo lectura')}<h1>Portales del equipo</h1></div>${['dia', 'enf', 'inst'].includes(portalTab) ? flDiaNav('salaDia', salaDia) : ''}</div>
-    <div class="fl-tabs pq-tabs" role="tablist">${PORTAL_TABS.map(([k, t]) => `<button role="tab" aria-selected="${portalTab === k}" class="${portalTab === k ? 'on' : ''}" onclick="portalTab='${k}';flAbierta=null;renderPortales()">${t}</button>`).join('')}</div>
+    <div class="fl-tabs pq-tabs" role="tablist">${PORTAL_TABS.map(([k, t]) => `<button role="tab" aria-selected="${portalTab === k}" class="${portalTab === k ? 'on' : ''}" onclick="portalTab='${k}';flAbierta=null;guPincel=null;renderPortales()">${t}</button>`).join('')}</div>
     ${cuerpo}`;
 }
 /* 3.22.3 · Designación del Jefe/a de Servicio de Anestesiología, a la vista
@@ -14151,8 +14374,8 @@ function portalJefeAnest(mail) {
    Mi Sala (c.equipoSala, las firmas del recorrido, c.recuento, c.cajas,
    c.insumosUsados) y de las cuentas de cada función. */
 const PQ_EQUIPOS = {
-  enf: { func: 'enfermeria', n: 'Enfermería y técnicos de anestesia', i: '🧭', c: '#0d9488', puestos: ['circulante', 'tecAnestesia'], roles: ['circ', 'enf'], falta: 'circulante', faltaN: 'circulante' },
-  inst: { func: 'instrumentacion', n: 'Instrumentación quirúrgica', i: '🧰', c: '#d97706', puestos: ['instrumentadora'], roles: ['inst'], falta: 'instrumentadora', faltaN: 'instrumentador/a' },
+  enf: { func: 'enfermeria', n: 'Enfermería y técnicos de anestesia', i: '🧭', c: '#0d9488', puestos: ['tecAnestesia', 'circulante'], roles: ['circ', 'enf'], falta: 'tecAnestesia', faltaN: 'enfermero/a' },
+  inst: { func: 'instrumentacion', n: 'Instrumentación quirúrgica', i: '🧰', c: '#d97706', puestos: ['instrumentadora', 'circulante'], roles: ['inst', 'circ'], falta: 'instrumentadora', faltaN: 'instrumentador/a' },
 };
 function pqIni(n) { return String(n || '').replace(/^(Dra?|Lic|Enf|Inst|Tec)\.\s*/i, '').split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 2).join('').toUpperCase() || '•'; }
 function pqPct(a, b) { return b ? Math.round(a / b * 100) + ' %' : '—'; }
@@ -14163,7 +14386,7 @@ function portalEquipoHTML(k) {
   const cxTxt = (c) => `${esc(c.horaProg || '—')} h · ${esc(c.quirofano || c.sala)} · ${esc(c.procedimiento || '')}`;
   // Dónde está cada uno hoy (sale de lo que se anotó en Mi Sala).
   const donde = {};
-  cx.forEach((c) => q.puestos.forEach((pu) => { const x = (c.equipoSala || {})[pu]; if (x && x.email) (donde[x.email] = donde[x.email] || []).push({ c, pu }); }));
+  cx.forEach((c) => q.puestos.forEach((pu) => { const x = (c.equipoSala || {})[pu]; if (x && x.email && salaFuncDe(x) === q.func) (donde[x.email] = donde[x.email] || []).push({ c, pu }); }));
   const fuera = Object.keys(donde).filter((m) => !gente.some((g) => g.email === m));
   const personas = gente.map((g) => ({ n: g.nombre, e: g.email })).concat(fuera.map((m) => ({ n: donde[m][0].c.equipoSala[donde[m][0].pu].nombre, e: m })));
   const sinPuesto = cx.filter((c) => !(c.equipoSala || {})[q.falta]);
@@ -14177,7 +14400,7 @@ function portalEquipoHTML(k) {
   const cm = DB.cirugias.filter((c) => String(c.fecha || '').startsWith(mes) && ['realizada', 'finalizada'].includes(c.estado));
   const conPuesto = cm.filter((c) => (c.equipoSala || {})[q.falta]).length;
   const kpis = k === 'enf'
-    ? [[pqPct(conPuesto, cm.length), 'Con circulante anotada', '#0d9488'], [pqPct(cm.filter((c) => lvqCompleta(c, 'entrada')).length, cm.length), 'Entrada firmada', '#2563eb'], [pqPct(cm.filter((c) => lvqCompleta(c, 'salida')).length, cm.length), 'Salida firmada', '#7c3aed'], [cm.length, 'Cirugías operadas', '#64748b']]
+    ? [[pqPct(conPuesto, cm.length), 'Con enfermero/a anotado/a', '#0d9488'], [pqPct(cm.filter((c) => lvqCompleta(c, 'entrada')).length, cm.length), 'Entrada firmada', '#2563eb'], [pqPct(cm.filter((c) => lvqCompleta(c, 'salida')).length, cm.length), 'Salida firmada', '#7c3aed'], [cm.length, 'Cirugías operadas', '#64748b']]
     : [[pqPct(conPuesto, cm.length), 'Con instrumentador/a', '#d97706'], [pqPct(cm.filter((c) => c.recuento && c.recuento.inicial && c.recuento.final).length, cm.length), 'Recuento completo', '#2563eb'], [cm.filter((c) => recuentoDif(c)).length, 'Recuentos con diferencia', '#be123c'], [cm.length, 'Cirugías operadas', '#64748b']];
   const avisar = (o) => jefe ? `<button class="fl-avisar" onclick="flAvisar(${JSON.stringify(o.c.id)},'${o.p.k}','${o.x.rol}')">🔔 ${(o.c.pedidos || {})[o.p.k + '.' + o.x.rol] ? 'Volver a avisar' : 'Avisar'}</button>` : '';
   return `<div class="pq" style="--c:${q.c}">
@@ -14202,6 +14425,331 @@ function portalEquipoHTML(k) {
     <div class="pq-bloque"><h3>💊 Insumos sin verificar ${sinVerif.length ? `<span class="pq-n">${sinVerif.length}</span>` : ''}</h3>
       ${sinVerif.length ? sinVerif.map((c) => `<div class="pq-item"><span><b>${cxTxt(c)}</b><small>${(c.insumosUsados || []).length} insumo(s) cargado(s)</small></span></div>`).join('') : '<p class="pq-vacio">Todas las cirugías del día tienen los insumos verificados.</p>'}</div>` : ''}
   </div>`;
+}
+
+/* ================= 3.30 · GUARDIAS DEL MES DE ENFERMERÍA E INSTRUMENTACIÓN =================
+   Pedido de Claudio (20-10-2026). La Jefatura de Quirófanos designa a un/a
+   Jefe/a de Enfermería de Quirófano y a un/a Jefe/a de Instrumentación; cada
+   uno carga la grilla de guardias activas de su sector, como la de
+   Anestesiología: todos los días, de lunes a lunes.
+     · Enfermería: UN/A enfermero/a por día, que en cada cirugía (programada o
+       de guardia) hace de enfermero/a y de técnico/a de anestesia.
+     · Instrumentación: el/la instrumentador/a del día y una 2.ª como
+       circulante. Si no hay una segunda, circula el/la enfermero/a de guardia.
+   Tocar un día abre la tarjeta del profesional de guardia (y con quién está).
+   La víspera, cada uno recibe en la app: «Mañana está de guardia con …».
+   EN LA BASE (mismo formato corto que anestesia/disp):
+     guardias/<enf|inst>/<AAAA-MM> = { est, d: { '05': 'E=k' | 'I=k1;C=k2' }, p: { k: 'Nombre' },
+                                       por, t, val?, dev?, h: ['iso|quién|qué'] } */
+const GU_SECT = {
+  enf: { func: 'enfermeria', n: 'Enfermería de Quirófano', jefeN: 'Jefe/a de Enfermería de Quirófano', campo: 'jefeEnfQx', i: '🧭', c: '#0d9488',
+    filas: [{ id: 'E', n: 'Enfermero/a de guardia', d: 'enfermería + técnico/a de anestesia', req: true }] },
+  inst: { func: 'instrumentacion', n: 'Instrumentación Quirúrgica', jefeN: 'Jefe/a de Instrumentación', campo: 'jefeInst', i: '🧰', c: '#d97706',
+    filas: [{ id: 'I', n: 'Instrumentador/a', d: 'instrumenta', req: true }, { id: 'C', n: 'Circulante', d: '2.ª instrumentador/a', req: false }] },
+};
+let guSect = null, guMes = null, guPincel = null;
+const guCache = {}, guCargando = {};
+function esJefeSector(u, s) { return !!u && funcionDe(u) === GU_SECT[s].func && !!u[GU_SECT[s].campo]; }
+function guPuedeEditar(s) { return jefe || esJefeSector(usuarioActual(), s); }
+function guPlantel(s) { return DB.usuarios.filter((x) => funcionDe(x) === GU_SECT[s].func && cuentaAprobada(x)).sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es')); }
+function guGente(s, b) {
+  const l = guPlantel(s).map((p) => ({ k: anestK(p.email), n: p.nombre, it: false }));
+  Object.entries((b && b.p) || {}).forEach(([k, n]) => { if (k.indexOf('it-') === 0) l.push({ k, n, it: true }); });
+  return l;
+}
+function guLocal() { try { return JSON.parse(localStorage.getItem('hruq_guardias') || '{}'); } catch (e) { return {}; } }
+async function guLeer(s, ym) {
+  if (cloudOn) return (await firebase.database().ref(`guardias/${s}/${ym}`).once('value')).val();
+  return (guLocal()[s] || {})[ym] || null;
+}
+async function guEscribir(s, ym, val) {
+  if (cloudOn) { await firebase.database().ref(`guardias/${s}/${ym}`).set(val); return; }
+  const L = guLocal(); L[s] = L[s] || {}; L[s][ym] = val; localStorage.setItem('hruq_guardias', JSON.stringify(L));
+}
+async function guCargar(s, ym, forzar) {
+  const key = s + '|' + ym, prev = guCache[key];
+  const reintentar = prev && prev.error && Date.now() - (prev.t || 0) > 20000;
+  if (!ym || (!forzar && prev !== undefined && !reintentar) || guCargando[key]) return;
+  guCargando[key] = true;
+  try { guCache[key] = (await guLeer(s, ym)) || null; }
+  catch (e) { guCache[key] = { error: (e && e.code) || 'red', t: Date.now() }; }
+  guCargando[key] = false;
+  if (['guardias', 'portales', 'sala'].includes(view)) VIEWS[view]();
+  if (typeof revisarRecordatorios === 'function') revisarRecordatorios();
+}
+function guDisp(s, ym) { const b = guCache[s + '|' + ym]; return b && !b.error ? b : null; }
+/* Todo el equipo de guardia de un día: Enfermería, Instrumentación y la guardia pasiva de Anestesiología. */
+function guEquipoDia(d) {
+  const ym = d.slice(0, 7), out = [];
+  ['enf', 'inst'].forEach((s) => {
+    guCargar(s, ym);
+    const b = guDisp(s, ym), m = b ? dispDia(b, d) : {};
+    GU_SECT[s].filas.forEach((f) => { if (m[f.id]) out.push({ s, f: f.id, rol: f.n, k: m[f.id], n: nombreDeK(m[f.id], b) }); });
+  });
+  anestCargarMes(ym);
+  const a = anestCache.disp[ym], ma = a && !a.error ? dispDia(a, d) : {};
+  if (ma.GUA) out.push({ s: 'anest', f: 'GUA', rol: 'Anestesiólogo/a de guardia', k: ma.GUA, n: nombreDeK(ma.GUA, a) });
+  return out;
+}
+/* «con la instrumentadora tal y la anestesióloga tal»: el resto del equipo, en una frase. */
+function guFraseCon(eq, yoK) {
+  const otros = eq.filter((x) => x.k !== yoK);
+  const sinCirc = eq.some((x) => x.f === 'E') && !eq.some((x) => x.f === 'C') && eq.some((x) => x.f === 'I');
+  const l = otros.map((x) => `${x.n} (${x.rol.replace(' de guardia', '').toLowerCase()})`);
+  const txt = l.length ? l.slice(0, -1).join(', ') + (l.length > 1 ? ' y ' : '') + l[l.length - 1] : 'el resto del equipo todavía sin asignar';
+  const yoE = eq.some((x) => x.f === 'E' && x.k === yoK);
+  return txt + (sinCirc ? (yoE ? '. No hay 2.ª instrumentador/a: usted también hace de circulante' : '. No hay 2.ª instrumentador/a: circula el/la enfermero/a de guardia') : '');
+}
+async function guGuardar(s, ym, cambio, accion) {
+  const b0 = guDisp(s, ym);
+  const base = b0 ? JSON.parse(JSON.stringify(b0)) : { est: 'borrador', d: {}, p: {}, h: [] };
+  cambio(base);
+  base.t = nowDT(); base.por = anestQuien();
+  base.h = (base.h || []).concat([`${nowDT()}|${anestQuien()}|${accion}`]).slice(-120);
+  if (base.est === 'validada' && !jefe && accion.indexOf('Validó') !== 0) base.est = 'enviada';
+  try { await guEscribir(s, ym, base); }
+  catch (e) { alert('No se pudieron guardar las guardias.' + (e && e.code === 'PERMISSION_DENIED' ? '\n\n(La base todavía no tiene publicadas las reglas de Guardias.)' : '')); return; }
+  guCache[s + '|' + ym] = base;
+  VIEWS[view]();
+  if (typeof revisarRecordatorios === 'function') revisarRecordatorios();
+}
+function guAsignar(s, d, fid, k) {
+  const ym = d.slice(0, 7), f = GU_SECT[s].filas.find((x) => x.id === fid);
+  guGuardar(s, ym, (b) => {
+    const m = dispDia(b, d); if (k) m[fid] = k; else delete m[fid];
+    // Una persona, un puesto por día: si estaba en la otra fila, se la saca.
+    if (k) Object.keys(m).forEach((x) => { if (x !== fid && m[x] === k) delete m[x]; });
+    dispSetDia(b, d, m);
+    if (k) { b.p = b.p || {}; b.p[k] = nombreDeK(k, b); }
+    if (!b.est || b.est === 'nueva') b.est = 'borrador';
+  }, `${k ? 'Asignó a ' + nombreDeK(k, guDisp(s, ym)) : 'Vació'} ${f ? f.n : fid} ${Number(d.slice(8))}`);
+}
+function guAgregarItinerante(s) {
+  const i = $('gu-itin'); const n = String((i && i.value) || '').trim().replace(/\s+/g, ' ').slice(0, 60);
+  if (n.length < 4) { alert('Escriba nombre y apellido.'); return; }
+  const k = 'it-' + n.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+  guPincel = k;
+  guGuardar(s, guMes, (b) => { b.p = b.p || {}; b.p[k] = n; if (!b.est || b.est === 'nueva') b.est = 'borrador'; }, `Sumó a ${n} (sin cuenta)`);
+}
+/* Copia cada día del mismo día de la semana y la misma vuelta del mes anterior; solo casillas vacías. */
+function guCopiarMesAnterior(s) {
+  const ym = guMes, prev = mesAnterior(ym);
+  guCargar(s, prev);
+  const bp = guDisp(s, prev);
+  if (guCache[s + '|' + prev] === undefined) { alert('Leyendo el mes anterior… vuelva a tocar en un momento.'); return; }
+  if (!bp || !Object.keys(bp.d || {}).length) { alert(`${nombreMes(prev)} no tiene guardias cargadas para copiar.`); return; }
+  const activos = new Set(guGente(s, bp).map((p) => p.k));
+  const dias = Array.from({ length: diasDelMes(prev) }, (_, i) => `${prev}-${String(i + 1).padStart(2, '0')}`);
+  let n = 0;
+  guGuardar(s, ym, (b) => {
+    for (let i = 1; i <= diasDelMes(ym); i++) {
+      const d = `${ym}-${String(i).padStart(2, '0')}`, m = dispDia(b, d);
+      const wd = new Date(d + 'T12:00:00').getDay(), v = anestVuelta(d);
+      const mismos = dias.filter((x) => new Date(x + 'T12:00:00').getDay() === wd);
+      const src = mismos[Math.min(v, mismos.length - 1)];
+      const sm = src ? dispDia(bp, src) : {};
+      Object.entries(sm).forEach(([fid, k]) => { if (!m[fid] && activos.has(k)) { m[fid] = k; n++; b.p = b.p || {}; b.p[k] = nombreDeK(k, bp); } });
+      dispSetDia(b, d, m);
+    }
+    if (!b.est || b.est === 'nueva') b.est = 'borrador';
+  }, `Copió ${nombreMes(prev)} en las casillas vacías`);
+  setTimeout(() => alert(n ? `Listo: se copiaron ${n} guardia(s) de ${nombreMes(prev)}, mismo día de la semana. Revise licencias y vacaciones.` : 'No había casillas vacías para completar.'), 50);
+}
+/* Reparte los huecos en forma pareja; la circulante solo si hay otra persona libre ese día. */
+function guSugerir(s) {
+  const ym = guMes, gente = guGente(s, guDisp(s, ym)).map((p) => p.k);
+  if (!gente.length) { alert('No hay nadie para repartir: autorice cuentas del sector o sume a alguien sin cuenta.'); return; }
+  guGuardar(s, ym, (b) => {
+    const carga = {}; gente.forEach((k) => { carga[k] = 0; });
+    const n = diasDelMes(ym), dd = (i) => `${ym}-${String(i).padStart(2, '0')}`;
+    for (let i = 1; i <= n; i++) Object.values(dispDia(b, dd(i))).forEach((k) => { if (k in carga) carga[k]++; });
+    for (let i = 1; i <= n; i++) {
+      const d = dd(i), m = dispDia(b, d), ayer = i > 1 ? Object.values(dispDia(b, dd(i - 1))) : [];
+      GU_SECT[s].filas.forEach((f) => {
+        if (m[f.id]) return;
+        // Nadie dos puestos el mismo día, y si se puede, no dos guardias seguidas.
+        const libres = gente.filter((k) => !Object.values(m).includes(k));
+        const cand = (libres.filter((k) => !ayer.includes(k)).length ? libres.filter((k) => !ayer.includes(k)) : libres).sort((x, y) => carga[x] - carga[y]);
+        if (cand.length) { m[f.id] = cand[0]; carga[cand[0]]++; }
+      });
+      dispSetDia(b, d, m);
+    }
+    b.p = b.p || {}; gente.forEach((k) => { if (!b.p[k]) b.p[k] = nombreDeK(k, b); });
+    if (!b.est || b.est === 'nueva') b.est = 'borrador';
+  }, 'Usó «Sugerir» para completar los huecos');
+}
+function guEstado(s, est) {
+  const txt = { enviada: 'Envió las guardias a la Jefatura de Quirófanos', validada: 'Validó las guardias', borrador: 'Devolvió las guardias para corregir' }[est];
+  guGuardar(s, guMes, (b) => { b.est = est; if (est === 'validada') { b.val = { por: anestQuien(), t: nowDT() }; delete b.dev; }
+    if (est === 'borrador') b.dev = { por: anestQuien(), t: nowDT() }; if (est === 'enviada') delete b.dev; }, txt);
+}
+
+/* ---- La grilla del mes (misma línea de tiempo que Anestesiología) ---- */
+function guardiasHTML(s) {
+  const q = GU_SECT[s];
+  if (!guMes) guMes = anestMesPorDefecto();
+  const ym = guMes;
+  guCargar(s, ym); anestCargarFeriados(ym.slice(0, 4));
+  const raw = guCache[s + '|' + ym], b = guDisp(s, ym), edita = guPuedeEditar(s), u = usuarioActual();
+  const gente = guGente(s, b), est = b ? b.est : 'nueva', hoyD = hoyISO(), yoK = u ? anestK(u.email) : '';
+  const EST = { nueva: ['Sin cargar', '#94a3b8'], borrador: ['Borrador del Jefe/a', '#d97706'], enviada: ['Enviada · espera la validación', '#2563eb'], validada: ['Validada por la Jefatura', '#059669'] };
+  const dias = Array.from({ length: diasDelMes(ym) }, (_, i) => `${ym}-${String(i + 1).padStart(2, '0')}`);
+  const cuenta = {}; let huecos = 0, mias = 0;
+  const cob = dias.map((d) => { const m = b ? dispDia(b, d) : {}; Object.values(m).forEach((k) => { cuenta[k] = (cuenta[k] || 0) + 1; if (k === yoK) mias++; });
+    const req = q.filas.filter((f) => f.req), ok = req.filter((f) => m[f.id]).length; huecos += req.length - ok; return { d, m, req: req.length, ok, fer: diaUrgAutomatica(d, null) }; });
+  const maxQ = Math.max(1, ...Object.values(cuenta));
+  const jefeAct = DB.usuarios.find((x) => esJefeSector(x, s));
+  const celda = (x, f) => { const k = x.m[f.id];
+    return `<button class="an-c ${k ? 'con' : f.req ? 'vacia' : 'opc'} ${k && k === yoK ? 'mia' : ''}" data-d="${x.d}" data-f="${f.id}" data-k="${k || ''}" style="${k ? `--k:${anestColor(k)}` : ''}"
+      onclick="guTocar('${s}',this)" title="${esc(fmtDiaLargo(x.d))} · ${esc(f.n)}: ${k ? esc(nombreDeK(k, b)) : f.req ? 'sin asignar' : 'sin 2.ª (circula enfermería)'}">${k ? esc(anestIniciales(nombreDeK(k, b))) : ''}</button>`; };
+  const pie = !edita && !jefe ? '' : `<div class="gu-acc">
+      ${edita ? `<button class="an-tool" style="--c1:#7c3aed;--c2:#c026d3" onclick="guCopiarMesAnterior('${s}')"><i>📋</i><span><b>Copiar ${esc(nombreMes(mesAnterior(ym)).split(' ')[0])}</b><small>Mismo día de la semana · solo lo vacío</small></span></button>
+      <button class="an-tool" style="--c1:#0ea5e9;--c2:#6366f1" onclick="guSugerir('${s}')"><i>✨</i><span><b>Sugerir para los huecos</b><small>Reparte parejo, sin guardias seguidas</small></span></button>` : ''}
+      ${esJefeSector(u, s) && (est === 'nueva' || est === 'borrador') ? `<button class="fl-btn" onclick="guEstado('${s}','enviada')">Enviar a la Jefatura de Quirófanos</button>` : ''}
+      ${jefe && est === 'enviada' ? `<button class="fl-btn" onclick="guEstado('${s}','validada')">✓ Validar</button><button class="fl-link" onclick="guEstado('${s}','borrador')">Devolver para corregir</button>` : ''}
+      ${jefe && est === 'borrador' && b ? `<button class="fl-link" onclick="guEstado('${s}','validada')">✓ Validar así</button>` : ''}
+    </div>`;
+  return `<div class="gu" style="--gc:${q.c}">
+    <div class="an-mesbar">
+      <button class="mp-flecha" onclick="guMes=mesAnterior(guMes);VIEWS[view]()" aria-label="Mes anterior">‹</button>
+      <div><small>Guardias de</small><b>${esc(nombreMes(ym))}</b></div>
+      <button class="mp-flecha" onclick="guMes=mesSiguiente(guMes);VIEWS[view]()" aria-label="Mes siguiente">›</button>
+      <span class="an-est" style="--e:${EST[est] ? EST[est][1] : '#94a3b8'}">${esc(EST[est] ? EST[est][0] : est)}</span>
+    </div>
+    ${raw && raw.error ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 18)}<div><strong>No se pudieron leer las guardias.</strong> ${raw.error === 'PERMISSION_DENIED' ? 'La base todavía no tiene publicadas las reglas de Guardias.' : 'Revise la conexión.'}</div></div>` : ''}
+    <div class="gu-info"><span class="gu-ic">${q.i}</span><div><b>${esc(q.jefeN)}: ${jefeAct ? esc(jefeAct.nombre) : 'sin designar'}</b>
+      <small>${s === 'enf' ? 'Un/a enfermero/a de guardia activa por día. En cada cirugía, programada o de guardia, hace de enfermero/a y de técnico/a de anestesia; si no hay 2.ª instrumentador/a, también circula.' : 'Un/a instrumentador/a por día y una 2.ª como circulante. Si no hay una segunda, circula el/la enfermero/a de guardia.'}
+      ${yoK && funcionDe(u) === q.func ? ` <b>Usted tiene ${mias} guardia${mias === 1 ? '' : 's'} este mes.</b>` : ''} Toque un día para ver quién está de guardia${edita ? ' o cambiarlo' : ''}.</small></div></div>
+    ${edita ? `<div class="an-gente">${gente.map((p) => `<button class="an-persona ${guPincel === p.k ? 'pincel' : ''} ${p.it ? 'itin' : ''}" style="--k:${anestColor(p.k)};--p:${((cuenta[p.k] || 0) / maxQ).toFixed(3)}" onclick="guPincel=guPincel==='${p.k}'?null:'${p.k}';VIEWS[view]()" title="Elegir como pincel">
+        <i>${esc(anestIniciales(p.n))}</i><span><b>${esc(p.n)}</b><small>${p.it ? 'sin cuenta · ' : ''}${cuenta[p.k] || 0} guardia${cuenta[p.k] === 1 ? '' : 's'}</small><em><u></u></em></span></button>`).join('') || `<small class="an-ayuda">Todavía no hay cuentas de ${esc(FUNCIONES[q.func].n)} autorizadas.</small>`}
+        <button class="an-persona an-goma ${guPincel === '' ? 'pincel' : ''}" onclick="guPincel=guPincel===''?null:'';VIEWS[view]()"><i>⌫</i><span><b>Borrar</b><small>vaciar casillas</small></span></button></div>
+      <p class="an-ayuda">${guPincel === null ? '👆 <b>Toque un día</b> para ver la tarjeta del profesional y elegir quién cubre. Para cargar rápido, elija una persona arriba y toque los días.' : `🖌️ Cargando a <b>${guPincel ? esc(nombreDeK(guPincel, b)) : 'la goma'}</b>: toque los días. Toque de nuevo su nombre para soltarlo.`}</p>
+      <details class="an-alta"><summary>➕ Sumar a alguien sin cuenta (solo este mes)</summary><div class="an-alta-f"><input id="gu-itin" maxlength="60" placeholder="Nombre y apellido" onkeydown="if(event.key==='Enter')guAgregarItinerante('${s}')"><button class="btn btn-sm btn-blue" onclick="guAgregarItinerante('${s}')">Sumar al mes</button></div></details>` : ''}
+    <div class="an-tl ${raw === undefined ? 'cargando' : ''}">
+      <div class="an-grid" style="--n:${dias.length}">
+        <div class="an-g-esq"><small>Puesto</small><small>Día</small></div>
+        ${cob.map((x) => `<span class="an-dcab ${x.fer ? 'auto fer' : ''} ${x.d === hoyD ? 'hoy' : ''}" title="${esc(fmtDiaLargo(x.d))}"><small>${DIAS_S[new Date(x.d + 'T12:00:00').getDay()].slice(0, 2)}</small><b>${Number(x.d.slice(8))}</b><i class="an-cob ${x.ok >= x.req ? 'lleno' : x.ok ? 'medio' : 'nada'}" style="--p:${(x.ok / Math.max(1, x.req)).toFixed(2)}"></i></span>`).join('')}
+        ${q.filas.map((f) => `<div class="an-g-sala ${f.req ? '' : 'opc'}"><b>${esc(f.n)}</b><small>${esc(f.d)}</small></div>${cob.map((x) => celda(x, f)).join('')}`).join('')}
+      </div>
+    </div>
+    <div class="an-ley"><span><i class="an-c vacia"></i>sin asignar</span>${s === 'inst' ? '<span><i class="an-c opc"></i>sin 2.ª: circula enfermería</span>' : ''}<span><i class="an-c con mia" style="--k:${q.c}"></i>mis guardias</span><span><b>${huecos}</b>&nbsp;día(s) sin cubrir</span></div>
+    ${pie}
+    ${b && b.val ? `<p class="form-note">Validó ${esc(b.val.por)} · ${esc(fmtDT(b.val.t))}</p>` : ''}
+    ${b && b.h && b.h.length && (edita || director) ? `<details class="an-audit"><summary>Auditoría (${b.h.length})</summary>${b.h.slice().reverse().map((x) => { const [t, qq, a] = String(x).split('|'); return `<div><small>${esc(fmtDT(t))}</small><b>${esc(qq)}</b><span>${esc(a)}</span></div>`; }).join('')}</details>` : ''}
+  </div>`;
+}
+/* Tocar un día: con pincel, se carga; si no, se abre la tarjeta del profesional de guardia. */
+function guTocar(s, c) {
+  if (guPuedeEditar(s) && guPincel !== null) { guAsignar(s, c.dataset.d, c.dataset.f, guPincel); return; }
+  guPopAbrir(s, c);
+}
+function guPopAbrir(s, c) {
+  anestPopCerrar();
+  const d = c.dataset.d, fid = c.dataset.f, k = c.dataset.k || '', ym = d.slice(0, 7), b = guDisp(s, ym);
+  const f = GU_SECT[s].filas.find((x) => x.id === fid), edita = guPuedeEditar(s);
+  const pu = k ? DB.usuarios.find((x) => anestK(x.email) === k) : null;
+  const eq = guEquipoDia(d).filter((x) => !(x.s === s && x.f === fid));
+  const hab = pu ? habilitacion(pu) : null;
+  const pop = document.createElement('div');
+  pop.id = 'an-pop'; pop.className = 'an-pop gu-pop'; pop.setAttribute('role', 'dialog');
+  pop.innerHTML = `<header><b>${esc(fmtDiaLargo(d))}</b><small>${esc(f ? f.n : fid)} · ${esc(GU_SECT[s].n)}</small><button type="button" aria-label="Cerrar" onclick="anestPopCerrar()">✕</button></header>
+    <div class="an-pop-l">
+    ${k ? `<div class="gu-ficha" style="--k:${anestColor(k)}"><i>${esc(anestIniciales(nombreDeK(k, b)))}</i><div>
+        <b>${esc(nombreDeK(k, b))}</b><small>${pu ? esc(FUNCIONES[funcionDe(pu)].n) : 'Sin cuenta en la app'}${f ? ' · ' + esc(f.d) : ''}</small>
+        ${pu ? `<ul>
+          <li>🪪 Matrícula: ${esc((pu.matricula && pu.matricula.numero) || 'sin cargar')}</li>
+          <li>${hab.ok ? '✅ Habilitación al día' : '⚠️ Le falta documentación en Mi Perfil'}</li>
+          <li>✉️ <a href="mailto:${esc(pu.email)}">${esc(pu.email)}</a></li>
+          <li id="gu-cel">📱 ${jefe || (usuarioActual() && usuarioActual().email === pu.email) ? 'buscando celular…' : 'Celular: lo ve la Jefatura'}</li></ul>` : ''}
+      </div></div>` : `<p class="gu-vacio">${f && !f.req ? 'Sin 2.ª instrumentador/a: ese día circula el/la enfermero/a de guardia.' : 'Todavía sin asignar.'}</p>`}
+    <div class="gu-con"><small>De guardia ese día${k ? ' con ' + esc(String(nombreDeK(k, b)).replace(/^(Dra?|Lic|Enf|Inst|Tec)\.\s*/i, '').split(' ')[0]) : ''}</small>
+      ${eq.length ? eq.map((x) => `<span style="--k:${anestColor(x.k)}"><i>${esc(anestIniciales(x.n))}</i>${esc(x.n)} <em>${esc(x.rol)}</em></span>`).join('') : '<span class="nadie">Nadie más cargado todavía</span>'}</div>
+    ${edita ? `<small class="gu-cambiar">${k ? 'Cambiar por' : '¿Quién la cubre?'}</small>${guGente(s, b).map((p) => `<button type="button" class="${p.k === k ? 'on' : ''}" style="--k:${anestColor(p.k)}" onclick="anestPopCerrar();guAsignar('${s}','${d}','${fid}','${p.k}')"><i>${esc(anestIniciales(p.n))}</i><span><b>${esc(p.n)}</b>${p.it ? '<small>sin cuenta</small>' : ''}</span>${p.k === k ? '<em>✓</em>' : ''}</button>`).join('')}
+      ${k ? `<button type="button" class="vaciar" onclick="anestPopCerrar();guAsignar('${s}','${d}','${fid}','')"><i>⌫</i><span><b>Dejar vacía</b></span></button>` : ''}` : ''}
+    </div>`;
+  document.body.appendChild(pop);
+  const r = c.getBoundingClientRect(), w = pop.offsetWidth;
+  const abajo = window.innerHeight - r.bottom - 16, arriba = r.top - 16, vaAbajo = abajo >= Math.min(pop.offsetHeight, 260) || abajo >= arriba;
+  pop.style.maxHeight = Math.max(200, Math.min(460, vaAbajo ? abajo : arriba)) + 'px';
+  const h = pop.offsetHeight;
+  pop.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+  pop.style.top = (vaAbajo ? r.bottom + 8 : Math.max(8, r.top - h - 8)) + 'px';
+  setTimeout(() => document.addEventListener('pointerdown', anestPopFuera, true), 0);
+  if (pu && (jefe || (usuarioActual() && usuarioActual().email === pu.email))) contactoCargar(pu.email).then((x) => {
+    const li = $('gu-cel'); if (!li) return;
+    const n = x && x.cel ? celWA(x.cel) : '';
+    li.innerHTML = x && x.cel ? `📱 ${esc(x.cel)}${n ? ` · <a href="https://wa.me/${n}" target="_blank" rel="noopener">WhatsApp</a>` : ''}` : '📱 Sin celular cargado';
+  });
+}
+/* Tira «De guardia hoy» (Mi Sala): el equipo de guardia del día, de un vistazo. */
+function guTiraHTML(d) {
+  const eq = guEquipoDia(d);
+  if (!eq.length) return '';
+  const sinCirc = eq.some((x) => x.f === 'E') && !eq.some((x) => x.f === 'C');
+  return `<button type="button" class="gu-tira" onclick="guMes='${d.slice(0, 7)}';go('guardias')"><small>🛡️ De guardia ${d === hoyISO() ? 'hoy' : 'ese día'}</small>
+    ${eq.map((x) => `<span style="--k:${anestColor(x.k)}"><i>${esc(anestIniciales(x.n))}</i><b>${esc(x.n)}</b><em>${esc(x.rol.replace(' de guardia', ''))}</em></span>`).join('')}
+    ${sinCirc ? '<span class="gu-nota">Circula enfermería</span>' : ''}</button>`;
+}
+function renderGuardias() {
+  const u = usuarioActual();
+  if (!u && !jefe && !director) { go('acceso'); return; }
+  if (!guSect) guSect = u && funcionDe(u) === 'instrumentacion' ? 'inst' : 'enf';
+  const tabs = [['enf', '🧭 Enfermería'], ['inst', '🧰 Instrumentación']];
+  // 3.30 · Sin notificaciones, el aviso de la víspera con la app cerrada no llega (solo el correo).
+  const sinNotif = u && esEquipoSala(u) && permisoNotif() !== 'granted';
+  $('main').innerHTML = `<div class="fl-cabecera"><div>${flYoChip('Guardias')}<h1>Guardias del mes</h1></div></div>
+    ${sinNotif ? `<div class="banner banner-amber">${ico(ICONS.bell, 18)}<div><strong>Active las notificaciones</strong> para recibir la víspera de cada guardia «Mañana está de guardia con …» aunque la app esté cerrada. Mientras tanto, le llega por correo. <button class="btn btn-sm btn-outline" onclick="go('recordatorios')">Activarlas</button></div></div>` : ''}
+    ${guTiraHTML(hoyISO())}
+    <div class="fl-tabs pq-tabs" role="tablist">${tabs.map(([k, t]) => `<button role="tab" aria-selected="${guSect === k}" class="${guSect === k ? 'on' : ''}" onclick="guSect='${k}';guPincel=null;renderGuardias()">${t}</button>`).join('')}</div>
+    ${guardiasHTML(guSect)}`;
+}
+/* La Jefatura designa a los dos Jefes/as de sector (uno/a por sector). */
+function portalJefeSectorHTML(s) {
+  const q = GU_SECT[s], plantel = guPlantel(s), act = DB.usuarios.find((x) => esJefeSector(x, s));
+  return `<div class="pq-jefe" style="border-color:color-mix(in srgb, ${q.c} 45%, var(--line));background:linear-gradient(135deg, color-mix(in srgb, ${q.c} 12%, var(--card)), var(--card))">
+    <div class="pq-jefe-cab"><span class="pq-ic">👑</span><div><b>${esc(q.jefeN)}</b>
+      <small>${act ? `Designado/a: <strong>${esc(act.nombre)}</strong>. Carga las guardias de cada mes desde «Guardias del mes».` : 'Sin designar: solo la Jefatura de Quirófanos puede cargar las guardias.'}</small></div></div>
+    ${jefe ? (plantel.length
+      ? `<label class="pq-jefe-sel"><span>Elegir</span><select onchange="portalJefeSector('${s}',this.value)"><option value="">— Sin designar —</option>${plantel.map((p) => `<option value="${esc(p.email)}" ${act && act.email === p.email ? 'selected' : ''}>${esc(p.nombre)}</option>`).join('')}</select></label>`
+      : `<div class="pq-aviso">Todavía no hay cuentas de ${esc(FUNCIONES[q.func].n)} autorizadas: por eso no hay a quién elegir.</div>`) : ''}
+  </div>`;
+}
+function portalJefeSector(s, mail) {
+  if (!jefe) return;
+  const campo = GU_SECT[s].campo;
+  DB.usuarios.filter((x) => funcionDe(x) === GU_SECT[s].func).forEach((x) => {
+    const debe = !!mail && x.email === mail;
+    if (!!x[campo] !== debe) { if (debe) x[campo] = true; else delete x[campo]; upsert('usuarios', x); }
+  });
+  if (typeof toastTurno === 'function') toastTurno(mail ? GU_SECT[s].jefeN + ' designado/a' : 'Sin ' + GU_SECT[s].jefeN, GU_SECT[s].c);
+  renderPortales();
+}
+/* ---- Avisos: la víspera de cada guardia, y el pedido mensual a los Jefes/as de sector ---- */
+function guRecordatorios(add) {
+  const u = usuarioActual(), hoy = hoyISO(), dia = Number(hoy.slice(8, 10)), prox = mesSiguiente(hoy.slice(0, 7));
+  if (u && esEquipoSala(u)) {
+    const man = sumarDias(hoy, 1), yoK = anestK(u.email), eq = guEquipoDia(man), mio = eq.find((x) => x.k === yoK);
+    if (mio) add({ key: 'guardia-vispera-' + man, nivel: 'warn', notif: true, vista: 'guardias',
+      titulo: `Mañana está de guardia: ${mio.rol.replace(' de guardia', '').toLowerCase()}`,
+      texto: `Mañana, ${fmtDiaLargo(man)}, está de guardia con ${guFraseCon(eq, yoK)}.`, cuando: 'Mañana' });
+  }
+  ['enf', 'inst'].forEach((s) => {
+    const q = GU_SECT[s], soyJefe = esJefeSector(u, s);
+    if (!soyJefe && !jefe) return;
+    if (guCache[s + '|' + prox] === undefined) { guCargar(s, prox); return; }
+    if (dia < ANEST_DIA_PEDIDO) return;
+    const b = guDisp(s, prox), est = b ? b.est : 'nueva';
+    if (soyJefe && est === 'borrador' && b.dev) add({ key: `gu-dev-${s}-${prox}-${String(b.dev.t).slice(0, 16)}`, nivel: 'crit', notif: true, vista: 'guardias',
+      titulo: `La Jefatura le devolvió las guardias de ${nombreMes(prox)} para corregir`, texto: `Las devolvió ${b.dev.por} el ${fmtDT(b.dev.t)}. Corrija y vuelva a tocar «Enviar».`, cuando: 'Devuelta' });
+    else if (soyJefe && (est === 'nueva' || est === 'borrador')) add({ key: `gu-disp-${s}-${prox}`, nivel: 'crit', notif: true, vista: 'guardias',
+      titulo: `Cargue las guardias de ${q.n} de ${nombreMes(prox)}`,
+      texto: `Todos los días, de lunes a lunes${s === 'inst' ? ': instrumentador/a y circulante' : ''}. Cárguelas en «Guardias del mes» y toque «Enviar»: la Jefatura de Quirófanos las valida.`,
+      cuando: dia > ANEST_DIA_LIMITE ? `El plazo era el ${ANEST_DIA_LIMITE}` : `Del ${ANEST_DIA_PEDIDO} al ${ANEST_DIA_LIMITE} de cada mes` });
+    if (soyJefe && est === 'validada' && b.val && diasEntre(String(b.val.t).slice(0, 10), hoy) <= 3) add({ key: `gu-ok-${s}-${prox}`, nivel: 'info', notif: true, vista: 'guardias',
+      titulo: `✓ La Jefatura validó las guardias de ${nombreMes(prox)}`, texto: `Las validó ${b.val.por} el ${fmtDT(b.val.t)}.`, cuando: 'Validada' });
+    if (jefe && est === 'enviada') add({ key: `gu-val-${s}-${prox}`, nivel: 'warn', notif: true, vista: 'portales',
+      titulo: `Validar las guardias de ${q.n} de ${nombreMes(prox)}`, texto: `El/la ${q.jefeN} las envió. Revíselas en Portales del equipo: valídelas o devuélvalas.`, cuando: 'Enviada' });
+  });
 }
 
 /* ---- Recordatorios de Anestesiología ---- */
@@ -14252,6 +14800,15 @@ function anestRecordatorios(add) {
     }
   }
   if (esAnestesia(u)) {
+    // 3.30 · Cada día, a quien tiene cirugías o guardia: su rol en el recambio.
+    const misHoy = salaCirugias(hoy).filter((c) => c.anest && c.anest.e === u.email);
+    if (misHoy.length || salaCirugias(hoy).length) add({ key: 'anest-rol-' + hoy, nivel: 'warn', notif: true, vista: 'anestesia',
+      titulo: '💤 Hoy usted mide el tiempo de quirófano',
+      texto: `Anestesiología marca la salida de cada paciente y la entrada del siguiente en el mismo quirófano, y si el recambio pasa de ${RECAMBIO_META} min, la causa de la demora. Es la medida de la eficiencia del bloque: sin su marca, ese tiempo no existe.`,
+      cuando: 'Cada día' });
+    misHoy.filter(recPideCausa).forEach((c) => add({ key: 'anest-rec-causa-' + c.id, nivel: 'crit', notif: true, vista: 'anestesia',
+      titulo: `Falta la causa de la demora del recambio (${recambioAntes(c)} min)`,
+      texto: `${c.horaProg || ''} h · ${c.quirofano || c.sala} · ${c.procedimiento || ''}. Elíjala en «Mi línea» del portal.`, cuando: 'Hoy' }));
     if (anestCache.pres[hoy] === undefined) { anestCargarDia(hoy); return; }
     const mia = anestCache.pres[hoy] && anestCache.pres[hoy][anestK(u.email)];
     if (!mia && salaCirugias(hoy).length && new Date().getHours() >= 6) {
@@ -14285,10 +14842,10 @@ function anestRecordatorios(add) {
    lo único nuevo es `c.pedidos` (quién pidió qué firma y cuándo). */
 const FL_ROLES = {
   anest: { n: 'Anestesia', i: '💤' }, circ: { n: 'Circulante', i: '🧭' }, inst: { n: 'Instrumentación', i: '🧰' },
-  enf: { n: 'Enfermería', i: '🧭' }, cir: { n: 'Cirujano/a', i: '🩺' },
+  enf: { n: 'Enfermería · téc. anestesia', i: '💉' }, cir: { n: 'Cirujano/a', i: '🩺' },
 };
 const FLUJO = [
-  { k: 'equipo', n: 'Equipo', d: 'Quién está en la sala', roles: ['anest', 'circ', 'inst'] },
+  { k: 'equipo', n: 'Equipo', d: 'Quién está en la sala', roles: ['anest', 'enf', 'inst', 'circ'] },
   { k: 'entrada', n: 'Entrada', d: 'Antes de la inducción', roles: ['enf', 'anest'], lvq: true },
   { k: 'rec1', n: 'Recuento inicial', d: 'Gasas, compresas, agujas e instrumental', roles: ['inst'], lvq: true },
   { k: 'pausa', n: 'Pausa', d: 'Antes de la incisión', roles: ['cir', 'anest', 'enf'], lvq: true },
@@ -14302,12 +14859,14 @@ const FL_ACCION = { equipo: 'anotarse en esta cirugía', entrada: 'firmar la Ent
 let flAbierta = null, flArea = '', flMias = true, flToca = false;
 
 /* Quién ocupa cada rol en esta cirugía. */
+/* Función de quien se anotó (las anotaciones viejas no la traen: se busca su cuenta). */
+function salaFuncDe(p) { if (!p) return ''; if (p.f) return p.f; const u = DB.usuarios.find((x) => x.email === p.email); return u ? funcionDe(u) : 'enfermeria'; }
 function flPersona(c, rol) {
   const eq = c.equipoSala || {};
   if (rol === 'anest') return c.anest ? { n: c.anest.n, e: c.anest.e } : null;
   if (rol === 'circ') return eq.circulante ? { n: eq.circulante.nombre, e: eq.circulante.email } : null;
   if (rol === 'inst') return eq.instrumentadora ? { n: eq.instrumentadora.nombre, e: eq.instrumentadora.email } : null;
-  if (rol === 'enf') { const p = eq.circulante || eq.tecAnestesia; return p ? { n: p.nombre, e: p.email } : null; }
+  if (rol === 'enf') { const p = eq.tecAnestesia || (eq.circulante && salaFuncDe(eq.circulante) === 'enfermeria' ? eq.circulante : null); return p ? { n: p.nombre, e: p.email } : null; }
   if (rol === 'cir') return { n: c.cirujano || 'Cirujano/a', e: c.cirujanoEmail || '' };
   return null;
 }
@@ -14317,6 +14876,9 @@ function flFirma(c, paso, rol) {
   switch (paso + '.' + rol) {
     case 'equipo.anest': return c.anest ? { nombre: c.anest.n, t: c.anest.t } : null;
     case 'equipo.circ': return (c.equipoSala || {}).circulante || null;
+    // 3.30 · El/la enfermero/a de la sala (también técnico/a de anestesia). Las
+    // cirugías anotadas antes, con la enfermera solo como circulante, siguen valiendo.
+    case 'equipo.enf': { const eq = c.equipoSala || {}; return eq.tecAnestesia || (eq.circulante && salaFuncDe(eq.circulante) === 'enfermeria' ? eq.circulante : null); }
     case 'equipo.inst': return (c.equipoSala || {}).instrumentadora || null;
     case 'entrada.enf': return lvqCompleta(c, 'entrada') ? (lv.entrada.por || { nombre: 'Cirujano/a', t: lv.entrada.hora }) : null;
     case 'entrada.anest': return fa.entrada || null;
@@ -14351,9 +14913,13 @@ function flMisRoles(c) {
   if (f === 'anestesiologia' && (!c.anest || c.anest.e === u.email)) r.push('anest');
   if (f === 'enfermeria') {
     if (!eq.circulante || yo(eq.circulante)) r.push('circ');
-    const enf = flPersona(c, 'enf'); if (enf && enf.e === u.email) r.push('enf');
+    const enf = flPersona(c, 'enf'); if ((enf && enf.e === u.email) || (!enf && !eq.tecAnestesia)) r.push('enf');
   }
-  if (f === 'instrumentacion' && (!eq.instrumentadora || yo(eq.instrumentadora))) r.push('inst');
+  // 3.30 · La 2.ª instrumentadora circula: firma como circulante, no como instrumentadora.
+  if (f === 'instrumentacion') {
+    if (yo(eq.circulante)) r.push('circ');
+    else { if (!eq.instrumentadora || yo(eq.instrumentadora)) r.push('inst'); if (!eq.circulante && eq.instrumentadora && !yo(eq.instrumentadora)) r.push('circ'); }
+  }
   if (f === 'medico' && c.cirujanoEmail === u.email) r.push('cir');
   return r;
 }
@@ -14409,10 +14975,20 @@ function flTarjeta(c, modo, idx) {
       <span class="fl-tit"><b>${esc(c.procedimiento || '')}</b><small>${esc(c.quirofano || c.sala)} · ${esc(c.cirujano || '')}${(c.paciente && c.paciente.nombre) ? ' · ' + esc(c.paciente.nombre) : ''}</small></span>
       <span class="fl-prog"><span class="fl-linea">${linea}</span><small>${e.hechos}/${FLUJO.length}</small></span>
     </button>
-    <div class="fl-estado">${estadoTxt}${c.parteAnest ? '<span class="pa-chip" title="Parte anestésico pre-quirúrgico adjuntado">💉 Parte pre-anestésico</span>' : ''}${!abierta ? `<button class="fl-link" onclick="flAbierta=${id};flRepintar()">${libre ? '➕ Anotarme' : meToca ? 'Hacerlo ahora →' : 'Ver el recorrido →'}</button>` : ''}</div>
+    <div class="fl-estado">${estadoTxt}${flLlamarHTML(c, modo)}${c.parteAnest ? '<span class="pa-chip" title="Parte anestésico pre-quirúrgico adjuntado">💉 Parte pre-anestésico</span>' : ''}${!abierta ? `<button class="fl-link" onclick="flAbierta=${id};flRepintar()">${libre ? '➕ Anotarme' : meToca ? 'Hacerlo ahora →' : 'Ver el recorrido →'}</button>` : ''}</div>
     ${abierta ? `<ol class="fl-pasos">${e.pasos.map((p, i) => flPasoHTML(c, p, i, mis, modo)).join('')}</ol>${flMaterialHTML(c, modo)}${c.parteAnest || (c.anest && paPuedeSubir(c)) ? paTarjetaHTML(c) : ''}
       <button class="fl-link" onclick="openCirugia(${id})">Abrir la ficha de la cirugía →</button>` : ''}
   </article>`;
+}
+/* 3.30 · «Pedir el paciente»: Enfermería, Instrumentación o Anestesia llaman
+   desde su celular al sector donde está internado, con un toque. Sin cama
+   anotada, el botón lo dice (la cama la asigna Admisión y Egresos). */
+function flLlamarHTML(c, modo) {
+  if (modo === 'dir' || ['realizada', 'finalizada', 'en_curso', 'suspendida'].includes(c.estado)) return '';
+  const u = usuarioActual(); if (!(u && esEquipoSala(u)) && !jefe) return '';
+  const k = camaDe(c), S = k && SECTORES_CAMA[k.s];
+  if (!S || !S.tel) return '<span class="fl-llamar sin" title="Admisión y Egresos todavía no le asignó cama">📞 Sin cama anotada</span>';
+  return `<a class="fl-llamar" href="tel:+54${S.tel}" onclick="event.stopPropagation()" title="Llamar a ${esc(S.n)} para pedir al paciente">📞 Pedir paciente · ${esc(S.corto)} <small>Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}</small></a>`;
 }
 function flPasoHTML(c, p, i, mis, modo) {
   const hora = (f) => f && f.t ? ` · ${esc(String(f.t).slice(11, 16))} h` : '';
@@ -14462,7 +15038,8 @@ function flAccion(c, paso, rol) {
   const rec = (pref, val) => `<div class="ms2-rec">${RECUENTO_ITEMS.map((it) => `<label><span>${it.n}</span><span class="ms2-paso"><button type="button" onclick="salaSumar('${pref}-${it.k}',-1)" aria-label="Uno menos">−</button><input type="number" min="0" inputmode="numeric" id="${pref}-${it.k}" value="${val && val[it.k] != null ? esc(val[it.k]) : ''}" placeholder="0"><button type="button" onclick="salaSumar('${pref}-${it.k}',1)" aria-label="Uno más">+</button></span></label>`).join('')}</div>`;
   switch (paso + '.' + rol) {
     case 'equipo.anest': return `<button class="fl-btn" onclick="flAnestConfirmar(${id})">Confirmo que estoy en esta cirugía</button>`;
-    case 'equipo.circ': return `<button class="fl-btn" onclick="salaAnotarme(${id},'circulante')">Me anoto como circulante</button>`;
+    case 'equipo.circ': return `<button class="fl-btn" onclick="salaAnotarme(${id},'circulante')">${funcionDe(usuarioActual()) === 'enfermeria' ? 'No hay 2.ª instrumentador/a: también circulo yo' : 'Me anoto como circulante (2.ª instrumentador/a)'}</button>`;
+    case 'equipo.enf': return `<button class="fl-btn" onclick="salaAnotarme(${id},'tecAnestesia')">Me anoto como enfermero/a y técnico/a de anestesia</button>`;
     case 'equipo.inst': return `<button class="fl-btn" onclick="salaAnotarme(${id},'instrumentadora')">Me anoto como instrumentador/a</button>`;
     case 'entrada.enf': return `${checks('entrada')}<input type="hidden" id="ms2-anest" value="${esc((c.anest && c.anest.n) || c.anestesista || 'Anestesia')}">
       <button class="fl-btn" id="ms2-ok-entrada" disabled onclick="salaFirmarEntrada(${id})">Firmar la Entrada (Enfermería)</button>`;
@@ -16654,10 +17231,11 @@ function suspenderTurno(c, causa, det) {
    sesión con permiso de escritura (Jefatura o el cirujano dueño) y es
    idempotente: dos equipos abiertos a la vez no lo aplican dos veces. */
 const SECTORES_CAMA = {
-  adultos:    { n: 'Sala General de Adultos', corto: 'Adultos', int: '1035', c: '#2563eb' },
-  pediatria:  { n: 'Sala de Internación General Pediátrica', corto: 'Pediatría', int: '1012', c: '#7c3aed' },
-  maternidad: { n: 'Sala de Internación Maternidad (Gineco y Obstetricia)', corto: 'Maternidad', int: '1608', c: '#db2777' },
-  uci:        { n: 'UCI', corto: 'UCI', int: '1034', c: '#dc2626' },
+  // 3.30 · `tel`: el número para llamar desde el celular y pedir el paciente (Claudio, 20-10-2026).
+  adultos:    { n: 'Sala General de Adultos', corto: 'Adultos', int: '1035', tel: '2901441035', c: '#2563eb' },
+  pediatria:  { n: 'Sala de Internación General Pediátrica', corto: 'Pediatría', int: '1012', tel: '2901441012', c: '#7c3aed' },
+  maternidad: { n: 'Sala de Internación Maternidad (Gineco y Obstetricia)', corto: 'Maternidad', int: '1608', tel: '2901441608', c: '#db2777' },
+  uci:        { n: 'UCI', corto: 'UCI', int: '1034', tel: '2901441034', c: '#dc2626' },
 };
 const CAUSA_SIN_CAMA = 'Falta de cama de internación / UTI';
 const RC_DIAS = 45;                 // cuántos días hacia adelante se busca lugar
@@ -16730,7 +17308,9 @@ function rcCerrar() { const o = $('rc-overlay'); if (o) o.classList.remove('open
 function pedirCama(id) {
   const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c) return;
   if (!camaPuedeCargarse(c)) { avisar('Todavía no\n\nLa cama se anota desde la víspera del turno y hasta que se cierra el caso, con el turno confirmado en el parte.'); return; }
-  if (jefe) { openCama(c.id); return; }
+  if (admis) { openCama(c.id); return; }
+  // 3.30 · La Jefatura de Quirófanos no asigna camas: las ve en Ingresos del día.
+  if (jefe) { avisar('Solo lectura\n\nLa cama la asigna Admisión y Egresos. Si tiene una duda, use «Preguntar» en Ingresos del día.'); return; }
   pedirAdmision('Cama de internación — Admisión y Egresos',
     'Anotar el sector, la habitación y la cama del paciente. Ingrese el correo y la contraseña del sector de Admisión y Egresos del HRU.',
     () => openCama(c.id));
@@ -17097,7 +17677,7 @@ function rcFichaHTML(c) {
           <a class="rc-int" href="tel:${s.int}">☎ Interno ${s.int}</a><small>Registró ${esc(k.por)} · ${fmtDT(k.t)}${c.pulsera ? ` · pulsera SHA-256 ${esc(selloCorto(c.pulsera.sello).slice(0, 9))}…` : ''}</small>
           <button class="btn btn-sm btn-outline" style="justify-self:start" onclick="reimprimirPulsera(${c.id})">🏷️ ${c.pulsera ? 'Reimprimir la pulsera' : 'Imprimir la pulsera'}</button></div>`
         : '<p class="fx-txt">Admisión y Egresos anota el sector, la habitación y la cama cuando el paciente ingresa (desde la víspera). Así se lo ubica para llamarlo a quirófano.</p>'}
-      ${camaPuedeCargarse(c) ? `<button class="btn btn-sm btn-outline fx-btn" onclick="pedirCama(${c.id})">🛏 ${k ? 'Cambiar la cama' : 'Anotar la cama'} · o «No hay cama»</button>` : ''}
+      ${camaPuedeCargarse(c) && !(jefe && !admis) ? `<button class="btn btn-sm btn-outline fx-btn" onclick="pedirCama(${c.id})">🛏 ${k ? 'Cambiar la cama' : 'Anotar la cama'} · o «No hay cama»</button>` : ''}
     </section>`;
   }
   // La reprogramación
@@ -17159,7 +17739,8 @@ const CAMAS_DEF = {
 let jefenf = sessionStorage.getItem('hru_jefenf') === '1';
 let cmEditar = false;
 const soloEnfermeria = () => jefenf && !jefe && !director && !usuarioActual();
-const puedeEditarCamas = () => jefenf || jefe;
+// 3.30 · Solo la Jefatura de Enfermería edita el mapa: la Jefatura de Quirófanos lo mira.
+const puedeEditarCamas = () => !!jefenf;
 const cmLimpio = (x) => String(x == null ? '' : x).trim().replace(/[^A-Za-z0-9]/g, '_').slice(0, 12);
 const camaId = (s, hab, cama) => `b-${s}-${cmLimpio(hab)}-${cmLimpio(cama)}`;
 
@@ -17217,8 +17798,10 @@ function renderCamas() {
       <span class="cm-envio-i">${env ? (env.recibido ? '✅' : '📤') : '⏰'}</span>
       <div><b>${env ? (env.recibido ? `✓ Recibido por Admisión · ${esc(env.recibido.por || '')} · ${esc(String(env.recibido.t || '').slice(11, 16))} h` : `Enviado a Admisión a las ${esc(String(env.t || '').slice(11, 16))} h · esperando «Recibido»`) : 'Hoy antes de las 07:00: enviar las camas a Admisión y Egresos'}</b>
       <small>${env ? `${env.via === 'auto' ? 'Envío automático' : 'Enviada por ' + esc(env.por || 'Jefatura de Enfermería')} · ${env.resumen ? Object.keys(env.resumen).map((s) => `${SECTORES_CAMA[s] ? SECTORES_CAMA[s].corto : s}: ${env.resumen[s].libre} libre${env.resumen[s].libre === 1 ? '' : 's'}`).join(' · ') : ''}. Después de esa hora el mapa sigue en vivo: Admisión ve cada cambio al instante.` : 'El mapa es en vivo y se puede cambiar en todo momento (las urgencias mandan). El envío deja sellada la foto de las 07:00.'}</small>
-      ${env ? `<span class="cm-envio-acc"><button class="btn btn-sm btn-outline" onclick="camasVerEnvio('${hoy}')">👁 Ver lo enviado</button>${!env.recibido && !soloEnfermeria() ? `<button class="btn btn-sm btn-green" onclick="camasRecibido('${hoy}')">✓ Recibido (Admisión)</button>` : ''}</span>` : ''}</div>
+      ${env ? `<span class="cm-envio-acc"><button class="btn btn-sm btn-outline" onclick="camasVerEnvio('${hoy}')">👁 Ver lo enviado</button>${!env.recibido && admis ? `<button class="btn btn-sm btn-green" onclick="camasRecibido('${hoy}')">✓ Recibido (Admisión)</button>` : ''}</span>` : ''}</div>
     </div>
+    ${editar ? consultasRecibidasHTML('enf') : ''}
+    ${jefe && !editar ? `<div class="cm-solo"><span>👁</span><div><b>Solo lectura</b><small>El mapa lo mantiene la Jefatura de Enfermería y las camas las asigna Admisión y Egresos. ¿Una duda?</small></div><button class="btn btn-sm btn-outline" onclick="ingDia=hoyISO();ingPregPara='enf';ingPregCir=null;go('ingresos')">🩺 Preguntar a Enfermería</button></div>` : ''}
     <div class="cm-ley">${Object.entries(CAMA_EST).map(([k, v]) => `<span style="--e:${v.c}"><i></i>${v.n} <b>${tot[k]}</b></span>`).join('')}</div>
     <div class="cm-secs">${Object.keys(conf).map((s) => {
       const S = SECTORES_CAMA[s], r = R[s];
@@ -17234,7 +17817,7 @@ function renderCamas() {
           ${cmEditar && editar ? `<button class="cm-addhab" onclick="camasEditar('${s}',-1,'+hab')">＋ Habitación</button>` : ''}
         </div></section>`;
     }).join('')}</div>
-    <p class="form-note">Toque una cama para cambiar su estado. Las camas que ocupa Admisión al dar ingreso pasan solas a rojo, con las iniciales del paciente.</p>`;
+    <p class="form-note">${editar ? 'Toque una cama para cambiar su estado.' : 'Pase el dedo o el mouse por una cama para ver su detalle.'} Las camas que ocupa Admisión al dar ingreso pasan solas a rojo, con las iniciales del paciente.</p>`;
 }
 
 /* ---- Cambiar el estado de una cama ---- */
@@ -17342,7 +17925,8 @@ function camasRecibido(fecha) {
     if (cloudOn && PORTAL.servicio) portalServicio({ accion: 'camasRecibidas', fecha }).catch(() => {});
     camasVerEnvio(fecha);
   };
-  if (jefe) { anotar(); return; }
+  if (admis) { anotar(); return; }
+  if (jefe) { avisar('Solo lectura\n\nEl «Recibido» lo toca Admisión y Egresos.'); return; }
   pedirAdmision('Mapa de camas — Admisión y Egresos', 'Confirmar que Admisión recibió la disponibilidad de camas. Ingrese el correo y la contraseña del sector.', anotar);
 }
 /* Lo que envió Enfermería, tal cual (la foto de ese momento). */
@@ -17551,7 +18135,124 @@ async function admisLogout() {
   cambioDeIdentidad(false); go('panel');
 }
 let ingDia = '';
+/* ================= 3.30 · INGRESOS DEL DÍA PARA LA JEFATURA DE QUIRÓFANOS =================
+   Pedido de Claudio (20-10-2026): la Jefatura de Quirófanos MIRA, no toca.
+   En «Mapa de camas» ve lo que la Jefatura de Enfermería envió a Admisión y el
+   mapa en vivo; en «Ingresos del día», solo las camas que Admisión y Egresos va
+   asignando a cada paciente programado, en el orden en que las asigna (la
+   secuencia de ocupación, en vivo). No hay un solo botón que cambie algo.
+   Para las dudas, «Preguntar»: la consulta les llega a la Jefatura de
+   Enfermería o a Admisión como aviso, la contestan en su pantalla y la
+   respuesta vuelve. Se guarda en camas/consultas-<día> (sin datos clínicos:
+   solo el texto, quién pregunta, a quién y la hora). */
+let ingJefAbierta = null, ingPregPara = null, ingPregCir = null;
+const ING_DEST = { enf: { n: 'Jefatura de Enfermería', i: '🩺', c: '#0f766e', int: '' }, adm: { n: 'Admisión y Egresos', i: '🗂️', c: '#ea580c', int: '' } };
+function ingSugerencias(para, c) {
+  const p = c ? `${(c.paciente && c.paciente.nombre) || 'el paciente'} (${c.horaProg || '—'} h, ${c.quirofano || ''})` : '';
+  const k = c ? camaDe(c) : null;
+  if (para === 'adm') return c ? (k ? [`¿Ya ingresó ${p}?`, `¿${p} ya tiene la pulsera?`] : [`¿Cuándo le asignan cama a ${p}?`, `¿Por qué ${p} sigue sin cama?`, `¿${p} ya llegó al hospital?`])
+    : ['¿Cuántos pacientes faltan ingresar?', '¿Hay algún paciente que no se presentó?', '¿Algún problema con las autorizaciones de hoy?'];
+  return c ? [`¿Hay cama en ${k ? SECTORES_CAMA[k.s].corto : 'internación'} para ${p}?`, `¿Se puede reservar una cama para ${p}?`, '¿Hay cama de UCI disponible si hace falta?']
+    : ['¿Cuántas camas se liberan hoy y a qué hora?', '¿Hay cama de UCI disponible?', '¿Hay altas pendientes que liberen cama esta mañana?'];
+}
+function consultasDia(d) { const x = DB.camas.find((y) => y.id === 'consultas-' + d); return (x && Array.isArray(x.l)) ? x.l : []; }
+function consultaGuardar(d, l) { upsert('camas', { id: 'consultas-' + d, fecha: d, l: l.slice(-60), t: nowDT() }); }
+function ingPreguntarAbrir(para, cid) { ingPregPara = para; ingPregCir = cid == null ? null : cid; VIEWS[view](); setTimeout(() => { const t = $('ing-preg-t'); if (t) t.focus(); }, 30); }
+function ingPreguntarEnviar(txt) {
+  const t = String(txt != null ? txt : (($('ing-preg-t') || {}).value || '')).trim().slice(0, 300);
+  if (t.length < 4) { avisar('Escriba la consulta'); return; }
+  const d = ingDia || hoyISO(), l = consultasDia(d).slice();
+  l.push({ id: Date.now().toString(36), para: ingPregPara || 'adm', de: anestQuien(), txt: t, t: nowDT(), cir: ingPregCir || '' });
+  consultaGuardar(d, l);
+  toastTurno(`Consulta enviada a ${ING_DEST[ingPregPara || 'adm'].n}`, ING_DEST[ingPregPara || 'adm'].c);
+  ingPregPara = null; ingPregCir = null; VIEWS[view]();
+}
+/* Quien la recibe (Jefatura de Enfermería o Admisión) contesta en su pantalla. */
+function consultaResponder(d, id) {
+  const inp = $('cq-r-' + id), t = String((inp && inp.value) || '').trim().slice(0, 300);
+  if (t.length < 2) { avisar('Escriba la respuesta'); return; }
+  const l = consultasDia(d).map((x) => x.id === id ? Object.assign({}, x, { r: t, rt: nowDT(), rpor: jefenf && !admis ? 'Jefatura de Enfermería' : 'Admisión y Egresos' }) : x);
+  consultaGuardar(d, l);
+  toastTurno('Respuesta enviada a la Jefatura de Quirófanos', '#16a34a');
+  VIEWS[view]();
+}
+/* El bloque de consultas pendientes, para la pantalla de quien responde. */
+function consultasRecibidasHTML(para) {
+  const d = hoyISO(), l = consultasDia(d).filter((x) => x.para === para);
+  if (!l.length) return '';
+  const pend = l.filter((x) => !x.r);
+  return `<section class="cq-rec ${pend.length ? 'pend' : ''}"><header><b>💬 Consultas de la Jefatura de Quirófanos</b><span>${pend.length ? pend.length + ' sin responder' : 'todas respondidas'}</span></header>
+    ${l.slice().reverse().map((x) => `<div class="cq-it ${x.r ? 'ok' : ''}"><small>${esc(String(x.t).slice(11, 16))} h · ${esc(x.de)}</small><p>${esc(x.txt)}</p>
+      ${x.r ? `<div class="cq-r">↳ ${esc(x.r)} <small>${esc(String(x.rt).slice(11, 16))} h</small></div>`
+        : `<div class="cq-f"><input id="cq-r-${esc(x.id)}" maxlength="300" placeholder="Respuesta…" onkeydown="if(event.key==='Enter')consultaResponder('${d}','${esc(x.id)}')"><button class="btn btn-sm btn-green" onclick="consultaResponder('${d}','${esc(x.id)}')">Responder</button></div>`}</div>`).join('')}
+  </section>`;
+}
+function consultasRecordatorios(add) {
+  const d = hoyISO(), l = consultasDia(d);
+  const para = soloEnfermeria() ? 'enf' : (admis && !jefe) ? 'adm' : null;
+  if (para) l.filter((x) => x.para === para && !x.r).forEach((x) => add({ key: 'cq-' + x.id, nivel: 'crit', notif: true, vista: para === 'enf' ? 'camas' : 'ingresos',
+    titulo: '💬 Consulta de la Jefatura de Quirófanos', texto: x.txt, cuando: String(x.t).slice(11, 16) + ' h' }));
+  if (jefe) l.filter((x) => x.r).forEach((x) => add({ key: 'cq-r-' + x.id, nivel: 'info', notif: true, vista: 'ingresos',
+    titulo: `💬 Respondió ${ING_DEST[x.para].n}`, texto: `«${x.txt}» → ${x.r}`, cuando: String(x.rt).slice(11, 16) + ' h' }));
+}
+/* La pantalla de la Jefatura: secuencia de ocupación en vivo, sin editar nada. */
+function renderIngresosJefe() {
+  const hoy = hoyISO(); if (!ingDia) ingDia = hoy;
+  const d = ingDia, env = DB.camas.find((x) => x.id === 'envio-' + hoy), R = camasResumen();
+  const lista = DB.cirugias.filter((c) => c.fecha === d && ['pendiente', 'validada', 'confirmada', 'en_curso', 'realizada'].includes(c.estado));
+  const conCama = lista.filter((c) => camaDe(c)).sort((a, b) => String(camaDe(a).t || '').localeCompare(String(camaDe(b).t || '')));
+  const sinCama = lista.filter((c) => !camaDe(c)).sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+  const enCama = conCama.filter((c) => { const k = camaDe(c); return camaEst(k.s, k.hab, k.cama) === 'ocupada'; }).length;
+  const cons = consultasDia(d), consPend = cons.filter((x) => !x.r).length;
+  const pct = lista.length ? conCama.length / lista.length : 0;
+  const paso = (c, i) => {
+    const k = camaDe(c), S = k ? SECTORES_CAMA[k.s] : null, ab = String(ingJefAbierta) === String(c.id);
+    const est = k ? camaEst(k.s, k.hab, k.cama) : '';
+    return `<li class="ij-p ${k ? 'con' : 'sin'} ${ab ? 'ab' : ''}" style="--c:${S ? S.c : '#94a3b8'};--d:${i * 60}ms">
+      <button type="button" class="ij-p-cab" onclick="ingJefAbierta=${ab ? 'null' : esc(JSON.stringify(c.id))};renderIngresos()" aria-expanded="${ab}">
+        <span class="ij-n">${k ? i + 1 : '…'}</span>
+        <span class="ij-t"><b>${esc((c.paciente && c.paciente.nombre) || 's/d')}</b><small>${esc(c.horaProg || '—')} h · ${esc(c.quirofano || '')} · ${esc(c.procedimiento || '')}</small></span>
+        ${k ? `<span class="ij-cama"><i>🛏</i><b>${esc(S.corto)} ${esc(k.hab)}-${esc(k.cama)}</b><small>${esc(String(k.t || '').slice(11, 16))} h${est === 'ocupada' ? ' · en cama' : ''}</small></span>` : '<span class="ij-cama no"><i>⏳</i><b>Sin cama</b><small>esperando</small></span>'}
+      </button>
+      ${ab ? `<div class="ij-det">
+        ${k ? `<p>Asignó <b>${esc(k.por || 'Admisión y Egresos')}</b> a las ${esc(String(k.t || '').slice(11, 16))} h · ${esc(S.n)} · Hab. ${esc(k.hab)} · Cama ${esc(k.cama)} · ☎ Int. ${esc(S.int)}${c.pulsera ? ' · 🏷️ pulsera impresa' : ''}</p>` : '<p>Admisión todavía no le asignó cama.</p>'}
+        <div class="ij-preg"><span>¿Duda?</span><button type="button" style="--c:${ING_DEST.adm.c}" onclick="ingPreguntarAbrir('adm',${esc(JSON.stringify(c.id))})">${ING_DEST.adm.i} Preguntar a Admisión</button><button type="button" style="--c:${ING_DEST.enf.c}" onclick="ingPreguntarAbrir('enf',${esc(JSON.stringify(c.id))})">${ING_DEST.enf.i} Preguntar a Enfermería</button></div>
+      </div>` : ''}
+    </li>`;
+  };
+  const cPreg = ingPregPara ? lista.find((c) => String(c.id) === String(ingPregCir)) : null;
+  $('main').innerHTML = `<div class="ij">
+    <section class="ij-hero">
+      <span class="ij-vivo"><i></i>En vivo · solo lectura</span>
+      <div class="ij-hero-top"><div><h1>Ingresos del día</h1><p>Las camas que Admisión y Egresos asigna a cada paciente, en el orden en que las asigna.</p></div>
+        <div class="ij-dias"><button class="${d === hoy ? 'on' : ''}" onclick="ingDia='${hoy}';renderIngresos()">Hoy</button><button class="${d === sumarDias(hoy, 1) ? 'on' : ''}" onclick="ingDia='${sumarDias(hoy, 1)}';renderIngresos()">Mañana</button></div></div>
+      <div class="ij-kpis">
+        <div class="ij-anillo" style="--p:${pct.toFixed(3)}"><b>${Math.round(pct * 100)}%</b><small>con cama</small></div>
+        <div><b>${lista.length}</b><small>programados</small></div><div><b>${conCama.length}</b><small>con cama</small></div>
+        <div class="${sinCama.length ? 'mal' : ''}"><b>${sinCama.length}</b><small>sin cama</small></div><div><b>${enCama}</b><small>ya en la cama</small></div>
+      </div>
+      <button type="button" class="ij-env" onclick="go('camas')">${env ? (env.recibido ? '✅' : '📤') : '⏰'} ${env ? `Enfermería envió el mapa a las ${esc(String(env.t || '').slice(11, 16))} h${env.recibido ? ' · Admisión lo recibió' : ' · Admisión todavía no tocó «Recibido»'}` : 'Enfermería todavía no envió el mapa de hoy'} · <u>ver Mapa de camas</u></button>
+      <div class="ij-libres">${Object.keys(R).map((s) => `<span style="--c:${SECTORES_CAMA[s].c}"><b>${R[s].libre}</b> libre${R[s].libre === 1 ? '' : 's'} · ${esc(SECTORES_CAMA[s].corto)}</span>`).join('')}</div>
+    </section>
+    <div class="ij-cols">
+      <section class="ij-seq"><h2>🛏 Secuencia de ocupación</h2>
+        ${lista.length ? `<ol class="ij-lista">${conCama.map(paso).join('')}${sinCama.map((c, i) => paso(c, conCama.length + i)).join('')}</ol>` : `<div class="empty">No hay pacientes programados para el ${fmtFecha(d)}.</div>`}
+      </section>
+      <aside class="ij-ask"><h2>💬 Preguntar rápido ${consPend ? `<span class="pq-n">${consPend}</span>` : ''}</h2>
+        <div class="ij-dest">${Object.entries(ING_DEST).map(([k, x]) => `<button type="button" class="${ingPregPara === k ? 'on' : ''}" style="--c:${x.c}" onclick="ingPreguntarAbrir('${k}',null)"><i>${x.i}</i><b>${esc(x.n)}</b></button>`).join('')}</div>
+        ${ingPregPara ? `<div class="ij-form" style="--c:${ING_DEST[ingPregPara].c}"><small>Para <b>${esc(ING_DEST[ingPregPara].n)}</b>${cPreg ? ' · sobre ' + esc((cPreg.paciente && cPreg.paciente.nombre) || '') : ''}</small>
+          <div class="ij-sug">${ingSugerencias(ingPregPara, cPreg).map((t) => `<button type="button" onclick="ingPreguntarEnviar(${esc(JSON.stringify(t))})">${esc(t)}</button>`).join('')}</div>
+          <div class="cq-f"><input id="ing-preg-t" maxlength="300" placeholder="O escriba su consulta…" onkeydown="if(event.key==='Enter')ingPreguntarEnviar()"><button class="btn btn-sm btn-blue" onclick="ingPreguntarEnviar()">Enviar</button></div>
+          <button type="button" class="fl-link" onclick="ingPregPara=null;ingPregCir=null;renderIngresos()">Cancelar</button></div>` : '<p class="ij-ayuda">Toque a quién le pregunta: le llega como aviso en su pantalla y la respuesta vuelve acá.</p>'}
+        <div class="ij-hilo">${cons.length ? cons.slice().reverse().map((x) => `<div class="cq-it ${x.r ? 'ok' : ''}" style="--c:${ING_DEST[x.para].c}"><small>${ING_DEST[x.para].i} ${esc(ING_DEST[x.para].n)} · ${esc(String(x.t).slice(11, 16))} h</small><p>${esc(x.txt)}</p>${x.r ? `<div class="cq-r">↳ ${esc(x.r)} <small>${esc(String(x.rt).slice(11, 16))} h</small></div>` : '<em>esperando respuesta…</em>'}</div>`).join('') : '<p class="ij-ayuda">Sin consultas este día.</p>'}</div>
+        <p class="ij-tel">☎ Internos: ${Object.values(SECTORES_CAMA).map((s) => `${esc(s.corto)} ${esc(s.int)}`).join(' · ')}</p>
+      </aside>
+    </div>
+  </div>`;
+}
 function renderIngresos() {
+  // 3.30 · La Jefatura de Quirófanos solo mira: su propia pantalla, sin botones que cambien nada.
+  if (jefe && !admis) { renderIngresosJefe(); return; }
   const hoy = hoyISO();
   if (!ingDia) ingDia = hoy;
   const d = ingDia;
@@ -17589,6 +18290,7 @@ function renderIngresos() {
         <small>Ahora en vivo: ${Object.keys(R).map((s) => `${SECTORES_CAMA[s].corto} <b>${R[s].libre}</b> libre${R[s].libre === 1 ? '' : 's'}`).join(' · ')}</small>
         <span class="cm-envio-acc">${env && !env.recibido ? `<button class="btn btn-sm btn-green" onclick="camasRecibido('${hoy}')">✓ Recibido — ver las camas</button>` : ''}${env ? `<button class="btn btn-sm btn-outline" onclick="camasVerEnvio('${hoy}')">👁 Ver lo enviado</button>` : ''}<button class="btn btn-sm btn-outline" onclick="go('camas')">🛏 Mapa en vivo</button></span></div>
     </div>
+    ${consultasRecibidasHTML('adm')}
     ${Object.keys(PARTE_AREAS).map((a) => {
       const L = lista.filter((c) => areaDe(c) === a);
       if (!L.length) return '';
@@ -17762,6 +18464,86 @@ function aplicarRegistroTardio(c, d) {
   pushHist(c, `Registrada fuera de término por la ${JEFATURA}: operada el ${fmtFecha(c.fecha)} de ${d.hi} a ${d.hf} h — ${d.mot}. LVQ declarada en papel; parte quirúrgico cargado`);
   revisarCierre(c);
   upsert('cirugias', c);
+}
+/* ================= 3.30 · ESCALERA DE LA AUTORIZACIÓN (idea de GoAlert, 2,8k★) =================
+   Pedido de Claudio (20-10-2026). Si Admisión y Egresos no puede avanzar porque
+   la obra social (o el pago de anestesiología) no autorizó una cirugía
+   programada, el aviso sube de nivel a medida que se acerca la fecha, en días
+   HÁBILES (los fines de semana y feriados las oficinas no autorizan nada):
+     1 · a 5 días hábiles: aviso al cirujano (y a Admisión);
+     2 · a 3 días hábiles: aviso crítico al cirujano, a Admisión y a la Jefatura;
+     3 · a 48 h hábiles (2 días): ALERTA DE PRIORIDAD a la Jefatura, que va a dar
+         de baja la cirugía para ofrecer la franja a otra especialidad, y al
+         cirujano, que si no está de acuerdo le escribe un reclamo a la Jefatura.
+   La baja es «Caducada · Falta de autorización del financiador» (libera la franja).
+   Con la app cerrada, los mismos escalones los manda el Apps Script por push y correo. */
+const AUT_ESCALONES = [null, { dh: 5, n: 'a 5 días hábiles' }, { dh: 3, n: 'a 3 días hábiles' }, { dh: 2, n: 'a 48 h hábiles' }];
+/* Días hábiles que quedan antes de la cirugía (hoy cuenta si es hábil; el día de la cirugía, no). */
+function diasHabilesHasta(fecha) { let n = 0, d = hoyISO(); for (let i = 0; i < 60 && d < fecha; i++) { if (esLaborable(d)) n++; d = sumarDias(d, 1); } return n; }
+function autEscalon(c) {
+  if (!c || !['pendiente', 'validada'].includes(c.estado) || authOk(c) || !c.fecha || c.fecha <= hoyISO() || rcActivo(c)) return 0;
+  const n = diasHabilesHasta(c.fecha);
+  return n <= 2 ? 3 : n <= 3 ? 2 : n <= 5 ? 1 : 0;
+}
+function autQueFalta(c) { return c.auth === 'NO AUTORIZADO' ? `la obra social o el pago de anestesiología NO autorizó (${c.authMotivo || 'sin motivo registrado'})` : 'falta la autorización de la obra social o del pago de anestesiología'; }
+function autRecordatorios(add) {
+  const u = usuarioActual(), hoy = hoyISO();
+  DB.cirugias.filter((c) => autEscalon(c)).forEach((c) => {
+    const e = autEscalon(c), mio = u && c.cirujanoEmail === u.email, quedan = diasHabilesHasta(c.fecha);
+    const cx = `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} · ${fmtFecha(c.fecha)} ${c.horaProg || ''} h · ${c.quirofano || ''}`;
+    const cuando = `Faltan ${quedan} día${quedan === 1 ? '' : 's'} hábil${quedan === 1 ? '' : 'es'}`;
+    if (mio && !jefe) add(e < 3
+      ? { key: `aut-${e}-${c.id}`, nivel: e === 2 ? 'crit' : 'warn', notif: true, vista: 'mis', cirugia: c.id,
+          titulo: e === 2 ? `Faltan 3 días hábiles y la cirugía sigue sin autorizar` : `Su cirugía todavía no está autorizada`,
+          texto: `${cx}. Admisión y Egresos no puede avanzar: ${autQueFalta(c)}. Gestiónelo con el paciente y la obra social. Si a 48 h hábiles sigue igual, la Jefatura la da de baja para ofrecer el quirófano a otra especialidad.`, cuando }
+      : { key: `aut-3-${c.id}`, nivel: 'crit', notif: true, vista: 'reclamos', cirugia: c.id,
+          titulo: `⚠ La Jefatura va a dar de baja su cirugía por falta de autorización`,
+          texto: `${cx}. Quedan 48 h hábiles y ${autQueFalta(c)}. La franja se va a ofrecer a otra especialidad. Si considera que no corresponde, escríbale un reclamo a la Jefatura de Quirófanos (en Reclamos ya está el borrador).`, cuando });
+    if (admis && !jefe) add({ key: `aut-adm-${e}-${c.id}`, nivel: e >= 2 ? 'warn' : 'info', notif: e >= 2, vista: 'ingresos', cirugia: c.id,
+      titulo: `Sin autorización ${AUT_ESCALONES[e].n}`, texto: `${cx}. ${e === 3 ? 'La Jefatura la va a dar de baja si no se autoriza.' : 'Si llega la autorización, cárguela para que el turno avance.'}`, cuando });
+    if (jefe && e >= 2) add(e === 3
+      ? { key: `aut-3-${c.id}`, nivel: 'crit', notif: true, vista: 'programacion', cirugia: c.id,
+          titulo: `🔴 Prioridad: dar de baja por falta de autorización`,
+          texto: `${cx}. Quedan 48 h hábiles y ${autQueFalta(c)}. Abra la ficha y toque «Dar de baja y liberar el quirófano» para ofrecer la franja a otra especialidad. Al cirujano ya se le avisó que puede reclamar.`, cuando }
+      : { key: `aut-2-${c.id}`, nivel: 'warn', notif: true, vista: 'programacion', cirugia: c.id,
+          titulo: `Sin autorización a 3 días hábiles`, texto: `${cx}. Se le avisó al cirujano y a Admisión. A las 48 h hábiles le va a llegar la alerta para darla de baja.`, cuando });
+  });
+}
+/* En la ficha: la franja de la escalera y, para la Jefatura en el escalón 3, el botón de baja. */
+function autFichaHTML(c) {
+  const e = autEscalon(c); if (!e) return '';
+  const quedan = diasHabilesHasta(c.fecha), u = usuarioActual(), mio = u && c.cirujanoEmail === u.email;
+  return `<div class="aut-esc e${e}"><div class="aut-esc-pasos">${[1, 2, 3].map((k) => `<span class="${k <= e ? 'on' : ''}">${k === 3 ? '48 h' : AUT_ESCALONES[k].dh + ' días'}</span>`).join('')}</div>
+    <div class="aut-esc-t"><b>${e === 3 ? '⚠ Sin autorización a 48 h hábiles' : `Sin autorización · faltan ${quedan} días hábiles`}</b>
+      <small>${esc(autQueFalta(c))}. ${e === 3 ? 'La Jefatura la da de baja para ofrecer el quirófano a otra especialidad.' : 'Si a 48 h hábiles sigue igual, la Jefatura la da de baja.'}</small>
+      ${e === 3 && jefe ? `<button class="btn btn-sm btn-red" onclick="autDarDeBaja(${esc(JSON.stringify(c.id))})">Dar de baja y liberar el quirófano</button>` : ''}
+      ${e === 3 && mio && !jefe ? `<button class="btn btn-sm btn-outline" onclick="autReclamar(${esc(JSON.stringify(c.id))})">✉ No estoy de acuerdo: escribir un reclamo</button>` : ''}</div></div>`;
+}
+async function autDarDeBaja(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c || !jefe || autEscalon(c) !== 3) return;
+  const rec = DB.reclamos.find((r) => r.estado !== 'cerrado' && r.cirugia != null && String(r.cirugia) === String(c.id));
+  if (!await preguntar(`Dar de baja por falta de autorización\n\n${c.procedimiento} · ${fmtFecha(c.fecha)} ${c.horaProg || ''} h · ${c.quirofano || ''}\n${c.cirujano || ''}\n\nEl turno queda «Caducada» (falta de autorización del financiador) y la franja queda libre para otra especialidad. El cirujano lo ve en su lista.${rec ? '\n\n⚠ El cirujano escribió un reclamo sobre esta cirugía: léalo antes.' : ''}`, { si: 'Dar de baja', no: 'Cancelar', tono: 'aviso' })) return;
+  caducarTurno(c, 'Falta de autorización del financiador', 'Sin autorización a 48 h hábiles de la cirugía; la franja se ofrece a otra especialidad', JEFATURA, false);
+  if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) closeCirugia();
+  toastTurno('Dada de baja: la franja quedó libre para otra especialidad', '#e11d48');
+  refreshView();
+}
+/* El cirujano que no está de acuerdo: el reclamo ya escrito, para revisar y mandar. */
+let autReclamoPrevio = null;
+function autReclamar(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c) return;
+  autReclamoPrevio = { cirugia: c.id, asunto: `Quirófano y horarios: no dar de baja la cirugía del ${fmtFecha(c.fecha)} (${c.procedimiento})`,
+    texto: `Solicito que no se dé de baja la cirugía del ${fmtFecha(c.fecha)} a las ${c.horaProg || '—'} h en ${c.quirofano || ''} (${c.procedimiento}).\n\nMotivo: [explique por qué: la autorización está en trámite y llega antes de la fecha, el paciente ya la tiene, es una cirugía que no puede esperar, etc.]` };
+  if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) closeCirugia();
+  go('reclamos');
+}
+/* En Reclamos: si hay cirugías propias por darse de baja, el aviso con el borrador listo. */
+function autReclamosHTML() {
+  const u = usuarioActual(); if (!u || jefe) return '';
+  const l = DB.cirugias.filter((c) => c.cirujanoEmail === u.email && autEscalon(c) === 3);
+  if (!l.length) return '';
+  return `<div class="banner banner-amber">${ico(ICONS.alertTri, 18)}<div><strong>La Jefatura va a dar de baja ${l.length === 1 ? 'una cirugía suya' : l.length + ' cirugías suyas'} por falta de autorización.</strong> Si considera que no corresponde, escríbale un reclamo:
+    ${l.map((c) => `<div style="margin-top:6px">· ${esc(fmtFecha(c.fecha))} ${esc(c.horaProg || '')} h · ${esc(c.procedimiento)} <button class="btn btn-sm btn-outline" onclick="autReclamar(${esc(JSON.stringify(c.id))})">Escribir el reclamo</button></div>`).join('')}</div></div>`;
 }
 function caducarTurno(c, motivo, detalle, quien, automatica) {
   c.caducada = { motivo, detalle: detalle || '', desdeEstado: c.estado, por: quien, t: nowDT(), automatica: !!automatica };
@@ -18998,6 +19780,7 @@ function openCirugia(id) {
     </header>
 
     <div class="fx-body">
+      ${autFichaHTML(c)}
       ${fichaCamino(c)}
       ${fichaSiguiente(c)}
 
@@ -20800,6 +21583,7 @@ function renderReclamos() {
       <div><strong>${sinLeer.length} reclamo(s) con mensajes sin leer</strong>
       ${sinLeer.map((r) => `<div style="margin-top:6px">· <a href="#reclamos" onclick="event.preventDefault();abrirReclamo(${r.id})" style="color:inherit;font-weight:700">${esc(r.asunto)}</a> — ${reclamoNoLeidos(r)} mensaje(s) nuevo(s)</div>`).join('')}</div></div>` : ''}
 
+    ${autReclamosHTML()}
     ${permiso === 'granted' ? '' : bannerNotif('rec-notif', 'Recibirá un aviso cuando le toque responder un reclamo o cuando le respondan uno propio, sin depender de que revise la app.')}
 
     ${bannerPlegable('rec-confid', 'blue', ICONS.lock,
@@ -20947,6 +21731,12 @@ function avisoMailto(r) {
   return `mailto:${encodeURIComponent(r.autorMail)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
 }
 
+/* 3.30 · Borrador del reclamo por una baja por falta de autorización (autReclamar). */
+function autReclamoVolcar() {
+  if (!autReclamoPrevio || !$('r-asunto')) return;
+  $('r-asunto').value = autReclamoPrevio.asunto; $('r-texto').value = autReclamoPrevio.texto;
+  $('r-texto').focus(); $('r-texto').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 function enviarReclamo() {
   const u = usuarioActual();
   const asunto = $('r-asunto').value.trim();
@@ -20960,7 +21750,9 @@ function enviarReclamo() {
     estado: 'abierto', respuesta: '', fechaRespuesta: '',
     mensajes: [{ rol: 'autor', nombre: u.nombre, email: u.email, de: serviciosTexto(u), texto, t }],
     leido: { [claveMail(u.email)]: 1 },
+    ...(autReclamoPrevio && autReclamoPrevio.cirugia != null ? { cirugia: autReclamoPrevio.cirugia } : {}),
   });
+  autReclamoPrevio = null;
   reclamoAbierto = id;
   renderReclamos();
 }
@@ -21854,7 +22646,7 @@ function perfilDatos(u) {
       anillo: { p: conT.length ? punt / conT.length : 0, v: conT.length ? Math.round(punt / conT.length * 100) + '%' : '—', l: 'puntualidad' }, barras: area(mias) };
   }
   if (f === 'enfermeria' || f === 'instrumentacion') {
-    const puestos = f === 'enfermeria' ? ['circulante', 'tecAnestesia'] : ['instrumentadora'];
+    const puestos = f === 'enfermeria' ? ['circulante', 'tecAnestesia'] : ['instrumentadora', 'circulante'];
     const mias = delAnio.filter((c) => c.equipoSala && puestos.some((k) => esYo(c.equipoSala[k])));
     if (f === 'enfermeria') {
       const lvq = mias.filter((c) => c.lvq && ((c.lvq.entrada && esYo(c.lvq.entrada.por)) || (c.lvq.salida && esYo(c.lvq.salida.por)) || (c.lvq.pausaFirmas && esYo(c.lvq.pausaFirmas.enfermeria))));
@@ -25278,15 +26070,19 @@ function remTileNotif() {
   /* 3.23.3 · Si es médico, el cartel dice si ESTE teléfono quedó anotado para el
      aviso de cierre (y con qué correo), o qué falló, con «Reintentar». */
   const uN = usuarioActual(), medico = !!(uN && uN.email && !jefe && !esEquipoSala(uN) && cuentaAprobada(uN));
-  if (p === 'granted' && medico && pushEstado && pushEstado.e === 'error') return remTile('rem-notif-push', 'ambar', ICONS.bell.replace('16', '18'), 'Falta anotar este teléfono para el aviso de cierre', 'Las notificaciones están activadas, pero el aviso con la app cerrada no le llegaría.',
+  // 3.30 · Al equipo de sala el teléfono anotado le sirve para el aviso de la víspera de su guardia.
+  const sala = !!(uN && uN.email && !jefe && esEquipoSala(uN) && cuentaAprobada(uN));
+  const queAviso = sala ? 'el aviso de la víspera de su guardia' : 'el aviso de cierre';
+  if (p === 'granted' && (medico || sala) && pushEstado && pushEstado.e === 'error') return remTile('rem-notif-push', 'ambar', ICONS.bell.replace('16', '18'), 'Falta anotar este teléfono para ' + queAviso, 'Las notificaciones están activadas, pero el aviso con la app cerrada no le llegaría.',
     `<p>No se pudo anotar este teléfono (${esc(pushEstado.msg || 'sin detalle')}). Revise que tenga internet y toque <b>Reintentar</b>. Mientras tanto, el aviso le llega igual por correo a <b>${esc(uN.email)}</b>.</p>
      <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pushReintentar(this)">${ICONS.refresh} Reintentar</button></div>`);
-  const resOk = medico && pushEstado && pushEstado.e === 'ok' ? `✓ Este teléfono recibe el aviso de cierre (como ${pushEstado.correo}).` : medico && !pushEstado && cloudOn ? 'Anotando este teléfono para el aviso de cierre…' : 'Este dispositivo recibe los avisos críticos.';
+  const resOk = (medico || sala) && pushEstado && pushEstado.e === 'ok' ? `✓ Este teléfono recibe ${queAviso} (como ${pushEstado.correo}).` : (medico || sala) && !pushEstado && cloudOn ? `Anotando este teléfono para ${queAviso}…` : 'Este dispositivo recibe los avisos críticos.';
   if (p === 'granted') return remTile('rem-notif-ok', 'teal', ICONS.bell.replace('16', '18'), 'Notificaciones activadas', resOk,
     `<p>Los avisos críticos aparecen como notificación del dispositivo mientras la app esté abierta, incluso en segundo plano o instalada en la pantalla de inicio. Tocar la notificación lleva directo a la cirugía, al reclamo o a la sección que la originó.</p>
-     <p><b>Aviso de cierre de la lista:</b> el viernes (y la víspera de un feriado), a las 12:00, este equipo recibe el aviso aunque la app esté cerrada o haya cerrado la sesión, con el sonido del teléfono. Toque <b>Recibido</b> para que la Jefatura sepa que le llegó; si no confirma, a las 12:30 se le repite. También le llega por correo.</p>
+     ${sala ? `<p><b>Aviso de la víspera de su guardia:</b> el día anterior a cada guardia, desde las 18:00, este teléfono recibe «Mañana está de guardia con …» aunque la app esté cerrada, con el sonido del teléfono. También le llega por correo.</p>`
+       : `<p><b>Aviso de cierre de la lista:</b> el viernes (y la víspera de un feriado), a las 12:00, este equipo recibe el aviso aunque la app esté cerrada o haya cerrado la sesión, con el sonido del teléfono. Toque <b>Recibido</b> para que la Jefatura sepa que le llegó; si no confirma, a las 12:30 se le repite. También le llega por correo.</p>`}
      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="probarNotif(this)">${ICONS.bell} Enviar una de prueba</button>
-     ${(() => { try { return localStorage.getItem('hruq_push') ? `<button class="btn btn-outline btn-sm" onclick="pushQuitarEsteEquipo().then(()=>{this.textContent='Este equipo ya no recibe el aviso de cierre';this.disabled=true})" title="Para una computadora compartida">No recibir el aviso de cierre en este equipo</button>` : ''; } catch (e) { return ''; } })()}</div>`);
+     ${(() => { try { return localStorage.getItem('hruq_push') ? `<button class="btn btn-outline btn-sm" onclick="pushQuitarEsteEquipo().then(()=>{this.textContent='Este equipo ya no recibe los avisos con la app cerrada';this.disabled=true})" title="Para una computadora compartida">No recibir ${queAviso} en este equipo</button>` : ''; } catch (e) { return ''; } })()}</div>`);
   if (p === 'denied') return remTile('rem-notif-bloq', 'ambar', ICONS.bell.replace('16', '18'), 'Notificaciones bloqueadas', 'Se bloquearon desde el navegador: hay que habilitarlas a mano.',
     `<p>Se bloquearon desde el propio navegador y la app ya no puede volver a pedirlas.</p>
      <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pedirPermisoNotif(this)">${ICONS.bell} Cómo habilitarlas</button></div>`);
@@ -31992,6 +32788,7 @@ Object.assign(VIEWS, {
   sala: renderSala,
   relevo: renderRelevo,
   anestesia: () => renderAnestesia(),
+  guardias: renderGuardias,
   portales: renderPortales,
   nueva: renderNueva,
   solicitud: renderSolicitud,
@@ -32003,7 +32800,7 @@ Object.assign(VIEWS, {
   estpublicas: renderEstPublicas,
   consentimientos: renderConsentimientos,
   usuarios: renderUsuarios,
-  reclamos: renderReclamos,
+  reclamos: () => { renderReclamos(); autReclamoVolcar(); },
   comunicados: renderComunicados,
   excepcion: renderExcepcion,
   acceso: renderAcceso,
