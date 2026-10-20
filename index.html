@@ -944,6 +944,79 @@
   .prof-falta svg { flex: none; margin-top: 2px; color: var(--red); }
   .prof-falta.mid { background: var(--amber-soft); }
   .prof-falta.mid svg { color: #b7790f; }
+  /* 3.29 · Avisar por WhatsApp qué le falta */
+  .prof-wa { display: flex; gap: 10px; align-items: center; border-radius: 12px; padding: 8px 10px; background: color-mix(in srgb, #22c55e 12%, transparent); border: 1px solid color-mix(in srgb, #16a34a 35%, transparent); }
+  .prof-wa.neutro { background: var(--sup2, rgba(100,116,139,.06)); border-color: var(--line); }
+  .prof-wa.neutro .prof-wa-i { background: #0ea5e9; }
+  .prof-wa-acc { flex: none; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .prof-wa.sin { background: var(--sup2, rgba(100,116,139,.08)); border-color: var(--line); }
+  .prof-wa-i { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #16a34a; color: #fff; }
+  .prof-wa.sin .prof-wa-i { background: var(--muted); }
+  .prof-wa-t { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: .8rem; line-height: 1.3; }
+  .prof-wa-t small { color: var(--muted); overflow-wrap: anywhere; }
+  .prof-wa-b { flex: none; background: #16a34a !important; color: #fff !important; border: 0 !important; font-weight: 800; }
+  .prof-wa-b:hover { background: #15803d !important; }
+  .an-acc { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(0, 2fr); gap: 12px; margin: 12px 0 8px; }
+  .an-acc-est { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 6px 18px -12px rgba(15,23,42,.35); }
+  .an-acc-est b { display: block; font-size: .9rem; } .an-acc-est small { color: var(--muted); font-size: .76rem; line-height: 1.3; }
+  .an-acc-est.mal { --ac: #e11d48; } .an-acc-est.bien { --ac: #059669; }
+  .an-acc-est > span:last-child b { color: var(--ac); }
+  .an-acc-ring { flex: none; width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--ac) calc(var(--p) * 360deg), color-mix(in srgb, var(--ac) 14%, transparent) 0); position: relative; }
+  .an-acc-ring::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: var(--card); }
+  .an-acc-ring b { position: relative; font-size: .78rem !important; color: var(--ink) !important; }
+  .an-acc-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .an-tool { position: relative; display: flex; align-items: center; gap: 10px; text-align: left; padding: 12px; border-radius: 18px; cursor: pointer; font-family: inherit; color: var(--ink);
+    background: linear-gradient(var(--card), var(--card)) padding-box, linear-gradient(135deg, var(--c1), var(--c2)) border-box; border: 1.5px solid transparent;
+    transition: transform .18s, box-shadow .18s; overflow: hidden; }
+  .an-tool::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 30%, color-mix(in srgb, var(--c2) 18%, transparent) 50%, transparent 70%); transform: translateX(-120%); transition: transform .6s; pointer-events: none; }
+  .an-tool:hover { transform: translateY(-3px); box-shadow: 0 12px 24px -14px var(--c1); }
+  .an-tool:hover::after { transform: translateX(120%); }
+  .an-tool:active { transform: translateY(0) scale(.98); }
+  .an-tool > i { flex: none; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; font-style: normal; font-size: 1.1rem; color: #fff; background: linear-gradient(135deg, var(--c1), var(--c2)); box-shadow: 0 6px 14px -6px var(--c1); }
+  .an-tool > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .an-tool b { font-size: .84rem; } .an-tool small { font-size: .72rem; color: var(--muted); line-height: 1.25; }
+  .an-sig { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 6px 0 14px; }
+  .an-sig-b { display: inline-flex; align-items: center; gap: 14px; padding: 10px 12px 10px 18px; border: 0; border-radius: 999px; cursor: pointer; font-family: inherit; color: #fff; text-align: left;
+    background: linear-gradient(110deg, #1e3a8a, #0f766e 60%, #059669); background-size: 160% 100%; box-shadow: 0 10px 22px -12px #0f766e; transition: background-position .4s, transform .15s; }
+  .an-sig-b:hover { background-position: 100% 0; transform: translateY(-2px); }
+  .an-sig-b span { display: flex; flex-direction: column; } .an-sig-b small { font-size: .66rem; opacity: .8; letter-spacing: .06em; text-transform: uppercase; } .an-sig-b b { font-size: .92rem; }
+  .an-sig-b i { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-style: normal; background: rgba(255,255,255,.18); transition: transform .2s; }
+  .an-sig-b:hover i { transform: translateX(4px); }
+  @media (max-width: 760px) { .an-acc { grid-template-columns: 1fr; } .an-acc-tools { grid-template-columns: 1fr; } .an-sig-b { width: 100%; justify-content: space-between; } }
+  @media (prefers-reduced-motion: reduce) { .an-tool, .an-tool::after, .an-sig-b, .an-sig-b i { transition: none; } }
+  .an-ver { display: inline-flex; align-items: center; gap: 4px; margin: 0 0 8px; padding: 3px; border-radius: 999px; background: var(--sup2, rgba(100,116,139,.1)); font-size: .76rem; }
+  .an-ver > span { padding: 0 6px 0 8px; color: var(--muted); font-weight: 700; }
+  .an-ver button { border: 0; border-radius: 999px; padding: 6px 11px; background: none; color: var(--ink); font: 600 .76rem/1 inherit; font-family: inherit; cursor: pointer; }
+  .an-ver button.on { background: var(--card); box-shadow: 0 2px 6px -2px rgba(15,23,42,.3); }
+  .an-ver button.on[style] { background: var(--k); color: #fff; }
+  .an-sig-v { white-space: nowrap; flex: none; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 9px 14px; font: 600 .8rem/1 inherit; font-family: inherit; cursor: pointer; }
+  .an-sig-v:hover { border-color: var(--ink); }
+  .an-pop { position: fixed; z-index: 9999; width: min(300px, calc(100vw - 16px)); max-height: min(380px, 70vh); display: flex; flex-direction: column; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 20px 40px -16px rgba(15,23,42,.45); animation: anPop .16s ease-out; }
+  @keyframes anPop { from { opacity: 0; transform: translateY(-4px) scale(.97); } }
+  .an-pop header { display: grid; grid-template-columns: 1fr auto; padding: 10px 12px 8px; border-bottom: 1px solid var(--line); }
+  .an-pop header b { font-size: .86rem; } .an-pop header small { grid-column: 1; color: var(--muted); font-size: .74rem; }
+  .an-pop header button { grid-row: 1 / 3; grid-column: 2; border: 0; background: none; color: var(--muted); font-size: 1rem; cursor: pointer; }
+  .an-pop-l { overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+  .an-pop-l button { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border: 0; border-radius: 10px; background: none; color: var(--ink); text-align: left; font-family: inherit; cursor: pointer; }
+  .an-pop-l button:hover { background: var(--sup2, rgba(100,116,139,.1)); }
+  .an-pop-l button.on { background: color-mix(in srgb, var(--k) 14%, transparent); }
+  .an-pop-l i { flex: none; width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font: 800 .62rem/1 inherit; font-style: normal; color: #fff; background: var(--k, #64748b); }
+  .an-pop-l .vaciar i { background: #94a3b8; font-size: .9rem; }
+  .an-pop-l span { flex: 1; display: flex; flex-direction: column; min-width: 0; } .an-pop-l b { font-size: .84rem; } .an-pop-l small { font-size: .7rem; color: #b45309; }
+  .an-pop-l em { font-style: normal; color: var(--k); font-weight: 900; }
+  .an-copiar { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; margin: 12px 0; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, #7c3aed 10%, transparent); border: 1.5px dashed color-mix(in srgb, #7c3aed 45%, transparent); }
+  .an-copiar > span { font-size: 1.5rem; }
+  .an-copiar > div { flex: 1 1 220px; display: flex; flex-direction: column; gap: 2px; }
+  .an-copiar small { color: var(--muted); font-size: .8rem; }
+  .alta-falta { display: flex; gap: 12px; align-items: flex-start; margin: 0 0 14px; padding: 14px 16px; border-radius: 16px; background: linear-gradient(135deg, color-mix(in srgb, #f59e0b 16%, transparent), color-mix(in srgb, #ef4444 10%, transparent)); border: 1.5px solid color-mix(in srgb, #f59e0b 45%, transparent); color: var(--ink); }
+  .alta-falta.ok { background: color-mix(in srgb, #0ea5e9 10%, transparent); border-color: color-mix(in srgb, #0ea5e9 40%, transparent); }
+  .alta-falta-i { font-size: 1.6rem; line-height: 1; }
+  .alta-falta b { display: block; font-size: .95rem; }
+  .alta-falta ul { margin: 6px 0 4px; padding-left: 18px; font-size: .9rem; line-height: 1.5; }
+  .alta-falta small { color: var(--muted); font-size: .78rem; }
+  .perfil-cel { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: flex-end; margin: 4px 0 14px; }
+  .perfil-cel .dc-f { flex: 1 1 220px; }
+  .perfil-cel small { flex-basis: 100%; color: var(--muted); font-size: .78rem; }
   .prof-pie { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; font-size: 0.75rem; color: var(--muted); }
   .prof-pie b { color: var(--ink); }
   .prof-acc { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 10px; border-top: 1px dashed var(--line); }
@@ -6000,7 +6073,13 @@
   .an-tl { position: relative; overflow-x: auto; overflow-y: hidden; padding: 0; border-radius: 16px; border: 1px solid var(--line); background: var(--card); overscroll-behavior-x: contain; }
   .an-tl.pintando .an-grid button.an-c { touch-action: none; cursor: crosshair; }
   .an-grid { display: grid; grid-template-columns: 118px repeat(var(--n), 30px); gap: 4px; padding: 8px 10px 10px 0; width: max-content; }
-  .an-g-esq, .an-g-sala { position: sticky; left: 0; z-index: 3; background: var(--card); box-shadow: 8px 0 10px -8px rgba(15,23,42,.35); padding: 0 8px 0 12px; }
+  .an-g-esq, .an-g-sala { position: sticky; left: 0; z-index: 5; background: var(--card); box-shadow: 8px 0 10px -8px rgba(15,23,42,.35); padding: 0 8px 0 12px; }
+  /* 3.29 · La columna fija tapa también la separación entre filas y la de la
+     primera columna de días: antes, al desplazar, los anillos de color de las
+     casillas resaltadas se veían por esas rendijas, encima de los nombres. */
+  .an-g-esq, .an-g-sala { margin: -2px -4px -2px 0; padding-top: 2px; padding-bottom: 2px; padding-right: 12px;
+    box-shadow: 8px 0 10px -8px rgba(15,23,42,.35), 0 6px 0 0 var(--card); }
+  .an-grid { padding-top: 10px; }
   .an-g-esq { display: flex; flex-direction: column; justify-content: flex-end; font-size: .58rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
   .an-g-sala { display: flex; flex-direction: column; justify-content: center; min-height: 30px; }
   .an-g-sala b { font-size: .76rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -6022,6 +6101,15 @@
   .an-medidor { --p: 0; flex: none; width: 76px; height: 76px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
     background: radial-gradient(closest-side, var(--card) 74%, transparent 76% 100%), conic-gradient(#10b981 calc(var(--p) * 360deg), color-mix(in srgb, #e11d48 20%, transparent) 0); }
   .an-medidor b { font-size: 1.05rem; font-weight: 900; color: var(--ink); line-height: 1; } .an-medidor small { font-size: .58rem; font-weight: 800; text-transform: uppercase; color: var(--muted); }
+  .an-cobm { --ac: #e11d48; flex: none; width: 138px; box-sizing: border-box; padding: 10px 12px; border-radius: 16px; background: linear-gradient(160deg, color-mix(in srgb, var(--ac) 14%, var(--card)), var(--card)); border: 1px solid color-mix(in srgb, var(--ac) 35%, var(--line)); }
+  .an-cobm.medio { --ac: #d97706; } .an-cobm.lleno { --ac: #059669; }
+  .an-cobm-top { display: flex; flex-direction: column; gap: 3px; }
+  .an-cobm-top b { font-size: 1.7rem; font-weight: 900; line-height: 1; color: var(--ac); letter-spacing: -.02em; }
+  .an-cobm-top b small { font-size: .85rem; margin-left: 1px; }
+  .an-cobm-top span { font-size: .62rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; color: var(--ac); white-space: nowrap; }
+  .an-cobm-bar { height: 7px; margin: 8px 0 6px; border-radius: 99px; background: color-mix(in srgb, var(--ac) 16%, transparent); overflow: hidden; }
+  .an-cobm-bar i { display: block; height: 100%; width: calc(var(--p) * 100%); border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--ac) 70%, #fff), var(--ac)); transition: width .5s; }
+  .an-cobm-n { display: block; font-size: .7rem; color: var(--muted); white-space: nowrap; }
   .an-gente { flex: 1 1 280px; display: flex; flex-wrap: wrap; gap: 8px; }
   .an-persona { --k: #64748b; --p: 0; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 14px; cursor: pointer; text-align: left;
     background: var(--card); border: 1.5px solid var(--line); color: var(--ink); font-family: inherit; transition: transform .12s, box-shadow .15s, border-color .15s; }
@@ -6222,6 +6310,77 @@
      Una sola línea de color —el acento de la apariencia—, filetes de 1 px,
      sin degradés ni sombras pesadas, horas en monoespaciada. Lo activo se
      destaca por contraste, no por adorno. */
+  /* ===== 3.29 · Mi Sala rediseñada ===== */
+  .ms { --qx: #4f46e5; --endo: #0d9488; --obs: #db2777; }
+  .ms-hero { position: relative; overflow: hidden; isolation: isolate; border-radius: 24px; padding: 16px 18px 18px; margin-bottom: 14px; color: #fff;
+    background: linear-gradient(125deg, var(--m1), var(--m2) 55%, var(--m3)); background-size: 180% 180%; animation: msFondo 14s ease-in-out infinite; box-shadow: 0 18px 40px -22px var(--m1); }
+  @keyframes msFondo { 0%, 100% { background-position: 0% 40%; } 50% { background-position: 100% 60%; } }
+  .ms-blob { position: absolute; z-index: -1; border-radius: 50%; filter: blur(30px); opacity: .45; animation: msBlob 12s ease-in-out infinite; }
+  .ms-blob.b1 { width: 200px; height: 200px; background: #fff; top: -90px; right: -40px; opacity: .22; }
+  .ms-blob.b2 { width: 160px; height: 160px; background: var(--m3); bottom: -70px; left: 10%; animation-delay: -4s; }
+  .ms-blob.b3 { width: 120px; height: 120px; background: var(--m1); top: 20%; right: 30%; animation-delay: -8s; }
+  @keyframes msBlob { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, 16px) scale(1.15); } }
+  .ms-hero-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+  .ms-hero .fl-yo { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.35); backdrop-filter: blur(6px); }
+  .ms-hero .fl-yo b, .ms-hero .fl-yo small, .ms-hero .fl-yo em { color: #fff !important; }
+  .ms-hero .fl-yo-av { background: rgba(255,255,255,.95); color: var(--m1); }
+  .ms-hero .fl-dia { background: rgba(255,255,255,.16); border-radius: 999px; padding: 3px; backdrop-filter: blur(6px); }
+  .ms-hero .fl-dia b, .ms-hero .fl-dia small { color: #fff; }
+  .ms-hero .fl-flecha, .ms-hero .fl-hoy { background: rgba(255,255,255,.22); color: #fff; border: 0; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 1rem; }
+  .ms-hero .fl-hoy { border-radius: 999px; width: auto; padding: 0 12px; font-size: .74rem; font-weight: 800; }
+  .ms-hero h1 { margin: 14px 0 4px; font-size: clamp(1.5rem, 5vw, 2.1rem); font-weight: 900; letter-spacing: -.03em; text-shadow: 0 2px 12px rgba(0,0,0,.18); animation: msSube .5s ease-out both; }
+  .ms-hero p { margin: 0 0 14px; max-width: 620px; font-size: .9rem; line-height: 1.45; opacity: .95; animation: msSube .5s .08s ease-out both; }
+  @keyframes msSube { from { opacity: 0; transform: translateY(8px); } }
+  .ms-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .ms-kpi { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 12px; border: 1px solid rgba(255,255,255,.3); border-radius: 16px; cursor: pointer; color: #fff; text-align: left; font-family: inherit;
+    background: rgba(255,255,255,.14); backdrop-filter: blur(8px); transition: transform .18s, background .18s; animation: msSube .5s calc(.12s + var(--d, 0s)) ease-out both; }
+  .ms-kpi:nth-child(2) { --d: .05s; } .ms-kpi:nth-child(3) { --d: .1s; } .ms-kpi:nth-child(4) { --d: .15s; }
+  .ms-kpi:hover { transform: translateY(-3px); background: rgba(255,255,255,.24); }
+  .ms-kpi.on { background: #fff; color: var(--m1); box-shadow: 0 10px 22px -12px rgba(0,0,0,.4); }
+  .ms-kpi i { font-style: normal; font-size: 1.1rem; } .ms-kpi b { font-size: 1.6rem; font-weight: 900; line-height: 1; } .ms-kpi small { font-size: .7rem; font-weight: 700; opacity: .9; }
+  .ms-kpi.late::after { content: ''; position: absolute; top: 10px; right: 10px; width: 10px; height: 10px; border-radius: 50%; background: #fde047; box-shadow: 0 0 0 0 rgba(253,224,71,.8); animation: msLate 1.6s infinite; }
+  @keyframes msLate { 70% { box-shadow: 0 0 0 10px rgba(253,224,71,0); } 100% { box-shadow: 0 0 0 0 rgba(253,224,71,0); } }
+  .ms .fl-filtros { gap: 8px; }
+  .ms .fl-seg { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 3px; border-radius: 999px; background: var(--sup2, rgba(100,116,139,.12)); }
+  .ms .fl-seg-luz { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 999px; background: linear-gradient(120deg, var(--m1), var(--m2)); transform: translateX(calc(var(--i) * 100%)); transition: transform .35s cubic-bezier(.3,1.4,.5,1); box-shadow: 0 6px 14px -8px var(--m1); }
+  .ms .fl-seg .fl-f { position: relative; border: 0; background: none; padding: 8px 14px; }
+  .ms .fl-seg .fl-f.on { color: #fff; }
+  .ms .fl-f { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; font-weight: 700; transition: transform .15s, background .2s, color .2s; }
+  .ms .fl-f:hover { transform: translateY(-1px); }
+  .ms .fl-f i { font-style: normal; }
+  .ms .fl-n { min-width: 20px; padding: 2px 6px; border-radius: 999px; background: color-mix(in srgb, var(--fc, var(--m1)) 14%, transparent); color: var(--fc, var(--m1)); font-size: .7rem; font-weight: 900; text-align: center; }
+  .ms .fl-f.on .fl-n { background: rgba(255,255,255,.28); color: #fff; }
+  .ms .fl-x { margin-left: 2px; font-size: .7rem; opacity: .85; }
+  .ms .fl-a-qx { --fc: var(--qx); } .ms .fl-a-endo { --fc: var(--endo); } .ms .fl-a-obs { --fc: var(--obs); }
+  .ms .fl-f[class*="fl-a-"].on { background: var(--fc); border-color: var(--fc); color: #fff; box-shadow: 0 8px 16px -10px var(--fc); }
+  .ms .fl-pend { border: 0; cursor: pointer; padding: 7px 12px; border-radius: 999px; background: color-mix(in srgb, #f59e0b 16%, transparent); color: #b45309; font: 800 .76rem/1 inherit; font-family: inherit; animation: msLatido 2s ease-in-out infinite; }
+  @keyframes msLatido { 50% { transform: scale(1.04); } }
+  .fl-ayuda { margin: -4px 0 12px; font-size: .78rem; color: var(--muted); line-height: 1.45; }
+  .ms .fl-card { --ac: var(--qx); position: relative; border: 0; border-radius: 18px; margin-bottom: 10px; background: var(--card); box-shadow: 0 1px 0 var(--line), 0 10px 24px -18px color-mix(in srgb, var(--ac) 70%, #000);
+    animation: msCarta .45s calc(var(--i) * 60ms) ease-out both; transition: transform .2s, box-shadow .2s; }
+  @keyframes msCarta { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+  .ms .fl-card:hover { transform: translateY(-2px); box-shadow: 0 1px 0 var(--line), 0 16px 30px -18px var(--ac); }
+  .ms .fl-card.fl-ar-endo { --ac: var(--endo); } .ms .fl-card.fl-ar-obs { --ac: var(--obs); }
+  .ms .fl-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: linear-gradient(var(--ac), color-mix(in srgb, var(--ac) 40%, #fff)); }
+  .ms .fl-card::after { content: ''; position: absolute; left: 6px; right: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, var(--ac) calc(var(--pp) * 100%), transparent 0); opacity: .55; }
+  .ms .fl-card.toca { border-left: 0; box-shadow: 0 0 0 2px color-mix(in srgb, #f59e0b 70%, transparent), 0 14px 30px -16px #f59e0b; animation: msCarta .45s calc(var(--i) * 60ms) ease-out both, msToca 2.4s 1s ease-in-out infinite; }
+  @keyframes msToca { 50% { box-shadow: 0 0 0 4px color-mix(in srgb, #f59e0b 35%, transparent), 0 14px 30px -16px #f59e0b; } }
+  .ms .fl-card.completa { opacity: .82; }
+  .ms .fl-card.libre { box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 45%, transparent) inset, 0 10px 24px -18px var(--ac); outline: 2px dashed color-mix(in srgb, var(--ac) 45%, transparent); outline-offset: -2px; }
+  .fl-libre { color: var(--ac, var(--acento)); font-weight: 800; }
+  .ms .fl-card.libre .fl-estado .fl-link { background: var(--ac); color: #fff; }
+  .ms .fl-cab { padding: 14px 16px 8px 20px; }
+  .ms .fl-hora { display: grid; place-items: center; min-width: 58px; padding: 8px 6px; border-radius: 12px; background: color-mix(in srgb, var(--ac) 12%, transparent); color: var(--ac); font-weight: 900; }
+  .ms .fl-tit b { font-size: .98rem; font-weight: 800; }
+  .ms .fl-linea i { width: 16px; height: 6px; border-radius: 99px; }
+  .ms .fl-linea i.hecho { background: var(--ac); } .ms .fl-linea i.activo { background: #f59e0b; animation: msLatido 1.6s ease-in-out infinite; }
+  .ms .fl-estado { padding: 0 16px 13px 20px; }
+  .ms .fl-toca { color: #b45309; font-weight: 900; }
+  .ms .fl-estado .fl-link { padding: 6px 12px; border-radius: 999px; background: color-mix(in srgb, var(--ac) 12%, transparent); color: var(--ac); font-weight: 800; text-decoration: none; }
+  .ms .fl-card.toca .fl-estado .fl-link { background: linear-gradient(120deg, #f59e0b, #f97316); color: #fff; }
+  .ms .fl-vacio { border-radius: 18px; border: 2px dashed color-mix(in srgb, var(--m1) 35%, var(--line)); background: color-mix(in srgb, var(--m1) 5%, transparent); }
+  @media (max-width: 640px) { .ms-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ms .fl-pend { margin-left: 0; } }
+  @media (prefers-reduced-motion: reduce) { .ms-hero, .ms-blob, .ms .fl-card, .ms-kpi, .ms .fl-pend, .ms .fl-linea i.activo, .ms-kpi.late::after, .ms-hero h1, .ms-hero p { animation: none !important; } }
   .fl-cabecera { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px solid var(--line); }
   .fl-cabecera small { font-size: .66rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
   .fl-yo { display: inline-flex; align-items: center; gap: 9px; padding: 4px 12px 4px 4px; border-radius: 999px; background: color-mix(in srgb, var(--k) 12%, transparent); border: 1px solid color-mix(in srgb, var(--k) 35%, transparent); }
@@ -9013,7 +9172,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.28.0';
+const APP_VERSION = '3.29.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10209,6 +10368,104 @@ function motivoCuenta(u) {
   if (!m) return '.';
   return ': ' + (/[.!?]$/.test(m) ? m : m + '.');
 }
+
+/* ================= 3.29 · QUÉ LE FALTA PARA EL ALTA (Y AVISO POR WHATSAPP) =================
+   Pedido de Claudio: el profesional no tiene que esperar sin saber por qué no
+   le dan el alta. Apenas se inscribe la app le dice qué le falta —y se lo
+   sigue recordando hasta que lo complete—, y la Jefatura le puede mandar esa
+   misma lista por WhatsApp con un toque desde Profesionales.
+
+   Solo los MÉDICOS que operan programan cirugías. A Enfermería,
+   Instrumentación y Anestesiología no se les habla de «programar»: se les
+   dice lo que les falta para quedar habilitados en el bloque.
+
+   El celular se guarda APARTE del padrón (`contacto/<correo>`), porque el
+   padrón lo lee todo el personal con sesión y el celular no: lo leen solo la
+   persona y la Jefatura (regla de la base). Se usa únicamente para este aviso. */
+function programaCirugias(u) { return !!u && !esEquipoSala(u); }
+/* Lo que le falta al profesional, en castellano (sin el visto de la Jefatura: eso no depende de él). */
+function altaFaltantes(u) {
+  return profSituacion(u).faltan.filter((t) => t !== 'autorización de la Jefatura' && t !== 'cuenta dada de baja');
+}
+function altaPara(u) { return programaCirugias(u) ? 'darle el alta y pueda programar cirugías' : 'darle el alta en el Bloque Quirúrgico'; }
+/* Celular argentino → número para wa.me (54 9 + área + abonado, 13 dígitos), o '' si no se entiende.
+   Acepta «2901 15 123456», «02901-15-123456», «+54 9 2901 123456» y el abonado solo de Ushuaia. */
+function celWA(tel) {
+  let d = soloDigitos(tel).replace(/^00/, '');
+  if (d.startsWith('54')) d = d.slice(2);
+  if (d.length === 11 && d.startsWith('9')) d = d.slice(1);
+  d = d.replace(/^0/, '');
+  if (d.length === 12) { for (const i of [2, 3, 4]) if (d.slice(i, i + 2) === '15') { d = d.slice(0, i) + d.slice(i + 2); break; } }
+  if (d.length === 8 && d.startsWith('15')) d = d.slice(2);
+  if (d.length === 6) d = '2901' + d;
+  return /^\d{10}$/.test(d) ? '549' + d : '';
+}
+function appDireccion() { return location.origin + location.pathname.replace(/index\.html$/, ''); }
+function altaMensajeWA(u) {
+  const f = altaFaltantes(u);
+  return `Hola, ${String(u.nombre || '').trim()}: le escribe la Jefatura de Quirófanos del Hospital Regional Ushuaia. `
+    + `Para ${altaPara(u)}, en la app HRU Quirófanos le falta:\n• ${f.join('\n• ')}\n\n`
+    + `Lo carga en la app, en Mi Perfil › Documentación: ${appDireccion()}\nApenas esté completo le damos el alta. Gracias.`;
+}
+const CONTACTO_LOCAL = 'hruq_contacto';
+let contactos = {};          // clave del correo → { cel }
+let contactosEstado = '';    // '' | 'cargando' | 'ok' | 'error'
+function contactoLocal() { try { return JSON.parse(localStorage.getItem(CONTACTO_LOCAL) || '{}'); } catch (e) { return {}; } }
+async function contactoGuardar(mail, cel) {
+  const k = recClave(mail), v = String(cel || '').trim().slice(0, 24);
+  if (cloudOn) await firebase.database().ref('contacto/' + k).set(v ? { cel: v, t: firebase.database.ServerValue.TIMESTAMP } : null);
+  else { const L = contactoLocal(); if (v) L[k] = { cel: v, t: Date.now() }; else delete L[k]; try { localStorage.setItem(CONTACTO_LOCAL, JSON.stringify(L)); } catch (e) {} }
+  if (v) contactos[k] = { cel: v }; else contactos[k] = null;
+}
+/* El propio (Mi Perfil) o, para la Jefatura, todos (Profesionales). */
+async function contactoCargar(mail) {
+  const k = recClave(mail);
+  if (contactos[k] !== undefined) return contactos[k];
+  try { contactos[k] = cloudOn ? ((await firebase.database().ref('contacto/' + k).once('value')).val() || null) : (contactoLocal()[k] || null); }
+  catch (e) { contactos[k] = null; }
+  return contactos[k];
+}
+async function contactosCargarTodos() {
+  if (!jefe || contactosEstado === 'cargando' || contactosEstado === 'ok') return;
+  contactosEstado = 'cargando';
+  try { contactos = Object.assign({}, cloudOn ? ((await firebase.database().ref('contacto').once('value')).val() || {}) : contactoLocal()); contactosEstado = 'ok'; }
+  catch (e) { contactosEstado = 'error'; console.warn('Contactos: no se pudieron leer', e); }
+  if (view === 'usuarios') renderUsuarios();
+}
+function celDe(u) { const c = contactos[recClave(u.email)]; return (c && c.cel) || ''; }
+/* El aviso que el propio profesional ve desde que se inscribe hasta que la Jefatura lo autoriza. */
+function altaAvisoHTML(u) {
+  if (!u || estadoCuenta(u) !== 'pendiente') return '';
+  const f = altaFaltantes(u);
+  return `<div class="alta-falta ${f.length ? '' : 'ok'}">
+    <span class="alta-falta-i">${f.length ? '📋' : '⏳'}</span>
+    <div><b>${f.length ? `Para que la Jefatura pueda ${altaPara(u)}, le falta:` : 'Tiene todo cargado: falta solo el visto de la Jefatura de Quirófanos'}</b>
+    ${f.length ? `<ul>${f.map((t) => `<li>${esc(t)}</li>`).join('')}</ul><small>Apenas lo complete, la Jefatura lo ve en su lista «Listo para autorizar».</small>`
+      : '<small>Ya figura en la lista «Listo para autorizar» de la Jefatura. No tiene que hacer nada más.</small>'}</div>
+  </div>`;
+}
+/* Abre WhatsApp con el mensaje listo. Lo manda la Jefatura desde su teléfono: la app no envía nada sola. */
+function profWhatsApp(id) {
+  const u = DB.usuarios.find((x) => String(x.id) === String(id));
+  if (!u) return;
+  const n = celWA(celDe(u));
+  if (!n) { alert(`${u.nombre} no tiene un celular válido cargado.\n\nUse «Correo», o pídale que lo cargue en Mi Perfil.`); return; }
+  const falta = altaFaltantes(u).length;
+  // Con algo pendiente va la lista; si no falta nada, solo abre el chat.
+  window.open(`https://wa.me/${n}` + (falta ? `?text=${encodeURIComponent(altaMensajeWA(u))}` : ''), '_blank', 'noopener');
+  if (falta) { u.avisoAlta = { t: nowDT(), via: 'whatsapp', n: falta }; upsert('usuarios', u); }
+  setTimeout(() => { if (view === 'usuarios') renderUsuarios(); }, 300);
+}
+/* 3.29 · El mismo aviso por correo, para quien no cargó celular. Abre el correo de
+   la Jefatura con el mensaje escrito: la app no manda nada sola. */
+function profCorreo(id) {
+  const u = DB.usuarios.find((x) => String(x.id) === String(id));
+  if (!u || !u.email) return;
+  const falta = altaFaltantes(u).length;
+  const asunto = falta ? 'HRU Quirófanos — lo que le falta para el alta' : 'HRU Quirófanos — Jefatura de Quirófanos';
+  location.href = `mailto:${encodeURIComponent(u.email)}?subject=${encodeURIComponent(asunto)}` + (falta ? `&body=${encodeURIComponent(altaMensajeWA(u))}` : '');
+  if (falta) { u.avisoAlta = { t: nowDT(), via: 'correo', n: falta }; upsert('usuarios', u); setTimeout(() => { if (view === 'usuarios') renderUsuarios(); }, 300); }
+}
 /* Motivo por el que un profesional no puede programar, o cadena vacía si puede. */
 function bloqueoCuenta(u) {
   const e = estadoCuenta(u);
@@ -10997,10 +11254,20 @@ function calcRecordatorios() {
   if (u) {
     const h = habilitacion(u);
     const faltantes = h.reqs.filter((r) => !r.ok);
-    if (faltantes.length) {
+    // 3.29 · Mientras la cuenta espera el alta, el aviso dice TODO lo que le falta
+    // (correo, papeles) en lugar de «habilitación incompleta», y suena en el teléfono.
+    const faltaAlta = estadoCuenta(u) === 'pendiente' ? altaFaltantes(u) : [];
+    if (faltaAlta.length) {
+      add({
+        key: 'alta-falta', nivel: 'crit', notif: true, vista: 'perfil',
+        titulo: `Para su alta le falta${faltaAlta.length === 1 ? '' : 'n'} ${faltaAlta.length} cosa${faltaAlta.length === 1 ? '' : 's'}`,
+        texto: 'Para que la Jefatura de Quirófanos pueda ' + altaPara(u) + ', le falta: ' + faltaAlta.join('; ') + '. Lo carga en Mi Perfil.',
+        cuando: 'Desde su inscripción',
+      });
+    } else if (faltantes.length) {
       add({
         key: 'hab-incompleta', nivel: 'crit', vista: 'perfil',
-        titulo: 'Habilitación incompleta — no puede cargar solicitudes',
+        titulo: programaCirugias(u) ? 'Habilitación incompleta — no puede cargar solicitudes' : 'Habilitación incompleta',
         texto: 'Requisitos pendientes: ' + faltantes.map((r) => r.label).join('; ') + '.',
         cuando: `${faltantes.length} de ${h.reqs.length} sin cumplir`,
       });
@@ -11214,7 +11481,8 @@ async function pushAsegurar() {
   // 3.26 · La Jefatura de Enfermería también anota su teléfono: a las 06:30 le llega el recordatorio del mapa de camas.
   const ue = (soloEnfermeria() || soloAdmision()) && firebase.auth().currentUser && firebase.auth().currentUser.email ? { email: firebase.auth().currentUser.email } : null;
   const u = ue || usuarioActual();
-  if (!u || !u.email || (!ue && (esEquipoSala(u) || !cuentaAprobada(u) || !recUid()))) return;
+  // 3.29 · El Jefe/a de Anestesiología también: le llega el pedido mensual de la disponibilidad.
+  if (!u || !u.email || (!ue && ((esEquipoSala(u) && !esJefeAnest(u)) || !cuentaAprobada(u) || !recUid()))) return;
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) { pushEstado = { e: 'error', msg: 'este navegador no admite avisos con la app cerrada' }; return; }
   pushListo = true;
   try {
@@ -12426,14 +12694,35 @@ function renderSala() {
   const u = usuarioActual();
   if (!u && !jefe) { go('acceso'); return; }
   if (!salaDia) salaDia = hoyISO();
-  $('main').innerHTML = `
-    <div class="fl-cabecera">
-      <div>${flYoChip(u ? '' : 'Jefatura')}<h1>Mi Sala</h1></div>
-      ${flDiaNav('salaDia', salaDia)}
-    </div>
-    <p class="fl-intro">Cada cirugía avanza paso a paso. Usted ve primero lo que le toca; cuando termina su parte, se habilita el paso siguiente y la app le avisa al que sigue.</p>
-    ${flujoLista(salaDia, 'sala')}`;
+  /* 3.29 · Mi Sala rediseñada (pedido de Claudio: «más innovadora, colores
+     vivos y animaciones, que invite a entrar»). Cabecera con el color de la
+     función, fondo que se mueve y cuatro contadores que también filtran. */
+  const todas = salaCirugias(salaDia);
+  const mias = todas.filter(flEsMia).length, toca = todas.filter(flMeTocaMia).length, libres = todas.filter((c) => !flEsMia(c) && flMeToca(c)).length;
+  const f = u ? funcionDe(u) : 'jefatura';
+  const tema = { enfermeria: ['#0d9488', '#06b6d4', '#6366f1'], instrumentacion: ['#db2777', '#f97316', '#facc15'], anestesiologia: ['#7c3aed', '#2563eb', '#06b6d4'] }[f] || ['#2563eb', '#7c3aed', '#db2777'];
+  const kpi = (n, t, ico, on, act, cls) => `<button type="button" class="ms-kpi ${act ? 'on' : ''} ${cls || ''}" onclick="${on};flRepintar()"><i>${ico}</i><b>${n}</b><small>${t}</small></button>`;
+  const hora = new Date().getHours();
+  $('main').innerHTML = `<div class="ms" style="--m1:${tema[0]};--m2:${tema[1]};--m3:${tema[2]}">
+    <section class="ms-hero">
+      <span class="ms-blob b1"></span><span class="ms-blob b2"></span><span class="ms-blob b3"></span>
+      <div class="ms-hero-top">${flYoChip(u ? '' : 'Jefatura')}${flDiaNav('salaDia', salaDia)}</div>
+      <h1>${salaDia === hoyISO() ? (hora < 12 ? 'Buen día' : hora < 20 ? 'Buenas tardes' : 'Buenas noches') + (u ? ', ' + esc(String(u.nombre).replace(/^(Dra?|Lic|Enf|Inst|Tec)\.\s*/i, '').split(/\s+/)[0]) : '') : 'Mi Sala'}</h1>
+      <p>${toca ? `Tiene <b>${toca}</b> cirugía${toca === 1 ? '' : 's'} esperando su firma. Toque «me toca» y la app la lleva.` : todas.length ? 'Cada cirugía avanza paso a paso: cuando usted termina lo suyo, la app le avisa al que sigue.' : 'No hay cirugías este día.'}${libres ? ` Hay <b>${libres}</b> con su puesto libre para anotarse.` : ''}</p>
+      <div class="ms-kpis">
+        ${kpi(todas.length, 'del día', '🗓️', "flMias=false;flToca=false;flArea=''", !flMias && !flToca && !flArea)}
+        ${kpi(mias, 'a mi nombre', '🙋', 'flMias=true;flToca=false', flMias && !flToca)}
+        ${kpi(toca, 'me toca', '✍️', 'flMias=true;flToca=true', flToca, toca ? 'late' : '')}
+        ${kpi(libres, 'puestos libres', '➕', "flMias=false;flToca=false;flArea=''", false)}
+      </div>
+    </section>
+    ${flujoLista(salaDia, 'sala')}
+  </div>`;
 }
+/* ¿Hay un paso esperando la firma del usuario en esta cirugía? */
+function flMeToca(c) { const e = flEstado(c), p = e.pasos[e.activo], mis = flMisRoles(c); return !!(p && p.firmas.some((x) => !x.f && mis.includes(x.rol))); }
+/* Lo que espera SU firma en una cirugía en la que ya está anotado/a (no cuenta los puestos libres). */
+function flMeTocaMia(c) { return flEsMia(c) && flMeToca(c); }
 /* Quién está usando el portal: nombre, función y la sala donde está ahora. */
 function flYoChip(rotulo) {
   const u = usuarioActual();
@@ -12695,7 +12984,7 @@ function salaVerificarInsumos(id) {
      2. El apto preanestésico NO cambia: lo sigue marcando el cirujano al
         programar, para que sigan Admisión y Egresos.
      3. Firma propia en la Entrada y en la Pausa de la Lista de Verificación.
-     4. DISPONIBILIDAD: el 15 de cada mes la app le pide al Jefe/a de
+     4. DISPONIBILIDAD: del 10 al 15 de cada mes (3.29) la app le pide al Jefe/a de
         Anestesiología la grilla del mes siguiente (quién cubre cada sala cada
         día). La Jefatura de Quirófanos la valida o la corrige con él/ella y
         con eso organiza Quirófanos, Endoscopía y Obstetricia con tiempo.
@@ -12725,13 +13014,16 @@ const ANEST_GRUPOS = [
 // Salas con turno de urgencia automático (guardia): son las únicas que se
 // cubren los sábados, domingos y feriados.
 const ANEST_GUARDIA = ['Q1', 'END', 'QOBS'];
-/* Sábados, domingos y feriados hay UN anestesiólogo/a de guardia para las
-   urgencias y emergencias de Quirófano 1, Endoscopía y Obstetricia: es la
-   primera fila de la grilla y la única que se cubre esos días. */
-const FILA_GUARDIA = { id: 'GUA', nombre: 'Guardia de anestesia', tipo: 'gua' };
+/* Todos los días hay UN anestesiólogo/a de guardia pasiva (primera fila de la
+   grilla, 3.29). Sábados, domingos y feriados es la única fila que se cubre:
+   atiende las urgencias y emergencias de Quirófano 1, Endoscopía y Obstetricia. */
+ /* 3.29 · Pedido de Claudio: la guardia de anestesia es PASIVA y se carga TODOS los
+   días, de lunes a lunes. Los días hábiles se cubren las salas y además la
+   guardia; sábados, domingos y feriados, solo la guardia. */
+const FILA_GUARDIA = { id: 'GUA', nombre: 'Guardia pasiva de anestesia', tipo: 'gua' };
 function anestFilas() { return [FILA_GUARDIA].concat(SALAS); }
-function anestRequeridas(d, disp) { return diaUrgAutomatica(d, disp) ? ['GUA'] : SALAS.map((x) => x.id); }
-function anestNomFila(f) { return f.id === 'GUA' ? 'Guardia' : f.tipo === 'endo' ? 'Endoscopía' : f.tipo === 'obs' ? 'Obstetricia' : f.nombre; }
+function anestRequeridas(d, disp) { return diaUrgAutomatica(d, disp) ? ['GUA'] : ['GUA'].concat(SALAS.map((x) => x.id)); }
+function anestNomFila(f) { return f.id === 'GUA' ? 'Guardia pasiva' : f.tipo === 'endo' ? 'Endoscopía' : f.tipo === 'obs' ? 'Obstetricia' : f.nombre; }
 /* Feriados nacionales (Ley 27.399). Los trasladables y los «puentes» los fija
    un decreto cada año: la Jefatura o el Jefe/a de Anestesiología pueden marcar
    o desmarcar cualquier día tocando su número en la línea de tiempo. */
@@ -12791,8 +13083,9 @@ function anestColor(k) { let h = 0; for (const ch of String(k)) h = (h * 31 + ch
 function anestIniciales(n) { return String(n || '?').replace(/^(Dr|Dra|Lic)\.?\s+/i, '').split(/\s+/).map((p) => p[0] || '').join('').slice(0, 2).toUpperCase(); }
 function mesSiguiente(ym) { const [a, m] = ym.split('-').map(Number); return m === 12 ? `${a + 1}-01` : `${a}-${String(m + 1).padStart(2, '0')}`; }
 function mesAnterior(ym) { const [a, m] = ym.split('-').map(Number); return m === 1 ? `${a - 1}-12` : `${a}-${String(m - 1).padStart(2, '0')}`; }
-/* Desde el 15 se trabaja el mes siguiente; antes, el que corre. */
-function anestMesPorDefecto() { const h = hoyISO(); return Number(h.slice(8, 10)) >= 15 ? mesSiguiente(h.slice(0, 7)) : h.slice(0, 7); }
+/* Desde el 10 (3.29; antes el 15) se trabaja el mes siguiente; antes, el que corre. */
+const ANEST_DIA_PEDIDO = 10, ANEST_DIA_LIMITE = 15;
+function anestMesPorDefecto() { const h = hoyISO(); return Number(h.slice(8, 10)) >= ANEST_DIA_PEDIDO ? mesSiguiente(h.slice(0, 7)) : h.slice(0, 7); }
 /* Feriados provinciales de Tierra del Fuego, permanentes (mes-día). Ninguna
    fuente pública los publica, por eso van acá: 1 de junio, Día de la
    Provincia (Ley provincial N.º 7, 1992). */
@@ -13424,6 +13717,17 @@ function paRepintar(id) {
   if (view === 'anestesia' || view === 'portales' || view === 'sala') VIEWS[view]();
 }
 
+/* 3.29 · Medidor de cobertura rediseñado: el círculo apretaba el texto. Ahora
+   es una tarjeta con el porcentaje, una barra que se llena y cuántas casillas van. */
+function anestCobHTML(cob) {
+  const tot = cob.reduce((n, x) => n + x.req, 0), ok = cob.reduce((n, x) => n + x.ok, 0), p = tot ? ok / tot : 0;
+  const tono = p >= 1 ? 'lleno' : p >= .6 ? 'medio' : 'bajo';
+  return `<div class="an-cobm ${tono}" style="--p:${p.toFixed(3)}" title="${ok} de ${tot} casillas cubiertas">
+    <div class="an-cobm-top"><b>${Math.round(p * 100)}<small>%</small></b><span>${p >= 1 ? '✓ Cubierto' : 'Cubierto'}</span></div>
+    <div class="an-cobm-bar"><i></i></div>
+    <small class="an-cobm-n">${ok} de ${tot} casillas</small>
+  </div>`;
+}
 /* ---- Disponibilidad del mes: la línea de tiempo ---- */
 function anestMesHTML() {
   const ym = anestMes;
@@ -13449,8 +13753,8 @@ function anestMesHTML() {
     return { d, auto, fer: esFeriado(d, d0), m, req: req.length, ok };
   });
   const celda = (x, sa) => {
-    const solo = x.auto ? sa.id !== 'GUA' : sa.id === 'GUA';
-    if (solo) return `<span class="an-c cerrada" title="${esc(fmtDiaLargo(x.d))}: ${x.auto ? esc(urgAutomaticaTexto(x.d, d0)) + ' — la cubre la guardia de anestesia' : 'día hábil — la guardia de anestesia es solo sábados, domingos y feriados'}"></span>`;
+    const solo = x.auto && sa.id !== 'GUA';
+    if (solo) return `<span class="an-c cerrada" title="${esc(fmtDiaLargo(x.d))}: ${esc(urgAutomaticaTexto(x.d, d0))} — las salas no se programan; la cubre la guardia pasiva de anestesia"></span>`;
     const k = x.m[sa.id];
     return `<button class="an-c ${k ? 'con' : 'vacia'} ${x.auto ? 'auto' : ''} ${anestFoco && k === anestFoco ? 'foco' : ''}" data-d="${x.d}" data-s="${sa.id}" data-k="${k || ''}" style="${k ? `--k:${anestColor(k)}` : ''}" ${edita ? '' : 'disabled'}
       title="${esc(fmtDiaLargo(x.d))} · ${esc(sa.nombre)}: ${k ? esc(nombreDeK(k, d0)) : 'sin cubrir'}">${k ? esc(anestIniciales(nombreDeK(k, d0))) : ''}</button>`;
@@ -13472,7 +13776,7 @@ function anestMesHTML() {
     return `<li class="${paso === k ? 'on' : ''} ${ok ? 'ok' : ''} ${bloq ? 'bloq' : ''}"><button ${bloq ? 'disabled' : ''} onclick="anestPasoMes=${k};VIEWS[view]()"><span>${ok && paso !== k ? '✓' : k}</span>${n}</button></li>`; }).join('')}</ol>` : '';
   const sig = (k, t, ok) => `<div class="fl-wiz-pie">${k > 2 ? `<button class="fl-link" onclick="anestPasoMes=${k - 2};VIEWS[view]()">← Volver</button>` : '<span></span>'}${ok ? `<button class="fl-btn" onclick="anestPasoMes=${k};VIEWS[view]()">${t} →</button>` : ''}</div>`;
   const revisar = `<div class="fl-revisar">
-      <div class="an-medidor" style="--p:${(cob.reduce((n, x) => n + x.ok, 0) / Math.max(1, cob.reduce((n, x) => n + x.req, 0))).toFixed(3)}"><b>${Math.round(cob.reduce((n, x) => n + x.ok, 0) / Math.max(1, cob.reduce((n, x) => n + x.req, 0)) * 100)}%</b><small>cubierto</small></div>
+      ${anestCobHTML(cob)}
       <div><b>${huecosLista.length ? `Quedan ${huecosLista.length} casilla(s) sin cubrir` : 'Todas las salas cubiertas'}</b>
         ${huecosLista.length ? `<small>${esc(huecosLista.slice(0, 12).join(' · '))}${huecosLista.length > 12 ? ' …' : ''}</small><small>Puede enviarla igual: la Jefatura ve los huecos y los completa con usted.</small>` : '<small>Lista para enviar.</small>'}
         <div class="fl-reparto">${plantel.map((p) => `<span style="--k:${anestColor(p.k)}"><i></i>${esc(p.n)}: ${quienes[p.k] || 0}</span>`).join('')}</div></div>
@@ -13497,13 +13801,13 @@ function anestMesHTML() {
     ${disp && disp.error ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 18)}<div><strong>No se pudo leer la disponibilidad.</strong> ${disp.error === 'PERMISSION_DENIED' ? 'La base todavía no tiene publicadas las reglas de Anestesiología.' : 'Revise la conexión.'}</div></div>` : ''}
     ${stepper}
     ${paso <= 1 ? `
-    <details class="an-info"><summary>📅 Cómo funciona</summary>La app le pide al Jefe/a de Anestesiología esta grilla <b>cada 15 del mes para el mes siguiente</b>. La Jefatura de Quirófanos la valida o la corrige con él/ella, y con eso abre Quirófanos, Endoscopía y Obstetricia con tiempo. <b>Sábados, domingos y feriados</b> las urgencias y emergencias se habilitan solas y se cubren con <b>un anestesiólogo/a de guardia</b> (primera fila de la grilla). Los feriados nacionales —con trasladables y puentes— los trae la app de internet cada año; los provinciales de Tierra del Fuego ya están cargados. Otro feriado (municipal o por decreto) se marca tocando el número del día.</details>
+    <details class="an-info"><summary>📅 Cómo funciona</summary>La app le pide al Jefe/a de Anestesiología esta grilla <b>del 10 al 15 de cada mes para el mes siguiente</b>, completa: los programados de cada sala, la guardia pasiva de todos los días, los fines de semana y los feriados. El aviso suena todos los días hasta que lo lee, y también le llega por correo hasta que la envía. La Jefatura de Quirófanos la valida o la corrige con él/ella, y con eso abre Quirófanos, Endoscopía y Obstetricia con tiempo. La <b>guardia pasiva</b> (primera fila de la grilla) se carga <b>todos los días, de lunes a lunes</b>. <b>Sábados, domingos y feriados</b> las salas no se programan: las urgencias y emergencias se habilitan solas y las cubre esa guardia. Los feriados nacionales —con trasladables y puentes— los trae la app de internet cada año; los provinciales de Tierra del Fuego ya están cargados. Otro feriado (municipal o por decreto) se marca tocando el número del día.</details>
     ` : ''}
     ${paso <= 2 ? `
     <div class="an-resumen">
-      <div class="an-medidor" style="--p:${(cob.reduce((n, x) => n + x.ok, 0) / Math.max(1, cob.reduce((n, x) => n + x.req, 0))).toFixed(3)}"><b>${Math.round(cob.reduce((n, x) => n + x.ok, 0) / Math.max(1, cob.reduce((n, x) => n + x.req, 0)) * 100)}%</b><small>cubierto</small></div>
+      ${anestCobHTML(cob)}
       <div class="an-gente">${plantel.map((p) => { const k = p.k, n = quienes[k] || 0; return `<button class="an-persona ${anestPincel === k && edita ? 'pincel' : ''} ${anestFoco === k ? 'foco' : ''} ${p.it ? 'itin' : ''}" style="--k:${anestColor(k)};--p:${(n / maxQ).toFixed(3)}"
-          onclick="${edita ? `anestPincel=anestPincel==='${k}'?null:'${k}';anestFoco=anestPincel` : `anestFoco=anestFoco==='${k}'?null:'${k}'`};VIEWS[view]()" title="${edita ? 'Elegir como pincel' : 'Resaltar sus días'}">
+          onclick="${edita ? `anestPincel=anestPincel==='${k}'?null:'${k}';anestFoco=null` : `anestFoco=anestFoco==='${k}'?null:'${k}'`};VIEWS[view]()" title="${edita ? 'Elegir como pincel' : 'Resaltar sus días'}">
           <i>${esc(anestIniciales(p.n))}</i><span><b>${esc(p.n)}</b><small>${p.it ? 'itinerante · ' : ''}${n} turno${n === 1 ? '' : 's'}</small><em><u></u></em></span>${p.it && edita ? `<a class="an-quitar" role="button" title="Quitar del mes" onclick="event.stopPropagation();anestQuitarItinerante('${k}')">✕</a>` : ''}</button>`; }).join('') || '<small class="an-ayuda">Todavía no hay cuentas de Anestesiología autorizadas.</small>'}
         ${edita ? `<button class="an-persona an-goma ${anestPincel === '' ? 'pincel' : ''}" onclick="anestPincel=anestPincel===''?null:'';anestFoco=null;VIEWS[view]()"><i>⌫</i><span><b>Borrar</b><small>vaciar casillas</small></span></button>` : ''}
       </div>
@@ -13515,19 +13819,43 @@ function anestMesHTML() {
       <p><b>Itinerante sin cuenta:</b> para quien cubre unos días y no va a usar la app, súmelo por nombre solo a este mes. Aparece en la grilla, pero no tiene portal.</p>
       <div class="an-alta-f"><input id="an-itin" maxlength="60" placeholder="Ej.: Dr. Juan Pérez (itinerante)" onkeydown="if(event.key==='Enter')anestAgregarItinerante()"><button class="btn btn-sm btn-blue" onclick="anestAgregarItinerante()">Sumar al mes</button></div>
     </details>` : ''}
+    ${edita && plantel.length && !hayAsig ? `<div class="an-copiar"><span>📋</span><div><b>¿Arranca igual que ${esc(nombreMes(mesAnterior(ym)))}?</b><small>Copia cada día del mismo día de la semana del mes anterior (programados, guardia, fines de semana y feriados). Después cambia solo lo distinto.</small></div><button class="fl-btn" onclick="anestCopiarMesAnterior()">Copiar el mes anterior</button></div>` : ''}
     ${sig(2, 'Siguiente: cubrir los días', plantel.length > 0)}` : ''}
     ${paso === 0 || paso === 2 ? `
-    ${edita ? `<p class="an-ayuda">${anestPincel === null ? '👆 Elija una persona (o «Borrar») y después toque o <b>arrastre</b> sobre las casillas para asignarla. Toque el número de un día para marcarlo como feriado.' : `🖌️ Pintando con <b>${anestPincel ? esc(nombreDeK(anestPincel, d0)) : 'la goma'}</b>: toque o arrastre sobre las casillas. Toque de nuevo su nombre para soltar el pincel.`}</p>` : ''}
+    ${edita ? `<p class="an-ayuda">${anestPincel === null ? '👆 <b>Toque una casilla</b> para elegir quién la cubre. Para pintar muchas de una vez, elija una persona (o «Borrar») arriba y <b>arrastre</b> sobre las casillas. Toque el número de un día para marcarlo como feriado.' : `🖌️ Pintando con <b>${anestPincel ? esc(nombreDeK(anestPincel, d0)) : 'la goma'}</b>: toque o arrastre sobre las casillas. Toque de nuevo su nombre para soltar el pincel.`}</p>` : ''}
+    ${(() => { const k = anestPincel || anestFoco; if (!k) return ''; const solo = anestFoco === k;
+      return `<div class="an-ver"><span>Ver:</span><button type="button" class="${solo ? '' : 'on'}" onclick="anestFoco=null;VIEWS[view]()">👥 Todo el equipo</button><button type="button" class="${solo ? 'on' : ''}" style="--k:${anestColor(k)}" onclick="anestFoco='${k}';VIEWS[view]()">👁 Solo a ${esc(nombreDeK(k, d0))}</button></div>`; })()}
     <div class="an-tl ${cargando ? 'cargando' : ''} ${anestPincel !== null && edita ? 'pintando' : ''} ${anestFoco ? 'con-foco' : ''}" onpointerdown="anestArrastreIni(event)" onpointermove="anestArrastreMov(event)">
       <div class="an-grid" style="--n:${n}">
         <div class="an-g-esq"><small>Sala</small><small>Día</small></div>
         ${cob.map((x) => `<button class="an-dcab ${x.auto ? 'auto' : ''} ${x.fer ? 'fer' : ''} ${x.d === hoyD ? 'hoy' : ''}" title="${esc(fmtDiaLargo(x.d))}${x.fer ? ' · Feriado' + (feriadoNombre(x.d) ? ': ' + feriadoNombre(x.d) : '') : ''}${edita ? ' · tocar para marcar o desmarcar feriado' : ''}" ${edita ? `onclick="anestFeriado('${x.d}')"` : 'disabled'}>
           <small>${DIAS_S[new Date(x.d + 'T12:00:00').getDay()].slice(0, 2)}</small><b>${Number(x.d.slice(8))}</b><i class="an-cob ${x.ok >= x.req ? 'lleno' : x.ok ? 'medio' : 'nada'}" style="--p:${(x.ok / Math.max(1, x.req)).toFixed(2)}"></i></button>`).join('')}
-        ${anestFilas().map((sa) => `<div class="an-g-sala ${sa.id === 'GUA' ? 'gua' : ''}"><b>${esc(sa.id === 'GUA' ? 'Guardia' : nomSala(sa))}</b>${sa.id === 'GUA' ? '<small>sáb · dom · feriados</small>' : ''}</div>${cob.map((x) => celda(x, sa)).join('')}`).join('')}
+        ${anestFilas().map((sa) => `<div class="an-g-sala ${sa.id === 'GUA' ? 'gua' : ''}"><b>${esc(sa.id === 'GUA' ? 'Guardia pasiva' : nomSala(sa))}</b>${sa.id === 'GUA' ? '<small>todos los días</small>' : ''}</div>${cob.map((x) => celda(x, sa)).join('')}`).join('')}
       </div>
     </div>
     <div class="an-ley"><span><i class="an-c vacia"></i>sin cubrir</span><span><i class="an-c cerrada"></i>no corresponde ese día</span><span><i class="an-dcab-ley"></i>sábado, domingo o feriado</span><span><i class="an-cob-ley"></i>barrita: cobertura del día</span></div>
-    ${paso === 2 ? `<div class="an-mes-pie"><b class="${huecos ? 'mal' : 'bien'}">${huecos ? `⚠ ${huecos} casilla(s) sin cubrir` : '✓ Todas las salas cubiertas'}</b><button class="btn btn-sm btn-outline" onclick="anestSugerir()">✨ Sugerir cobertura para los huecos</button><button class="btn btn-sm btn-outline" onclick="anestCopiarSemana()">⟳ Repetir la primera semana</button></div>${sig(3, 'Siguiente: revisar y enviar', hayAsig)}` : ''}` : ''}
+    ${paso === 2 ? (() => {
+      /* 3.29 · Botonera rediseñada (pedido de Claudio): estado de la cobertura
+         con anillo, tres herramientas como fichas con ícono y explicación, y el
+         paso siguiente como una barra que avanza. Mismas acciones que antes. */
+      const tot = cob.reduce((n, x) => n + x.req, 0), okc = cob.reduce((n, x) => n + x.ok, 0), pct = tot ? okc / tot : 0;
+      const ficha = (on, ico, c1, c2, t, d) => `<button type="button" class="an-tool" style="--c1:${c1};--c2:${c2}" onclick="${on}"><i>${ico}</i><span><b>${t}</b><small>${d}</small></span></button>`;
+      return `<div class="an-acc">
+        <div class="an-acc-est ${huecos ? 'mal' : 'bien'}" style="--p:${pct.toFixed(3)}">
+          <span class="an-acc-ring"><b>${Math.round(pct * 100)}%</b></span>
+          <span><b>${huecos ? `${huecos} casilla${huecos === 1 ? '' : 's'} sin cubrir` : 'Todas las salas cubiertas'}</b><small>${huecos ? 'Complételas a mano o con las herramientas de al lado' : 'Revise los cambios del mes y siga'}</small></span>
+        </div>
+        <div class="an-acc-tools">
+          ${ficha('anestCopiarMesAnterior()', '📋', '#7c3aed', '#c026d3', 'Copiar ' + esc(nombreMes(mesAnterior(ym)).split(' ')[0]), 'Mismo día de la semana · solo lo vacío')}
+          ${ficha('anestSugerir()', '✨', '#0ea5e9', '#6366f1', 'Sugerir para los huecos', 'Reparte entre quienes tienen menos turnos')}
+          ${ficha('anestCopiarSemana()', '⟳', '#14b8a6', '#22c55e', 'Repetir la 1.ª semana', 'La copia en los días vacíos del mes')}
+        </div>
+      </div>
+      <div class="an-sig">
+        <button type="button" class="an-sig-v" onclick="anestPasoMes=1;VIEWS[view]()">← Equipo del mes</button>
+        ${hayAsig ? `<button type="button" class="an-sig-b" onclick="anestPasoMes=3;VIEWS[view]()"><span><small>Paso 3 de 4</small><b>Revisar y enviar</b></span><i>→</i></button>` : ''}
+      </div>`;
+    })() : ''}` : ''}
     ${paso === 3 ? revisar : ''}
     ${paso === 4 ? validacion + `
     ${d0 && d0.h && d0.h.length ? `<details class="an-audit"><summary>Auditoría de la disponibilidad (${d0.h.length})</summary>${d0.h.slice().reverse().map((x) => { const [t, q, a] = String(x).split('|'); return `<div><small>${esc(fmtDT(t))}</small><b>${esc(q)}</b><span>${esc(a)}</span></div>`; }).join('')}</details>` : ''}` : ''}`;
@@ -13550,11 +13878,46 @@ async function anestGuardarDisp(ym, cambio, accion) {
 function anestArrastreIni(e) {
   const c = e.target.closest && e.target.closest('button.an-c[data-d]');
   if (!c || !puedeEditarDisp()) return;
-  if (anestPincel === null) { alert('Primero elija una persona (o «Borrar») arriba de la grilla.'); return; }
+  // 3.29 · Sin pincel, tocar una casilla abre ahí mismo la lista para elegir quién la cubre.
+  if (anestPincel === null) { e.preventDefault(); anestPopAbrir(c); return; }
   e.preventDefault();
   anestArr = new Map();
   anestArrMarcar(c);
   document.addEventListener('pointerup', anestArrastreFin, { once: true });
+}
+/* 3.29 · Editar una casilla con un toque: lista flotante con el equipo del mes y «Dejar vacía». */
+function anestPopCerrar() { const p = $('an-pop'); if (p) p.remove(); document.removeEventListener('pointerdown', anestPopFuera, true); }
+function anestPopFuera(e) { const p = $('an-pop'); if (p && !p.contains(e.target)) anestPopCerrar(); }
+function anestPopAbrir(c) {
+  anestPopCerrar();
+  const d = c.dataset.d, sid = c.dataset.s, ym = d.slice(0, 7), d0 = anestCache.disp[ym];
+  const actual = c.dataset.k || '', sala = anestFilas().find((x) => x.id === sid);
+  const gente = anestGenteMes(d0 && !d0.error ? d0 : null);
+  const ocupados = d0 && !d0.error ? dispDia(d0, d) : {};
+  const pop = document.createElement('div');
+  pop.id = 'an-pop'; pop.className = 'an-pop'; pop.setAttribute('role', 'dialog');
+  pop.innerHTML = `<header><b>${esc(fmtDiaLargo(d))}</b><small>${esc(sala ? anestNomFila(sala) : sid)} · ¿quién la cubre?</small><button type="button" aria-label="Cerrar" onclick="anestPopCerrar()">✕</button></header>
+    <div class="an-pop-l">${gente.map((p) => { const otra = Object.entries(ocupados).find(([s2, k]) => k === p.k && s2 !== sid);
+      return `<button type="button" class="${p.k === actual ? 'on' : ''}" style="--k:${anestColor(p.k)}" onclick="anestPopElegir('${d}','${sid}','${p.k}')"><i>${esc(anestIniciales(p.n))}</i><span><b>${esc(p.n)}</b>${otra ? `<small>ya está en ${esc(anestNomFila(anestFilas().find((x) => x.id === otra[0]) || { id: otra[0], nombre: otra[0] }))} ese día</small>` : p.it ? '<small>itinerante</small>' : ''}</span>${p.k === actual ? '<em>✓</em>' : ''}</button>`; }).join('')}
+      ${actual ? `<button type="button" class="vaciar" onclick="anestPopElegir('${d}','${sid}','')"><i>⌫</i><span><b>Dejar vacía</b></span></button>` : ''}</div>`;
+  document.body.appendChild(pop);
+  // Del lado de la casilla donde hay más lugar, sin taparla; si no entra, se achica y la lista se desplaza.
+  const r = c.getBoundingClientRect(), w = pop.offsetWidth;
+  const abajo = window.innerHeight - r.bottom - 16, arriba = r.top - 16, vaAbajo = abajo >= Math.min(pop.offsetHeight, 260) || abajo >= arriba;
+  pop.style.maxHeight = Math.max(160, Math.min(380, vaAbajo ? abajo : arriba)) + 'px';
+  const h = pop.offsetHeight;
+  pop.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+  pop.style.top = (vaAbajo ? r.bottom + 8 : Math.max(8, r.top - h - 8)) + 'px';
+  setTimeout(() => document.addEventListener('pointerdown', anestPopFuera, true), 0);
+}
+function anestPopElegir(d, sid, k) {
+  anestPopCerrar();
+  const ym = d.slice(0, 7), sala = anestFilas().find((x) => x.id === sid);
+  anestGuardarDisp(ym, (b) => {
+    const m = dispDia(b, d); if (k) m[sid] = k; else delete m[sid]; dispSetDia(b, d, m);
+    if (k) { b.p = b.p || {}; b.p[k] = nombreDeK(k, b); }
+    if (!b.est || b.est === 'nueva') b.est = 'borrador';
+  }, `${k ? 'Asignó a ' + nombreDeK(k, anestCache.disp[ym]) : 'Vació'} ${sala ? anestNomFila(sala) : sid} ${Number(d.slice(8))}`);
 }
 function anestArrastreMov(e) {
   if (!anestArr) return;
@@ -13600,7 +13963,8 @@ function anestSugerir() {
       const d = `${ym}-${String(i).padStart(2, '0')}`, auto = diaUrgAutomatica(d, b), m = dispDia(b, d);
       anestFilas().filter((sa) => anestRequeridas(d, b).includes(sa.id)).forEach((sa) => {
         if (m[sa.id]) return;
-        const usados = new Set(Object.values(m));
+        // La guardia pasiva la puede hacer quien ese día también está en una sala.
+        const usados = new Set(sa.id === 'GUA' ? [] : Object.entries(m).filter(([s2]) => s2 !== 'GUA').map(([, k]) => k));
         const cand = plantel.filter((k) => !usados.has(k)).sort((x, y) => carga[x] - carga[y]);
         if (cand.length) { m[sa.id] = cand[0]; carga[cand[0]]++; }
       });
@@ -13633,10 +13997,58 @@ function anestCopiarSemana() {
     }
   }, 'Repitió la primera semana en los días vacíos del mes');
 }
+/* 3.29 · «Copiar el mes anterior» (idea de linkedin/oncall 1,2k★ y Timefold
+   1,8k★: el turno del mes que viene casi siempre se parece al del anterior).
+   Cada día toma lo del MISMO día de la semana y la misma vuelta del mes
+   anterior —el 1.er lunes del 1.er lunes—, porque las fechas caen distinto
+   cada mes. Los sábados, domingos y feriados copian de un día de guardia y
+   los hábiles de un día hábil (un feriado que caía lunes no deja el lunes
+   vacío). Solo llena casillas VACÍAS, nunca pisa lo cargado, y no copia a
+   quien ya no tiene la cuenta activa. Queda en borrador para retocar. */
+function anestVuelta(d) { return Math.floor((Number(d.slice(8)) - 1) / 7); }
+function anestFuenteDia(d, prev, dp, nuevo) {
+  const wd = new Date(d + 'T12:00:00').getDay(), auto = diaUrgAutomatica(d, nuevo), v = anestVuelta(d);
+  const cands = Array.from({ length: diasDelMes(prev) }, (_, i) => `${prev}-${String(i + 1).padStart(2, '0')}`)
+    .filter((x) => diaUrgAutomatica(x, dp) === auto && Object.keys(dispDia(dp, x)).length);
+  cands.sort((a, b) => ((new Date(a + 'T12:00:00').getDay() === wd ? 0 : 10) + Math.abs(anestVuelta(a) - v))
+    - ((new Date(b + 'T12:00:00').getDay() === wd ? 0 : 10) + Math.abs(anestVuelta(b) - v)));
+  return cands[0] || null;
+}
+async function anestCopiarMesAnterior() {
+  const ym = anestMes, prev = mesAnterior(ym);
+  let dp = anestCache.disp[prev];
+  if (dp === undefined || (dp && dp.error)) { try { dp = (await anestLeer('disp/' + prev)) || null; anestCache.disp[prev] = dp; } catch (e) { dp = null; } }
+  if (!dp || !dp.d || !Object.keys(dp.d).length) { alert(`${nombreMes(prev)} no tiene disponibilidad cargada: no hay nada para copiar.`); return; }
+  const activos = new Set(anestPlantel().map((p) => anestK(p.email)));
+  const vale = (k) => activos.has(k) || (k.indexOf('it-') === 0 && dp.p && dp.p[k]);
+  let n = 0, saltados = new Set();
+  await anestGuardarDisp(ym, (b) => {
+    b.p = b.p || {};
+    for (let i = 1; i <= diasDelMes(ym); i++) {
+      const d = `${ym}-${String(i).padStart(2, '0')}`, src = anestFuenteDia(d, prev, dp, b);
+      if (!src) continue;
+      const m = dispDia(b, d), s = dispDia(dp, src), req = anestRequeridas(d, b);
+      Object.entries(s).forEach(([sid, k]) => {
+        if (!req.includes(sid) || m[sid]) return;
+        if (!vale(k)) { saltados.add(nombreDeK(k, dp)); return; }
+        m[sid] = k; n++;
+        if (k.indexOf('it-') === 0) b.p[k] = dp.p[k]; else b.p[k] = nombreDeK(k, b);
+      });
+      dispSetDia(b, d, m);
+    }
+    if (!b.est || b.est === 'nueva') b.est = 'borrador';
+  }, `Copió ${nombreMes(prev)} en las casillas vacías`);
+  anestPasoMes = 2; VIEWS[view]();
+  alert(n ? `Listo: se copiaron ${n} casilla(s) de ${nombreMes(prev)}, mismo día de la semana.\n\nRevise licencias, vacaciones y feriados nuevos: para cambiar a alguien elija su nombre arriba y toque la casilla; para vaciarla, «Borrar». Lo que ya estaba cargado no se tocó.`
+    + (saltados.size ? `\n\nNo se copió a ${[...saltados].join(', ')}: ya no tiene la cuenta activa.` : '')
+    : `No había casillas vacías para completar con ${nombreMes(prev)}.`);
+}
 function anestEstado(est) {
   const ym = anestMes;
   const txt = { enviada: 'Envió la disponibilidad a la Jefatura de Quirófanos', validada: 'Validó la disponibilidad', borrador: 'Devolvió la disponibilidad para corregir' }[est];
-  anestGuardarDisp(ym, (b) => { b.est = est; if (est === 'validada') b.val = { por: anestQuien(), t: nowDT() }; }, txt);
+  // 3.29 · `dev` deja asentada la devolución, para avisarle al Jefe/a de Anestesiología.
+  anestGuardarDisp(ym, (b) => { b.est = est; if (est === 'validada') { b.val = { por: anestQuien(), t: nowDT() }; delete b.dev; }
+    if (est === 'borrador') b.dev = { por: anestQuien(), t: nowDT() }; if (est === 'enviada') delete b.dev; }, txt);
 }
 
 /* ---- Indicadores de puntualidad y uso ---- */
@@ -13719,7 +14131,7 @@ function portalJefeAnestHTML() {
       <li>El anestesiólogo/a pide el alta en la app (<i>Acceso Profesional › Solicitar alta</i>) eligiendo la función <b>Anestesiología</b>, verifica su correo y completa Mi Perfil.</li>
       <li>La Jefatura lo autoriza en <b>Profesionales</b>. Desde ese momento aparece en esta lista.</li>
       <li>La Jefatura lo elige acá. Hay uno/a solo/a: elegir a otro le quita la designación al anterior, y queda registrado.</li>
-      <li>En su <b>Portal de Anestesiología</b>, «Mi mes» pasa a ser <b>Disponibilidad del mes</b>: desde el día 15 la app le pide quién cubre cada sala el mes siguiente.</li>
+      <li>En su <b>Portal de Anestesiología</b>, «Mi mes» pasa a ser <b>Disponibilidad del mes</b>: del 10 al 15 de cada mes la app le pide quién cubre cada sala el mes siguiente.</li>
       <li>Cuando la envía, la Jefatura recibe el aviso y la valida o la devuelve en esta misma solapa, en «Disponibilidad del mes».</li></ol></details>
   </div>`;
 }
@@ -13799,14 +14211,31 @@ function anestRecordatorios(add) {
   const prox = mesSiguiente(hoy.slice(0, 7));
   if (esJefeAnest(u) || jefe) {
     if (anestCache.disp[prox] === undefined) { anestCargarMes(prox); }
-    else if (dia >= 15) {
+    else if (dia >= ANEST_DIA_PEDIDO) {
       const dp = anestCache.disp[prox];
       const est = dp && !dp.error ? dp.est : 'nueva';
-      if (esJefeAnest(u) && (est === 'nueva' || est === 'borrador')) {
-        add({ key: 'anest-disp-' + prox, nivel: dia >= 22 ? 'crit' : 'warn', vista: 'anestesia',
-          titulo: `Cargue la disponibilidad de Anestesiología de ${nombreMes(prox)}`,
-          texto: 'La Jefatura de Quirófanos la necesita para organizar Quirófanos, Endoscopía y Obstetricia. Complete quién cubre cada sala y envíela.',
-          cuando: 'Desde el 15 de cada mes' });
+      // 3.29 · Del 10 al 15: aviso crítico que suena en el teléfono todos los días
+      // hasta que lo marca leído (y vuelve al día siguiente mientras no la envíe);
+      // el Apps Script le manda además un correo diario hasta que la envía.
+      // 3.29 · Respuesta de la Jefatura de Quirófanos: validada (aviso de 3 días) o devuelta para corregir.
+      if (esJefeAnest(u) && est === 'validada' && dp.val && diasEntre(String(dp.val.t).slice(0, 10), hoy) <= 3) {
+        add({ key: 'anest-ok-' + prox + '-' + String(dp.val.t).slice(0, 16), nivel: 'info', notif: true, vista: 'anestesia',
+          titulo: `✓ La Jefatura validó la disponibilidad de ${nombreMes(prox)}`,
+          texto: `La validó ${dp.val.por || 'la Jefatura de Quirófanos'} el ${fmtDT(dp.val.t)}. Queda como la grilla oficial del mes; si la cambia, vuelve a pedir validación.`,
+          cuando: 'Validada' });
+      }
+      if (esJefeAnest(u) && est === 'borrador' && dp.dev) {
+        add({ key: 'anest-dev-' + prox + '-' + String(dp.dev.t).slice(0, 16), nivel: 'crit', notif: true, vista: 'anestesia',
+          titulo: `La Jefatura le devolvió la disponibilidad de ${nombreMes(prox)} para corregir`,
+          texto: `La devolvió ${dp.dev.por || 'la Jefatura de Quirófanos'} el ${fmtDT(dp.dev.t)}. Revísela con la Jefatura, corrija lo que haga falta y vuelva a tocar «Enviar».`,
+          cuando: 'Devuelta' });
+      } else if (esJefeAnest(u) && (est === 'nueva' || est === 'borrador')) {
+        const tarde = dia > ANEST_DIA_LIMITE;
+        add({ key: 'anest-disp-' + prox, nivel: 'crit', notif: true, vista: 'anestesia',
+          titulo: tarde ? `Vencida: la disponibilidad de Anestesiología de ${nombreMes(prox)}` : `Suba la disponibilidad completa de Anestesiología de ${nombreMes(prox)}`,
+          texto: 'Para el mes siguiente, completa: los anestesiólogos programados en cada sala, la guardia pasiva de todos los días (de lunes a lunes), los fines de semana y los feriados (y los itinerantes, si hay). '
+            + 'La Jefatura de Quirófanos la necesita para organizar Quirófanos, Endoscopía y Obstetricia. Cárguela en su portal y toque «Enviar».',
+          cuando: tarde ? `El plazo era el ${ANEST_DIA_LIMITE}` : `Del ${ANEST_DIA_PEDIDO} al ${ANEST_DIA_LIMITE} de cada mes` });
       }
       if (jefe && est === 'enviada') {
         add({ key: 'anest-val-' + prox, nivel: 'warn', notif: true, vista: 'portales',
@@ -13818,7 +14247,7 @@ function anestRecordatorios(add) {
         add({ key: 'anest-falta-' + prox, nivel: 'info', vista: 'portales',
           titulo: `Anestesiología todavía no envió la disponibilidad de ${nombreMes(prox)}`,
           texto: 'La app ya se la pidió al Jefe/a de Anestesiología. Puede verla o completarla en Portales del equipo.',
-          cuando: 'Desde el 15' });
+          cuando: `Desde el ${ANEST_DIA_PEDIDO}` });
       }
     }
   }
@@ -13870,7 +14299,7 @@ const FLUJO = [
 /* Lo que hay que HACER en cada paso, dicho con verbo («Le toca: …»). */
 const FL_ACCION = { equipo: 'anotarse en esta cirugía', entrada: 'firmar la Entrada', rec1: 'hacer el recuento inicial', pausa: 'confirmar la Pausa',
   rec2: 'hacer el recuento final', salida: 'firmar la Salida', recup: 'dar el alta de recuperación (Aldrete)' };
-let flAbierta = null, flArea = '', flMias = true;
+let flAbierta = null, flArea = '', flMias = true, flToca = false;
 
 /* Quién ocupa cada rol en esta cirugía. */
 function flPersona(c, rol) {
@@ -13940,36 +14369,47 @@ function flujoLista(d, modo) {
   const u = usuarioActual();
   const todas = salaCirugias(d);
   const area = (c) => c.sala === 'END' ? 'endo' : c.sala === 'QOBS' ? 'obs' : 'qx';
-  const lista = todas.filter((c) => (!flArea || area(c) === flArea) && (!flMias || modo === 'jefe' || !u || flEsMia(c)));
-  const pend = todas.filter((c) => { const e = flEstado(c); const p = e.pasos[e.activo]; return p && p.firmas.some((x) => !x.f && flMisRoles(c).includes(x.rol)); }).length;
-  const chip = (k, t) => `<button class="fl-f ${flArea === k ? 'on' : ''}" onclick="flArea='${k}';flRepintar()">${t}</button>`;
+  const soloMias = flMias && modo !== 'jefe' && !!u;
+  const base = todas.filter((c) => (!soloMias || flEsMia(c)) && (!flToca || flMeTocaMia(c)));
+  const lista = base.filter((c) => !flArea || area(c) === flArea);
+  const pend = todas.filter(u && modo !== 'jefe' ? flMeTocaMia : flMeToca).length;
+  // 3.29 · Cada filtro dice cuántas cirugías trae, con el color de su área.
+  const nArea = (k) => base.filter((c) => !k || area(c) === k).length;
+  // 3.29 · Las áreas se prenden y se apagan (tocar de nuevo = ver todas): ya no hay «Todas las áreas», que se confundía con «Todas».
+  const chip = (k, t, ic) => `<button class="fl-f fl-a-${k} ${flArea === k ? 'on' : ''}" aria-pressed="${flArea === k}" onclick="flArea=flArea==='${k}'?'':'${k}';flRepintar()">${ic ? `<i>${ic}</i>` : ''}${t}<span class="fl-n">${nArea(k)}</span>${flArea === k ? '<b class="fl-x">✕</b>' : ''}</button>`;
   return `
     <div class="fl-filtros">
-      ${u && modo !== 'jefe' ? `<button class="fl-f ${flMias ? 'on' : ''}" onclick="flMias=true;flRepintar()">Mis cirugías</button><button class="fl-f ${!flMias ? 'on' : ''}" onclick="flMias=false;flRepintar()">Todas</button><span class="fl-sep"></span>` : ''}
-      ${chip('', 'Todas las áreas')}${chip('qx', 'Quirófanos')}${chip('endo', 'Endoscopía')}${chip('obs', 'Obstetricia')}
-      ${pend ? `<span class="fl-pend">● ${pend} esperan su firma</span>` : ''}
+      ${u && modo !== 'jefe' ? `<div class="fl-seg" style="--i:${soloMias ? 0 : 1}"><span class="fl-seg-luz"></span><button class="fl-f ${soloMias ? 'on' : ''}" onclick="flMias=true;flToca=false;flRepintar()">🙋 Mías<span class="fl-n">${todas.filter(flEsMia).length}</span></button><button class="fl-f ${!soloMias ? 'on' : ''}" onclick="flMias=false;flToca=false;flRepintar()">🗓️ Del día<span class="fl-n">${todas.length}</span></button></div><span class="fl-sep"></span>` : ''}
+      ${chip('qx', 'Quirófanos', '🔪')}${chip('endo', 'Endoscopía', '🔭')}${chip('obs', 'Obstetricia', '👶')}
+      ${pend ? `<button class="fl-pend" onclick="flMias=true;flToca=!flToca;flRepintar()">● ${pend} ${pend === 1 ? 'espera' : 'esperan'} su firma${flToca ? ' · ver todas' : ''}</button>` : ''}
     </div>
-    ${lista.length ? lista.map((c) => flTarjeta(c, modo)).join('')
-      : `<div class="fl-vacio">${flMias && modo !== 'jefe' && todas.length ? `No tiene cirugías asignadas este día. <button class="fl-link" onclick="flMias=false;flRepintar()">Ver todas (${todas.length})</button> para sumarse a una.` : 'No hay cirugías este día.'}</div>`}`;
+    ${u && modo !== 'jefe' ? `<p class="fl-ayuda">${soloMias ? '<b>Mías:</b> solo las cirugías en las que usted está anotado/a.' : '<b>Del día:</b> todas las cirugías del día, para anotarse en una con su puesto libre.'} ${flArea ? `Solo <b>${{ qx: 'Quirófanos (1 a 4)', endo: 'Endoscopía', obs: 'Obstetricia' }[flArea]}</b>: toque de nuevo el área (✕) para ver todas.` : 'Toque un área para ver solo esa.'}${flToca ? ' Mostrando solo lo que <b>espera su firma</b>.' : ''}</p>` : ''}
+    ${lista.length ? lista.map((c, i) => flTarjeta(c, modo, i)).join('')
+      : `<div class="fl-vacio">${flToca ? 'No hay nada esperando su firma. 🎉' : flArea && base.length ? 'No hay cirugías de esta área.' : flMias && modo !== 'jefe' && todas.length ? `No tiene cirugías asignadas este día. <button class="fl-link" onclick="flMias=false;flRepintar()">Ver todas (${todas.length})</button> para sumarse a una.` : 'No hay cirugías este día.'}</div>`}`;
 }
-function flTarjeta(c, modo) {
+function flTarjeta(c, modo, idx) {
   const e = flEstado(c), mis = flMisRoles(c);
   const act = e.pasos[e.activo];
   const abierta = String(flAbierta) === String(c.id);
-  const meToca = act && act.firmas.some((x) => !x.f && mis.includes(x.rol));
+  const meToca0 = act && act.firmas.some((x) => !x.f && mis.includes(x.rol));
+  // 3.29 · Un puesto libre (solo puede anotarse) no es lo mismo que una firma que lo espera.
+  const libre = meToca0 && act.k === 'equipo' && !flEsMia(c) && !jefe;
+  const meToca = meToca0 && !libre;
   const esperan = act ? act.firmas.filter((x) => !x.f && !mis.includes(x.rol)) : [];
   const id = JSON.stringify(c.id);
   const linea = e.pasos.map((p) => `<i class="${p.estado}" title="${esc(p.n)}"></i>`).join('');
   const estadoTxt = !act ? '<b class="fl-ok">✓ Recorrido completo</b>'
+    : libre ? '<b class="fl-libre">➕ Puesto libre: puede anotarse en esta cirugía</b>'
     : meToca ? `<b class="fl-toca">Le toca: ${esc(FL_ACCION[act.k] || act.n)}</b>`
     : `<span class="fl-espera">Esperando a ${esperan.map((x) => esc(x.quien ? x.quien.n : FL_ROLES[x.rol].n + ' (sin anotar)')).join(', ')} para ${esc(FL_ACCION[act.k] || act.n)}</span>`;
-  return `<article class="fl-card ${meToca ? 'toca' : ''} ${abierta ? 'abierta' : ''}">
+  const ar = c.sala === 'END' ? 'endo' : c.sala === 'QOBS' ? 'obs' : 'qx';
+  return `<article class="fl-card fl-ar-${ar} ${meToca ? 'toca' : ''} ${libre ? 'libre' : ''} ${abierta ? 'abierta' : ''} ${!act ? 'completa' : ''}" style="--i:${idx || 0};--pp:${(e.hechos / FLUJO.length).toFixed(3)}">
     <button class="fl-cab" onclick="flAbierta=${abierta ? 'null' : id};flRepintar()" aria-expanded="${abierta}">
       <span class="fl-hora">${esc(c.horaProg || '—')}</span>
       <span class="fl-tit"><b>${esc(c.procedimiento || '')}</b><small>${esc(c.quirofano || c.sala)} · ${esc(c.cirujano || '')}${(c.paciente && c.paciente.nombre) ? ' · ' + esc(c.paciente.nombre) : ''}</small></span>
       <span class="fl-prog"><span class="fl-linea">${linea}</span><small>${e.hechos}/${FLUJO.length}</small></span>
     </button>
-    <div class="fl-estado">${estadoTxt}${c.parteAnest ? '<span class="pa-chip" title="Parte anestésico pre-quirúrgico adjuntado">💉 Parte pre-anestésico</span>' : ''}${!abierta ? `<button class="fl-link" onclick="flAbierta=${id};flRepintar()">${meToca ? 'Hacerlo ahora →' : 'Ver el recorrido →'}</button>` : ''}</div>
+    <div class="fl-estado">${estadoTxt}${c.parteAnest ? '<span class="pa-chip" title="Parte anestésico pre-quirúrgico adjuntado">💉 Parte pre-anestésico</span>' : ''}${!abierta ? `<button class="fl-link" onclick="flAbierta=${id};flRepintar()">${libre ? '➕ Anotarme' : meToca ? 'Hacerlo ahora →' : 'Ver el recorrido →'}</button>` : ''}</div>
     ${abierta ? `<ol class="fl-pasos">${e.pasos.map((p, i) => flPasoHTML(c, p, i, mis, modo)).join('')}</ol>${flMaterialHTML(c, modo)}${c.parteAnest || (c.anest && paPuedeSubir(c)) ? paTarjetaHTML(c) : ''}
       <button class="fl-link" onclick="openCirugia(${id})">Abrir la ficha de la cirugía →</button>` : ''}
   </article>`;
@@ -20714,6 +21154,8 @@ function renderAcceso() {
           ${axCampo('a-nombre', 'Nombre y apellido *', 'text', 'autocomplete="name"')}
           ${axCampo('a-dni', 'DNI *', 'text', 'inputmode="numeric"')}
           <div class="ax-full">${axCampo('a-mail', 'Correo institucional *', 'email', 'placeholder="nombre@hru.gob.ar"', ICONS.mail)}</div>
+          <div class="ax-full">${axCampo('a-cel', 'Celular con WhatsApp *', 'tel', 'inputmode="tel" autocomplete="tel" placeholder="Ej: 2901 15 123456"')}
+            <span class="hint">Solo para que la Jefatura de Quirófanos le avise qué le falta para el alta. Lo ven usted y la Jefatura; nadie más.</span></div>
           <div class="ax-full field" id="a-serv-wrap"><span class="ax-lbl">Servicio o servicios en los que trabaja *</span>
             ${servPickerHTML('alta', [])}
             <span class="hint">Puede elegir varios: el primero queda como principal. Define qué estadísticas y módulos ve, y entre cuáles elige al programar.</span></div>
@@ -20725,7 +21167,7 @@ function renderAcceso() {
         </div>
         <p class="pass-error" id="alta-error" style="margin:4px 0 0"></p>
         <button class="ax-btn" onclick="doAlta()">${ICONS.userPlus} Crear cuenta</button>
-        <p class="ax-nota">La cuenta queda <b>pendiente de autorización de la Jefatura de Quirófanos</b> y con la habilitación incompleta hasta que cargue la documentación en Mi Perfil.</p>
+        <p class="ax-nota">La cuenta queda <b>pendiente de autorización de la Jefatura de Quirófanos</b>. Al crearla, la app le dice <b>qué le falta</b> para el alta y se lo recuerda hasta que lo complete en Mi Perfil.</p>
       </div>`}
       <button class="ax-manual" onclick="abrirManualInteractivo()"><span>🎬</span><span><b>¿Primera vez? Manual interactivo</b><small>Paso a paso: el alta de cada integrante, su portal, una cirugía programada con el QR del paciente y una urgencia. Sin cuenta y sin tocar datos reales.</small></span></button>
     </div></div>`;
@@ -21069,7 +21511,7 @@ function cpmAceptar() {
 async function cpmRechazar() {
   cpmCerrar(false);
   await userLogout();
-  alert('No se ingresó al sistema. Para programar cirugías es necesario aceptar el compromiso. Ante cualquier duda, consulte a la Jefatura de Quirófanos.');
+  alert('No se ingresó al sistema. Para usar la app es necesario aceptar el compromiso. Ante cualquier duda, consulte a la Jefatura de Quirófanos.');
 }
 
 /* ================= 3.21 · CIERRE POR INACTIVIDAD =================
@@ -21262,7 +21704,12 @@ async function doLogin() {
   cambioDeIdentidad(true);   // los avisos pasan a ser los de sus turnos
   if (!await mostrarCompromiso(u)) return;
   if (!cuentaAprobada(u)) {
-    alert('Su cuenta está PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos.\n\nPuede consultar la grilla y completar su documentación, pero no programar cirugías hasta que la Jefatura la autorice.');
+    // 3.29 · Cada vez que entra se le dice qué le falta, para que no espere sin saber por qué.
+    const falta = estadoCuenta(u) === 'pendiente' ? altaFaltantes(u) : [];
+    alert('Su cuenta está PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos.'
+      + (falta.length ? '\n\nPara que la Jefatura pueda ' + altaPara(u) + ', le falta:\n• ' + falta.join('\n• ') + '\n\nLo carga en Mi Perfil › Documentación.'
+        : '\n\nYa tiene todo cargado: solo falta el visto de la Jefatura.')
+      + (programaCirugias(u) ? '\n\nMientras tanto puede consultar la grilla, pero no programar cirugías.' : ''));
   }
   go(esAnestesia(u) ? 'anestesia' : esEquipoSala(u) ? 'sala' : 'mis');
   oroRevisado = false; setTimeout(oroRevisar, 900);
@@ -21279,6 +21726,7 @@ async function doAlta() {
   // Canónico: escrito a mano, «Cirugia General» y «Cirugía General» quedaban
   // como dos servicios distintos y el cirujano no veía sus propios módulos.
   const mail = $('a-mail').value.trim().toLowerCase();
+  const cel = ($('a-cel') ? $('a-cel').value : '').trim();
   const pick = servPick.alta || { sel: [], nuevos: [] };
   const funcion = (document.querySelector('input[name="a-func"]:checked') || {}).value || 'medico';
   const servs = funcion === 'medico' ? pick.sel.slice() : [FUNCIONES[funcion].serv];
@@ -21287,6 +21735,7 @@ async function doAlta() {
   if (!servs.length) return fail('Elija al menos un servicio. Si el suyo no figura, use «Otro (no figura en la lista)».');
   if (!nombre || !dni || !mail || !p1) return fail('Complete todos los campos.');
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return fail('Ingrese un correo institucional válido.');
+  if (!celWA(cel)) return fail('Escriba su celular con característica, por ejemplo 2901 15 123456: la Jefatura lo usa para avisarle qué le falta para el alta.');
   if (p1.length < 6) return fail('La contraseña debe tener al menos 6 caracteres.');
   if (p1 !== p2) return fail('Las contraseñas no coinciden.');
   if (DB.usuarios.some((u) => u.email.toLowerCase() === mail)) return fail('Ya existe una cuenta con ese correo.');
@@ -21328,6 +21777,8 @@ async function doAlta() {
     mailVerificado: false,   // se copia desde Firebase en cada ingreso
   };
   upsert('usuarios', u);
+  // 3.29 · El celular va aparte del padrón: lo leen solo la persona y la Jefatura.
+  try { await contactoGuardar(mail, cel); } catch (e) { console.warn('Celular: no se pudo guardar', e); }
   // Los servicios escritos a mano que no figuraban entran a la lista común,
   // marcados para que la Jefatura los revise. Va después de crear la identidad:
   // la lista vive en `config`, que un anónimo no puede escribir.
@@ -21338,9 +21789,13 @@ async function doAlta() {
   cambioDeIdentidad(true);
   await mostrarBienvenida(u);
   if (!await mostrarCompromiso(u)) return;
+  // 3.29 · Le decimos YA qué le falta para el alta, punto por punto (y Mi Perfil y la campana lo repiten hasta que lo complete).
+  const falta = altaFaltantes(u);
   alert('Cuenta creada correctamente.'
     + (fb.creada ? '\n\nLe enviamos un correo a ' + mail + ' para verificar la dirección. Reviselo —puede estar en Correo no deseado— y confirme el enlace: es el correo al que van a llegarle los avisos del bloque.' : '')
-    + '\n\nSu acceso queda PENDIENTE DE AUTORIZACIÓN por la Jefatura de Quirófanos: hasta que la Jefatura lo habilite no podrá programar cirugías.\n\nMientras tanto, complete su documentación de habilitación en Mi Perfil.');
+    + '\n\nPara que la Jefatura de Quirófanos pueda ' + altaPara(u) + ', le falta:\n• ' + falta.join('\n• ')
+    + '\n\nLo carga ahora en Mi Perfil › Documentación. Apenas esté completo, la Jefatura lo ve en «Listo para autorizar» y le da el alta.'
+    + (programaCirugias(u) ? ' Hasta entonces no puede programar cirugías.' : ''));
   go('perfil');
 }
 
@@ -21604,7 +22059,7 @@ function perfilDocumentacion(u, hab) {
   return `<div class="dc">
     <div class="dc-cab">
       <div class="dc-anillo" style="--p:${(okN / tot).toFixed(3)}"><b>${okN}<small>/${tot}</small></b></div>
-      <div><h2>Documentación</h2><p>${hab.ok ? 'Todo al día: está habilitado para operar.' : `Le ${tot - okN === 1 ? 'falta 1 requisito' : 'faltan ' + (tot - okN) + ' requisitos'} para quedar habilitado.`} El sistema controla solo el vencimiento del seguro y la revalidación bienal de RCP.</p></div>
+      <div><h2>Documentación</h2><p>${hab.ok ? (programaCirugias(u) ? 'Todo al día: está habilitado para operar.' : 'Todo al día.') : `Le ${tot - okN === 1 ? 'falta 1 requisito' : 'faltan ' + (tot - okN) + ' requisitos'} para quedar habilitado.`} El sistema controla solo el vencimiento del seguro y la revalidación bienal de RCP.</p></div>
     </div>
     <div class="dc-grid">
       ${tarjeta('matricula', '🪪', '#2563eb', 'Matrícula profesional', `
@@ -21635,6 +22090,9 @@ function renderPerfil() {
   const u = usuarioActual();
   if (!u) { go('acceso'); return; }
   const hab = habilitacion(u);
+  const prog = programaCirugias(u);
+  // 3.29 · El celular vive aparte (contacto/): se trae y se repinta.
+  if (contactos[recClave(u.email)] === undefined) contactoCargar(u.email).then(() => { if (view === 'perfil') renderPerfil(); });
   $('main').innerHTML = `
     <div class="page-head">
       <div class="head-row">
@@ -21645,21 +22103,23 @@ function renderPerfil() {
         </div>
       </div>
     </div>
+    ${altaAvisoHTML(u)}
     ${perfilTarjetaSeccion(u)}
 
     <div class="banner ${cuentaAprobada(u) ? 'banner-green' : (estadoCuenta(u) === 'baja' ? 'banner-red' : 'banner-amber')}">
       ${cuentaAprobada(u) ? ICONS.shieldCheck : ICONS.alertTri.replace('22', '20').replace('22', '20')}
       <div><strong>Autorización de la Jefatura de Quirófanos: ${CUENTAS[estadoCuenta(u)].label}</strong>
       ${cuentaAprobada(u)
-        ? `La Jefatura autorizó esta cuenta${u.cuentaFecha ? ' el ' + fmtDT(u.cuentaFecha) : ''}. Con la habilitación documental completa puede programar cirugías.`
+        ? `La Jefatura autorizó esta cuenta${u.cuentaFecha ? ' el ' + fmtDT(u.cuentaFecha) : ''}.${prog ? ' Con la habilitación documental completa puede programar cirugías.' : ''}`
         : (estadoCuenta(u) === 'baja'
-          ? `La Jefatura dio de baja esta cuenta${u.cuentaFecha ? ' el ' + fmtDT(u.cuentaFecha) : ''}${u.cuentaMotivo ? ': <b>' + esc(u.cuentaMotivo) + '</b>' : '.'} No puede programar cirugías.`
-          : 'Su alta está a la espera del visto de la Jefatura de Quirófanos. Hasta que la Jefatura la autorice no puede programar cirugías, aunque tenga toda la documentación al día.')}</div></div>
+          ? `La Jefatura dio de baja esta cuenta${u.cuentaFecha ? ' el ' + fmtDT(u.cuentaFecha) : ''}${u.cuentaMotivo ? ': <b>' + esc(u.cuentaMotivo) + '</b>' : '.'}${prog ? ' No puede programar cirugías.' : ''}`
+          : prog ? 'Su alta está a la espera del visto de la Jefatura de Quirófanos. Hasta que la Jefatura la autorice no puede programar cirugías, aunque tenga toda la documentación al día.'
+            : 'Su alta está a la espera del visto de la Jefatura de Quirófanos.')}</div></div>
 
     <div class="banner ${hab.ok ? 'banner-green' : 'banner-red'}">
       ${hab.ok ? ICONS.shieldCheck : ICONS.alertTri.replace('22', '20').replace('22', '20')}
-      <div><strong>${hab.ok ? 'Profesional habilitado para operar' : 'Habilitación incompleta'}</strong>
-      ${hab.ok ? 'Cumple los cinco requisitos vigentes de habilitación del Hospital Regional Ushuaia.' : `Faltan ${hab.reqs.filter((r) => !r.ok).length} de ${hab.reqs.length} requisitos. Sin la habilitación completa no puede cargar solicitudes quirúrgicas.`}</div></div>
+      <div><strong>${hab.ok ? (prog ? 'Profesional habilitado para operar' : 'Documentación completa') : 'Habilitación incompleta'}</strong>
+      ${hab.ok ? `Cumple los ${hab.reqs.length === 5 ? 'cinco' : hab.reqs.length} requisitos vigentes de habilitación del Hospital Regional Ushuaia.` : `Faltan ${hab.reqs.filter((r) => !r.ok).length} de ${hab.reqs.length} requisitos.${prog ? ' Sin la habilitación completa no puede cargar solicitudes quirúrgicas.' : ''}`}</div></div>
 
     ${perfilDocumentacion(u, hab)}
     <div class="card" style="margin-top:16px">
@@ -21669,6 +22129,11 @@ function renderPerfil() {
         ${serviciosDe(u).length > 1 ? 'Sus servicios' : 'Su servicio'}: <b style="color:var(--ink)">${esc(serviciosTexto(u))}</b>.
         Para sumar o quitar uno, pídaselo a la Jefatura de Quirófanos desde <b>Reclamos</b>.
       </p>
+      <div class="perfil-cel">
+        <label class="dc-f"><span>Celular con WhatsApp</span><input type="tel" id="p-cel" inputmode="tel" autocomplete="tel" placeholder="Ej: 2901 15 123456" value="${esc((contactos[recClave(u.email)] || {}).cel || '')}"></label>
+        <button class="btn btn-outline" onclick="guardarCelular(this)">${ico(ICONS.check, 15)} Guardar celular</button>
+        <small>Solo para que la Jefatura de Quirófanos le avise qué le falta para el alta o la habilitación. Lo ven usted y la Jefatura; nadie más. Si lo borra, deja de figurar.</small>
+      </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 14px">
         ${u.mailVerificado
           ? '<span class="badge-ok">Correo verificado</span>'
@@ -21682,6 +22147,15 @@ function renderPerfil() {
     </div>`;  tiContar();
 }
 
+async function guardarCelular(btn) {
+  const u = usuarioActual(); if (!u) return;
+  const v = ($('p-cel') ? $('p-cel').value : '').trim();
+  if (v && !celWA(v)) { alert('Escriba el celular con característica, por ejemplo 2901 15 123456.'); return; }
+  if (btn) btn.disabled = true;
+  try { await contactoGuardar(u.email, v); if (typeof toastTurno === 'function') toastTurno(v ? 'Celular guardado' : 'Celular borrado', '#0d9488'); }
+  catch (e) { alert('No se pudo guardar el celular. Revise la conexión e intente de nuevo.'); }
+  if (btn) btn.disabled = false;
+}
 function guardarPerfil() {
   const u = usuarioActual();
   if (!u) return;
@@ -21737,7 +22211,7 @@ const PROF_FILTROS = [
   { k: 'correo', t: 'Correo sin verificar', f: (x) => x.e === 'pendiente' && !x.u.mailVerificado, tono: 'amber' },
   { k: 'docs', t: 'Documentación incompleta', f: (x) => x.e !== 'baja' && !x.h.ok, tono: 'red' },
   { k: 'vence', t: 'Vence en 30 días', f: (x) => x.e !== 'baja' && x.venc.length > 0, tono: 'amber' },
-  { k: 'listo', t: 'Pueden programar', f: (x) => x.listo, tono: 'green' },
+  { k: 'listo', t: 'Habilitados', f: (x) => x.listo, tono: 'green' },
   { k: 'baja', t: 'Dados de baja', f: (x) => x.e === 'baja', tono: 'red' },
 ];
 function profFiltrar(k) { profFiltro = k; profAplicarFiltro(); }
@@ -21774,7 +22248,10 @@ function profTarjeta(x) {
   const filtros = PROF_FILTROS.filter((f) => f.k !== 'todos' && f.f(x)).map((f) => f.k)
     .concat(['paso-' + x.paso], e !== 'baja' ? ['paso-activos'] : []).join(' ');
   const busca = sinTildes([u.nombre, u.email, u.dni, serviciosTexto(u)].join(' ').toLowerCase());
-  const estado = e === 'baja' ? { t: 'Dado de baja', c: 'bad' } : listo ? { t: 'Puede programar', c: 'ok' }
+  const prog = programaCirugias(u);
+  const nReq = h.reqs.length;
+  const faltaAlta = altaFaltantes(u), cel = celDe(u), celOk = !!celWA(cel);
+  const estado = e === 'baja' ? { t: 'Dado de baja', c: 'bad' } : listo ? { t: prog ? 'Puede programar' : 'Habilitado/a', c: 'ok' }
     : e === 'pendiente' ? { t: x.paso === 'autorizar' ? 'Listo para autorizar' : x.paso === 'correo' ? 'Sin autorizar · falta verificar el correo' : 'Sin autorizar · falta documentación', c: 'mid' }
     : { t: 'Autorizado · le falta documentación', c: 'mid' };
   const pasos = [
@@ -21797,16 +22274,26 @@ function profTarjeta(x) {
     <div class="prof-camino" aria-label="Camino para programar">
       ${pasos.map((p) => `<span class="prof-pp ${p.ok ? 'ok' : ''}">${p.ok ? ICONS.check : '<i></i>'} ${p.t}</span>`).join('<span class="prof-flecha"></span>')}
       <span class="prof-flecha"></span>
-      <span class="prof-pp meta ${listo ? 'ok' : ''}">${listo ? ICONS.check : '<i></i>'} Programa</span>
+      <span class="prof-pp meta ${listo ? 'ok' : ''}">${listo ? ICONS.check : '<i></i>'} ${prog ? 'Programa' : 'Habilitado/a'}</span>
     </div>
     <div class="prof-hab">
-      <div class="prof-hab-ring">${estvMiniAnillo((nOk / 5) * 100, h.ok ? 'var(--green)' : nOk >= 3 ? 'var(--amber)' : 'var(--red)')}<span>${nOk}/5</span></div>
+      <div class="prof-hab-ring">${estvMiniAnillo((nOk / nReq) * 100, h.ok ? 'var(--green)' : nOk >= nReq - 2 ? 'var(--amber)' : 'var(--red)')}<span>${nOk}/${nReq}</span></div>
       <div class="prof-reqs">${h.reqs.map((r) => {
         const tono = !r.ok ? 'bad' : vence(r.k) ? 'mid' : 'ok';
         return `<span class="prof-req ${tono}" title="${esc(r.label)} — ${esc(r.det)}">${tono === 'bad' ? ICONS.x : tono === 'mid' ? ICONS.clockSm : ICONS.check} ${PROF_REQ_CORTO[r.k]}</span>`;
       }).join('')}</div>
     </div>
-    ${faltan.length && e !== 'baja' ? `<div class="prof-falta">${ico(ICONS.info, 14)}<span><b>Para programar le falta:</b> ${esc(faltan.join(', '))}.</span></div>` : ''}
+    ${faltan.length && e !== 'baja' ? `<div class="prof-falta">${ico(ICONS.info, 14)}<span><b>${prog ? 'Para programar' : 'Para el alta'} le falta:</b> ${esc(faltan.join(', '))}.</span></div>` : ''}
+    ${e !== 'baja' ? `<div class="prof-wa ${faltaAlta.length ? '' : 'neutro'}">
+      <span class="prof-wa-i">${ICONS.msg || ICONS.send}</span>
+      <span class="prof-wa-t"><b>${faltaAlta.length ? 'Avisarle qué le falta' : 'Contacto'}</b>
+        <small>☎ ${celOk ? esc(cel) : contactosEstado === 'cargando' ? 'buscando…' : 'sin celular cargado'} · ✉ ${esc(u.email)}</small>
+        ${faltaAlta.length ? `<small>${u.avisoAlta && u.avisoAlta.t ? 'Último aviso ' + fmtDT(u.avisoAlta.t) + (u.avisoAlta.via === 'correo' ? ' (correo)' : ' (WhatsApp)') : 'Todavía no se le avisó'}</small>` : ''}</span>
+      <span class="prof-wa-acc">
+        ${celOk ? `<button class="btn btn-sm prof-wa-b" onclick="profWhatsApp('${id}')" title="${faltaAlta.length ? 'Abre WhatsApp con la lista de lo que le falta' : 'Abre el chat de WhatsApp'}">WhatsApp</button>` : ''}
+        <button class="btn btn-sm btn-outline" onclick="profCorreo('${id}')" title="${faltaAlta.length ? 'Abre su correo con la lista de lo que le falta' : 'Abre su correo'}">Correo</button>
+      </span>
+    </div>` : ''}
     ${venc.length ? `<div class="prof-falta mid">${ico(ICONS.clockSm, 14)}<span>${esc(venc.map((v) => v.txt).join(' · '))}.</span></div>` : ''}
     ${e === 'baja' && u.cuentaMotivo ? `<div class="prof-falta">${ico(ICONS.x, 14)}<span><b>Motivo de la baja:</b> ${esc(u.cuentaMotivo)}</span></div>` : ''}
     <div class="prof-pie">
@@ -21823,6 +22310,7 @@ function profTarjeta(x) {
   </article>`;
 }
 function renderUsuarios() {
+  contactosCargarTodos();   // 3.29 · los celulares (solo Jefatura), para el aviso por WhatsApp
   const lista = DB.usuarios.slice().sort((a, b) => a.nombre.localeCompare(b.nombre));
   const X = lista.map((u) => Object.assign({ u }, profSituacion(u)));
   const ORDEN = { autorizar: 0, correo: 1, docs: 2, listo: 3, baja: 4 };
@@ -21836,7 +22324,7 @@ function renderUsuarios() {
     { k: 'paso-correo', t: 'Correo sin verificar', n: activos.filter((x) => x.paso === 'correo').length, c: '#8b5cf6', d: 'abrir el enlace del alta' },
     { k: 'paso-docs', t: 'Documentación', n: activos.filter((x) => x.paso === 'docs').length, c: 'var(--red)', d: 'la carga cada uno en Mi Perfil' },
     { k: 'paso-autorizar', t: 'Listos para autorizar', n: activos.filter((x) => x.paso === 'autorizar').length, c: 'var(--amber)', d: 'solo falta el OK de la Jefatura' },
-    { k: 'paso-listo', t: 'Pueden programar', n: activos.filter((x) => x.paso === 'listo').length, c: 'var(--green)', d: 'cuenta y papeles al día' },
+    { k: 'paso-listo', t: 'Habilitados', n: activos.filter((x) => x.paso === 'listo').length, c: 'var(--green)', d: 'cuenta y papeles al día (los médicos ya programan)' },
   ];
   const maxPaso = Math.max(1, ...pasos.map((p) => p.n));
   const constel = activos.slice(0, 14);
@@ -21847,7 +22335,7 @@ function renderUsuarios() {
         <h1>El equipo, de un vistazo</h1>
         <p>${habilitados} de ${lista.length} con la habilitación documental completa · ${cuenta('baja')} dado(s) de baja</p>
         <div class="pr-cont">
-          <button onclick="profFiltrar('listo')" style="--c:#34d399"><b>${cuenta('listo')}</b><small>pueden programar</small></button>
+          <button onclick="profFiltrar('listo')" style="--c:#34d399"><b>${cuenta('listo')}</b><small>habilitados</small></button>
           <button onclick="profFiltrar('paso-autorizar')" style="--c:#fbbf24"><b>${activos.filter((x) => x.paso === 'autorizar').length}</b><small>listos para autorizar</small></button>
           <button onclick="profFiltrar('autorizar')" style="--c:#f472b6"><b>${cuenta('autorizar')}</b><small>sin autorizar</small></button>
         </div>
@@ -21875,7 +22363,9 @@ function renderUsuarios() {
 
     ${bannerPlegable('prof-dos-controles', 'blue', ICONS.info, 'Dos controles independientes',
       'Para programar hacen falta la autorización de la cuenta y la documentación al día.',
-      `<p>La <b>autorización de la cuenta</b> la da y la revoca la Jefatura de Quirófanos en esta pantalla. La <b>habilitación documental</b> —matrícula provincial vigente, título de especialista, seguro de responsabilidad civil, RCP con revalidación bienal y vacunación completa— la carga cada profesional en Mi Perfil y el sistema la verifica sola. Antes de autorizar, el profesional tiene que haber verificado su correo. Para programar hacen falta las dos cosas.</p>`)}
+      `<p>La <b>autorización de la cuenta</b> la da y la revoca la Jefatura de Quirófanos en esta pantalla. La <b>habilitación documental</b> —matrícula provincial vigente, título de especialista, seguro de responsabilidad civil, RCP con revalidación bienal y vacunación completa— la carga cada profesional en Mi Perfil y el sistema la verifica sola. Antes de autorizar, el profesional tiene que haber verificado su correo. Para programar hacen falta las dos cosas.</p>
+      <p>Solo los <b>médicos que operan</b> programan cirugías. Enfermería, Instrumentación y Anestesiología no llevan título de especialista (salvo Anestesiología) y con las dos cosas quedan <b>habilitados</b> en el bloque.</p>
+      <p><b>Avisar qué le falta:</b> en cada tarjeta, el botón <b>WhatsApp</b> abre el chat con la persona y el mensaje ya escrito con lo que le falta; usted lo revisa y lo manda desde su teléfono. La persona ya lo ve sola desde que se inscribe, en Mi Perfil y en Recordatorios.</p>`)}
 
     <div class="chart-card prof-embudo-card">
       <div class="card-title" style="margin-bottom:4px">Camino para programar</div>
@@ -22088,7 +22578,8 @@ function autorizarCuenta(id) {
     const enviado = await upsert('usuarios', u);
     renderUsuarios();
     alert(`${u.nombre} quedó ${alta ? 'reactivado' : 'autorizado'} por la Jefatura de Quirófanos.` +
-      (habilitacion(u).ok ? '' : '\n\nAtención: su habilitación documental sigue incompleta, así que todavía no podrá programar hasta que cargue los requisitos faltantes en Mi Perfil.') +
+      (habilitacion(u).ok ? '' : programaCirugias(u) ? '\n\nAtención: su habilitación documental sigue incompleta, así que todavía no podrá programar hasta que cargue los requisitos faltantes en Mi Perfil.'
+        : '\n\nAtención: su habilitación documental sigue incompleta; la app le sigue mostrando qué le falta en Mi Perfil.') +
       avisoEnvio(enviado, 'La autorización'));
   });
 }
@@ -22109,7 +22600,7 @@ function darDeBajaCuenta(id) {
     u.cuentaFecha = nowDT();
     const enviado = await upsert('usuarios', u);
     renderUsuarios();
-    alert(`${u.nombre} fue dado de baja. No podrá ingresar ni programar cirugías.\n\nLos turnos que ya haya programado se conservan: revíselos en Programación.` +
+    alert(`${u.nombre} fue dado de baja. ${programaCirugias(u) ? 'No podrá ingresar ni programar cirugías.\n\nLos turnos que ya haya programado se conservan: revíselos en Programación.' : 'No podrá ingresar a la app.'}` +
       avisoEnvio(enviado, 'La baja'));
   });
 }
@@ -22135,87 +22626,28 @@ function eliminarProfesional(id) {
    para recorrer el circuito completo en la base real. Se guardan en Firebase
    como cualquier otro registro —esa es la idea: probar contra la base
    compartida— y la Jefatura los borra de un clic cuando termina de mirarlos. */
-const CLAVE_PRUEBA = 'prueba123';
 
 function hayDatosPrueba() {
   return DB.usuarios.some((u) => u.prueba) || DB.cirugias.some((c) => c.prueba);
 }
 
+/* 3.29 · La app ya funciona en el hospital (pedido de Claudio, 20-10-2026):
+   se quitaron «Cargar datos de prueba» y «Vaciar la base y empezar de cero».
+   Solo si quedó algo marcado PRUEBA de antes aparece esta tarjeta, y nada más
+   que para borrar ESO (no toca cuentas, cirugías ni agenda reales). */
 function cardDatosPrueba() {
+  if (!hayDatosPrueba()) return '';
   const nu = DB.usuarios.filter((u) => u.prueba).length;
   const nc = DB.cirugias.filter((c) => c.prueba).length;
   return `<div class="card" style="margin-top:18px">
-    <div class="card-title">Datos de prueba</div>
-    <div class="card-sub">Juego de profesionales y cirugías para recorrer el circuito completo</div>
-    ${hayDatosPrueba()
-      ? `<div class="banner banner-amber" style="margin:0 0 12px">${ico(ICONS.alertTri, 18)}
-          <div><strong>Hay datos de prueba cargados</strong>
-          ${nu} profesional(es) y ${nc} cirugía(s) marcados como PRUEBA, guardados en la base compartida. Bórrelos cuando termine de verificar el funcionamiento.</div></div>`
-      : `<p class="form-note" style="margin:0 0 12px">Carga cuatro profesionales (uno autorizado, uno pendiente, uno sin documentación completa y uno dado de baja) y cinco cirugías que cubren los cuatro estados de autorización: pendiente, autorizada, no autorizada con motivo y urgencia exenta. Abre además la agenda de los días que usan esos turnos.</p>`}
+    <div class="card-title">Quedaron datos de prueba</div>
+    <div class="banner banner-amber" style="margin:0 0 12px">${ico(ICONS.alertTri, 18)}
+      <div><strong>${nu} profesional(es) y ${nc} cirugía(s) marcados PRUEBA</strong>
+      Son de la etapa de pruebas. Bórrelos: no se toca ningún dato real.</div></div>
     <div class="cir-actions" style="margin:0">
-      <button class="btn btn-blue" onclick="cargarDatosPrueba()">${ico(ICONS.userPlus, 16)} Cargar datos de prueba</button>
-      ${hayDatosPrueba() ? `<button class="btn btn-red" onclick="borrarDatosPrueba()">${ico(ICONS.trash, 16)} Borrar todos los datos de prueba</button>` : ''}
+      <button class="btn btn-red" onclick="borrarDatosPrueba()">${ico(ICONS.trash, 16)} Borrar los datos de prueba</button>
     </div>
-    <p class="form-note" style="margin-top:10px">Los profesionales de prueba ingresan con su correo y la contraseña <b>${CLAVE_PRUEBA}</b>.</p>
-  </div>
-  ${cardPuestaEnCero()}`;
-}
-
-/* ================= PUESTA EN CERO DE LA BASE =================
-   Antes de empezar con pacientes reales hay que vaciar lo que se cargó
-   probando. Borra el movimiento operativo —cirugías, incidencias, reclamos,
-   consentimientos y comunicados— y **no toca** las cuentas de los
-   profesionales, la agenda de días habilitados ni el listado de obras
-   sociales, que es trabajo que conviene conservar.
-
-   Es irreversible y alcanza a todas las computadoras: por eso pide la clave de
-   Jefatura y además que se escriba la palabra completa. */
-const COLS_PUESTA_EN_CERO = ['cirugias', 'incidencias', 'reclamos', 'consentimientos', 'comunicados'];
-function conteoPuestaEnCero() {
-  return COLS_PUESTA_EN_CERO.reduce((o, col) => { o[col] = (DB[col] || []).length; o.total += o[col]; return o; }, { total: 0 });
-}
-function cardPuestaEnCero() {
-  const n = conteoPuestaEnCero();
-  return `<div class="card" style="margin-top:18px;border:1px solid #f0c6c6">
-    <div class="card-title" style="color:var(--red)">Puesta en cero de la base</div>
-    <div class="card-sub">Vaciar el movimiento operativo antes de arrancar con pacientes reales</div>
-    <div class="banner banner-red" style="margin:0 0 12px">${ico(ICONS.alertTri, 18)}
-      <div><strong>Se borra en todas las computadoras y no se puede deshacer</strong>
-      Hoy hay ${n.cirugias} cirugía(s), ${n.incidencias} incidencia(s), ${n.reclamos} reclamo(s),
-      ${n.consentimientos} consentimiento(s) y ${n.comunicados} comunicado(s).
-      <b>No se tocan</b> las cuentas de los profesionales, la agenda de días habilitados ni el listado de obras sociales.</div></div>
-    <div class="cir-actions" style="margin:0">
-      <button class="btn btn-red" ${n.total ? '' : 'disabled'} onclick="puestaEnCero()">${ico(ICONS.trash, 16)} Vaciar la base y empezar de cero</button>
-    </div>
-    <p class="form-note" style="margin-top:10px">Conviene hacerlo <b>antes</b> de dar de alta a los médicos y de cerrar las reglas de la base de datos.</p>
   </div>`;
-}
-async function puestaEnCero() {
-  if (!jefe) return;
-  const n = conteoPuestaEnCero();
-  if (!n.total) { alert('La base ya está vacía: no hay cirugías, incidencias, reclamos, consentimientos ni comunicados.'); return; }
-  pedirJefatura('Jefatura de Quirófanos',
-    `Se van a borrar ${n.total} registro(s) de la base compartida. Confirme con la credencial de Jefatura.`, async () => {
-      const palabra = await pedirTexto(
-        `Se borran ${n.cirugias} cirugía(s), ${n.incidencias} incidencia(s), ${n.reclamos} reclamo(s), ${n.consentimientos} consentimiento(s) y ${n.comunicados} comunicado(s) de todas las computadoras.\n\n`
-        + 'Las cuentas de los profesionales, la agenda y las obras sociales se conservan.\n\n'
-        + 'Para confirmar, escriba la palabra VACIAR.', {
-          titulo: '¿Vaciar la base del bloque quirúrgico?', tono: 'peligro', si: 'Vaciar la base', no: 'Cancelar',
-          campo: { label: 'Escriba VACIAR', placeholder: 'VACIAR', requerido: true, error: 'Escriba VACIAR para confirmar.' },
-        });
-      if (palabra === null) return;
-      if (String(palabra).trim().toUpperCase() !== 'VACIAR') { alert('No se borró nada: la palabra de confirmación no coincide.'); return; }
-      let borrados = 0;
-      COLS_PUESTA_EN_CERO.forEach((col) => {
-        (DB[col] || []).slice().forEach((x) => { removeDoc(col, x.id); borrados++; });
-      });
-      // Los recordatorios leídos y los estados de pantalla apuntan a registros
-      // que ya no existen: se descartan para que no queden avisos fantasma.
-      try { localStorage.removeItem(REM_LEIDOS_KEY); } catch (e) {}
-      progAbierto = {}; ciAbierto = {};
-      refreshView();
-      alert(`Base vaciada: ${borrados} registro(s) borrados.\n\nQuedan intactas las cuentas de los profesionales, la agenda de días habilitados y el listado de obras sociales.\n\nYa puede dar de alta a los médicos y cerrar las reglas de Firebase.`);
-    });
 }
 
 /* Primera franja de la sala que no tenga turno cargado ese día. */
@@ -22227,137 +22659,6 @@ function franjaLibre(d, sid, desde) {
   return null;
 }
 
-async function cargarDatosPrueba() {
-  if (hayDatosPrueba() && !await preguntar('Los anteriores se reemplazan por un juego nuevo.',
-    { titulo: 'Ya hay datos de prueba cargados', tono: 'aviso', si: 'Volver a generarlos' })) return;
-  pedirJefatura('Jefatura de Quirófanos', 'Cargar los datos de prueba en la base compartida. Confirme con la credencial de Jefatura.', async () => {
-    if (hayDatosPrueba()) quitarDatosPrueba();
-    const hash = await hashPass(CLAVE_PRUEBA);
-    const hoy = hoyISO();
-    const d2 = sumarDias(hoy, 2), d3 = sumarDias(hoy, 3);
-
-    /* ---- Profesionales ---- */
-    const base = (email, nombre, dni, servicio, mat, extra) => Object.assign({
-      id: 'PRUEBA-' + email.replace(/[.#$/\[\]]/g, ','),
-      email, nombre, dni, servicio,
-      matricula: { numero: mat, vigente: true },
-      especialista: { titulo: 'Especialista en ' + servicio + ' (MSAL)', si: true },
-      seguro: { vence: sumarDias(hoy, 300) },
-      rcp: { tipo: 'Avanzado (ACLS)', fecha: sumarDias(hoy, -200) },
-      vacunas: { hepB: true, dobleAdultos: true, influenza: true, covid: true },
-      cuenta: 'pendiente', cuentaMotivo: '', cuentaFecha: nowDT(),
-      passHash: hash, creado: hoy, prueba: true,
-    }, extra || {});
-
-    const usuarios = [
-      base('prueba.sosa@hru.gob.ar', '[PRUEBA] Dr. Martín Sosa', '28.114.907', 'Cirugía General', 'MP 3011 (TDF)',
-        { cuenta: 'aprobado' }),
-      base('prueba.benitez@hru.gob.ar', '[PRUEBA] Dra. Carla Benítez', '31.220.443', 'Traumatología y Ortopedia', 'MP 3012 (TDF)',
-        { cuenta: 'pendiente' }),
-      // Autorizado por Jefatura pero con la documentación a medio cargar: sirve
-      // para ver que los dos controles son independientes.
-      base('prueba.vera@hru.gob.ar', '[PRUEBA] Dr. Ignacio Vera', '30.556.118', 'Urología', 'MP 3013 (TDF)',
-        { cuenta: 'aprobado', seguro: { vence: '' }, rcp: { tipo: '', fecha: '' },
-          vacunas: { hepB: true, dobleAdultos: false, influenza: false, covid: true } }),
-      base('prueba.ledesma@hru.gob.ar', '[PRUEBA] Dra. Sofía Ledesma', '27.889.302', 'Ginecología', 'MP 3014 (TDF)',
-        { cuenta: 'baja', cuentaMotivo: 'Baja de prueba: seguro de responsabilidad civil vencido y sin renovar.' }),
-    ];
-    usuarios.forEach((u) => upsert('usuarios', u));
-
-    /* ---- Agenda: abrir los días que usan los turnos de prueba ----
-       El bloque nace cerrado: abrir un día entero para la prueba deja ese día
-       disponible para TODOS los profesionales. Por eso el día que estaba
-       cerrado queda marcado `abiertoPorPrueba`, y borrar la prueba lo vuelve a
-       cerrar. El que ya había abierto la Jefatura no se marca y no se toca. */
-    [d2, d3].forEach((d) => {
-      const yaAbierto = diaHabilitado(d);
-      abrirDiaEnTurnos(d, ['M', 'T']);
-      if (!yaAbierto) guardarAgenda(d, (a) => { a.abiertoPorPrueba = true; });
-    });
-
-    /* ---- Cirugías ---- */
-    const sosa = usuarios[0], benitez = usuarios[1];
-    let seq = 0;
-    const mk = (d, sid, desdeFranja, datos) => {
-      const f = franjaLibre(d, sid, desdeFranja);
-      if (!f) return null;
-      const c = Object.assign({
-        id: Date.now() + (seq++),
-        prueba: true,
-        sala: sid, quirofano: sala(sid).nombre, franja: f.id,
-        fecha: fechaDeFranja(d, f), diaGrilla: d, horaProg: f.t,
-        fechaSolicitud: hoy, estado: 'pendiente', prioridad: 6, urgencia: false,
-        auth: null, authMotivo: '', authAgente: '', authPor: '', authFecha: '',
-        recursos: { arcoC: false, implante: false, implanteDetalle: '', hemoderivados: false },
-        coordinacion: { insumos: true, esterilizacion: true, hemoterapia: false, anestesia: true },
-        hce: { datos: true, preop: true, consentimiento: false },
-        duracionMin: 90, anestesista: 'Dr. A. Fernández', anestesia: 'General',
-        equipos: [], historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }],
-      }, datos);
-      c.equipo = equipoActualizado(c, c.modulo);
-      upsert('cirugias', c);
-      return c;
-    };
-
-    const hechos = [];
-    // 1) Electiva esperando el dictamen de Admisión y Egresos.
-    hechos.push(mk(d2, 'Q2', 'T1', {
-      paciente: { nombre: '[PRUEBA] Rosa Maidana', dni: '18.220.114', edad: 61, pediatrico: false, telefono: '2901-400111' },
-      obraSocial: 'OSEF', diagnostico: 'Colelitiasis sintomática', cie10: 'K80.2',
-      procedimiento: 'Colecistectomía laparoscópica', modulo: 'B',
-      cirujano: sosa.nombre, cirujanoEmail: sosa.email, servicio: 'Cirugía General',
-    }));
-    // 2) Electiva autorizada: circuito administrativo cerrado.
-    hechos.push(mk(d2, 'Q3', 'T1', {
-      paciente: { nombre: '[PRUEBA] Héctor Quilodrán', dni: '22.907.663', edad: 54, pediatrico: false, telefono: '2901-400222' },
-      obraSocial: 'OSDE', diagnostico: 'Gonartrosis derecha', cie10: 'M17.1',
-      procedimiento: 'Artroscopia de rodilla', modulo: 'B',
-      cirujano: benitez.nombre, cirujanoEmail: benitez.email, servicio: 'Traumatología y Ortopedia',
-      auth: 'AUTORIZADO', authPor: 'Admisión y Egresos', authAgente: 'Sra. M. Coronel', authFecha: nowDT(),
-      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Admisión y Egresos: AUTORIZADO (Sra. M. Coronel)' }],
-    }));
-    // 3) Electiva rechazada con motivo escrito: es lo que ve el cirujano.
-    hechos.push(mk(d3, 'Q2', 'T4', {
-      paciente: { nombre: '[PRUEBA] Nadia Fuentes', dni: '35.114.008', edad: 33, pediatrico: false, telefono: '2901-400333' },
-      obraSocial: 'Swiss Medical', diagnostico: 'Hernia umbilical', cie10: 'K42.9',
-      procedimiento: 'Hernioplastia umbilical', modulo: 'B',
-      cirujano: sosa.nombre, cirujanoEmail: sosa.email, servicio: 'Cirugía General',
-      auth: 'NO AUTORIZADO', authPor: 'Admisión y Egresos', authAgente: 'Sra. M. Coronel', authFecha: nowDT(),
-      authMotivo: 'La obra social no otorgó la autorización de la práctica: falta el código de autorización y la orden médica sellada. Reprogramar una vez presentada la documentación.',
-      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Admisión y Egresos: NO AUTORIZADO (Sra. M. Coronel) — Motivo: autorización de la obra social no otorgada' }],
-    }));
-    // 4) Urgencia en la guardia: exenta de Admisión y Egresos.
-    hechos.push(mk(hoy, 'Q1', 'H21', {
-      paciente: { nombre: '[PRUEBA] Ramón Alcaraz', dni: '40.223.771', edad: 27, pediatrico: false, telefono: '2901-400444' },
-      obraSocial: 'Particular', diagnostico: 'Apendicitis aguda', cie10: 'K35.8',
-      procedimiento: 'Apendicectomía laparoscópica', modulo: 'B',
-      cirujano: sosa.nombre, cirujanoEmail: sosa.email, servicio: 'Cirugía General',
-      urgencia: true, prioridad: 2,
-      authDiferida: true,
-      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Exento de la autorización previa de Admisión y Egresos (urgencia / emergencia) — el trámite puede cumplimentarse después, incluso finalizada la cirugía' }],
-    }));
-    // 5) Emergencia obstétrica: la otra sala que admite urgencias.
-    hechos.push(mk(hoy, 'QOBS', 'T5', {
-      paciente: { nombre: '[PRUEBA] Julia Painé', dni: '38.665.291', edad: 29, pediatrico: false, telefono: '2901-400555' },
-      obraSocial: 'PAMI (INSSJP)', diagnostico: 'Sufrimiento fetal agudo', cie10: 'O68.9',
-      procedimiento: 'Cesárea de urgencia', modulo: 'A',
-      cirujano: benitez.nombre, cirujanoEmail: benitez.email, servicio: 'Obstetricia',
-      urgencia: true, prioridad: 1, duracionMin: 60,
-      recursos: { arcoC: false, implante: false, implanteDetalle: '', hemoderivados: true },
-      coordinacion: { insumos: true, esterilizacion: true, hemoterapia: true, anestesia: true },
-      authDiferida: true,
-      historial: [{ t: nowDT(), a: 'Turno de prueba generado por la Jefatura' }, { t: nowDT(), a: 'Exento de la autorización previa de Admisión y Egresos (emergencia) — el trámite puede cumplimentarse después, incluso finalizada la cirugía' }],
-    }));
-
-    const ok = hechos.filter(Boolean).length;
-    renderUsuarios();
-    alert(`Datos de prueba cargados en la base compartida.\n\n· ${usuarios.length} profesionales (contraseña ${CLAVE_PRUEBA})\n· ${ok} cirugías de prueba\n· Agenda abierta el ${fmtFecha(d2)} y el ${fmtFecha(d3)}\n\nTodos llevan el rótulo [PRUEBA]. La Jefatura los borra desde esta misma pantalla.`);
-  });
-}
-
-/* Baja efectiva de los registros marcados como prueba (sin confirmaciones).
-   Arrastra también los consentimientos que se hayan generado desde esos turnos:
-   quedarían huérfanos y ensuciando la solapa de Consentimientos. */
 function quitarDatosPrueba() {
   const ids = DB.cirugias.filter((c) => c.prueba).map((c) => String(c.id));
   DB.consentimientos.filter((x) => x.prueba || ids.includes(String(x.turnoId)))
@@ -25032,7 +25333,7 @@ function renderRecordatorios() {
           ['Cierre de solicitudes', BLOQUE.cierreSolicitudes + ' h del día hábil previo'], ['Publicación del parte', BLOQUE.publicacionParte + ' h del día hábil previo'],
           ['Emergencias', 'incisión antes de 30 min'], ['Urgencias diferibles', 'antes de 6 h'], ['Insumos', 'coordinar 48–72 h antes'],
           ['Informe operatorio', 'antes de 2 h'], ['Incidencias A–C / D–F', '2 h / 24 h'], ['Reclamos', '48 h hábiles'], ['Lista de espera', 'alerta a los 90 días'],
-          ['Disponibilidad de Anestesiología', 'del 15 de cada mes para el mes siguiente'], ['Habilitación', 'vigencias de seguro y RCP']]
+          ['Disponibilidad de Anestesiología', 'del 10 al 15 de cada mes para el mes siguiente'], ['Habilitación', 'vigencias de seguro y RCP']]
           .map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join('')}</div>`)}
     </div>
     ${bloquesRecordatorios()}`;
