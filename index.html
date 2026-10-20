@@ -1433,6 +1433,110 @@
   .dia-disp.finde { color: var(--red); }
   .dia-bar input[type=date] { padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; font-family: inherit; font-weight: 600; }
 
+  /* ---- Selector de día de la Programación Diaria (3.32.0) ---- */
+  .dsel { --dsa: var(--h2, var(--acento, #0f766e)); --dsb: var(--h1, #052e2b); --dsc: var(--h3, #2dd4bf);
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 18px;
+    box-shadow: 0 1px 3px rgba(23,28,36,.07); overflow: hidden; }
+  .ds-hero { display: flex; align-items: center; gap: 14px; padding: 14px 14px 12px; position: relative;
+    background: linear-gradient(120deg, color-mix(in srgb, var(--dsa) 10%, transparent), transparent 60%); touch-action: pan-y; }
+  .ds-flecha { flex: none; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--card);
+    color: var(--ink); font: 800 1.25rem/1 inherit; cursor: pointer; transition: transform .15s, background .15s, border-color .15s; }
+  .ds-flecha:hover { border-color: var(--dsa); color: var(--dsa); transform: scale(1.08); }
+  .ds-flecha:active { transform: scale(.92); }
+  .ds-fecha { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; }
+  .ds-num { flex: none; width: 66px; height: 66px; border-radius: 18px; display: grid; place-items: center; overflow: hidden;
+    background: linear-gradient(145deg, var(--dsa), var(--dsb)); color: #fff; box-shadow: 0 8px 18px -8px var(--dsa); position: relative; }
+  .ds-num::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.28) 50%, transparent 65%);
+    transform: translateX(-120%); }
+  .ds-num span { font-size: 2rem; font-weight: 800; letter-spacing: -.03em; }
+  .ds-finde .ds-num, .dsel:has(.ds-est.ds-finde) .ds-num { background: linear-gradient(145deg, #e05656, #8f1d1d); }
+  .ds-txt { min-width: 0; }
+  .ds-rel { font-size: .74rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--dsa); display: flex; align-items: center; gap: 6px; }
+  .ds-vivo { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 0 rgba(34,197,94,.6); animation: dsVivo 1.8s infinite; }
+  .ds-largo { font-size: 1.12rem; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ds-largo b { font-weight: 800; }
+  .ds-est { display: inline-flex; align-items: center; gap: 5px; margin-top: 4px; padding: 3px 9px; border-radius: 99px; font-size: .74rem; font-weight: 700; }
+  .ds-est.ds-ok { background: color-mix(in srgb, #16a34a 14%, transparent); color: #15803d; }
+  .ds-est.ds-cerr, .ds-est.ds-pas { background: color-mix(in srgb, #64748b 14%, transparent); color: var(--muted); }
+  .ds-est.ds-lista { background: color-mix(in srgb, #d97706 15%, transparent); color: #b45309; }
+  .ds-est.ds-finde { background: color-mix(in srgb, #dc2626 13%, transparent); color: #c62828; }
+  .ds-anillo { flex: none; position: relative; width: 64px; height: 64px; }
+  .ds-anillo svg { transform: rotate(-90deg); display: block; }
+  .ds-a0 { fill: none; stroke: var(--line); stroke-width: 7; }
+  .ds-a1 { fill: none; stroke: var(--dsa); stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1); }
+  .ds-a-t { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1; }
+  .ds-a-t b { font-size: 1.05rem; font-weight: 800; color: var(--ink); }
+  .ds-a-t small { font-size: .62rem; color: var(--muted); font-weight: 600; }
+  .ds-acc { flex: none; display: flex; flex-direction: column; gap: 6px; }
+  .ds-hoy, .ds-cal { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 99px;
+    font: 700 .8rem inherit; cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--ink); position: relative; white-space: nowrap;
+    transition: border-color .15s, color .15s, transform .15s; }
+  .ds-hoy:hover, .ds-cal:hover { border-color: var(--dsa); color: var(--dsa); }
+  .ds-hoy:not(.es) { background: var(--dsa); color: #fff; border-color: var(--dsa); animation: dsLlamar 2.4s ease-in-out infinite; }
+  .ds-hoy:not(.es):hover { color: #fff; filter: brightness(1.1); }
+  .ds-hoy.es { color: #15803d; cursor: default; }
+  .ds-cal input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; border: 0; padding: 0; }
+  .ds-cinta-w { display: flex; align-items: stretch; gap: 4px; padding: 0 8px 10px; border-top: 1px dashed var(--line); padding-top: 10px; }
+  .ds-sem { flex: none; width: 26px; border: 0; background: none; color: var(--muted); font: 800 1rem inherit; cursor: pointer; border-radius: 8px; }
+  .ds-sem:hover { background: color-mix(in srgb, var(--dsa) 10%, transparent); color: var(--dsa); }
+  .ds-cinta { flex: 1; min-width: 0; display: flex; gap: 4px; position: relative; overflow-x: auto; scrollbar-width: none; outline: none; padding: 12px 0 2px; scroll-behavior: smooth; }
+  .ds-cinta::-webkit-scrollbar { display: none; }
+  .ds-cinta:focus-visible { box-shadow: 0 0 0 2px var(--dsa); border-radius: 12px; }
+  .ds-ind { position: absolute; left: 0; top: 12px; bottom: 2px; border-radius: 12px; opacity: 0; pointer-events: none;
+    background: linear-gradient(160deg, var(--dsa), var(--dsb)); box-shadow: 0 6px 14px -6px var(--dsa);
+    transition: transform .42s cubic-bezier(.3,1.35,.5,1), width .3s; }
+  .ds-d { flex: 1 0 44px; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px 7px;
+    border: 0; background: none; border-radius: 12px; cursor: pointer; color: var(--ink); font-family: inherit; transition: transform .15s, background .15s; }
+  .ds-d:hover:not(.sel) { background: color-mix(in srgb, var(--dsa) 9%, transparent); transform: translateY(-2px); }
+  .ds-w { font-size: .66rem; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: .04em; }
+  .ds-n { font-size: 1.05rem; font-weight: 800; }
+  .ds-mes { position: absolute; top: -12px; left: 4px; font-style: normal; font-size: .6rem; font-weight: 800; text-transform: uppercase; color: var(--dsa); letter-spacing: .06em; }
+  .ds-bar { width: 70%; height: 4px; border-radius: 4px; background: color-mix(in srgb, var(--muted) 18%, transparent); overflow: hidden; }
+  .ds-bar b { display: block; height: 100%; min-width: 0; background: var(--dsa); border-radius: 4px; transition: width .5s; }
+  .ds-d.ds-finde .ds-bar { background: none; }
+  .ds-d.ds-finde .ds-n, .ds-d.ds-finde .ds-w { color: #c62828; }
+  .ds-d.ds-cerr .ds-n, .ds-d.ds-pas .ds-n { color: var(--muted); }
+  .ds-d.ds-cerr .ds-bar { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--muted) 30%, transparent) 0 3px, transparent 3px 5px); }
+  .ds-d.ds-lista .ds-bar b { background: #d97706; }
+  .ds-d.hoy::before { content: ''; position: absolute; bottom: -1px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: #22c55e; }
+  .ds-d.sel .ds-w, .ds-d.sel .ds-n { color: #fff; }
+  .ds-d.sel .ds-bar { background: rgba(255,255,255,.3); }
+  .ds-d.sel .ds-bar b { background: #fff; }
+  .ds-d.sel.hoy::before { background: #fff; }
+  .dsel.cambia[data-dir="der"] .ds-num span { animation: dsDer .45s cubic-bezier(.2,.8,.2,1); }
+  .dsel.cambia[data-dir="izq"] .ds-num span { animation: dsIzq .45s cubic-bezier(.2,.8,.2,1); }
+  .dsel.cambia .ds-num::after { animation: dsBrillo .7s .1s ease-out; }
+  .dsel.cambia .ds-txt { animation: dsAparece .4s ease-out; }
+  .dsel.cambia .ds-a1 { animation: dsAnillo .7s cubic-bezier(.2,.8,.2,1); }
+  .dsel.cambia .ds-d.sel .ds-n, .dsel.cambia .ds-d.sel .ds-w { animation: dsTxt .4s steps(1, end); }
+  @keyframes dsTxt { from { color: var(--ink); } }
+  @keyframes dsDer { from { transform: translateY(70%) scale(.7); opacity: 0; } }
+  @keyframes dsIzq { from { transform: translateY(-70%) scale(.7); opacity: 0; } }
+  @keyframes dsBrillo { to { transform: translateX(120%); } }
+  @keyframes dsAparece { from { opacity: 0; transform: translateX(-6px); } }
+  @keyframes dsAnillo { from { stroke-dashoffset: var(--c0); } }
+  @keyframes dsVivo { 70% { box-shadow: 0 0 0 7px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
+  @keyframes dsLlamar { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--dsa) 45%, transparent); } 50% { box-shadow: 0 0 0 5px transparent; } }
+  @media (max-width: 640px) {
+    .ds-hero { flex-wrap: wrap; gap: 10px; padding: 12px 10px 10px; }
+    .ds-flecha { position: absolute; top: 12px; width: 32px; height: 32px; font-size: 1.1rem; }
+    .ds-flecha:first-child { right: 50px; } .ds-flecha:last-child { right: 10px; }
+    .ds-fecha { flex: 1 1 100%; padding-right: 84px; gap: 10px; }
+    .ds-num { width: 54px; height: 54px; border-radius: 15px; } .ds-num span { font-size: 1.6rem; }
+    .ds-largo { font-size: .98rem; white-space: normal; }
+    .ds-anillo { width: 54px; height: 54px; } .ds-anillo svg { width: 54px; height: 54px; }
+    .ds-acc { flex: 1; flex-direction: row; justify-content: flex-end; }
+    .ds-sem { display: none; }
+    .ds-cinta-w { padding: 8px 4px 8px; }
+    .ds-d { flex: 0 0 46px; }
+  }
+  body[data-tema="noche"] .ds-est.ds-ok, body[data-tema="noche"] .ds-hoy.es { color: #4ade80; }
+  body[data-tema="noche"] .ds-est.ds-lista { color: #fbbf24; }
+  body[data-tema="noche"] .ds-est.ds-finde, body[data-tema="noche"] .ds-d.ds-finde .ds-n, body[data-tema="noche"] .ds-d.ds-finde .ds-w { color: #f87171; }
+  @media (prefers-reduced-motion: reduce) {
+    .dsel *, .dsel *::after, .dsel *::before { animation: none !important; transition: none !important; }
+  }
+
   .salas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .sala-card {
     background: var(--card); border-radius: var(--radius); overflow: hidden;
@@ -9394,7 +9498,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.31.1';
+const APP_VERSION = '3.32.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -24897,18 +25001,155 @@ function renderProgDiaria() {
       </div>
     </div>
 
-    <div class="dia-bar">
-      <button class="dia-nav" onclick="moverDia(-1)" aria-label="Día anterior">‹</button>
-      <button class="dia-nav" onclick="moverDia(1)" aria-label="Día siguiente">›</button>
-      <div class="dia-disp ${laborable ? '' : 'finde'}">${fmtDiaLargo(d)}</div>
-      <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <button class="btn btn-outline btn-sm" onclick="setDia('${hoyISO()}')">Hoy</button>
-        <input type="date" value="${d}" onchange="setDia(this.value)">
-      </div>
-    </div>
+    ${dselHTML(d, ocupadas, capacidad)}
 
     ${guiaProgramacion()}
     ${cuerpo}`;
+  dselMontar();
+}
+/* ================= SELECTOR DE DÍA (3.32.0) =================
+   Antes: dos flechas, la fecha en texto y un campo de fecha. Ahora la tarjeta
+   cuenta el día de un vistazo —número grande, «Hoy / Mañana / En 5 días», el
+   estado del bloque y un anillo con las franjas ocupadas— y debajo una cinta
+   de dos semanas: cada día con su barrita de ocupación y su color (abierto,
+   cerrado, fin de semana o feriado, lista cerrada). Se toca un día de la cinta,
+   se desliza con el dedo sobre la tarjeta o se usan las flechas del teclado.
+   La cinta no se recentra en cada toque (el resaltado se desliza hasta el día
+   elegido); solo salta cuando el día queda fuera de ella. Las animaciones
+   corren cuando cambia el día, no en el repintado de cada minuto. */
+let dselBase = null;       // primer día de la cinta
+let dselPrev = null;       // último día pintado (para la dirección del cambio)
+let dselIndX = null;       // dónde quedó el resaltado de la cinta
+let dselFoco = false;      // se movió con el teclado: devolverle el foco a la cinta
+const DSEL_N = 14;
+const DSEL_CORTO = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+function dselEstado(d, ocup, cap) {
+  if (!esLaborable(d)) {
+    const w = new Date(d + 'T12:00:00').getDay();
+    return { k: 'finde', t: w === 0 || w === 6 ? 'Fin de semana' : 'Feriado', i: 'alertTri' };
+  }
+  if (!diaHabilitado(d)) return { k: 'cerr', t: 'Bloque cerrado', i: 'lock' };
+  if (d < hoyISO()) return { k: 'pas', t: 'Día pasado', i: 'clockSm' };
+  if (d > hoyISO() && cierreSuperado(d)) return { k: 'lista', t: 'Lista cerrada', i: 'lock' };
+  if (!cap) return { k: 'cerr', t: 'Sin franjas abiertas', i: 'lock' };
+  const libres = Math.max(0, cap - ocup);
+  return { k: 'ok', t: libres ? `Abierto · ${libres} libre${libres === 1 ? '' : 's'}` : 'Abierto · completo', i: 'check' };
+}
+function dselRelativo(d) {
+  const n = diasEntre(hoyISO(), d);
+  if (n === 0) return 'Hoy';
+  if (n === 1) return 'Mañana';
+  if (n === -1) return 'Ayer';
+  return n > 0 ? `En ${n} días` : `Hace ${-n} días`;
+}
+function dselHTML(d, ocupadas, capacidad) {
+  const hoy = hoyISO();
+  if (!dselBase || d < dselBase || d > sumarDias(dselBase, DSEL_N - 1)) dselBase = sumarDias(d, -3);
+  const dir = dselPrev && dselPrev !== d ? (d > dselPrev ? 'der' : 'izq') : '';
+  const dt = new Date(d + 'T12:00:00');
+  const est = dselEstado(d, ocupadas, capacidad);
+  const pct = capacidad ? Math.min(1, ocupadas / capacidad) : 0;
+  const R = 26, C = 2 * Math.PI * R;
+  // Ocupación de la cinta en una sola pasada por las cirugías.
+  const porDia = {};
+  for (const c of DB.cirugias) {
+    if (c.estado === 'anticipada' || !c.sala) continue;
+    const k = diaDeGrilla(c); porDia[k] = (porDia[k] || 0) + 1;
+  }
+  const dias = [];
+  for (let i = 0; i < DSEL_N; i++) dias.push(sumarDias(dselBase, i));
+  const cinta = dias.map((x) => {
+    const xd = new Date(x + 'T12:00:00');
+    const oc = porDia[x] || 0, cp = franjasAbiertas(x);
+    const e = dselEstado(x, oc, cp);
+    const p = cp ? Math.min(100, Math.round(oc / cp * 100)) : 0;
+    const mes = xd.getDate() === 1 || x === dselBase ? `<i class="ds-mes">${MESES[xd.getMonth()]}</i>` : '';
+    return `<button type="button" class="ds-d ds-${e.k}${x === d ? ' sel' : ''}${x === hoy ? ' hoy' : ''}" data-d="${x}"
+        onclick="setDia('${x}')" aria-label="${fmtDiaLargo(x)} · ${e.t}${cp ? ` · ${oc} de ${cp} franjas` : ''}" aria-pressed="${x === d}">
+      ${mes}<span class="ds-w">${DSEL_CORTO[xd.getDay()]}</span><span class="ds-n">${xd.getDate()}</span>
+      <span class="ds-bar"><b style="width:${p}%"></b></span>
+    </button>`;
+  }).join('');
+  return `<div class="dsel${dir ? ' cambia' : ''}" data-dir="${dir}">
+    <div class="ds-hero" id="ds-hero">
+      <button type="button" class="ds-flecha" onclick="moverDia(-1)" aria-label="Día anterior">‹</button>
+      <div class="ds-fecha">
+        <div class="ds-num" aria-hidden="true"><span>${dt.getDate()}</span></div>
+        <div class="ds-txt">
+          <div class="ds-rel">${dselRelativo(d)}${d === hoy ? '<i class="ds-vivo"></i>' : ''}</div>
+          <div class="ds-largo"><b>${DIAS_S[dt.getDay()]}</b> · ${MESES_FULL[dt.getMonth()]} ${dt.getFullYear()}</div>
+          <span class="ds-est ds-${est.k}">${ico(ICONS[est.i] || ICONS.info, 13)} ${est.t}</span>
+        </div>
+      </div>
+      <div class="ds-anillo" title="${ocupadas} de ${capacidad} franjas ocupadas">
+        <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
+          <circle cx="32" cy="32" r="${R}" class="ds-a0"/>
+          <circle cx="32" cy="32" r="${R}" class="ds-a1" style="stroke-dasharray:${C.toFixed(1)};stroke-dashoffset:${(C * (1 - pct)).toFixed(1)};--c0:${C.toFixed(1)}"/>
+        </svg>
+        <div class="ds-a-t"><b>${ocupadas}</b><small>de ${capacidad}</small></div>
+      </div>
+      <div class="ds-acc">
+        <button type="button" class="ds-hoy${d === hoy ? ' es' : ''}" onclick="setDia('${hoy}')" ${d === hoy ? 'aria-disabled="true"' : ''}>
+          ${d === hoy ? '● Hoy' : '↺ Volver a hoy'}</button>
+        <label class="ds-cal" title="Elegir otra fecha">${ico(ICONS.calendar, 17)}<span>Calendario</span>
+          <input type="date" value="${d}" onchange="if(this.value) setDia(this.value)" onclick="try{this.showPicker()}catch(e){}" aria-label="Elegir fecha">
+        </label>
+      </div>
+      <button type="button" class="ds-flecha" onclick="moverDia(1)" aria-label="Día siguiente">›</button>
+    </div>
+    <div class="ds-cinta-w">
+      <button type="button" class="ds-sem" onclick="dselSemana(-7)" aria-label="Semana anterior">«</button>
+      <div class="ds-cinta" id="ds-cinta" tabindex="0" role="toolbar" aria-label="Días · flechas del teclado para moverse"
+           onkeydown="dselTecla(event)">
+        <span class="ds-ind" id="ds-ind"></span>${cinta}
+      </div>
+      <button type="button" class="ds-sem" onclick="dselSemana(7)" aria-label="Semana siguiente">»</button>
+    </div>
+  </div>`;
+}
+/* Corre la cinta una semana sin cambiar el día elegido. */
+function dselSemana(n) { dselBase = sumarDias(dselBase || diaSel || hoyISO(), n); dselIndX = null; renderProgDiaria(); }
+function dselTecla(ev) {
+  const k = ev.key;
+  dselFoco = ['ArrowLeft', 'ArrowRight', 'Home', 'PageUp', 'PageDown'].includes(k);
+  if (k === 'ArrowLeft' || k === 'ArrowRight') { ev.preventDefault(); moverDia(k === 'ArrowLeft' ? -1 : 1); }
+  else if (k === 'Home') { ev.preventDefault(); setDia(hoyISO()); }
+  else if (k === 'PageUp' || k === 'PageDown') { ev.preventDefault(); moverDia(k === 'PageUp' ? -7 : 7); }
+}
+function dselMontar() {
+  const cinta = document.getElementById('ds-cinta');
+  const ind = document.getElementById('ds-ind');
+  const sel = cinta && cinta.querySelector('.ds-d.sel');
+  dselPrev = diaSel;
+  if (!cinta || !ind) return;
+  if (dselFoco) { dselFoco = false; cinta.focus({ preventScroll: true }); }
+  if (sel) {
+    const x = sel.offsetLeft, w = sel.offsetWidth;
+    ind.style.width = w + 'px';
+    // El resaltado sale de donde estaba y se desliza hasta el día nuevo.
+    if (dselIndX != null && dselIndX !== x) {
+      ind.style.transition = 'none'; ind.style.transform = `translateX(${dselIndX}px)`;
+      void ind.offsetWidth; ind.style.transition = '';
+    }
+    ind.style.transform = `translateX(${x}px)`;
+    ind.style.opacity = '1';
+    dselIndX = x;
+    const izq = x - (cinta.clientWidth - w) / 2;
+    if (cinta.scrollWidth > cinta.clientWidth) cinta.scrollLeft = Math.max(0, izq);
+  } else { ind.style.opacity = '0'; dselIndX = null; }
+  // Deslizar el dedo sobre la tarjeta: a la izquierda, día siguiente.
+  const hero = document.getElementById('ds-hero');
+  if (hero) {
+    let x0 = null, y0 = null;
+    hero.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    hero.addEventListener('touchend', (e) => {
+      if (x0 == null) return;
+      const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) moverDia(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  }
 }
 /* ================= GUÍA DE LA PROGRAMACIÓN =================
    Antes había cuatro carteles seguidos con la explicación completa del
