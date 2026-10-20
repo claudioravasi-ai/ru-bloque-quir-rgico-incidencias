@@ -1037,9 +1037,9 @@
   .ij-env { display: block; width: 100%; margin-top: 12px; padding: 9px 12px; border: 1px solid rgba(255,255,255,.35); border-radius: 12px; background: rgba(0,0,0,.12); color: #fff; font-weight: 600; font-size: .8rem; line-height: 1.3; font-family: inherit; text-align: left; cursor: pointer; }
   .ij-libres { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; } .ij-libres span { padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.92); color: var(--c); font-size: .74rem; font-weight: 700; }
   .ij-cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 14px; align-items: start; }
-  @media (max-width: 860px) { .ij-cols { grid-template-columns: 1fr; } .ij-kpis { grid-template-columns: auto repeat(2, minmax(0, 1fr)); } .ij-kpis .ij-anillo { grid-row: span 2; align-self: center; } .ij-kpis > div:not(.ij-anillo) { padding: 8px 10px; } }
+  @media (max-width: 860px) { .ij-cols { grid-template-columns: minmax(0, 1fr); } .ij-kpis { grid-template-columns: auto repeat(2, minmax(0, 1fr)); } .ij-kpis .ij-anillo { grid-row: span 2; align-self: center; } .ij-kpis > div:not(.ij-anillo) { padding: 8px 10px; } }
   .ij h2 { font-size: 1rem; margin: 0 0 10px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
-  .ij-lista { list-style: none; margin: 0; padding: 0 0 0 18px; position: relative; display: grid; gap: 8px; }
+  .ij-lista { list-style: none; margin: 0; padding: 0 0 0 18px; position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .ij-lista::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: linear-gradient(var(--ij1), var(--ij2), var(--line)); }
   .ij-p { position: relative; border-radius: 16px; border: 1px solid var(--line); background: var(--card); animation: ijEntra .4s both; animation-delay: var(--d); }
   @keyframes ijEntra { from { opacity: 0; transform: translateX(-8px); } }
@@ -6748,7 +6748,15 @@
     .eqx-salas { grid-template-columns: 1fr; }
     .eqx-cuerpo { padding: 12px; }
   }
-  @media (prefers-reduced-motion: reduce) { .eqx, .eqx-hero, .eqx-blob, .eqx-vivo i, .eqx-sec, .eqx-sala, .eqx-btn, .eqx-btn-ic, .eqx-kpis span { animation: none !important; } }
+  .eqx-lleg { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 12px; padding: 12px 14px; border-radius: 16px; border: 2px solid #0d9488;
+    background: linear-gradient(135deg, color-mix(in srgb, #0d9488 14%, var(--card)), var(--card)); font-size: .9rem; animation: msToca 2s ease-in-out infinite; }
+  .eqx-lleg span { flex: 1; min-width: 200px; }
+  .eqx-lleg button { border: 0; border-radius: 999px; padding: 10px 18px; font-weight: 800; font-size: 1rem; color: #fff; background: #0d9488; cursor: pointer; box-shadow: 0 10px 22px -12px #0d9488; }
+  .eqx-lleg.ok { animation: none; border-color: color-mix(in srgb, #0d9488 40%, var(--line)); color: #0f766e; font-weight: 700; }
+  .fl-reemp { margin-top: 10px; border: 1.5px dashed color-mix(in srgb, #d97706 50%, var(--line)); border-radius: 12px; padding: 8px 10px; }
+  .fl-reemp summary { cursor: pointer; font-weight: 800; color: #b45309; font-size: .86rem; }
+  .fl-reemp .fl-btn { background: #d97706; }
+  @media (prefers-reduced-motion: reduce) { .eqx-lleg, .eqx, .eqx-hero, .eqx-blob, .eqx-vivo i, .eqx-sec, .eqx-sala, .eqx-btn, .eqx-btn-ic, .eqx-kpis span { animation: none !important; } }
 
 </style>
 </head>
@@ -9386,7 +9394,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.31.0';
+const APP_VERSION = '3.31.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11524,6 +11532,7 @@ function calcRecordatorios() {
   // 3.30 · Guardias de Enfermería e Instrumentación: la víspera y el pedido mensual.
   try { guRecordatorios(add); } catch (e) {}
   try { eqRecordatorios(add); } catch (e) {}
+  try { eqDiaRecordatorios(add); } catch (e) {}
   // 3.30 · Felicitaciones recibidas de la Jefatura de Anestesiología.
   try { saludosRecordatorios(add); } catch (e) {}
   // 3.22 · Recorrido de la cirugía: «Le toca» y los pedidos de firma de un compañero.
@@ -11747,7 +11756,7 @@ if ('serviceWorker' in navigator) {
     const d = e.data || {};
     if (d.tipo === 'aviso-cierre' && d.voz) decirEnVoz(d.voz);
     // 3.31 · Se tocó un aviso con la app ya abierta: el worker la trae al frente y pide ir a la pantalla del aviso.
-    if (d.tipo === 'ir' && /^[a-z]+$/.test(d.vista || '') && (d.vista === 'propuesta' || VIEWS[d.vista])) go(d.vista);
+    if (d.tipo === 'ir' && /^[a-z]+$/.test(d.vista || '') && (/^propuesta(hoy)?$/.test(d.vista) || VIEWS[d.vista])) go(d.vista);
   });
 }
 const AYUDA_NOTIF_BLOQUEADAS = `El navegador de este equipo tiene bloqueadas las notificaciones de la app, y una vez bloqueadas ya no vuelve a preguntar. Para habilitarlas:
@@ -12684,7 +12693,7 @@ function volverAtras() {
 
 function go(v, silencioso) {
   // 3.31 · «Equipos del día» no es una pantalla: es una ventana que se abre sobre la que esté.
-  if (v === 'propuesta') { closeDrawer(); eqPendiente = true; setTimeout(eqAlAbrir, 0); if (view && VIEWS[view] && view !== 'propuesta') return; v = 'panel'; }
+  if (v === 'propuesta' || v === 'propuestahoy') { closeDrawer(); eqPendiente = true; eqPendDia = v === 'propuestahoy' ? 'hoy' : null; setTimeout(eqAlAbrir, 0); if (view && VIEWS[view]) return; v = 'panel'; }
   const vistaPrevia = view;
   // La franja provisional se resuelve antes de irse a otra pantalla.
   if (view === 'consentimientos' && v !== 'consentimientos' && turnoProvisionalDelFormulario()) {
@@ -12742,7 +12751,7 @@ function go(v, silencioso) {
 }
 function vistaDelHash() {
   const h = location.hash.replace('#', '');
-  if (h === 'propuesta') return 'propuesta';   // 3.31 · abre la tarjeta «Equipos del día»
+  if (h === 'propuesta' || h === 'propuestahoy') return h;   // 3.31 · abre la tarjeta «Equipos del día» (de mañana o de hoy)
   return VIEWS[h] ? h : 'panel';
 }
 
@@ -12946,6 +12955,7 @@ function renderSala() {
       </div>
       ${guTiraHTML(salaDia)}
     </section>
+    ${eqLlegueHTML()}
     ${eqBotonHTML()}
     ${flujoLista(salaDia, 'sala')}
   </div>`;
@@ -13126,6 +13136,8 @@ async function salaAnotarme(id, k) {
 }
 function salaDesanotarme(id, k) {
   const c = salaCir(id), u = usuarioActual(); if (!c || !u || !c.equipoSala || !c.equipoSala[k] || c.equipoSala[k].email !== u.email) return;
+  // 3.31.1 · Si lo había asignado su jefe/a, queda anotado que se quitó y se le avisa.
+  if (c.equipoSala[k].prop) eqBaja(c, k, u);
   delete c.equipoSala[k];
   salaGuardar(c, `${u.nombre} se quitó como ${SALA_PUESTOS[k].n} de la sala`);
 }
@@ -13729,7 +13741,7 @@ async function anestGuardarPres(d, mapaFn) {
 }
 async function anestLlegue() {
   const ok = await anestGuardarPres(anestDia, (p) => { p.h.push(nowDT().slice(11, 16) + '|llegada'); return p; });
-  if (ok) { if (typeof toastTurno === 'function') toastTurno('Llegada registrada. Ahora toque sus cirugías.', '#0d9488'); VIEWS[view](); }
+  if (ok) { try { eqLlegue(true); } catch (e) {} if (typeof toastTurno === 'function') toastTurno('Llegada registrada. Ahora toque sus cirugías.', '#0d9488'); VIEWS[view](); }
 }
 async function anestElegir(id) {
   const c = salaCir(id), u = usuarioActual(); if (!c || !u) return;
@@ -13743,10 +13755,14 @@ async function anestElegir(id) {
   if (!yaMio && !(await flCambioSala(c, u))) return;
   const previo = c.anest ? c.anest.n : '';
   if (yaMio) {
+    if (c.anest.prop) eqBaja(c, 'anest', u);
     delete c.anest;
     pushHist(c, `Anestesiología: ${u.nombre} se quitó de la cirugía (check-point del día)`);
   } else {
-    c.anest = { n: u.nombre, e: u.email, t: nowDT() };
+    const antes = c.anest;
+    c.anest = { n: u.nombre, e: u.email, t: nowDT(), lleg: nowDT() };
+    // 3.31.1 · Si había otra persona (por ejemplo, la asignada por la Jefa), queda como reemplazo y se le avisa.
+    if (antes && antes.e && antes.e !== u.email) c.anest.reemp = { n: antes.n, e: antes.e, t: nowDT() };
     if (!c.anestesista || c.anestesista === previo) c.anestesista = u.nombre;
     pushHist(c, `Anestesiología: ${u.nombre} confirmó que está en la cirugía${previo ? ` (antes figuraba ${previo})` : ''}`);
   }
@@ -14903,7 +14919,8 @@ const EQ_PUESTOS = [
 ];
 const EQ_SECT = { anest: { n: 'Anestesiología', i: '💤', c: '#7c3aed' }, enf: { n: 'Enfermería', i: '💉', c: '#0d9488' }, inst: { n: 'Instrumentación', i: '🩺', c: '#db2777' } };
 const EQ_NIVEL = { alta: '🔥 Alta complejidad', media: '⚡ Complejidad media', baja: '🌿 Baja complejidad' };
-let eqDia = null, eqDoc = null, eqOyente = null, eqEdit = null, eqGenerando = false, eqPendiente = location.hash === '#propuesta';
+let eqDia = null, eqDoc = null, eqOyente = null, eqEdit = null, eqGenerando = false, eqPendiente = /^#propuesta(hoy)?$/.test(location.hash);
+let eqPendDia = location.hash === '#propuestahoy' ? 'hoy' : null;
 const eqCache = {};
 
 function eqSoyJefeDe(s) { const u = usuarioActual(); return !!jefe || (s === 'anest' ? esJefeAnest(u) : esJefeSector(u, s)); }
@@ -15049,7 +15066,8 @@ function eqEscuchar() {
   }
 }
 function eqAbrir(d) {
-  eqPendiente = false;
+  eqPendiente = false; eqPendDia = null;
+  if (d === 'hoy') d = hoyISO();
   if (!eqPuedeVer()) {
     avisar('Equipos del día\n\nEsta tarjeta es de la Jefatura de Quirófanos y de los/las Jefes/as de Anestesiología, Enfermería de Quirófano e Instrumentación. Ingrese con esa cuenta para verla.');
     return;
@@ -15123,6 +15141,20 @@ function eqAplicar(s, d, salas, m) {
       salas.forEach((x) => { const k = (m[x.id] || {}).an; if (k) { dm[x.id] = k; b.p = b.p || {}; b.p[k] = eqNombre(k); } });
       dispSetDia(b, d, dm);
     }, `Equipos del día ${Number(d.slice(8))}: confirmó las salas`, true);
+    // 3.31.1 · Y queda a su nombre en cada cirugía de la sala (como Enfermería e Instrumentación).
+    salas.forEach((x) => {
+      const k = (m[x.id] || {}).an, u = k ? DB.usuarios.find((z) => anestK(z.email) === k) : null;
+      x.cx.forEach((c) => {
+        const prev = c.anest;
+        if (prev && prev.e && !prev.prop) return;   // quien se anotó a mano o reemplazó no se pisa
+        if (!u) { if (prev && prev.prop) { delete c.anest; upsert('cirugias', c); } return; }
+        if (prev && prev.e === u.email) return;
+        c.anest = { n: u.nombre, e: u.email, t: nowDT(), prop: 1 };
+        if (!c.anestesista || (prev && c.anestesista === prev.n)) c.anestesista = u.nombre;
+        pushHist(c, `Anestesiología asignada por ${anestQuien()} desde «Equipos del día»: ${u.nombre}`);
+        upsert('cirugias', c);
+      });
+    });
     return;
   }
   salas.forEach((x) => {
@@ -15235,9 +15267,123 @@ function eqRecordatorios(add) {
 /* Se abrió desde el aviso (…#propuesta): espera a que la sesión esté lista. */
 function eqAlAbrir(intento) {
   if (!eqPendiente) return;
-  if (eqPuedeVer()) { eqAbrir(); return; }
+  if (eqPuedeVer()) { eqAbrir(eqPendDia); return; }
   if ((intento || 0) < 40) setTimeout(() => eqAlAbrir((intento || 0) + 1), 250);
-  else { eqPendiente = false; eqAbrir(); }   // sin permiso: eqAbrir explica de quién es la tarjeta
+  else { eqPendiente = false; eqAbrir(eqPendDia); }   // sin permiso: eqAbrir explica de quién es la tarjeta
+}
+/* ---- 3.31.1 · El día de la cirugía con el equipo ya armado ----
+   Pedido de Claudio (20-10-2026): lo que confirmaron los jefes/as se respeta.
+     · Cada persona asignada ya figura en su puesto (también Anestesiología:
+       c.anest con `prop`). Al llegar solo toca «✋ Llegué» (Anestesiología, el
+       de siempre en su portal), que queda en cada cirugía (`lleg`).
+     · Los puestos asignados no se ofrecen libres. Si el asignado no vino,
+       otra persona de la misma función toca «Reemplazar»: queda con los dos
+       nombres (`reemp`) en las cirugías de la sala que todavía no empezaron, y
+       a su jefe/a le llega el aviso.
+     · Si a 30 min de su primera cirugía el asignado no marcó «Llegué», al
+       jefe/a de su sector le llega «… todavía no llegó». Con la app cerrada lo
+       manda el Apps Script (avisoEquiposDia_). */
+const EQ_NO_LLEGO_MIN = 30;
+const EQ_TERMINADA = ['realizada', 'finalizada', 'en_curso', 'suspendida', 'cancelada', 'rechazada'];
+function eqPuestoSector(pu, p) { return pu === 'anest' ? 'anest' : pu === 'tecAnestesia' ? 'enf' : pu === 'instrumentadora' ? 'inst' : salaFuncDe(p) === 'enfermeria' ? 'enf' : 'inst'; }
+function eqPuestoNombre(pu) { return pu === 'anest' ? 'Anestesiología' : (SALA_PUESTOS[pu] || {}).n || pu; }
+/* Todas las personas anotadas en una cirugía: [puesto, nombre, correo, registro]. */
+function eqEntradas(c) {
+  const l = [];
+  if (c.anest && c.anest.e) l.push(['anest', c.anest.n, c.anest.e, c.anest]);
+  Object.entries(c.equipoSala || {}).forEach(([pu, p]) => { if (p && p.email) l.push([pu, p.nombre, p.email, p]); });
+  return l;
+}
+function eqMisAsignaciones(d) {
+  const u = usuarioActual(); if (!u) return [];
+  const out = [];
+  salaCirugias(d).forEach((c) => eqEntradas(c).forEach(([pu, , e, p]) => { if (p.prop && e === u.email) out.push({ c, pu, p }); }));
+  return out;
+}
+function eqLlegueHTML() {
+  const l = eqMisAsignaciones(hoyISO());
+  if (!l.length) return '';
+  const salas = [...new Set(l.map((x) => x.c.quirofano || x.c.sala))].join(', ');
+  const hora = l.map((x) => x.c.horaProg || '').filter(Boolean).sort()[0];
+  if (l.every((x) => x.p.lleg)) return `<div class="eqx-lleg ok"><span>✓ Llegada registrada a las ${esc(String(l[0].p.lleg).slice(11, 16))} h · ${esc(salas)}</span></div>`;
+  return `<div class="eqx-lleg"><span>🗓️ Hoy su jefe/a lo/la asignó a <b>${esc(salas)}</b>${hora ? ` desde las <b>${esc(hora)} h</b>` : ''}. Ya figura en su puesto: al llegar, avise.</span><button type="button" onclick="eqLlegue()">✋ Llegué</button></div>`;
+}
+function eqLlegue(silencioso) {
+  const t = nowDT(), u = usuarioActual();
+  const toc = new Set();
+  eqMisAsignaciones(hoyISO()).forEach(({ c, p }) => { if (p.lleg) return; p.lleg = t; toc.add(c); });
+  toc.forEach((c) => { pushHist(c, `${u ? u.nombre : ''} marcó «Llegué»`); upsert('cirugias', c); });
+  if (silencioso) return;
+  if (typeof toastTurno === 'function') toastTurno('Llegada registrada', '#0d9488');
+  flRepintar();
+}
+/* «¿Falta alguien? Reemplazar», dentro de la tarjeta de cada cirugía. */
+function eqReemplazoHTML(c, modo) {
+  const u = usuarioActual();
+  if (!u || modo === 'dir' || !esEquipoSala(u) || EQ_TERMINADA.filter((x) => x !== 'en_curso').includes(c.estado) || (c.fecha || '') < hoyISO()) return '';
+  const f = funcionDe(u), id = JSON.stringify(c.id);
+  const yoYa = eqEntradas(c).some(([, , e]) => e === u.email);
+  const b = eqEntradas(c).filter(([pu, , e, p]) => e !== u.email && (pu === 'anest' ? f === 'anestesiologia' : salaFuncDe(p) === f && (SALA_PUESTOS[pu] || { funcs: [] }).funcs.includes(f)) && !(yoYa && f !== 'enfermeria'));
+  if (!b.length) return '';
+  return `<details class="fl-reemp"><summary>🔁 ¿Falta alguien del equipo? Reemplazar</summary>
+    <p class="fl-nota">Solo si la persona asignada no vino o se tuvo que ir. Queda registrado con los dos nombres y se le avisa a su jefe/a.</p>
+    ${b.map(([pu, n]) => `<button type="button" class="fl-btn" onclick="eqReemplazar(${id},'${pu}')">Reemplazar a ${esc(n)} · ${esc(eqPuestoNombre(pu))}</button>`).join('')}</details>`;
+}
+async function eqReemplazar(id, pu) {
+  const c = salaCir(id), u = usuarioActual(); if (!c || !u) return;
+  const prev = pu === 'anest' ? c.anest : (c.equipoSala || {})[pu]; if (!prev) return;
+  const prevN = prev.n || prev.nombre, prevE = prev.e || prev.email, sl = c.quirofano || c.sala;
+  const ocupa = (x) => (pu === 'anest' ? x.anest && x.anest.e === prevE : (x.equipoSala || {})[pu] && x.equipoSala[pu].email === prevE);
+  const mismas = salaCirugias(c.fecha).filter((x) => String(x.id) === String(c.id) || (x.sala === c.sala && !EQ_TERMINADA.includes(x.estado) && ocupa(x)));
+  if (!(await preguntar(`${prevN} figura como ${eqPuestoNombre(pu)} en ${sl}${mismas.length > 1 ? ` (${mismas.length} cirugías de hoy en esa sala)` : ''}.\n\n¿Lo/la reemplaza usted? Úselo solo si no vino o se tuvo que ir. Queda registrado con los dos nombres y se le avisa a su jefe/a.`,
+    { titulo: 'Reemplazar', tono: 'pregunta', si: 'Sí, lo/la reemplazo', no: 'Cancelar' }))) return;
+  if (!(await flCambioSala(c, u))) return;
+  const t = nowDT(), reemp = { n: prevN, e: prevE, t };
+  mismas.forEach((x) => {
+    if (pu === 'anest') { x.anest = { n: u.nombre, e: u.email, t, lleg: t, reemp }; if (!x.anestesista || x.anestesista === prevN) x.anestesista = u.nombre; }
+    else { x.equipoSala = x.equipoSala || {}; x.equipoSala[pu] = { nombre: u.nombre, email: u.email, f: funcionDe(u), t, lleg: t, reemp }; }
+    pushHist(x, `${u.nombre} reemplazó a ${prevN} como ${eqPuestoNombre(pu)}`);
+    upsert('cirugias', x);
+  });
+  if (pu === 'anest') anestGuardarPres(c.fecha, (p) => {
+    const ids = new Set(String(p.cx || '').split(',').filter(Boolean)); mismas.forEach((x) => ids.add(String(x.id)));
+    p.cx = [...ids].join(','); p.h.push(nowDT().slice(11, 16) + '|reemplazo'); return p;
+  });
+  if (typeof toastTurno === 'function') toastTurno('Reemplazo registrado · se le avisa a su jefe/a', '#d97706');
+  flRepintar();
+}
+/* La persona asignada se quitó sola: el puesto queda libre y su jefe/a se entera. */
+function eqBaja(c, pu, u) { c.bajas = (c.bajas || []).concat([{ pu, n: u.nombre, e: u.email, f: funcionDe(u), t: nowDT() }]).slice(-10); }
+const eqHM = (h) => { const m = /^(\d{1,2}):(\d{2})/.exec(String(h || '')); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
+/* Avisos del día para los jefes/as: quién no llegó y quién reemplazó a quién. */
+function eqDiaRecordatorios(add) {
+  const mis = eqMisSectores(); if (!mis.length) return;
+  const hoy = hoyISO(), ah = new Date(), min = ah.getHours() * 60 + ah.getMinutes();
+  const pers = {};
+  salaCirugias(hoy).forEach((c) => (c.bajas || []).forEach((b) => {
+    const s = eqPuestoSector(b.pu, { f: b.f });
+    if (!mis.includes(s) || String(b.t).slice(0, 10) !== hoy) return;
+    const libre = b.pu === 'anest' ? !c.anest : !(c.equipoSala || {})[b.pu];
+    add({ key: `baja-${hoy}-${s}-${c.sala}-${anestK(b.e)}`, nivel: libre ? 'crit' : 'info', notif: true, vista: 'propuestahoy',
+      titulo: `${b.n} se quitó de ${c.quirofano || c.sala}`, texto: `Era ${eqPuestoNombre(b.pu)}, asignado/a desde «Equipos del día»; se quitó a las ${String(b.t).slice(11, 16)} h. ${libre ? 'El puesto quedó LIBRE: asigne a otra persona.' : 'El puesto ya lo ocupó otra persona.'}`, cuando: 'Hoy' });
+  }));
+  salaCirugias(hoy).forEach((c) => eqEntradas(c).forEach(([pu, n, e, p]) => {
+    const s = eqPuestoSector(pu, p); if (!mis.includes(s)) return;
+    if (p.reemp && String(p.reemp.t || '').slice(0, 10) === hoy) {
+      add({ key: `reemp-${hoy}-${s}-${anestK(e)}-${anestK(p.reemp.e)}`, nivel: 'warn', notif: true, vista: 'propuestahoy',
+        titulo: `${n} reemplazó a ${p.reemp.n}`, texto: `${eqPuestoNombre(pu)} en ${c.quirofano || c.sala}, desde las ${String(p.reemp.t).slice(11, 16)} h. Quedó registrado con los dos nombres.`, cuando: 'Hoy' });
+    }
+    if (!p.prop || p.lleg || EQ_TERMINADA.includes(c.estado)) return;
+    const x = pers[s + '|' + e] = pers[s + '|' + e] || { n, e, s, salas: new Set(), primera: null };
+    x.salas.add(c.quirofano || c.sala);
+    const h = eqHM(c.horaProg); if (h !== null && (x.primera === null || h < x.primera)) x.primera = h;
+  }));
+  Object.values(pers).forEach((x) => {
+    if (x.primera === null || min < x.primera - EQ_NO_LLEGO_MIN) return;
+    const hh = String(Math.floor(x.primera / 60)).padStart(2, '0') + ':' + String(x.primera % 60).padStart(2, '0');
+    add({ key: `nollego-${hoy}-${x.s}-${anestK(x.e)}`, nivel: 'crit', notif: true, vista: 'propuestahoy',
+      titulo: `${x.n} todavía no llegó`, texto: `Está asignado/a a ${[...x.salas].join(', ')} (primera cirugía ${hh} h) y no marcó «Llegué». Llámelo/a, o cambie a la persona en «Equipos del día».`, cuando: `Desde las ${hh} h` });
+  });
 }
 
 /* ---- Recordatorios de Anestesiología ---- */
@@ -15464,7 +15610,7 @@ function flTarjeta(c, modo, idx) {
       <span class="fl-prog"><span class="fl-linea">${linea}</span><small>${e.hechos}/${FLUJO.length}</small></span>
     </button>
     <div class="fl-estado">${estadoTxt}${flLlamarHTML(c, modo)}${c.parteAnest ? '<span class="pa-chip" title="Parte anestésico pre-quirúrgico adjuntado">💉 Parte pre-anestésico</span>' : ''}${!abierta ? `<button class="fl-link" onclick="flAbierta=${id};flRepintar()">${libre ? '➕ Anotarme' : meToca ? 'Hacerlo ahora →' : 'Ver el recorrido →'}</button>` : ''}</div>
-    ${abierta ? `<ol class="fl-pasos">${e.pasos.map((p, i) => flPasoHTML(c, p, i, mis, modo)).join('')}</ol>${flMaterialHTML(c, modo)}${c.parteAnest || (c.anest && paPuedeSubir(c)) ? paTarjetaHTML(c) : ''}
+    ${abierta ? `<ol class="fl-pasos">${e.pasos.map((p, i) => flPasoHTML(c, p, i, mis, modo)).join('')}</ol>${flMaterialHTML(c, modo)}${eqReemplazoHTML(c, modo)}${c.parteAnest || (c.anest && paPuedeSubir(c)) ? paTarjetaHTML(c) : ''}
       <button class="fl-link" onclick="openCirugia(${id})">Abrir la ficha de la cirugía →</button>` : ''}
   </article>`;
 }

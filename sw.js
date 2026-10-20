@@ -14,7 +14,7 @@
 /* Al publicar cambios hay que subir esta constante (y APP_VERSION en
    index.html): es lo que hace que los dispositivos ya instalados descarten la
    copia cacheada y estrenen la versión nueva. */
-const VERSION = 'hru-quirofanos-v81';
+const VERSION = 'hru-quirofanos-v82';
 const SHELL = [
   './',
   './index.html',
@@ -126,6 +126,7 @@ function vistaDeAviso(d) {
   if (/^[a-z]+$/.test(d.vista || '')) return d.vista;
   const tag = String(d.tag || '');
   if (tag.indexOf('equipos-') === 0) return 'propuesta';
+  if (/^(nollego|reemp|baja)-/.test(tag)) return 'propuestahoy';
   if (tag.indexOf('guardia-vispera-') === 0) return 'guardias';
   if (tag.indexOf('anest-') === 0) return 'anestesia';
   return 'recordatorios';

@@ -410,6 +410,48 @@ button.acto-c:hover { transform: translateY(-3px); box-shadow: var(--sh); }
 .pulsera .pu{background:#2563eb;color:#fff;border-radius:6px;font-size:.52rem;font-weight:800;text-align:center;padding:4px 2px;line-height:1.3}
 .pulsera .pf small{display:block;font-size:.5rem;color:#334155}.pulsera .pf code{display:block;font-size:.48rem;color:#1e3a8a;background:#eef2ff;border-radius:3px;padding:1px 2px;margin-top:2px}
 @media (prefers-reduced-motion:reduce){.alarma,.mm-habs i.foco-cama{animation:none}}
+
+.eqm-lleg { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px; margin-bottom: 10px; border-radius: 14px; border: 2px solid var(--enf); background: color-mix(in srgb, var(--enf) 10%, var(--scr2)); font-size: .76rem; }
+.eqm-lleg span { flex: 1; min-width: 160px; } .eqm-lleg .b { width: auto; margin: 0; }
+/* ===== 3.31 · Equipos del día ===== */
+.eqm-bloq { background: linear-gradient(160deg, #1e1b4b, #0f766e); color: #fff; border-radius: 16px; padding: 18px 12px 14px; text-align: center; }
+.eqm-hora { font-size: 2.6rem; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+.eqm-bloq > small { opacity: .8; font-size: .74rem; }
+.eqm-noti { display: flex; gap: 10px; text-align: left; width: 100%; margin-top: 16px; padding: 10px; border: 0; border-radius: 14px; background: rgba(255,255,255,.92); color: #111827; cursor: pointer; }
+.eqm-noti i { font-style: normal; font-size: 1.4rem; }
+.eqm-noti b { display: block; font-size: .76rem; } .eqm-noti small { display: block; font-size: .68rem; color: #475569; margin-top: 2px; }
+.eqm { display: grid; gap: 8px; }
+.eqm-hero { position: relative; overflow: hidden; color: #fff; border-radius: 14px; padding: 10px; background: linear-gradient(120deg, #7c3aed, #0d9488 55%, #db2777); background-size: 200% 200%; animation: eqmFondo 10s ease-in-out infinite; }
+@keyframes eqmFondo { 0%, 100% { background-position: 0% 40%; } 50% { background-position: 100% 60%; } }
+.eqm-hero > b { display: block; font-size: 1.05rem; margin-top: 6px; } .eqm-hero > small { font-size: .68rem; opacity: .9; }
+.eqm-top { display: flex; gap: 6px; align-items: center; font-size: .58rem; flex-wrap: wrap; }
+.eqm-vivo { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; text-transform: uppercase; background: rgba(0,0,0,.25); border-radius: 999px; padding: 2px 7px; }
+.eqm-vivo i { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: eqmPulso 1.6s infinite; }
+@keyframes eqmPulso { 70% { box-shadow: 0 0 0 7px rgba(74,222,128,0); } 0% { box-shadow: 0 0 0 0 rgba(74,222,128,.8); } }
+.eqm-ult { background: rgba(255,255,255,.16); border-radius: 999px; padding: 2px 7px; }
+.eqm-kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
+.eqm-kpi span { background: rgba(255,255,255,.16); border-radius: 8px; padding: 4px; font-size: .56rem; display: flex; flex-direction: column; }
+.eqm-kpi b { font-size: .9rem; } .eqm-kpi .bien { background: rgba(187,247,208,.28); }
+.eqm-secs { display: grid; gap: 5px; }
+.eqm-sec { display: flex; align-items: center; gap: 7px; padding: 6px 8px; border-radius: 10px; border: 1.5px solid color-mix(in srgb, var(--c) 40%, var(--line)); background: color-mix(in srgb, var(--c) 8%, var(--scr2)); }
+.eqm-sec > i { font-style: normal; } .eqm-sec > span { flex: 1; display: flex; flex-direction: column; }
+.eqm-sec b { font-size: .74rem; } .eqm-sec small { font-size: .62rem; color: var(--mut); }
+.eqm-sec.ok { background: color-mix(in srgb, var(--c) 20%, var(--scr2)); } .eqm-sec.ok small { color: var(--c); font-weight: 800; }
+.eqm-ok { border: 0; border-radius: 999px; padding: 5px 9px; font-weight: 800; font-size: .66rem; color: #fff; background: var(--c); }
+.eqm-sala { border-radius: 12px; padding: 8px; border: 1.5px solid color-mix(in srgb, var(--n) 35%, var(--line)); background: linear-gradient(160deg, color-mix(in srgb, var(--n) 11%, var(--scr2)), var(--scr2) 60%); display: grid; gap: 4px; }
+.eqm-sh { display: flex; justify-content: space-between; align-items: center; } .eqm-sh b { font-size: .8rem; }
+.eqm-sh em { font-style: normal; font-size: .58rem; font-weight: 800; color: #fff; background: var(--n); border-radius: 999px; padding: 1px 7px; }
+.eqm-sala ul { list-style: none; margin: 0; padding: 0; font-size: .64rem; } .eqm-sala time { font-weight: 800; color: var(--n); margin-right: 5px; }
+.eqm-slot { display: flex; align-items: center; gap: 7px; width: 100%; text-align: left; padding: 4px 6px; border-radius: 9px; border: 1.5px solid color-mix(in srgb, var(--s) 28%, var(--line)); background: var(--scr); color: var(--ink); }
+.eqm-slot i { font-style: normal; width: 24px; height: 24px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: .6rem; font-weight: 800; color: #fff; background: var(--s); }
+.eqm-slot span { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.eqm-slot small { font-size: .52rem; color: var(--mut); text-transform: uppercase; } .eqm-slot b { font-size: .7rem; }
+.eqm-slot em { font-style: normal; color: var(--s); font-weight: 800; }
+.eqm-slot.vacio { border-style: dashed; } .eqm-slot.vacio i { background: color-mix(in srgb, var(--s) 25%, var(--scr)); }
+.eqm-lista { display: grid; gap: 3px; padding: 5px; border-radius: 10px; background: color-mix(in srgb, var(--enf) 8%, var(--scr2)); border: 1px solid var(--line); }
+.eqm-lista button { text-align: left; border: 1px solid transparent; background: var(--scr); color: var(--ink); border-radius: 8px; padding: 4px 7px; }
+.eqm-lista b { display: block; font-size: .7rem; } .eqm-lista small { font-size: .6rem; color: var(--mut); }
+@media (prefers-reduced-motion: reduce) { .eqm-hero, .eqm-vivo i { animation: none; } }
 </style>
 </head>
 <body>
@@ -477,6 +519,9 @@ const R = {
   pac:   { n: 'Ana', f: 'Paciente', c: 'var(--pac)', i: '📱' },
   pac2:  { n: 'Rosa', f: 'Paciente · reprogramada', c: 'var(--pac)', i: '📱' },
   jenf:  { n: 'Lic. Andrea Molina', f: 'Jefatura de Enfermería', c: 'var(--enf)', i: '🛏️' },
+  jenq:  { n: 'Lic. Pablo Ferrari', f: 'Jefe de Enfermería de Quirófano', c: 'var(--enf)', i: '💉' },
+  enfg:  { n: 'Lic. Nadia Funes', f: 'Enfermera · sin sala asignada', c: 'var(--enf)', i: '💉' },
+  jins:  { n: 'Inst. Marina López', f: 'Jefa de Instrumentación', c: 'var(--inst)', i: '🧰' },
   tab:   { n: 'Quirófanos en vivo', f: 'Lo ven Jefatura y Admisión', c: 'var(--mal)', i: '📡' },
 };
 const av = (k) => `<span class="av" style="--k:${R[k].c}">${R[k].i}</span>`;
@@ -514,6 +559,7 @@ function inicial() {
     u: { carga: false, adm: false, jef: false, anest: false, eq: false, ini: false, sal: false },
     c: { sin: false, cir: false, adm: false, jef: false, pac: false },
     m: { pinto: false, envio: false, recibido: false, ingreso: false },
+    e: { cambio: false, inst: false, enf: false, anest: false, lleg: false, reemp: false },
   };
 }
 
@@ -960,10 +1006,76 @@ function scrEscaneo() {
     ${btn('lvq', '▶ Iniciar la LVQ de Entrada (punto 1 ✓)', '', 'var(--enf)')}`;
 }
 
+/* ---------- 3.31 · Equipos del día (la tarjeta de los jefes/as) ---------- */
+const EQD = [
+  { id: 'Q4', n: 'Quirófano 4', niv: 'alta', cx: [['08:00', 'Artroplastia total de cadera'], ['13:00', 'Osteosíntesis de radio']], an: 'Dr. Tomás Vera', e: 'Lic. Juan Díaz', i: 'Inst. Paula Gil', c: 'Inst. Lucía Sanz' },
+  { id: 'Q2', n: 'Quirófano 2', niv: 'media', cx: [['08:00', 'Colecistectomía laparoscópica'], ['10:30', 'Hernioplastia inguinal']], an: 'Dra. Laura Paz', e: 'Lic. Sofía Molina', i: 'Inst. Carla Ruiz', c: '' },
+  { id: 'Q3', n: 'Quirófano 3', niv: 'baja', cx: [['08:00', 'Exéresis de lipoma']], an: 'Dr. Marcos León', e: 'Lic. Ema Ríos', i: 'Inst. Rocío Paz', c: '' },
+];
+const EQD_NIV = { alta: ['🔥 Alta', '#e11d48'], media: ['⚡ Media', '#f59e0b'], baja: ['🌿 Baja', '#16a34a'] };
+const EQD_SEC = [['anest', '💤', 'Anestesiología', 'var(--anest)', 'Dra. Inés Bianchi'], ['enf', '💉', 'Enfermería', 'var(--enf)', 'Lic. Pablo Ferrari'], ['inst', '🩺', 'Instrumentación', 'var(--inst)', 'Inst. Marina López']];
+const ini2 = (n) => String(n).replace(/^(Dra?|Lic|Inst)\.\s*/, '').split(' ').map((x) => x[0]).join('').slice(0, 2);
+function scrEqAviso() {
+  return `<div class="eqm-bloq"><div class="eqm-hora">20:00</div><small>Miércoles 21 de octubre</small>
+    <button class="eqm-noti" data-t="abrir"><i>🪄</i><span><b>HRU Quirófanos — Equipos de mañana: revise y confirme Enfermería</b><small>La app ya armó los equipos de las 3 salas de mañana. Toque para abrir la tarjeta…</small></span></button></div>
+    <p class="nota">Llega aunque la app esté cerrada (y también por correo). Al tocarla, la app se abre directo en la tarjeta.</p>`;
+}
+/* La tarjeta, en chico. o.yo = sector de quien mira; o.foco = qué slot marcar; o.lista = lista abierta en Q3. */
+function scrEqTarjeta(S, o) {
+  const E = S.e, ok = { anest: E.anest, enf: E.enf, inst: E.inst };
+  const ult = E.anest ? '20:21 · Dra. Inés Bianchi: Confirmó Anestesiología' : E.enf ? '20:16 · Lic. Pablo Ferrari: Confirmó Enfermería' : E.inst ? '20:12 · Inst. Marina López: Confirmó Instrumentación' : E.cambio ? '20:07 · Lic. Pablo Ferrari: Enfermería de Q3: Lic. Gustavo Ruiz' : '20:00 · Propuesta automática';
+  const slot = (p, ico, rot, nom, sec, k) => {
+    const mio = o.yo === sec, vacio = !nom;
+    return `<button class="eqm-slot${vacio ? ' vacio' : ''}${mio ? ' mio' : ''}" ${mio && k ? `data-t="${k}"` : 'data-t="nada"'} style="--s:${EQD_SEC.find((x) => x[0] === sec)[3]}">
+      <i>${vacio ? ico : ini2(nom)}</i><span><small>${ico} ${rot}</small><b>${nom || 'Circula el/la enfermero/a'}</b></span>${mio ? '<em>✎</em>' : ''}</button>`;
+  };
+  const lista = `<div class="eqm-lista">
+      <button data-t="nada"><b>Lic. Ema Ríos</b><small>en esta sala · 9 cx en 30 días</small></button>
+      <button data-t="gus"><b>Lic. Gustavo Ruiz</b><small>✓ libre · 4 cx en 30 días</small></button>
+      <button data-t="nada"><b>Lic. Juan Díaz</b><small>↔ está en Quirófano 4 · 7 cx</small></button>
+      <button data-t="nada"><b>Lic. Sofía Molina</b><small>↔ está en Quirófano 2 · 8 cx</small></button>
+      <button data-t="nada"><b>Lic. Nadia Funes</b><small>✓ libre · 🛡️ de guardia · 2 cx</small></button></div>`;
+  return `<div class="eqm">
+    <div class="eqm-hero"><div class="eqm-top"><span class="eqm-vivo"><i></i>En vivo</span><span class="eqm-ult">${ult}</span></div>
+      <b>🪄 Equipos del día</b><small>Mañana · Jueves 22 de octubre</small>
+      <div class="eqm-kpi"><span><b>3</b>salas</span><span><b>5</b>cirugías</span><span><b>11</b>cubiertos</span><span class="bien"><b>0</b>sin cubrir</span></div></div>
+    <div class="eqm-secs">${EQD_SEC.map(([s, i, n, c]) => `<div class="eqm-sec${ok[s] ? ' ok' : ''}" style="--c:${c}"><i>${i}</i><span><b>${n}</b><small>${ok[s] ? '✓ Confirmado' : 'Pendiente'}</small></span>${o.yo === s && !ok[s] ? `<button class="eqm-ok" data-t="${o.conf || 'nada'}">✓ Confirmar</button>` : ''}</div>`).join('')}</div>
+    ${EQD.map((x) => {
+      const e = x.id === 'Q3' && E.cambio ? 'Lic. Gustavo Ruiz' : x.e;
+      return `<div class="eqm-sala" style="--n:${EQD_NIV[x.niv][1]}"><div class="eqm-sh"><b>${x.n}</b><em>${EQD_NIV[x.niv][0]}</em></div>
+        <ul>${x.cx.map(([h, p]) => `<li><time>${h}</time>${p}</li>`).join('')}</ul>
+        ${slot('an', '💤', 'Anestesiología', x.an, 'anest', '')}
+        ${slot('e', '💉', 'Enfermería · téc. anestesia', e, 'enf', x.id === 'Q3' && !E.cambio ? 'ema' : '')}
+        ${x.id === 'Q3' && o.lista ? lista : ''}
+        ${slot('i', '🩺', 'Instrumentación', x.i, 'inst', '')}
+        ${slot('c', '🧭', 'Circulante (2.ª inst.)', x.c, 'inst', '')}</div>`;
+    }).join('')}
+    ${o.fin ? btn(o.fin, o.finTxt || 'Entendido') : ''}</div>`;
+}
+function scrEqSala(S) {
+  return `<div class="s-h"><div><b>🧭 Mi Sala · jueves 22</b><small>Quirófano 2 · desde «Equipos del día»</small></div></div>
+    <div class="eqm-lleg">${S && S.e.lleg ? '<b>✓ Llegada registrada a las 07:30 h · Quirófano 2</b>' : `<span>🗓️ Hoy su jefe lo/la asignó a <b>Quirófano 2</b> desde las <b>08:00 h</b>. Ya figura en su puesto: al llegar, avise.</span>${btn('llegue', '✋ Llegué', '', 'var(--enf)')}`}</div>
+    <div class="s-card k" style="--k:var(--enf)"><b>08:00 · Colecistectomía laparoscópica</b>
+      <p class="nota" style="margin:6px 0 0">💉 Enfermería · téc. de anestesia: <b>Lic. Sofía Molina</b><br>🩺 Instrumentación: <b>Inst. Carla Ruiz</b><br>🧭 Circulante: <b>Lic. Sofía Molina</b> (no hay 2.ª instrumentadora)<br>💤 Anestesia: <b>Dra. Laura Paz</b> (grilla del día)</p></div>
+    <p class="nota">Ya figuran en su puesto: no hace falta «Anotarme», y ese puesto no aparece libre para otros.</p>`;
+}
+function scrEqNoLlego() {
+  return `<div class="alarma"><div class="campana">⏰</div><b>07:30 · Lic. Juan Díaz todavía no llegó</b><small>Está asignado a Quirófano 4 (primera cirugía 08:00 h) y no marcó «Llegué». Llámelo, o cambie a la persona en «Equipos del día».</small></div>
+    ${btn('vio', '📞 Lo llamo · después reviso', '', 'var(--enf)')}
+    <p class="nota">Le llega al Jefe de su sector, aunque tenga la app cerrada.</p>`;
+}
+function scrEqReemplazo(S) {
+  return `<div class="s-h"><div><b>08:00 · Artroplastia total de cadera</b><small>Quirófano 4 · Lic. Nadia Funes no está asignada</small></div></div>
+    <div class="s-card"><p class="nota" style="margin:0">💉 Enfermería · téc. de anestesia: <b>${S.e.reemp ? 'Lic. Nadia Funes <small>(reemplazó a Lic. Juan Díaz)</small>' : 'Lic. Juan Díaz'}</b><br>🩺 Instrumentación: <b>Inst. Paula Gil</b> · 🧭 Circulante: <b>Inst. Lucía Sanz</b></p></div>
+    ${S.e.reemp ? '<p class="nota">✓ Quedaron los dos nombres registrados y al Jefe le llegó: «Lic. Nadia Funes reemplazó a Lic. Juan Díaz».</p>'
+      : `<div class="s-card" style="border:1.5px dashed #d97706"><b style="color:#b45309">🔁 ¿Falta alguien del equipo? Reemplazar</b><p class="nota">Solo si la persona asignada no vino. Queda registrado con los dos nombres y se le avisa a su jefe/a.</p>${btn('reemp', 'Reemplazar a Lic. Juan Díaz · Enfermería', '', '#d97706')}</div>`}`;
+}
+
 /* ---------- pantallas completas: portada y final ---------- */
 const ACTOS = [
   { k: 'reg', n: 'Registro', i: '🪪', c: 'var(--cir)', d: 'El alta de cada integrante y la autorización de la Jefatura.' },
   { k: 'por', n: 'Portales', i: '🧭', c: 'var(--anest)', d: 'Lo primero, el panel central y el flujo de cada uno.' },
+  { k: 'eqd', n: 'Equipos del día', i: '🪄', c: 'var(--jefa)', d: 'La víspera, la app arma los equipos de cada sala y los tres jefes los ajustan y confirman en vivo.' },
   { k: 'prog', n: 'Cirugía programada', i: '📅', c: 'var(--enf)', d: 'Del turno al QR de la paciente, la LVQ y el cierre.' },
   { k: 'mapa', n: 'Mapa de camas y pulsera', i: '🏷️', c: 'var(--enf)', d: 'Enfermería envía las camas a las 07:00, Admisión ocupa una y sale la pulsera con QR.' },
   { k: 'cama', n: 'Sin cama: prioridad', i: '🛏️', c: 'var(--adm)', d: 'No hubo cama: la app reprograma sola, tres OK y la paciente confirma.' },
@@ -991,6 +1103,7 @@ function finalHTML() {
     <div class="actos">
       <div class="acto-c" style="--k:var(--cir)"><i>🪪</i><b>Registro</b><small>Cada uno pide el alta con su función; la Jefatura autoriza y designa al Jefe/a de Anestesiología.</small></div>
       <div class="acto-c" style="--k:var(--anest)"><i>🧭</i><b>Portales</b><small>Lo primero (perfil, llegada, lista, sala, cajas), el panel central y un flujo en orden.</small></div>
+      <div class="acto-c" style="--k:var(--jefa)"><i>🪄</i><b>Equipos del día</b><small>20 h de la víspera: la app propone el equipo de cada sala; cada jefe/a cambia lo suyo y confirma. Al día siguiente: «Llegué», aviso si alguien no llegó y «Reemplazar».</small></div>
       <div class="acto-c" style="--k:var(--enf)"><i>📅</i><b>Programada</b><small>Turno → QR → Admisión → Jefatura → equipo → LVQ → gasas → Pausa → cirugía → Salida → Recuperación → QR cerrado.</small></div>
       <div class="acto-c" style="--k:var(--enf)"><i>🏷️</i><b>Camas y pulsera</b><small>06:30 aviso, Enfermería envía el mapa, Admisión «Recibido», la cama pasa a rojo y la pulsera abre la LVQ.</small></div>
       <div class="acto-c" style="--k:var(--adm)"><i>🛏️</i><b>Sin cama</b><small>La app reprograma sola con prioridad; tres OK, la paciente confirma y queda marcado «SIN CAMA ×N».</small></div>
@@ -1054,6 +1167,19 @@ const TXT_REG = {
   P({ a: 'por', e, q: k, h: '07:34', tit: 'El panel central', txt: 'Esto es lo que ve todos los días en el centro de la pantalla. Cada recuadro numerado resume una parte de su trabajo y se toca para abrirla.', t: 'flujo', go: 'Mire los recuadros y toque «Ver mi flujo de trabajo»', ver: () => scrPortal(k, 1), ok: 'Ahora, el orden en que se hace todo.' });
   P({ a: 'por', e, q: k, h: '07:35', tit: 'Su flujo de trabajo, en orden', txt: 'El portal sigue siempre este orden. La app avisa cuando le toca a usted y no deja saltear pasos.', t: 'entendido', go: 'Toque «Entendido»', ver: () => scrPortal(k, 2), ok: `Portal de ${NOMBRE_ROL[k].toLowerCase()} recorrido.` });
 });
+
+/* Acto · Equipos del día (3.31) */
+const EQ = (o) => P(Object.assign({ a: 'eqd' }, o));
+EQ({ e: 'El aviso de las 20 h', r: '20h', q: 'jenq', h: 'Mié 20:00', tit: '20:00 · llega «Equipos de mañana»', txt: 'La víspera, a las 20:00, a los tres jefes —Anestesiología, Enfermería de Quirófano e Instrumentación— les llega este aviso, <b>aunque la app esté cerrada</b> (y también por correo). La app ya armó sola los equipos de las salas con cirugías de mañana.', t: 'abrir', go: 'Toque la notificación', ver: scrEqAviso, ok: 'La app se abre directo en la tarjeta, sobre la pantalla.' });
+EQ({ e: 'La propuesta', r: 'ver', q: 'jenq', h: 'Mié 20:01', tit: 'Lo que eligió la app', txt: 'Ordena las salas por <b>complejidad</b> (🔥 alta, ⚡ media, 🌿 baja). Anestesia respeta la <b>grilla del mes</b>. Da <b>una instrumentadora por sala</b> y la que sobra va de 2.ª a la sala más compleja (Quirófano 4); donde no hay 2.ª, circula el/la enfermero/a. Usa solo gente con cuenta, reparte la carga de 30 días y deja libre a quien está de guardia. Una persona, una sala.', t: 'entendido', go: 'Mire las salas y toque «Entendido» abajo', ver: (S) => scrEqTarjeta(S, { yo: 'enf', fin: 'entendido' }), ok: 'Cada jefe/a solo puede tocar los nombres de su sector (los que tienen ✎).' });
+EQ({ e: 'Cambiar a alguien', r: 'camb', q: 'jenq', h: 'Mié 20:05', tit: 'Ema avisó que mañana no viene', txt: 'Lic. Ema Ríos pidió el día. El Jefe de Enfermería toca su nombre en Quirófano 3 y se abre la lista de su sector, con quién está libre, en qué sala está cada uno, quién está de guardia y cuántas cirugías hizo en 30 días.', t: 'ema', go: 'Toque «Lic. Ema Ríos» en Quirófano 3', ver: (S) => scrEqTarjeta(S, { yo: 'enf' }), ok: 'Lista abierta.' });
+EQ({ e: 'Cambiar a alguien', r: 'camb', q: 'jenq', h: 'Mié 20:06', tit: 'Elige a otra persona', txt: 'Elige a alguien <b>libre</b>. Si eligiera a quien está en otra sala, se <b>intercambian</b> solos: nunca queda una persona en dos salas. Con ↻ podría volver a armar toda la propuesta de su sector.', t: 'gus', go: 'Toque «Lic. Gustavo Ruiz · libre»', ver: (S) => scrEqTarjeta(S, { yo: 'enf', lista: true }), hacer: (S) => { S.e.cambio = true; }, ok: 'Guardado. Los otros dos jefes lo ven al instante.' });
+EQ({ e: 'En vivo', r: 'vivo', q: 'jins', h: 'Mié 20:12', ladoQ: 'jenq', lado: (S) => scrEqTarjeta(S, { yo: 'enf' }), tit: 'En el teléfono de la Jefa de Instrumentación', txt: 'Al mismo tiempo, la Jefa de Instrumentación tiene la tarjeta abierta: arriba dice <b>«En vivo»</b> y el último cambio («Enfermería de Q3: Lic. Gustavo Ruiz»). Revisa lo suyo —dos instrumentadoras en la sala de cadera, una en las demás— y confirma. Mire el otro teléfono: el Jefe de Enfermería lo ve aparecer.', t: 'confinst', go: 'Toque «✓ Confirmar» de Instrumentación', ver: (S) => scrEqTarjeta(S, { yo: 'inst', conf: 'confinst' }), hacer: (S) => { S.e.inst = true; }, ok: 'Instrumentación confirmada: quedan anotadas en cada cirugía de su sala.' });
+EQ({ e: 'Confirmar', r: 'conf', q: 'jenq', h: 'Mié 20:16', tit: 'El Jefe de Enfermería confirma', txt: 'Ya ve «✓ Confirmado» en Instrumentación. Ahora confirma lo suyo: cada enfermero/a queda anotado/a en las cirugías de su sala, también como circulante donde no hay 2.ª instrumentadora. Si después alguien cambia algo de su sector, la app le pide volver a confirmar.', t: 'confenf', go: 'Toque «✓ Confirmar» de Enfermería', ver: (S) => scrEqTarjeta(S, { yo: 'enf', conf: 'confenf' }), hacer: (S) => { S.e.enf = true; }, ok: 'Enfermería confirmada.' });
+EQ({ e: 'Confirmar', r: 'conf', q: 'jefa', h: 'Mié 20:21', tit: 'Y la Jefa de Anestesiología', txt: 'La Dra. Bianchi ve que cada sala tiene a quien la grilla del mes ya decía. Al confirmar, queda en la <b>grilla del día</b> sin volver a pedir la validación del mes.', t: 'confan', go: 'Toque «✓ Confirmar» de Anestesiología', ver: (S) => scrEqTarjeta(S, { yo: 'anest', conf: 'confan' }), hacer: (S) => { S.e.anest = true; }, fiesta: true, ok: 'Los tres sectores confirmados: el equipo de mañana está listo.' });
+EQ({ e: 'Al día siguiente', r: 'sala', q: 'enf', h: 'Jue 07:30', tit: 'Mi Sala: cada uno ya está en su puesto', txt: 'Jueves, 07:30. La Lic. Molina abre Mi Sala: figura en Quirófano 2 junto con Carla Ruiz y la Dra. Paz, sin tener que anotarse. Lo único que hace al llegar es avisar. (Anestesiología usa el «Llegué» de siempre en su portal.)', t: 'llegue', go: 'Toque «✋ Llegué»', ver: scrEqSala, hacer: (S) => { S.e.lleg = true; }, ok: 'Llegada registrada.' });
+EQ({ e: 'Al día siguiente', r: 'dia', q: 'jenq', h: 'Jue 07:30', tit: '07:30 · alguien no llegó', txt: 'Media hora antes de su primera cirugía, el Lic. Juan Díaz (Quirófano 4) no tocó «Llegué». Al Jefe de Enfermería le suena el aviso, aunque tenga la app cerrada. Tocándolo se abre «Equipos del día» de hoy para cambiarlo.', t: 'vio', go: 'Toque «Lo llamo»', ver: scrEqNoLlego, ok: 'Juan avisó que está enfermo: hoy no viene.' });
+EQ({ e: 'Al día siguiente', r: 'dia', q: 'enfg', h: 'Jue 07:38', tit: 'Otra enfermera lo reemplaza', txt: 'Los puestos asignados no aparecen libres, así que nadie queda trabado: la Lic. Nadia Funes abre la cirugía de Quirófano 4 y toca «Reemplazar». La app pide confirmar, la anota en las cirugías de esa sala que todavía no empezaron y le avisa al Jefe. Si Juan se hubiera quitado él mismo (✕), el Jefe también recibe el aviso.', t: 'reemp', go: 'Toque «Reemplazar a Lic. Juan Díaz»', ver: scrEqReemplazo, hacer: (S) => { S.e.reemp = true; }, ok: 'Reemplazo registrado. Sigue la cirugía programada de Ana.' });
 
 /* Acto 3 · Cirugía programada */
 const PR = (o) => P(Object.assign({ a: 'prog', pac: true }, o));
@@ -1135,12 +1261,14 @@ function guardar() { if (cur === 0) return; try { localStorage.setItem(LLAVE, JS
 
 const RIEL_MAPA = [['al', '06:30'], ['pin', 'Mapa'], ['env', 'Enviar'], ['rec', 'Recibido'], ['ing', 'Cama roja'], ['pul', 'Pulsera'], ['lvq', 'LVQ']];
 const RIEL_CAMA = [['sin', 'Sin cama'], ['bus', 'Nueva fecha'], ['cir', 'OK cirujano'], ['adm', 'OK Admisión'], ['jef', 'OK Jefatura'], ['pac', 'Paciente'], ['fin', 'Prioridad'], ['parte', 'Parte']];
+const RIEL_EQD = [['20h', '20:00 aviso'], ['ver', 'Propuesta'], ['camb', 'Cambiar'], ['vivo', 'En vivo'], ['conf', 'Confirmar'], ['sala', 'Llegué'], ['dia', 'Reemplazo']];
 const RIEL_PROG = [['prog', 'Programada'], ['adm', 'Admisión'], ['jef', 'Jefatura'], ['cama', 'Cama'], ['eq', 'Equipo'], ['pa', 'Parte pre-anest.'], ['ent', 'LVQ Entrada'], ['rec1', 'Gasas'], ['pau', 'Pausa'], ['ini', 'Cirugía'], ['rec2', 'Recuento final'], ['sal', 'LVQ Salida'], ['rec', 'Recuperación'], ['lin', 'Mi línea'], ['fin', 'QR cerrado']];
 function rielHTML(st) {
   let est;
   if (st.a === 'prog') est = RIEL_PROG;
   else if (st.a === 'cama') est = RIEL_CAMA;
   else if (st.a === 'mapa') est = RIEL_MAPA;
+  else if (st.a === 'eqd') est = RIEL_EQD;
   else if (st.a === 'urg') est = fuera()
     ? [['urg', 'Urgencia'], ['eq', 'Guardia'], ['ini', 'LVQ + cirugía'], ['sal', 'Salida'], ['adm', 'Admisión'], ['jef', 'Jefatura'], ['fin', 'Finalizada']]
     : [['urg', 'Urgencia'], ['adm', 'Admisión'], ['jef', 'Jefatura'], ['eq', 'Equipo'], ['ini', 'LVQ + cirugía'], ['sal', 'Salida'], ['fin', 'Finalizada']];
@@ -1191,7 +1319,7 @@ function render() {
         <div class="nav"><button class="tb" data-t="ant">← Anterior</button><button class="tb foco-btn" data-t="foco">👇 Ir a lo marcado</button><span class="esp"></span><span class="atajos">Teclas ← →</span><button class="tb" data-t="sig">Saltar paso →</button></div>
       </section></div><div class="col-esc">
       ${rielHTML(st)}
-      <div class="escenario">${devHTML(st.q, val(st.h), st.ver(S), false, st.qf)}${st.pac ? devHTML('pac', val(st.h), pacHTML(S), true) : ''}${st.tab ? devHTML('tab', val(st.h), tabHTML(S), true) : ''}${st.lado ? devHTML('pac2', val(st.h), st.lado(S), true) : ''}</div></div></div>`;
+      <div class="escenario">${devHTML(st.q, val(st.h), st.ver(S), false, st.qf)}${st.pac ? devHTML('pac', val(st.h), pacHTML(S), true) : ''}${st.tab ? devHTML('tab', val(st.h), tabHTML(S), true) : ''}${st.lado ? devHTML(st.ladoQ || 'pac2', val(st.h), st.lado(S), true) : ''}</div></div></div>`;
     [].concat(st.t || []).forEach((t) => { const el = document.querySelector(`.escenario [data-t="${t}"]`); if (el) el.classList.add('foco'); });
     // Dentro de cada pantalla, que lo marcado quede a la vista.
     document.querySelectorAll('.escenario .foco').forEach((el) => { const s = el.closest('.scr'); if (s && s.scrollHeight > s.clientHeight) s.scrollTop = Math.max(0, el.offsetTop - s.clientHeight / 2); });
