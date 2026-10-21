@@ -9498,7 +9498,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.32.0';
+const APP_VERSION = '3.32.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -22747,7 +22747,7 @@ async function crearOEntrarFirebase(mail, clave) {
   if (!cloudOn || typeof firebase === 'undefined' || !firebase.auth) return { ok: false, motivo: 'sin-nube' };
   try {
     const cred = await firebase.auth().createUserWithEmailAndPassword(mail, clave);
-    try { await cred.user.sendEmailVerification(); } catch (e) {}
+    try { await mandarVerificacion(cred.user); } catch (e) {}
     return { ok: true, creada: true };
   } catch (e) {
     const code = (e && e.code) || 'error';
@@ -22956,17 +22956,22 @@ let verifUltimo = 0;
 function vigilarVerificacion() {
   const u = usuarioActual();
   if (!u || u.mailVerificado || !cloudOn) return;
-  if (Date.now() - verifUltimo < 5 * 60000) return;
+  if (Date.now() - verifUltimo < 20000) return;
   verifUltimo = Date.now();
   refrescarVerificacion(u);
+}
+/* 3.32.1 · El enlace termina con «Continuar» de vuelta a la app. */
+async function mandarVerificacion(user) {
+  try { await user.sendEmailVerification({ url: location.origin + location.pathname }); }
+  catch (e) { if (e && e.code === 'auth/too-many-requests') throw e; await user.sendEmailVerification(); }
 }
 async function reenviarVerificacion(btn) {
   try {
     const cu = firebase.auth().currentUser;
     if (!cu) { alert('Ingrese a su cuenta para reenviar la verificación.'); return; }
-    await cu.sendEmailVerification();
+    await mandarVerificacion(cu);
     if (btn) btnHecho(btn, 'Correo enviado', null, 3000);
-    alert('Le reenviamos el correo de verificación a ' + cu.email + '.\n\nAbra el enlace y después vuelva a ingresar a la app para que quede registrado. Si no llega, revise Correo no deseado.');
+    alert('Le reenviamos el correo de verificación a ' + cu.email + '.\n\nAbra el enlace y vuelva a esta app: se actualiza sola. Si no llega, revise Correo no deseado.');
   } catch (e) {
     alert(e && e.code === 'auth/too-many-requests'
       ? 'Ya se enviaron varios correos seguidos. Espere unos minutos antes de pedir otro.'
@@ -23668,7 +23673,7 @@ function renderPerfil() {
         ${u.mailVerificado
           ? '<span class="badge-ok">Correo verificado</span>'
           : `<span class="badge-no">Correo sin verificar</span>
-             <span style="color:var(--muted);font-size:0.86rem">La Jefatura no puede autorizar su cuenta hasta que abra el enlace que le llegó al registrarse, y vuelva a ingresar.</span>`}
+             <span style="color:var(--muted);font-size:0.86rem">Abra el enlace que le llegó al registrarse (revise Correo no deseado) y vuelva a esta app: se actualiza sola.</span>`}
       </div>
       <div class="form-actions" style="margin-top:0">
         <button class="btn btn-outline" onclick="abrirCambioClave('propia')">${ico(ICONS.key, 15)} Cambiar mi contraseña</button>
@@ -23727,7 +23732,7 @@ function profSituacion(u) {
   if (e === 'baja') faltan.push('cuenta dada de baja');
   // El correo verificado es condición para que la Jefatura autorice; una vez
   // autorizada la cuenta ya no se le pide.
-  if (!u.mailVerificado && e !== 'aprobado') faltan.push('verificar su correo');
+  if (!u.mailVerificado && e !== 'aprobado') faltan.push('abrir el enlace del correo de verificación');
   const QUE_FALTA = { matricula: 'matrícula vigente', especialista: 'título de especialista', seguro: 'seguro vigente', rcp: 'RCP al día (revalidación bienal)', vacunas: 'vacunación completa' };
   h.reqs.filter((r) => !r.ok).forEach((r) => faltan.push(QUE_FALTA[r.k]));
   if (e === 'pendiente') faltan.push('autorización de la Jefatura');
@@ -23782,7 +23787,7 @@ function profTarjeta(x) {
   const nReq = h.reqs.length;
   const faltaAlta = altaFaltantes(u), cel = celDe(u), celOk = !!celWA(cel);
   const estado = e === 'baja' ? { t: 'Dado de baja', c: 'bad' } : listo ? { t: prog ? 'Puede programar' : 'Habilitado/a', c: 'ok' }
-    : e === 'pendiente' ? { t: x.paso === 'autorizar' ? 'Listo para autorizar' : x.paso === 'correo' ? 'Sin autorizar · falta verificar el correo' : 'Sin autorizar · falta documentación', c: 'mid' }
+    : e === 'pendiente' ? { t: x.paso === 'autorizar' ? 'Listo para autorizar' : x.paso === 'correo' ? 'Sin autorizar · correo sin confirmar (puede autorizar igual)' : 'Sin autorizar · falta documentación', c: 'mid' }
     : { t: 'Autorizado · le falta documentación', c: 'mid' };
   const pasos = [
     { t: 'Correo', ok: !!u.mailVerificado || e === 'aprobado' },
@@ -23893,7 +23898,7 @@ function renderUsuarios() {
 
     ${bannerPlegable('prof-dos-controles', 'blue', ICONS.info, 'Dos controles independientes',
       'Para programar hacen falta la autorización de la cuenta y la documentación al día.',
-      `<p>La <b>autorización de la cuenta</b> la da y la revoca la Jefatura de Quirófanos en esta pantalla. La <b>habilitación documental</b> —matrícula provincial vigente, título de especialista, seguro de responsabilidad civil, RCP con revalidación bienal y vacunación completa— la carga cada profesional en Mi Perfil y el sistema la verifica sola. Antes de autorizar, el profesional tiene que haber verificado su correo. Para programar hacen falta las dos cosas.</p>
+      `<p>La <b>autorización de la cuenta</b> la da y la revoca la Jefatura de Quirófanos en esta pantalla. La <b>habilitación documental</b> —matrícula provincial vigente, título de especialista, seguro de responsabilidad civil, RCP con revalidación bienal y vacunación completa— la carga cada profesional en Mi Perfil y el sistema la verifica sola. Conviene que el profesional haya verificado su correo; si la app todavía no lo recibió, la Jefatura puede autorizar igual. Para programar hacen falta las dos cosas.</p>
       <p>Solo los <b>médicos que operan</b> programan cirugías. Enfermería, Instrumentación y Anestesiología no llevan título de especialista (salvo Anestesiología) y con las dos cosas quedan <b>habilitados</b> en el bloque.</p>
       <p><b>Avisar qué le falta:</b> en cada tarjeta, el botón <b>WhatsApp</b> abre el chat con la persona y el mensaje ya escrito con lo que le falta; usted lo revisa y lo manda desde su teléfono. La persona ya lo ve sola desde que se inscribe, en Mi Perfil y en Recordatorios.</p>`)}
 
@@ -24094,14 +24099,16 @@ function autorizarCuenta(id) {
      casilla a la que van a llegar los avisos del bloque. Una reactivación no lo
      pide de nuevo: esa cuenta ya estuvo autorizada. Sin nube no se puede
      comprobar, así que en modo local no se exige. */
-  if (!alta && cloudOn && !u.mailVerificado) {
-    alert(`${u.nombre} todavía no verificó su correo (${u.email}).\n\nLa cuenta no se puede autorizar hasta que abra el enlace que le llegó al registrarse y vuelva a ingresar a la app. Si no lo encuentra, puede pedir otro desde Mi Perfil → «Reenviar correo de verificación».`);
-    return;
-  }
+  /* 3.32.1 · Ya no traba el alta: el aviso de «verificado» lo da Google en el
+     teléfono del profesional, pero a la app le llega recién cuando él vuelve a
+     abrirla. Si todavía no llegó, la Jefatura lo confirma ella y sigue. */
+  const sinMail = !alta && cloudOn && !u.mailVerificado;
+  if (sinMail && !confirm(`La app todavía no recibió la verificación del correo de ${u.nombre} (${u.email}).\n\nSi ya abrió el enlace, a la app le llega recién cuando vuelve a abrirla.\n\n¿Autoriza la cuenta igual? (Hágalo si sabe que ese correo es suyo.)`)) return;
   pedirJefatura('Jefatura de Quirófanos', `${alta ? 'Reactivar' : 'Autorizar'} la cuenta de ${u.nombre}. Confirme con la credencial de Jefatura.`, async () => {
     u.cuenta = 'aprobado';
     u.cuentaMotivo = '';
     u.cuentaFecha = nowDT();
+    if (sinMail) u.mailPorJefatura = nowDT();
     // Se espera la confirmación de la nube: un alta que quedó guardada solo en
     // este dispositivo no habilita a nadie, y decir lo contrario es peor que
     // no decir nada.
