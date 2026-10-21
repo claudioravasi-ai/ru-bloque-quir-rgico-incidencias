@@ -5882,7 +5882,15 @@
   .dc-chip input:checked + span::before { content: '✓'; }
   .dc-chip input:focus-visible + span { outline: 2px solid var(--dc); outline-offset: 2px; }
   .dc-pie { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
-  .dc-guardar { width: auto; padding: 12px 22px; margin: 0; }
+  .dc-guardar { width: auto; padding: 12px 22px; margin: 0; transition: background .25s, box-shadow .25s, transform .15s; }
+  .dc-guardar.dc-pend { box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 55%, transparent); animation: dcLate 1.6s ease-in-out infinite; }
+  .dc-guardar.dc-pend span::after { content: ' •'; color: var(--amber); }
+  .dc-guardar.dc-ing { opacity: .8; cursor: progress; }
+  .dc-guardar.dc-ing svg { animation: dcGira 0.9s linear infinite; }
+  body .dc-guardar.dc-ok { background: var(--green) !important; box-shadow: 0 10px 22px -12px var(--green) !important; }
+  @keyframes dcLate { 50% { transform: scale(1.03); } }
+  @keyframes dcGira { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .dc-guardar.dc-pend, .dc-guardar.dc-ing svg { animation: none; } }
   .dc-pie p { flex: 1 1 240px; margin: 0; font-size: .76rem; color: var(--muted); }
   @media (max-width: 560px) { .dc { padding: 14px; } .dc-guardar { width: 100%; } }
 
@@ -9498,7 +9506,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.32.1';
+const APP_VERSION = '3.32.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -12815,6 +12823,7 @@ function go(v, silencioso) {
   if (['solicitud', 'mis', 'perfil', 'consentimientos'].includes(v) && !usuarioActual() && !jefe) { v = 'acceso'; }
   if (v === 'reclamos' && !usuarioActual() && !jefe) { v = 'acceso'; }
   // 3.21: Enfermería e Instrumentación no programan ni tienen módulos: su lugar es Mi Sala.
+  // (3.32.2: lo mismo vale para Anestesiología y las jefaturas de sector, que también son equipo de sala.)
   if (['solicitud', 'mis', 'consentimientos', 'modulos', 'estadisticas'].includes(v) && esEquipoSala(usuarioActual()) && !jefe && !director) { v = esAnestesia(usuarioActual()) ? 'anestesia' : 'sala'; }
   // 3.22: el portal de Anestesiología es de su equipo; la Jefatura y la Dirección lo ven desde Portales.
   if (v === 'anestesia' && !esAnestesia(usuarioActual())) { v = (jefe || director) ? 'portales' : 'acceso'; }
@@ -20562,7 +20571,7 @@ function openCirugia(id) {
           }).join('')}
           </div>`, { n: `${coordOk}/${coordAplica.length}`, tono: coordOk === coordAplica.length ? 'ok' : 'warn' })}
 
-        ${tarjeta(ICONS.users, 'Módulos quirúrgicos', `${c.modulo
+        ${!(jefe || director || programaCirugias(u)) ? '' : tarjeta(ICONS.users, 'Módulos quirúrgicos', `${c.modulo
           ? `<div class="fx-mod">
               <span class="mod-pill mod-${c.modulo} fx-modbig">${c.modulo}</span>
               <div><b>${esc(MODULOS[c.modulo].desc)}</b><small>${esc(c.procedimiento)}${c.practica ? ` · ${esc(c.practica.g)} · ${esc(c.practica.s)}` : ' · fuera del nomenclador'}</small></div>
@@ -23591,7 +23600,7 @@ function perfilDocumentacion(u, hab) {
     </section>`;
   };
   const chk = (id, on, txt) => `<label class="dc-chip"><input type="checkbox" id="${id}" ${on ? 'checked' : ''}><span>${txt}</span></label>`;
-  return `<div class="dc">
+  return `<div class="dc" oninput="dcCambio()" onchange="dcCambio()">
     <div class="dc-cab">
       <div class="dc-anillo" style="--p:${(okN / tot).toFixed(3)}"><b>${okN}<small>/${tot}</small></b></div>
       <div><h2>Documentación</h2><p>${hab.ok ? (programaCirugias(u) ? 'Todo al día: está habilitado para operar.' : 'Todo al día.') : `Le ${tot - okN === 1 ? 'falta 1 requisito' : 'faltan ' + (tot - okN) + ' requisitos'} para quedar habilitado.`} El sistema controla solo el vencimiento del seguro y la revalidación bienal de RCP.</p></div>
@@ -23614,7 +23623,7 @@ function perfilDocumentacion(u, hab) {
         ${chk('p-influ', u.vacunas?.influenza, 'Influenza')}${chk('p-covid', u.vacunas?.covid, 'COVID-19')}</div>`)}
     </div>
     <div class="dc-pie">
-      <button class="ax-btn dc-guardar" onclick="guardarPerfil()">${ICONS.check.replace('14', '16')} Guardar documentación</button>
+      <button class="ax-btn dc-guardar" id="dc-guardar" onclick="guardarPerfil()">${ICONS.check.replace('14', '16')} <span>Guardar documentación</span></button>
       <p>La Jefatura audita las vigencias desde <b>Profesionales</b>. Le avisamos 30 días antes de que venzan el seguro o el RCP.</p>
     </div>
   </div>`;
@@ -23691,18 +23700,52 @@ async function guardarCelular(btn) {
   catch (e) { alert('No se pudo guardar el celular. Revise la conexión e intente de nuevo.'); }
   if (btn) btn.disabled = false;
 }
-function guardarPerfil() {
+/* 3.32.2 · El botón avisa: se marca «sin guardar» al tocar un campo, muestra
+   «Guardando…» mientras sube y queda «Guardado» un rato, con un cartel abajo. */
+function dcCambio() {
+  const b = $('dc-guardar');
+  if (!b || b.classList.contains('dc-ing')) return;
+  b.classList.remove('dc-ok'); b.classList.add('dc-pend');
+  b.querySelector('span').textContent = 'Guardar cambios';
+}
+function dcBoton(estado, texto) {
+  const b = $('dc-guardar');
+  if (!b) return;
+  b.classList.remove('dc-pend', 'dc-ing', 'dc-ok');
+  if (estado) b.classList.add(estado);
+  b.disabled = estado === 'dc-ing';
+  b.querySelector('span').textContent = texto;
+}
+async function guardarPerfil() {
   const u = usuarioActual();
   if (!u) return;
+  const DOC = (x) => JSON.stringify([x.matricula, x.especialista, x.seguro, x.rcp, x.vacunas]);
+  const antes = DOC(u), habAntes = habilitacion(u).ok;
   u.matricula = { numero: $('p-mat').value.trim(), vigente: $('p-matvig').checked };
   // El equipo de sala (Enfermería, Instrumentación) no tiene título de especialista.
   if ($('p-esp')) u.especialista = { titulo: $('p-esp').value.trim(), si: $('p-espok').checked };
   u.seguro = { vence: $('p-seg').value };
   u.rcp = { tipo: $('p-rcptipo').value, fecha: $('p-rcpfecha').value };
   u.vacunas = { hepB: $('p-hepb').checked, dobleAdultos: $('p-doble').checked, influenza: $('p-influ').checked, covid: $('p-covid').checked };
-  upsert('usuarios', u);
+  if (DOC(u) === antes) {
+    dcBoton('dc-ok', 'Sin cambios: ya estaba guardado');
+    toastTurno('No había cambios: su documentación ya estaba guardada.', 'var(--muted)');
+    setTimeout(() => { if ($('dc-guardar')?.classList.contains('dc-ok')) dcBoton('', 'Guardar documentación'); }, 2600);
+    return;
+  }
+  dcBoton('dc-ing', 'Guardando…');
+  const envio = upsert('usuarios', u);
   renderPerfil();
   renderSidebar();
+  dcBoton('dc-ing', 'Guardando…');
+  const enNube = await envio.catch(() => false);
+  const h = habilitacion(u);
+  dcBoton('dc-ok', 'Guardado ✓');
+  toastTurno(!enNube && cloudOn
+    ? 'Documentación guardada en este equipo. Sin conexión: se sube sola cuando vuelva la señal.'
+    : h.ok && !habAntes ? 'Documentación guardada. ¡Ya tiene todos los requisitos al día!'
+    : `Documentación guardada · ${h.reqs.filter((r) => r.ok).length} de ${h.reqs.length} requisitos al día.`, 'var(--green)');
+  setTimeout(() => { if ($('dc-guardar')?.classList.contains('dc-ok')) dcBoton('', 'Guardar documentación'); }, 3500);
 }
 
 /* ================= PROFESIONALES (jefe) — 3.17.0 =================
@@ -31254,6 +31297,7 @@ const DESCARGAS = [
     tipo: 'app',
     icono: 'layers',
     publica: false,
+    soloCirujanos: true,
     nombre: 'Módulos Quirúrgicos',
     sub: 'Registro y liquidación por profesional',
     url: 'https://claudioravasi-ai.github.io/modulos-quirurgicos/',
@@ -31304,7 +31348,9 @@ function descargasVisibles() {
   const u = usuarioActual();
   if (jefe && !u && !director) return [];
   const pleno = (u && cuentaAprobada(u)) || director;
-  return DESCARGAS.filter((d) => pleno || d.publica);
+  // 3.32.2 · Módulos es de los cirujanos que programan: Anestesiología,
+  // Enfermería, Instrumentación y sus jefaturas no la ven.
+  return DESCARGAS.filter((d) => (pleno || d.publica) && (!d.soloCirujanos || director || programaCirugias(u)));
 }
 
 /* El submenú nace desplegado y así se queda mientras dure la sesión: si
