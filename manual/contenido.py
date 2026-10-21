@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.32.5'
+VERSION = '3.32.6'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -554,6 +554,12 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.32'),
+('h2', 'Versión 3.32.6 — Lo que le falta a su cuenta, todos los días; «Visto» arreglado y notificaciones nuevas'),
+('ul', [
+    '**Lo que le falta cargar, todos los días (requisito primordial).** Una vez que la Jefatura de Quirófanos autorizó la cuenta, si falta algo de la habilitación —matrícula, título de especialista (médicos y Anestesiología), seguro vigente, RCP al día, vacunas— o algo se venció, la app se lo recuerda **cada día** hasta que esté completo: una **tarjeta arriba del Panel** (y en Mi Perfil) con un anillo «3/5 al día», la lista de lo que falta y el botón **Completar ahora**; el aviso crítico de la campana, que **salta en el teléfono** y vuelve a aparecer cada día aunque se toque «Visto»; y, con la app cerrada, **aviso al teléfono y correo** cada día hábil desde las 09:00. Se deja de recordar solo, apenas la cuenta queda completa. Cada correo va solo a su dueño.',
+    '**Recordatorios › «Visto» funciona en todos los avisos.** En los avisos cuya identificación lleva hora, comas o un correo (Anestesiología, guardias, equipos del día…) el botón no hacía nada; ahora los retira al instante.',
+    '**Notificaciones activadas, rediseñado:** la tarjeta **Probar en este equipo** muestra una pantallita donde cae la notificación de muestra (y dice si llegó), y el interruptor **Con la app cerrada** prende o apaga en este equipo los avisos con la app cerrada; si se apaga, el equipo no se vuelve a anotar solo.',
+]),
 ('h2', 'Versión 3.32.5 — El OK que falta llega al teléfono, aunque la app esté cerrada'),
 ('ul', [
     '**Reprogramación por falta de cama: «Falta su OK» con la app cerrada.** Apenas la app arma la nueva fecha (entre las 7 y las 21 h; si es de noche, a las 7), a quien le falta el OK le llega un **aviso al teléfono con sonido** aunque la app esté cerrada: al **cirujano**, a la **Jefatura de Quirófanos** y a **Admisión y Egresos**. El cirujano y la Jefatura reciben además un **correo** (Admisión ya lo recibía).',
