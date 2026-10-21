@@ -557,7 +557,7 @@ function inicial() {
   return {
     p: { prog: false, pase: false, esc: false, adm: 'pend', jef: 'espera', llego: false, enf: false, inst: false, ent: false, rec1: false, pausa: false, ini: false, rec2: false, sal: false, recup: false, qr: false },
     u: { carga: false, adm: false, jef: false, anest: false, eq: false, ini: false, sal: false },
-    c: { sin: false, cir: false, adm: false, jef: false, pac: false },
+    c: { sin: false, cir: false, adm: false, jef: false, pac: false, no: false },
     m: { pinto: false, envio: false, recibido: false, ingreso: false },
     e: { cambio: false, inst: false, enf: false, anest: false, lleg: false, reemp: false },
   };
@@ -897,9 +897,9 @@ function scrSinCama() {
     ${btn('sincama', '🛏✕ No hay cama: suspender y reprogramar', 'mal')}`;
 }
 function scrBusca() {
-  const dias = [['Mié 21', 'lleno'], ['Jue 22', 'lleno'], ['Vie 23', 'lleno'], ['Lun 26', 'libre · 08:00']];
-  return `<div class="s-h"><div><b>🤖 La app busca sola</b><small>Primer turno libre, en una sala del mismo tipo</small></div></div>
-    <div class="busca">${dias.map(([d, e], i) => `<div class="${e === 'lleno' ? 'no' : 'si'}" style="--i:${i}"><b>${d}</b><small>${e}</small></div>`).join('')}</div>
+  const dias = [['Mié 21', 'antes de 48 h'], ['Jue 22', 'lleno'], ['Vie 23', 'lleno'], ['Lun 26', 'libre · 08:00']];
+  return `<div class="s-h"><div><b>🤖 La app busca sola</b><small>Primer turno libre, a 48 h hábiles como mínimo, en una sala del mismo tipo</small></div></div>
+    <div class="busca">${dias.map(([d, e], i) => `<div class="${/^libre/.test(e) ? 'si' : 'no'}" style="--i:${i}"><b>${d}</b><small>${e}</small></div>`).join('')}</div>
     <div class="s-card k prio" style="--k:var(--mal)">${SELLO}<h4 style="margin-top:6px">Nueva fecha propuesta</h4><p><b>${REP.nuevo}</b> · ${REP.sala}</p>
       <p class="nota">Va <b>primera</b> en la lista del día, por encima de todo lo programado.</p></div>
     ${btn('visto', 'Ver quién tiene que dar el OK →', '', 'var(--jef)')}`;
@@ -907,7 +907,8 @@ function scrBusca() {
 function oksHTML(S) {
   const o = S.c;
   const fila = (k, ok, quien) => `<div class="fila">${av(k)}<div class="esp"><b>${quien}</b><small>${ok ? 'OK ✓' : 'pendiente'}</small></div>${ok ? '<span class="tag ok">✓</span>' : ''}</div>`;
-  return `<div class="oks3">${fila('cir', o.cir, 'Cirujano/a')}${fila('adm', o.adm, 'Admisión y Egresos')}${fila('jef', o.jef, 'Jefatura de Quirófanos')}</div>`;
+  const pac = `<div class="fila">${av('pac2')}<div class="esp"><b>Paciente</b><small>${o.cir && o.adm && o.jef ? 'se le pregunta ahora' : 'va última: se habilita con los tres OK'}</small></div></div>`;
+  return `<div class="oks3">${fila('cir', o.cir, 'Cirujano/a')}${fila('adm', o.adm, 'Admisión y Egresos')}${fila('jef', o.jef, 'Jefatura de Quirófanos')}${pac}</div>`;
 }
 function scrOk(S, k) {
   const t = { cir: 'okcir', adm: 'okadm', jef: 'okjef' }[k];
@@ -931,15 +932,46 @@ function scrPartes() {
       <div class="mp-f"><b>08:00</b><div><b>${REP.pac}</b> <i>OSEF</i><small>☎ 2901-400111 · 🛏 Adultos · Hab. 12 · Cama 3 · Int. 1035</small></div><span class="sello chico">SIN CAMA ×1</span></div>
       <div class="mp-ints">☎ Adultos 1035 · Pediatría 1012 · Maternidad 1608 · UCI 1034</div></div>`;
 }
+function scrNoPuede(S) {
+  const dias = [['Lun 26', 'Rosa no puede'], ['Mar 27', 'lleno'], ['Mié 28', 'libre · 08:00']];
+  return `<div class="s-h"><div><b>↻ Otra fecha</b><small>Se saltea el día entero · 48 h hábiles como mínimo</small></div></div>
+    <div class="busca">${dias.map(([d, e], i) => `<div class="${/^libre/.test(e) ? 'si' : 'no'}" style="--i:${i}"><b>${d}</b><small>${e}</small></div>`).join('')}</div>
+    <div class="s-card k prio" style="--k:var(--mal)">${SELLO}<h4 style="margin-top:6px">Propuesta n.º 2 · <b>Miércoles 28 · 08:00 h</b></h4><p>${REP.sala} · vuelve a <b>Pendiente</b></p></div>
+    <div class="oks3">${['cir', 'adm', 'jef'].map((k) => `<div class="fila">${av(k)}<div class="esp"><b>${{ cir: 'Cirujano/a', adm: 'Admisión y Egresos', jef: 'Jefatura de Quirófanos' }[k]}</b><small>pendiente otra vez</small></div></div>`).join('')}</div>
+    ${btn('entendido', 'Entendido: se repiten los OK', '', 'var(--cir)')}`;
+}
+function scrCaduca() {
+  return `<div class="s-h"><div><b>⏰ 13:00 h del día hábil anterior</b><small>Sale el parte: lo que no está completo caduca</small></div></div>
+    <div class="s-card k" style="--k:#78716c"><span class="tag">Caducada</span> ${SELLO}<h4 style="margin-top:6px">${REP.pac} · ${REP.proc}</h4>
+      <p>Faltaba el OK de: <b>Jefatura de Quirófanos, la paciente</b></p><p class="nota">Sin botones de OK. El pase de la paciente se cerró.</p></div>
+    <div class="alerta"><span class="tag mal">Aviso crítico · Dr. Sosa</span><p style="font-size:.8rem;margin:6px 0 0"><b>Debe reprogramarla</b> — quedó Caducada en Mis Solicitudes.</p></div>
+    ${btn('reprog', '↻ Reprogramar', '', 'var(--cir)')}`;
+}
+function scrReprog() {
+  return `<div class="s-h"><div><b>📅 Nueva solicitud · Quirófano 3 · 08:00</b><small>Reprogramación de ${REP.pac}</small></div></div>
+    <div class="s-card k" style="--k:var(--cir)"><p class="nota" style="margin:0">Los datos vienen de la cirugía caducada. Revíselos y vuelva a tildar los requisitos para Admisión y Egresos.</p></div>
+    <div class="campos">${campo('Paciente', REP.pac, false, true)}${campo('Cirugía', REP.proc, false, true)}${campo('Cirujano', 'Dr. Sosa', false, true)}${campo('Duración', '90 min', false, true)}</div>
+    <div class="oks3"><div class="fila"><div class="esp"><b>☐ Prequirúrgico · ☐ Apto anestésico · ☐ Consentimiento</b><small>se vuelven a tildar para la fecha nueva</small></div></div></div>
+    ${btn('programar', '✓ Programar turno', 'ok')}`;
+}
+function scrRecorrido() {
+  return `<div class="s-h"><div><b>🗺 Recorrido completo · sin cama</b><small>7 pasos y todas las ramas</small></div></div>
+    <ul class="hist"><li><b>1</b> · Admisión: «No hay cama»</li><li><b>2</b> · La app busca fecha (48 h hábiles) · o «sin lugar»</li><li><b>3</b> · Tres OK en cualquier orden · o «Pedir otra fecha»</li><li><b>4</b> · Recién ahí se le pregunta a la paciente</li><li><b>5</b> · Sí → confirmada sola · No → otra fecha</li><li><b>6</b> · 13 h: lo incompleto caduca → Reprogramar</li><li><b>7</b> · El día de la cirugía · sin cama otra vez → ×2</li></ul>
+    <a class="b" href="recorrido-sin-cama.html" target="_blank" rel="noopener" style="--k:var(--adm);text-decoration:none;display:block;text-align:center;margin-bottom:8px">📄 Abrir el recorrido completo</a>
+    ${btn('seguir', 'Seguir: una urgencia →', 'sec')}`;
+}
 /* El teléfono de la paciente de esta historia. */
 function pac2HTML(S) {
   const c = S.c;
   if (c.pac) return `<div class="pac-hola"><b>Hola, Rosa 👋</b><small>${REP.proc}</small></div>
     <div class="hecho-mini">✓ ¡Confirmada! ${REP.nuevo} · ${REP.sala}</div>
     <p class="nota">Tu cirugía tiene prioridad: se suspendió 1 vez por falta de cama.</p>`;
+  if (c.no) return `<div class="pac-hola"><b>Hola, Rosa 👋</b><small>${REP.proc}</small></div>
+    <div class="s-card k" style="--k:var(--cir)"><h4>Te vamos a proponer otra fecha</h4><p>Nos dijiste que no podés el ${REP.nuevo}. El equipo está confirmando el día siguiente libre: te avisamos por correo.</p></div>
+    <div class="vivo">Se actualiza solo · hace instantes</div>`;
   if (c.jef) return `<div class="pac-hola"><b>Hola, Rosa 👋</b><small>Te llegó un correo: «Tenés una nueva fecha para confirmar»</small></div>
     <div class="s-card k prio" style="--k:var(--ama);text-align:center"><small style="font-weight:800;color:var(--ama)">NUEVA FECHA PROPUESTA</small><h4>${REP.nuevo}</h4><p>${REP.sala}</p>
-    ${btn('si', '✓ Sí, puedo venir', 'ok')}${info('La app busca otro día y les vuelve a pedir el OK al cirujano, a Admisión y a la Jefatura.', 'No puedo ese día')}</div>`;
+    ${btn('si', '✓ Sí, puedo venir', 'ok')}${btn('no', 'No puedo ese día', 'sec')}</div>`;
   if (c.sin) return `<div class="pac-hola"><b>Hola, Rosa 👋</b><small>${REP.proc}</small></div>
     <div class="s-card k" style="--k:var(--cir)"><h4>Tu cirugía se reprograma con prioridad</h4><p>No hubo cama de internación el día previsto. Vas primera en la lista: el equipo está confirmando la nueva fecha.</p></div>
     <div class="vivo">Se actualiza solo · hace instantes</div>`;
@@ -1078,7 +1110,7 @@ const ACTOS = [
   { k: 'eqd', n: 'Equipos del día', i: '🪄', c: 'var(--jefa)', d: 'La víspera, la app arma los equipos de cada sala y los tres jefes los ajustan y confirman en vivo.' },
   { k: 'prog', n: 'Cirugía programada', i: '📅', c: 'var(--enf)', d: 'Del turno al QR de la paciente, la LVQ y el cierre.' },
   { k: 'mapa', n: 'Mapa de camas y pulsera', i: '🏷️', c: 'var(--enf)', d: 'Enfermería envía las camas a las 07:00, Admisión ocupa una y sale la pulsera con QR.' },
-  { k: 'cama', n: 'Sin cama: prioridad', i: '🛏️', c: 'var(--adm)', d: 'No hubo cama: la app reprograma sola, tres OK y la paciente confirma.' },
+  { k: 'cama', n: 'Sin cama: prioridad', i: '🛏️', c: 'var(--adm)', d: 'No hubo cama: la app reprograma sola (48 h hábiles), tres OK, la paciente responde y el plazo de las 13 h.' },
   { k: 'urg', n: 'Urgencia', i: '🚑', c: 'var(--mal)', d: 'En horario y fuera de horario.' },
   { k: 'cie', n: 'Estadísticas y cierre', i: '🏆', c: 'var(--ama)', d: 'Números, copa de oro, incidencias y reclamos.' },
 ];
@@ -1218,13 +1250,17 @@ MP({ e: 'Ingreso y pulsera', r: 'lvq', q: 'enf', h: 'Mar 07:55', tit: 'En quiró
 /* Acto · Sin cama: reprogramación con prioridad (3.25) */
 const CM = (o) => P(Object.assign({ a: 'cama', lado: pac2HTML }, o));
 CM({ e: 'No hay cama', r: 'sin', q: 'adm', h: 'Mar 07:05', tit: 'Ingresa Rosa… y no hay cama', txt: `Martes 20, 07:05. ${REP.pac} llega para su ${REP.proc.toLowerCase()} pero las cuatro salas están completas. Sin cama no se opera: Admisión toca «No hay cama».`, t: 'sincama', go: 'Toque «No hay cama: suspender y reprogramar»', ver: scrSinCama, hacer: (S) => { S.c.sin = true; }, ok: 'Suspendida por falta de cama (1.ª vez). La app ya está buscando lugar.' });
-CM({ e: 'La app busca sola', r: 'bus', q: 'jef', h: 'Mar 07:06', tit: 'La app arma la nueva fecha', txt: 'Sin que nadie haga nada, la app recorre los días que la Jefatura abrió y toma el <b>primer turno libre</b> en una sala del mismo tipo. El turno nuevo lleva el sello <b>SIN CAMA ×1</b> y va primero en la lista, por encima de todo lo programado. Vale igual para Endoscopía y Obstetricia.', t: 'visto', go: 'Toque «Ver quién tiene que dar el OK»', ver: scrBusca, ok: 'Turno prioritario armado. Ahora, los tres OK.' });
-CM({ e: 'Los tres OK', r: 'cir', q: 'cir', h: 'Mar 08:10', tit: 'OK del cirujano', txt: 'Al Dr. Sosa le salta un aviso crítico: «Falta SU OK». Revisa la fecha y la aprueba: un cartel verde le confirma «OK registrado» y le dice quién falta, y en el camino de la ficha (Cirujano · Admisión · Jefatura · <b>Paciente</b>) su paso queda tildado. Si no le sirve, toca «Pedir otra fecha» y la app pasa a la franja siguiente.', t: 'okcir', go: 'Toque «Dar el OK»', ver: (S) => scrOk(S, 'cir'), hacer: (S) => { S.c.cir = true; }, ok: 'OK del cirujano.' });
-CM({ e: 'Los tres OK', r: 'adm', q: 'adm', h: 'Mar 09:20', tit: 'OK de Admisión y Egresos', txt: 'Admisión recibe el aviso también por correo. Confirma con la credencial del sector y su nombre queda asentado.', t: 'okadm', go: 'Toque «Dar el OK»', ver: (S) => scrOk(S, 'adm'), hacer: (S) => { S.c.adm = true; }, ok: 'OK de Admisión.' });
-CM({ e: 'Los tres OK', r: 'jef', q: 'jef', h: 'Mar 09:40', tit: 'OK de la Jefatura', txt: 'Con el tercer OK, la app le pregunta a la paciente: le manda un correo (sin datos de salud) y la fecha aparece en su pase. Si no tiene pase, Admisión la llama y anota «confirmó por teléfono».', t: 'okjef', go: 'Toque «Dar el OK»', ver: (S) => scrOk(S, 'jef'), hacer: (S) => { S.c.jef = true; }, ok: 'Los tres OK: se le pregunta a Rosa.' });
-CM({ e: 'La paciente confirma', r: 'pac', q: 'pac2', h: 'Mar 10:12', tit: 'Rosa confirma desde su teléfono', txt: 'Rosa abre su pase (DNI + código del correo) y ve la nueva fecha y un paso nuevo, <b>Vos</b>: «Falta tu OK». El equipo la sigue con «👁 Ver el seguimiento del paciente». Si toca «No puedo ese día», la app busca otro día y vuelve a pedir los tres OK.', t: 'si', go: 'En el teléfono de Rosa, toque «Sí, puedo venir»', ver: pac2HTML, lado: null, hacer: (S) => { S.c.pac = true; }, ok: '¡Confirmada! Queda en el parte con prioridad.' });
-CM({ e: 'Prioridad y parte', r: 'fin', q: 'jef', h: 'Mar 10:12', tit: 'Aviso con PRIORIDAD y sonido', txt: 'Con todos los OK, a Rosa le llega el correo «Tu nueva fecha quedó confirmada». A la Jefatura y al cirujano les suena un aviso crítico: «Reprogramación confirmada». Y en el historial queda explícito por qué: cuántas veces se suspendió por falta de cama, quién dio cada OK y cómo respondió la paciente.', t: 'parte', fiesta: true, go: 'Toque «Ver el parte del día»', ver: scrAvisoPrio, ok: 'Todo queda asentado y bien marcado.' });
-CM({ e: 'Prioridad y parte', r: 'parte', q: 'jef', h: 'Lun 07:00', tit: 'Tres partes, uno por área', txt: 'El parte del día sale en tres PDF separados y con el mismo diseño: <b>Quirófanos centrales</b>, <b>Endoscopía</b> y <b>Obstetricia y cesáreas</b>. Cada paciente lleva su cama con el interno, y la reprogramada, el sello rojo «SIN CAMA ×1 · PRIORIDAD».', t: 'imprimir', go: 'Toque «Quirófanos centrales»', ver: scrPartes, ok: 'Listo: así se ve en el papel.' });
+CM({ e: 'La app busca sola', r: 'bus', q: 'jef', h: 'Mar 07:06', tit: 'La app arma la nueva fecha', txt: 'Sin que nadie haga nada, la app recorre los días que la Jefatura abrió y toma el <b>primer turno libre</b> en una sala del mismo tipo, como mínimo <b>48 horas hábiles</b> después del turno suspendido y en un día cuya lista todavía no cerró. El turno nuevo lleva el sello <b>SIN CAMA ×1</b> y va primero en la lista, por encima de todo lo programado. Vale igual para Endoscopía y Obstetricia.', t: 'visto', go: 'Toque «Ver quién tiene que dar el OK»', ver: scrBusca, ok: 'Turno prioritario armado. Ahora, los tres OK.' });
+CM({ e: 'Los tres OK', r: 'cir', q: 'cir', h: 'Mar 08:10', tit: 'OK del cirujano', txt: 'Los tres OK se dan <b>en cualquier orden</b>. Al Dr. Sosa le salta un aviso crítico «Falta SU OK» —en el teléfono aunque tenga la app cerrada, y por correo—, y si a las 11 h del día del cierre sigue faltando, otro: «Quedan 2 h». Revisa la fecha y la aprueba: un cartel verde le confirma «OK registrado» y le dice quién falta, y en el camino de la ficha (Cirujano · Admisión · Jefatura · <b>Paciente</b>) su paso queda tildado. Si no le sirve, toca «Pedir otra fecha» y la app pasa a la franja siguiente.', t: 'okcir', go: 'Toque «Dar el OK»', ver: (S) => scrOk(S, 'cir'), hacer: (S) => { S.c.cir = true; }, ok: 'OK del cirujano.' });
+CM({ e: 'Los tres OK', r: 'adm', q: 'adm', h: 'Mar 09:20', tit: 'OK de Admisión y Egresos', txt: 'Admisión recibe el aviso también por correo. Lo da desde su sesión, o desde cualquier equipo con el correo y la contraseña del sector; su nombre queda asentado y el OK vale como autorización. Cada OK dado queda tildado ✓ con nombre y hora, sin botón.', t: 'okadm', go: 'Toque «Dar el OK»', ver: (S) => scrOk(S, 'adm'), hacer: (S) => { S.c.adm = true; }, ok: 'OK de Admisión.' });
+CM({ e: 'Los tres OK', r: 'jef', q: 'jef', h: 'Mar 09:40', tit: 'OK de la Jefatura', txt: 'La Jefatura también puede darlo desde otro equipo con su credencial. Recién con el tercer OK la app le pregunta a la paciente —antes no le llega nada—: le manda un correo (sin datos de salud) y la fecha aparece en su pase. Si no tiene pase, Admisión la llama y anota «Confirmó por teléfono» o «No puede ese día».', t: 'okjef', go: 'Toque «Dar el OK»', ver: (S) => scrOk(S, 'jef'), hacer: (S) => { S.c.jef = true; }, ok: 'Los tres OK: se le pregunta a Rosa.' });
+CM({ id: 'cama-pac', e: 'La paciente responde', r: 'pac', q: 'pac2', h: 'Mar 10:12', tit: 'Rosa responde desde su teléfono', txt: 'Rosa abre su pase (DNI + código del correo) y ve la nueva fecha y un paso nuevo, <b>Vos</b>: «Falta tu OK». El equipo la sigue con «👁 Ver el seguimiento del paciente». Si en 24 h no responde, el aviso del equipo cambia a «llamarla». Elija qué contesta Rosa:', t: ['si', 'no'], go: 'En el teléfono de Rosa, toque «Sí, puedo venir» o «No puedo ese día»', ver: pac2HTML, lado: null, elegir: (t) => { ELEC.camaNo = t === 'no'; }, hacer: (S) => { if (ELEC.camaNo) S.c.no = true; else S.c.pac = true; }, ok: (t) => t === 'si' ? '¡Confirmada sola! Queda en el parte con prioridad.' : 'Rosa no puede ese día: la app busca otro.' });
+CM({ si: () => ELEC.camaNo === true, e: 'La paciente responde', r: 'no', q: 'cir', h: 'Mar 10:13', tit: 'Dice que no: otra fecha y los OK a cero', txt: 'La app <b>saltea ese día entero</b> y propone el siguiente turno libre, también a 48 h hábiles como mínimo. La cirugía vuelve a <b>Pendiente</b> y los tres OK vuelven a cero: al Dr. Sosa le salta otra vez «Falta SU OK» y la ve en <b>Mis Solicitudes</b>, en la semana de la nueva fecha. Se repiten los tres OK y la pregunta a Rosa.', t: 'entendido', go: 'Toque «Entendido: se repiten los OK»', ver: scrNoPuede, ok: 'Mientras tanto, corre el reloj de las 13 h.' });
+CM({ si: () => ELEC.camaNo !== true, e: 'Prioridad y parte', r: 'fin', q: 'jef', h: 'Mar 10:12', tit: 'Aviso con PRIORIDAD y sonido', txt: 'Con el SÍ de Rosa antes de las 13 h del día hábil anterior, la app la pone <b>Confirmada sola</b> y le llega el correo «Tu nueva fecha quedó confirmada». A la Jefatura y al cirujano les suena un aviso crítico: «Reprogramación confirmada». Y en el historial queda explícito por qué: cuántas veces se suspendió por falta de cama, quién dio cada OK y cómo respondió la paciente.', t: 'parte', fiesta: true, go: 'Toque «Ver el parte del día»', ver: scrAvisoPrio, ok: 'Todo queda asentado y bien marcado.' });
+CM({ si: () => ELEC.camaNo !== true, e: 'Prioridad y parte', r: 'parte', q: 'jef', h: 'Lun 07:00', tit: 'Tres partes, uno por área', txt: 'El parte del día sale en tres PDF separados y con el mismo diseño: <b>Quirófanos centrales</b>, <b>Endoscopía</b> y <b>Obstetricia y cesáreas</b>. Cada paciente lleva su cama con el interno, y la reprogramada, el sello rojo «SIN CAMA ×1 · PRIORIDAD».', t: 'imprimir', go: 'Toque «Quirófanos centrales»', ver: scrPartes, ok: 'Listo: así se ve en el papel. Ahora, qué pasa si no llegan los OK a tiempo.' });
+CM({ e: 'El plazo de las 13 h', r: 'cad', q: 'cir', h: 'Vie 13:00', tit: 'Si a las 13 h falta un OK: caduca', txt: 'Es el mismo plazo que cualquier cirugía: todo (los tres OK y el de la paciente) tiene que estar antes de las <b>13 h del día hábil anterior</b>, cuando sale el parte. Si falta alguno, la cirugía pasa sola a <b>Caducada</b>, sin botones; el pase de la paciente se cierra y al cirujano le salta «<b>Debe reprogramarla</b>». Queda en Mis Solicitudes → Desvíos → Caducada.', t: 'reprog', go: 'Toque «Reprogramar»', ver: scrCaduca, ok: 'Se abre la solicitud nueva con los datos de Rosa ya cargados.' });
+CM({ e: 'El plazo de las 13 h', r: 'rep', q: 'cir', h: 'Vie 13:05', tit: 'Reprogramar con un toque', txt: 'El cirujano elige la franja libre como siempre y el turno se abre con el paciente, el diagnóstico, la cirugía, el equipo y los recursos <b>ya cargados</b>. Los requisitos para Admisión (prequirúrgico, apto anestésico, consentimiento) se vuelven a tildar. Al guardar, las dos cirugías quedan unidas en el historial, se apaga el aviso y el turno nuevo <b>conserva el sello SIN CAMA y la prioridad</b>.', t: 'programar', go: 'Toque «Programar turno»', ver: scrReprog, ok: 'Turno nuevo programado, con la prioridad SIN CAMA, y unido a la caducada.' });
+CM({ e: 'Todo el recorrido', r: 'mapa', q: 'jef', h: '—', tit: 'El recorrido completo, en una página', txt: 'Los siete pasos con todas las ramas —sin lugar, otra fecha, el sí, el no, el plazo y una nueva falta de cama— en una sola hoja para repasar o imprimir.', t: 'seguir', go: 'Ábralo, y después toque «Seguir: una urgencia»', ver: scrRecorrido, ok: 'Ahora, una urgencia.' });
 
 /* Acto 4 · Urgencia */
 const UR = (o) => P(Object.assign({ a: 'urg', tab: true }, o));
@@ -1260,13 +1296,14 @@ function leerGuardado() { try { return JSON.parse(localStorage.getItem(LLAVE) ||
 function guardar() { if (cur === 0) return; try { localStorage.setItem(LLAVE, JSON.stringify({ cur, elec: ELEC })); } catch (e) {} }
 
 const RIEL_MAPA = [['al', '06:30'], ['pin', 'Mapa'], ['env', 'Enviar'], ['rec', 'Recibido'], ['ing', 'Cama roja'], ['pul', 'Pulsera'], ['lvq', 'LVQ']];
-const RIEL_CAMA = [['sin', 'Sin cama'], ['bus', 'Nueva fecha'], ['cir', 'OK cirujano'], ['adm', 'OK Admisión'], ['jef', 'OK Jefatura'], ['pac', 'Paciente'], ['fin', 'Prioridad'], ['parte', 'Parte']];
+const RIEL_CAMA = () => [['sin', 'Sin cama'], ['bus', 'Nueva fecha'], ['cir', 'OK cirujano'], ['adm', 'OK Admisión'], ['jef', 'OK Jefatura'], ['pac', 'Paciente'],
+  ...(ELEC.camaNo === true ? [['no', 'Otra fecha']] : [['fin', 'Prioridad'], ['parte', 'Parte']]), ['cad', '13 h'], ['rep', 'Reprogramar'], ['mapa', 'Recorrido']];
 const RIEL_EQD = [['20h', '20:00 aviso'], ['ver', 'Propuesta'], ['camb', 'Cambiar'], ['vivo', 'En vivo'], ['conf', 'Confirmar'], ['sala', 'Llegué'], ['dia', 'Reemplazo']];
 const RIEL_PROG = [['prog', 'Programada'], ['adm', 'Admisión'], ['jef', 'Jefatura'], ['cama', 'Cama'], ['eq', 'Equipo'], ['pa', 'Parte pre-anest.'], ['ent', 'LVQ Entrada'], ['rec1', 'Gasas'], ['pau', 'Pausa'], ['ini', 'Cirugía'], ['rec2', 'Recuento final'], ['sal', 'LVQ Salida'], ['rec', 'Recuperación'], ['lin', 'Mi línea'], ['fin', 'QR cerrado']];
 function rielHTML(st) {
   let est;
   if (st.a === 'prog') est = RIEL_PROG;
-  else if (st.a === 'cama') est = RIEL_CAMA;
+  else if (st.a === 'cama') est = RIEL_CAMA();
   else if (st.a === 'mapa') est = RIEL_MAPA;
   else if (st.a === 'eqd') est = RIEL_EQD;
   else if (st.a === 'urg') est = fuera()

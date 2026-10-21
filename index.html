@@ -9506,7 +9506,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.32.2';
+const APP_VERSION = '3.32.5';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10404,7 +10404,7 @@ function prioridadEfectiva(c) {
 function esperaDias(c) { return c.fechaSolicitud ? diasEntre(c.fechaSolicitud, hoyISO()) : 0; }
 /* 3.25 · La reprogramación por falta de cama va primero, por encima de todo lo
    programado (más veces sin cama, más arriba). */
-function rcPeso(c) { return c && c.reprogCama && !['suspendida', 'caducada', 'anticipada'].includes(c.estado) ? -(c.reprogCama.n || 1) : 0; }
+function rcPeso(c) { return c && rcVeces(c) && !['suspendida', 'caducada', 'anticipada'].includes(c.estado) ? -rcVeces(c) : 0; }
 function ordenPrelacion(a, b) {
   return rcPeso(a) - rcPeso(b)
     || prioridadEfectiva(a) - prioridadEfectiva(b)
@@ -11681,6 +11681,8 @@ function cambioDeIdentidad(entra) {
     sonoHecho = false;
     sonoDesde = Date.now();
     sonarAvisosPendientes();
+    // 3.32.5 · Con otra identidad (por ejemplo, entró la Jefatura) se vuelve a anotar este equipo a su nombre.
+    pushListo = false; pushEstado = null;
   }
   if (view === 'recordatorios') renderRecordatorios();
 }
@@ -11804,9 +11806,11 @@ function cargarScriptUnaVez(src) {
    null (todavía no se intentó), { e: 'ok', correo } o { e: 'error', msg }. */
 let pushEstado = null;
 async function pushAsegurar() {
-  if (pushListo || !cloudOn || jefe || permisoNotif() !== 'granted') return;
+  if (pushListo || !cloudOn || permisoNotif() !== 'granted') return;
   // 3.26 · La Jefatura de Enfermería también anota su teléfono: a las 06:30 le llega el recordatorio del mapa de camas.
-  const ue = (soloEnfermeria() || soloAdmision()) && firebase.auth().currentUser && firebase.auth().currentUser.email ? { email: firebase.auth().currentUser.email } : null;
+  // 3.32.5 · Y la Jefatura de Quirófanos (con la cuenta de Jefatura): le llega «Falta su OK» de las
+  // reprogramaciones por falta de cama y el recordatorio de las 11 h, aunque la app esté cerrada.
+  const ue = (soloEnfermeria() || soloAdmision() || jefe) && firebase.auth().currentUser && firebase.auth().currentUser.email ? { email: firebase.auth().currentUser.email } : null;
   const u = ue || usuarioActual();
   // 3.29 · El Jefe/a de Anestesiología también: le llega el pedido mensual de la disponibilidad.
   // 3.30 · Y todo el equipo de sala (Enfermería, Instrumentación, Anestesiología): la
@@ -17287,6 +17291,9 @@ function renderSolicitud() {
       <button class="btn btn-outline btn-sm" onclick="go('grilla')">${ICONS.grid.replace('18', '15')} Ver la grilla completa</button>
     </div>
 
+    ${solMolde() ? `<div class="banner banner-blue" style="margin-bottom:12px">${ICONS.refresh}<div><strong>Reprogramando: ${esc(solMolde().paciente?.nombre || 's/d')} · ${esc(solMolde().procedimiento || '')}</strong>
+      Elija una franja libre: el turno se abre con los datos del paciente y de la cirugía ya cargados.
+      <button type="button" class="btn btn-sm btn-outline" style="margin-top:6px" onclick="solCopia=null;renderSolicitud()">Cancelar la reprogramación</button></div></div>` : ''}
     <div class="banner ${cerrado ? 'banner-amber' : 'banner-blue'}">${ICONS.clockSm.replace('14', '18')}
       <div><strong>${cerrado ? 'Cierre de solicitudes superado para esta fecha' : 'Ciclo de programación'}</strong>
       Las solicitudes del ${fmtFecha(d)} cierran a las <b>${BLOQUE.cierreSolicitudes} h</b> ${textoDiaCierre(d)} y el parte se publica ese día a las <b>${BLOQUE.publicacionParte} h</b>. La lista del lunes cierra el viernes: sábados, domingos y feriados no hay cierre (lo que sigue a un feriado cierra el día hábil anterior).
@@ -17321,6 +17328,32 @@ function renderSolicitud() {
       : `<div class="empty">No hay franjas disponibles para el ${fmtFecha(d)}. Pruebe con otra fecha o consulte con la Jefatura de Quirófanos.</div>`}`;
 }
 let solFecha = null;
+/* 3.32.4 · «Reprogramar» una cirugía caducada: se elige la franja como siempre y
+   el turno nuevo sale con los datos del paciente, la cirugía, el equipo y los
+   recursos. Los requisitos para Admisión (prequirúrgico, apto anestésico,
+   consentimiento) NO se copian: se vuelven a tildar para la fecha nueva. */
+let solCopia = null;
+function solMolde() {
+  const o = solCopia ? DB.cirugias.find((x) => String(x.id) === String(solCopia)) : null;
+  if (!o) return null;
+  const m = JSON.parse(JSON.stringify(o));
+  delete m.coordinacion; delete m.hce;
+  m.deFecha = o.fecha;
+  return m;
+}
+function puedeReprogramarCaducada(c) {
+  const u = usuarioActual();
+  return !!(c && c.estado === 'caducada' && !c.reprogramadaEn && u && !jefe && c.cirujanoEmail === u.email && programaCirugias(u));
+}
+function reprogramarCaducada(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!puedeReprogramarCaducada(c)) return;
+  solCopia = c.id;
+  solFecha = sumarDias(hoyISO(), 1);
+  if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) closeCirugia();
+  go('solicitud');
+  toastTurno('Elija la franja nueva: los datos de ' + (c.paciente?.nombre || 'el paciente') + ' ya van cargados', '#2563eb');
+}
 function moverSolFecha(n) {
   const nueva = sumarDias(solFecha || hoyISO(), n);
   if (nueva < hoyISO()) return;
@@ -17614,6 +17647,13 @@ function accionesCirugia(c, rol) {
   }
   // Lo que se cerró por haber quedado atrás —caducado, o suspendido por la app
   // sola— la Jefatura lo puede reabrir con motivo si se cerró por error.
+  // 3.32.4 · El cirujano reprograma su caducada con un toque (los datos van cargados).
+  if (puedeReprogramarCaducada(c)) {
+    a.push(`<button class="btn btn-sm btn-blue" onclick="reprogramarCaducada(${c.id})">${ICONS.refresh} Reprogramar</button>`);
+  }
+  if (c.estado === 'caducada' && c.reprogramadaEn) {
+    a.push(`<button class="btn btn-sm btn-outline" onclick="openCirugia(${c.reprogramadaEn})">${ICONS.refresh} Ver el turno nuevo</button>`);
+  }
   if (jefe && (c.estado === 'caducada' || (c.estado === 'suspendida' && c.suspension && c.suspension.automatica))) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="reabrirCierreTurno(${c.id})">${ICONS.refresh} Reabrir el turno</button>`);
   }
@@ -17986,7 +18026,15 @@ const SECTORES_CAMA = {
 };
 const CAUSA_SIN_CAMA = 'Falta de cama de internación / UTI';
 const RC_DIAS = 45;                 // cuántos días hacia adelante se busca lugar
-const RC_LLAMAR_HORAS = 24;         // sin respuesta del paciente: hay que llamarlo
+const RC_LLAMAR_HORAS = 24;
+const RC_HORAS_HABILES = 48;        // 3.32.4 · margen mínimo entre la suspensión (o el pedido de otra fecha) y el turno nuevo
+/* Ahora + 48 h contadas solo en días hábiles (sin sábados, domingos ni feriados). */
+function rcMinimoHabil(desde) {
+  const d = new Date(desde || Date.now());
+  let rem = RC_HORAS_HABILES;
+  while (rem > 0) { d.setHours(d.getHours() + 1); if (esLaborable(dateToDT(d).slice(0, 10))) rem--; }
+  return d;
+}         // sin respuesta del paciente: hay que llamarlo
 let rcCtx = null;
 
 function camaDe(c) { return c && c.cama && SECTORES_CAMA[c.cama.s] ? c.cama : null; }
@@ -18005,7 +18053,9 @@ function camaPuedeCargarse(c) {
   return !!c && ['confirmada', 'en_curso', 'realizada'].includes(c.estado) && c.fecha <= sumarDias(hoyISO(), 1);
 }
 /* Cuántas veces se suspendió por falta de cama, contando la cadena de turnos. */
-function rcVeces(c) { return (c && c.reprogCama && c.reprogCama.n) || 0; }
+// 3.32.4 · `sinCamaPrio`: el turno que el cirujano arma con «Reprogramar» desde una
+// caducada por falta de cama conserva el sello y la prioridad (sigue el circuito común).
+function rcVeces(c) { return (c && ((c.reprogCama && c.reprogCama.n) || c.sinCamaPrio)) || 0; }
 function rcActivo(c) { return !!(c && c.reprogCama && ['pendiente', 'validada'].includes(c.estado)); }
 function rcSello(c, chico) {
   const n = rcVeces(c); if (!n) return '';
@@ -18018,8 +18068,10 @@ function rcClaveFranja(d, sid, fid) { return d + '|' + sid + '|' + fid; }
 function rcBuscarFranja(base, desde, excluir, despuesDe) {
   const tipo = sala(base.sala || 'Q2').tipo;
   const salas = SALAS.filter((s) => s.tipo === tipo).sort((a, b) => (a.id === base.sala ? -1 : b.id === base.sala ? 1 : 0));
-  // Al menos 2 h para avisar y preparar; y, si se pide «otra fecha», más tarde que la actual.
-  const limite = Math.max(Date.now() + 2 * 36e5, despuesDe || 0);
+  // 3.32.4 · Al menos 48 h HÁBILES desde ahora (pedido de la Jefatura: si se
+  // suspende el miércoles no da el tiempo para el jueves); y, si se pide «otra
+  // fecha», más tarde que la actual.
+  const limite = Math.max(Date.now() + 2 * 36e5, despuesDe || 0, rcMinimoHabil().getTime() - 6e4);
   for (let i = 0; i <= RC_DIAS; i++) {
     const d = sumarDias(desde, i);
     const cand = [];
@@ -18028,6 +18080,8 @@ function rcBuscarFranja(base, desde, excluir, despuesDe) {
       if (turnoEn(d, s.id, f.id)) return;
       if ((excluir || []).includes(rcClaveFranja(d, s.id, f.id))) return;
       if (inicioDeFranja(d, f).getTime() <= limite) return;
+      // 3.32.3 · Nunca una franja cuya lista ya cerró (13 h del día hábil anterior): nacería vencida.
+      if (cierreSuperado(fechaDeFranja(d, f))) return;
       cand.push({ d, s, f, orden });
     }));
     cand.sort((a, b) => inicioDeFranja(a.d, a.f) - inicioDeFranja(b.d, b.f) || a.orden - b.orden);
@@ -18149,7 +18203,12 @@ async function sinCama() {
 }
 /* Arma el turno nuevo (la cirugía suspendida queda tal cual, para las estadísticas). */
 function rcCrearTurno(orig, n, por) {
-  const slot = rcBuscarFranja(orig, sumarDias(hoyISO() > orig.fecha ? hoyISO() : orig.fecha, 1), []);
+  // 3.32.4 · Las 48 h hábiles corren desde el turno suspendido (o desde ahora, si es más tarde):
+  // si se suspende el 22, el 23 no da los tiempos.
+  const fo = franjaDe(orig.sala, orig.franja);
+  const iniOrig = fo ? inicioDeFranja(diaDeGrilla(orig), fo).getTime() : new Date(orig.fecha + 'T' + (orig.horaProg || '08:00')).getTime();
+  const minimo = rcMinimoHabil(Math.max(Date.now(), iniOrig)).getTime() - 6e4;
+  const slot = rcBuscarFranja(orig, sumarDias(hoyISO() > orig.fecha ? hoyISO() : orig.fecha, 1), [], minimo);
   if (!slot) return null;
   const copia = JSON.parse(JSON.stringify(orig));
   ['id', 'estado', 'suspension', 'historial', 'lvq', 'horaInicioReal', 'horaFinReal', 'informe', 'muestras', 'cama', 'auth', 'authAgente', 'authFecha', 'authMotivo',
@@ -18181,19 +18240,61 @@ function rcPuede(c, r) {
   if (r === 'jef') return !!jefe;
   return true;   // Admisión: confirma con su credencial
 }
+/* 3.32.3 · Quién ve el botón «Dar el OK»: el del cirujano, solo el dueño del
+   turno; Admisión y Jefatura, todos (si no es su sesión, la app pide la
+   credencial de ese sector). Así no falta el botón de ningún paso pendiente. */
+function rcBoton(c, r) { return r === 'cir' ? rcPuede(c, r) : true; }
+/* 3.32.3 · Plazo: como cualquier cirugía programada, todo tiene que estar
+   (los tres OK y la respuesta del paciente) antes del cierre de solicitudes
+   —13 h del día hábil anterior—. Si no, el turno CADUCA, el cirujano recibe
+   el aviso de que debe reprogramarla y queda en «Mis Solicitudes» como
+   Caducada (desvío). */
+function rcVencida(c) {
+  return rcActivo(c) && ['esperando_equipo', 'esperando_paciente'].includes(c.reprogCama.estado) && cierreSuperado(c.fecha);
+}
+function rcFaltanTexto(c) {
+  const rc = c.reprogCama, o = rc.oks || {};
+  const f = Object.keys(RC_ROLES).filter((k) => !o[k]).map((k) => RC_ROLES[k]);
+  if (!(rc.paciente && rc.paciente.ok)) f.push('el paciente');
+  return f.join(', ');
+}
+function rcCaducarVencida(c) {
+  if (!rcVencida(c)) return false;
+  const falta = rcFaltanTexto(c);
+  c.reprogCama.estado = 'vencida';
+  c.reprogCama.vencida = { t: nowDT(), falta };
+  caducarTurno(c, 'Reprogramación por falta de cama sin todos los OK al cierre',
+    `Al cierre de solicitudes (${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(c.fecha)}) faltaba el OK de: ${falta}. El cirujano debe reprogramarla con una solicitud nueva`, 'Sistema', true);
+  return true;
+}
 function rcOk(id, r) {
-  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!rcActivo(c)) return;
+  try { rcOkSeguro(id, r); }
+  catch (e) { console.error('rcOk', e); avisar('No se pudo registrar el OK\n\nAvise a la Jefatura con esta referencia:\n· ' + String(e && e.message || e).slice(0, 160), { tono: 'aviso' }); }
+}
+function rcRedibujar(id) {
+  if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) { openCirugia(id); rcIrATarjeta(); }
+  refreshView();
+}
+function rcOkSeguro(id, r) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  // 3.32.3 · Antes volvía callado en estos casos y parecía que el botón no andaba.
+  if (!c || !c.reprogCama) { avisar('No se encontró la reprogramación\n\nActualice la pantalla y vuelva a intentar.'); return; }
+  if (rcCaducarVencida(c)) { avisar(`Pasó el plazo\n\nEl cierre de solicitudes (${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(c.fecha)}) llegó sin todos los OK. El turno quedó Caducado y el cirujano tiene que reprogramarlo con una solicitud nueva.`, { tono: 'aviso' }); rcRedibujar(c.id); return; }
+  if (!rcActivo(c)) { avisar('Esta reprogramación ya no espera OK\n\nEstá «' + ((ESTC[estadoVisible(c)] || {}).label || c.estado) + '».'); rcRedibujar(c.id); return; }
+  if (c.reprogCama.oks && c.reprogCama.oks[r]) { toastTurno('Ese OK ya estaba dado ✓ (' + RC_ROLES[r] + ')', '#16a34a'); rcRedibujar(c.id); return; }
+  if (c.reprogCama.estado !== 'esperando_equipo') { avisar('Ahora le toca al paciente\n\nLos tres OK del equipo ya están.'); rcRedibujar(c.id); return; }
   const pid = c.reprogCama.pid;
   const hacer = (por) => {
     const cc = DB.cirugias.find((x) => String(x.id) === String(id));
     if (!rcActivo(cc) || cc.reprogCama.pid !== pid) { avisar('La propuesta cambió\n\nMientras confirmaba, alguien pidió otra fecha. Revise la nueva y vuelva a dar el OK.'); return; }
+    if (rcCaducarVencida(cc)) { avisar('Pasó el plazo\n\nMientras confirmaba llegó el cierre de solicitudes: el turno quedó Caducado.', { tono: 'aviso' }); rcRedibujar(cc.id); return; }
+    cc.reprogCama.oks = cc.reprogCama.oks || {};
     cc.reprogCama.oks[r] = { por, t: nowDT() };
     if (r === 'adm') { cc.auth = 'AUTORIZADO'; cc.authAgente = por; cc.authFecha = nowDT(); }
     pushHist(cc, `OK a la reprogramación por falta de cama (${fmtFecha(cc.fecha)} ${cc.horaProg} h): ${RC_ROLES[r]} — ${por}`);
     rcSiTodos(cc);
     upsert('cirugias', cc);
-    if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) { openCirugia(cc.id); rcIrATarjeta(); }
-    refreshView();
+    rcRedibujar(cc.id);
     // 3.27.1 · Antes la ficha se redibujaba arriba y parecía que el botón no hacía nada.
     const o = cc.reprogCama.oks, faltan = Object.keys(RC_ROLES).filter((k) => !o[k]).map((k) => RC_ROLES[k]);
     toastTurno(faltan.length ? `OK registrado (${RC_ROLES[r]}). Faltan: ${faltan.join(', ')}. Después se le pregunta al paciente.`
@@ -18202,6 +18303,11 @@ function rcOk(id, r) {
   if (r === 'adm') {
     const pedir = async () => { const n = await pedirTexto('Agente de Admisión que da el OK\n\nApellido y nombre: queda asentado en el turno.', { si: 'Dar el OK', campo: { label: 'Apellido y nombre', placeholder: 'Agente de Admisión', requerido: true } }); if (n && String(n).trim().length >= 3) hacer(String(n).trim()); };
     pedirAdmision('OK de Admisión — reprogramación por falta de cama', 'Confirmar la nueva fecha. Ingrese el correo y la contraseña del sector de Admisión y Egresos.', pedir);
+    return;
+  }
+  // 3.32.3 · La Jefatura desde otra sesión confirma con la credencial de Jefatura.
+  if (r === 'jef' && !jefe) {
+    pedirJefatura('OK de la Jefatura — reprogramación por falta de cama', 'Confirmar la nueva fecha. Ingrese el correo y la contraseña de la Jefatura de Quirófanos.', () => hacer(JEFATURA));
     return;
   }
   if (!rcPuede(c, r)) { avisar('Este OK no le corresponde\n\nLo da ' + RC_ROLES[r] + ' desde su propia sesión.'); return; }
@@ -18303,6 +18409,7 @@ function rcAvisarSector(que, c) {
 }
 function rcTelefono(id, ok) {
   const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c || !c.reprogCama || c.reprogCama.estado !== 'esperando_paciente') return;
+  if (rcCaducarVencida(c)) { avisar(`Pasó el plazo\n\nEl parte cerró a las ${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(c.fecha)} sin la respuesta del paciente. El turno quedó Caducado y el cirujano tiene que reprogramarlo.`, { tono: 'aviso' }); rcRedibujar(c.id); return; }
   const anotar = async () => {
     const n = await pedirTexto(`${ok ? 'El paciente CONFIRMÓ por teléfono' : 'El paciente NO puede ese día'}\n\n${c.paciente?.nombre || ''} · ☎ ${c.paciente?.telefono || 'sin teléfono cargado'}\nFecha propuesta: ${fmtDiaLargo(c.fecha)} · ${c.horaProg} h · ${c.quirofano}\n\nApellido y nombre de quien habló con el paciente:`, { si: 'Registrar', campo: { label: 'Apellido y nombre', placeholder: 'Quién habló con el paciente', requerido: true } });
     if (!n || String(n).trim().length < 3) return;
@@ -18313,6 +18420,8 @@ function rcTelefono(id, ok) {
 }
 function rcAplicarRespuesta(c, ok, via) {
   if (!c.reprogCama || c.reprogCama.estado !== 'esperando_paciente') return false;
+  // 3.32.3 · El OK del paciente confirma solo hasta las 13 h del día hábil anterior (sale el parte).
+  if (rcCaducarVencida(c)) { refreshView(); revisarRecordatorios(); return false; }
   if (ok) {
     c.estado = 'confirmada';
     c.reprogCama.estado = 'confirmada';
@@ -18342,6 +18451,8 @@ async function rcVigilar() {
   if ((!jefe && !u) || rcVigilando) return;
   rcVigilando = true;
   try {
+    // 0) 3.32.3 · Pasó el cierre de solicitudes sin todos los OK: caduca.
+    DB.cirugias.filter(rcVencida).filter(remMia).forEach((c) => rcCaducarVencida(c));
     // a) Suspendidas por falta de cama que todavía no encontraron lugar.
     DB.cirugias.filter((c) => c.rcPendiente && c.estado === 'suspendida').filter(remMia).forEach((c) => {
       const nuevo = rcCrearTurno(c, c.rcPendiente.n, c.rcPendiente.por);
@@ -18401,6 +18512,16 @@ function rcRecordatorios(add) {
         cuando: 'Reprogramación por falta de cama' });
     }
   });
+  // 3.32.3 · Caducó por no tener los OK a tiempo: el cirujano tiene que reprogramarla.
+  DB.cirugias.filter((c) => c.reprogCama && c.reprogCama.estado === 'vencida' && c.estado === 'caducada' && !c.reprogramadaEn && (jefe || (u && c.cirujanoEmail === u.email))).forEach((c) => {
+    const t = c.reprogCama.vencida && c.reprogCama.vencida.t;
+    if (t && ahora - new Date(t).getTime() > 7 * 864e5) return;
+    const mio = !!(u && c.cirujanoEmail === u.email);
+    add({ key: 'rc-venc-' + c.id, nivel: 'crit', notif: mio, vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
+      titulo: `${mio ? 'Debe reprogramarla' : 'Caducó'} — ${c.paciente?.nombre || 's/d'} (SIN CAMA ×${rcVeces(c)})`,
+      texto: `La reprogramación del ${fmtFecha(c.fecha)} ${c.horaProg} h no tuvo todos los OK al cierre de las ${BLOQUE.cierreSolicitudes} h (faltaba: ${(c.reprogCama.vencida && c.reprogCama.vencida.falta) || '—'}). Quedó Caducada en Mis Solicitudes: ${mio ? 'pida un turno nuevo' : 'el cirujano tiene que pedir un turno nuevo'}.`,
+      cuando: 'Reprogramación por falta de cama' });
+  });
   // Confirmadas: aviso crítico con sonido hasta que cada uno lo mira.
   DB.cirugias.filter((c) => c.reprogCama && c.reprogCama.estado === 'confirmada' && c.estado === 'confirmada' && c.fecha >= hoyISO()).filter(remMia).forEach((c) => {
     const t = c.reprogCama.paciente && c.reprogCama.paciente.t;
@@ -18432,19 +18553,21 @@ function rcFichaHTML(c) {
   if (rc) {
     const o = rc.oks || {};
     const orig = rcOrigen(c);
+    const venc = rcVencida(c);   // pasó el cierre: la próxima ronda la caduca; ya no se ofrecen botones
     const ok = (r) => `<li class="${o[r] ? 'ok' : ''}"><i>${o[r] ? '✓' : '·'}</i><b>${RC_ROLES[r]}</b><small>${o[r] ? esc(o[r].por) + ' · ' + fmtDT(o[r].t) : 'pendiente'}</small>
-        ${!o[r] && rcActivo(c) && rc.estado === 'esperando_equipo' && rcPuede(c, r) ? `<button class="btn btn-sm btn-green" onclick="rcOk(${c.id}, '${r}')">Dar el OK</button>` : ''}</li>`;
+        ${!o[r] && !venc && rcActivo(c) && rc.estado === 'esperando_equipo' && rcBoton(c, r) ? `<button class="btn btn-sm btn-green" onclick="rcOk(${c.id}, '${r}')">Dar el OK</button>` : ''}</li>`;
     const pac = rc.paciente;
     h += `<section class="fx-card full rc-card rc-prio"><h4>${rcSello(c)} <span>Reprogramación prioritaria por falta de cama</span></h4>
       <p class="fx-txt">Se suspendió <b>${rcVeces(c)} vez${rcVeces(c) > 1 ? 'es' : ''}</b> por falta de cama${orig ? ` (último turno: ${fmtFecha(orig.fecha)} ${esc(orig.horaProg || '')} h)` : ''}. Este turno va <b>primero</b>, por encima de todo lo programado.</p>
-      ${rc.estado === 'sin_lugar' ? '<p class="fx-txt warn">No hay franjas libres abiertas. Cuando la Jefatura abra un turno, la app lo toma sola.</p>' : `
+      ${venc ? `<p class="fx-txt warn">Pasó el cierre de solicitudes (${BLOQUE.cierreSolicitudes} h ${esc(textoDiaCierre(c.fecha))}) sin todos los OK: el turno caduca y el cirujano tiene que reprogramarla con una solicitud nueva.</p>` : rc.estado === 'vencida' ? `<p class="fx-txt warn">Pasó el cierre de solicitudes sin todos los OK (faltaba: ${esc((rc.vencida && rc.vencida.falta) || '—')}). El turno caducó: el cirujano la reprograma con el botón «Reprogramar» de abajo (los datos van cargados).</p>` : rc.estado === 'sin_lugar' ? '<p class="fx-txt warn">No hay franjas libres abiertas. Cuando la Jefatura abra un turno, la app lo toma sola.</p>' : `
       <div class="rc-prop"><small>Fecha propuesta${rc.propuestas > 1 ? ` (propuesta ${rc.propuestas})` : ''}</small><b>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg)} h</b><span>${esc(c.quirofano)}</span></div>
       <ol class="rc-oks">${['cir', 'adm', 'jef'].map(ok).join('')}
         <li class="${pac && pac.ok ? 'ok' : pac && !pac.ok ? 'no' : ''}"><i>${pac && pac.ok ? '✓' : '·'}</i><b>Paciente</b><small>${rc.estado === 'confirmada' ? 'confirmó · ' + esc(pac.via) + ' · ' + fmtDT(pac.t) : rc.estado === 'esperando_paciente' ? (c.pase && c.pase.token ? 'falta su OK · se le preguntó en su pase' + (rc.preguntado ? ' el ' + fmtDT(rc.preguntado) : '') : 'falta su OK · llamarlo por teléfono') + ' · ☎ ' + esc(c.paciente?.telefono || '—') : 'falta su OK · se le pregunta después de los tres OK del equipo'}</small>
-          ${rc.estado === 'esperando_paciente' && rcActivo(c) ? `<span class="rc-tel"><button class="btn btn-sm btn-green" onclick="rcTelefono(${c.id}, true)">☎ Confirmó por teléfono</button><button class="btn btn-sm btn-outline" onclick="rcTelefono(${c.id}, false)">☎ No puede ese día</button></span>` : ''}</li>
+          ${!venc && rc.estado === 'esperando_equipo' && rcActivo(c) ? '<button class="btn btn-sm btn-green" disabled title="Se habilita cuando están los tres OK del equipo">Dar el OK</button>' : ''}
+          ${!venc && rc.estado === 'esperando_paciente' && rcActivo(c) ? `<span class="rc-tel"><button class="btn btn-sm btn-green" onclick="rcTelefono(${c.id}, true)">☎ Confirmó por teléfono</button><button class="btn btn-sm btn-outline" onclick="rcTelefono(${c.id}, false)">☎ No puede ese día</button></span>` : ''}</li>
       </ol>
       <div class="rc-acc2"><button class="btn btn-sm btn-outline fx-btn" onclick="rcVerPase(${c.id})">👁 Ver el seguimiento del paciente</button>
-      ${rcActivo(c) ? `<button class="btn btn-sm btn-outline fx-btn" onclick="rcOtraFecha(${c.id})">↻ Pedir otra fecha</button>` : ''}</div>`}
+      ${rcActivo(c) && !venc ? `<button class="btn btn-sm btn-outline fx-btn" onclick="rcOtraFecha(${c.id})">↻ Pedir otra fecha</button>` : ''}</div>`}
     </section>`;
   }
   return h;
@@ -25336,11 +25459,13 @@ function openSlot(d, sid, fid) {
     }
   }
   slotCtx = { d, sid, fid, hora: f.t, nd: f.nd || 0 };
+  // 3.32.4 · «Reprogramar» desde una caducada: el turno nuevo sale con sus datos.
+  const m = c || (nuevo ? solMolde() : null);
   const resv = exc || franjaReabierta(d, sid, fid) ? null : reservaDeFranja(d, sid, f);
   const puedeEditar = nuevo || jefe || (u && c.cirujanoEmail === u.email && ['borrador', 'pendiente'].includes(c.estado));
   const ro = puedeEditar ? '' : 'disabled';
-  const v = (x, alt) => esc((c && x) || alt || '');
-  const eq = (c && c.equipos) || [];
+  const v = (x, alt) => esc((m && x) || alt || '');
+  const eq = (m && m.equipos) || [];
   const retro = franjaReabierta(d, sid, fid);
   const avisoAnticip = retro
     ? `<div class="banner banner-red" style="margin-bottom:14px">${ico(ICONS.alertTri, 18)}<div><strong>Franja reabierta por la Jefatura — registro fuera de término</strong>
@@ -25380,6 +25505,9 @@ function openSlot(d, sid, fid) {
     </div>
 
     ${c ? tmCircuito(c, u) : tmCircuitoNuevo(f)}
+    ${!c && m ? `<div class="banner banner-blue" style="margin:10px 0">${ICONS.refresh}<div><strong>Reprogramación de ${esc(m.paciente?.nombre || 's/d')}</strong>
+      Los datos vienen de la cirugía caducada del ${esc(fmtFecha(m.deFecha))}. Revíselos y vuelva a tildar los requisitos para Admisión y Egresos.
+      <button type="button" class="btn btn-sm btn-outline" style="margin-top:6px" onclick="solCopia=null;closeSlot();openSlot('${d}','${sid}','${fid}')">Empezar en blanco</button></div></div>` : ''}
     ${avisoAnticip}
     ${resv && nuevo ? `<div class="banner banner-reserva" style="margin-bottom:14px">${ico(ICONS.shield, 18)}<div><strong>Franja con prioridad por especialidad</strong>
         La Jefatura de Quirófanos reservó este horario para <b>${esc(resv.servicios.join(', '))}</b>. El turno solo se guarda con
@@ -25390,16 +25518,16 @@ function openSlot(d, sid, fid) {
       <div class="tm-sec-h"><span class="tm-n">1</span><div><b>Paciente</b><span>quién se opera y cómo se lo contacta</span></div></div>
       <p class="tm-ayuda">${ICONS.info.replace('18', '13')} Estos datos se importan de la Historia Clínica Electrónica cuando la interfaz HCE/HIS esté disponible; mientras tanto se declaran manualmente.</p>
       <div class="form-grid">
-        <div class="field full"><label>Apellido y nombre *</label><input type="text" id="k-pac" value="${v(c && c.paciente?.nombre)}" ${ro}></div>
-        <div class="field"><label>DNI</label><input type="text" id="k-dni" inputmode="numeric" value="${v(c && c.paciente?.dni)}" ${ro}></div>
-        <div class="field"><label>Fecha de nacimiento</label><input type="date" id="k-nac" value="${v(c && c.paciente?.nacimiento)}" ${ro}>
+        <div class="field full"><label>Apellido y nombre *</label><input type="text" id="k-pac" value="${v(m && m.paciente?.nombre)}" ${ro}></div>
+        <div class="field"><label>DNI</label><input type="text" id="k-dni" inputmode="numeric" value="${v(m && m.paciente?.dni)}" ${ro}></div>
+        <div class="field"><label>Fecha de nacimiento</label><input type="date" id="k-nac" value="${v(m && m.paciente?.nacimiento)}" ${ro}>
           <span class="hint">Se vuelca al consentimiento informado.</span></div>
-        <div class="field"><label>Edad</label><input type="number" id="k-edad" min="0" max="120" value="${c?.paciente?.edad ?? ''}" ${ro}></div>
-        <div class="field"><label>Teléfono</label><input type="tel" id="k-tel" value="${v(c && c.paciente?.telefono)}" ${ro}></div>
-        <div class="field full"><label>Correo electrónico del paciente</label><input type="email" id="k-mail" autocomplete="off" placeholder="nombre@correo.com" value="${v(c && c.paciente?.email)}" ${ro}>
+        <div class="field"><label>Edad</label><input type="number" id="k-edad" min="0" max="120" value="${m?.paciente?.edad ?? ''}" ${ro}></div>
+        <div class="field"><label>Teléfono</label><input type="tel" id="k-tel" value="${v(m && m.paciente?.telefono)}" ${ro}></div>
+        <div class="field full"><label>Correo electrónico del paciente</label><input type="email" id="k-mail" autocomplete="off" placeholder="nombre@correo.com" value="${v(m && m.paciente?.email)}" ${ro}>
           <span class="hint">Opcional. Hace falta para el <b>pase del paciente</b>: cada vez que el paciente consulta su cirugía le llega a este correo un código de un solo uso.</span></div>
         <div class="field full"><label>Obra social / financiador</label>
-          <select id="k-obra" ${ro} onchange="onObraChange()">${opcionesObra(c && c.obraSocial)}</select>
+          <select id="k-obra" ${ro} onchange="onObraChange()">${opcionesObra(m && m.obraSocial)}</select>
           <div id="k-obra-nueva-wrap" style="display:none;margin-top:6px">
             <input type="text" id="k-obra-nueva" placeholder="Nombre de la obra social, prepaga o mutual" ${ro}>
             <span class="hint">Queda agregada al listado compartido del hospital.</span>
@@ -25410,20 +25538,20 @@ function openSlot(d, sid, fid) {
     <section class="tm-sec">
       <div class="tm-sec-h"><span class="tm-n">2</span><div><b>Diagnóstico y cirugía</b><span>qué se opera, elegido del nomenclador</span></div></div>
       <div class="form-grid">
-        <div class="field"><label>Diagnóstico preoperatorio *</label><input type="text" id="k-diag" value="${v(c && c.diagnostico)}" ${ro}></div>
-        <div class="field"><label>Código CIE-10</label><input type="text" id="k-cie" placeholder="Ej: K80.2" value="${v(c && c.cie10)}" ${ro}></div>
-        ${campoPractica(c, ro)}
+        <div class="field"><label>Diagnóstico preoperatorio *</label><input type="text" id="k-diag" value="${v(m && m.diagnostico)}" ${ro}></div>
+        <div class="field"><label>Código CIE-10</label><input type="text" id="k-cie" placeholder="Ej: K80.2" value="${v(m && m.cie10)}" ${ro}></div>
+        ${campoPractica(m, ro)}
       </div>
     </section>
 
     <section class="tm-sec">
       <div class="tm-sec-h"><span class="tm-n">3</span><div><b>Requisitos para Admisión y Egresos</b><span>toque cada uno cuando esté hecho</span></div></div>
       <div class="tm-reqs">
-        <label class="tm-req"><input type="checkbox" id="k-preanest" ${c?.coordinacion?.anestesia ? 'checked' : ''} ${ro}>
+        <label class="tm-req"><input type="checkbox" id="k-preanest" ${m?.coordinacion?.anestesia ? 'checked' : ''} ${ro}>
           <span class="tm-req-ico">${ico(ICONS.check, 16)}</span><span class="tm-req-txt"><b>Pre-anestésico</b><small>apto anestésico registrado en la HCE</small></span></label>
-        <label class="tm-req"><input type="checkbox" id="k-preop" ${c?.hce?.preop ? 'checked' : ''} ${ro}>
+        <label class="tm-req"><input type="checkbox" id="k-preop" ${m?.hce?.preop ? 'checked' : ''} ${ro}>
           <span class="tm-req-ico">${ico(ICONS.check, 16)}</span><span class="tm-req-txt"><b>Pre-quirúrgico</b><small>estudios completos y verificados en la HCE</small></span></label>
-        <label class="tm-req"><input type="checkbox" id="k-consent" ${c?.hce?.consentimiento ? 'checked' : ''} ${ro}>
+        <label class="tm-req"><input type="checkbox" id="k-consent" ${m?.hce?.consentimiento ? 'checked' : ''} ${ro}>
           <span class="tm-req-ico">${ico(ICONS.check, 16)}</span><span class="tm-req-txt"><b>Consentimiento firmado</b><small>registrado en la HCE</small></span></label>
       </div>
       <p class="tm-ayuda">Los tres son requisito para que <b>Admisión y Egresos</b> dictamine sobre el turno programado. El consentimiento, además, tiene que estar <b>generado y guardado</b> en el historial del cirujano: se descarga al terminar de programar.
@@ -25436,10 +25564,10 @@ function openSlot(d, sid, fid) {
         ${campoCirujano(c, u, exc, ro)}
         <div class="field"><label>Servicio / especialidad *</label>
           <select id="k-serv" ${ro}>${opcionesServicioTurno(c, u, exc, nuevo ? resv : null)}</select></div>
-        ${campoAyudante('k-ayu', (ayudanteDe(c || {}) || {}).nombre || '', ro)}
-        <div class="field"><label>Anestesista</label><input type="text" id="k-anest" value="${v(c && c.anestesista)}" ${ro}></div>
+        ${campoAyudante('k-ayu', (ayudanteDe(m || {}) || {}).nombre || '', ro)}
+        <div class="field"><label>Anestesista</label><input type="text" id="k-anest" value="${v(m && m.anestesista)}" ${ro}></div>
         <div class="field"><label>Tipo de anestesia</label>
-          <select id="k-tanest" ${ro}><option value="">Seleccionar…</option>${ANESTESIAS.map((a) => `<option ${c?.anestesia === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
+          <select id="k-tanest" ${ro}><option value="">Seleccionar…</option>${ANESTESIAS.map((a) => `<option ${m?.anestesia === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
       </div>
       <div id="k-ayu-mods"></div>
     </section>
@@ -25448,17 +25576,17 @@ function openSlot(d, sid, fid) {
       <div class="tm-sec-h"><span class="tm-n">5</span><div><b>Prioridad y recursos</b><span>orden de prelación, tiempo y lo que hay que reservar</span></div></div>
       <div class="form-grid">
         <div class="field"><label>Prioridad de prelación *</label>
-          <select id="k-prio" ${ro}>${Object.keys(PRIOS).filter((k) => k !== '5').map((k) => `<option value="${k}" ${String(c?.prioridad || 6) === k ? 'selected' : ''}>P${k} — ${PRIOS[k].label}</option>`).join('')}</select>
+          <select id="k-prio" ${ro}>${Object.keys(PRIOS).filter((k) => k !== '5').map((k) => `<option value="${k}" ${String(m?.prioridad || 6) === k ? 'selected' : ''}>P${k} — ${PRIOS[k].label}</option>`).join('')}</select>
           <span class="hint">La prioridad P5 (espera &gt; 90 días) la asigna el sistema automáticamente.</span></div>
-        <div class="field"><label>Duración estimada (min)</label><input type="number" id="k-dur" min="15" step="5" value="${c?.duracionMin || (s.tipo === 'endo' ? 45 : 90)}" ${ro}></div>
+        <div class="field"><label>Duración estimada (min)</label><input type="number" id="k-dur" min="15" step="5" value="${m?.duracionMin || (s.tipo === 'endo' ? 45 : 90)}" ${ro}></div>
       </div>
       <div class="tm-chips">
-        <label class="tm-chip"><input type="checkbox" id="k-implante" ${c?.recursos?.implante ? 'checked' : ''} ${ro} onchange="$('k-impdet-wrap').style.display=this.checked?'flex':'none'"><span>Implante / prótesis</span></label>
-        <label class="tm-chip"><input type="checkbox" id="k-hemo" ${c?.recursos?.hemoderivados ? 'checked' : ''} ${ro}><span>Reserva de hemoderivados</span></label>
+        <label class="tm-chip"><input type="checkbox" id="k-implante" ${m?.recursos?.implante ? 'checked' : ''} ${ro} onchange="$('k-impdet-wrap').style.display=this.checked?'flex':'none'"><span>Implante / prótesis</span></label>
+        <label class="tm-chip"><input type="checkbox" id="k-hemo" ${m?.recursos?.hemoderivados ? 'checked' : ''} ${ro}><span>Reserva de hemoderivados</span></label>
         ${f && f.urg ? `<label class="tm-chip tm-chip-urg"><input type="checkbox" id="k-urg" checked disabled><span>Urgencia / emergencia</span></label>` : ''}
       </div>
-      <div class="field" id="k-impdet-wrap" style="display:${c?.recursos?.implante ? 'flex' : 'none'};max-width:460px;margin-top:10px"><label>Detalle del implante</label>
-        <input type="text" id="k-impdet" placeholder="Qué implante o prótesis" value="${v(c && c.recursos?.implanteDetalle)}" ${ro}>
+      <div class="field" id="k-impdet-wrap" style="display:${m?.recursos?.implante ? 'flex' : 'none'};max-width:460px;margin-top:10px"><label>Detalle del implante</label>
+        <input type="text" id="k-impdet" placeholder="Qué implante o prótesis" value="${v(m && m.recursos?.implanteDetalle)}" ${ro}>
         <span class="hint">Farmacia lo verifica 48–72 h antes de la cirugía.</span></div>
       ${f && f.urg ? `<p class="tm-ayuda">Turno de guardia de las ${f.t} h: saltea la anticipación de ${HORAS_ANTICIPACION} h.</p>` : ''}
       <details class="tm-eq" ${eq.length ? 'open' : ''}>
@@ -25493,7 +25621,7 @@ function openSlot(d, sid, fid) {
     </div>`;
   $('slot-overlay').classList.add('open');
   eqmModulo = '';
-  nomIniciar(c, ro);
+  nomIniciar(m, ro);
   pintarModEquipo();
   tmEnlazar();
 }
@@ -25845,6 +25973,17 @@ async function guardarSlot() {
       : `Turno asignado a ${cirujano} (${cirEmailElegido}) — hasta ahora no tenía profesional asociado, así que sus recordatorios quedaban solo en manos de la ${JEFATURA} y no figuraba en «Mis Solicitudes» del cirujano`);
   }
   if (existente) pushHist(c, 'Turno actualizado');
+  // 3.32.4 · Turno nuevo armado con «Reprogramar» desde una caducada: quedan unidos.
+  const origRep = !existente && solCopia ? DB.cirugias.find((x) => String(x.id) === String(solCopia)) : null;
+  if (origRep) {
+    c.reprogDe = origRep.id;
+    if (rcVeces(origRep)) c.sinCamaPrio = rcVeces(origRep);
+    pushHist(c, `Reprogramación de la cirugía caducada del ${fmtFecha(origRep.fecha)} ${origRep.horaProg || ''} h (${origRep.quirofano || ''})${c.sinCamaPrio ? ` — conserva la prioridad SIN CAMA ×${c.sinCamaPrio}` : ''}`);
+    origRep.reprogramadaEn = c.id;
+    pushHist(origRep, `Reprogramada por ${cirujano}: nuevo turno el ${fmtFecha(c.fecha)} ${c.horaProg} h en ${c.quirofano}`);
+    upsert('cirugias', origRep);
+    solCopia = null;
+  }
   // Turno programado nuevo: nace provisional hasta que se guarde el
   // consentimiento informado. La urgencia y el registro fuera de término no
   // pasan por acá —operan o ya operaron—.
@@ -26997,14 +27136,15 @@ function remTileNotif() {
   const uN = usuarioActual(), medico = !!(uN && uN.email && !jefe && !esEquipoSala(uN) && cuentaAprobada(uN));
   // 3.30 · Al equipo de sala el teléfono anotado le sirve para el aviso de la víspera de su guardia.
   const sala = !!(uN && uN.email && !jefe && esEquipoSala(uN) && cuentaAprobada(uN));
-  const queAviso = sala ? 'el aviso de la víspera de su guardia' : 'el aviso de cierre';
+  const queAviso = jefe ? 'los avisos de las reprogramaciones sin cama' : sala ? 'el aviso de la víspera de su guardia' : 'el aviso de cierre';
   if (p === 'granted' && (medico || sala) && pushEstado && pushEstado.e === 'error') return remTile('rem-notif-push', 'ambar', ICONS.bell.replace('16', '18'), 'Falta anotar este teléfono para ' + queAviso, 'Las notificaciones están activadas, pero el aviso con la app cerrada no le llegaría.',
     `<p>No se pudo anotar este teléfono (${esc(pushEstado.msg || 'sin detalle')}). Revise que tenga internet y toque <b>Reintentar</b>. Mientras tanto, el aviso le llega igual por correo a <b>${esc(uN.email)}</b>.</p>
      <div style="margin-top:10px"><button class="btn btn-blue btn-sm" onclick="pushReintentar(this)">${ICONS.refresh} Reintentar</button></div>`);
-  const resOk = (medico || sala) && pushEstado && pushEstado.e === 'ok' ? `✓ Este teléfono recibe ${queAviso} (como ${pushEstado.correo}).` : (medico || sala) && !pushEstado && cloudOn ? `Anotando este teléfono para ${queAviso}…` : 'Este dispositivo recibe los avisos críticos.';
+  const resOk = (medico || sala || jefe) && pushEstado && pushEstado.e === 'ok' ? `✓ Este equipo recibe ${queAviso} con la app cerrada (como ${pushEstado.correo}).` : (medico || sala) && !pushEstado && cloudOn ? `Anotando este teléfono para ${queAviso}…` : 'Este dispositivo recibe los avisos críticos.';
   if (p === 'granted') return remTile('rem-notif-ok', 'teal', ICONS.bell.replace('16', '18'), 'Notificaciones activadas', resOk,
     `<p>Los avisos críticos aparecen como notificación del dispositivo mientras la app esté abierta, incluso en segundo plano o instalada en la pantalla de inicio. Tocar la notificación lleva directo a la cirugía, al reclamo o a la sección que la originó.</p>
-     ${sala ? `<p><b>Aviso de la víspera de su guardia:</b> el día anterior a cada guardia, desde las 18:00, este teléfono recibe «Mañana está de guardia con …» aunque la app esté cerrada, con el sonido del teléfono. También le llega por correo.</p>`
+     ${jefe ? `<p><b>Reprogramaciones por falta de cama:</b> apenas la app arma una nueva fecha, este equipo recibe «Falta su OK» aunque la app esté cerrada (entre las 7 y las 21 h), y a las 11 h del día del cierre, «Quedan 2 h» si todavía falta algún OK o la respuesta del paciente. También llega por correo.</p>`
+       : sala ? `<p><b>Aviso de la víspera de su guardia:</b> el día anterior a cada guardia, desde las 18:00, este teléfono recibe «Mañana está de guardia con …» aunque la app esté cerrada, con el sonido del teléfono. También le llega por correo.</p>`
        : `<p><b>Aviso de cierre de la lista:</b> el viernes (y la víspera de un feriado), a las 12:00, este equipo recibe el aviso aunque la app esté cerrada o haya cerrado la sesión, con el sonido del teléfono. Toque <b>Recibido</b> para que la Jefatura sepa que le llegó; si no confirma, a las 12:30 se le repite. También le llega por correo.</p>`}
      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="probarNotif(this)">${ICONS.bell} Enviar una de prueba</button>
      ${(() => { try { return localStorage.getItem('hruq_push') ? `<button class="btn btn-outline btn-sm" onclick="pushQuitarEsteEquipo().then(()=>{this.textContent='Este equipo ya no recibe los avisos con la app cerrada';this.disabled=true})" title="Para una computadora compartida">No recibir ${queAviso} en este equipo</button>` : ''; } catch (e) { return ''; } })()}</div>`);

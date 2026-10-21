@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.32.1'
+VERSION = '3.32.5'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -98,7 +98,7 @@ BLOQUES = [
 ('h3', 'Paso 1 — Acreditación de la cuenta'),
 ('ul', [
     'Registrarse como se describe en el capítulo 2 y verificar el correo.',
-    'En **Mi Perfil**, cargar matrícula, título de especialista, seguro de responsabilidad civil, certificación de RCP y esquema de vacunación, con sus vigencias.',
+    'En **Mi Perfil**, cargar matrícula, título de especialista, seguro de responsabilidad civil, certificación de RCP y esquema de vacunación, con sus vigencias, y tocar **Guardar documentación**: el botón dice «Guardando…» y después «Guardado ✓», con un cartel abajo que lo confirma.',
     'Esperar la autorización de la Jefatura. Hasta entonces se puede completar el perfil y consultar la grilla, pero no programar.',
 ]),
 ('p', 'La cuenta necesita dos condiciones independientes para programar: que la Jefatura la haya autorizado y que la documentación habilitante esté completa y vigente. La aplicación vigila los vencimientos y avisa antes de que caduquen: una habilitación vencida detectada el día de la cirugía es un turno suspendido.'),
@@ -205,6 +205,7 @@ BLOQUES = [
 ('h3', 'La ficha de la cirugía'),
 ('p', 'Desde la 3.18.1 la ficha se lee de arriba hacia abajo. **Arriba**, con el color del estado: la cirugía, el paciente y cuatro datos rápidos (fecha, sala, cirujano y días de espera). Después, **el camino del caso** en seis pasos —Solicitud, Admisión, Jefatura, Quirófano, Salida y parte, Finalizada—: verde lo cumplido, ámbar lo diferido, rojo lo rechazado o sin resolver, y un anillo en el paso donde está parado. Debajo, **una sola tarjeta dice qué sigue** (lo que falta, el turno sin resolver, la suspensión o el caso cerrado). El detalle va en tarjetas por tema —Paciente, Programación, Admisión y Jefatura, Coordinación, Módulos, Lista de Verificación, Anatomía Patológica, Parte quirúrgico— con un contador en cada una (por ejemplo 3/4 o 2/3). El historial queda plegado al final y los botones, fijos al pie.'),
 ('p', 'En la ficha de la cirugía, el apartado de módulos dice **«Todavía no computa en Módulos Quirúrgicos: se imputa cuando la cirugía quede Finalizada»** mientras el caso no esté cerrado, y **«Computa en Módulos Quirúrgicos»** cuando ya lo está.'),
+('nota', '**Los módulos son de los cirujanos que programan.** Desde la 3.32.2, Anestesiología, Enfermería, Instrumentación (y sus jefaturas), la Jefatura de Enfermería de sala y Admisión y Egresos **no ven** la solapa Módulos Quirúrgicos, ni la app Módulos Quirúrgicos de Descargas, ni el apartado de módulos en la ficha de la cirugía: no ven los módulos de nadie. Los ven el cirujano (los de su servicio), la Jefatura de Quirófanos y la Dirección Médica.'),
 
 # ─────────────────────────────────────────────────────────────── 4
 ('h2', '3.2. El recorrido de cada cirugía, paso a paso'),
@@ -553,6 +554,34 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.32'),
+('h2', 'Versión 3.32.5 — El OK que falta llega al teléfono, aunque la app esté cerrada'),
+('ul', [
+    '**Reprogramación por falta de cama: «Falta su OK» con la app cerrada.** Apenas la app arma la nueva fecha (entre las 7 y las 21 h; si es de noche, a las 7), a quien le falta el OK le llega un **aviso al teléfono con sonido** aunque la app esté cerrada: al **cirujano**, a la **Jefatura de Quirófanos** y a **Admisión y Egresos**. El cirujano y la Jefatura reciben además un **correo** (Admisión ya lo recibía).',
+    '**Recordatorio 2 h antes del cierre:** a las 11 h del día hábil anterior a la cirugía, quien todavía no dio el OK recibe «⏰ Quedan 2 h» en el teléfono y por correo. Si los tres OK ya están y falta el paciente, el recordatorio va a Admisión y a la Jefatura: «llamen al paciente».',
+    'Cada aviso sale una sola vez por fecha propuesta; si se pide otra fecha, vuelven a salir. Llevan procedimiento, fecha y sala; el paciente va solo con sus iniciales.',
+    '**La Jefatura anota su teléfono:** el equipo donde se entra con la cuenta de Jefatura queda anotado para recibir estos avisos (con las notificaciones permitidas). En Recordatorios, el cartel «Notificaciones activadas» dice «Este equipo recibe los avisos de las reprogramaciones sin cama con la app cerrada»; en una computadora compartida, «No recibir … en este equipo» lo da de baja.',
+]),
+('h2', 'Versión 3.32.4 — Reprogramar con un toque y 48 h hábiles de margen'),
+('ul', [
+    '**Reprogramar una cirugía caducada con un toque.** En la ficha de una cirugía **Caducada** propia, el cirujano tiene el botón **Reprogramar**: va a Nueva solicitud con un cartel «Reprogramando: …», elige la franja libre como siempre y el turno se abre con los datos del paciente, el diagnóstico, la cirugía, el equipo, la prioridad, la duración y los recursos **ya cargados**. Los requisitos para Admisión y Egresos (prequirúrgico, apto anestésico, consentimiento) **no** se copian: se vuelven a tildar para la fecha nueva. «Empezar en blanco» o «Cancelar la reprogramación» lo dejan como una solicitud común.',
+    'Las dos cirugías quedan unidas en el historial («Reprogramación de la cirugía caducada del …» / «Reprogramada por …»), la caducada muestra **Ver el turno nuevo** y se apaga el aviso «Debe reprogramarla». Si la caducada venía de una falta de cama, el turno nuevo **conserva el sello SIN CAMA ×N y la prioridad** en el parte, y sigue el circuito común (Admisión autoriza, Jefatura valida).',
+    '**Manual interactivo:** el acto **Sin cama: prioridad** ahora sigue el recorrido nuevo (48 h hábiles, los OK en cualquier orden con la Paciente última, la respuesta **Sí o No** de la paciente a elección, el plazo de las 13 h y Reprogramar) y abre la página **Recorrido completo** con los siete pasos y todas las ramas.',
+    '**Falta de cama: 48 horas hábiles de margen.** La fecha que propone la app sola queda como mínimo 48 horas hábiles después del turno suspendido (o del momento en que se pide otra fecha, si es más tarde). Si se suspende el jueves 22, no puede pasar al viernes 23: el primer turno posible es el lunes 26.',
+]),
+('h2', 'Versión 3.32.3 — Reprogramación por falta de cama: los cuatro OK y el plazo'),
+('ul', [
+    '**Los botones «Dar el OK» siempre responden.** Si por algún motivo el OK no se puede dar (ya estaba dado, la propuesta cambió, pasó el plazo), sale un cartel que lo dice; antes, en esos casos, el botón no hacía nada.',
+    '**Un botón por cada paso pendiente:** Cirujano/a (solo el dueño del turno), **Admisión y Egresos** y **Jefatura de Quirófanos** (desde cualquier sesión: si no es la del sector, la app pide su correo y contraseña). El equipo da sus tres OK **en cualquier orden**; el **Paciente** va siempre último: su botón aparece gris hasta que están los tres OK y entonces se reemplaza por **☎ Confirmó por teléfono** / **☎ No puede ese día** (además de la pregunta en su pase, como antes).',
+    '**Cada OK dado queda tildado ✓ con el nombre y la hora, sin botón.**',
+    '**Sin el OK del paciente la cirugía no se hace.** Cuando el paciente da su OK (en su pase o por teléfono) **antes de las 13 h del día hábil anterior**, la app **confirma sola la cirugía en el parte**. Si responde después de esa hora, ya no se confirma: el turno caduca.',
+    '**Plazo igual que cualquier cirugía programada:** todos los OK (los tres del equipo y el del paciente) tienen que estar antes del **cierre de solicitudes, a las 13 h del día hábil anterior**. Si llega el cierre y falta alguno, el turno pasa solo a **Caducada** (motivo «Reprogramación por falta de cama sin todos los OK al cierre», con quién faltaba), desaparecen los botones, el **cirujano recibe un aviso crítico «Debe reprogramarla»** y el turno queda en **Mis Solicitudes** dentro de los desvíos (Caducada). Para operar, el cirujano pide un turno nuevo. El pase del paciente se cierra como en cualquier turno caducado.',
+    'La app ya **no propone fechas cuya lista cerró**: la primera franja libre que busca es siempre de un día que todavía se puede confirmar a tiempo.',
+]),
+('h2', 'Versión 3.32.2 — Módulos solo para cirujanos y botón de guardar que avisa'),
+('ul', [
+    '**Módulos Quirúrgicos es exclusivo de los cirujanos que programan** (y de la Jefatura de Quirófanos y la Dirección Médica). Anestesiología, Enfermería, Instrumentación, sus jefaturas y Admisión y Egresos no ven la solapa, ni la app de Descargas, ni los módulos en la ficha de la cirugía.',
+    '**Mi Perfil › Guardar documentación avisa:** al tocar un campo el botón se marca en ámbar («Guardar cambios»), al apretarlo dice «Guardando…», queda en verde «Guardado ✓» y abajo aparece un cartel con cuántos requisitos están al día. Si no había nada nuevo, dice «Sin cambios: ya estaba guardado». Sin señal, avisa que quedó en el equipo y que se sube sola al volver la conexión.',
+]),
 ('h2', 'Versión 3.32.1 — Alta de profesionales sin trabas'),
 ('ul', [
     '**La Jefatura ya puede dar el alta** aunque la app todavía no haya recibido la verificación del correo (antes decía «falta verificar correo» aunque Google ya lo había verificado). Pregunta una vez y sigue.',
@@ -640,7 +669,7 @@ BLOQUES = [
 ('ul', [
     '**Paso 4 · Cama.** El camino de la cirugía ahora tiene siete pasos: Solicitud → Admisión → Jefatura → **Cama** → Quirófano → Salida y parte → Finalizada. Desde la víspera y el día del turno, cuando el paciente ingresa, **Admisión y Egresos** (con la credencial del sector; o la Jefatura) toca **Anotar la cama** en la ficha y elige el sector, la habitación y la cama, con su nombre. Los sectores y sus internos son: **Sala General de Adultos 1035**, **Sala de Internación General Pediátrica 1012**, **Sala de Internación Maternidad (Gineco y Obstetricia) 1608** y **UCI 1034**. La app sugiere el sector (pediátrico → Pediatría; Obstetricia o Ginecología → Maternidad).',
     'La cama con su interno se ve en la **ficha** (tarjeta Internación, con el interno para llamar), en el **resumen del Panel** al pasar el mouse, en el **pase del paciente** («Tu internación») y en el **parte impreso**.',
-    '**No hay cama.** En la misma ventana, **No hay cama: suspender y reprogramar** suspende el turno con la causa «Falta de cama de internación / UTI» (y la incidencia D de siempre). La app arma **sola** un turno nuevo en el **primer turno libre** que abrió la Jefatura, en una sala del mismo tipo (la misma sala primero), sin mirar el cierre de la lista. El turno nuevo va **primero** en el orden de prelación, por encima de todo lo programado, y lleva el sello rojo **SIN CAMA ×N** (cuántas veces se suspendió por falta de cama). Hereda los datos, la coordinación, el consentimiento y el pase del paciente (el mismo QR sigue sirviendo). Si no hay ninguna franja libre en 45 días, la Jefatura recibe un aviso crítico y la app toma sola el primer turno que se abra.',
+    '**No hay cama.** En la misma ventana, **No hay cama: suspender y reprogramar** suspende el turno con la causa «Falta de cama de internación / UTI» (y la incidencia D de siempre). La app arma **sola** un turno nuevo en el **primer turno libre** que abrió la Jefatura, en una sala del mismo tipo (la misma sala primero), —desde la 3.32.4— como mínimo **48 horas hábiles después del turno suspendido** (sin contar sábados, domingos ni feriados: si se suspende el jueves 22 a las 8, el primero posible es el lunes 26 a las 8) y solo en un día cuya lista todavía no cerró (13 h del día hábil anterior). El turno nuevo va **primero** en el orden de prelación, por encima de todo lo programado, y lleva el sello rojo **SIN CAMA ×N** (cuántas veces se suspendió por falta de cama). Hereda los datos, la coordinación, el consentimiento y el pase del paciente (el mismo QR sigue sirviendo). Si no hay ninguna franja libre en 45 días, la Jefatura recibe un aviso crítico y la app toma sola el primer turno que se abra.',
     '**Tres OK.** En la tarjeta **Reprogramación prioritaria** de la ficha, el **cirujano** (su sesión), **Admisión y Egresos** (credencial del sector) y la **Jefatura** tocan **Dar el OK**. A cada uno le salta un aviso crítico «Falta SU OK». Cualquiera puede tocar **Pedir otra fecha**: la app pasa a un horario posterior y los OK vuelven a cero. Mientras dure la reprogramación no se ofrecen los botones comunes de autorización y validación: el turno se confirma solo por este camino.',
     '**Desde la 3.27.1:** al tocar **Dar el OK** la ficha se queda en la tarjeta, que titila, y aparece un cartel verde con quién falta («OK registrado. Faltan: …»). En la ficha, el camino suma un paso: **1 Cirujano · 2 Admisión · 3 Jefatura · 4 Paciente** (y después Cama, Quirófano, Salida y parte, Finalizada). En Programación, Mis Solicitudes y el Panel, al lado del sello SIN CAMA, una etiqueta dice en qué está: «Falta OK: …», «Falta el OK del paciente», «Paciente sin responder 24 h · llamarlo» o «El paciente confirmó ✓». **👁 Ver el seguimiento del paciente** muestra la respuesta del paciente (o que todavía no respondió) y su pase tal como lo ve él, en solo lectura. En la tarjeta del turno de la agenda, «Lo que sigue» trae primero **🛏 Dar mi OK a la nueva fecha**; **Guardar cambios** solo guarda los datos del turno que se corrijan (paciente, cirugía, duración, equipos) y no es el OK.',
     '**El paciente:** después de los tres OK le llega el correo «Tenés una nueva fecha para confirmar»; en su pase ve los pasos con uno nuevo, **Vos** («Falta tu OK a la nueva fecha»). Cuando responde que sí —o Admisión/Jefatura anota que confirmó por teléfono— le llega otro correo, **«Tu nueva fecha quedó confirmada»**, y su pase dice «Están todos los OK: tu cirujano/a, Admisión y Egresos, la Jefatura de Quirófanos y vos».',
