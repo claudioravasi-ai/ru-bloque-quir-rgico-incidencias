@@ -9617,7 +9617,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.34.2';
+const APP_VERSION = '3.34.3';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10535,6 +10535,8 @@ function prioChip(c) {
   }
   return html;
 }
+/* 3.34.3 · En Endoscopía no hay gasas ni instrumental para contar. */
+function lvqItems(c, f) { return LVQ[f].items.filter((it) => !(c && c.sala === 'END' && /^Conteo de gasas/.test(it))); }
 function lvqCompleta(c, fase) { return !!(c.lvq && c.lvq[fase] && c.lvq[fase].done); }
 /* ---- Cuándo se puede abrir la foja de verificación ----
    El día de la cirugía y no antes. Se admite también el día de grilla del
@@ -13196,15 +13198,27 @@ function renderPanel() {
    segunda, circula el/la mismo/a enfermero/a (puede anotarse en los dos). */
 const SALA_PUESTOS = {
   tecAnestesia: { n: 'Enfermería · téc. de anestesia', i: '💉', funcs: ['enfermeria'] },
-  instrumentadora: { n: 'Instrumentación', i: '🩺', funcs: ['instrumentacion'] },
-  circulante: { n: 'Circulante', i: '🧭', funcs: ['instrumentacion', 'enfermeria'] },
+  instrumentadora: { n: 'Instrumentación', i: '🩺', funcs: ['instrumentacion'], noEndo: true },
+  circulante: { n: 'Circulante', i: '🧭', funcs: ['instrumentacion', 'enfermeria'], noEndo: true },
+  // 3.34.3 · En Endoscopía entran siempre 4: enfermera de endoscopía, enfermera de
+  // anestesiología, endoscopista y anestesiólogo. Sin instrumentación ni recuentos.
+  enfEndo: { n: 'Enfermería de endoscopía', i: '🔭', funcs: ['enfermeria'], soloEndo: true },
 };
+/* Los puestos de ESTA cirugía (Endoscopía tiene los suyos). */
+function salaPuestosDe(c) {
+  const endo = c && c.sala === 'END', out = {};
+  Object.entries(SALA_PUESTOS).forEach(([k, p]) => {
+    if (endo ? p.noEndo : p.soloEndo) return;
+    out[k] = endo && k === 'tecAnestesia' ? Object.assign({}, p, { n: 'Enfermería de anestesiología' }) : p;
+  });
+  return out;
+}
 /* ¿Puede anotarse en ese puesto? Una persona, un puesto por cirugía, salvo el/la
    enfermero/a, que además puede circular. */
 function salaPuedoPuesto(c, k, u) {
-  const eq = c.equipoSala || {}, f = u ? funcionDe(u) : '';
-  if (!u || eq[k] || !SALA_PUESTOS[k].funcs.includes(f)) return false;
-  const yoEn = Object.keys(SALA_PUESTOS).filter((x) => eq[x] && eq[x].email === u.email);
+  const eq = c.equipoSala || {}, f = u ? funcionDe(u) : '', P = salaPuestosDe(c);
+  if (!u || eq[k] || !P[k] || !P[k].funcs.includes(f)) return false;
+  const yoEn = Object.keys(P).filter((x) => eq[x] && eq[x].email === u.email);
   return !yoEn.length || (f === 'enfermeria' && k === 'circulante' && yoEn.join() === 'tecAnestesia') || (f === 'enfermeria' && k === 'tecAnestesia' && yoEn.join() === 'circulante');
 }
 const RECUENTO_ITEMS = [{ k: 'gasas', n: 'Gasas' }, { k: 'compresas', n: 'Compresas' }, { k: 'agujas', n: 'Agujas' }, { k: 'instrumental', n: 'Instrumental (piezas)' }];
@@ -13295,7 +13309,7 @@ function salaTarjeta(c) {
       ${dif ? '<span class="ms2-alerta">Recuento con diferencia</span>' : ''}
       <span class="ms2-chev">${abierta ? '▴' : '▾'}</span>
     </header>
-    <div class="ms2-equipo">${Object.entries(SALA_PUESTOS).map(([k, p]) => {
+    <div class="ms2-equipo">${Object.entries(salaPuestosDe(c)).map(([k, p]) => {
       const q = eq[k]; const puedo = salaPuedoPuesto(c, k, u);
       return `<div class="ms2-puesto ${q ? 'ok' : ''}"><span>${p.i}</span><div><small>${p.n}</small><b>${q ? esc(q.nombre) : '—'}</b></div>
         ${puedo ? `<button onclick="salaAnotarme(${JSON.stringify(c.id)},'${k}')">Me anoto</button>` : ''}
@@ -13305,7 +13319,7 @@ function salaTarjeta(c) {
     <div class="ms2-fases">
       ${fase('entrada', 'Entrada', 'coordina Enfermería', lvqCompleta(c, 'entrada'), lv.entrada && lv.entrada.por ? 'Firmó ' + firma(lv.entrada.por) : (lvqCompleta(c, 'entrada') ? 'Hecha por el cirujano' : ''))}
       ${fase('pausa', 'Pausa', 'dirige el Cirujano', lvqCompleta(c, 'pausa'), [lvqCompleta(c, 'pausa') ? 'Cirujano ' + String((lv.pausa && lv.pausa.hora) || '').slice(11, 16) + ' h' : '', lv.pausaFirmas && lv.pausaFirmas.enfermeria ? 'Enf. ' + firma(lv.pausaFirmas.enfermeria) : ''].filter(Boolean).join(' · '))}
-      ${fase('recuento', 'Recuento', 'Instrumentación + Enfermería', !!(rc.final && rc.final.cofirma && !dif), rc.inicial ? (rc.final ? (dif ? '⚠ No coincide' : 'Coincide') : 'Inicial cargado') : '')}
+      ${c.sala === 'END' ? '' : fase('recuento', 'Recuento', 'Instrumentación + Enfermería', !!(rc.final && rc.final.cofirma && !dif), rc.inicial ? (rc.final ? (dif ? '⚠ No coincide' : 'Coincide') : 'Inicial cargado') : '')}
       ${fase('salida', 'Salida', 'coordina Enfermería · confirma el Cirujano', lvqCompleta(c, 'salida'), lv.salida && lv.salida.por ? 'Firmó ' + firma(lv.salida.por) : '')}
     </div>
     ${abierta ? salaDetalle(c, miFunc) : `<button class="ms2-abrir" onclick="salaIr(${JSON.stringify(c.id)},'${sig}')">${sig === 'material' ? '✓ Lista completa · ver cajas e insumos' : '▶ Seguir con: ' + ({ entrada: 'la Entrada', pausa: 'la Pausa', recuento: 'el Recuento', salida: 'la Salida' })[sig]}</button>`}
@@ -13315,7 +13329,7 @@ function salaDetalle(c, miFunc) {
   const lv = c.lvq || {}, rc = c.recuento || {}, dif = recuentoDif(c);
   const esEnf = miFunc === 'enfermeria' || jefe, esIns = miFunc === 'instrumentacion' || jefe;
   const hoyOk = lvqHabilitada(c);
-  const checks = (f) => LVQ[f].items.map((it, i) => `<label class="lvq-item"><input type="checkbox" class="ms2-chk-${f}" onchange="salaChk('${f}')"> ${esc(it)}</label>`).join('');
+  const checks = (f) => lvqItems(c, f).map((it, i) => `<label class="lvq-item"><input type="checkbox" class="ms2-chk-${f}" onchange="salaChk('${f}')"> ${esc(it)}</label>`).join('');
   const recInputs = (pref, val) => `<div class="ms2-rec">${RECUENTO_ITEMS.map((it) => `<label><span>${it.n}</span><span class="ms2-paso"><button type="button" onclick="salaSumar('${pref}-${it.k}',-1)" aria-label="Uno menos">−</button><input type="number" min="0" inputmode="numeric" id="${pref}-${it.k}" value="${val && val[it.k] != null ? esc(val[it.k]) : ''}" placeholder="0"><button type="button" onclick="salaSumar('${pref}-${it.k}',1)" aria-label="Uno más">+</button></span></label>`).join('')}</div>`;
   const id = JSON.stringify(c.id);
   const ban = `
@@ -13367,11 +13381,13 @@ function salaDetalle(c, miFunc) {
     </section>`;
   // 3.22 · Se abre solo el paso que toca (o el que se eligió): menos pantalla, más foco.
   const sel = salaPaso[c.id] || salaSiguiente(c);
-  const pasos = [['entrada', '1 · Entrada', lvqCompleta(c, 'entrada')], ['pausa', '2 · Pausa', lvqCompleta(c, 'pausa')],
+  const pasos = c.sala === 'END'
+    ? [['entrada', '1 · Entrada', lvqCompleta(c, 'entrada')], ['pausa', '2 · Pausa', lvqCompleta(c, 'pausa')], ['salida', '3 · Salida', lvqCompleta(c, 'salida')], ['material', '📦 Insumos', false]]
+    : [['entrada', '1 · Entrada', lvqCompleta(c, 'entrada')], ['pausa', '2 · Pausa', lvqCompleta(c, 'pausa')],
     ['recuento', '3 · Recuento', !!(rc.final && rc.final.cofirma && !dif)], ['salida', '4 · Salida', lvqCompleta(c, 'salida')], ['material', '📦 Cajas e insumos', false]];
   return `<div class="ms2-det">${ban}
     <div class="ms2-pasos" role="tablist">${pasos.map(([k, t, ok]) => `<button role="tab" class="${sel === k ? 'on' : ''} ${ok ? 'ok' : ''}" onclick="salaIr(${id},'${k}')">${ok ? '✓ ' : ''}${t}</button>`).join('')}</div>
-    ${sel === 'material' ? s_cajas + s_insumos : ({ entrada: s_entrada, pausa: s_pausa, recuento: s_recuento, salida: s_salida })[sel] || s_entrada}
+    ${sel === 'material' ? s_cajas + s_insumos : ({ entrada: s_entrada, pausa: s_pausa, recuento: c.sala === 'END' ? s_salida : s_recuento, salida: s_salida })[sel] || s_entrada}
   </div>`;
 }
 /* El próximo paso pendiente de la cirugía. */
@@ -13379,7 +13395,7 @@ function salaSiguiente(c) {
   const rc = c.recuento || {};
   if (!lvqCompleta(c, 'entrada')) return 'entrada';
   if (!lvqCompleta(c, 'pausa')) return 'pausa';
-  if (!(rc.final && rc.final.cofirma && !recuentoDif(c))) return 'recuento';
+  if (c.sala !== 'END' && !(rc.final && rc.final.cofirma && !recuentoDif(c))) return 'recuento';
   if (!lvqCompleta(c, 'salida')) return 'salida';
   return 'material';
 }
@@ -13421,18 +13437,18 @@ async function salaAnotarme(id, k) {
   const c = salaCir(id), u = usuarioActual(); if (!c || !u) return;
   c.equipoSala = c.equipoSala || {};
   if (c.equipoSala[k]) { alert('Ese puesto ya tiene a alguien anotado.'); return; }
-  if (!salaPuedoPuesto(c, k, u)) { alert(k === 'circulante' ? 'La circulante es la 2.ª instrumentador/a o, si no hay, el/la enfermero/a de la sala.' : 'Ese puesto es de otra función.'); return; }
+  if (!salaPuedoPuesto(c, k, u)) { alert(c.sala === 'END' ? 'En Endoscopía cada enfermero/a ocupa un solo puesto: enfermería de endoscopía o de anestesiología.' : k === 'circulante' ? 'La circulante es la 2.ª instrumentador/a o, si no hay, el/la enfermero/a de la sala.' : 'Ese puesto es de otra función.'); return; }
   if (!(await flCambioSala(c, u))) return;
   if (c.equipoSala[k]) { alert('Ese puesto ya tiene a alguien anotado.'); return; }
   c.equipoSala[k] = { nombre: u.nombre, email: u.email, f: funcionDe(u), t: nowDT() };
-  salaGuardar(c, `${u.nombre} se anotó como ${SALA_PUESTOS[k].n} de la sala`);
+  salaGuardar(c, `${u.nombre} se anotó como ${salaPuestosDe(c)[k].n} de la sala`);
 }
 function salaDesanotarme(id, k) {
   const c = salaCir(id), u = usuarioActual(); if (!c || !u || !c.equipoSala || !c.equipoSala[k] || c.equipoSala[k].email !== u.email) return;
   // 3.31.1 · Si lo había asignado su jefe/a, queda anotado que se quitó y se le avisa.
   if (c.equipoSala[k].prop) eqBaja(c, k, u);
   delete c.equipoSala[k];
-  salaGuardar(c, `${u.nombre} se quitó como ${SALA_PUESTOS[k].n} de la sala`);
+  salaGuardar(c, `${u.nombre} se quitó como ${(salaPuestosDe(c)[k] || SALA_PUESTOS[k]).n} de la sala`);
 }
 function salaChk(f) {
   const todos = [...document.querySelectorAll('.ms2-chk-' + f)].every((x) => x.checked);
@@ -14795,7 +14811,7 @@ function portalJefeAnest(mail) {
    Mi Sala (c.equipoSala, las firmas del recorrido, c.recuento, c.cajas,
    c.insumosUsados) y de las cuentas de cada función. */
 const PQ_EQUIPOS = {
-  enf: { func: 'enfermeria', n: 'Enfermería y técnicos de anestesia', i: '🧭', c: '#0d9488', puestos: ['tecAnestesia', 'circulante'], roles: ['circ', 'enf'], falta: 'tecAnestesia', faltaN: 'enfermero/a' },
+  enf: { func: 'enfermeria', n: 'Enfermería y técnicos de anestesia', i: '🧭', c: '#0d9488', puestos: ['tecAnestesia', 'circulante', 'enfEndo'], roles: ['circ', 'enf'], falta: 'tecAnestesia', faltaN: 'enfermero/a' },
   inst: { func: 'instrumentacion', n: 'Instrumentación quirúrgica', i: '🧰', c: '#d97706', puestos: ['instrumentadora', 'circulante'], roles: ['inst', 'circ'], falta: 'instrumentadora', faltaN: 'instrumentador/a' },
 };
 function pqIni(n) { return String(n || '').replace(/^(Dra?|Lic|Enf|Inst|Tec)\.\s*/i, '').split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 2).join('').toUpperCase() || '•'; }
@@ -14833,7 +14849,7 @@ function portalEquipoHTML(k) {
         : `<p class="pq-vacio">Todavía no hay cuentas de ${esc(FUNCIONES[q.func].n)} autorizadas. Cada integrante pide el alta eligiendo su función y la Jefatura la autoriza en Profesionales.</p>`}
     </div>
     <div class="pq-bloque"><h3>✍️ Esperan su firma ${esperan.length ? `<span class="pq-n">${esperan.length}</span>` : ''}</h3>
-      ${esperan.length ? esperan.map((o) => `<div class="pq-item"><span><b>${esc(FL_ACCION[o.p.k] || o.p.n)}</b><small>${cxTxt(o.c)} · ${o.x.quien ? esc(o.x.quien.n) : esc(FL_ROLES[o.x.rol].n) + ' sin anotar'}</small></span>${avisar(o)}</div>`).join('') : '<p class="pq-vacio">Nada pendiente de este equipo en este momento.</p>'}
+      ${esperan.length ? esperan.map((o) => `<div class="pq-item"><span><b>${esc(FL_ACCION[o.p.k] || o.p.n)}</b><small>${cxTxt(o.c)} · ${o.x.quien ? esc(o.x.quien.n) : esc(flRolN(o.x.rol, o.c)) + ' sin anotar'}</small></span>${avisar(o)}</div>`).join('') : '<p class="pq-vacio">Nada pendiente de este equipo en este momento.</p>'}
     </div>
     <div class="pq-bloque"><h3>🚪 Cirugías sin ${esc(q.faltaN)} ${sinPuesto.length ? `<span class="pq-n">${sinPuesto.length}</span>` : ''}</h3>
       ${sinPuesto.length ? sinPuesto.map((c) => `<div class="pq-item"><span><b>${cxTxt(c)}</b><small>${esc(c.cirujano || '')}</small></span></div>`).join('') : `<p class="pq-vacio">Todas las cirugías del día tienen ${esc(q.faltaN)}.</p>`}
@@ -15210,6 +15226,13 @@ const EQ_PUESTOS = [
   { id: 'i', s: 'inst', n: 'Instrumentación', i: '🩺' },
   { id: 'c', s: 'inst', n: 'Circulante (2.ª inst.)', i: '🧭' },
 ];
+/* 3.34.3 · Endoscopía: anestesiólogo y dos enfermeras (anestesiología y endoscopía). */
+const EQ_PUESTOS_ENDO = [
+  { id: 'an', s: 'anest', n: 'Anestesiología', i: '💤' },
+  { id: 'e', s: 'enf', n: 'Enfermería de anestesiología', i: '💉' },
+  { id: 'ee', s: 'enf', n: 'Enfermería de endoscopía', i: '🔭' },
+];
+function eqPuestosDe(salaId) { return salaId === 'END' ? EQ_PUESTOS_ENDO : EQ_PUESTOS; }
 const EQ_SECT = { anest: { n: 'Anestesiología', i: '💤', c: '#7c3aed' }, enf: { n: 'Enfermería', i: '💉', c: '#0d9488' }, inst: { n: 'Instrumentación', i: '🩺', c: '#db2777' } };
 const EQ_NIVEL = { alta: '🔥 Alta complejidad', media: '⚡ Complejidad media', baja: '🌿 Baja complejidad' };
 let eqDia = null, eqDoc = null, eqOyente = null, eqEdit = null, eqGenerando = false, eqPendiente = /^#propuesta(hoy)?$/.test(location.hash);
@@ -15245,7 +15268,7 @@ function eqMapas(doc) {
   });
   return out;
 }
-function eqTxt(m) { return EQ_PUESTOS.filter((p) => m && m[p.id]).map((p) => p.id + '=' + m[p.id]).join(';') || '-'; }
+function eqTxt(m) { return EQ_PUESTOS.concat([EQ_PUESTOS_ENDO[2]]).filter((p) => m && m[p.id]).map((p) => p.id + '=' + m[p.id]).join(';') || '-'; }
 function eqGuardiaKs(s, d) {
   const ym = d.slice(0, 7);
   if (s === 'anest') { anestCargarMes(ym); const a = anestCache.disp[ym], m = a && !a.error ? dispDia(a, d) : {}; return m.GUA ? [m.GUA] : []; }
@@ -15268,7 +15291,7 @@ function eqProponer(d, actual, salasRe, sect) {
   const salas = eqSalas(d), out = {};
   salas.forEach((x) => {
     out[x.id] = Object.assign({}, actual[x.id] || {});
-    if (salasRe.includes(x.id)) EQ_PUESTOS.forEach((p) => { if (sect.includes(p.s)) delete out[x.id][p.id]; });
+    if (salasRe.includes(x.id)) eqPuestosDe(x.id).forEach((p) => { if (sect.includes(p.s)) delete out[x.id][p.id]; });
   });
   const usados = new Set();
   Object.values(out).forEach((m) => Object.values(m).forEach((k) => { if (k) usados.add(k); }));
@@ -15280,10 +15303,11 @@ function eqProponer(d, actual, salasRe, sect) {
     const l = eqGente('anest', d);
     re.forEach((x) => { if (!out[x.id].an) { const k = tomar(l); if (k) out[x.id].an = k; } });
   }
-  if (sect.includes('enf')) { const l = eqGente('enf', d); re.forEach((x) => { const k = tomar(l); if (k) out[x.id].e = k; }); }
+  if (sect.includes('enf')) { const l = eqGente('enf', d); re.forEach((x) => { const k = tomar(l); if (k) out[x.id].e = k; });
+    re.filter((x) => x.id === 'END').forEach((x) => { const k = tomar(l); if (k) out[x.id].ee = k; }); }
   if (sect.includes('inst')) {
     const l = eqGente('inst', d);
-    re.forEach((x) => { const k = tomar(l); if (k) out[x.id].i = k; });
+    re.filter((x) => x.id !== 'END').forEach((x) => { const k = tomar(l); if (k) out[x.id].i = k; });
     // La 2.ª (circulante) es opcional: no se le saca a la guardia quien tiene que cubrir las urgencias.
     const l2 = l.filter((g) => !g.gua);
     re.forEach((x) => { if (!out[x.id].i) return; const k = tomar(l2); if (k) out[x.id].c = k; });
@@ -15390,7 +15414,7 @@ function eqCambiarDia(n) {
 }
 function eqEditar(sid, pid) { eqEdit = eqEdit && eqEdit.sala === sid && eqEdit.p === pid ? null : { sala: sid, p: pid }; eqPintar(); }
 function eqElegir(sid, pid, k) {
-  const p = EQ_PUESTOS.find((x) => x.id === pid);
+  const p = EQ_PUESTOS.concat(EQ_PUESTOS_ENDO).find((x) => x.id === pid);
   if (!p || !eqSoyJefeDe(p.s)) return;
   eqEdit = null;
   const n = k ? eqNombre(k) : '';
@@ -15419,7 +15443,7 @@ async function eqRehacer(s) {
 async function eqConfirmar(s) {
   if (!eqSoyJefeDe(s)) return;
   const d = eqDia, salas = eqSalas(d), m = eqMapas(eqDoc);
-  const falta = salas.filter((x) => EQ_PUESTOS.some((p) => p.s === s && p.id !== 'c' && !(m[x.id] || {})[p.id])).map((x) => anestNomFila(sala(x.id)));
+  const falta = salas.filter((x) => eqPuestosDe(x.id).some((p) => p.s === s && p.id !== 'c' && !(m[x.id] || {})[p.id])).map((x) => anestNomFila(sala(x.id)));
   if (falta.length && !(await preguntar(`Quedan sin ${EQ_SECT[s].n.toLowerCase()}: ${falta.join(', ')}.\n\n¿Confirmar igual?`, { titulo: 'Falta gente', tono: 'pregunta', si: 'Confirmar igual', no: 'Volver' }))) return;
   if (!(await eqGuardar(d, (b) => { b.ok[s] = anestQuien() + '|' + nowDT(); }, 'Confirmó ' + EQ_SECT[s].n))) return;
   eqAplicar(s, d, salas, eqMapas(eqDoc));
@@ -15464,7 +15488,9 @@ function eqAplicar(s, d, salas, m) {
         c.equipoSala[pu] = { nombre: u.nombre, email: u.email, f: funcionDe(u), t: nowDT(), prop: 1 };
         cambio = true;
       };
-      if (s === 'enf') { poner('tecAnestesia', mm.e); if (!mm.c) { const pc = c.equipoSala.circulante; if (!pc || (pc.prop && pc.f === 'enfermeria')) poner('circulante', mm.e); } }
+      if (s === 'enf' && x.id === 'END') { poner('tecAnestesia', mm.e); poner('enfEndo', mm.ee); }
+      else if (s === 'inst' && x.id === 'END') { /* Endoscopía: sin instrumentación */ }
+      else if (s === 'enf') { poner('tecAnestesia', mm.e); if (!mm.c) { const pc = c.equipoSala.circulante; if (!pc || (pc.prop && pc.f === 'enfermeria')) poner('circulante', mm.e); } }
       else { poner('instrumentadora', mm.i); if (mm.c) poner('circulante', mm.c); }
       if (cambio) { pushHist(c, `Equipo de sala (${EQ_SECT[s].n}) asignado por ${anestQuien()} desde «Equipos del día»`); upsert('cirugias', c); }
     });
@@ -15499,8 +15525,8 @@ function eqPintar() {
   const d = eqDia, h0 = hoyISO(), salas = eqSalas(d), m = eqMapas(eqDoc), ok = (eqDoc && !eqDoc.error && eqDoc.ok) || {};
   const hist = (eqDoc && eqDoc.h) || [], ult = hist.length ? String(hist[hist.length - 1]).split('|') : null;
   const ncx = salas.reduce((a, x) => a + x.cx.length, 0);
-  const asign = salas.reduce((a, x) => a + EQ_PUESTOS.filter((p) => (m[x.id] || {})[p.id]).length, 0);
-  const huecos = salas.reduce((a, x) => a + EQ_PUESTOS.filter((p) => p.id !== 'c' && !(m[x.id] || {})[p.id]).length, 0);
+  const asign = salas.reduce((a, x) => a + eqPuestosDe(x.id).filter((p) => (m[x.id] || {})[p.id]).length, 0);
+  const huecos = salas.reduce((a, x) => a + eqPuestosDe(x.id).filter((p) => p.id !== 'c' && !(m[x.id] || {})[p.id]).length, 0);
   const diaTxt = d === h0 ? 'Hoy' : d === sumarDias(h0, 1) ? 'Mañana' : fmtDiaLargo(d);
   const sec = (s) => {
     const q = EQ_SECT[s], o = ok[s] ? String(ok[s]).split('|') : null, mio = eqSoyJefeDe(s);
@@ -15524,7 +15550,7 @@ function eqPintar() {
       <div class="eqx-salas">${salas.map((x, i) => `<article class="eqx-sala n-${x.nivel}" style="--i:${i}">
         <header><b>${esc(anestNomFila(sala(x.id)))}</b><span class="eqx-niv">${EQ_NIVEL[x.nivel]}</span><small>${x.cx.length} cirugía${x.cx.length === 1 ? '' : 's'} · ${Math.round(x.min / 60 * 10) / 10} h</small></header>
         <ol class="eqx-cx">${x.cx.map((c) => `<li><time>${esc(c.horaProg || '—')}</time><span>${esc(c.procedimiento || 'Cirugía')}</span>${eqPuntos(c) >= 5 ? '<em title="Alta complejidad">🔥</em>' : ''}</li>`).join('')}</ol>
-        <div class="eqx-eq">${EQ_PUESTOS.map((p) => eqSlotHTML(x, p, m[x.id] || {})).join('')}</div>
+        <div class="eqx-eq">${eqPuestosDe(x.id).map((p) => eqSlotHTML(x, p, m[x.id] || {})).join('')}</div>
       </article>`).join('')}</div>`
     : `<div class="eqx-vacio"><span>🌙</span><b>No hay cirugías programadas ${d === sumarDias(h0, 1) ? 'para mañana' : 'ese día'}.</b><small>Cuando se programen, la app arma sola la propuesta de equipos.</small></div>`}
       ${hist.length ? `<details class="eqx-hist"><summary>Cambios (${hist.length})</summary>${hist.slice().reverse().map((x) => { const [t, q, a] = String(x).split('|'); return `<div><small>${esc(t)}</small><b>${esc(q)}</b><span>${esc(a || '')}</span></div>`; }).join('')}</details>` : ''}
@@ -15770,7 +15796,10 @@ function anestRecordatorios(add) {
 const FL_ROLES = {
   anest: { n: 'Anestesia', i: '💤' }, circ: { n: 'Circulante', i: '🧭' }, inst: { n: 'Instrumentación', i: '🧰' },
   enf: { n: 'Enfermería · téc. anestesia', i: '💉' }, cir: { n: 'Cirujano/a', i: '🩺' },
+  enfEndo: { n: 'Enfermería de endoscopía', i: '🔭' },
 };
+/* El nombre del rol en ESTA cirugía (en Endoscopía, «Enfermería de anestesiología»). */
+function flRolN(rol, c) { return rol === 'enf' && c && c.sala === 'END' ? 'Enfermería de anestesiología' : (FL_ROLES[rol] || { n: rol }).n; }
 const FLUJO = [
   { k: 'equipo', n: 'Equipo', d: 'Quién está en la sala', roles: ['anest', 'enf', 'inst', 'circ'] },
   { k: 'entrada', n: 'Entrada', d: 'Antes de la inducción', roles: ['enf', 'anest'], lvq: true },
@@ -15780,6 +15809,16 @@ const FLUJO = [
   { k: 'salida', n: 'Salida', d: 'Antes de dejar la sala', roles: ['enf'], lvq: true },
   { k: 'recup', n: 'Recuperación', d: 'Alta con la escala de Aldrete', roles: ['anest'] },
 ];
+/* 3.34.3 · Endoscopía: 5 pasos, sin recuentos. La Entrada, la Pausa y la Salida las
+   firma la enfermera de endoscopía; la enfermera de anestesiología se anota en el Equipo. */
+const FLUJO_ENDO = [
+  { k: 'equipo', n: 'Equipo', d: 'Quién está en la sala', roles: ['anest', 'enf', 'enfEndo'] },
+  { k: 'entrada', n: 'Entrada', d: 'Antes de la sedación', roles: ['enfEndo', 'anest'], lvq: true },
+  { k: 'pausa', n: 'Pausa', d: 'Antes de empezar el estudio', roles: ['cir', 'anest', 'enfEndo'], lvq: true },
+  { k: 'salida', n: 'Salida', d: 'Antes de dejar la sala', roles: ['enfEndo'], lvq: true },
+  { k: 'recup', n: 'Recuperación', d: 'Alta con la escala de Aldrete', roles: ['anest'] },
+];
+function flujoDe(c) { return c && c.sala === 'END' ? FLUJO_ENDO : FLUJO; }
 /* Lo que hay que HACER en cada paso, dicho con verbo («Le toca: …»). */
 const FL_ACCION = { equipo: 'anotarse en esta cirugía', entrada: 'firmar la Entrada', rec1: 'hacer el recuento inicial', pausa: 'confirmar la Pausa',
   rec2: 'hacer el recuento final', salida: 'firmar la Salida', recup: 'dar el alta de recuperación (Aldrete)' };
@@ -15793,6 +15832,8 @@ function flPersona(c, rol) {
   if (rol === 'anest') return c.anest ? { n: c.anest.n, e: c.anest.e } : null;
   if (rol === 'circ') return eq.circulante ? { n: eq.circulante.nombre, e: eq.circulante.email } : null;
   if (rol === 'inst') return eq.instrumentadora ? { n: eq.instrumentadora.nombre, e: eq.instrumentadora.email } : null;
+  if (rol === 'enfEndo') return eq.enfEndo ? { n: eq.enfEndo.nombre, e: eq.enfEndo.email } : null;
+  if (rol === 'enf' && c.sala === 'END') return eq.tecAnestesia ? { n: eq.tecAnestesia.nombre, e: eq.tecAnestesia.email } : null;
   if (rol === 'enf') { const p = eq.tecAnestesia || (eq.circulante && salaFuncDe(eq.circulante) === 'enfermeria' ? eq.circulante : null); return p ? { n: p.nombre, e: p.email } : null; }
   if (rol === 'cir') return { n: c.cirujano || 'Cirujano/a', e: c.cirujanoEmail || '' };
   return null;
@@ -15800,6 +15841,8 @@ function flPersona(c, rol) {
 /* ¿Está firmado este rol en este paso? Devuelve la firma (o true) o null. */
 function flFirma(c, paso, rol) {
   const lv = c.lvq || {}, fa = lv.firmasAnest || {}, rc = c.recuento || {}, pf = lv.pausaFirmas || {};
+  if (rol === 'enfEndo') { if (paso === 'equipo') return (c.equipoSala || {}).enfEndo || null; rol = 'enf'; }
+  if (paso + '.' + rol === 'equipo.enf' && c.sala === 'END') return (c.equipoSala || {}).tecAnestesia || null;
   switch (paso + '.' + rol) {
     case 'equipo.anest': return c.anest ? { nombre: c.anest.n, t: c.anest.t } : null;
     case 'equipo.circ': return (c.equipoSala || {}).circulante || null;
@@ -15821,7 +15864,7 @@ function flFirma(c, paso, rol) {
   return null;
 }
 function flEstado(c) {
-  const pasos = FLUJO.map((p) => ({ ...p, firmas: p.roles.map((r) => ({ rol: r, f: flFirma(c, p.k, r), quien: flPersona(c, r) })) }));
+  const pasos = flujoDe(c).map((p) => ({ ...p, firmas: p.roles.map((r) => ({ rol: r, f: flFirma(c, p.k, r), quien: flPersona(c, r) })) }));
   pasos.forEach((p) => { p.hecho = p.firmas.every((x) => x.f); });
   const activo = pasos.findIndex((p) => !p.hecho);
   pasos.forEach((p, i) => { p.estado = p.hecho ? 'hecho' : i === activo ? 'activo' : 'bloq'; });
@@ -15830,7 +15873,7 @@ function flEstado(c) {
 /* Los roles que el usuario actual cubre en esta cirugía. */
 function flMisRoles(c) {
   const u = usuarioActual();
-  if (jefe) return ['anest', 'circ', 'inst', 'enf'];
+  if (jefe) return c.sala === 'END' ? ['anest', 'enf', 'enfEndo'] : ['anest', 'circ', 'inst', 'enf'];
   if (!u) return [];
   const f = funcionDe(u), eq = c.equipoSala || {}, yo = (p) => p && p.email === u.email;
   const r = [];
@@ -15838,12 +15881,16 @@ function flMisRoles(c) {
   // lo único que se puede hacer es anotarse (paso «Equipo»); el resto se
   // habilita recién después, y solo para quien se anotó.
   if (f === 'anestesiologia' && (!c.anest || c.anest.e === u.email)) r.push('anest');
-  if (f === 'enfermeria') {
+  if (f === 'enfermeria' && c.sala === 'END') {
+    // 3.34.3 · Endoscopía: una persona, un puesto (endoscopía o anestesiología).
+    if (yo(eq.enfEndo) || (!eq.enfEndo && !yo(eq.tecAnestesia))) r.push('enfEndo');
+    if (yo(eq.tecAnestesia) || (!eq.tecAnestesia && !yo(eq.enfEndo))) r.push('enf');
+  } else if (f === 'enfermeria') {
     if (!eq.circulante || yo(eq.circulante)) r.push('circ');
     const enf = flPersona(c, 'enf'); if ((enf && enf.e === u.email) || (!enf && !eq.tecAnestesia)) r.push('enf');
   }
   // 3.30 · La 2.ª instrumentadora circula: firma como circulante, no como instrumentadora.
-  if (f === 'instrumentacion') {
+  if (f === 'instrumentacion' && c.sala !== 'END') {
     if (yo(eq.circulante)) r.push('circ');
     else { if (!eq.instrumentadora || yo(eq.instrumentadora)) r.push('inst'); if (!eq.circulante && eq.instrumentadora && !yo(eq.instrumentadora)) r.push('circ'); }
   }
@@ -15894,13 +15941,13 @@ function flTarjeta(c, modo, idx) {
   const estadoTxt = !act ? '<b class="fl-ok">✓ Recorrido completo</b>'
     : libre ? '<b class="fl-libre">➕ Puesto libre: puede anotarse en esta cirugía</b>'
     : meToca ? `<b class="fl-toca">Le toca: ${esc(FL_ACCION[act.k] || act.n)}</b>`
-    : `<span class="fl-espera">Esperando a ${esperan.map((x) => esc(x.quien ? x.quien.n : FL_ROLES[x.rol].n + ' (sin anotar)')).join(', ')} para ${esc(FL_ACCION[act.k] || act.n)}</span>`;
+    : `<span class="fl-espera">Esperando a ${esperan.map((x) => esc(x.quien ? x.quien.n : flRolN(x.rol, c) + ' (sin anotar)')).join(', ')} para ${esc(FL_ACCION[act.k] || act.n)}</span>`;
   const ar = c.sala === 'END' ? 'endo' : c.sala === 'QOBS' ? 'obs' : 'qx';
-  return `<article class="fl-card fl-ar-${ar} ${meToca ? 'toca' : ''} ${libre ? 'libre' : ''} ${abierta ? 'abierta' : ''} ${!act ? 'completa' : ''}" style="--i:${idx || 0};--pp:${(e.hechos / FLUJO.length).toFixed(3)}">
+  return `<article class="fl-card fl-ar-${ar} ${meToca ? 'toca' : ''} ${libre ? 'libre' : ''} ${abierta ? 'abierta' : ''} ${!act ? 'completa' : ''}" style="--i:${idx || 0};--pp:${(e.hechos / e.pasos.length).toFixed(3)}">
     <button class="fl-cab" onclick="flAbierta=${abierta ? 'null' : id};flRepintar()" aria-expanded="${abierta}">
       <span class="fl-hora">${esc(c.horaProg || '—')}</span>
       <span class="fl-tit"><b>${esc(c.procedimiento || '')}</b><small>${esc(c.quirofano || c.sala)} · ${esc(c.cirujano || '')}${(c.paciente && c.paciente.nombre) ? ' · ' + esc(c.paciente.nombre) : ''}</small></span>
-      <span class="fl-prog"><span class="fl-linea">${linea}</span><small>${e.hechos}/${FLUJO.length}</small></span>
+      <span class="fl-prog"><span class="fl-linea">${linea}</span><small>${e.hechos}/${e.pasos.length}</small></span>
     </button>
     <div class="fl-estado">${estadoTxt}${flLlamarHTML(c, modo)}${c.parteAnest ? '<span class="pa-chip" title="Parte anestésico pre-quirúrgico adjuntado">💉 Parte pre-anestésico</span>' : ''}${!abierta ? `<button class="fl-link" onclick="flAbierta=${id};flRepintar()">${libre ? '➕ Anotarme' : meToca ? 'Hacerlo ahora →' : 'Ver el recorrido →'}</button>` : ''}</div>
     ${abierta ? `<ol class="fl-pasos">${e.pasos.map((p, i) => flPasoHTML(c, p, i, mis, modo)).join('')}</ol>${flMaterialHTML(c, modo)}${eqReemplazoHTML(c, modo)}${c.parteAnest || (c.anest && paPuedeSubir(c)) ? paTarjetaHTML(c) : ''}
@@ -15914,12 +15961,14 @@ function flLlamarHTML(c, modo) {
   if (modo === 'dir' || ['realizada', 'finalizada', 'en_curso', 'suspendida'].includes(c.estado)) return '';
   const u = usuarioActual(); if (!(u && esEquipoSala(u)) && !jefe) return '';
   const k = camaDe(c), S = k && SECTORES_CAMA[k.s];
+  // 3.34.3 · Endoscopía: ambulatoria, el paciente espera en Admisión con su pulsera.
+  if (!k && esEndo(c)) return `<span class="fl-llamar sin" title="Endoscopía ambulatoria: no lleva cama">🚶 Ambulatoria${c.pulsera ? ' · pulsera ✓' : ''}</span>`;
   if (!S || !S.tel) return '<span class="fl-llamar sin" title="Admisión y Egresos todavía no le asignó cama">📞 Sin cama anotada</span>';
   return `<a class="fl-llamar" href="tel:+54${S.tel}" onclick="event.stopPropagation()" title="Llamar a ${esc(S.n)} para pedir al paciente">📞 Pedir paciente · ${esc(S.corto)} <small>Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}</small></a>`;
 }
 function flPasoHTML(c, p, i, mis, modo) {
   const hora = (f) => f && f.t ? ` · ${esc(String(f.t).slice(11, 16))} h` : '';
-  const firmas = p.firmas.map((x) => `<span class="fl-firma ${x.f ? 'ok' : ''}"><i>${x.f ? '✓' : FL_ROLES[x.rol].i}</i>${esc(FL_ROLES[x.rol].n)}${x.f ? ': ' + esc(x.f.nombre || (x.quien && x.quien.n) || '') + hora(x.f) : x.quien ? ': ' + esc(x.quien.n) : ''}</span>`).join('');
+  const firmas = p.firmas.map((x) => `<span class="fl-firma ${x.f ? 'ok' : ''}"><i>${x.f ? '✓' : FL_ROLES[x.rol].i}</i>${esc(flRolN(x.rol, c))}${x.f ? ': ' + esc(x.f.nombre || (x.quien && x.quien.n) || '') + hora(x.f) : x.quien ? ': ' + esc(x.quien.n) : ''}</span>`).join('');
   if (p.estado !== 'activo') {
     return `<li class="fl-paso ${p.estado}"><span class="fl-num">${p.estado === 'hecho' ? '✓' : '🔒'}</span>
       <div class="fl-p-txt"><b>${i + 1}. ${esc(p.n)}</b><small>${p.estado === 'hecho' ? '' : esc(p.d) + ' · se habilita al terminar el paso anterior'}</small>${p.estado === 'hecho' ? `<div class="fl-firmas">${firmas}</div>` : ''}</div></li>`;
@@ -15932,7 +15981,7 @@ function flPasoHTML(c, p, i, mis, modo) {
       return flAccion(c, p.k, x.rol);
     }
     const ped = (c.pedidos || {})[p.k + '.' + x.rol];
-    return `<div class="fl-falta"><span>Falta: <b>${esc(x.quien ? x.quien.n : FL_ROLES[x.rol].n + ' (sin asignar)')}</b>${ped ? ` · avisado ${esc(String(ped.t).slice(11, 16))} h por ${esc(ped.de)}` : ''}</span>
+    return `<div class="fl-falta"><span>Falta: <b>${esc(x.quien ? x.quien.n : flRolN(x.rol, c) + ' (sin asignar)')}</b>${ped ? ` · avisado ${esc(String(ped.t).slice(11, 16))} h por ${esc(ped.de)}` : ''}</span>
       ${usuarioActual() || jefe ? `<button class="fl-avisar" onclick="flAvisar(${JSON.stringify(c.id)},'${p.k}','${x.rol}')">🔔 ${ped ? 'Volver a avisar' : 'Avisar'}</button>` : ''}</div>`;
   }).join('');
   return `<li class="fl-paso activo"><span class="fl-num">${i + 1}</span>
@@ -15961,7 +16010,9 @@ function flMaterialHTML(c, modo) {
 /* El botón o el formulario de una firma, para quien le toca. */
 function flAccion(c, paso, rol) {
   const id = JSON.stringify(c.id), lv = c.lvq || {}, rc = c.recuento || {};
-  const checks = (f) => `<div class="fl-checks">${LVQ[f].items.map((it) => `<label><input type="checkbox" class="ms2-chk-${f}" onchange="salaChk('${f}')"><span>${esc(it)}</span></label>`).join('')}</div>`;
+  if (rol === 'enfEndo') { if (paso === 'equipo') return `<button class="fl-btn" onclick="salaAnotarme(${JSON.stringify(c.id)},'enfEndo')">Me anoto como enfermero/a de endoscopía</button>`; rol = 'enf'; }
+  if (paso + '.' + rol === 'equipo.enf' && c.sala === 'END') return `<button class="fl-btn" onclick="salaAnotarme(${JSON.stringify(c.id)},'tecAnestesia')">Me anoto como enfermero/a de anestesiología</button>`;
+  const checks = (f) => `<div class="fl-checks">${lvqItems(c, f).map((it) => `<label><input type="checkbox" class="ms2-chk-${f}" onchange="salaChk('${f}')"><span>${esc(it)}</span></label>`).join('')}</div>`;
   const rec = (pref, val) => `<div class="ms2-rec">${RECUENTO_ITEMS.map((it) => `<label><span>${it.n}</span><span class="ms2-paso"><button type="button" onclick="salaSumar('${pref}-${it.k}',-1)" aria-label="Uno menos">−</button><input type="number" min="0" inputmode="numeric" id="${pref}-${it.k}" value="${val && val[it.k] != null ? esc(val[it.k]) : ''}" placeholder="0"><button type="button" onclick="salaSumar('${pref}-${it.k}',1)" aria-label="Uno más">+</button></span></label>`).join('')}</div>`;
   switch (paso + '.' + rol) {
     case 'equipo.anest': return `<button class="fl-btn" onclick="flAnestConfirmar(${id})">Confirmo que estoy en esta cirugía</button>`;
@@ -16018,9 +16069,9 @@ function flAvisar(id, paso, rol) {
   c.pedidos = Object.assign({}, c.pedidos || {});
   c.pedidos[paso + '.' + rol] = { de: anestQuien(), t: nowDT() };
   const quien = flPersona(c, rol);
-  pushHist(c, `${anestQuien()} avisó a ${quien ? quien.n : FL_ROLES[rol].n} que falta su firma en «${(FLUJO.find((p) => p.k === paso) || {}).n}»`);
+  pushHist(c, `${anestQuien()} avisó a ${quien ? quien.n : flRolN(rol, c)} que falta su firma en «${(FLUJO.find((p) => p.k === paso) || {}).n}»`);
   upsert('cirugias', c);
-  if (typeof toastTurno === 'function') toastTurno(`Aviso enviado a ${quien ? quien.n : 'todo ' + FL_ROLES[rol].n}`, '#4f46e5');
+  if (typeof toastTurno === 'function') toastTurno(`Aviso enviado a ${quien ? quien.n : 'todo ' + flRolN(rol, c)}`, '#4f46e5');
   flRepintar();
 }
 /* Avisos que salen solos del estado de cada cirugía de hoy y de mañana
@@ -16041,7 +16092,7 @@ function flujoRecordatorios(add) {
       const vista = esAnestesia(u) ? 'anestesia' : funcionDe(u) === 'medico' ? 'mis' : 'sala';
       add({ key: `fl-${c.id}-${p.k}-${x.rol}`, nivel: ped ? 'crit' : 'warn', notif: !!ped, vista, cirugia: funcionDe(u) === 'medico' ? c.id : undefined,
         titulo: ped ? `${ped.de} le pide su firma: ${p.n}` : `Le toca: ${p.n}`,
-        texto: `${c.procedimiento || 'Cirugía'} · ${c.quirofano || c.sala} · ${c.horaProg || ''} h. ${e.activo ? `Ya está completo «${e.pasos[e.activo - 1].n}»; ` : ''}falta su firma como ${FL_ROLES[x.rol].n} para seguir.`,
+        texto: `${c.procedimiento || 'Cirugía'} · ${c.quirofano || c.sala} · ${c.horaProg || ''} h. ${e.activo ? `Ya está completo «${e.pasos[e.activo - 1].n}»; ` : ''}falta su firma como ${flRolN(x.rol, c)} para seguir.`,
         cuando: ped ? `Avisado ${String(ped.t).slice(11, 16)} h` : 'Hoy' });
     });
   });
@@ -16758,7 +16809,7 @@ function cxFicha(el, id) {
   const e = ESTC[estadoVisible(c)] || { color: '#94a3b8', label: '', desc: '' };
   const fl = typeof flEstado === 'function' ? flEstado(c) : null, act = fl && fl.pasos[fl.activo];
   const eq = c.equipoSala || {};
-  const equipo = [c.anest ? '💤 ' + c.anest.n : '', eq.circulante ? '🧭 ' + eq.circulante.nombre : '', eq.instrumentadora ? '🧰 ' + eq.instrumentadora.nombre : ''].filter(Boolean);
+  const equipo = [c.anest ? '💤 ' + c.anest.n : '', eq.enfEndo ? '🔭 ' + eq.enfEndo.nombre : '', eq.tecAnestesia ? '💉 ' + eq.tecAnestesia.nombre : '', eq.circulante ? '🧭 ' + eq.circulante.nombre : '', eq.instrumentadora ? '🧰 ' + eq.instrumentadora.nombre : ''].filter(Boolean);
   f.innerHTML = `<div class="cxf-est" style="--c:${e.color}"><i></i><b>${esc(e.label)}</b></div>
     <small class="cxf-desc">${esc(e.desc || '')}</small>
     <b class="cxf-tit">${esc(c.procedimiento || '')}</b>
@@ -16767,7 +16818,7 @@ function cxFicha(el, id) {
     ${equipo.length ? `<span class="cxf-l">${equipo.map(esc).join(' · ')}</span>` : ''}
     ${camaDe(c) ? `<span class="cxf-l">🛏 ${esc(camaTexto(c, true))}</span>` : ''}
     ${rcVeces(c) ? `<span class="cxf-l" style="color:#fca5a5;font-weight:800">Prioridad · sin cama ×${rcVeces(c)}</span>` : ''}
-    ${fl && ['validada', 'confirmada', 'en_curso', 'realizada'].includes(c.estado) ? `<div class="cxf-rec"><span class="fl-linea">${fl.pasos.map((p) => `<i class="${p.estado}"></i>`).join('')}</span><small>${act ? 'Paso ' + (fl.activo + 1) + ' de 7: ' + esc(act.n) : 'Recorrido completo'}</small></div>` : ''}
+    ${fl && ['validada', 'confirmada', 'en_curso', 'realizada'].includes(c.estado) ? `<div class="cxf-rec"><span class="fl-linea">${fl.pasos.map((p) => `<i class="${p.estado}"></i>`).join('')}</span><small>${act ? 'En sala: paso ' + (fl.activo + 1) + ' de ' + fl.pasos.length + ' · ' + esc(act.n) : 'En sala: recorrido completo'}</small></div>` : ''}
     <small class="cxf-pie">Toque para abrir la ficha completa</small>`;
   const r = el.getBoundingClientRect();
   f.style.display = 'block';
@@ -18023,7 +18074,7 @@ function openLVQ(id, modo) {
       <div class="lvq-phase" id="lvq-f-${f}">
         <div class="lvq-head">${ICONS.clipboard.replace('18', '16')} ${LVQ[f].titulo}</div>
         <div class="lvq-resp">Responsables: ${LVQ[f].resp}</div>
-        ${LVQ[f].items.map((it, i) => `
+        ${lvqItems(c, f).map((it, i) => `
           <label class="lvq-item"><input type="checkbox" class="lvq-chk" data-fase="${f}" onchange="checkLVQReady()"> ${it}</label>`).join('')}
       </div>`).join('')}
     ${modo === 'salida' ? `
@@ -23825,7 +23876,7 @@ function perfilDatos(u) {
       anillo: { p: conT.length ? punt / conT.length : 0, v: conT.length ? Math.round(punt / conT.length * 100) + '%' : '—', l: 'puntualidad' }, barras: area(mias) };
   }
   if (f === 'enfermeria' || f === 'instrumentacion') {
-    const puestos = f === 'enfermeria' ? ['circulante', 'tecAnestesia'] : ['instrumentadora', 'circulante'];
+    const puestos = f === 'enfermeria' ? ['circulante', 'tecAnestesia', 'enfEndo'] : ['instrumentadora', 'circulante'];
     const mias = delAnio.filter((c) => c.equipoSala && puestos.some((k) => esYo(c.equipoSala[k])));
     if (f === 'enfermeria') {
       const lvq = mias.filter((c) => c.lvq && ((c.lvq.entrada && esYo(c.lvq.entrada.por)) || (c.lvq.salida && esYo(c.lvq.salida.por)) || (c.lvq.pausaFirmas && esYo(c.lvq.pausaFirmas.enfermeria))));

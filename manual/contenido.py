@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.34.2'
+VERSION = '3.34.3'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -555,6 +555,15 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.34'),
+('h2', 'Versión 3.34.3 — Endoscopía con su propio equipo: 4 personas y 5 pasos en sala'),
+('ul', [
+    '**En Endoscopía entran siempre cuatro:** enfermera de endoscopía, enfermera de anestesiología, endoscopista y anestesiólogo. No hay instrumentadora, circulante ni recuentos. En Mi Sala, la endoscopía muestra dos puestos de enfermería —**Enfermería de endoscopía** y **Enfermería de anestesiología**—, y cada enfermero/a ocupa uno solo.',
+    '**El recorrido en sala de la endoscopía tiene 5 pasos:** Equipo → Entrada (antes de la sedación: enfermería de endoscopía y anestesia) → Pausa (endoscopista, anestesia y enfermería de endoscopía) → Salida (enfermería de endoscopía) → Recuperación (Aldrete, anestesia). La Salida de endoscopía no pide el conteo de gasas e instrumental. Quirófanos y Obstetricia siguen con sus 7 pasos.',
+    '**Vale también para las endoscopías ya programadas:** se calcula por la sala, sin tocar nada.',
+    '**«En sala: paso N de M»:** el globito de la grilla ahora lo dice así (antes «Paso 1 de 7»), para no confundirlo con el recorrido de la ficha.',
+    '**Equipos del día:** en Endoscopía propone anestesiólogo/a y las dos enfermeras; nunca instrumentación.',
+    '**Ambulatoria también en Mi Sala:** la tarjeta de la endoscopía dice «🚶 Ambulatoria» en lugar de «Sin cama anotada».',
+]),
 ('h2', 'Versión 3.34.2 — Casilla del consentimiento que anda en el celular, edad sola, CIE-10 y GUARDAR bien visible'),
 ('ul', [
     '**La casilla «Leí y comprendo…» ya se puede tildar en el celular.** Antes el texto se deslizaba dentro de un recuadro que en el iPhone no avisaba y la casilla nunca se habilitaba. Ahora el texto se baja con la página entera y, cuando el paciente llega al final, la casilla se habilita.',
