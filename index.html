@@ -5067,6 +5067,19 @@
   .tm-tomar-btn .eqx-btn-ic { background: linear-gradient(135deg, #14b8a6, #0d9488); }
   .slot-tomar { display: inline-flex; align-self: flex-start; margin-top: 5px; padding: 3px 10px; border-radius: 999px; font-size: .7rem; font-weight: 900; letter-spacing: .04em; color: #fff; background: #0d9488; cursor: pointer; box-shadow: 0 6px 14px -8px #0d9488; animation: enPulso 1.8s ease-out infinite; }
   .slot-tomar:hover { background: #0f766e; }
+  .eqx-endo { margin: 14px 0 0; border: 1.5px dashed #5eead4; border-radius: 16px; padding: 10px 12px; background: color-mix(in srgb, #14b8a6 6%, transparent); }
+  .eqx-endo h3 { margin: 0 0 8px; font-size: .95rem; color: #0f766e; } .eqx-endo h3 small { display: block; font-weight: 500; color: var(--muted); font-size: .74rem; }
+  .eqx-endo-cx { display: grid; grid-template-columns: 52px 1fr; gap: 2px 8px; padding: 7px 0; border-top: 1px solid color-mix(in srgb, #0d9488 20%, transparent); font-size: .84rem; }
+  .eqx-endo-cx time { grid-row: span 4; font-weight: 800; color: #0f766e; } .eqx-endo-cx .t { font-weight: 700; }
+  .eqx-endo-cx b.lib { color: #b91c1c; }
+  .tk-dias { display: flex; gap: 8px; overflow-x: auto; padding: 10px 6px 10px; margin: 6px 0 4px; scroll-snap-type: x proximity; }
+  .tk-dias button { flex: none; scroll-snap-align: start; width: 58px; display: grid; justify-items: center; gap: 1px; padding: 7px 4px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font: inherit; color: var(--ink); position: relative; }
+  .tk-dias button small { font-size: .66rem; font-weight: 800; text-transform: uppercase; color: var(--muted); }
+  .tk-dias button b { font-size: 1.15rem; }
+  .tk-dias button i { position: absolute; top: -6px; right: -4px; min-width: 20px; height: 20px; border-radius: 999px; background: #e11d48; color: #fff; font-style: normal; font-size: .7rem; font-weight: 900; display: grid; place-items: center; padding: 0 5px; box-shadow: 0 4px 10px -4px #e11d48; }
+  .tk-dias button em { font-style: normal; font-size: .7rem; color: #0f766e; font-weight: 800; }
+  .tk-dias button.vacio { opacity: .5; } .tk-dias button.finde small { color: #b91c1c; }
+  .tk-dias button.on { background: #0d9488; border-color: #0d9488; color: #fff; } .tk-dias button.on small, .tk-dias button.on em { color: #ccfbf1; }
   .tk-area { display: flex; align-items: center; gap: 8px; margin: 14px 2px 8px; font-size: .95rem; }
   .tk-area small { font-size: .72rem; font-weight: 800; color: var(--muted); background: color-mix(in srgb, var(--line) 60%, transparent); border-radius: 999px; padding: 1px 8px; }
   .tk-ver { display: flex; gap: 8px; align-items: center; font-size: .82rem; color: var(--muted); margin: 2px 2px 6px; cursor: pointer; }
@@ -5094,6 +5107,19 @@
   .en-tomar { border: 0; border-radius: 10px; padding: 8px 16px; font: inherit; font-weight: 900; letter-spacing: .03em; color: #fff; background: #0d9488; cursor: pointer; animation: enPulso 1.8s ease-out infinite; }
   .en-soltar { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 6px 12px; font: inherit; font-size: .8rem; cursor: pointer; color: var(--muted); }
   @media (prefers-reduced-motion: reduce) { .en-tomar, .slot-tomar { animation: none; } }
+  .pq-jefe-endo { border-color: #5eead4; }
+  .ej-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 14px; }
+  .ej-kpis > div { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px; text-align: center; }
+  .ej-kpis b { display: block; font-size: 1.5rem; color: #0f766e; } .ej-kpis small { color: var(--muted); font-size: .74rem; }
+  .ej-kpis .warn b { color: #b45309; } .ej-kpis .mal b { color: #b91c1c; }
+  .ej-sec { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; margin: 0 0 14px; }
+  .ej-sec h3 { margin: 0 0 10px; font-size: 1rem; } .ej-sec h3 small { display: block; font-weight: 500; color: var(--muted); font-size: .76rem; }
+  .ej-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 6px; align-items: center; }
+  .ej-h { font-weight: 800; font-size: .8rem; text-align: center; color: #0f766e; } .ej-h small { display: block; font-weight: 500; color: var(--muted); }
+  .ej-d b { display: block; font-size: .86rem; text-transform: capitalize; } .ej-d small { color: var(--muted); font-size: .72rem; }
+  .ej-d.finde b { color: #b91c1c; }
+  .ej-f { border: 1.5px dashed var(--line); background: var(--card); border-radius: 10px; padding: 8px 6px; font: inherit; font-size: .8rem; font-weight: 700; color: var(--muted); cursor: pointer; }
+  .ej-f.on { border-style: solid; border-color: #0d9488; background: color-mix(in srgb, #14b8a6 16%, var(--card)); color: #0f766e; }
   .tq-ops { display: grid; gap: 10px; margin-top: 12px; }
   .tq-op { display: grid; grid-template-columns: 44px 1fr; gap: 2px 10px; text-align: left; padding: 14px; border-radius: 16px; border: 2px solid var(--line); background: var(--card); cursor: pointer; font: inherit; color: var(--ink); transition: transform .15s, box-shadow .15s; }
   .tq-op:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba(0,0,0,.4); }
@@ -9647,7 +9673,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.34.4';
+const APP_VERSION = '3.35.3';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -9860,13 +9886,13 @@ const FIREBASE_CONFIG = {
    3. Si la nube está caída, la escritura se encola y se reenvía al reconectar.
    4. Cada snapshot de la nube también se espeja en localStorage, de modo que
       la próxima apertura sin red muestre los últimos datos conocidos. */
-const COLS = ['incidencias', 'cirugias', 'usuarios', 'reclamos', 'agenda', 'consentimientos', 'config', 'comunicados', 'camas'];
+const COLS = ['incidencias', 'cirugias', 'usuarios', 'reclamos', 'agenda', 'consentimientos', 'config', 'comunicados', 'camas', 'agendaEndo'];
 /* Espejo local con prefijo propio. La app de incidencias embebida corre en el
    mismo origen de GitHub Pages y usa la clave 'hru_incidencias_v2': si ambas
    escribieran ahí se pisarían. Comparten los datos por Firebase (nodo
    'incidencias'), no por localStorage. */
-const LOCAL_KEYS = { incidencias: 'hruq_incidencias_v1', cirugias: 'hruq_cirugias_v1', usuarios: 'hruq_usuarios_v1', reclamos: 'hruq_reclamos_v1', agenda: 'hruq_agenda_v1', consentimientos: 'hruq_consentimientos_v1', config: 'hruq_config_v1', comunicados: 'hruq_comunicados_v1' , camas: 'hruq_camas_v1' };
-const LEGACY_KEYS = { incidencias: 'hru_incidencias_v2', cirugias: 'hru_cirugias_v1', usuarios: 'hru_usuarios_v1', reclamos: 'hru_reclamos_v1', agenda: '', consentimientos: '', config: '', comunicados: '' , camas: '' };
+const LOCAL_KEYS = { incidencias: 'hruq_incidencias_v1', cirugias: 'hruq_cirugias_v1', usuarios: 'hruq_usuarios_v1', reclamos: 'hruq_reclamos_v1', agenda: 'hruq_agenda_v1', consentimientos: 'hruq_consentimientos_v1', config: 'hruq_config_v1', comunicados: 'hruq_comunicados_v1' , camas: 'hruq_camas_v1', agendaEndo: 'hruq_agenda_endo_v1' };
+const LEGACY_KEYS = { incidencias: 'hru_incidencias_v2', cirugias: 'hru_cirugias_v1', usuarios: 'hru_usuarios_v1', reclamos: 'hru_reclamos_v1', agenda: '', consentimientos: '', config: '', comunicados: '' , camas: '', agendaEndo: '' };
 const QUEUE_KEY = 'hruq_cola_v1';
 const DB = { incidencias: [], cirugias: [], usuarios: [], reclamos: [], agenda: [], consentimientos: [], config: [], comunicados: [], camas: [] };
 const refs = {};      // la referencia de cada colección: es con la que se ESCRIBE
@@ -11374,8 +11400,9 @@ function creadaEn(c) {
    se registrara el dato— quedan solo en manos de la Jefatura, que puede
    averiguar de quién son. */
 function remMia(c) {
-  if (jefe) return true;
+  if (jefe) return !esEndo(c);
   const u = usuarioActual();
+  if (esEndo(c) && esJefeEndo(u)) return true;
   return !!(u && c.cirujanoEmail && c.cirujanoEmail === u.email);
 }
 
@@ -11440,7 +11467,7 @@ function calcRecordatorios() {
     });
   }
   if (jefe && proxHabil) {
-    const sinConfirmarManana = DB.cirugias.filter((c) => diasQueCierran.includes(c.fecha) && ['pendiente', 'validada'].includes(c.estado));
+    const sinConfirmarManana = DB.cirugias.filter((c) => diasQueCierran.includes(c.fecha) && ['pendiente', 'validada'].includes(c.estado) && cxVer(c));
     if (sinConfirmarManana.length && ahora >= cierreHoy) {
       add({
         key: 'ciclo-publicacion', nivel: ahora >= publicHoy ? 'crit' : 'warn', vista: 'programacion',
@@ -11637,7 +11664,7 @@ function calcRecordatorios() {
   });
 
   /* ---- 6. Informe operatorio: meta ≤ 2 h (cumplimiento ≥ 95 %) ---- */
-  DB.cirugias.filter((c) => c.estado === 'realizada' && !c.informe).forEach((c) => {
+  DB.cirugias.filter((c) => c.estado === 'realizada' && !c.informe && cxVer(c)).forEach((c) => {
     const mio = u && c.cirujanoEmail === u.email;
     if (!jefe && !mio) return;
     const fin = c.horaFinReal ? new Date(c.horaFinReal) : new Date(c.fecha + 'T12:00:00');
@@ -11651,7 +11678,7 @@ function calcRecordatorios() {
   });
 
   /* ---- 7. Anatomía Patológica: muestras sin envío confirmado ---- */
-  DB.cirugias.filter((c) => ['realizada', 'finalizada', 'en_curso'].includes(c.estado) && (c.muestras || []).some((m) => !m.enviada))
+  DB.cirugias.filter((c) => cxVer(c) && ['realizada', 'finalizada', 'en_curso'].includes(c.estado) && (c.muestras || []).some((m) => !m.enviada))
     .forEach((c) => {
       const pend = (c.muestras || []).filter((m) => !m.enviada);
       const congelacion = pend.some((m) => m.tipo && m.tipo.indexOf('congelación') >= 0);
@@ -11736,7 +11763,7 @@ function calcRecordatorios() {
   });
 
   /* ---- 10. Lista de espera extendida (> 90 días) ---- */
-  const espera90 = DB.cirugias.filter((c) => ['borrador', 'pendiente', 'validada'].includes(c.estado) && esperaDias(c) > 90);
+  const espera90 = DB.cirugias.filter((c) => cxVer(c) && ['borrador', 'pendiente', 'validada'].includes(c.estado) && esperaDias(c) > 90);
   if (espera90.length && (jefe || (u && espera90.some((c) => c.cirujanoEmail === u.email)))) {
     add({
       key: 'espera90', nivel: 'warn', vista: jefe ? 'programacion' : 'mis',
@@ -12781,6 +12808,7 @@ function renderSidebar() {
     items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'modulos', icon: ICONS.layers, label: 'Módulos Quirúrgicos', badge: modulosIncompletos(u).length || null, badgeAmber: true });
     if (!jefe) items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
+    if (esJefeEndo(u)) items.push({ id: 'endojefe', icon: '🔭', label: 'Jefatura de Endoscopía', badge: DB.cirugias.filter((c) => esEndo(c) && estadoVisible(c) === 'sin_resolver').length || null });
     items.push({ id: 'pulso', icon: ico(ICONS.activity, 18), label: 'Mi pulso (piloto)', badge: pulso ? '❤' : null });
     items.push({ id: 'perfil', icon: ICONS.user.replace('14', '18'), label: 'Mi Perfil' });
     items.push({ id: 'reconocimiento', icon: ICO_CORAZON, label: 'Reconocimiento' });
@@ -12791,7 +12819,7 @@ function renderSidebar() {
     const comSinLeer = DB.comunicados.filter((c) => comVigente(c) && !comSinAcuse(c)
       && comDestinatarios(c).some((d) => !comLeidoPor(c, d.clave))).length;
     items.push({ id: 'comunicados', icon: ICONS.megafono, label: 'Comunicados', badge: comSinLeer || null, badgeAmber: true });
-    const pend = DB.cirugias.filter((c) => c.estado === 'pendiente' || c.estado === 'validada').length;
+    const pend = DB.cirugias.filter((c) => (c.estado === 'pendiente' || c.estado === 'validada') && cxVer(c)).length;
     items.push({ id: 'programacion', icon: ICONS.clipboard, label: 'Programación', badge: pend || null });
     // Badge: excepciones todavía vigentes que el cirujano no acusó.
     items.push({ id: 'excepcion', icon: ico(ICONS.zap, 18), label: 'Programación Fuera de Horario', badge: excSinAcuse() || null, badgeAmber: true });
@@ -13150,10 +13178,10 @@ function renderPanel() {
   const total = DB.incidencias.length;
   const por = (e) => DB.incidencias.filter((i) => i.estado === e).length;
   const hoy = hoyISO();
-  const cirHoy = DB.cirugias.filter((c) => c.fecha === hoy && ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado)).length;
-  const enCurso = DB.cirugias.filter((c) => c.estado === 'en_curso').length;
-  const pendVal = DB.cirugias.filter((c) => ['pendiente', 'validada'].includes(c.estado)).length;
-  const suspMes = DB.cirugias.filter((c) => c.estado === 'suspendida' && (c.fecha || '').startsWith(mesActual())).length;
+  const cirHoy = DB.cirugias.filter((c) => cxVer(c) && c.fecha === hoy && ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado)).length;
+  const enCurso = DB.cirugias.filter((c) => cxVer(c) && c.estado === 'en_curso').length;
+  const pendVal = DB.cirugias.filter((c) => cxVer(c) && ['pendiente', 'validada'].includes(c.estado)).length;
+  const suspMes = DB.cirugias.filter((c) => cxVer(c) && c.estado === 'suspendida' && (c.fecha || '').startsWith(mesActual())).length;
 
   const statsCir = [
     { n: cirHoy, l: 'Cirugías en el parte de hoy', icon: ICONS.calendarBig, bg: 'var(--green-soft)', fg: 'var(--green)' },
@@ -13257,7 +13285,9 @@ let salaDia = null, salaFiltro = '', salaAbierta = null, salaMias = false;
 const salaPaso = {};
 function yoFirma() { const u = usuarioActual(); return u ? { nombre: u.nombre, email: u.email, funcion: funcionDe(u), t: nowDT() } : { nombre: JEFATURA, email: '', funcion: 'jefatura', t: nowDT() }; }
 function salaCirugias(d) {
-  return DB.cirugias.filter((c) => (c.fecha === d || diaDeGrilla(c) === d) && c.sala && !['anticipada', 'caducada', 'suspendida'].includes(c.estado))
+  // 3.35.2 · En Portales del equipo la Jefatura ve también Endoscopía, solo para saber
+  // qué anestesiólogo/a y qué enfermero/a de quirófano se va a Endoscopía.
+  return DB.cirugias.filter((c) => (c.fecha === d || diaDeGrilla(c) === d) && c.sala && (cxVer(c) || view === 'portales') && !['anticipada', 'caducada', 'suspendida'].includes(c.estado))
     .sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
 }
 function recuentoDif(c) {
@@ -13440,19 +13470,29 @@ function salaCir(id) { return DB.cirugias.find((x) => String(x.id) === String(id
 function salaGuardar(c, hist) { pushHist(c, hist); upsert('cirugias', c); flRepintar(); }
 /* Una persona, una sala: ¿ya figura en otra cirugía del mismo día que todavía
    no terminó (no firmó la Salida)? */
+/* 3.35.3 · Horario que ocupa una cirugía en su sala: desde la hora programada hasta su
+   duración estimada más el recambio. Sin hora, ocupa todo el día (como antes). */
+function cxIntervalo(c) {
+  const m = String((c && c.horaProg) || '').match(/(\d{1,2}):(\d{2})/); if (!m) return null;
+  const ini = Number(m[1]) * 60 + Number(m[2]);
+  return [ini, ini + (Number(c.duracionMin) || 60) + RECAMBIO_META];
+}
+function seSuperponen(a, b) { const x = cxIntervalo(a), y = cxIntervalo(b); return !x || !y || (x[0] < y[1] && y[0] < x[1]); }
 function flOcupadoEn(c, u) {
   const fin = ['realizada', 'finalizada', 'suspendida', 'cancelada', 'rechazada'];
   const anest = funcionDe(u) === 'anestesiologia';
   // 3.34.4 · Solo cuenta OTRA sala: las cirugías seguidas de la misma sala (por ejemplo,
   // todas las endoscopías del día) las hace la misma persona sin «cambio de sala».
-  return DB.cirugias.find((x) => String(x.id) !== String(c.id) && x.fecha === c.fecha && x.sala !== c.sala && !fin.includes(x.estado) && !lvqCompleta(x, 'salida')
+  // 3.35.3 · Y solo si los HORARIOS se superponen: quien termina sus endoscopías (o su sala)
+  // puede tomar después un quirófano que tenga lugar, sin dejar lo que ya hizo.
+  return DB.cirugias.find((x) => String(x.id) !== String(c.id) && x.fecha === c.fecha && x.sala !== c.sala && !fin.includes(x.estado) && !lvqCompleta(x, 'salida') && seSuperponen(x, c)
     && (anest ? (x.anest && x.anest.e === u.email) : Object.values(x.equipoSala || {}).some((p) => p && p.email === u.email)));
 }
 /* Si está en otra sala, solo puede pasar a esta como «cambio de sala»: deja
    libre el otro puesto y queda registrado en las dos cirugías. */
 async function flCambioSala(c, u) {
   const otra = flOcupadoEn(c, u); if (!otra) return true;
-  const ok = await preguntar(`Usted figura en ${otra.quirofano || otra.sala} · ${otra.procedimiento} (${otra.horaProg || ''} h), que todavía no terminó.\n\nUna persona no puede estar en dos salas a la vez. ¿Es un cambio de sala? Si confirma, deja libre ese puesto (queda registrado) y pasa a ${c.quirofano || c.sala}.`,
+  const ok = await preguntar(`Usted figura en ${otra.quirofano || otra.sala} · ${otra.procedimiento} (${otra.horaProg || ''} h), que se superpone en horario con esta y todavía no terminó.\n\nUna persona no puede estar en dos salas a la vez. ¿Es un cambio de sala? Si confirma, deja libre ese puesto (queda registrado) y pasa a ${c.quirofano || c.sala}.`,
     { titulo: 'Ya está en otra sala', tono: 'pregunta', si: 'Sí, es un cambio de sala', no: 'Cancelar' });
   if (!ok) return false;
   if (funcionDe(u) === 'anestesiologia') {
@@ -14798,7 +14838,7 @@ function renderPortales() {
   if (!PORTAL_TABS.some(([k]) => k === portalTab)) portalTab = 'dia';
   if (!salaDia) salaDia = hoyISO();
   const cuerpo = portalTab === 'dia'
-    ? `<p class="fl-intro">Todas las cirugías del día con su recorrido: en qué paso está cada una y a quién espera. ${jefe ? 'Puede avisar a quien falta o firmar en nombre de la Jefatura.' : ''}</p>${flujoLista(salaDia, jefe ? 'jefe' : 'dir')}`
+    ? `${jefe ? portalJefeEndoHTML() : ''}<p class="fl-intro">Todas las cirugías del día con su recorrido: en qué paso está cada una y a quién espera. ${jefe ? 'Puede avisar a quien falta o firmar en nombre de la Jefatura.' : ''}</p>${flujoLista(salaDia, jefe ? 'jefe' : 'dir')}`
     : portalTab === 'anest' ? portalJefeAnestHTML() + renderAnestesia(true)
     : portalJefeSectorHTML(portalTab) + `<details class="pq-gu" open><summary>🛡️ Guardias del mes de ${esc(GU_SECT[portalTab].n)}</summary>${guardiasHTML(portalTab)}</details>` + portalEquipoHTML(portalTab);
   $('main').innerHTML = `
@@ -14838,6 +14878,30 @@ function portalJefeAnest(mail) {
   renderPortales();
 }
 
+/* 3.35 · Designación del Jefe/a de Endoscopía. La Jefatura solo elige a la persona:
+   no ve ningún dato de Endoscopía. Queda en agendaEndo/jefe (las reglas de Firebase
+   dejan que solo esa persona abra las franjas de Endoscopía). */
+function portalJefeEndoHTML() {
+  const d = jefeEndoDoc();
+  const meds = DB.usuarios.filter((x) => cuentaAprobada(x) && !esEquipoSala(x))
+    .sort((a, b) => (/gastro|endosc/i.test(serviciosTexto(b)) - /gastro|endosc/i.test(serviciosTexto(a))) || String(a.nombre).localeCompare(String(b.nombre), 'es'));
+  return `<div class="pq-jefe pq-jefe-endo">
+    <div class="pq-jefe-cab"><span class="pq-ic">👑</span><div><b>Jefe/a de Endoscopía Digestiva</b>
+      <small>${d && d.email ? `Designado/a: <strong>${esc(d.nombre || d.email)}</strong>. Abre las franjas y gestiona los turnos de la Sala de Endoscopía.` : 'Sin designar: nadie puede abrir las franjas de Endoscopía.'} La Jefatura de Quirófanos no ve Endoscopía.</small></div></div>
+    ${meds.length ? `<label class="pq-jefe-sel"><span>Elegir</span><select onchange="portalJefeEndo(this.value)"><option value="">— Sin designar —</option>${meds.map((m) => `<option value="${esc(m.email)}" ${d && String(d.email).toLowerCase() === String(m.email).toLowerCase() ? 'selected' : ''}>${esc(m.nombre)}${/gastro|endosc/i.test(serviciosTexto(m)) ? ' · ' + esc(serviciosTexto(m)) : ''}</option>`).join('')}</select></label>` : '<div class="pq-aviso">No hay médicos con cuenta autorizada para elegir.</div>'}
+  </div>`;
+}
+async function portalJefeEndo(mail) {
+  if (!jefe) return;
+  const m = DB.usuarios.find((x) => x.email === mail);
+  if (!await preguntar(m ? `${m.nombre} va a ser el/la Jefe/a de Endoscopía: abre las franjas de la Sala de Endoscopía y gestiona sus turnos (suspender, resolver, reabrir, eliminar, parte). Entra con su propia cuenta.` : 'La Sala de Endoscopía queda sin Jefe/a: nadie podrá abrir sus franjas.',
+    { titulo: m ? 'Designar Jefe/a de Endoscopía' : 'Quitar la designación', si: m ? 'Sí, designar' : 'Sí, quitar', no: 'Cancelar' })) { renderPortales(); return; }
+  if (m) upsert('agendaEndo', { id: 'jefe', email: String(m.email).toLowerCase(), nombre: m.nombre, t: nowDT(), por: JEFATURA });
+  else removeDoc('agendaEndo', 'jefe');
+  toastTurno(m ? 'Jefe/a de Endoscopía designado/a' : 'Sin Jefe/a de Endoscopía', '#0d9488');
+  renderPortales();
+}
+
 /* 3.22.3 · Portales de Enfermería (circulantes y técnicas/os de anestesia) y
    de Instrumentación quirúrgica, para la Jefatura (y la Dirección, a
    consultar). No se guarda nada nuevo: todo sale de lo que el equipo anota en
@@ -14867,7 +14931,7 @@ function portalEquipoHTML(k) {
   const sinVerif = k === 'inst' ? cx.filter((c) => !(c.coordinacion && c.coordinacion.insumos) && !['realizada', 'finalizada'].includes(c.estado)) : [];
   // El mes del día elegido, sobre las cirugías ya operadas.
   const mes = d.slice(0, 7);
-  const cm = DB.cirugias.filter((c) => String(c.fecha || '').startsWith(mes) && ['realizada', 'finalizada'].includes(c.estado));
+  const cm = DB.cirugias.filter((c) => cxVer(c) && String(c.fecha || '').startsWith(mes) && ['realizada', 'finalizada'].includes(c.estado));
   const conPuesto = cm.filter((c) => (c.equipoSala || {})[q.falta]).length;
   const kpis = k === 'enf'
     ? [[pqPct(conPuesto, cm.length), 'Con enfermero/a anotado/a', '#0d9488'], [pqPct(cm.filter((c) => lvqCompleta(c, 'entrada')).length, cm.length), 'Entrada firmada', '#2563eb'], [pqPct(cm.filter((c) => lvqCompleta(c, 'salida')).length, cm.length), 'Salida firmada', '#7c3aed'], [cm.length, 'Cirugías operadas', '#64748b']]
@@ -15330,6 +15394,9 @@ function eqProponer(d, actual, salasRe, sect) {
   });
   const usados = new Set();
   Object.values(out).forEach((m) => Object.values(m).forEach((k) => { if (k) usados.add(k); }));
+  // 3.35.2 · Quien ya tomó un lugar en Endoscopía ese día no se propone para quirófano.
+  DB.cirugias.filter((c) => esEndo(c) && (c.fecha === d || diaDeGrilla(c) === d) && !['anticipada', 'caducada', 'suspendida'].includes(c.estado))
+    .forEach((c) => ['anest', 'tecAnestesia', 'enfEndo'].forEach((k) => { const q = tomarQuien(c, k); if (q && q.e) usados.add(anestK(q.e)); }));
   const re = salas.filter((x) => salasRe.includes(x.id));
   const tomar = (l) => { while (l.length) { const g = l.shift(); if (!usados.has(g.k)) { usados.add(g.k); return g.k; } } return ''; };
   if (sect.includes('anest')) {
@@ -15531,6 +15598,18 @@ function eqAplicar(s, d, salas, m) {
     });
   });
 }
+/* 3.35.2 · Endoscopía no entra en la propuesta, pero la Jefatura ve quién de su
+   personal se va a Endoscopía ese día (solo lectura: cada uno toma su lugar). */
+function eqEndoHTML(d) {
+  const L = DB.cirugias.filter((c) => esEndo(c) && (c.fecha === d || diaDeGrilla(c) === d) && !['anticipada', 'caducada', 'suspendida'].includes(c.estado))
+    .sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+  if (!L.length) return '';
+  const q = (c, k) => { const x = tomarQuien(c, k); return x ? `<b>${esc(x.n)}</b>` : '<b class="lib">libre</b>'; };
+  return `<section class="eqx-endo"><h3>🔭 Endoscopía <small>solo para ver · cada uno toma su lugar · la gestiona la Jefatura de Endoscopía</small></h3>
+    ${L.map((c) => `<div class="eqx-endo-cx"><time>${esc(c.horaProg || '—')}</time><span class="t">${esc(c.procedimiento || '')}</span>
+      <span>💤 Anestesiología: ${q(c, 'anest')}</span><span>💉 Enf. de anestesia: ${q(c, 'tecAnestesia')}</span><span>🔭 Enf. de endoscopía: ${q(c, 'enfEndo')}</span></div>`).join('')}
+  </section>`;
+}
 function eqSlotHTML(x, p, mm) {
   const k = mm[p.id], n = k ? eqNombre(k) : '', puede = eqSoyJefeDe(p.s);
   const edit = eqEdit && eqEdit.sala === x.id && eqEdit.p === p.id;
@@ -15588,6 +15667,7 @@ function eqPintar() {
         <div class="eqx-eq">${eqPuestosDe(x.id).map((p) => eqSlotHTML(x, p, m[x.id] || {})).join('')}</div>
       </article>`).join('')}</div>`
     : `<div class="eqx-vacio"><span>🌙</span><b>No hay cirugías programadas ${d === sumarDias(h0, 1) ? 'para mañana' : 'ese día'}.</b><small>Cuando se programen, la app arma sola la propuesta de equipos.</small></div>`}
+      ${eqEndoHTML(d)}
       ${hist.length ? `<details class="eqx-hist"><summary>Cambios (${hist.length})</summary>${hist.slice().reverse().map((x) => { const [t, q, a] = String(x).split('|'); return `<div><small>${esc(t)}</small><b>${esc(q)}</b><span>${esc(a || '')}</span></div>`; }).join('')}</details>` : ''}
     </div></div>`;
   setTimeout(() => { const l = ov.querySelector('.eqx-slot.edit'); if (l && l.scrollIntoView) l.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 30);
@@ -15609,6 +15689,10 @@ function eqBotonHTML() {
    (una vez por día, si hay lugares libres para esa persona). «Tomar» usa lo de siempre
    (salaAnotarme / anestElegir): queda en el recorrido de la sala y en el historial. */
 let tomarDia = null, tomarFoco = null, tomarTodos = false, tomarMostrado = false;
+const TOMAR_DIAS = 14;   // se puede tomar con dos semanas de anticipación
+const DIAS_CORTOS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+/* El primer día (desde hoy) con lugar libre para esta persona, o null. */
+function tomarPrimerDia(u) { for (let i = 0; i < TOMAR_DIAS; i++) { const x = sumarDias(hoyISO(), i); if (tomarLibres(u, x)) return x; } return null; }
 function tomarQue(c) { return c.sala === 'END' ? 'endoscopía' : c.sala === 'QOBS' ? 'cesárea' : 'cirugía'; }
 function tomarPuestos(c) {
   const P = salaPuestosDe(c);
@@ -15625,17 +15709,18 @@ function tomarPuedo(c, k, u) {
   return salaPuedoPuesto(c, k, u);
 }
 function tomarLibresDe(c, u) { return u && (esEquipoSala(u) || esAnestesia(u)) ? tomarPuestos(c).filter((p) => tomarPuedo(c, p.k, u)) : []; }
-function tomarDelDia(d) { return salaCirugias(d).filter((c) => ['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado)); }
+function tomarDelDia(d) { const u = usuarioActual(), sinEndo = u && funcionDe(u) === 'instrumentacion'; return salaCirugias(d).filter((c) => ['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado) && !(sinEndo && esEndo(c))); }
 function tomarLibres(u, d) { return tomarDelDia(d).reduce((n, c) => n + tomarLibresDe(c, u).length, 0); }
 function tomarBotonHTML() {
   const u = usuarioActual();
   if (!u || !(esEquipoSala(u) || esAnestesia(u))) return '';
-  const h = hoyISO(), L = tomarDelDia(h), libres = tomarLibres(u, h), lm = tomarLibres(u, sumarDias(h, 1));
-  return `<button type="button" class="eqx-btn tm-tomar-btn" onclick="tomarAbrir()"><span class="eqx-btn-ic">✋</span><span><b>Tomar mi lugar</b><small>${libres ? `Hoy: ${libres} lugar${libres === 1 ? '' : 'es'} libre${libres === 1 ? '' : 's'} para usted` : L.length ? 'Hoy: sin lugares libres para usted' : 'Hoy no hay programados'}${lm ? ` · mañana ${lm}` : ''}</small></span><span class="eqx-btn-fl">›</span></button>`;
+  const h = hoyISO(), libres = tomarLibres(u, h), prox = tomarPrimerDia(u);
+  const tot = Array.from({ length: TOMAR_DIAS }, (_, i) => tomarLibres(u, sumarDias(h, i))).reduce((a, b) => a + b, 0);
+  return `<button type="button" class="eqx-btn tm-tomar-btn" onclick="tomarAbrir()"><span class="eqx-btn-ic">✋</span><span><b>Tomar mi lugar</b><small>${tot ? `${libres ? `Hoy ${libres} · ` : ''}${tot} lugar${tot === 1 ? '' : 'es'} libre${tot === 1 ? '' : 's'} en las próximas 2 semanas${!libres && prox ? ' · el primero, ' + fmtFecha(prox) : ''}` : 'Sin lugares libres para usted en las próximas 2 semanas'}</small></span><span class="eqx-btn-fl">›</span></button>`;
 }
 function tomarAbrir(d, foco) {
   const h = hoyISO(), u = usuarioActual();
-  tomarDia = d || (tomarLibres(u, h) || !tomarLibres(u, sumarDias(h, 1)) ? h : sumarDias(h, 1));
+  tomarDia = d || tomarPrimerDia(u) || h;
   tomarFoco = foco != null ? String(foco) : null;
   tomarTodos = foco != null;
   tomarPintar();
@@ -15661,7 +15746,8 @@ function tomarPintar() {
     <header class="rc-hero" style="--c:#0f766e"><span class="rc-kick">Programación del día</span>
       <h2>✋ Tomar mi lugar</h2>
       <p>${esc(fmtDiaLargo(d))}. Toque <b>TOMAR</b> en el puesto libre de su función: queda a su nombre en el recorrido de la sala.</p></header>
-    <div class="en-dias"><button type="button" class="${d === h ? 'on' : ''}" onclick="tomarDia='${h}';tomarFoco=null;tomarPintar()">Hoy</button><button type="button" class="${d === sumarDias(h, 1) ? 'on' : ''}" onclick="tomarDia='${sumarDias(h, 1)}';tomarFoco=null;tomarPintar()">Mañana</button></div>
+    <div class="tk-dias" role="tablist">${Array.from({ length: TOMAR_DIAS }, (_, i) => sumarDias(h, i)).map((x) => { const n = u ? tomarLibres(u, x) : 0, t = tomarDelDia(x).length;
+      return `<button type="button" role="tab" class="${x === d ? 'on' : ''} ${t ? '' : 'vacio'} ${esLaborable(x) ? '' : 'finde'}" onclick="tomarDia='${x}';tomarFoco=null;tomarPintar()" aria-selected="${x === d}"><small>${x === h ? 'Hoy' : x === sumarDias(h, 1) ? 'Mañana' : esc(DIAS_CORTOS[new Date(x + 'T12:00:00').getDay()])}</small><b>${Number(x.slice(8))}</b>${n ? `<i>${n}</i>` : t ? '<em>✓</em>' : ''}</button>`; }).join('')}</div>
     ${todas.length && conLugar.length && conLugar.length < todas.length ? `<label class="tk-ver"><input type="checkbox" ${tomarTodos ? 'checked' : ''} onchange="tomarTodos=this.checked;tomarPintar()"> Ver también las ${todas.length - conLugar.length} sin lugar para usted</label>` : ''}
     ${AREAS.map(([a, n, ic]) => {
       const A = L.filter((c) => area(c) === a); if (!A.length) return '';
@@ -15675,6 +15761,8 @@ function tomarPintar() {
         </section>`).join('')}`;
     }).join('') || '<p class="rc-nota">No hay cirugías, cesáreas ni endoscopías programadas para este día.</p>'}
     <p class="rc-nota">Una persona, un puesto por cirugía (la enfermera de quirófano puede además circular si no hay 2.ª instrumentadora). Si toma un lugar en otra sala el mismo día, la app le pregunta antes de cambiarlo.</p>`;
+  // El día elegido queda a la vista en la tira.
+  setTimeout(() => { const b = document.querySelector('.tk-dias button.on'); if (b) b.parentElement.scrollLeft = b.offsetLeft - b.parentElement.clientWidth / 2 + b.clientWidth / 2; }, 30);
 }
 async function tomarUno(id, k, sinPintar) {
   const c = salaCir(id), u = usuarioActual(); if (!c || !u || !tomarPuedo(c, k, u)) return false;
@@ -15706,7 +15794,7 @@ function tomarAlEntrar() {
   const h = hoyISO(), clave = 'hruq_tomar_' + h + '_' + u.email;
   let visto = false; try { visto = !!localStorage.getItem(clave); } catch (e) {}
   if (visto) { tomarMostrado = true; return; }
-  const d = tomarLibres(u, h) ? h : tomarLibres(u, sumarDias(h, 1)) ? sumarDias(h, 1) : null;
+  const d = tomarPrimerDia(u);
   if (!d) return;
   if (document.querySelector('.overlay.open')) return;   // no se encima a otra ventana: lo intenta en la próxima ronda
   tomarMostrado = true;
@@ -16021,7 +16109,7 @@ function flEstado(c) {
 /* Los roles que el usuario actual cubre en esta cirugía. */
 function flMisRoles(c) {
   const u = usuarioActual();
-  if (jefe) return c.sala === 'END' ? ['anest', 'enf', 'enfEndo'] : ['anest', 'circ', 'inst', 'enf'];
+  if (jefe) return c.sala === 'END' ? [] : ['anest', 'circ', 'inst', 'enf'];   // 3.35.2 · Endoscopía: la Jefatura solo mira
   if (!u) return [];
   const f = funcionDe(u), eq = c.equipoSala || {}, yo = (p) => p && p.email === u.email;
   const r = [];
@@ -16055,7 +16143,9 @@ function flRepintar() { if (VIEWS[view]) VIEWS[view](); }
 /* ---- La lista del día: una tarjeta por cirugía ---- */
 function flujoLista(d, modo) {
   const u = usuarioActual();
-  const todas = salaCirugias(d);
+  // 3.35.1 · Instrumentación no participa de Endoscopía: no se le muestran.
+  const sinEndo = u && funcionDe(u) === 'instrumentacion';
+  const todas = salaCirugias(d).filter((c) => !(sinEndo && esEndo(c)));
   const area = (c) => c.sala === 'END' ? 'endo' : c.sala === 'QOBS' ? 'obs' : 'qx';
   const soloMias = flMias && modo !== 'jefe' && !!u;
   const base = todas.filter((c) => (!soloMias || flEsMia(c)) && (!flToca || flMeTocaMia(c)));
@@ -16068,11 +16158,11 @@ function flujoLista(d, modo) {
   return `
     <div class="fl-filtros">
       ${u && modo !== 'jefe' ? `<div class="fl-seg" style="--i:${soloMias ? 0 : 1}"><span class="fl-seg-luz"></span><button class="fl-f ${soloMias ? 'on' : ''}" onclick="flMias=true;flToca=false;flRepintar()">🙋 Mías<span class="fl-n">${todas.filter(flEsMia).length}</span></button><button class="fl-f ${!soloMias ? 'on' : ''}" onclick="flMias=false;flToca=false;flRepintar()">🗓️ Del día<span class="fl-n">${todas.length}</span></button></div><span class="fl-sep"></span>` : ''}
-      ${chip('qx', 'Quirófanos', '🔪')}${chip('endo', 'Endoscopía', '🔭')}${chip('obs', 'Obstetricia', '👶')}
+      ${chip('qx', 'Quirófanos', '🔪')}${(jefe && view !== 'portales') || sinEndo ? '' : chip('endo', 'Endoscopía', '🔭')}${chip('obs', 'Obstetricia', '👶')}
       ${pend ? `<button class="fl-pend" onclick="flMias=true;flToca=!flToca;flRepintar()">● ${pend} ${pend === 1 ? 'espera' : 'esperan'} su firma${flToca ? ' · ver todas' : ''}</button>` : ''}
     </div>
     ${u && modo !== 'jefe' ? `<p class="fl-ayuda">${soloMias ? '<b>Mías:</b> solo las cirugías en las que usted está anotado/a.' : '<b>Del día:</b> todas las cirugías del día, para anotarse en una con su puesto libre.'} ${flArea ? `Solo <b>${{ qx: 'Quirófanos (1 a 4)', endo: 'Endoscopía', obs: 'Obstetricia' }[flArea]}</b>: toque de nuevo el área (✕) para ver todas.` : 'Toque un área para ver solo esa.'}${flToca ? ' Mostrando solo lo que <b>espera su firma</b>.' : ''}</p>` : ''}
-    ${lista.length ? lista.map((c, i) => flTarjeta(c, modo, i)).join('')
+    ${lista.length ? lista.map((c, i) => flTarjeta(c, jefe && esEndo(c) ? 'dir' : modo, i)).join('')
       : `<div class="fl-vacio">${flToca ? 'No hay nada esperando su firma. 🎉' : flArea && base.length ? 'No hay cirugías de esta área.' : flMias && modo !== 'jefe' && todas.length ? `No tiene cirugías asignadas este día. <button class="fl-link" onclick="flMias=false;flRepintar()">Ver todas (${todas.length})</button> para sumarse a una.` : 'No hay cirugías este día.'}</div>`}`;
 }
 function flTarjeta(c, modo, idx) {
@@ -16264,7 +16354,7 @@ function renderRelevo() {
   if (!relevoDia) relevoDia = hoyISO();
   if (relevoNotas === null) { $('main').innerHTML = '<div class="empty" style="padding:30px">Cargando el relevo…</div>'; relevoCargar(); return; }
   const cx = salaCirugias(relevoDia);
-  const filas = SALAS.map((sa) => {
+  const filas = SALAS.filter((sa) => !(jefe && sa.tipo === 'endo')).map((sa) => {
     const de = cx.filter((c) => c.sala === sa.id);
     const gente = {}; de.forEach((c) => Object.entries(c.equipoSala || {}).forEach(([k, p]) => { gente[p.nombre] = (gente[p.nombre] || new Set()).add(SALA_PUESTOS[k].n); }));
     const notas = (relevoNotas || []).filter((n) => n.sala === sa.id).sort((a, b) => Number(a.t) - Number(b.t));
@@ -17010,12 +17100,12 @@ function panelVivo(st) {
   const hoy = hoyISO();
   const conSesion = !!(usuarioActual() || jefe || director);
   const u = usuarioActual();
-  const delDia = DB.cirugias.filter((c) => c.fecha === hoy && c.sala && !['anticipada', 'caducada'].includes(c.estado));
+  const delDia = DB.cirugias.filter((c) => cxVer(c) && c.fecha === hoy && c.sala && !['anticipada', 'caducada'].includes(c.estado));
   const ahora = new Date(), ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
   const rango = (PV_HASTA - PV_DESDE) * 60;
   const pct = (m) => Math.max(0, Math.min(100, ((m - PV_DESDE * 60) / rango) * 100));
   const horas = Array.from({ length: PV_HASTA - PV_DESDE + 1 }, (_, i) => PV_DESDE + i).filter((h) => !PV_24 || h % 2 === 0);
-  const filas = SALAS.map((sa) => {
+  const filas = SALAS.filter((sa) => !(jefe && sa.tipo === 'endo')).map((sa) => {
     const cx = delDia.filter((c) => c.sala === sa.id).sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
     const enUso = cx.some((c) => c.estado === 'en_curso');
     const luz = enUso ? 'uso' : cx.length ? 'turnos' : 'libre';
@@ -17540,7 +17630,7 @@ function renderParte() {
   const f = parteFecha;
   const publicado = partePublicado(f) || jefe;
   const lista = DB.cirugias
-    .filter((c) => c.fecha === f && ESTADOS_PARTE.includes(c.estado))
+    .filter((c) => c.fecha === f && ESTADOS_PARTE.includes(c.estado) && cxVer(c))
     .sort(ordenPrelacion);
 
   let contenido;
@@ -17571,7 +17661,7 @@ function renderParte() {
         <button class="btn btn-outline btn-sm" onclick="setParteFecha('${hoyISO()}')">Hoy</button>
         <button class="btn btn-outline btn-sm" onclick="setParteFecha('${sumarDias(hoyISO(), 1)}')">Mañana</button>
         <input type="date" value="${f}" onchange="setParteFecha(this.value)" style="padding:9px 13px;border:none;border-radius:10px;font-family:inherit;font-weight:600;box-shadow:0 1px 3px rgba(23,28,36,0.06)">
-        ${publicado && lista.length ? Object.keys(PARTE_AREAS).filter((a) => delParteArea(f, a).length).map((a) => `<button class="btn btn-blue btn-sm" onclick="imprimirParte('${f}', '${a}')">${ICONS.fileText} Imprimir · ${esc(PARTE_AREAS[a].b)}</button>`).join('') : ''}
+        ${publicado && lista.length ? Object.keys(PARTE_AREAS).filter((a) => !(jefe && a === 'endo') && delParteArea(f, a).length).map((a) => `<button class="btn btn-blue btn-sm" onclick="imprimirParte('${f}', '${a}')">${ICONS.fileText} Imprimir · ${esc(PARTE_AREAS[a].b)}</button>`).join('') : ''}
       </div>
     </div>
 
@@ -18006,6 +18096,7 @@ function cirCard(c, rol) {
 }
 
 function accionesCirugia(c, rol) {
+  const jefe = jefeDe(c);   // 3.35 · en Endoscopía, «jefe» es el Jefe/a de Endoscopía
   const u = usuarioActual();
   const esDueno = u && c.cirujanoEmail === u.email;
   const a = [];
@@ -19520,7 +19611,7 @@ function consultasRecordatorios(add) {
 function renderIngresosJefe() {
   const hoy = hoyISO(); if (!ingDia) ingDia = hoy;
   const d = ingDia, env = camasEnvio(hoy), R = camasResumen();
-  const lista = DB.cirugias.filter((c) => c.fecha === d && ['pendiente', 'validada', 'confirmada', 'en_curso', 'realizada'].includes(c.estado));
+  const lista = DB.cirugias.filter((c) => cxVer(c) && c.fecha === d && ['pendiente', 'validada', 'confirmada', 'en_curso', 'realizada'].includes(c.estado));
   const conCama = lista.filter((c) => camaDe(c)).sort((a, b) => String(camaDe(a).t || '').localeCompare(String(camaDe(b).t || '')));
   const sinCama = lista.filter((c) => !camaDe(c) && !esEndo(c)).sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
   const amb = lista.filter((c) => !camaDe(c) && esEndo(c)).sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
@@ -19693,6 +19784,7 @@ function admisRecordatorios(add) {
 function openResolverTurno(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
+  const jefe = jefeDe(c);   // 3.35 · en Endoscopía, «jefe» es el Jefe/a de Endoscopía
   const u = usuarioActual();
   const esDueno = u && c.cirujanoEmail === u.email;
   if (!jefe && !esDueno) return;
@@ -19852,7 +19944,7 @@ function autEscalon(c) {
 function autQueFalta(c) { return c.auth === 'NO AUTORIZADO' ? `la obra social o el pago de anestesiología NO autorizó (${c.authMotivo || 'sin motivo registrado'})` : 'falta la autorización de la obra social o del pago de anestesiología'; }
 function autRecordatorios(add) {
   const u = usuarioActual(), hoy = hoyISO();
-  DB.cirugias.filter((c) => autEscalon(c)).forEach((c) => {
+  DB.cirugias.filter((c) => autEscalon(c) && cxVer(c)).forEach((c) => {
     const e = autEscalon(c), mio = u && c.cirujanoEmail === u.email, quedan = diasHabilesHasta(c.fecha);
     const cx = `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} · ${fmtFecha(c.fecha)} ${c.horaProg || ''} h · ${c.quirofano || ''}`;
     const cuando = `Faltan ${quedan} día${quedan === 1 ? '' : 's'} hábil${quedan === 1 ? '' : 'es'}`;
@@ -19947,7 +20039,7 @@ function toastTurno(texto, color) {
    estaba y el plazo del cierre automático corre de nuevo desde hoy. */
 async function reabrirCierreTurno(id) {
   const c = DB.cirugias.find((x) => x.id === id);
-  if (!c || !jefe) return;
+  if (!c || !jefeDe(c)) return;
   const auto = c.estado === 'suspendida' && c.suspension && c.suspension.automatica;
   if (c.estado !== 'caducada' && !auto) return;
   const motivo = await pedirTexto(`El turno vuelve a «Sin resolver» y hay que indicar qué pasó. Si nadie lo resuelve, la app lo vuelve a cerrar en ${DIAS_CIERRE_ADMIN} días.`, {
@@ -19992,7 +20084,8 @@ function cerrarTurnosVencidosAhora(u) {
   const cerrados = [];
   DB.cirugias.filter(sinResolver).forEach((c) => {
     if (!sinResolver(c)) return;   // otro paso ya lo resolvió
-    if (!jefe && c.cirujanoEmail !== u.email) return;
+    // 3.35 · La Jefatura no cierra Endoscopía; la cierra su Jefe/a o el dueño del turno.
+    if (jefe ? esEndo(c) : !(u && (c.cirujanoEmail === u.email || (esEndo(c) && esJefeEndo(u))))) return;
     if (cierreAdminFecha(c) > hoy) return;
     if (c.estado === 'confirmada') {
       c.estado = 'suspendida';
@@ -20281,7 +20374,7 @@ function confirmAnticipar() {
    queda sin franja y se le asigna una nueva desde la grilla. */
 async function reabrirAnticipada(id) {
   const c = DB.cirugias.find((x) => x.id === id);
-  if (!c || !jefe) return;
+  if (!c || !jefeDe(c)) return;
   const l = c.liberado || {};
   const libre = l.sala && l.franja && !turnoEn(l.diaGrilla || l.fecha, l.sala, l.franja);
   if (!await preguntar(libre
@@ -20540,7 +20633,7 @@ async function guardarDueno() {
    avisarle, y una excepción sin aviso no es admisible. */
 function excProfesionales() { return profesionalesActivos(); }
 function excRegistradas() {
-  return DB.cirugias.filter((c) => c.excepcion)
+  return DB.cirugias.filter((c) => c.excepcion && cxVer(c))
     .sort((a, b) => String(b.excepcion.fechaHora || '').localeCompare(String(a.excepcion.fechaHora || '')));
 }
 /* Acuse de lectura del aviso, leído del comunicado emitido. */
@@ -20772,7 +20865,7 @@ function renderExcepcion() {
 
     <div class="banner banner-amber">${ICONS.alertTri}
       <div><strong>Es una excepción, no una vía alternativa</strong>
-      El flujo normal cierra las listas a las <b>${BLOQUE.cierreSolicitudes} h del día hábil previo</b> (la del lunes, el viernes) y exige <b>${HORAS_ANTICIPACION} h</b> de anticipación; además, los quirófanos 2, 3 y 4 y Endoscopía nacen bloqueados. Esta pantalla es la única llave que abre esas franjas y solo la tiene la Jefatura. Cada uso queda registrado con motivo, fecha, hora y destinatario.</div></div>
+      El flujo normal cierra las listas a las <b>${BLOQUE.cierreSolicitudes} h del día hábil previo</b> (la del lunes, el viernes) y exige <b>${HORAS_ANTICIPACION} h</b> de anticipación; además, los quirófanos 2, 3 y 4 nacen bloqueados. Esta pantalla es la única llave que abre esas franjas y solo la tiene la Jefatura. Cada uso queda registrado con motivo, fecha, hora y destinatario.</div></div>
 
     <div class="banner banner-red">${ICONS.megafonoBig}
       <div><strong>El cirujano se entera siempre</strong>
@@ -20864,7 +20957,7 @@ function progToggle(est) {
   renderProgramacion();
 }
 function progLista(est) {
-  const l = DB.cirugias.filter((c) => estadoVisible(c) === est);
+  const l = DB.cirugias.filter((c) => estadoVisible(c) === est && cxVer(c));
   return PROG_TERMINALES.indexOf(est) >= 0
     ? l.sort((a, b) => String(b.fecha || '').localeCompare(String(a.fecha || '')))
     : l.sort(ordenPrelacion);
@@ -20883,6 +20976,7 @@ function flTareas() {
   const t = [];
   const hoy = hoyISO();
   DB.cirugias.forEach((c) => {
+    if (!cxVer(c)) return;
     const vis = estadoVisible(c);
     const d = c.fecha ? diasEntre(hoy, c.fecha) : 30;
     const cu = flCuando(c.fecha);
@@ -20910,6 +21004,7 @@ function flTareas() {
 function flEspera() {
   const e = [];
   DB.cirugias.forEach((c) => {
+    if (!cxVer(c)) return;
     if (estadoVisible(c) === 'sin_resolver') return;
     if (c.estado === 'pendiente' && c.auth === 'NO AUTORIZADO') e.push({ c, quien: 'Cirujano', color: '#e11d48', txt: 'Admisión no autorizó: el cirujano corrige' });
     else if (c.estado === 'pendiente' && !authOk(c)) e.push({ c, quien: 'Admisión', color: '#d97706', txt: 'Espera el dictamen de Admisión y Egresos' });
@@ -20919,7 +21014,7 @@ function flEspera() {
 }
 function flHoy() {
   const hoy = hoyISO();
-  return DB.cirugias.filter((c) => c.estado === 'en_curso' || (c.fecha === hoy && ['confirmada', 'realizada', 'finalizada'].includes(c.estado)))
+  return DB.cirugias.filter((c) => cxVer(c) && (c.estado === 'en_curso' || (c.fecha === hoy && ['confirmada', 'realizada', 'finalizada'].includes(c.estado))))
     .sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
 }
 let flVerTodas = false;
@@ -20934,8 +21029,8 @@ function flIr(id) { const el = $(id); if (el) el.scrollIntoView({ behavior: 'smo
 function renderFlujoJefatura() {
   const tareas = flTareas(), espera = flEspera(), hoyL = flHoy();
   const hoy = hoyISO();
-  const semana = DB.cirugias.filter((c) => c.estado === 'confirmada' && c.fecha >= hoy && diasEntre(hoy, c.fecha) <= 7).length;
-  const enCurso = DB.cirugias.filter((c) => c.estado === 'en_curso').length;
+  const semana = DB.cirugias.filter((c) => cxVer(c) && c.estado === 'confirmada' && c.fecha >= hoy && diasEntre(hoy, c.fecha) <= 7).length;
+  const enCurso = DB.cirugias.filter((c) => cxVer(c) && c.estado === 'en_curso').length;
   const urg = tareas.filter((t) => t.tono === 'rojo').length;
   const fechaLarga = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   const titulo = !tareas.length ? 'Todo al día: no hay nada esperando a la Jefatura.'
@@ -20956,7 +21051,7 @@ function renderFlujoJefatura() {
     </article>`;
   const etapas = ['borrador', 'pendiente', 'validada', 'confirmada', 'en_curso', 'realizada', 'finalizada'];
   const cuenta = {};
-  etapas.forEach((k) => { cuenta[k] = DB.cirugias.filter((c) => estadoVisible(c) === k).length; });
+  etapas.forEach((k) => { cuenta[k] = DB.cirugias.filter((c) => cxVer(c) && estadoVisible(c) === k).length; });
   const max = Math.max(1, ...etapas.map((k) => cuenta[k]));
   return `<div class="fl">
     <section class="fl-hero">
@@ -21031,7 +21126,7 @@ function renderProgramacion() {
     ${total ? '' : '<div class="empty">No hay solicitudes cargadas en el bloque.</div>'}`;
   } else {
     const lista = DB.cirugias
-      .filter((c) => !progEstado || estadoVisible(c) === progEstado)
+      .filter((c) => cxVer(c) && (!progEstado || estadoVisible(c) === progEstado))
       .sort((a, b) => String(b.fecha || '').localeCompare(String(a.fecha || '')) || ordenPrelacion(a, b));
     cuerpo = `
       <div class="toolbar">
@@ -21066,6 +21161,8 @@ function renderProgramacion() {
 function openCirugia(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
+  if (!cxVer(c)) { avisar('Endoscopía Digestiva\n\nLos turnos de Endoscopía los gestiona la Jefatura de Endoscopía, no la Jefatura de Quirófanos.'); return; }
+  const jefe = jefeDe(c);   // 3.35 · en Endoscopía, «jefe» es el Jefe/a de Endoscopía
   const u = usuarioActual();
   const esDueno = u && c.cirujanoEmail === u.email;
   const puedeCoordinar = jefe;
@@ -21416,7 +21513,7 @@ function guardarInforme(id) {
 
 /* ================= INDICADORES DE GESTIÓN (KPIs) ================= */
 function calcKPIs(ym) {
-  const delMes = DB.cirugias.filter((c) => (c.fecha || '').startsWith(ym));
+  const delMes = DB.cirugias.filter((c) => cxVer(c) && (c.fecha || '').startsWith(ym));
   // Solo lo cerrado computa: la urgencia operada sin regularizar todavía no.
   const realizadas = delMes.filter(cirugiaCerrada);
   const suspendidas = delMes.filter((c) => c.estado === 'suspendida');
@@ -21580,7 +21677,7 @@ function renderKPIs() {
         <div class="card-sub">Cirugías realizadas en el período</div>
         ${(() => {
           const porServ = {};
-          DB.cirugias.filter((c) => (c.fecha || '').startsWith(kpiMes) && cirugiaCerrada(c))
+          DB.cirugias.filter((c) => cxVer(c) && (c.fecha || '').startsWith(kpiMes) && cirugiaCerrada(c))
             .forEach((c) => { porServ[c.servicio] = (porServ[c.servicio] || 0) + 1; });
           const arr = Object.entries(porServ).sort((a, b) => b[1] - a[1]);
           const mx = arr.length ? arr[0][1] : 1;
@@ -21684,7 +21781,7 @@ function calcEstadisticas(clave) {
   };
 
   DB.cirugias
-    .filter((c) => c.fecha && c.fecha >= desde && c.fecha <= hasta)
+    .filter((c) => cxVer(c) && c.fecha && c.fecha >= desde && c.fecha <= hasta)
     .filter((c) => ['confirmada', 'en_curso', 'realizada', 'finalizada', 'suspendida'].includes(c.estado))
     .forEach((c) => {
       const g = grupo(c);
@@ -21711,7 +21808,7 @@ function calcEstadisticas(clave) {
     });
 
   // Lista de espera: es una foto del estado actual, no del período elegido.
-  DB.cirugias.filter((c) => ['borrador', 'pendiente', 'validada'].includes(c.estado)).forEach((c) => {
+  DB.cirugias.filter((c) => cxVer(c) && ['borrador', 'pendiente', 'validada'].includes(c.estado)).forEach((c) => {
     const g = grupo(c);
     g.enEspera++;
     g.esperaMax = Math.max(g.esperaMax, esperaDias(c));
@@ -21965,7 +22062,7 @@ function calcPorTipo() {
   const [desde, hasta] = estRango();
   const T = {};
   DB.cirugias
-    .filter((c) => c.fecha && c.fecha >= desde && c.fecha <= hasta)
+    .filter((c) => cxVer(c) && c.fecha && c.fecha >= desde && c.fecha <= hasta)
     .filter((c) => ['confirmada', 'en_curso', 'realizada', 'finalizada', 'suspendida'].includes(c.estado))
     .filter(estTipoAlcanza)
     .forEach((c) => {
@@ -22724,7 +22821,7 @@ function renderEstadisticas() {
 
     ${(() => {
       // Lo operado que todavía no cerró no entra en ninguna de estas cifras.
-      const sc = DB.cirugias.filter((c) => c.fecha >= desde && c.fecha <= hasta && c.estado === 'realizada' && !cirugiaCerrada(c)).length;
+      const sc = DB.cirugias.filter((c) => cxVer(c) && c.fecha >= desde && c.fecha <= hasta && c.estado === 'realizada' && !cirugiaCerrada(c)).length;
       return sc ? `<div class="banner banner-amber">${ico(ICONS.alertTri, 18)}<div><strong>${sc} cirugía(s) operada(s) sin cerrar en el período</strong>
         Todavía no están finalizadas —falta el parte quirúrgico y/o regularizar la aceptación de Admisión y Egresos o la validación de la ${esc(JEFATURA)}— y por eso
         <b>no se cuentan acá</b>. Al cerrarse se incorporan solas a estas estadísticas y al registro de módulos.</div></div>` : '';
@@ -24980,6 +25077,9 @@ function cfgSala(d, sid) { const a = agendaDia(d); return (a && a.salas && a.sal
 function diaHabilitado(d) { const a = agendaDia(d); return !!(a && a.on === true); }
 function turnoHabilitado(d, sid, p) {
   if (p === 'U') return true;   // el turno de urgencia de la hora no se cierra nunca
+  // 3.35 · Endoscopía: las franjas las abre el Jefe/a de Endoscopía (agendaEndo/<día>).
+  // Si ese día todavía no tocó nada, vale lo que había abierto la Jefatura antes.
+  if (sid === 'END') { const e = (DB.agendaEndo || []).find((x) => x.id === d); if (e) return e[p] === true; }
   const cfg = cfgSala(d, sid);
   return !!(diaHabilitado(d) && cfg && cfg[p] === true);
 }
@@ -24992,7 +25092,7 @@ function franjaHabilitada(d, sid, fid) {
 }
 /* Franjas del día realmente ofrecidas: es la capacidad que abrió la Jefatura. */
 function franjasAbiertas(d) {
-  return SALAS.reduce((n, s) => n + s.franjas.filter((f) => turnoHabilitado(d, s.id, f.p)).length, 0);
+  return SALAS.filter((s) => !(jefe && s.tipo === 'endo')).reduce((n, s) => n + s.franjas.filter((f) => turnoHabilitado(d, s.id, f.p)).length, 0);
 }
 
 /* ---- Prioridad por especialidad (3.16.0) ----
@@ -25257,6 +25357,16 @@ function onObraChange() {
    Admisión y Egresos con su autorización (la urgencia, sin esperar a nadie; Admisión
    regulariza después). Es ambulatoria: no lleva cama, lleva pulsera. */
 function esEndo(c) { return !!c && c.sala === 'END'; }
+/* 3.35 · La Endoscopía Digestiva ya no es de Quirófanos centrales. La gestiona el
+   Jefe/a de Endoscopía (un médico designado por la Jefatura en Portales; queda en
+   agendaEndo/jefe), y la Jefatura de Quirófanos no ve nada de Endoscopía. */
+function jefeEndoDoc() { return (DB.agendaEndo || []).find((x) => x.id === 'jefe') || null; }
+function esJefeEndo(u) { const d = jefeEndoDoc(); return !!(u && d && d.email && !esEquipoSala(u) && String(u.email).toLowerCase() === String(d.email).toLowerCase()); }
+/* ¿Quién hace de «Jefatura» con este turno? Para Endoscopía, el Jefe/a de Endoscopía. */
+function jefeDe(c) { return esEndo(c) ? esJefeEndo(usuarioActual()) : jefe; }
+function jefeGlobal() { return jefe; }
+/* Lo que ve la sesión de Jefatura de Quirófanos: todo menos Endoscopía. */
+function cxVer(c) { return !(jefe && esEndo(c)); }
 /* Admisión autorizó una endoscopía todavía sin confirmar: con eso queda CONFIRMADA. */
 function endoConfirmar(c, agente) {
   if (!esEndo(c) || c.auth !== 'AUTORIZADO' || !['pendiente', 'validada'].includes(c.estado) || rcActivo(c)) return false;
@@ -25528,8 +25638,8 @@ function puertaCerrada(d) {
   const urg = `<div class="pu-op pu-op-urg"><span class="pu-op-ico">${ico(ICONS.zap, 20)}</span><div>
       <div class="pu-op-t">Urgencias: abierto las 24 h</div>
       <div class="pu-op-d">${esHoy
-        ? 'El turno de urgencia de la hora en curso sigue libre en el Quirófano 1, Endoscopía y Obstetricia, esté cerrado o no el bloque.'
-        : 'El turno de urgencia se ofrece el mismo día, en la hora que corre, en el Quirófano 1, Endoscopía y Obstetricia.'}</div>
+        ? 'El turno de urgencia de la hora en curso sigue libre en el Quirófano 1' + (jefe ? '' : ', Endoscopía') + ' y Obstetricia, esté cerrado o no el bloque.'
+        : 'El turno de urgencia se ofrece el mismo día, en la hora que corre, en el Quirófano 1' + (jefe ? '' : ', Endoscopía') + ' y Obstetricia.'}</div>
       ${esHoy ? `<button class="pu-btn pu-btn-urg" onclick="irAUrgencia()">${ico(ICONS.zap, 14)} Ir al turno de urgencia</button>` : ''}</div></div>`;
   return `<div class="puerta">
     <div class="pu-marco">
@@ -25633,7 +25743,7 @@ function renderProgDiaria() {
   const d = diaSel;
   const laborable = esLaborable(d);
   const dOn = diaHabilitado(d);
-  const enGrilla = DB.cirugias.filter((c) => diaDeGrilla(c) === d);
+  const enGrilla = DB.cirugias.filter((c) => diaDeGrilla(c) === d && cxVer(c));
   // Las resueltas por urgencia conservan el día para dejar rastro, pero ya no
   // ocupan franja: no se cuentan como capacidad usada.
   // Sin `sala` no hay franja tomada: vale para las resueltas por anticipado y
@@ -25669,7 +25779,7 @@ function renderProgDiaria() {
       ${jefe ? `<button class="btn btn-sm btn-outline" style="margin-left:auto;flex:none" onclick="openJefaturaDia()">Editar</button>` : ''}</div>`;
   }
   cuerpo += `<div class="salas-grid">${SALAS.filter((s) => s.tipo === 'qx').map((s) => salaCard(d, s)).join('')}</div>`;
-  cuerpo += SALAS.filter((s) => s.tipo !== 'qx').map((s) => `<div style="margin-bottom:16px">${salaCard(d, s)}</div>`).join('');
+  cuerpo += SALAS.filter((s) => s.tipo !== 'qx' && !(jefe && s.tipo === 'endo')).map((s) => `<div style="margin-bottom:16px">${salaCard(d, s)}</div>`).join('');
 
   // Turnos cargados antes de existir la grilla (o con la sala ya retirada del bloque):
   // se listan aparte para que ninguno quede invisible en la programación del día.
@@ -25753,7 +25863,7 @@ function dselHTML(d, ocupadas, capacidad) {
   // Ocupación de la cinta en una sola pasada por las cirugías.
   const porDia = {};
   for (const c of DB.cirugias) {
-    if (c.estado === 'anticipada' || !c.sala) continue;
+    if (c.estado === 'anticipada' || !c.sala || !cxVer(c)) continue;
     const k = diaDeGrilla(c); porDia[k] = (porDia[k] || 0) + 1;
   }
   const dias = [];
@@ -25863,9 +25973,9 @@ function toggleGuia() { guiaAbierta = !guiaAbierta; renderProgDiaria(); }
 
 const GUIA_TEMAS = [
   { c: '#0e7490', ico: 'lock',     t: 'El bloque nace cerrado',
-    b: 'Las seis salas amanecen bloqueadas. Las abre la <b>Jefatura</b>, sala por sala y turno por turno, y puede reservar un tramo <b>para una o varias especialidades</b>.' },
+    b: 'Las salas amanecen bloqueadas. Las abre su <b>Jefatura</b>, sala por sala y turno por turno, y puede reservar un tramo <b>para una o varias especialidades</b>.' },
   { c: '#c62f2f', ico: 'zap',      t: 'Urgencias, las 24 horas',
-    b: 'Quirófano 1, Endoscopía y Obstetricia tienen <b>un turno libre en la hora que corre</b>, siempre.' },
+    b: 'Las salas de guardia tienen <b>un turno libre en la hora que corre</b>, siempre.' },
   { c: '#b45309', ico: 'shield',   t: '1º Admisión y Egresos',
     b: 'Con <b>apto anestésico, preoperatorios y consentimiento</b>, Admisión acepta. Sin eso el turno no avanza.' },
   { c: '#166b4a', ico: 'check',    t: '2º Jefatura de Quirófanos',
@@ -25948,6 +26058,10 @@ function moverDia(n) { diaSel = sumarDias(diaSel || hoyISO(), n); renderProgDiar
 /* ---- Modal de turno sobre una franja ---- */
 function openSlot(d, sid, fid) {
   const s = sala(sid), f = franjaDe(sid, fid);
+  if (sid === 'END' && jefeGlobal()) { avisar('Endoscopía Digestiva\n\nLa Sala de Endoscopía la gestiona la Jefatura de Endoscopía, no la Jefatura de Quirófanos.'); return; }
+  // 3.35 · En el formulario del turno, el Jefe/a de Endoscopía es un médico más (edita lo suyo);
+  // gestiona los turnos de otros desde la ficha y su pantalla «Jefatura de Endoscopía».
+  const jefe = sid === 'END' ? false : jefeGlobal();
   const c = turnoEn(d, sid, fid);
   const u = usuarioActual();
   const nuevo = !c;
@@ -26790,6 +26904,7 @@ function eliminarTurnoPropio(id) {
 function cancelarSlot(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
+  const jefe = jefeDe(c);   // 3.35 · en Endoscopía, «jefe» es el Jefe/a de Endoscopía
   if (['en_curso', 'realizada', 'finalizada'].includes(c.estado)) {
     alert('No se puede cancelar un turno en curso o ya realizado. Si corresponde, registre la incidencia correspondiente.');
     return;
@@ -27039,7 +27154,7 @@ function hbAbiertosDia(d) {
 }
 function openJefaturaDia() {
   const d = diaSel || hoyISO();
-  const prog = salasProgramables();
+  const prog = salasProgramables().filter((s) => s.tipo !== 'endo');   // 3.35 · Endoscopía la abre su Jefe/a
   const cols = TURNOS_BLOQUE.map((t) => t.p).filter((p) => prog.some((s) => turnosDeSala(s).includes(p)));
   const { n, t } = hbAbiertosDia(d);
   const pct = t ? Math.round(n / t * 100) : 0;
@@ -27311,7 +27426,7 @@ function jefCopiarAgenda(d, dias, soloHabiles) {
 }
 function jefLimpiarDia(d) {
   pedirJefatura('Limpiar programación del día', 'Se eliminarán todos los turnos aún no confirmados del día.', async () => {
-    const borrables = DB.cirugias.filter((c) => diaDeGrilla(c) === d && ['borrador', 'pendiente', 'validada'].includes(c.estado));
+    const borrables = DB.cirugias.filter((c) => diaDeGrilla(c) === d && !esEndo(c) && ['borrador', 'pendiente', 'validada'].includes(c.estado));
     if (!borrables.length) { alert('No hay turnos cancelables en el día. Los turnos confirmados, en curso o realizados no se eliminan.'); return; }
     if (!await preguntar(`Se eliminan ${borrables.length} turno(s) no confirmado(s) del ${fmtFecha(d)}. Los confirmados, en curso y realizados no se tocan.`,
       { titulo: '¿Limpiar el día?', tono: 'peligro', si: 'Sí, eliminarlos' })) return;
@@ -31667,6 +31782,57 @@ function cieTecla(ev) {
   else if (ev.key === 'Escape') cieCerrar();
 }
 
+/* ================= (3.35) JEFATURA DE ENDOSCOPÍA =================
+   Lo que la Jefatura de Quirófanos hacía con la Sala de Endoscopía, ahora lo hace su
+   Jefe/a (un médico designado): abrir las franjas, ver y gestionar todos los turnos de la
+   Unidad (con los mismos botones de la ficha) y bajar el parte de Endoscopía. */
+let ejTab = 'activos', ejParte = null;
+const EJ_ACTIVOS = ['borrador', 'pendiente', 'validada', 'confirmada', 'en_curso', 'sin_resolver'];
+function renderEndoJefe() {
+  const u = usuarioActual();
+  if (!esJefeEndo(u)) { go('panel'); return; }
+  const h = hoyISO(); if (!ejParte) ejParte = h;
+  const dias = Array.from({ length: 14 }, (_, i) => sumarDias(h, i));
+  const delDia = (d) => DB.cirugias.filter((c) => esEndo(c) && diaDeGrilla(c) === d && !['anticipada', 'caducada', 'suspendida'].includes(c.estado)).length;
+  const celda = (d, p, t) => { const on = turnoHabilitado(d, 'END', p); return `<button type="button" class="ej-f ${on ? 'on' : ''}" onclick="ejFranja('${d}','${p}')" aria-pressed="${on}" title="${t} · ${on ? 'abierta' : 'cerrada'}">${on ? '✓ Abierta' : 'Cerrada'}</button>`; };
+  const todos = DB.cirugias.filter(esEndo);
+  const L = (ejTab === 'activos' ? todos.filter((c) => EJ_ACTIVOS.includes(estadoVisible(c)) || (c.estado === 'realizada' && !cirugiaCerrada(c)))
+    : todos.filter((c) => (c.fecha || '') >= sumarDias(h, -60))).sort((a, b) => String(a.fecha || '').localeCompare(String(b.fecha || '')) || String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+  const sinRes = todos.filter((c) => estadoVisible(c) === 'sin_resolver').length, pend = todos.filter((c) => c.estado === 'pendiente').length;
+  $('main').innerHTML = `
+    <div class="page-head"><div class="head-row"><div class="head-icon">🔭</div><div>
+      <h1 class="page-title">Jefatura de Endoscopía</h1><p class="page-sub">Sala de Endoscopía Digestiva · ${esc(u.nombre)}</p></div></div></div>
+    <div class="ej-kpis"><div><b>${todos.filter((c) => c.estado === 'confirmada' && c.fecha >= h).length}</b><small>confirmadas</small></div><div class="${pend ? 'warn' : ''}"><b>${pend}</b><small>esperan a Admisión</small></div><div class="${sinRes ? 'mal' : ''}"><b>${sinRes}</b><small>sin resolver</small></div></div>
+    <section class="ej-sec"><h3>🗓️ Franjas de Endoscopía <small>toque para abrir o cerrar · los endoscopistas programan solo en las abiertas</small></h3>
+      <div class="ej-grid"><div class="ej-h"></div><div class="ej-h">Mañana<small>08 a 13 h</small></div><div class="ej-h">Tarde<small>14 a 17 h</small></div>
+      ${dias.map((d) => `<div class="ej-d ${esLaborable(d) ? '' : 'finde'}"><b>${esc(fmtDiaLargo(d).split(' de ')[0])}</b><small>${esc(fmtFecha(d))}${delDia(d) ? ` · ${delDia(d)} turno${delDia(d) === 1 ? '' : 's'}` : ''}</small></div>${celda(d, 'M', 'Mañana')}${celda(d, 'T', 'Tarde')}`).join('')}</div>
+      <button type="button" class="btn btn-sm btn-outline" style="margin-top:8px" onclick="ejAbrirHabiles()">Abrir mañana y tarde de todos los días hábiles de estas 2 semanas</button>
+    </section>
+    <section class="ej-sec"><h3>📄 Parte de Endoscopía</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input type="date" value="${ejParte}" onchange="ejParte=this.value" style="padding:8px 10px;border-radius:10px;border:1px solid var(--line);font-family:inherit">
+      <button class="btn btn-sm btn-blue" onclick="imprimirParte(ejParte, 'endo')">${ICONS.fileText} Imprimir el parte</button></div></section>
+    <section class="ej-sec"><h3>🔭 Turnos de la Unidad</h3>
+      <div class="en-dias" style="max-width:420px"><button type="button" class="${ejTab === 'activos' ? 'on' : ''}" onclick="ejTab='activos';renderEndoJefe()">En curso del circuito</button><button type="button" class="${ejTab === 'todos' ? 'on' : ''}" onclick="ejTab='todos';renderEndoJefe()">Últimos 60 días</button></div>
+      ${L.length ? L.map((c) => cirCard(c, 'jefe')).join('') : '<div class="empty">No hay turnos de Endoscopía en esta lista.</div>'}
+    </section>`;
+}
+function ejFranja(d, p) {
+  const u = usuarioActual(); if (!esJefeEndo(u)) return;
+  const prev = (DB.agendaEndo || []).find((x) => x.id === d);
+  const e = Object.assign({ id: d, M: turnoHabilitado(d, 'END', 'M'), T: turnoHabilitado(d, 'END', 'T') }, prev || {});
+  e[p] = !e[p]; e.por = u.nombre; e.t = nowDT();
+  upsert('agendaEndo', e);
+  renderEndoJefe();
+}
+async function ejAbrirHabiles() {
+  const u = usuarioActual(); if (!esJefeEndo(u)) return;
+  const dias = Array.from({ length: 14 }, (_, i) => sumarDias(hoyISO(), i)).filter(esLaborable);
+  if (!await preguntar(`Se abren la mañana y la tarde de ${dias.length} días hábiles (los fines de semana y feriados quedan como están).`, { titulo: 'Abrir las 2 semanas', si: 'Sí, abrir', no: 'Cancelar' })) return;
+  dias.forEach((d) => upsert('agendaEndo', { id: d, M: true, T: true, por: u.nombre, t: nowDT() }));
+  toastTurno('Franjas de Endoscopía abiertas ✓', '#0d9488');
+  renderEndoJefe();
+}
+
 /* ---- Emisión ---- */
 async function generarPase(c, mail, dni) {
   c.paciente = c.paciente || {};
@@ -31734,6 +31900,7 @@ const paseOfrecido = new Set();   // turnos a los que ya se les ofreció el pase
 function openPase(id, opciones) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
+  const jefe = jefeDe(c);   // 3.35 · en Endoscopía, «jefe» es el Jefe/a de Endoscopía
   paseId = id;
   closeSlot();
   pintarEstiloPase();
@@ -32871,7 +33038,7 @@ function pintarModEquipo() {
 function modulosRegistrados(desde, hasta) {
   const filas = [];
   DB.cirugias.forEach((c) => {
-    if (!cirugiaCerrada(c) || !c.modulo) return;            // solo lo operado Y cerrado
+    if (!cirugiaCerrada(c) || !c.modulo || !cxVer(c)) return;            // solo lo operado Y cerrado
     // Módulo dado de baja por la Dirección Médica: la cirugía se hizo, pero no
     // se factura. No se imputa a nadie ni suma en ningún total de la solapa.
     if (moduloDadoDeBaja(c)) return;
@@ -35009,6 +35176,7 @@ Object.assign(VIEWS, {
   anestesia: () => renderAnestesia(),
   guardias: renderGuardias,
   portales: renderPortales,
+  endojefe: renderEndoJefe,
   nueva: renderNueva,
   solicitud: renderSolicitud,
   mis: renderMis,

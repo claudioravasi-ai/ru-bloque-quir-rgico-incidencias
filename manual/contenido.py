@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.34.4'
+VERSION = '3.35.3'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -554,7 +554,33 @@ BLOQUES = [
 ]),
 
 # ─────────────────────────────────────────────────────────────── 14
-('h1', '14. Novedades de las versiones 3.12 a 3.34'),
+('h1', '14. Novedades de las versiones 3.12 a 3.35'),
+('h2', 'Versión 3.35.3 — Terminar Endoscopía y sumarse a un quirófano'),
+('ul', [
+    '**«Una persona, una sala» mira el horario.** Quien tomó endoscopías (o cualquier sala) puede tomar después otra sala del mismo día si los horarios no se superponen: por ejemplo, la enfermera de la endoscopía de las 10:00 puede tomar una cirugía de las 14:00 y sigue figurando en su endoscopía. Cada cirugía ocupa desde su hora programada hasta su duración estimada más 30 minutos de recambio. Si se superponen, la app pregunta si es un cambio de sala, como antes.',
+    '**La propuesta automática** sigue sin proponer para quirófano a quien tomó Endoscopía ese día (no sabe a qué hora va a terminar); esa persona se suma sola con «✋ TOMAR» cuando hay lugar y trabajo.',
+]),
+('h2', 'Versión 3.35.2 — La Jefatura ve quién de su personal se va a Endoscopía'),
+('ul', [
+    '**Portales del equipo:** la Jefatura de Quirófanos vuelve a ver las endoscopías del día en el Recorrido del día y en las pestañas de Anestesiología y Enfermería, **solo para mirar**: quién tomó cada lugar y quién falta. No tiene botones ni firmas sobre Endoscopía, no puede abrir sus fichas y no le aparece en el Panel, Programación, la grilla, el Parte ni los avisos.',
+    '**Equipos del día:** abajo de las salas, la tarjeta **🔭 Endoscopía · solo para ver** muestra, por estudio, quién va como Anestesiología, Enfermería de anestesia y Enfermería de endoscopía (o «libre»).',
+    '**La propuesta automática respeta Endoscopía:** el anestesiólogo/a o enfermero/a que ya tomó un lugar en Endoscopía ese día no se propone para un quirófano.',
+]),
+('h2', 'Versión 3.35.1 — Tomar con dos semanas de anticipación'),
+('ul', [
+    '**«Tomar mi lugar» muestra las próximas 2 semanas.** En lugar de Hoy/Mañana, una tira de 14 días: cada día dice cuántos lugares libres hay para esa persona (número rojo) o ✓ si hay programados pero nada libre para ella. Así Enfermería y Anestesiología pueden tomar un turno días antes (por ejemplo, las endoscopías del 4 de noviembre) o el mismo día. El botón dice cuántos lugares libres hay en las dos semanas y cuál es el primero.',
+    '**Al entrar a la app** la ventana se abre sola en el primer día con lugar libre para esa persona (no solo hoy o mañana). Una vez por día.',
+    '**Anestesiología** puede tomar endoscopías y cirugías de otros días desde «Tomar mi lugar» (su portal sigue mostrando el día de hoy).',
+    '**Instrumentación ya no ve las endoscopías** en Mi Sala ni en «Tomar mi lugar»: no participa de Endoscopía.',
+]),
+('h2', 'Versión 3.35.0 — Endoscopía Digestiva con su propia Jefatura'),
+('ul', [
+    '**La Endoscopía Digestiva ya no es de Quirófanos centrales.** La sesión de Jefatura de Quirófanos no ve nada de Endoscopía: ni en el Panel, ni en Programación (por estado, «Ahora te toca», todas), ni en la grilla, ni en el Parte, Ingresos, Quirófanos en vivo, Portales, Mi Sala, Indicadores, Estadísticas, Módulos o avisos. Si intenta abrir una ficha de Endoscopía, la app le dice que la gestiona la Jefatura de Endoscopía.',
+    '**Jefe/a de Endoscopía.** Es un médico (endoscopista) designado por la Jefatura de Quirófanos en **Portales del equipo › Recorrido del día**, tarjeta 👑 **Jefe/a de Endoscopía Digestiva**. La Jefatura solo elige a la persona: no ve datos de Endoscopía. Hay uno a la vez; se cambia o se quita desde la misma tarjeta. Entra con su propia cuenta.',
+    '**Su pantalla «Jefatura de Endoscopía»** (en su menú): contadores (confirmadas, esperan a Admisión, sin resolver); **Franjas de Endoscopía** de las próximas dos semanas (toca Mañana o Tarde para abrir o cerrar; hay un botón para abrir todos los días hábiles); **Parte de Endoscopía** para imprimir; y **Turnos de la Unidad** con los mismos botones que tenía la Jefatura: suspender, resolver el turno vencido, reabrir, resuelta por urgencia, pase del paciente. Las acciones delicadas le piden su contraseña.',
+    '**Las franjas de Endoscopía las abre su Jefe/a** (ya no la Jefatura de Quirófanos). Lo que la Jefatura había abierto antes sigue valiendo hasta que el Jefe/a de Endoscopía cambie ese día.',
+    '**Avisos:** los recordatorios de Endoscopía (turnos sin resolver, autorizaciones, etc.) le llegan al Jefe/a de Endoscopía y al endoscopista del turno; la escalera de autorización por correo también va al Jefe/a de Endoscopía en lugar de la Jefatura. Los turnos de Endoscopía vencidos los cierra su Jefe/a o el dueño del turno.',
+]),
 ('h2', 'Versión 3.34.4 — ✋ TOMAR: cada uno toma su lugar en la programación del día'),
 ('ul', [
     '**✋ TOMAR en la Programación Diaria.** En cada cirugía, cesárea y endoscopía del día, a cada persona de Enfermería, Instrumentación y Anestesiología le aparece en la tarjeta del turno **✋ TOMAR** cuando hay un puesto libre de su función. Al tocarlo se abre la ventana **Tomar mi lugar** justo en esa cirugía. El cirujano, la obstetra o el endoscopista no lo ve: ya figura porque programó el turno.',
