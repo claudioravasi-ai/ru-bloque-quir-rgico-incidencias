@@ -4527,8 +4527,13 @@
   .ci-split > .ci-col:first-child > .card:nth-of-type(5) { --cc: #8b5cf6; }
   .ci-split > .ci-col:first-child > .card .card-title { color: var(--cc); }
   .ci-preview-col .ci-doc { border-radius: 14px; box-shadow: 0 18px 40px -20px rgba(30,27,75,.45); }
-  #ci-btn-word { background: linear-gradient(120deg, #2563eb, #7c3aed) !important; border: 0 !important; }
-  #ci-btn-guardar { border-color: #10b981 !important; color: #047857 !important; }
+  #ci-btn-word { background: var(--card) !important; color: #4338ca !important; border: 1.5px solid #a5b4fc !important; }
+  /* 3.34.2 · GUARDAR es el botón importante: es el que registra el consentimiento y confirma la franja. */
+  #ci-btn-guardar { order: -1; background: linear-gradient(120deg, #059669, #10b981) !important; color: #fff !important; border: 0 !important; font-size: 1.02rem !important; font-weight: 800 !important;
+    padding: 12px 22px !important; box-shadow: 0 10px 24px -10px #059669; animation: ciGuardarLate 2.4s ease-in-out infinite; }
+  #ci-btn-guardar:hover { transform: translateY(-1px); box-shadow: 0 14px 28px -10px #059669; }
+  @keyframes ciGuardarLate { 0%, 100% { box-shadow: 0 10px 24px -10px #059669; } 50% { box-shadow: 0 10px 30px -6px #10b981; } }
+  @media (prefers-reduced-motion: reduce) { #ci-btn-guardar { animation: none; } }
   @media (prefers-reduced-motion: reduce) { .ci-hero, .ci-hero::after, .ci-tile { animation: none !important; } }
 
   /* ================= 3.21 · Botones de Estadísticas ================= */
@@ -5046,6 +5051,19 @@
   .ing-cama small { font-weight: 600; opacity: .9; font-size: .66rem; } .ing-cama.no { color: #b91c1c; background: #fee2e2; box-shadow: none; }
   .ing-a { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
   /* 3.33 · Endoscopía ambulatoria: fila propia con la ruta del paciente (sin cama). */
+  .tm-pie-otro { border-color: #5eead4 !important; color: #0f766e !important; }
+  .pase-envio.ok { border: 1px solid #86efac; background: #f0fdf4; color: #14532d; align-items: flex-start; }
+  .pase-envio.ok > svg { color: #16a34a; flex: none; }
+  .pase-lleva { margin: 4px 0 0; padding-left: 4px; list-style: none; font-size: .82rem; line-height: 1.5; }
+  .cie-campo { position: relative; }
+  .cie-lista { display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 30; margin-top: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 16px 30px -18px rgba(0,0,0,.45); padding: 4px; max-height: 300px; overflow: auto; }
+  .cie-lista.open { display: block; }
+  .cie-it { display: grid; grid-template-columns: 62px 1fr; gap: 8px; align-items: baseline; width: 100%; text-align: left; border: 0; background: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font: inherit; color: var(--ink); }
+  .cie-it:hover, .cie-it.sel { background: color-mix(in srgb, var(--blue, #2563eb) 10%, transparent); }
+  .cie-it code { font-weight: 800; color: #1d4ed8; font-size: .85rem; }
+  .cie-it span { font-size: .86rem; line-height: 1.3; }
+  .cie-pie { display: block; padding: 6px 10px 4px; color: var(--muted); font-size: .72rem; }
+  input.auto-ok { box-shadow: 0 0 0 3px color-mix(in srgb, #10b981 45%, transparent); transition: box-shadow .3s; }
   .tq-ops { display: grid; gap: 10px; margin-top: 12px; }
   .tq-op { display: grid; grid-template-columns: 44px 1fr; gap: 2px 10px; text-align: left; padding: 14px; border-radius: 16px; border: 2px solid var(--line); background: var(--card); cursor: pointer; font: inherit; color: var(--ink); transition: transform .15s, box-shadow .15s; }
   .tq-op:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba(0,0,0,.4); }
@@ -9599,7 +9617,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.34.1';
+const APP_VERSION = '3.34.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -17855,9 +17873,6 @@ function accionesCirugia(c, rol) {
   if (puedeBajarCiFirmado(c)) {
     a.push(`<button class="btn btn-sm btn-green" onclick="ciFirmadoDescargar(${c.id})">${ico(ICONS.download, 14)} Consentimiento firmado (PDF)</button>`);
   }
-  if (puedeOtroEstudio(c)) {
-    a.push(`<button class="btn btn-sm btn-outline" style="border-color:#5eead4;color:#0f766e" onclick="otroEstudio(${c.id})">➕ Otro estudio del mismo paciente</button>`);
-  }
   if (c.estado === 'caducada' && c.reprogramadaEn) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="openCirugia(${c.reprogramadaEn})">${ICONS.refresh} Ver el turno nuevo</button>`);
   }
@@ -19427,7 +19442,10 @@ function enRutaHTML(c) {
   const P = [
     ['Autoriza Admisión', c.auth === 'AUTORIZADO' ? `Autorizó ${c.authAgente || 'Admisión y Egresos'}${c.authFecha ? ' · ' + fmtDT(c.authFecha) : ''}.` : authPendienteDiferida(c) ? 'Urgencia: se hace sin esperar; Admisión regulariza después con «Regularizar».' : c.auth === 'NO AUTORIZADO' ? 'No autorizada: ' + (c.authMotivo || 'sin motivo') + '.' : 'Falta su autorización. Con ella la endoscopía queda confirmada: no pasa por la Jefatura de Quirófanos.'],
     ['Confirmada', c.estado === 'confirmada' || n >= 2 ? 'Está en el parte de Endoscopía. El paciente lo ve en su pase.' : 'Se confirma sola cuando Admisión autoriza.'],
-    ['Pulsera', c.pulsera ? `Impresa ${fmtDT(c.pulsera.t)} · ${c.pulsera.por}. Su QR abre la LVQ de Entrada.` : 'Ambulatoria: no lleva cama. Imprima la pulsera cuando llegue el paciente.'],
+    ['Pulsera', c.pulsera ? `Impresa ${fmtDT(c.pulsera.t)} · ${c.pulsera.por}. Su QR abre la LVQ de Entrada.`
+      : c.estado === 'pendiente' ? 'Primero la autorización: con la endoscopía confirmada, el botón «Imprimir pulsera» aparece desde la víspera.'
+      : pulseraAmbulatoriaPuede(c) ? 'Ya se puede imprimir. Admisión la imprime cuando el paciente se presenta en la ventanilla con su DNI (no lleva cama).'
+      : `El botón «Imprimir pulsera» aparece desde la víspera (${fmtFecha(sumarDias(c.fecha, -1))}). Admisión la imprime cuando el paciente se presenta en la ventanilla con su DNI.`],
     ['En sala', n >= 4 ? 'El equipo de Endoscopía ya inició la Lista de Verificación.' : 'La inicia el equipo de la sala con la Lista de Verificación.'],
   ];
   return `<div class="en-ruta"><span class="en-ruta-t">${EN_SCOPE} Ambulatoria · sin cama</span>
@@ -20947,7 +20965,7 @@ function openCirugia(id) {
               : c.ciPase ? `<span class="fx-pill bad">${ico(ICONS.clockSm, 12)} Falta que el paciente lo acepte en su pase</span>` : ''}
           </div>
           ${c.pase && prepFaltaCargar(c).length ? `<p class="form-note" style="color:#b45309">Falta cargar en la app el protocolo oficial: ${esc(prepFaltaCargar(c).join(' · '))}. Hasta entonces el correo no lleva la preparación.</p>` : ''}
-          <button class="btn btn-sm btn-outline fx-btn" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir el consentimiento' : 'Generar el consentimiento informado'}</button>${aaotFichaHTML(c)}`)}
+          <button class="btn btn-sm btn-outline fx-btn" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir el consentimiento' : 'Generar el consentimiento informado'}</button>${puedeBajarCiFirmado(c) ? `<button class="btn btn-sm btn-green fx-btn" onclick="ciFirmadoDescargar(${esc(JSON.stringify(c.id))})">${ico(ICONS.download, 14)} Bajar el firmado por el paciente (PDF)</button>` : c.ciPase && !c.ciPaciente ? '<p class="form-note" style="margin:6px 0 0">Cuando el paciente lo acepte en su pase, acá aparece el botón para bajar el consentimiento firmado (PDF).</p>' : ''}${aaotFichaHTML(c)}`)}
 
         ${tarjeta(ICONS.calendar, 'Programación', kv([
           ['Fecha y hora', `${fmtFecha(c.fecha)} · ${c.horaProg || '—'} h`],
@@ -25830,7 +25848,7 @@ function openSlot(d, sid, fid) {
       <div class="form-grid">
         <div class="field full"><label>Apellido y nombre *</label><input type="text" id="k-pac" value="${v(m && m.paciente?.nombre)}" ${ro}></div>
         <div class="field"><label>DNI</label><input type="text" id="k-dni" inputmode="numeric" value="${v(m && m.paciente?.dni)}" ${ro}></div>
-        <div class="field"><label>Fecha de nacimiento</label><input type="date" id="k-nac" value="${v(m && m.paciente?.nacimiento)}" ${ro}>
+        <div class="field"><label>Fecha de nacimiento</label><input type="date" id="k-nac" value="${v(m && m.paciente?.nacimiento)}" ${ro} oninput="edadDesdeNac()" onchange="edadDesdeNac()">
           <span class="hint">Se vuelca al consentimiento informado.</span></div>
         <div class="field"><label>Edad</label><input type="number" id="k-edad" min="0" max="120" value="${m?.paciente?.edad ?? ''}" ${ro}></div>
         <div class="field"><label>Teléfono</label><input type="tel" id="k-tel" value="${v(m && m.paciente?.telefono)}" ${ro}></div>
@@ -25848,7 +25866,7 @@ function openSlot(d, sid, fid) {
     <section class="tm-sec">
       <div class="tm-sec-h"><span class="tm-n">2</span><div><b>Diagnóstico y cirugía</b><span>qué se opera, elegido del nomenclador</span></div></div>
       <div class="form-grid">
-        <div class="field"><label>Diagnóstico preoperatorio *</label><input type="text" id="k-diag" value="${v(m && m.diagnostico)}" ${ro}></div>
+        <div class="field cie-campo"><label>Diagnóstico preoperatorio *</label><input type="text" id="k-diag" value="${v(m && m.diagnostico)}" ${ro} autocomplete="off" placeholder="Escriba: gastritis, hernia inguinal, K80…" oninput="cieBuscar()" onfocus="cieBuscar()" onkeydown="cieTecla(event)" onblur="setTimeout(cieCerrar, 180)"><div class="cie-lista" id="cie-lista" role="listbox"></div></div>
         <div class="field"><label>Código CIE-10</label><input type="text" id="k-cie" placeholder="Ej: K80.2" value="${v(m && m.cie10)}" ${ro}></div>
         ${campoPractica(m, ro)}
       </div>
@@ -25924,6 +25942,7 @@ function openSlot(d, sid, fid) {
     <div class="tm-pie">
       ${c && rcActivo(c) && puedeEditar ? '<p class="tm-ayuda rc-nota-guardar">«Guardar cambios» solo guarda los datos del turno que haya corregido arriba (paciente, cirugía, duración, equipos…). <b>No</b> es el OK a la nueva fecha: ese es el botón 🛏 de «Lo que sigue».</p>' : ''}
       ${puedeEditar ? `<button class="btn btn-blue tm-pie-main" onclick="guardarSlot()">${ICONS.check.replace('14', '16')} ${nuevo ? 'Programar turno' : 'Guardar cambios'}</button>` : ''}
+      ${c && puedeOtroEstudio(c) ? `<button class="btn btn-outline tm-pie-otro" onclick="otroEstudio(${c.id})">➕ Otro estudio del mismo paciente</button>` : ''}
       ${c && !sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email)) ? `<button class="btn btn-outline tm-pie-red" onclick="cancelarSlot(${c.id})">${ICONS.trash} ${jefe ? 'Cancelar turno' : 'Eliminar o pasar a otro día'}</button>` : ''}
       <button class="btn btn-outline" onclick="closeSlot()">Cerrar</button>
       ${!puedeEditar ? `<p class="form-note" style="flex-basis:100%;margin:4px 0 0">El turno ya avanzó en el circuito: los datos se corrigen desde <b>Ver y completar ficha</b>.</p>` : ''}
@@ -30577,7 +30596,7 @@ function renderConsentimientos() {
     <div class="ci-acciones">
       <button class="btn btn-blue" id="ci-btn-word" onclick="ciDescargar(this)">${ico(ICONS.download, 16)} Bajar e imprimir (Word)</button>
       <button class="btn btn-outline" id="ci-btn-pdf" onclick="ciImprimir(this)">${ICONS.fileText} Imprimir / PDF</button>
-      <button class="btn btn-outline" id="ci-btn-guardar" onclick="ciGuardar(this)">${ico(ICONS.check, 15)} Guardar en registro</button>
+      <button class="btn btn-green" id="ci-btn-guardar" onclick="ciGuardar(this)">${ico(ICONS.check, 17)} GUARDAR el consentimiento</button>
       <button class="btn btn-outline" id="ci-btn-limpiar" onclick="ciLimpiar()">${ico(ICONS.trash, 15)} Limpiar</button>
     </div>
 
@@ -30881,7 +30900,7 @@ body.portal-pac .pp-input::placeholder{color:#9ca3af;-webkit-text-fill-color:#9c
 .pp-ci>span{font-size:.88rem;color:#4b5563;line-height:1.45}
 .pp-ci{border:2px solid #c4b5fd}
 .pp-ci.ok{border-color:#86efac;background:linear-gradient(135deg,#f0fdf4,#fff)} .pp-ci.ok>b{color:#15803d}
-.pp-ci-doc{width:100%;height:min(60vh,520px);border:1px solid #ddd6fe;border-radius:12px;background:#fff;margin-top:6px}
+.pp-ci-doc{display:block;width:100%;height:70vh;border:1px solid #ddd6fe;border-radius:12px;background:#fff;margin-top:6px}
 .pp-ci-ayuda{font-size:.8rem;font-weight:700;color:#7c3aed;margin:2px 0}
 .pp-ci-tilde{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:12px;background:#f5f3ff;cursor:pointer;font-weight:700;font-size:.95rem;color:#3b0764;line-height:1.35}
 .pp-ci-tilde input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:#7c3aed}
@@ -30955,6 +30974,13 @@ function primerNombre(n) {
   const p = (parte || t).trim().split(/\s+/)[0] || '';
   return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
 }
+/* 3.34.2 · El saludo del pase: «Apellido, Nombre» → «Nombre Apellido»; si no hay coma
+   no se sabe qué es apellido, así que va el nombre completo (antes decía «Hola, Ravasi»). */
+function nombreSaludo(n) {
+  const t = String(n || '').trim(); if (!t) return '';
+  const orden = t.includes(',') ? t.split(',').slice(1).join(' ') + ' ' + t.split(',')[0] : t;
+  return orden.trim().split(/\s+/).map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+}
 function enmascararMail(m) {
   const [u, d] = String(m || '').split('@');
   if (!u || !d) return '';
@@ -31016,7 +31042,7 @@ function portalFoto(c, borrado) {
   if (e.caducado) return { v: 1, caducado: true, clave: e.clave, act: ahoraServidor() };
   return {
     v: 1, caducado: false, clave: e.clave, adm: e.adm, jef: e.jef, motivo: e.motivo || '', tipo: portalTipo(c),
-    nombre: primerNombre(c.paciente && c.paciente.nombre), proc: c.procedimiento || '',
+    nombre: nombreSaludo(c.paciente && c.paciente.nombre), proc: c.procedimiento || '',
     fecha: c.fecha || '', hora: c.horaProg || '', lugar: c.quirofano || '', cirujano: c.cirujano || '',
     ref: (c.pase && c.pase.ref) || '', act: ahoraServidor(),
     // 3.25 · Dónde está internado y, si la hay, la fecha nueva que se le pregunta.
@@ -31248,6 +31274,199 @@ async function ciFirmadoDescargar(id) {
   setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 500);
 }
 
+/* ================= (3.34.2) EDAD Y CIE-10 EN EL TURNO =================
+   La edad sale sola de la fecha de nacimiento. El diagnóstico sugiere el código
+   CIE-10 de una lista corta (152 diagnósticos frecuentes del bloque, controlados
+   contra la tabla oficial ICD-10): está dentro de la app (≈7 KB), se filtra en
+   memoria y en la base solo se guarda el código de siempre (k-cie → c.cie10). */
+function edadDesdeNac() {
+  const n = $('k-nac'), e = $('k-edad');
+  if (!n || !e || !n.value) return;
+  const t = ciEdad(n.value, '');
+  const a = parseInt(t, 10);
+  if (Number.isFinite(a) && a >= 0 && a <= 120) { e.value = a; e.classList.add('auto-ok'); setTimeout(() => e.classList.remove('auto-ok'), 900); }
+}
+const CIE10 = `K20|Esofagitis
+K21.0|Enfermedad por reflujo gastroesofágico con esofagitis
+K21.9|Enfermedad por reflujo gastroesofágico sin esofagitis
+K22.2|Obstrucción del esófago (estenosis esofágica)
+K22.7|Esófago de Barrett
+K22.0|Acalasia del cardias
+K44.9|Hernia diafragmática (hiatal) sin obstrucción ni gangrena
+K25.9|Úlcera gástrica no especificada
+K26.9|Úlcera duodenal no especificada
+K27.9|Úlcera péptica de sitio no especificado
+K29.0|Gastritis hemorrágica aguda
+K29.3|Gastritis crónica superficial
+K29.4|Gastritis crónica atrófica
+K29.5|Gastritis crónica no especificada
+K29.7|Gastritis no especificada
+K29.9|Gastroduodenitis no especificada
+K30|Dispepsia funcional
+K31.7|Pólipo del estómago y del duodeno
+I85.0|Várices esofágicas con hemorragia
+K92.0|Hematemesis
+K92.1|Melena
+K92.2|Hemorragia gastrointestinal no especificada
+R10.1|Dolor abdominal localizado en parte superior
+R13|Disfagia
+C15.9|Tumor maligno del esófago, parte no especificada
+C16.9|Tumor maligno del estómago, parte no especificada
+D13.1|Tumor benigno del estómago
+B96.8|Otros agentes bacterianos especificados como causa de enfermedad (p. ej., Helicobacter pylori)
+K90.0|Enfermedad celíaca
+T18.1|Cuerpo extraño en el esófago
+D50.9|Anemia por deficiencia de hierro sin otra especificación
+K50.9|Enfermedad de Crohn no especificada
+K51.9|Colitis ulcerosa no especificada
+K52.9|Colitis y gastroenteritis no infecciosas no especificadas
+K57.3|Enfermedad diverticular del intestino grueso sin perforación ni absceso
+K57.2|Enfermedad diverticular del intestino grueso con perforación y absceso
+K59.0|Constipación
+K58.9|Síndrome del colon irritable sin diarrea
+K62.1|Pólipo del recto
+K63.5|Pólipo del colon
+D12.6|Tumor benigno del colon, parte no especificada
+C18.9|Tumor maligno del colon, parte no especificada
+C20|Tumor maligno del recto
+K62.5|Hemorragia del ano y del recto
+K92.9|Enfermedad del sistema digestivo no especificada
+Z12.1|Examen de pesquisa especial para tumor del intestino
+Z80.0|Historia familiar de tumor maligno de órganos digestivos
+Z86.0|Historia personal de otros tumores (pólipos)
+R19.4|Cambios en los hábitos intestinales
+A09|Diarrea y gastroenteritis de presunto origen infeccioso
+K80.2|Cálculo de la vesícula biliar sin colecistitis
+K80.0|Cálculo de la vesícula biliar con colecistitis aguda
+K80.1|Cálculo de la vesícula biliar con otra colecistitis
+K80.5|Cálculo de conducto biliar sin colangitis ni colecistitis (coledocolitiasis)
+K81.0|Colecistitis aguda
+K81.1|Colecistitis crónica
+K82.4|Colesterolosis de la vesícula biliar
+K83.0|Colangitis
+K83.1|Obstrucción del conducto biliar
+K85.9|Pancreatitis aguda no especificada
+K86.1|Otras pancreatitis crónicas
+C25.9|Tumor maligno del páncreas, parte no especificada
+C22.0|Carcinoma de células hepáticas
+K76.0|Degeneración grasa del hígado
+K74.6|Otras cirrosis del hígado y las no especificadas
+K40.9|Hernia inguinal unilateral o no especificada, sin obstrucción ni gangrena
+K40.2|Hernia inguinal bilateral, sin obstrucción ni gangrena
+K40.3|Hernia inguinal unilateral, con obstrucción, sin gangrena
+K41.9|Hernia femoral unilateral, sin obstrucción ni gangrena
+K42.9|Hernia umbilical sin obstrucción ni gangrena
+K43.9|Hernia ventral sin obstrucción ni gangrena
+K43.2|Hernia incisional sin obstrucción ni gangrena
+K56.6|Otras obstrucciones intestinales y las no especificadas
+K56.5|Adherencias intestinales (bridas) con obstrucción
+K35.8|Apendicitis aguda, otra y la no especificada
+K35.3|Apendicitis aguda con peritonitis localizada
+K37|Apendicitis no especificada
+K65.0|Peritonitis aguda
+K25.5|Úlcera gástrica crónica o no especificada con perforación
+K64.9|Hemorroides no especificadas
+K60.2|Fisura anal no especificada
+K60.3|Fístula anal
+K61.0|Absceso anal
+L05.0|Quiste pilonidal con absceso
+L05.9|Quiste pilonidal sin absceso
+L72.1|Quiste tricodérmico (sebáceo)
+D17.9|Tumor benigno lipomatoso de sitio no especificado (lipoma)
+L02.9|Absceso cutáneo, furúnculo y carbunco de sitio no especificado
+E04.1|Nódulo tiroideo solitario no tóxico
+E04.2|Bocio multinodular no tóxico
+C73|Tumor maligno de la glándula tiroides
+C50.9|Tumor maligno de la mama, parte no especificada
+N60.1|Mastopatía quística difusa
+D24|Tumor benigno de la mama
+E66.9|Obesidad no especificada
+D25.9|Leiomioma del útero sin otra especificación
+N80.9|Endometriosis no especificada
+N83.2|Otros quistes ováricos y los no especificados
+N84.0|Pólipo del cuerpo del útero
+N81.2|Prolapso uterovaginal incompleto
+N92.0|Menstruación excesiva y frecuente con ciclo regular
+O00.9|Embarazo ectópico no especificado
+O02.1|Aborto retenido
+O03.9|Aborto espontáneo completo o no especificado, sin complicación
+O82|Parto único por cesárea
+O34.2|Atención materna por cicatriz uterina de cirugía previa
+O32.1|Atención materna por presentación de nalgas
+O64.9|Trabajo de parto obstruido por mala posición y presentación no especificada
+O14.1|Preeclampsia severa
+O60.1|Parto prematuro espontáneo con parto prematuro
+Z30.2|Esterilización
+N20.0|Cálculo del riñón
+N20.1|Cálculo del uréter
+N40|Hiperplasia de la próstata
+C61|Tumor maligno de la próstata
+C67.9|Tumor maligno de la vejiga urinaria, parte no especificada
+N43.3|Hidrocele no especificado
+I86.1|Várices escrotales (varicocele)
+N47|Prepucio redundante, fimosis y parafimosis
+Q53.9|Testículo no descendido, sin otra especificación
+S72.0|Fractura del cuello del fémur
+S72.1|Fractura pertrocanteriana
+S82.6|Fractura del maléolo externo
+S82.8|Fractura de otras partes de la pierna
+S52.5|Fractura de la epífisis inferior del radio
+S42.0|Fractura de la clavícula
+S42.2|Fractura de la epífisis superior del húmero
+S62.6|Fractura de otro dedo de la mano
+M17.1|Otras gonartrosis primarias
+M16.1|Otras coxartrosis primarias
+S83.2|Desgarro de meniscos, presente
+S83.5|Esguince y torcedura que compromete el ligamento cruzado (anterior) de la rodilla
+M75.1|Síndrome del manguito rotador
+G56.0|Síndrome del túnel carpiano
+M72.0|Fibromatosis de la aponeurosis palmar (Dupuytren)
+M65.3|Dedo en gatillo
+M51.1|Trastornos de disco lumbar y otros, con radiculopatía
+T84.0|Complicación mecánica de prótesis articular interna
+M86.9|Osteomielitis no especificada
+I83.9|Várices de los miembros inferiores sin úlcera ni inflamación
+E11.5|Diabetes mellitus tipo 2 con complicaciones circulatorias periféricas
+I70.2|Aterosclerosis de las arterias de los miembros
+N18.5|Enfermedad renal crónica, etapa 5
+J35.0|Amigdalitis crónica
+J35.3|Hipertrofia de las amígdalas con hipertrofia de las adenoides
+J34.2|Desviación del tabique nasal
+H25.9|Catarata senil no especificada
+H66.9|Otitis media no especificada
+C44.9|Tumor maligno de la piel, sitio no especificado
+C34.9|Tumor maligno de bronquio o pulmón, parte no especificada
+J93.9|Neumotórax no especificado
+J86.9|Piotórax sin fístula (empiema)`.split('\n').map((l) => { const [c, t] = l.split('|'); return { c, t, k: sinTildes(c + ' ' + t) }; });
+let cieHits = [], cieSel = -1;
+function cieBuscar() {
+  const q = $('k-diag'), L = $('cie-lista');
+  if (!q || !L || q.readOnly || q.disabled) return;
+  const txt = sinTildes(q.value).trim();
+  if (txt.length < 3) { cieCerrar(); return; }
+  const pal = txt.split(/\s+/).filter(Boolean);
+  cieHits = CIE10.filter((x) => pal.every((w) => x.k.includes(w))).slice(0, 8);
+  cieSel = -1;
+  L.innerHTML = cieHits.length ? cieHits.map((x, i) => `<button type="button" class="cie-it" role="option" onmousedown="event.preventDefault();cieElegir(${i})"><code>${esc(x.c)}</code><span>${esc(x.t)}</span></button>`).join('')
+    + '<small class="cie-pie">Toque uno: se completa el código CIE-10. Puede seguir escribiendo libre.</small>' : '';
+  L.classList.toggle('open', !!cieHits.length);
+}
+function cieElegir(i) {
+  const x = cieHits[i]; if (!x) return;
+  const q = $('k-diag'), c = $('k-cie');
+  if (q) q.value = x.t;
+  if (c) { c.value = x.c; c.classList.add('auto-ok'); setTimeout(() => c.classList.remove('auto-ok'), 900); }
+  cieCerrar();
+}
+function cieCerrar() { const L = $('cie-lista'); if (L) L.classList.remove('open'); }
+function cieTecla(ev) {
+  const L = $('cie-lista'); if (!L || !L.classList.contains('open')) return;
+  const its = [...L.querySelectorAll('.cie-it')];
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); cieSel = (cieSel + (ev.key === 'ArrowDown' ? 1 : -1) + its.length) % its.length; its.forEach((b, i) => b.classList.toggle('sel', i === cieSel)); }
+  else if (ev.key === 'Enter' && cieSel >= 0) { ev.preventDefault(); cieElegir(cieSel); }
+  else if (ev.key === 'Escape') cieCerrar();
+}
+
 /* ---- Emisión ---- */
 async function generarPase(c, mail, dni) {
   c.paciente = c.paciente || {};
@@ -31465,7 +31684,7 @@ function paseMosaico(c, url, tel, msg) {
   const wa = tel ? `https://wa.me/${tel.startsWith('54') ? tel : '54' + tel}?text=${encodeURIComponent(msg)}` : '';
   return `<div class="pase-mosaico">
     ${!p.caducado ? t('prin', '#7c3aed', '#db2777', ICONS.send, (p.envio && p.envio.ok) ? 'Reenviar el pase por correo' : 'Enviar el pase por correo',
-      'Le llega solo a ' + esc(enmascararMail(c.paciente && c.paciente.email)) + ', sin abrir tu correo', { on: `paseEnviarCorreo(${c.id}, false, this)` }) : ''}
+      (p.envio && p.envio.ok) ? 'ya salió solo · otra copia a ' + esc(enmascararMail(c.paciente && c.paciente.email)) : 'Le llega solo a ' + esc(enmascararMail(c.paciente && c.paciente.email)) + ', sin abrir tu correo', { on: `paseEnviarCorreo(${c.id}, false, this)` }) : ''}
     ${t('giro', '#0ea5e9', '#6366f1', ICONS.refresh, 'Dar vuelta', 'cómo se usa', { on: `paseGirar(this)` })}
     ${t('', '#f97316', '#e11d48', ICONS.fileText, 'Imprimir', 'frente y dorso', { on: 'imprimirPase()' })}
     ${!p.caducado && wa ? t('', '#16a34a', '#22c55e', ICONS.msg || ICONS.send, 'WhatsApp', 'mensaje listo', { href: wa }) : ''}
@@ -31502,9 +31721,14 @@ function paseEnvioHtml(c, enviando) {
   const e = c.pase && c.pase.envio;
   const mail = esc(enmascararMail(c.paciente && c.paciente.email));
   if (enviando) return `<div class="pase-envio va" role="status"><span class="pase-vuela">${ico(ICONS.send, 20)}</span><span><b>Enviando el pase a ${mail}…</b><small>El servicio del hospital lo manda solo.</small></span></div>`;
-  // 3.21: el pase sale solo por correo al generarse. El recuadro aparece
-  // únicamente si el envío falló; si salió bien (o todavía no hizo falta), nada.
-  if (!e || e.ok) return '';
+  // 3.21: el pase sale solo por correo al generarse.
+  // 3.34.2 · Si salió bien, se dice cuándo y QUÉ llevó (preparación, consentimiento…).
+  if (!e) return '';
+  if (e.ok) {
+    const L = e.lleva || paseLleva(c);
+    return `<div class="pase-envio ok" role="status">${ico(ICONS.checkCircle || ICONS.check, 22)}<span><b>Enviado a ${esc(e.a || mail)} · ${esc(fmtDT(e.t))}${e.auto ? ' (automático)' : ''}</b>
+      <small>El correo llevó:</small><ul class="pase-lleva">${L.map((x) => `<li>✓ ${esc(x)}</li>`).join('')}</ul></span></div>`;
+  }
   return `<div class="pase-envio err" role="alert">${ico(ICONS.alertTri, 22)}<span><b>No se pudo enviar el pase</b><small>${esc(PASE_ENVIO_ERR[e.err] || PASE_ENVIO_ERR.red)}${e.det ? ' (' + esc(e.det) + ')' : ''}</small></span></div>`;
 }
 /* Antes de pedir el envío, la foto y lo privado del pase tienen que estar en la
@@ -31517,9 +31741,20 @@ async function portalSubirPase(c) {
   portalFirmas[t] = JSON.stringify(Object.assign({}, foto, { act: 0 }));
   if (!await portalEscribirPrivado(c)) { const x = new Error('reglas'); x.det = 'portalPrivado'; throw x; }
 }
+/* Lo que lleva el correo del pase, dicho para el médico. */
+function paseLleva(c) {
+  const L = ['El enlace y el QR para seguir el turno'];
+  prepDe(c).forEach((p) => L.push(p.titulo + ' (protocolo del HRU)'));
+  if (consentimientoDeTurno(c)) L.push('El aviso de que puede leer y aceptar el consentimiento en el pase');
+  L.push(esEndo(c) ? 'Venir acompañado y no manejar después de la sedación' : 'Venir acompañado');
+  return L;
+}
 async function paseEnviarCorreo(id, auto, btn) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c || !c.pase || !c.pase.token || c.pase.caducado) return;
+  // 3.34.2 · El pase ya sale solo al generarse: reenviarlo manda un SEGUNDO correo.
+  if (!auto && c.pase.envio && c.pase.envio.ok && !await preguntar(`El pase ya se le envió a ${c.pase.envio.a || 'su correo'} el ${fmtDT(c.pase.envio.t)}${c.pase.envio.auto ? ' (automático, al generarlo)' : ''}.\n\nSi lo reenvía, al paciente le llega un segundo correo igual. Sirve si no lo encuentra o lo borró.`,
+    { titulo: '¿Reenviar el pase?', si: 'Sí, reenviarlo', no: 'No' })) return;
   if (btn) btn.disabled = true;
   const caja = () => $('pase-envio');
   if (caja()) caja().innerHTML = paseEnvioHtml(c, true);
@@ -31533,9 +31768,9 @@ async function paseEnviarCorreo(id, auto, btn) {
     } catch (e) { res = (e && e.message === 'reglas') ? { error: 'reglas', det: e.det } : { error: 'red' }; }
   }
   const ok = !!(res && res.ok);
-  c.pase.envio = { t: nowDT(), ok, a: (res && res.destino) || enmascararMail(c.paciente && c.paciente.email), auto: !!auto,
+  c.pase.envio = { t: nowDT(), ok, a: (res && res.destino) || enmascararMail(c.paciente && c.paciente.email), auto: !!auto, lleva: ok ? paseLleva(c) : null,
     err: ok ? '' : ((res && res.error) || 'red'), det: ok ? '' : String((res && res.det) || '').slice(0, 140) };
-  pushHist(c, ok ? `Pase del paciente enviado por correo a ${c.pase.envio.a}${auto ? ' (automático, al generarlo)' : ''}`
+  pushHist(c, ok ? `Pase del paciente enviado por correo a ${c.pase.envio.a}${auto ? ' (automático, al generarlo)' : ''} — llevó: ${paseLleva(c).join('; ')}`
     : `No se pudo enviar el pase por correo: ${PASE_ENVIO_ERR[c.pase.envio.err] || PASE_ENVIO_ERR.red}`);
   upsert('cirugias', c);
   if (paseId === id && caja()) {
@@ -31707,7 +31942,7 @@ function portalVistaEstado(f) {
   const jefTxt = { ok: `Confirmó ${el} en el parte`, okrc: 'Dio el OK a la nueva fecha', susp: f.motivo ? `Suspendid${T.o} · motivo: ${esc(f.motivo)}` : `${lo === 'lo' ? 'Lo' : 'La'} suspendió`, pend: 'Verificando sala, insumos y equipo', espera: 'Espera a Admisión y Egresos' };
   const diaEst = f.clave === 'en_curso' ? 'pend' : f.clave === 'operada' ? 'ok' : 'espera';
   return `
-    <section class="pp-estado pp-${t[0]}">
+    <div id="pp-dyn1"><section class="pp-estado pp-${t[0]}">
       <div class="pp-vivo"><span></span> En vivo · actualizado ${portal.act ? portal.act.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
       ${f.nombre ? `<div class="pp-hola">Hola, ${esc(f.nombre)}</div>` : ''}
       <h1>${t[1]}</h1>
@@ -31715,7 +31950,7 @@ function portalVistaEstado(f) {
       ${f.clave === 'suspendida' && f.motivo ? `<p class="pp-motivo">Motivo: <b>${esc(f.motivo)}</b></p>` : ''}
       ${f.sinCama ? `<p class="pp-motivo">Prioridad: se suspendió ${f.sinCama} vez${f.sinCama > 1 ? 'es' : ''} por falta de cama.</p>` : ''}
       ${f.sinCama && f.clave === 'confirmada' ? '<p class="pp-motivo">✓ Están todos los OK: tu cirujano/a, Admisión y Egresos, la Jefatura de Quirófanos y vos.</p>' : ''}
-    </section>
+    </section></div>
     ${f.reprog ? `<section class="pp-card pp-reprog">
       <small>Nueva fecha propuesta</small>
       <b>${esc(fmtDiaLargo(f.reprog.fecha))}</b>
@@ -31728,7 +31963,7 @@ function portalVistaEstado(f) {
     </section>` : ''}
     ${f.cama ? `<section class="pp-card pp-cama"><small>Tu internación</small><b>🛏 ${esc(f.cama)}</b></section>` : ''}
     ${ppCiHTML()}
-    <section class="pp-card">
+    <div id="pp-dyn2"><section class="pp-card">
       <ol class="pp-linea">
         ${paso('ok', `${T.N} solicitad${T.o}`, `Por ${esc(f.cirujano || 'tu ' + T.medico)}`)}
         ${paso(f.adm === 'ok' ? 'ok' : f.adm === 'no' ? 'no' : 'pend', 'Admisión y Egresos', admTxt[f.adm] || admTxt.pend)}
@@ -31737,14 +31972,14 @@ function portalVistaEstado(f) {
         ${f.sinCama ? paso(f.clave === 'reprog_confirmar' ? 'pend' : ['confirmada', 'en_curso', 'operada'].includes(f.clave) ? 'ok' : 'espera', 'Vos', f.clave === 'reprog_confirmar' ? 'Falta tu OK a la nueva fecha' : ['confirmada', 'en_curso', 'operada'].includes(f.clave) ? 'Confirmaste la nueva fecha' : 'Te preguntamos cuando el equipo dé su OK') : ''}
         ${paso(diaEst, `Día ${T.del} ${T.n}`, f.fecha ? `${esc(fmtDiaLargo(f.fecha))} · ${esc(f.hora)} h` : 'A confirmar')}
       </ol>
-    </section>
+    </section></div>
     <section class="pp-card pp-datos">
       <div><small>${T.N}</small><b>${esc(f.proc || '')}</b></div>
       <div><small>Fecha</small><b>${f.fecha ? esc(fmtDiaLargo(f.fecha)) : 'A confirmar'}</b></div>
       <div><small>Hora</small><b>${esc(f.hora || '—')} h</b></div>
       <div><small>Lugar</small><b>Hospital Regional Ushuaia · ${esc(f.lugar || '')}</b></div>
       <div><small>${T.Medico}</small><b>${esc(f.cirujano || '')}</b></div>
-      <div><small>Código de pase</small><b>${esc(f.ref || '')}</b></div>
+      <div><small>Referencia del pase</small><b>${esc(f.ref || '')}</b></div>
     </section>
     ${portal.extra ? ppPrepHTML(portal.extra.prep) + ppConsejosHTML(portal.extra.consejos) : ''}`;
 }
@@ -31818,8 +32053,15 @@ async function portalConsultar() {
     portal.paso = res.error === 'caducado' ? 'caducado' : 'dni';
     portal.error = res.error === 'sesion' ? PORTAL_ERRORES.sesion : '';
   }
-  if (portal.ciAbierto && portal.paso === 'estado') return;
+  // 3.34.2 · Leyendo el consentimiento: se actualiza solo el estado y los pasos, sin
+  // tocar el texto (antes no se actualizaba nada y quedaba «falta Admisión»).
+  if (portal.ciAbierto && portal.paso === 'estado' && $('pp-dyn1')) { ppActualizarSinTexto(); return; }
   renderPortal();
+}
+function ppActualizarSinTexto() {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = portalVistaEstado(portal.foto || {});
+  ['pp-dyn1', 'pp-dyn2'].forEach((id) => { const n = tmp.querySelector('#' + id), o = $(id); if (n && o) o.innerHTML = n.innerHTML; });
 }
 /* 3.25 · Respuesta del paciente a la nueva fecha (va atada a la propuesta). */
 async function portalResponderReprog(ok) {
@@ -31859,8 +32101,9 @@ function ppCiHTML() {
     ${portal.ciAbierto ? `<iframe class="pp-ci-doc" sandbox="allow-same-origin" title="Consentimiento informado" srcdoc="${esc(ci.html)}"></iframe>` : ''}</section>`;
   return `<section class="pp-card pp-ci"><small>Tu consentimiento informado</small><b>📝 Leelo y aceptalo desde acá</b>
     <span>Es el mismo texto que te explicó tu médico/a. No hace falta imprimirlo ni firmarlo a mano.</span>
-    ${portal.ciAbierto ? `<iframe class="pp-ci-doc" id="pp-ci-doc" sandbox="allow-same-origin" title="Consentimiento informado" srcdoc="${esc(ci.html)}" onload="ppCiMirar(this)"></iframe>
-      <p class="pp-ci-ayuda" id="pp-ci-ayuda">${portal.ciLeido ? '✓ Llegaste al final del texto.' : '⬇ Deslizá el texto hasta el final para poder aceptarlo.'}</p>
+    ${portal.ciAbierto ? `<p class="pp-ci-ayuda">⬇ Leelo completo: al final está la casilla para aceptarlo.</p>
+      <iframe class="pp-ci-doc" id="pp-ci-doc" sandbox="allow-same-origin" scrolling="no" title="Consentimiento informado" srcdoc="${esc(ci.html)}" onload="ppCiMirar(this)"></iframe>
+      <p class="pp-ci-ayuda" id="pp-ci-ayuda">${portal.ciLeido ? '✓ Llegaste al final del texto.' : '⬇ Seguí bajando hasta el final del texto.'}</p>
       <label class="pp-ci-tilde ${portal.ciLeido ? '' : 'off'}" id="pp-ci-lbl"><input type="checkbox" id="pp-ci-chk" ${portal.ciTilde ? 'checked' : ''} ${portal.ciLeido ? '' : 'disabled'} onchange="portal.ciTilde=this.checked;$('pp-ci-go').disabled=!this.checked">
         <span>Leí y comprendo los alcances del consentimiento médico informado.</span></label>
       ${portal.ciError ? `<div class="pp-error" role="alert">${esc(portal.ciError)}</div>` : ''}
@@ -31868,16 +32111,24 @@ function ppCiHTML() {
       <p class="pp-ci-nota">Queda registrado con la fecha y la hora. Si tenés dudas, no lo aceptes: consultá antes a tu médico/a. Podés revocarlo hasta el momento del ${esc(ppTipo(portal.foto && portal.foto.tipo).n)}.</p>`
     : '<button class="pp-btn" onclick="portal.ciAbierto=true;renderPortal()">Leer mi consentimiento</button>'}</section>`;
 }
-/* Llegó al final del texto: recién ahí se habilita la casilla. */
+/* Llegó al final del texto: recién ahí se habilita la casilla.
+   3.34.2 · El texto ya no se desliza DENTRO de un recuadro (en el iPhone ese recuadro
+   no avisa y la casilla nunca se habilitaba): el marco toma el alto de todo el texto,
+   se baja con la página, y cuando el final del texto aparece en pantalla, listo. */
 function ppCiMirar(fr) {
-  let d = null; try { d = fr.contentDocument; } catch (e) { d = null; }
   const listo = () => { if (portal.ciLeido) return; portal.ciLeido = true;
-    const k = $('pp-ci-chk'), l = $('pp-ci-lbl'), a = $('pp-ci-ayuda'); if (k) k.disabled = false; if (l) l.classList.remove('off'); if (a) a.textContent = '✓ Llegaste al final del texto.'; };
-  if (!d) { listo(); return; }
-  const el = d.scrollingElement || d.documentElement;
-  const mirar = () => { if (el.scrollTop + fr.clientHeight >= el.scrollHeight - 40) listo(); };
-  d.addEventListener('scroll', mirar, { passive: true });
-  mirar();
+    const k = $('pp-ci-chk'), l = $('pp-ci-lbl'), a = $('pp-ci-ayuda'); if (k) k.disabled = false; if (l) l.classList.remove('off'); if (a) a.textContent = '✓ Llegaste al final del texto.';
+    if (window.ppCiObs) { window.ppCiObs.disconnect(); window.ppCiObs = null; } };
+  let d = null; try { d = fr.contentDocument; } catch (e) { d = null; }
+  const alto = () => { try { const h = Math.max(d.documentElement.scrollHeight, d.body ? d.body.scrollHeight : 0); if (h) fr.style.height = (h + 24) + 'px'; } catch (e) {} };
+  if (d) { alto(); setTimeout(alto, 400); setTimeout(alto, 1500); } else { fr.style.height = '70vh'; fr.removeAttribute('scrolling'); }
+  if (portal.ciLeido) return;
+  const fin = $('pp-ci-ayuda');
+  if (!fin || !('IntersectionObserver' in window)) { setTimeout(listo, 3000); return; }
+  if (window.ppCiObs) window.ppCiObs.disconnect();
+  window.ppCiObs = new IntersectionObserver((es) => { if (es.some((x) => x.isIntersecting)) listo(); }, { threshold: 0.6 });
+  // Recién después de que el marco tomó su alto: si no, el final se vería de entrada.
+  setTimeout(() => { if (window.ppCiObs) window.ppCiObs.observe(fin); }, 600);
 }
 async function portalCiAceptar() {
   const ci = portal.extra && portal.extra.ci;

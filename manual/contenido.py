@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.34.1'
+VERSION = '3.34.2'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -555,6 +555,20 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.34'),
+('h2', 'Versión 3.34.2 — Casilla del consentimiento que anda en el celular, edad sola, CIE-10 y GUARDAR bien visible'),
+('ul', [
+    '**La casilla «Leí y comprendo…» ya se puede tildar en el celular.** Antes el texto se deslizaba dentro de un recuadro que en el iPhone no avisaba y la casilla nunca se habilitaba. Ahora el texto se baja con la página entera y, cuando el paciente llega al final, la casilla se habilita.',
+    '**El pase se sigue actualizando mientras el paciente lee.** Antes, con el consentimiento abierto, el estado quedaba congelado (por ejemplo, «Revisando la autorización» aunque Admisión ya hubiera autorizado). Ahora se actualizan el estado y los pasos sin mover el texto.',
+    '**El saludo dice el nombre completo** («Hola, Claudio Ravasi» si se cargó «Ravasi, Claudio»; si no hay coma, el nombre tal como se cargó). Antes decía solo la primera palabra (a veces el apellido).',
+    '**Edad sola:** al poner la fecha de nacimiento en el turno, la edad se completa sola (el campo se ilumina un instante).',
+    '**Diagnóstico con CIE-10:** al escribir el diagnóstico (por ejemplo, «gastritis», «hernia ingui» o un código como «K80») aparece una lista de 152 diagnósticos frecuentes del bloque con su código; al tocar uno se completan el diagnóstico y el campo Código CIE-10. Los códigos se controlaron contra la tabla oficial ICD-10. La lista está dentro de la app (unos 7 KB) y en la base solo se guarda el código, como siempre: no la hace más lenta. Se puede seguir escribiendo libre.',
+    '**Consentimientos: GUARDAR es el botón principal** — va primero, grande y en verde. Bajar en Word, Imprimir y Limpiar quedan como secundarios.',
+    '**¿Qué le llegó al paciente?** En la ventana del pase, un recuadro verde dice a qué correo y cuándo salió (automático al generarlo) y qué llevó: el enlace y el QR, la preparación (VEDA o colonoscopía), el aviso del consentimiento para aceptar en el pase, y acompañante y no manejar. También queda en el historial del turno. El botón de abajo dice «Reenviar» y, como el pase ya salió solo, pregunta antes de mandar un segundo correo.',
+    '**El código del primer correo:** ahora se llama «Referencia de tu pase» y aclara que sirve solo para consultas por teléfono; para entrar se usa el DNI y el código de un solo uso que llega en otro correo.',
+    '**Otro estudio del mismo paciente** se movió a la ventana del turno, junto a «Eliminar o pasar a otro día» (ya no está en la ficha).',
+    '**Consentimiento firmado (PDF):** también al lado de «Ver / reimprimir el consentimiento» en la ficha, apenas el paciente lo acepta. Antes de eso, la ficha avisa que el botón va a aparecer ahí.',
+    '**Pulsera de endoscopía: cuándo.** El botón «Imprimir pulsera» aparece con la endoscopía confirmada, desde la víspera, y Admisión la imprime cuando el paciente se presenta en la ventanilla con su DNI. No depende del consentimiento. La ruta lo explica con la fecha.',
+]),
 ('h2', 'Versión 3.34.1 — Consentimiento firmado en PDF para la historia clínica; eliminar o pasar a otro día'),
 ('ul', [
     '**Consentimiento firmado electrónicamente, en PDF.** Cuando el paciente aceptó su consentimiento en el pase, el cirujano que creó el turno (y la Jefatura) tiene en la tarjeta y en la ficha el botón **Consentimiento firmado (PDF)**. Sale el texto **exacto** que leyó el paciente —la app comprueba al descargar que su huella SHA-256 coincide— con una cinta arriba «Firmado electrónicamente por el paciente» y, al pie, la **Constancia de firma electrónica**: el nombre y apellido del paciente escritos como firma, su DNI, la fecha y la hora, el turno y el código del pase, la leyenda **«Leído y validado por el paciente»** (cómo se identificó: DNI y código de un solo uso a su correo), y el **código de verificación SHA-256** completo. Es firma electrónica en los términos del art. 5 de la Ley 25.506 (no es «firma digital», que requiere un certificado oficial). Se guarda como PDF desde la ventana de impresión y queda asentado en el historial que se descargó.',
