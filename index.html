@@ -769,7 +769,17 @@
   .fx-paso.ok + .fx-paso.ok::before, .fx-paso.ok + .fx-paso.cur::before { background: var(--green); }
   .fx-dot { position: relative; z-index: 1; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 0.78rem; font-weight: 800;
     background: var(--card); border: 2px solid var(--line-fuerte, var(--line)); color: var(--muted); margin-bottom: 4px; }
-  .fx-paso b { font-size: 0.74rem; color: var(--ink); line-height: 1.2; }
+  .fx-paso b { font-size: 0.74rem; color: var(--ink); line-height: 1.2; padding: 0 2px; }
+  /* 3.34.1 · En pantallas angostas los nombres de los 7 pasos se pisaban: quedan los
+     círculos y, debajo, una sola línea con el paso actual. */
+  .fx-camino-cap { display: none; }
+  @media (max-width: 640px) {
+    .fx-camino { margin-bottom: 6px; }
+    .fx-paso b, .fx-paso small { display: none; }
+    .fx-camino-cap { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 8px; align-items: baseline; margin: 0 0 14px; font-size: .82rem; color: var(--muted); text-align: center; }
+    .fx-camino-cap b { color: var(--ec, var(--ink)); font-size: .92rem; }
+    .fx-camino-cap.bad b { color: var(--red); }
+  }
   .fx-paso small { font-size: 0.68rem; color: var(--muted); line-height: 1.2; }
   .fx-paso.ok .fx-dot { background: var(--green); border-color: var(--green); color: #fff; }
   .fx-paso.warn .fx-dot { background: var(--amber); border-color: var(--amber); color: #fff; }
@@ -5035,6 +5045,44 @@
   .ing-cama { display: inline-grid; gap: 1px; border-radius: 10px; padding: 5px 9px; font-size: .78rem; font-weight: 800; color: #fff; background: var(--c); box-shadow: 0 6px 14px -8px var(--c); }
   .ing-cama small { font-weight: 600; opacity: .9; font-size: .66rem; } .ing-cama.no { color: #b91c1c; background: #fee2e2; box-shadow: none; }
   .ing-a { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
+  /* 3.33 · Endoscopía ambulatoria: fila propia con la ruta del paciente (sin cama). */
+  .tq-ops { display: grid; gap: 10px; margin-top: 12px; }
+  .tq-op { display: grid; grid-template-columns: 44px 1fr; gap: 2px 10px; text-align: left; padding: 14px; border-radius: 16px; border: 2px solid var(--line); background: var(--card); cursor: pointer; font: inherit; color: var(--ink); transition: transform .15s, box-shadow .15s; }
+  .tq-op:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba(0,0,0,.4); }
+  .tq-op i { grid-row: span 2; font-style: normal; font-size: 1.7rem; display: grid; place-items: center; }
+  .tq-op b { font-size: 1rem; } .tq-op small { color: var(--muted); font-size: .8rem; line-height: 1.35; }
+  .tq-op.mover { border-color: #93c5fd; } .tq-op.mover b { color: #1d4ed8; }
+  .tq-op.borrar { border-color: #fca5a5; } .tq-op.borrar b { color: #b91c1c; }
+  .ing-f.endo { position: relative; overflow: hidden; border-color: color-mix(in srgb, #0d9488 35%, var(--line)); background: linear-gradient(110deg, color-mix(in srgb, #14b8a6 10%, var(--card)), var(--card) 55%); padding-left: 16px; transition: transform .2s, box-shadow .2s; }
+  .ing-f.endo::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(#2dd4bf, #0d9488); }
+  .ing-f.endo:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -18px #0d9488; }
+  .en-ruta { display: grid; gap: 6px; min-width: 0; }
+  .en-ruta-t { display: flex; align-items: center; gap: 6px; font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #0f766e; }
+  .en-ruta-t svg { width: 18px; height: 18px; animation: enScope 3.2s ease-in-out infinite; }
+  @keyframes enScope { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg) translateX(2px); } }
+  .en-pasos { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); }
+  .en-pasos::before, .en-pasos::after { content: ''; position: absolute; left: 12.5%; top: 11px; height: 3px; border-radius: 3px; background: color-mix(in srgb, #0d9488 18%, transparent); right: 12.5%; }
+  .en-pasos::after { right: auto; width: calc(75% * var(--p, 0)); background: linear-gradient(90deg, #2dd4bf, #0d9488); transition: width .6s cubic-bezier(.2,.8,.2,1); animation: enLlena .9s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes enLlena { from { width: 0; } }
+  .en-paso { position: relative; z-index: 1; display: grid; justify-items: center; gap: 3px; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: var(--muted); }
+  .en-paso i { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .72rem; font-weight: 900; background: var(--card); border: 2px solid color-mix(in srgb, #0d9488 30%, var(--line)); transition: transform .15s; }
+  .en-paso small { font-size: .62rem; font-weight: 700; line-height: 1.1; text-align: center; }
+  .en-paso:hover i, .en-paso.sel i { transform: scale(1.15); }
+  .en-paso.ok i { background: #0d9488; border-color: #0d9488; color: #fff; }
+  .en-paso.ok small { color: #0f766e; }
+  .en-paso.ya i { border-color: #f59e0b; color: #b45309; animation: enPulso 1.6s ease-out infinite; }
+  .en-paso.ya small { color: #b45309; }
+  @keyframes enPulso { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, .55); } 100% { box-shadow: 0 0 0 9px rgba(245, 158, 11, 0); } }
+  .en-hint { font-size: .74rem; line-height: 1.35; color: var(--ink); background: color-mix(in srgb, #14b8a6 12%, var(--card)); border-radius: 10px; padding: 6px 9px; animation: enIn .25s ease-out; }
+  @keyframes enIn { from { opacity: 0; transform: translateY(-4px); } }
+  .btn.en-pul { background: linear-gradient(120deg, #14b8a6, #0d9488); color: #fff; border: 0; box-shadow: 0 8px 18px -10px #0d9488; }
+  .btn.en-pul svg { width: 22px; height: 14px; transition: transform .3s; }
+  .btn.en-pul:hover svg { transform: rotate(-12deg) scale(1.12); }
+  .btn.en-pul.hecha { background: var(--card); color: #0f766e; border: 1px solid #5eead4; box-shadow: none; }
+  .ing-sec.endo-sec > header b { color: #0f766e; }
+  .en-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 4px 8px; }
+  .en-chips span { font-size: .72rem; font-weight: 800; border-radius: 999px; padding: 3px 9px; background: color-mix(in srgb, #14b8a6 14%, var(--card)); color: #0f766e; }
+  @media (prefers-reduced-motion: reduce) { .en-ruta-t svg, .en-paso.ya i, .en-pasos::after, .en-hint { animation: none !important; } }
   @media (max-width: 900px) { .ing-f { grid-template-columns: 54px minmax(0, 1fr); } .ing-e, .ing-c { grid-column: 2; } .ing-a { grid-column: 1 / -1; justify-content: flex-start; } }
 
   /* ================= 3.21 · Tarjeta-infografía (v2) ================= */
@@ -9551,7 +9599,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.32.6';
+const APP_VERSION = '3.34.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10579,6 +10627,8 @@ function pendientesTurno(c) {
   else if (c.auth !== 'AUTORIZADO') f.push(authExenta(c)
     ? { corto: 'Admisión (diferida)', largo: 'Admisión y Egresos: trámite diferido por ' + authMotivoExencion(c) + ', todavía sin regularizar' }
     : { corto: 'aceptación de Admisión', largo: 'Admisión y Egresos: aceptación pendiente' });
+  // 3.33 · La endoscopía no pasa por la Jefatura: la confirma la autorización de Admisión.
+  if (esEndo(c)) return f;
   if (!c.coordinacion?.insumos) f.push({ corto: 'Instrumentación', largo: 'Instrumentación: implantes/insumos sin verificar' });
   if (!c.coordinacion?.esterilizacion) f.push({ corto: 'Esterilización', largo: 'Esterilización: instrumental sin confirmar' });
   if (c.recursos?.hemoderivados && !c.coordinacion?.hemoterapia) f.push({ corto: 'Hemoterapia', largo: 'Hemoterapia: hemoderivados sin reservar' });
@@ -11778,6 +11828,8 @@ function revisarRecordatorios() {
   avisarVozVispera();
   // 3.25 · Respuestas del paciente a la reprogramación y lugar que se abrió.
   rcVigilar();
+  endoSinJefaturaBarrer();
+  ciAceptacionesVigilar();
   // Los seis contadores del tablero abierto, si cambiaron.
   publicarEstadisticasSemana();
   // El correo verificado del profesional con sesión, si todavía no consta.
@@ -12622,9 +12674,9 @@ function renderSidebar() {
   // 3.27 · Admisión y Egresos: Ingresos del día y Mapa de camas.
   if (soloAdmision()) {
     $('nav').innerHTML = `<div class="nav-sep">Admisión y Egresos</div>
-      <button class="nav-btn ${view === 'ingresos' ? 'active' : ''}" onclick="go('ingresos')"><span class="nv-ico" style="--h:#ea580c">🗂️</span><span class="nv-lbl">Ingresos del día</span>${nRem ? `<span class="nav-badge">${nRem}</span>` : ''}</button>
+      <button class="nav-btn ${view === 'ingresos' ? 'active' : ''}" onclick="go('ingresos')"><span class="nv-ico" style="--h:#ea580c">🗂️</span><span class="nv-lbl">Ingresos del día</span>${admisPorAutorizar().length ? `<span class="nav-badge" title="Turnos para autorizar">${admisPorAutorizar().length}</span>` : ''}</button>
       <button class="nav-btn ${view === 'camas' ? 'active' : ''}" onclick="go('camas')"><span class="nv-ico" style="--h:#16a34a">🛏️</span><span class="nv-lbl">Mapa de camas</span></button>
-      <button class="nav-btn ${view === 'recordatorios' ? 'active' : ''}" onclick="go('recordatorios')"><span class="nv-ico" style="--h:#fbbf24">${ICONS.bellRing}</span><span class="nv-lbl">Avisos</span></button>`;
+      <button class="nav-btn ${view === 'recordatorios' ? 'active' : ''}" onclick="go('recordatorios')"><span class="nv-ico" style="--h:#fbbf24">${ICONS.bellRing}</span><span class="nv-lbl">Avisos</span>${nRem ? `<span class="nav-badge">${nRem}</span>` : ''}</button>`;
     navLuzIniciar(); renderBottomNav();
     $('sidebar-bottom').innerHTML = `<div class="jefe-session"><div class="jefe-session-name">${ICONS.clipboard} Admisión y Egresos</div><div class="jefe-session-sub">Ingresos y camas</div>
       <button class="jefe-logout" onclick="admisLogout()">${ICONS.logout} Cerrar sesión</button></div>
@@ -17397,9 +17449,12 @@ function renderSolicitud() {
       <button class="btn btn-outline btn-sm" onclick="go('grilla')">${ICONS.grid.replace('18', '15')} Ver la grilla completa</button>
     </div>
 
-    ${solMolde() ? `<div class="banner banner-blue" style="margin-bottom:12px">${ICONS.refresh}<div><strong>Reprogramando: ${esc(solMolde().paciente?.nombre || 's/d')} · ${esc(solMolde().procedimiento || '')}</strong>
-      Elija una franja libre: el turno se abre con los datos del paciente y de la cirugía ya cargados.
-      <button type="button" class="btn btn-sm btn-outline" style="margin-top:6px" onclick="solCopia=null;renderSolicitud()">Cancelar la reprogramación</button></div></div>` : ''}
+    ${solMover && DB.cirugias.find((x) => String(x.id) === String(solMover)) ? (() => { const m = DB.cirugias.find((x) => String(x.id) === String(solMover)); return `<div class="banner banner-blue" style="margin-bottom:12px">📅<div><strong>Pasando a otro día: ${esc(m.paciente?.nombre || 's/d')} · ${esc(m.procedimiento || '')}</strong>
+      Hoy está el ${esc(fmtFecha(m.fecha))} a las ${esc(m.horaProg || '')} h. Toque la franja libre nueva${esEndo(m) ? ' de Endoscopía' : ''}: el mismo turno se muda, con sus datos y su consentimiento.
+      <button type="button" class="btn btn-sm btn-outline" style="margin-top:6px" onclick="solMover=null;renderSolicitud()">Cancelar</button></div></div>`; })() : ''}
+    ${solMolde() ? `<div class="banner banner-blue" style="margin-bottom:12px">${ICONS.refresh}<div><strong>${solOtro ? 'Otro estudio para' : 'Reprogramando:'} ${esc(solMolde().paciente?.nombre || 's/d')}${solOtro ? '' : ' · ' + esc(solMolde().procedimiento || '')}</strong>
+      Elija una franja libre: el turno se abre con los datos del paciente ya cargados.
+      <button type="button" class="btn btn-sm btn-outline" style="margin-top:6px" onclick="solCopia=null;solOtro=null;renderSolicitud()">Cancelar</button></div></div>` : ''}
     <div class="banner ${cerrado ? 'banner-amber' : 'banner-blue'}">${ICONS.clockSm.replace('14', '18')}
       <div><strong>${cerrado ? 'Cierre de solicitudes superado para esta fecha' : 'Ciclo de programación'}</strong>
       Las solicitudes del ${fmtFecha(d)} cierran a las <b>${BLOQUE.cierreSolicitudes} h</b> ${textoDiaCierre(d)} y el parte se publica ese día a las <b>${BLOQUE.publicacionParte} h</b>. La lista del lunes cierra el viernes: sábados, domingos y feriados no hay cierre (lo que sigue a un feriado cierra el día hábil anterior).
@@ -17439,13 +17494,50 @@ let solFecha = null;
    recursos. Los requisitos para Admisión (prequirúrgico, apto anestésico,
    consentimiento) NO se copian: se vuelven a tildar para la fecha nueva. */
 let solCopia = null;
+// 3.34 · «➕ Otro estudio del mismo paciente» (VEDA + colonoscopía): mismo molde, sin ser reprogramación.
+let solOtro = null;
 function solMolde() {
-  const o = solCopia ? DB.cirugias.find((x) => String(x.id) === String(solCopia)) : null;
+  const id = solOtro || solCopia;
+  const o = id ? DB.cirugias.find((x) => String(x.id) === String(id)) : null;
   if (!o) return null;
   const m = JSON.parse(JSON.stringify(o));
   delete m.coordinacion; delete m.hce;
   m.deFecha = o.fecha;
+  if (solOtro) {
+    // Mismo paciente, mismo día: el apto anestésico y los preoperatorios valen igual.
+    // El consentimiento NO: cada estudio lleva el suyo.
+    m.coordinacion = { anestesia: !!(o.coordinacion && o.coordinacion.anestesia) };
+    m.hce = { preop: !!(o.hce && o.hce.preop) };
+    m.otro = true;
+    // Si era una colonoscopía, se ofrece la VEDA y al revés. La colonoscopía sale ya
+    // elegida del nomenclador; la VEDA la elige el médico (gastro o esofagovideoscopía).
+    const t = sinTildes(`${o.procedimiento || ''} ${(o.practica && o.practica.p) || ''}`);
+    delete m.practica; m.procedimiento = '';
+    if (/veda|digestiva alta|gastrovideoscop|esofagovideoscop/.test(t) && !/colonoscop/.test(t)) {
+      const r = NOMENCLADOR.find((x) => sinTildes(x.p) === 'videocolonoscopia');
+      if (r) { m.practica = { g: r.g, s: r.s, p: r.p, m: r.m }; m.procedimiento = r.p; }
+    }
+  }
   return m;
+}
+function puedeOtroEstudio(c) {
+  const u = usuarioActual();
+  return !!(c && esEndo(c) && !c.urgencia && ['borrador', 'pendiente', 'confirmada'].includes(c.estado) && c.fecha >= hoyISO()
+    && (jefe || (u && c.cirujanoEmail === u.email && programaCirugias(u))));
+}
+/* Busca la franja libre que sigue en Endoscopía ese mismo día y abre el turno con los datos cargados. */
+function otroEstudio(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!puedeOtroEstudio(c)) return;
+  const d = diaDeGrilla(c), s = sala('END');
+  const i = s.franjas.findIndex((f) => f.id === c.franja);
+  const sig = s.franjas.slice(i + 1).find((f) => !turnoEn(d, 'END', f.id) && turnoHabilitado(d, 'END', f.p));
+  solCopia = null; solOtro = c.id;
+  if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) closeCirugia();
+  if ($('cxok-overlay')) closeTurnoOk();
+  if (sig) { openSlot(d, 'END', sig.id); toastTurno(`Turno de las ${sig.t} h, a continuación: los datos de ${c.paciente?.nombre || 'el paciente'} ya van cargados`, '#0d9488'); return; }
+  solFecha = c.fecha; go('solicitud');
+  toastTurno('No queda lugar seguido ese día en Endoscopía: elija otra franja (los datos van cargados)', '#b45309');
 }
 function puedeReprogramarCaducada(c) {
   const u = usuarioActual();
@@ -17721,11 +17813,11 @@ function accionesCirugia(c, rol) {
   if (c.estado === 'pendiente' && jefe && !vencido && !rcActivo(c)) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${!c.auth ? '1º Aceptación de Admisión y Egresos' : authBotonTexto(c)}</button>`);
   }
-  if (c.estado === 'pendiente' && jefe && authOk(c) && !vencido && !rcActivo(c)) {
+  if (c.estado === 'pendiente' && jefe && authOk(c) && !vencido && !rcActivo(c) && !esEndo(c)) {
     a.push(`<button class="btn btn-sm btn-green" onclick="validarCirugia(${c.id}, this)">${ICONS.check} Validar y confirmar en el parte</button>`);
   }
   // Turnos de la versión anterior, que quedaron detenidos en «Validada».
-  if (c.estado === 'validada' && jefe && !vencido && !rcActivo(c)) {
+  if (c.estado === 'validada' && jefe && !vencido && !rcActivo(c) && !esEndo(c)) {
     a.push(`<button class="btn btn-sm btn-green" onclick="confirmarCirugia(${c.id})">${ICONS.check} Confirmar en el parte</button>`);
   }
   // El turno confirmado en el parte arranca con la LVQ. La urgencia que entró
@@ -17756,6 +17848,15 @@ function accionesCirugia(c, rol) {
   // 3.32.4 · El cirujano reprograma su caducada con un toque (los datos van cargados).
   if (puedeReprogramarCaducada(c)) {
     a.push(`<button class="btn btn-sm btn-blue" onclick="reprogramarCaducada(${c.id})">${ICONS.refresh} Reprogramar</button>`);
+  }
+  if (puedeEliminarPropio(c) && c.estado !== 'borrador') {
+    a.push(`<button class="btn btn-sm btn-outline" style="border-color:#fca5a5;color:#b91c1c" onclick="turnoQueHacer(${c.id})">${ICONS.trash} Eliminar o pasar a otro día</button>`);
+  }
+  if (puedeBajarCiFirmado(c)) {
+    a.push(`<button class="btn btn-sm btn-green" onclick="ciFirmadoDescargar(${c.id})">${ico(ICONS.download, 14)} Consentimiento firmado (PDF)</button>`);
+  }
+  if (puedeOtroEstudio(c)) {
+    a.push(`<button class="btn btn-sm btn-outline" style="border-color:#5eead4;color:#0f766e" onclick="otroEstudio(${c.id})">➕ Otro estudio del mismo paciente</button>`);
   }
   if (c.estado === 'caducada' && c.reprogramadaEn) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="openCirugia(${c.reprogramadaEn})">${ICONS.refresh} Ver el turno nuevo</button>`);
@@ -17803,6 +17904,11 @@ function validarCirugia(id, btn) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
   if (rcActivo(c)) { avisar('Reprogramación por falta de cama\n\nEste turno se confirma con el OK del cirujano, de Admisión y Egresos y de la Jefatura, y después con la respuesta del paciente. Use los botones de la tarjeta «Reprogramación prioritaria» de la ficha.'); return; }
+  if (esEndo(c)) {
+    if (endoConfirmar(c, '')) { upsert('cirugias', c); refreshView(); toastTurno('Endoscopía confirmada con la autorización de Admisión ✓', '#059669'); }
+    else avisar('Endoscopía\n\nLas endoscopías no las valida la ' + JEFATURA + ': quedan CONFIRMADAS solas cuando Admisión y Egresos las autoriza.');
+    return;
+  }
   // Un segundo toque sobre un turno ya validado no hace nada, pero lo dice.
   if (['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado)) {
     toastTurno('Este turno ya estaba validado y confirmado en el parte', '#059669');
@@ -17889,7 +17995,7 @@ function openLVQ(id, modo) {
     <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">${modo === 'inicio'
       ? 'Complete la fase de <b>Entrada</b> (antes de la inducción) y la <b>Pausa Quirúrgica</b> (antes de la incisión) para registrar el inicio del procedimiento.'
       : 'Complete la fase de <b>Salida</b> (antes de salir de quirófano) y el <b>parte quirúrgico</b>. El conteo de gasas e instrumental es obligatorio. Al confirmar, la cirugía se cierra y queda <b>finalizada</b>.'}</p>
-    ${modo === 'inicio' && puedeIniciarSinJefatura(c) ? `<div class="banner banner-amber" style="margin:0 0 14px;padding:10px 14px">${ico(ICONS.zap, 16)}
+    ${modo === 'inicio' && puedeIniciarSinJefatura(c) && !esEndo(c) ? `<div class="banner banner-amber" style="margin:0 0 14px;padding:10px 14px">${ico(ICONS.zap, 16)}
       <div><strong>Validación de Jefatura diferida — ${esc(jefaturaMotivoExencion(c))}</strong>
       Este turno todavía no lo validó la ${esc(JEFATURA)}. Por ser ${esc(jefaturaMotivoExencion(c))} <b>no hace falta esperarla</b>:
       complete la Lista de Verificación, opere y cargue el parte quirúrgico cuando termine. Lo que sí queda pendiente es el
@@ -17941,7 +18047,7 @@ function cierreFaltantesPrevios(c) {
   const f = [];
   if (c.auth === 'NO AUTORIZADO') f.push('Admisión y Egresos: dictamen NO AUTORIZADO sin rectificar');
   else if (c.auth !== 'AUTORIZADO') f.push('Admisión y Egresos: aceptación pendiente');
-  if (jefaturaExenta(c) && ['pendiente', 'validada'].includes(c.estado)) f.push(`Validación de la ${JEFATURA} (diferida por ${jefaturaMotivoExencion(c)})`);
+  if (jefaturaExenta(c) && !esEndo(c) && ['pendiente', 'validada'].includes(c.estado)) f.push(`Validación de la ${JEFATURA} (diferida por ${jefaturaMotivoExencion(c)})`);
   else if (jefaturaPendienteDiferida(c)) f.push(`Validación de la ${JEFATURA}: diferida, sin regularizar`);
   return f;
 }
@@ -17953,7 +18059,7 @@ function confirmLVQ() {
   if (lvqModo === 'inicio') {
     // Urgencia que arranca sin el visto de la Jefatura: queda escrito que la
     // validación se difiere, no que no hizo falta.
-    if (['pendiente', 'validada'].includes(c.estado) && jefaturaExenta(c)) {
+    if (['pendiente', 'validada'].includes(c.estado) && jefaturaExenta(c) && !esEndo(c)) {
       c.jefaturaDiferida = { motivo: jefaturaMotivoExencion(c), desdeEstado: c.estado, t };
       pushHist(c, `Iniciada sin la validación previa de la ${JEFATURA} (${jefaturaMotivoExencion(c)}) — la validación y la lista de verificación de coordinación quedan diferidas y se regularizan después`);
     }
@@ -18156,7 +18262,7 @@ function sectorSugerido(c) {
 }
 /* Se anota desde la víspera hasta que el caso se cierra. */
 function camaPuedeCargarse(c) {
-  return !!c && ['confirmada', 'en_curso', 'realizada'].includes(c.estado) && c.fecha <= sumarDias(hoyISO(), 1);
+  return !!c && !esEndo(c) && ['confirmada', 'en_curso', 'realizada'].includes(c.estado) && c.fecha <= sumarDias(hoyISO(), 1);
 }
 /* Cuántas veces se suspendió por falta de cama, contando la cadena de turnos. */
 // 3.32.4 · `sinCamaPrio`: el turno que el cirujano arma con «Reprogramar» desde una
@@ -18643,8 +18749,13 @@ function rcRecordatorios(add) {
 function rcFichaHTML(c) {
   const k = camaDe(c);
   let h = '';
-  // La cama (paso 4)
-  if (['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado) || k) {
+  // La cama (paso 4). 3.34.1 · La endoscopía es ambulatoria: pulsera, sin cama.
+  if (esEndo(c) && !k && ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado)) {
+    h += `<section class="fx-card full rc-card${c.pulsera ? ' ok' : ''}"><h4>🚶 <span>Ambulatoria</span>${c.pulsera ? '<em class="fx-n ok">Pulsera ✓</em>' : '<em class="fx-n">Sin cama</em>'}</h4>
+      <p class="fx-txt">Endoscopía ambulatoria: no lleva cama. Admisión y Egresos imprime la pulsera con QR cuando llega el paciente${c.pulsera ? ` · impresa ${esc(fmtDT(c.pulsera.t))} por ${esc(c.pulsera.por || '')}` : ''}.</p>
+      ${pulseraAmbulatoriaPuede(c) && (admis || jefe) ? `<button class="btn btn-sm btn-outline fx-btn" onclick="pulseraAmbulatoria(${esc(JSON.stringify(c.id))})">🏷️ ${c.pulsera ? 'Reimprimir la pulsera' : 'Imprimir la pulsera'}</button>` : ''}
+    </section>`;
+  } else if (['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado) || k) {
     const s = k && SECTORES_CAMA[k.s];
     h += `<section class="fx-card full rc-card${k ? ' ok' : ''}"><h4>🛏 <span>Internación · paso 4</span>${k ? '<em class="fx-n ok">Cama asignada</em>' : '<em class="fx-n warn">Sin cama</em>'}</h4>
       ${k ? `<div class="rc-cama" style="--c:${s.c}"><b>${esc(s.n)}</b><span>Habitación <b>${esc(k.hab)}</b> · Cama <b>${esc(k.cama)}</b></span>
@@ -18750,7 +18861,7 @@ const CAMA_SVG = '<svg viewBox="0 0 32 22" aria-hidden="true"><rect x="2" y="9" 
 /* ---- La vista «Mapa de camas» ---- */
 function renderCamas() {
   const conf = camasConf(), R = camasResumen(), hoy = hoyISO();
-  const env = DB.camas.find((x) => x.id === 'envio-' + hoy);
+  const env = camasEnvio(hoy);
   const editar = puedeEditarCamas();
   const tot = Object.keys(CAMA_EST).reduce((o, k) => (o[k] = Object.values(R).reduce((a, r) => a + r[k], 0), o), {});
   const camBtn = (s, h, c) => {
@@ -18879,10 +18990,17 @@ function camasFoto() {
   })); });
   return { resumen: camasResumen(), detalle: det };
 }
+/* 3.33 · Solo cuenta como enviado lo que mandó una persona de la Jefatura de
+   Enfermería. Los envíos «automáticos de las 07:00» de versiones anteriores (los
+   hacía el Apps Script sin que nadie los mirara) se ignoran. */
+function camasEnvio(fecha) {
+  const e = DB.camas.find((x) => x.id === 'envio-' + fecha);
+  return e && e.via !== 'auto' ? e : null;
+}
 async function camasEnviar() {
   if (!puedeEditarCamas()) return;
   const hoy = hoyISO(), F = camasFoto(), R = F.resumen;
-  const previo = DB.camas.find((x) => x.id === 'envio-' + hoy);
+  const previo = camasEnvio(hoy);
   if (!await preguntar(`${previo ? 'Volver a enviar' : 'Enviar'} el mapa de camas a Admisión y Egresos\n\n${Object.keys(R).map((s) => `· ${SECTORES_CAMA[s].corto}: ${R[s].libre} libres · ${R[s].adesocupar} a desocupar · ${R[s].reservada} reservadas · ${R[s].ocupada} ocupadas`).join('\n')}`, { si: 'Enviar a Admisión' })) return;
   upsert('camas', Object.assign({ id: 'envio-' + hoy, fecha: hoy, via: 'manual', por: jefe ? JEFATURA : 'Jefatura de Enfermería', t: nowDT(), envios: ((previo && previo.envios) || 0) + 1 }, F));
   if (cloudOn && PORTAL.servicio) portalServicio({ accion: 'camasEnviadas', fecha: hoy }).catch(() => {});
@@ -18891,11 +19009,11 @@ async function camasEnviar() {
 }
 /* Admisión confirma que lo recibió (en la app; en el correo es el botón firmado). */
 function camasRecibido(fecha) {
-  const env = DB.camas.find((x) => x.id === 'envio-' + fecha); if (!env) return;
+  const env = camasEnvio(fecha); if (!env) return;
   const anotar = async () => {
     const n = await pedirTexto('Recibido por Admisión y Egresos\n\nApellido y nombre de quien lo recibe:', { si: '✓ Recibido', campo: { label: 'Apellido y nombre', placeholder: 'Agente de Admisión', requerido: true } });
     if (!n || String(n).trim().length < 3) return;
-    const e2 = DB.camas.find((x) => x.id === 'envio-' + fecha);
+    const e2 = camasEnvio(fecha);
     e2.recibido = { por: String(n).trim(), t: nowDT(), via: 'app' };
     upsert('camas', e2);
     if (cloudOn && PORTAL.servicio) portalServicio({ accion: 'camasRecibidas', fecha }).catch(() => {});
@@ -18907,7 +19025,7 @@ function camasRecibido(fecha) {
 }
 /* Lo que envió Enfermería, tal cual (la foto de ese momento). */
 function camasVerEnvio(fecha) {
-  const env = DB.camas.find((x) => x.id === 'envio-' + fecha); if (!env) return;
+  const env = camasEnvio(fecha); if (!env) return;
   const det = env.detalle || {};
   rcModal().innerHTML = `
     <button class="modal-close" onclick="rcCerrar()" aria-label="Cerrar">✕</button>
@@ -18939,7 +19057,7 @@ async function jefEnfLogout() {
 function camasRecordatorios(add) {
   if (!jefenf && !jefe) return;
   const ahora = new Date(), hoy = hoyISO();
-  const env = DB.camas.find((x) => x.id === 'envio-' + hoy);
+  const env = camasEnvio(hoy);
   const h = ahora.getHours() * 60 + ahora.getMinutes();
   // 06:30: aviso fuerte y con sonido (con la app cerrada llega como push desde el Apps Script).
   if (jefenf && !env && h >= 6 * 60 + 30 && h < 12 * 60) add({ key: 'camas-0630-' + hoy, nivel: 'crit', notif: true, vista: 'camas',
@@ -19007,7 +19125,7 @@ async function pulseraHTML(c) {
         <span>DNI <b>${esc(pa.dni || '—')}</b> · ${pa.edad ?? '—'} años${pa.pediatrico ? ' · <b>PEDIÁTRICO</b>' : ''}${pa.nacimiento ? ' · Nac. ' + esc(fmtFecha(pa.nacimiento)) : ''}</span>
         <span class="pat">⚕ ${esc(c.diagnostico || c.procedimiento || '')}</span>
       </div>
-      <div class="ubic" style="--c:${S ? S.c : '#334155'}">${S ? `<b>${esc(S.corto)}</b><span>Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}</span><small>Int. ${S.int}</small>` : ''}</div>
+      <div class="ubic" style="--c:${S ? S.c : esEndo(c) ? '#0d9488' : '#334155'}">${S ? `<b>${esc(S.corto)}</b><span>Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}</span><small>Int. ${S.int}</small>` : esEndo(c) ? '<b>AMBULATORIO</b><span>Endoscopía</span><small>sin internación</small>' : ''}</div>
       <div class="firma"><small>Ingreso ${esc(fmtDT(p.t))}</small><span>Admisión: <b>${esc(p.por)}</b></span><i>Firma ____________</i>
         <code>SHA-256 ${esc(selloCorto(p.sello))}</code></div>
       <div class="pega">◂<br>PEGAR</div>
@@ -19056,10 +19174,23 @@ async function imprimirPulsera(id, ventana) {
   setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 700);
 }
 async function reimprimirPulsera(id) {
-  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c || !camaDe(c)) return;
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c || (!camaDe(c) && !esEndo(c))) return;
   const w = window.open('', '_blank');
-  if (!c.pulsera) await pulseraArmar(c, c.cama.por);
+  if (!c.pulsera) await pulseraArmar(c, camaDe(c) ? c.cama.por : (c.authAgente || 'Admisión y Egresos'));
   imprimirPulsera(c.id, w);
+}
+/* 3.33 · Endoscopía: es ambulatoria. Admisión no le da cama; con la endoscopía
+   confirmada imprime la pulsera (con el QR que abre la LVQ de Entrada). */
+function pulseraAmbulatoriaPuede(c) {
+  return esEndo(c) && ['confirmada', 'en_curso', 'realizada'].includes(c.estado) && c.fecha <= sumarDias(hoyISO(), 1);
+}
+async function pulseraAmbulatoria(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!pulseraAmbulatoriaPuede(c)) return;
+  const w = window.open('', '_blank');   // en el mismo toque, para que el navegador no la bloquee
+  if (!c.pulsera) await pulseraArmar(c, c.authAgente || 'Admisión y Egresos');
+  toastTurno('Imprimiendo la pulsera · endoscopía ambulatoria', '#0d9488');
+  imprimirPulsera(c.id, w);
+  if (view === 'ingresos') renderIngresos();
 }
 /* ---- Escanear la pulsera ---- */
 const PULSERA_TK = (new URLSearchParams(location.search).get('pulsera') || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 40);
@@ -19174,13 +19305,14 @@ function consultasRecordatorios(add) {
 /* La pantalla de la Jefatura: secuencia de ocupación en vivo, sin editar nada. */
 function renderIngresosJefe() {
   const hoy = hoyISO(); if (!ingDia) ingDia = hoy;
-  const d = ingDia, env = DB.camas.find((x) => x.id === 'envio-' + hoy), R = camasResumen();
+  const d = ingDia, env = camasEnvio(hoy), R = camasResumen();
   const lista = DB.cirugias.filter((c) => c.fecha === d && ['pendiente', 'validada', 'confirmada', 'en_curso', 'realizada'].includes(c.estado));
   const conCama = lista.filter((c) => camaDe(c)).sort((a, b) => String(camaDe(a).t || '').localeCompare(String(camaDe(b).t || '')));
-  const sinCama = lista.filter((c) => !camaDe(c)).sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+  const sinCama = lista.filter((c) => !camaDe(c) && !esEndo(c)).sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+  const amb = lista.filter((c) => !camaDe(c) && esEndo(c)).sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
   const enCama = conCama.filter((c) => { const k = camaDe(c); return camaEst(k.s, k.hab, k.cama) === 'ocupada'; }).length;
   const cons = consultasDia(d), consPend = cons.filter((x) => !x.r).length;
-  const pct = lista.length ? conCama.length / lista.length : 0;
+  const conInt = lista.length - amb.length, pct = conInt ? conCama.length / conInt : 0;
   const paso = (c, i) => {
     const k = camaDe(c), S = k ? SECTORES_CAMA[k.s] : null, ab = String(ingJefAbierta) === String(c.id);
     const est = k ? camaEst(k.s, k.hab, k.cama) : '';
@@ -19188,10 +19320,10 @@ function renderIngresosJefe() {
       <button type="button" class="ij-p-cab" onclick="ingJefAbierta=${ab ? 'null' : esc(JSON.stringify(c.id))};renderIngresos()" aria-expanded="${ab}">
         <span class="ij-n">${k ? i + 1 : '…'}</span>
         <span class="ij-t"><b>${esc((c.paciente && c.paciente.nombre) || 's/d')}</b><small>${esc(c.horaProg || '—')} h · ${esc(c.quirofano || '')} · ${esc(c.procedimiento || '')}</small></span>
-        ${k ? `<span class="ij-cama"><i>🛏</i><b>${esc(S.corto)} ${esc(k.hab)}-${esc(k.cama)}</b><small>${esc(String(k.t || '').slice(11, 16))} h${est === 'ocupada' ? ' · en cama' : ''}</small></span>` : '<span class="ij-cama no"><i>⏳</i><b>Sin cama</b><small>esperando</small></span>'}
+        ${!k && esEndo(c) ? '<span class="ij-cama"><i>🚶</i><b>Ambulatoria</b><small>endoscopía</small></span>' : k ? `<span class="ij-cama"><i>🛏</i><b>${esc(S.corto)} ${esc(k.hab)}-${esc(k.cama)}</b><small>${esc(String(k.t || '').slice(11, 16))} h${est === 'ocupada' ? ' · en cama' : ''}</small></span>` : '<span class="ij-cama no"><i>⏳</i><b>Sin cama</b><small>esperando</small></span>'}
       </button>
       ${ab ? `<div class="ij-det">
-        ${k ? `<p>Asignó <b>${esc(k.por || 'Admisión y Egresos')}</b> a las ${esc(String(k.t || '').slice(11, 16))} h · ${esc(S.n)} · Hab. ${esc(k.hab)} · Cama ${esc(k.cama)} · ☎ Int. ${esc(S.int)}${c.pulsera ? ' · 🏷️ pulsera impresa' : ''}</p>` : '<p>Admisión todavía no le asignó cama.</p>'}
+        ${!k && esEndo(c) ? '<p>Endoscopía ambulatoria: no lleva cama. Admisión imprime la pulsera.</p>' : k ? `<p>Asignó <b>${esc(k.por || 'Admisión y Egresos')}</b> a las ${esc(String(k.t || '').slice(11, 16))} h · ${esc(S.n)} · Hab. ${esc(k.hab)} · Cama ${esc(k.cama)} · ☎ Int. ${esc(S.int)}${c.pulsera ? ' · 🏷️ pulsera impresa' : ''}</p>` : '<p>Admisión todavía no le asignó cama.</p>'}
         <div class="ij-preg"><span>¿Duda?</span><button type="button" style="--c:${ING_DEST.adm.c}" onclick="ingPreguntarAbrir('adm',${esc(JSON.stringify(c.id))})">${ING_DEST.adm.i} Preguntar a Admisión</button><button type="button" style="--c:${ING_DEST.enf.c}" onclick="ingPreguntarAbrir('enf',${esc(JSON.stringify(c.id))})">${ING_DEST.enf.i} Preguntar a Enfermería</button></div>
       </div>` : ''}
     </li>`;
@@ -19212,7 +19344,7 @@ function renderIngresosJefe() {
     </section>
     <div class="ij-cols">
       <section class="ij-seq"><h2>🛏 Secuencia de ocupación</h2>
-        ${lista.length ? `<ol class="ij-lista">${conCama.map(paso).join('')}${sinCama.map((c, i) => paso(c, conCama.length + i)).join('')}</ol>` : `<div class="empty">No hay pacientes programados para el ${fmtFecha(d)}.</div>`}
+        ${lista.length ? `<ol class="ij-lista">${conCama.map(paso).join('')}${sinCama.map((c, i) => paso(c, conCama.length + i)).join('')}${amb.map((c, i) => paso(c, conCama.length + sinCama.length + i)).join('')}</ol>` : `<div class="empty">No hay pacientes programados para el ${fmtFecha(d)}.</div>`}
       </section>
       <aside class="ij-ask"><h2>💬 Preguntar rápido ${consPend ? `<span class="pq-n">${consPend}</span>` : ''}</h2>
         <div class="ij-dest">${Object.entries(ING_DEST).map(([k, x]) => `<button type="button" class="${ingPregPara === k ? 'on' : ''}" style="--c:${x.c}" onclick="ingPreguntarAbrir('${k}',null)"><i>${x.i}</i><b>${esc(x.n)}</b></button>`).join('')}</div>
@@ -19232,23 +19364,25 @@ function renderIngresos() {
   const hoy = hoyISO();
   if (!ingDia) ingDia = hoy;
   const d = ingDia;
-  const env = DB.camas.find((x) => x.id === 'envio-' + hoy);
+  const env = camasEnvio(hoy);
   const R = camasResumen();
   const lista = DB.cirugias.filter((c) => c.fecha === d && ['pendiente', 'validada', 'confirmada', 'en_curso', 'realizada'].includes(c.estado)).sort(ordenPrelacion);
   const fila = (c) => {
     const k = camaDe(c), S = k ? SECTORES_CAMA[k.s] : null;
     const aut = authOk(c), rc = rcActivo(c);
-    return `<div class="ing-f${rcVeces(c) ? ' prio' : ''}">
+    return `<div class="ing-f${rcVeces(c) ? ' prio' : ''}${esEndo(c) ? ' endo' : ''}">
       <div class="ing-h"><b>${esc(c.horaProg || '—')}</b><small>${esc(String(c.quirofano || '').replace(/^Quir[oó]fano\s*/i, 'Q').replace(/^Sala de Endoscop[ií]a.*$/i, 'Endoscopía').replace(/^Q de Obstetricia.*$|^Qde Obstetricia.*$/i, 'Obstetricia').replace(/^Q\s*Obstetricia.*$/i, 'Obstetricia'))}</small></div>
       <div class="ing-p"><b>${esc(c.paciente?.nombre || 's/d')}</b>${rcSello(c, true)}<small>DNI ${esc(c.paciente?.dni || '—')} · ${c.paciente?.edad ?? '—'} años · ${esc(c.obraSocial || 'sin obra social')} · ☎ ${esc(c.paciente?.telefono || '—')}</small>
         <small class="ing-dx">${esc(c.diagnostico || '')} · ${esc(c.procedimiento || '')}</small></div>
-      <div class="ing-e">${estChip(c)}<span class="ing-aut ${aut ? 'ok' : 'no'}">${aut ? '✓ Autorizada' : c.auth === 'NO AUTORIZADO' ? '✕ No autorizada' : '⏳ Falta autorizar'}</span></div>
-      <div class="ing-c">${k ? `<span class="ing-cama" style="--c:${S.c}">🛏 ${esc(S.corto)} · Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}<small>Int. ${S.int}</small></span>` : '<span class="ing-cama no">🛏 Sin cama</span>'}</div>
+      <div class="ing-e">${estChip(c)}<span class="ing-aut ${aut && !authPendienteDiferida(c) ? 'ok' : 'no'}">${authPendienteDiferida(c) ? '↷ Urgencia: falta regularizar' : aut ? '✓ Autorizada' : c.auth === 'NO AUTORIZADO' ? '✕ No autorizada' : '⏳ Falta autorizar'}</span></div>
+      <div class="ing-c">${k ? `<span class="ing-cama" style="--c:${S.c}">🛏 ${esc(S.corto)} · Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}<small>Int. ${S.int}</small></span>` : esEndo(c) ? enRutaHTML(c) : '<span class="ing-cama no">🛏 Sin cama</span>'}</div>
       <div class="ing-a">
         ${rc ? `<button class="btn btn-sm btn-red" onclick="openCirugia(${c.id})">Reprogramación: dar el OK</button>`
-          : c.estado === 'pendiente' && !aut ? `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ Autorizar</button>` : ''}
+          : c.estado === 'pendiente' && !aut ? `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ Autorizar</button>`
+          : authPendienteDiferida(c) ? `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ Regularizar</button>` : ''}
         ${camaPuedeCargarse(c) ? `<button class="btn btn-sm ${k ? 'btn-outline' : 'btn-green'}" onclick="pedirCama(${c.id})">🛏 ${k ? 'Cambiar cama' : 'Anotar cama'}</button>` : ''}
         ${k ? `<button class="btn btn-sm btn-outline" onclick="reimprimirPulsera(${c.id})">🏷️ Pulsera</button>` : ''}
+        ${!k && pulseraAmbulatoriaPuede(c) ? `<button class="btn btn-sm en-pul${c.pulsera ? ' hecha' : ''}" onclick="pulseraAmbulatoria(${c.id})">${EN_PULSERA} ${c.pulsera ? 'Reimprimir pulsera' : 'Imprimir pulsera'}</button>` : ''}
         <button class="btn btn-sm btn-outline" onclick="openCirugia(${c.id})">Ficha</button>
       </div></div>`;
   };
@@ -19267,28 +19401,65 @@ function renderIngresos() {
         <span class="cm-envio-acc">${env && !env.recibido ? `<button class="btn btn-sm btn-green" onclick="camasRecibido('${hoy}')">✓ Recibido — ver las camas</button>` : ''}${env ? `<button class="btn btn-sm btn-outline" onclick="camasVerEnvio('${hoy}')">👁 Ver lo enviado</button>` : ''}<button class="btn btn-sm btn-outline" onclick="go('camas')">🛏 Mapa en vivo</button></span></div>
     </div>
     ${consultasRecibidasHTML('adm')}
+    ${(() => { const P = admisPorAutorizar().filter((c) => c.fecha !== d);
+      return P.length ? `<section class="ing-sec ing-aut-sec"><header><b>🗂️ Para autorizar · otros días</b><span>${P.length} turno${P.length === 1 ? '' : 's'} esperando su autorización${P.some(esEndo) ? ' · las endoscopías quedan confirmadas con su autorización' : ''}</span></header>${P.map((c) => fila(c).replace('<div class="ing-h"><b>', `<div class="ing-h"><small>${esc(fmtFecha(c.fecha))}</small><b>`)).join('')}</section>` : ''; })()}
     ${Object.keys(PARTE_AREAS).map((a) => {
       const L = lista.filter((c) => areaDe(c) === a);
       if (!L.length) return '';
       const sinCamaN = L.filter((c) => !camaDe(c) && camaPuedeCargarse(c)).length;
-      return `<section class="ing-sec"><header><b>${esc(PARTE_AREAS[a].b)}</b><span>${L.length} paciente${L.length === 1 ? '' : 's'}${sinCamaN ? ` · <em>${sinCamaN} sin cama</em>` : ''}</span></header>${L.map(fila).join('')}</section>`;
+      return `<section class="ing-sec${a === 'endo' ? ' endo-sec' : ''}"><header><b>${esc(PARTE_AREAS[a].b)}</b><span>${L.length} paciente${L.length === 1 ? '' : 's'}${sinCamaN ? ` · <em>${sinCamaN} sin cama</em>` : ''}${a === 'endo' ? ' · confirma Admisión · sin cama' : ''}</span></header>${a === 'endo' ? enChipsHTML(L) : ''}${L.map(fila).join('')}</section>`;
     }).join('') || `<div class="empty">No hay pacientes programados para el ${fmtFecha(d)}.</div>`}
-    <p class="form-note">La cama se anota desde la víspera. Al guardarla, en el mapa pasa a rojo y se imprime la pulsera.</p>`;
+    <p class="form-note">La cama se anota desde la víspera. Al guardarla, en el mapa pasa a rojo y se imprime la pulsera. Las endoscopías son ambulatorias: no llevan cama, solo la pulsera, y quedan confirmadas con su autorización (no pasan por la Jefatura de Quirófanos).</p>`;
+}
+/* 3.33 · Lo que Admisión tiene para autorizar, de hoy en adelante (el número de la solapa). */
+/* 3.33 · La ruta de la endoscopía ambulatoria, para tocar: cada paso explica qué falta. */
+let enSel = null;
+const EN_SCOPE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 20c3-1 4-4 6-7s5-6 9-7"/><circle cx="19" cy="5.5" r="2.2"/><path d="M3 20l2 1"/></svg>';
+const EN_PULSERA = '<svg viewBox="0 0 36 22" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="6" width="32" height="10" rx="5"/><rect x="13" y="8" width="9" height="6" rx="1.5" fill="currentColor" opacity=".55"/></svg>';
+function enPasoN(c) {
+  if (['en_curso', 'realizada', 'finalizada'].includes(c.estado)) return 4;
+  if (c.pulsera) return 3;
+  if (c.estado === 'confirmada' || authOk(c)) return 2;
+  return 0;
+}
+function enRutaHTML(c) {
+  const n = enPasoN(c), sel = enSel && String(enSel.id) === String(c.id) ? enSel.i : -1;
+  const P = [
+    ['Autoriza Admisión', c.auth === 'AUTORIZADO' ? `Autorizó ${c.authAgente || 'Admisión y Egresos'}${c.authFecha ? ' · ' + fmtDT(c.authFecha) : ''}.` : authPendienteDiferida(c) ? 'Urgencia: se hace sin esperar; Admisión regulariza después con «Regularizar».' : c.auth === 'NO AUTORIZADO' ? 'No autorizada: ' + (c.authMotivo || 'sin motivo') + '.' : 'Falta su autorización. Con ella la endoscopía queda confirmada: no pasa por la Jefatura de Quirófanos.'],
+    ['Confirmada', c.estado === 'confirmada' || n >= 2 ? 'Está en el parte de Endoscopía. El paciente lo ve en su pase.' : 'Se confirma sola cuando Admisión autoriza.'],
+    ['Pulsera', c.pulsera ? `Impresa ${fmtDT(c.pulsera.t)} · ${c.pulsera.por}. Su QR abre la LVQ de Entrada.` : 'Ambulatoria: no lleva cama. Imprima la pulsera cuando llegue el paciente.'],
+    ['En sala', n >= 4 ? 'El equipo de Endoscopía ya inició la Lista de Verificación.' : 'La inicia el equipo de la sala con la Lista de Verificación.'],
+  ];
+  return `<div class="en-ruta"><span class="en-ruta-t">${EN_SCOPE} Ambulatoria · sin cama</span>
+    <div class="en-pasos" style="--p:${(Math.min(n, 4) - 1 > 0 ? (Math.min(n, 4) - 1) / 3 : 0).toFixed(3)}">${P.map((x, i) => {
+      const est = i < n ? 'ok' : i === n || (n === 0 && i === 0) ? 'ya' : '';
+      return `<button type="button" class="en-paso ${est}${sel === i ? ' sel' : ''}" title="${esc(x[1])}" onclick="enSel=${sel === i ? 'null' : `{id:${esc(JSON.stringify(c.id))},i:${i}}`};renderIngresos()"><i>${i < n ? '✓' : i + 1}</i><small>${esc(x[0])}</small></button>`; }).join('')}</div>
+    ${sel >= 0 ? `<div class="en-hint">${esc(P[sel][1])}</div>` : ''}</div>`;
+}
+function enChipsHTML(L) {
+  const E = L.filter(esEndo); if (!E.length) return '';
+  const aut = E.filter((c) => c.estado !== 'pendiente').length, pul = E.filter((c) => c.pulsera).length;
+  return `<div class="en-chips"><span>🔭 ${E.length} endoscopía${E.length === 1 ? '' : 's'}</span><span>✓ ${aut} confirmada${aut === 1 ? '' : 's'}</span><span>🏷️ ${pul} con pulsera</span><span>🚶 todas ambulatorias</span></div>`;
+}
+function admisPorAutorizar() {
+  const hoy = hoyISO();
+  return DB.cirugias.filter((c) => c.estado === 'pendiente' && !c.auth && !rcActivo(c) && !turnoProvisional(c) && c.fecha >= hoy)
+    .sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)) || String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
 }
 function admisRecordatorios(add) {
   if (!admis) return;
   const hoy = hoyISO(), h = new Date().getHours() * 60 + new Date().getMinutes();
-  const env = DB.camas.find((x) => x.id === 'envio-' + hoy);
+  const env = camasEnvio(hoy);
   if (env && !env.recibido) add({ key: 'admis-camas-' + hoy + '-' + (env.envios || 1), nivel: 'crit', notif: true, vista: 'ingresos',
     titulo: '📥 Llegó el mapa de camas de Enfermería', texto: `Enviado a las ${String(env.t || '').slice(11, 16)} h. Tocá «✓ Recibido» para verlo y confirmarle a Enfermería.`, cuando: 'Hoy' });
   if (!env && h >= 7 * 60 + 15 && h < 12 * 60) add({ key: 'admis-sinmapa-' + hoy, nivel: 'warn', vista: 'camas', titulo: 'Todavía no llegó el mapa de camas', texto: 'Enfermería no lo envió. Igual podés ver el mapa en vivo.', cuando: 'Hoy' });
-  const sinCama = DB.cirugias.filter((c) => c.fecha === hoy && c.estado === 'confirmada' && !camaDe(c));
+  const sinCama = DB.cirugias.filter((c) => c.fecha === hoy && c.estado === 'confirmada' && !camaDe(c) && !esEndo(c));
   if (sinCama.length && h >= 6 * 60) add({ key: 'admis-sincama-' + hoy + '-' + sinCama.length, nivel: 'info', vista: 'ingresos', titulo: `${sinCama.length} paciente${sinCama.length > 1 ? 's' : ''} de hoy sin cama`, texto: sinCama.slice(0, 4).map((c) => `${c.horaProg} ${c.paciente?.nombre || ''}`).join(' · '), cuando: 'Ingresos del día' });
   DB.cirugias.filter((c) => rcActivo(c) && c.reprogCama.estado === 'esperando_equipo' && !(c.reprogCama.oks || {}).adm).forEach((c) => add({
     key: 'admis-rc-' + c.id + '-' + c.reprogCama.pid, nivel: 'crit', notif: true, vista: 'ingresos', cirugia: c.id,
     titulo: `Falta SU OK — reprogramación por falta de cama (×${rcVeces(c)})`, texto: `${c.paciente?.nombre || ''} · ${fmtFecha(c.fecha)} ${c.horaProg} h · ${c.quirofano}`, cuando: 'Prioridad máxima' }));
-  const pend = DB.cirugias.filter((c) => c.estado === 'pendiente' && !c.auth && !rcActivo(c) && c.fecha >= hoy && c.fecha <= sumarDias(hoy, 3));
-  if (pend.length) add({ key: 'admis-aut-' + hoy + '-' + pend.length, nivel: 'warn', vista: 'ingresos', titulo: `${pend.length} turno${pend.length > 1 ? 's' : ''} para autorizar`, texto: pend.slice(0, 4).map((c) => `${fmtFecha(c.fecha)} ${c.horaProg} ${c.paciente?.nombre || ''}`).join(' · '), cuando: 'Próximos 3 días' });
+  const pend = admisPorAutorizar().filter((c) => c.fecha <= sumarDias(hoy, 7));
+  if (pend.length) add({ key: 'admis-aut-' + hoy + '-' + pend.length, nivel: 'warn', vista: 'ingresos', titulo: `${pend.length} turno${pend.length > 1 ? 's' : ''} para autorizar`, texto: pend.slice(0, 4).map((c) => `${fmtFecha(c.fecha)} ${c.horaProg} ${c.paciente?.nombre || ''}`).join(' · '), cuando: 'Próximos 7 días' });
 }
 
 /* ================= TURNOS SIN RESOLVER =================
@@ -19736,6 +19907,8 @@ async function ofrecerAnticipacion(nuevo) {
   const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || nuevo.cirujano || 'Sistema');
   const avisados = [];
   for (const p of turnosQueResuelve(nuevo)) {
+    // 3.34 · «Otro estudio del mismo paciente»: los dos turnos van juntos a propósito.
+    if (String(nuevo.otroEstudioDe || '') === String(p.id) || (p.otrosEstudios || []).map(String).includes(String(nuevo.id)) || String(p.otroEstudioDe || '') === String(nuevo.id)) continue;
     if (!nuevo.urgencia && !mismoResponsable(nuevo, p)) {
       const a = alertarCruceServicio(p, nuevo, quien);
       if (a) avisados.push(a);
@@ -20504,7 +20677,7 @@ function flTareas() {
     } else if (c.estado === 'validada') {
       t.push({ c, score: 760 + apuro - d * 4, tono: 'azul', tag: 'Para el parte', mot: 'Turno de la versión anterior: falta confirmarlo en el parte.',
         btn: 'Confirmar en el parte', on: `confirmarCirugia(${c.id})`, ic: ICONS.check });
-    } else if (c.estado === 'pendiente' && authOk(c)) {
+    } else if (c.estado === 'pendiente' && authOk(c) && !esEndo(c)) {
       const f = coordFaltantes(c);
       if (!f.length) t.push({ c, score: 800 + apuro - d * 4, tono: 'verde', tag: 'Lista para validar', mot: `Admisión autorizó y la coordinación está completa. Opera ${cu}.`,
         btn: 'Validar', on: `validarCirugia(${c.id}, this)`, ic: ICONS.check });
@@ -20770,7 +20943,10 @@ function openCirugia(id) {
         ]) + `<div class="fx-checks">
             <span class="fx-pill ${c.hce?.preop ? 'ok' : 'bad'}">${ico(c.hce?.preop ? ICONS.check : ICONS.x, 12)} Preoperatorios</span>
             <span class="fx-pill ${c.hce?.consentimiento ? 'ok' : 'bad'}">${ico(c.hce?.consentimiento ? ICONS.check : ICONS.x, 12)} Consentimiento en la HCE</span>
+            ${c.ciPaciente ? `<span class="fx-pill ok" style="white-space:normal;max-width:100%" title="Tildó «Leí y comprendo los alcances del consentimiento médico informado» en su pase · ${esc(fmtDT(c.ciPaciente.t))}">${ico(ICONS.check, 12)} Firmado por el paciente en el pase</span>`
+              : c.ciPase ? `<span class="fx-pill bad">${ico(ICONS.clockSm, 12)} Falta que el paciente lo acepte en su pase</span>` : ''}
           </div>
+          ${c.pase && prepFaltaCargar(c).length ? `<p class="form-note" style="color:#b45309">Falta cargar en la app el protocolo oficial: ${esc(prepFaltaCargar(c).join(' · '))}. Hasta entonces el correo no lleva la preparación.</p>` : ''}
           <button class="btn btn-sm btn-outline fx-btn" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir el consentimiento' : 'Generar el consentimiento informado'}</button>${aaotFichaHTML(c)}`)}
 
         ${tarjeta(ICONS.calendar, 'Programación', kv([
@@ -20878,10 +21054,13 @@ function fichaCamino(c) {
     c.auth === 'AUTORIZADO' ? { t: 'Admisión', ok: true, d: 'autorizado' }
       : c.auth === 'NO AUTORIZADO' ? { t: 'Admisión', tono: 'bad', d: 'rechazado' }
       : authExenta(c) ? { t: 'Admisión', tono: 'warn', d: 'diferida' } : { t: 'Admisión', d: 'pendiente' },
-    jefaturaPendienteDiferida(c) ? { t: 'Jefatura', tono: 'warn', d: 'diferida' }
+    // 3.34.1 · Endoscopía: la confirma Admisión y es ambulatoria (pulsera en lugar de cama).
+    esEndo(c) ? { t: 'En el parte', ok: confirmado, d: confirmado ? 'confirmó Admisión' : 'espera a Admisión' }
+      : jefaturaPendienteDiferida(c) ? { t: 'Jefatura', tono: 'warn', d: 'diferida' }
       : { t: 'Jefatura', ok: confirmado, d: confirmado ? 'en el parte' : 'pendiente' },
     // 3.25 · Paso 4: la cama que anota Admisión el día del ingreso.
-    camaDe(c) ? { t: 'Cama', ok: true, d: SECTORES_CAMA[c.cama.s].corto + ' · ' + c.cama.hab + '/' + c.cama.cama }
+    esEndo(c) ? { t: 'Pulsera', ok: !!c.pulsera, d: c.pulsera ? 'impresa' : 'ambulatoria' }
+      : camaDe(c) ? { t: 'Cama', ok: true, d: SECTORES_CAMA[c.cama.s].corto + ' · ' + c.cama.hab + '/' + c.cama.cama }
       : c.estado === 'suspendida' && c.suspension && c.suspension.causa === CAUSA_SIN_CAMA ? { t: 'Cama', tono: 'bad', d: 'no hubo cama' }
       : { t: 'Cama', ok: lvqCompleta(c, 'entrada') && !!c.lvq, d: lvqCompleta(c, 'entrada') ? 'sin registrar' : 'internación' },
     { t: 'Quirófano', ok: lvqCompleta(c, 'entrada') && lvqCompleta(c, 'pausa'), d: hora('pausa') || 'LVQ entrada' },
@@ -20907,8 +21086,9 @@ function fichaCamino(c) {
   return `<ol class="fx-camino">${pasos.map((p, i) => {
     const cls = ['fx-paso', p.ok ? 'ok' : '', p.tono || '', i === cur ? 'cur' : '', i === cur && vencido ? 'bad' : '', fin && !p.ok && !p.fin ? 'off' : ''].filter(Boolean).join(' ');
     const icono = p.ok ? ICONS.check : p.tono === 'bad' ? ICONS.x : p.tono === 'warn' ? ICONS.clockSm : p.tono === 'violeta' ? ICONS.zap : '';
-    return `<li class="${cls}"><span class="fx-dot">${icono ? ico(icono, 13) : i + 1}</span><b>${p.t}</b><small>${i === cur && vencido ? 'sin resolver' : esc(p.d)}</small></li>`;
-  }).join('')}</ol>`;
+    return `<li class="${cls}" title="${esc(p.t)} · ${esc(p.d)}"><span class="fx-dot">${icono ? ico(icono, 13) : i + 1}</span><b>${p.t}</b><small>${i === cur && vencido ? 'sin resolver' : esc(p.d)}</small></li>`;
+  }).join('')}</ol>${(() => { const k = cur >= 0 && cur < pasos.length ? cur : pasos.length - 1, p = pasos[k];
+    return `<div class="fx-camino-cap${vencido ? ' bad' : ''}"><span>Paso ${k + 1} de ${pasos.length}</span><b>${p.t}</b><span>${vencido ? 'sin resolver' : esc(p.d)}</span></div>`; })()}`;
 }
 /* ---- Qué sigue: una sola tarjeta, con el color de la urgencia ---- */
 function fichaSiguiente(c) {
@@ -24856,6 +25036,28 @@ function onObraChange() {
    trámite se cumplimenta después —incluso con la cirugía ya operada— y hasta
    entonces el turno figura pendiente de regularizar. Lo que no frena es el
    quirófano; lo que sí frena es el cierre del caso. */
+/* 3.33 · La Endoscopía ya no depende de la Jefatura de Quirófanos: la confirma
+   Admisión y Egresos con su autorización (la urgencia, sin esperar a nadie; Admisión
+   regulariza después). Es ambulatoria: no lleva cama, lleva pulsera. */
+function esEndo(c) { return !!c && c.sala === 'END'; }
+/* Admisión autorizó una endoscopía todavía sin confirmar: con eso queda CONFIRMADA. */
+function endoConfirmar(c, agente) {
+  if (!esEndo(c) || c.auth !== 'AUTORIZADO' || !['pendiente', 'validada'].includes(c.estado) || rcActivo(c)) return false;
+  c.estado = 'confirmada';
+  pushHist(c, 'Endoscopía CONFIRMADA en el parte con la autorización de Admisión y Egresos' + (agente ? ' (' + agente + ')' : '') + ' — no requiere validación de la ' + JEFATURA);
+  return true;
+}
+/* Las endoscopías anotadas antes de la 3.33 que ya tenían la autorización de
+   Admisión y esperaban a la Jefatura se confirman solas. */
+function endoSinJefaturaBarrer() {
+  const u = usuarioActual();
+  if (!jefe && !admis && !u) return;
+  DB.cirugias.forEach((c) => {
+    if (!jefe && !admis && c.cirujanoEmail !== u.email) return;
+    if (sinResolver(c)) return;
+    if (endoConfirmar(c, '')) upsert('cirugias', c);
+  });
+}
 function authExenta(c) {
   if (!c) return false;
   return !!c.urgencia || prioridadEfectiva(c) <= 2;
@@ -24905,7 +25107,7 @@ function jefaturaMotivoExencion(c) {
 }
 /* El turno se operó sin el visto previo de la Jefatura y nadie lo regularizó
    todavía. No frena nada: queda a la vista hasta que se cierre. */
-function jefaturaPendienteDiferida(c) { return !!(c && c.jefaturaDiferida) && !(c && c.jefaturaRegularizada); }
+function jefaturaPendienteDiferida(c) { return !!(c && c.jefaturaDiferida) && !(c && c.jefaturaRegularizada) && !esEndo(c); }
 /* ¿Puede el cirujano arrancar sin esperar a la Jefatura? Solo si el turno está
    exento y todavía no pasó por la validación. */
 function puedeIniciarSinJefatura(c) {
@@ -25564,6 +25766,7 @@ function openSlot(d, sid, fid) {
       go('perfil'); return;
     }
   }
+  if (nuevo && solMover) { turnoMoverA(d, sid, fid); return; }
   slotCtx = { d, sid, fid, hora: f.t, nd: f.nd || 0 };
   // 3.32.4 · «Reprogramar» desde una caducada: el turno nuevo sale con sus datos.
   const m = c || (nuevo ? solMolde() : null);
@@ -25611,9 +25814,10 @@ function openSlot(d, sid, fid) {
     </div>
 
     ${c ? tmCircuito(c, u) : tmCircuitoNuevo(f)}
-    ${!c && m ? `<div class="banner banner-blue" style="margin:10px 0">${ICONS.refresh}<div><strong>Reprogramación de ${esc(m.paciente?.nombre || 's/d')}</strong>
-      Los datos vienen de la cirugía caducada del ${esc(fmtFecha(m.deFecha))}. Revíselos y vuelva a tildar los requisitos para Admisión y Egresos.
-      <button type="button" class="btn btn-sm btn-outline" style="margin-top:6px" onclick="solCopia=null;closeSlot();openSlot('${d}','${sid}','${fid}')">Empezar en blanco</button></div></div>` : ''}
+    ${!c && m ? `<div class="banner banner-blue" style="margin:10px 0">${ICONS.refresh}<div><strong>${m.otro ? '➕ Otro estudio para' : 'Reprogramación de'} ${esc(m.paciente?.nombre || 's/d')}</strong>
+      ${m.otro ? 'Paciente, contacto, médico/a, apto anestésico y preoperatorios ya van cargados. Revise el estudio y guarde: después genere su consentimiento (cada estudio lleva el suyo).'
+        : `Los datos vienen de la cirugía caducada del ${esc(fmtFecha(m.deFecha))}. Revíselos y vuelva a tildar los requisitos para Admisión y Egresos.`}
+      <button type="button" class="btn btn-sm btn-outline" style="margin-top:6px" onclick="solCopia=null;solOtro=null;closeSlot();openSlot('${d}','${sid}','${fid}')">Empezar en blanco</button></div></div>` : ''}
     ${avisoAnticip}
     ${resv && nuevo ? `<div class="banner banner-reserva" style="margin-bottom:14px">${ico(ICONS.shield, 18)}<div><strong>Franja con prioridad por especialidad</strong>
         La Jefatura de Quirófanos reservó este horario para <b>${esc(resv.servicios.join(', '))}</b>. El turno solo se guarda con
@@ -25720,7 +25924,7 @@ function openSlot(d, sid, fid) {
     <div class="tm-pie">
       ${c && rcActivo(c) && puedeEditar ? '<p class="tm-ayuda rc-nota-guardar">«Guardar cambios» solo guarda los datos del turno que haya corregido arriba (paciente, cirugía, duración, equipos…). <b>No</b> es el OK a la nueva fecha: ese es el botón 🛏 de «Lo que sigue».</p>' : ''}
       ${puedeEditar ? `<button class="btn btn-blue tm-pie-main" onclick="guardarSlot()">${ICONS.check.replace('14', '16')} ${nuevo ? 'Programar turno' : 'Guardar cambios'}</button>` : ''}
-      ${c && !sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email)) ? `<button class="btn btn-outline tm-pie-red" onclick="cancelarSlot(${c.id})">${ICONS.trash} Cancelar turno</button>` : ''}
+      ${c && !sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email)) ? `<button class="btn btn-outline tm-pie-red" onclick="cancelarSlot(${c.id})">${ICONS.trash} ${jefe ? 'Cancelar turno' : 'Eliminar o pasar a otro día'}</button>` : ''}
       <button class="btn btn-outline" onclick="closeSlot()">Cerrar</button>
       ${!puedeEditar ? `<p class="form-note" style="flex-basis:100%;margin:4px 0 0">El turno ya avanzó en el circuito: los datos se corrigen desde <b>Ver y completar ficha</b>.</p>` : ''}
     </div>
@@ -25750,6 +25954,8 @@ function tmEstadoAdmision(c) {
   return { est: 'pend', txt: 'Pendiente de su dictamen' };
 }
 function tmEstadoJefatura(c) {
+  if (esEndo(c) && !['suspendida', 'caducada', 'anticipada', 'borrador'].includes(c.estado)) return ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado)
+    ? { est: 'ok', txt: 'No interviene: la confirmó Admisión' } : { est: 'espera', txt: 'No interviene en endoscopía' };
   if (c.estado === 'suspendida') return { est: 'no', txt: `Suspendida: ${esc(recortar((c.suspension && c.suspension.causa) || 'causa registrada', 60))}` };
   if (['caducada', 'anticipada'].includes(c.estado)) return { est: 'espera', txt: ESTC[c.estado].label };
   if (jefaturaPendienteDiferida(c)) return { est: 'dif', txt: 'Validación diferida' };
@@ -26080,6 +26286,15 @@ async function guardarSlot() {
   }
   if (existente) pushHist(c, 'Turno actualizado');
   // 3.32.4 · Turno nuevo armado con «Reprogramar» desde una caducada: quedan unidos.
+  const origOtro = !existente && solOtro ? DB.cirugias.find((x) => String(x.id) === String(solOtro)) : null;
+  if (origOtro) {
+    c.otroEstudioDe = origOtro.id;
+    pushHist(c, `Otro estudio del mismo paciente, a continuación de ${origOtro.procedimiento || 'su estudio'} (${fmtFecha(origOtro.fecha)} ${origOtro.horaProg || ''} h)`);
+    origOtro.otrosEstudios = (origOtro.otrosEstudios || []).concat(c.id);
+    pushHist(origOtro, `Se programó otro estudio del mismo paciente: ${c.procedimiento || ''} ${fmtFecha(c.fecha)} ${c.horaProg} h`);
+    upsert('cirugias', origOtro);
+    solOtro = null;
+  }
   const origRep = !existente && solCopia ? DB.cirugias.find((x) => String(x.id) === String(solCopia)) : null;
   if (origRep) {
     c.reprogDe = origRep.id;
@@ -26260,6 +26475,99 @@ function openTurnoOk(c) {
 }
 function closeTurnoOk() { $('cxok-overlay').classList.remove('open'); }
 
+/* 3.34 · El cirujano puede eliminar los turnos que él creó —cirugías y endoscopías—
+   mientras no hayan empezado. El confirmado se puede eliminar hasta el cierre de la
+   lista (13 h del día hábil anterior); después ya está en el parte publicado, con
+   equipo y cama asignados, y se SUSPENDE con causa (Jefatura) para que las
+   estadísticas no mientan. Se confirma con la propia contraseña. */
+const EST_ELIMINABLE = ['borrador', 'pendiente', 'validada', 'confirmada'];
+function esDuenoTurno(c) { const u = usuarioActual(); return !!(c && u && !jefe && c.cirujanoEmail === u.email); }
+function puedeEliminarPropio(c) { return esDuenoTurno(c) && EST_ELIMINABLE.includes(c.estado) && !sinResolver(c); }
+function eliminarBloqueo(c) {
+  if (c.estado === 'confirmada' && !c.urgencia && c.fecha && cierreSuperado(c.fecha))
+    return `El turno ya está CONFIRMADO en el parte del ${fmtFecha(c.fecha)}, que cerró a las ${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(c.fecha)}: tiene equipo, sala${camaDe(c) ? ' y cama' : ''} asignados.\n\nYa no se elimina: se SUSPENDE con su causa. Pídaselo a la Jefatura de Quirófanos (solapa «Reclamos» o por teléfono).`;
+  return '';
+}
+/* Primero se pregunta: ¿eliminarlo o pasarlo a otro día? */
+function turnoQueHacer(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!c) return;
+  if (!puedeEliminarPropio(c)) { alert('Solo el cirujano que creó el turno puede eliminarlo o pasarlo a otro día, y solo mientras no haya empezado.'); return; }
+  const bloq = eliminarBloqueo(c);
+  if (bloq) { alert(bloq); return; }
+  if ($('slot-overlay') && $('slot-overlay').classList.contains('open')) closeSlot();
+  if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) closeCirugia();
+  const que = esEndo(c) ? 'la endoscopía' : c.sala === 'QOBS' ? 'la cesárea' : 'la cirugía';
+  rcModal().innerHTML = `<button class="modal-close" onclick="rcCerrar()" aria-label="Cerrar">✕</button>
+    <header class="rc-hero" style="--c:#475569"><span class="rc-kick">Su turno</span><h2>¿Qué hacemos con ${que}?</h2>
+      <p>${esc(c.procedimiento || '')} · ${esc(c.paciente?.nombre || 's/d')}<br>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg || '—')} h · ${esc(c.quirofano || '')}</p></header>
+    <div class="tq-ops">
+      <button type="button" class="tq-op mover" onclick="rcCerrar();turnoMoverIniciar(${esc(JSON.stringify(c.id))})"><i>📅</i><b>Pasarlo a otro día</b>
+        <small>Elige la franja nueva. Se conservan el paciente, el consentimiento${c.pase ? ', el pase del paciente (le muestra la fecha nueva)' : ''} y los requisitos. Admisión${esEndo(c) ? '' : ' y la Jefatura'} lo vuelve${esEndo(c) ? '' : 'n'} a autorizar para la fecha nueva.</small></button>
+      <button type="button" class="tq-op borrar" onclick="rcCerrar();eliminarTurnoPropio(${esc(JSON.stringify(c.id))})"><i>🗑</i><b>Eliminarlo</b>
+        <small>Se borra el turno y la franja queda libre. No se puede deshacer.</small></button>
+    </div>
+    <button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:10px" onclick="rcCerrar()">Volver sin cambiar nada</button>`;
+  $('rc-overlay').classList.add('open');
+}
+/* ---- Pasar a otro día: se elige la franja como siempre y el MISMO turno se muda ---- */
+let solMover = null;
+function turnoMoverIniciar(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!puedeEliminarPropio(c)) return;
+  solCopia = null; solOtro = null; solMover = c.id;
+  solFecha = sumarDias(c.fecha > hoyISO() ? c.fecha : hoyISO(), 1);
+  go('solicitud');
+  toastTurno('Elija la franja nueva para ' + (c.paciente?.nombre || 'el paciente'), '#2563eb');
+}
+async function turnoMoverA(d, sid, fid) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(solMover));
+  if (!c) { solMover = null; return false; }
+  const s = sala(sid), f = franjaDe(sid, fid), nueva = fechaDeFranja(d, f);
+  const tipoDe = (x) => (sala(x) || {}).tipo || 'qx';
+  if (tipoDe(sid) !== tipoDe(c.sala)) { alert(`Este turno es de ${esEndo(c) ? 'Endoscopía' : tipoDe(c.sala) === 'obs' ? 'Obstetricia' : 'Quirófanos'}: elija una franja de ese mismo sector.`); return true; }
+  if (!await preguntar(`${c.procedimiento || ''} — ${c.paciente?.nombre || 's/d'}\n\nDe: ${fmtDiaLargo(c.fecha)} · ${c.horaProg || '—'} h · ${c.quirofano || ''}\nA:  ${fmtDiaLargo(nueva)} · ${f.t} h · ${s.nombre}\n\n`
+    + `Admisión y Egresos${esEndo(c) ? '' : ' y la Jefatura de Quirófanos'} lo vuelve${esEndo(c) ? '' : 'n'} a autorizar para la fecha nueva.${camaDe(c) ? ' La cama asignada queda libre.' : ''}`,
+    { titulo: '¿Pasar el turno a esta fecha?', si: 'Sí, pasarlo', no: 'Elegir otra' })) return true;
+  const antes = `${fmtFecha(c.fecha)} ${c.horaProg || ''} h (${c.quirofano || ''})`;
+  const k = camaDe(c);
+  if (k) { const dv = camaDoc(k.s, k.hab, k.cama); if (dv && String(dv.cir) === String(c.id)) camaPoner(k.s, k.hab, k.cama, { e: 'libre', por: (usuarioActual() || {}).nombre || '' }); }
+  rcPonerEn(c, { s, f, d });
+  if (['validada', 'confirmada'].includes(c.estado)) c.estado = 'pendiente';
+  ['cama', 'pulsera', 'equipoSala', 'anest', 'jefaturaDiferida'].forEach((x) => { delete c[x]; });
+  const habiaAut = c.auth;
+  c.auth = null; c.authMotivo = ''; c.authAgente = ''; c.authFecha = '';
+  pushHist(c, `Pasado a otro día por el cirujano: de ${antes} a ${fmtFecha(c.fecha)} ${c.horaProg} h (${c.quirofano})${habiaAut ? ` — el dictamen anterior de Admisión (${habiaAut}) queda sin efecto: se vuelve a autorizar para la fecha nueva` : ''}`);
+  upsert('cirugias', c);
+  solMover = null;
+  toastTurno(`Turno pasado al ${fmtFecha(c.fecha)} · ${c.horaProg} h`, '#059669');
+  go('mis');
+  return true;
+}
+function eliminarTurnoPropio(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!c) return;
+  if (!jefe && !puedeEliminarPropio(c)) { alert('Solo el cirujano que creó el turno puede eliminarlo, y solo mientras no haya empezado.'); return; }
+  const bloq = eliminarBloqueo(c);
+  if (bloq) { alert(bloq); return; }
+  const que = esEndo(c) ? 'la endoscopía' : c.sala === 'QOBS' ? 'la cesárea' : 'la cirugía';
+  confirmarCancelacion('Eliminar el turno', `Se elimina ${que} de ${c.paciente?.nombre || 's/d'} (${fmtFecha(c.fecha)} ${c.horaProg || ''} h) y la franja queda libre.`, async () => {
+    if (!await preguntar(`${c.procedimiento || ''} — ${c.paciente?.nombre || 's/d'}\n${fmtDiaLargo(c.fecha)} · ${c.horaProg || '—'} h · ${c.quirofano || ''}\n\n`
+      + '· La franja vuelve a quedar libre en la grilla.\n'
+      + (c.pase && c.pase.token && !c.pase.caducado ? '· El pase del paciente (QR) deja de funcionar: avísele usted que el turno se canceló.\n' : '')
+      + (camaDe(c) ? '· La cama asignada vuelve a quedar libre en el mapa.\n' : '')
+      + (c.auth ? '· Admisión y Egresos ya había dictaminado: el turno desaparece de su lista.\n' : '')
+      + '\nNo se puede deshacer.', { titulo: '¿Eliminar el turno?', tono: 'peligro', si: 'Sí, eliminar', no: 'No' })) return;
+    const k = camaDe(c);
+    if (k) { const dv = camaDoc(k.s, k.hab, k.cama); if (dv && String(dv.cir) === String(c.id)) camaPoner(k.s, k.hab, k.cama, { e: 'libre', por: (usuarioActual() || {}).nombre || JEFATURA }); }
+    if (c.otroEstudioDe) { const o = DB.cirugias.find((x) => String(x.id) === String(c.otroEstudioDe)); if (o && o.otrosEstudios) { o.otrosEstudios = o.otrosEstudios.filter((x) => String(x) !== String(c.id)); upsert('cirugias', o); } }
+    removeDoc('cirugias', c.id);
+    if ($('slot-overlay') && $('slot-overlay').classList.contains('open')) closeSlot();
+    if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) closeCirugia();
+    toastTurno('Turno eliminado: la franja quedó libre', '#b91c1c');
+    refreshView();
+  });
+}
 function cancelarSlot(id) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
@@ -26267,6 +26575,8 @@ function cancelarSlot(id) {
     alert('No se puede cancelar un turno en curso o ya realizado. Si corresponde, registre la incidencia correspondiente.');
     return;
   }
+  // 3.34 · El cirujano dueño elimina su turno (también el confirmado, hasta el cierre).
+  if (!jefe) { turnoQueHacer(id); return; }
   if (c.estado === 'confirmada') {
     alert('El turno ya está confirmado en el parte oficial: debe suspenderse con causa registrada, no cancelarse.');
     closeSlot();
@@ -26452,10 +26762,18 @@ function guardarAuth() {
   pushHist(c, 'Admisión y Egresos: ' + (anterior && anterior !== c.auth ? 'RECTIFICA ' + anterior + ' → ' : '')
     + (c.auth === 'AUTORIZADO' ? 'ACEPTADA' : c.auth) + (c.authAgente ? ' (' + c.authAgente + ')' : '') + (c.authMotivo ? ' — Motivo: ' + c.authMotivo : '')
     + (c.authDiferidaCerrada ? ' — trámite regularizado con la cirugía ya operada' : ''));
+  // 3.33 · Endoscopía: la autorización de Admisión la confirma (sin Jefatura).
+  // Si se rectifica a NO AUTORIZADO antes de empezar, vuelve a pendiente.
+  const endoOk = endoConfirmar(c, agente);
+  if (esEndo(c) && c.auth === 'NO AUTORIZADO' && c.estado === 'confirmada') {
+    c.estado = 'pendiente';
+    pushHist(c, 'Endoscopía: vuelve a pendiente — Admisión y Egresos rectificó a NO AUTORIZADO');
+  }
   // Si era lo último que faltaba, el caso se cierra acá mismo.
   revisarCierre(c);
   upsert('cirugias', c);
   closeAuth();
+  if (endoOk) toastTurno('Endoscopía AUTORIZADA y CONFIRMADA ✓ — ya está en el parte', '#059669');
   if ($('slot-overlay').classList.contains('open')) openSlot(diaDeGrilla(c), c.sala, c.franja);
   else refreshView();
 }
@@ -29757,6 +30075,8 @@ function ciRegistrar() {
     // El consentimiento guardado es lo que convierte la franja provisional en
     // franja confirmada. Va después del upsert del turno para no pisarlo.
     confirmarTurnoProvisional(reg.turnoId);
+    // 3.34 · Si el turno ya tiene pase, el paciente ve (y acepta) el texto nuevo.
+    if (c && c.pase && c.pase.token && !c.pase.caducado) portalEscribirPrivado(c).then(() => upsert('cirugias', c)).catch(() => {});
     // Turno electivo con los tres requisitos y el consentimiento recién
     // guardado: es el momento de entregarle el pase al paciente. Se ofrece una
     // sola vez por turno en esta sesión; después queda en «Lo que sigue».
@@ -30555,6 +30875,24 @@ body.portal-pac .pp-input::placeholder{color:#9ca3af;-webkit-text-fill-color:#9c
 .pp-reprog b{display:block;font-size:1.25rem;color:#7c2d12;margin:4px 0}
 .pp-reprog span{display:block;font-size:.9rem;color:#92400e}
 .pp-reprog-acc{display:grid;gap:8px;margin-top:12px}
+.pp-ci,.pp-prep,.pp-cons{display:grid;gap:6px}
+.pp-ci>small,.pp-prep>small,.pp-cons>small{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7c3aed}
+.pp-ci>b,.pp-prep>b{font-size:1.08rem;color:#111827}
+.pp-ci>span{font-size:.88rem;color:#4b5563;line-height:1.45}
+.pp-ci{border:2px solid #c4b5fd}
+.pp-ci.ok{border-color:#86efac;background:linear-gradient(135deg,#f0fdf4,#fff)} .pp-ci.ok>b{color:#15803d}
+.pp-ci-doc{width:100%;height:min(60vh,520px);border:1px solid #ddd6fe;border-radius:12px;background:#fff;margin-top:6px}
+.pp-ci-ayuda{font-size:.8rem;font-weight:700;color:#7c3aed;margin:2px 0}
+.pp-ci-tilde{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:12px;background:#f5f3ff;cursor:pointer;font-weight:700;font-size:.95rem;color:#3b0764;line-height:1.35}
+.pp-ci-tilde input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:#7c3aed}
+.pp-ci-tilde.off{opacity:.5;cursor:not-allowed}
+.pp-ci-nota{font-size:.74rem;color:#6b7280;line-height:1.4;margin:6px 0 0}
+.pp-prep{border-left:6px solid #0d9488} .pp-prep>small{color:#0d9488}
+.pp-prep-s{border-top:1px solid #e5e7eb;padding:8px 0}
+.pp-prep-s summary{font-weight:800;cursor:pointer;color:#0f766e}
+.pp-prep-s ul,.pp-cons ul{margin:6px 0 0;padding-left:20px;font-size:.9rem;line-height:1.5;color:#1f2937}
+.pp-prep-pie{font-size:.74rem;color:#6b7280;margin:6px 0 0}
+.pp-cons{border-left:6px solid #f59e0b;background:#fffbeb} .pp-cons>small{color:#b45309}
 .pp-gracias{margin:12px 0 0;font-weight:800;color:#047857}
 .pp-cama{border-left:5px solid #2563eb}.pp-cama small{color:#1d4ed8}.pp-cama b{display:block;font-size:.95rem;margin-top:3px;color:#1e3a8a}
 @media (prefers-reduced-motion:reduce){.pp-vivo span,.pp-p-pend .pp-p-ico{animation:none}}
@@ -30683,6 +31021,8 @@ function portalFoto(c, borrado) {
     ref: (c.pase && c.pase.ref) || '', act: ahoraServidor(),
     // 3.25 · Dónde está internado y, si la hay, la fecha nueva que se le pregunta.
     cama: camaDe(c) ? camaTexto(c) : '',
+    // 3.34 · Consentimiento: aceptado en el pase ('ok'), por aceptar ('pend') o sin texto ('').
+    ci: c.ciPaciente ? 'ok' : consentimientoDeTurno(c) ? 'pend' : '',
     sinCama: rcVeces(c),
     reprog: rcActivo(c) && c.reprogCama.estado === 'esperando_paciente' ? { pid: c.reprogCama.pid, fecha: c.fecha, hora: c.horaProg, lugar: c.quirofano } : null,
   };
@@ -30724,6 +31064,22 @@ async function portalEscribirPrivado(c) {
   // 3.21: la tarjeta de presentación del cirujano, para el correo del pase.
   const tj = tarjetaParaCorreo(c);
   if (tj) priv.tarjeta = tj;
+  // 3.34 · Preparación (protocolo del HRU), consejos y el consentimiento para leer y aceptar en el pase.
+  const prep = prepDe(c);
+  if (prep.length) priv.prep = prep;
+  priv.consejos = consejosDe(c);
+  const ci = consentimientoDeTurno(c);
+  if (ci && ci.datos) {
+    const html = ciDocImprimible(ciDocHTML({ ...CI_VACIO, ...ci.datos }));
+    priv.ci = { titulo: 'Consentimiento informado · ' + (ci.procedimiento || c.procedimiento || ''), html, hash: await sha256Hex(html) };
+    c.ciPase = { hash: priv.ci.hash, t: nowDT() };
+    // 3.34 · El texto exacto que va a leer el paciente queda en el registro, por su huella:
+    // es lo que se descarga como «consentimiento firmado» (las últimas 3 versiones).
+    const docs = Object.assign({}, ci.pase || {});
+    docs[priv.ci.hash] = html;
+    const ks = Object.keys(docs); while (ks.length > 3) delete docs[ks.shift()];
+    ci.pase = docs; upsert('consentimientos', ci);
+  }
   if (!cloudOn) {
     const m = portalDemoLeer();
     m[t] = Object.assign(m[t] || {}, { priv });
@@ -30731,6 +31087,165 @@ async function portalEscribirPrivado(c) {
     return true;
   }
   return firebase.database().ref('portalPrivado/' + t).set(priv).then(() => true).catch(() => false);
+}
+
+/* ================= (3.34) PREPARACIÓN DEL ESTUDIO Y CONSEJOS =================
+   La preparación sale del PROTOCOLO OFICIAL del Servicio de Endoscopía del HRU,
+   tal cual: la app no inventa indicaciones ni dosis. Cada preparación va en
+   secciones { t: título, items: [renglones] } de texto llano (en el correo y en
+   el pase se escapa todo). Mientras una preparación no esté cargada (`sec` vacío),
+   no se manda y la ficha avisa «Falta cargar el protocolo». */
+// Texto transcripto de los anexos «Instrucciones para el paciente y preparación» de los
+// consentimientos de la Unidad de Endoscopia Digestiva del HRU (2022, revisados por el
+// Dr. Claudio A. Ravasi y la Dirección Médica). Si el Servicio cambia el protocolo, se cambia acá.
+const PREP_PIE = 'Hospital Regional Ushuaia · Unidad de Endoscopias · Planta 1.ª · Tel. 2901-441037.';
+const PREP_DOCS = ['Traiga leído y firmado el Consentimiento informado de la exploración.',
+  'Traiga leído y firmado el Consentimiento informado de la sedación (se adjunta aparte y también lo debe firmar el paciente).',
+  'Traiga las últimas exploraciones radiológicas abdominales y endoscópicas a que se haya sometido.',
+  'Traiga su TICKET de atención, que deberá pasar a retirar por mesa de entradas.',
+  'En determinadas ocasiones, como en las exploraciones terapéuticas programadas, el facultativo solicitante de la exploración entregará al paciente una petición de análisis con hemograma y estudio de coagulación, que se realizará entre 24 y 48 horas antes del día de la prueba y que deberá traer.'];
+const PREP_MEDS = ['Si toma antiinflamatorios (aspirina, ibuprofeno, etc.) y/o antiagregantes plaquetarios, puede ser necesario suspenderlos en los 7 días previos a la exploración, consultando a su médico, si fuera preciso.',
+  'Si fuera necesario suspender la toma de anticoagulantes (Sintrom®), los suspenderá al menos 5 días antes de la prueba y serán sustituidos por heparina según le indique el médico solicitante o su médico de cabecera.',
+  'El día de la exploración tomará su medicación habitual, salvo que su médico le indique lo contrario.',
+  'Si su médico considera que va a precisar premedicación antibiótica para realizar la exploración, deberá aportar el informe correspondiente.'];
+const PREP_ENDO = {
+  veda: { titulo: 'Instrucciones y preparación para la Esófago-gastro-duodenoscopía (VEDA)', pie: PREP_PIE, sec: [
+    { t: '1. Objeto de la preparación', items: ['Para una correcta exploración del esófago, estómago e intestino delgado es preciso una ausencia de contenido en los mismos. De esta manera se evitan posibles repeticiones de las pruebas y se mejora el diagnóstico de lesiones. Por ello, recomendamos que siga rigurosamente las siguientes instrucciones.',
+      'Recuerde que, al realizar la exploración bajo sedación, conviene que venga acompañado y que continúe acompañado al menos durante 6 a 8 horas tras la misma.'] },
+    { t: '2. Documentos para traer el día de la exploración', items: PREP_DOCS },
+    { t: '3. Medicaciones', items: PREP_MEDS },
+    { t: '4. Dieta', items: ['OCHO horas antes de la exploración: dieta absoluta. No debe tomar sólidos ni líquidos (ni agua). Sólo podrá tomar su medicación habitual que sea indispensable con una pequeña cantidad de agua.'] },
+    { t: '5. Casos especiales de preparación', items: ['Se lo indicará el médico solicitante.'] },
+    { t: '6. Cuidados post-exploración', items: ['Tras la exploración deberá permanecer en el Hospital un período no inferior a 15 minutos, dependiendo de la complejidad de la exploración realizada (en ocasiones requiere incluso ingreso hospitalario).',
+      'Seguirá con su dieta y medicación habituales salvo que se le indique lo contrario. Si precisa algún cuidado específico o tomar alguna medicación en concreto, como puede ser el caso de antibióticos, se le explicará al paciente y a sus familiares o acompañantes de forma clara y concreta.',
+      'Debido a la sedación no deberá conducir ni realizar otra actividad que conlleve peligro en las 6 a 8 horas siguientes a la finalización de la prueba. Además, durante este período conviene que siga acompañado.',
+      'Si tuviera síntomas como dolor abdominal que no desaparece, sangrado o fiebre importantes, acudirá al centro en el que le han realizado la prueba o a urgencias para valorar posibles complicaciones.'] },
+  ] },
+  colono: { titulo: 'Instrucciones y preparación para la Colonoscopía', pie: PREP_PIE, sec: [
+    { t: '1. Objeto de la preparación', items: ['Para una correcta exploración del colon es precisa una limpieza óptima del mismo. De esta manera se evitan posibles repeticiones de las pruebas y se mejora el diagnóstico de lesiones colónicas. Por ello, recomendamos que siga rigurosamente las siguientes instrucciones.',
+      'Recuerde que, al realizar la exploración bajo sedación, conviene que venga acompañado y que continúe acompañado al menos durante 6 a 8 horas tras la misma.'] },
+    { t: '2. Documentos para traer el día de la exploración', items: PREP_DOCS },
+    { t: '3. Medicaciones', items: PREP_MEDS },
+    { t: '4. Dieta', items: ['Tres días antes de la prueba — puede tomar: caldos, pasta, huevos, carne y pescados hervidos o a la plancha, quesos duros, pan tostado (no integral), agua, jugos colados, infusiones, café y bebidas sin gas.',
+      'Tres días antes de la prueba — no puede tomar: preparados de fibra, ensaladas, verduras, legumbres, papas, arroz, frutas, carnes o pescados en salsa, embutidos, leche, grasas ni pasteles.',
+      'El día antes de la prueba: sólo tomará líquidos, azucarados si lo desea (líquidos claros permitidos): agua, caldos filtrados, jugos colados, infusiones, café, bebidas sin burbujas y bebidas isotónicas. No tomará leche.',
+      'Tres horas antes de la prueba: dieta absoluta. No debe tomar sólidos ni líquidos (ni agua). Sólo podrá tomar su medicación habitual que sea indispensable con una pequeña cantidad de agua.'] },
+    { t: '5. Preparación intestinal', items: ['En nuestro Hospital optamos por dos tipos de preparados para la limpieza intestinal. Al entregarle la citación de la prueba, se le suministrará una orden según la selección del médico prescriptor.',
+      'Productos basados en el picosulfato sódico (PicoPrep®): se realiza en dos tomas que se adaptan a la hora de su colonoscopía. Cada toma consiste en beber un sobre de PicoPrep® disuelto en un vaso de agua, tomando a continuación al menos 2 litros de los líquidos claros permitidos (ver Dieta). En caso de estreñimiento, antes de cada toma se recomienda ingerir 2 comprimidos de bisacodilo (Dulcolax®).',
+      'Productos basados en fosfatos sódicos no absorbibles o de bajo volumen (FosfoDom®): se realiza en dos tomas que se adaptan a la hora de su colonoscopía. Cada toma consiste en mezclar el contenido de un frasco en un vaso con agua, que se debe beber. Después debe beber al menos 1 litro de los líquidos claros permitidos (ver Dieta). En caso de estreñimiento, antes de cada toma se recomienda ingerir 2 comprimidos de bisacodilo (Dulcolax®).',
+      'Horario de las tomas (para los dos productos) — si la exploración es por la mañana: Toma 1 a las 17 h (5 p. m.) y Toma 2 a las 23:30 h (11:30 p. m.) del día anterior a la prueba.',
+      'Horario de las tomas (para los dos productos) — si la exploración es por la tarde: Toma 1 a las 20 h (8 p. m.) del día anterior a la prueba y Toma 2 a las 10 h (10:00 a. m.) del mismo día de la endoscopía.'] },
+    { t: '6. Casos especiales de preparación', items: ['En caso de colostomía se hará la preparación descrita en el apartado 5 (Preparación intestinal).',
+      'En casos de cirugía de colon previa con reservorio íleo-anal, anastomosis íleo-rectal o una operación de tipo «Hartmann», se prepararán con enemas de limpieza (suero fisiológico).',
+      'Si hay una colostomía acompañada de una cirugía tipo «Hartmann» o una colostomía en «cañón de escopeta», se tomará por vía oral la preparación habitual y, además, se pondrá enemas de suero fisiológico por el ano.'] },
+    { t: '7. Precauciones durante la preparación', items: ['Durante la preparación va a presentar muchas deposiciones, por lo cual se puede encontrar débil, como cuando se padece una gastroenteritis.',
+      'Es conveniente que haga su vida lo más normal posible. No debe quedarse acostado en la cama salvo que se note muy débil o con mareos. En estos casos es importante tener cuidado para no caerse, especialmente al levantarse de la cama o de un sillón (no lo haga de forma brusca, porque se puede marear).',
+      'Es conveniente que beba líquidos mientras dure el efecto laxante de la preparación, recordando que no puede beber durante las 3 horas previas a la endoscopía.',
+      'Si tolera mal la preparación, puede espaciar las tomas, recordando siempre que no puede ingerir absolutamente nada 3 horas antes de la prueba.'] },
+    { t: '8. Cuidados post-exploración', items: ['Tras la exploración deberá permanecer en el Hospital un período no inferior a 20 minutos, dependiendo de la complejidad de la exploración realizada (en ocasiones requiere incluso ingreso hospitalario).',
+      'Seguirá con su dieta y medicación habituales salvo que se le indique lo contrario. Si precisa algún cuidado específico o tomar alguna medicación en concreto, como puede ser el caso de antibióticos, se le explicará al paciente y a sus familiares de forma clara y concreta.',
+      'Debido a la sedación no deberá conducir ni realizar otra actividad que conlleve peligro en las 12 horas siguientes a la finalización de la prueba. Además, durante este período conviene que siga acompañado.',
+      'Es conveniente que beba líquido, al menos 1 litro de agua, durante el resto del día. Durante los 2 o 3 días siguientes a la prueba puede tener sensación de distensión abdominal.',
+      'Si tuviera síntomas como dolor abdominal que no desaparece, sangrado o fiebre importantes, acudirá al centro en el que le han realizado la prueba o a urgencias para valorar posibles complicaciones.'] },
+  ] },
+};
+/* Qué preparación lleva el turno, por el nombre del procedimiento. */
+function prepClaves(c) {
+  if (!esEndo(c)) return [];
+  const t = sinTildes(`${c.procedimiento || ''} ${c.practica || ''}`).toLowerCase();
+  const k = [];
+  if (/veda|digestiva alta|esofag|gastroscop|gastrovideoscop|videogastro|gastroduodeno|duodenoscop|endoscopia alta/.test(t)) k.push('veda');
+  if (/colonoscop|vcc|rectosigmoid|colon\b|ileocolonoscop/.test(t)) k.push('colono');
+  return k;
+}
+function prepDe(c) { return prepClaves(c).map((k) => PREP_ENDO[k]).filter((x) => x && x.sec && x.sec.length); }
+function prepFaltaCargar(c) { return prepClaves(c).filter((k) => !(PREP_ENDO[k].sec || []).length).map((k) => PREP_ENDO[k].titulo); }
+/* Lo que se le recuerda a todo paciente (no son indicaciones médicas: son de sentido común). */
+function consejosDe(c) {
+  if (esEndo(c)) {
+    const k = prepClaves(c), horas = k.includes('colono') ? '12 horas' : '6 a 8 horas';
+    return ['Vení con un acompañante adulto: el estudio se hace con sedación, y seguí acompañado/a al menos 6 a 8 horas después.',
+      `Después de la sedación no podés manejar ni hacer actividades que impliquen peligro durante las ${horas} siguientes.`];
+  }
+  return ['Traé tu DNI, la orden y los estudios que tengas.', 'Vení con un acompañante adulto.'];
+}
+
+/* 3.34 · El paciente tildó «Leí y comprendo…» en su pase: el Apps Script lo deja en
+   portalFirma/<llave>; la app lo asienta en la cirugía (una vez) y avisa al cirujano. */
+let ciVigilando = false;
+async function ciAceptacionesVigilar() {
+  const u = usuarioActual();
+  if ((!jefe && !admis && !u) || ciVigilando) return;
+  ciVigilando = true;
+  try {
+    const L = DB.cirugias.filter((c) => c.pase && c.pase.token && !c.pase.caducado && !c.ciPaciente && c.ciPase
+      && (jefe || admis || c.cirujanoEmail === u.email) && !['suspendida', 'caducada', 'anticipada', 'finalizada'].includes(c.estado));
+    for (const c of L) {
+      let f = null;
+      if (!cloudOn) f = (portalDemoLeer()[c.pase.token] || {}).firma || null;
+      else { try { f = (await firebase.database().ref('portalFirma/' + c.pase.token).once('value')).val(); } catch (e) { f = null; } }
+      if (!f || !f.t) continue;
+      c.ciPaciente = { t: f.t, hash: f.hash || '', via: f.via || 'pase', vigente: f.hash === c.ciPase.hash };
+      c.hce = { ...(c.hce || {}), consentimiento: true };
+      pushHist(c, `El paciente aceptó el consentimiento informado desde su pase («Leí y comprendo los alcances del consentimiento médico informado») · ${fmtDT(f.t)} · huella ${String(f.hash || '').slice(0, 12)}…`);
+      upsert('cirugias', c);
+    }
+  } finally { ciVigilando = false; }
+}
+
+/* 3.34 · El consentimiento firmado electrónicamente por el paciente, en PDF, para
+   adjuntarlo a la historia clínica: el texto EXACTO que aceptó (se comprueba su
+   huella SHA-256) y al pie la constancia de la firma electrónica (Ley 25.506, art. 5). */
+function puedeBajarCiFirmado(c) {
+  const u = usuarioActual();
+  return !!(c && c.ciPaciente && (jefe || (u && c.cirujanoEmail === u.email)));
+}
+async function ciFirmadoDescargar(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!puedeBajarCiFirmado(c)) return;
+  const w = window.open('', '_blank');   // en el mismo toque, para que el navegador no la bloquee
+  if (!w) { alert('El navegador bloqueó la ventana. Habilite las ventanas emergentes para descargar el PDF.'); return; }
+  const f = c.ciPaciente, ci = consentimientoDeTurno(c), pa = c.paciente || {};
+  let html = ci && ci.pase && ci.pase[f.hash], original = !!html;
+  if (!html && ci && ci.datos) html = ciDocImprimible(ciDocHTML({ ...CI_VACIO, ...ci.datos }));
+  if (!html) { w.close(); alert('No se encontró el consentimiento de este turno en el registro.'); return; }
+  const coincide = original && (await sha256Hex(html)) === f.hash;
+  const nombre = String(pa.nombre || '').trim(), dni = soloDigitos(pa.dni);
+  const dniTxt = dni ? Number(dni).toLocaleString('es-AR') : 's/d';
+  const hashTxt = String(f.hash || '').toUpperCase().replace(/(.{8})/g, '$1 ').trim();
+  const cuando = fmtDT(f.t);
+  const cinta = `<div style="border:2px solid #15803d;background:#f0fdf4;color:#14532d;border-radius:8px;padding:6px 10px;margin:0 0 10px;font:600 9pt Arial,sans-serif;text-align:center">
+    FIRMADO ELECTRÓNICAMENTE POR EL PACIENTE · ${esc(cuando)} · Verificación SHA-256 al pie</div>`;
+  const constancia = `<div style="page-break-inside:avoid;margin-top:18px;border:2px solid #1e3a8a;border-radius:10px;padding:14px 16px;font-family:Arial,sans-serif;color:#0f172a">
+    <div style="font:800 11pt Arial,sans-serif;letter-spacing:.04em;color:#1e3a8a;margin-bottom:8px">CONSTANCIA DE FIRMA ELECTRÓNICA DEL PACIENTE</div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:1;min-width:240px">
+        <div style="font:italic 24pt 'Brush Script MT','Segoe Script','Lucida Handwriting',cursive;color:#1e3a8a;line-height:1.1;padding:4px 2px">${esc(nombre || 'Paciente')}</div>
+        <div style="border-top:1px solid #334155;padding-top:3px;font-size:9pt">Firma electrónica de <b>${esc(nombre.toUpperCase())}</b> · DNI ${esc(dniTxt)}</div>
+      </div>
+      <div style="font-size:9pt;line-height:1.5;min-width:200px">
+        <b>Fecha y hora:</b> ${esc(cuando)} (hora del servidor)<br>
+        <b>Turno:</b> ${esc(c.procedimiento || '')} · ${esc(fmtFecha(c.fecha))} ${esc(c.horaProg || '')} h · ${esc(c.quirofano || '')}<br>
+        <b>Código de pase:</b> ${esc((c.pase && c.pase.ref) || '—')}
+      </div>
+    </div>
+    <p style="font-size:9.5pt;line-height:1.5;margin:10px 0 6px"><b>Leído y validado por el paciente.</b> El/la paciente ingresó a su pase del Hospital Regional Ushuaia
+      identificándose con su DNI y con un código de un solo uso enviado a su correo electrónico (${esc(enmascararMail(pa.email) || 's/d')}), leyó este documento completo
+      y tildó: <i>«Leí y comprendo los alcances del consentimiento médico informado»</i>.</p>
+    <div style="font-size:9pt;margin:6px 0 2px"><b>Código de verificación de la firma (SHA-256 del documento aceptado):</b></div>
+    <div style="font:10pt 'Courier New',monospace;background:#eef2ff;border-radius:6px;padding:6px 8px;color:#1e3a8a;letter-spacing:.03em">${hashTxt.split(' ').map((g) => `<span style="display:inline-block;white-space:nowrap;margin-right:.6em">${esc(g)}</span>`).join('')}</div>
+    <div style="font-size:9pt;margin-top:6px;color:${coincide ? '#15803d' : '#b45309'};font-weight:700">${coincide
+      ? '✓ Verificado al descargar: este texto es idéntico, carácter por carácter, al que aceptó el paciente.'
+      : '⚠ No se encontró la copia exacta del texto aceptado: esta es una copia regenerada del consentimiento. La huella de arriba corresponde al texto original aceptado.'}</div>
+    <p style="font-size:8pt;color:#475569;line-height:1.4;margin:8px 0 0">Firma electrónica en los términos del art. 5 de la Ley 25.506. Consentimiento informado según la Ley 26.529 de Derechos del Paciente.
+      El paciente puede revocarlo en cualquier momento antes del procedimiento. Documento emitido por HRU Quirófanos el ${esc(fmtDT(nowDT()))} para su incorporación a la historia clínica.</p>
+  </div>`;
+  const doc = html.replace(/<title>[^<]*<\/title>/, `<title>Consentimiento firmado - ${esc(nombre)} - ${esc(c.fecha || '')}</title>`)
+    .replace(/<body([^>]*)>/, (m) => m + cinta).replace(/<\/body>/, constancia + '</body>');
+  w.document.open(); w.document.write(doc); w.document.close();
+  pushHist(c, `Se descargó el consentimiento firmado electrónicamente por el paciente (${coincide ? 'texto verificado por SHA-256' : 'copia regenerada'}) — ${(usuarioActual() || {}).nombre || JEFATURA}`);
+  upsert('cirugias', c);
+  setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 500);
 }
 
 /* ---- Emisión ---- */
@@ -31093,7 +31608,7 @@ function imprimirPase() {
    Se abre con `?pase=<llave>`. No arranca la app del hospital: no se conecta a
    la base, no pide pase anónimo, no carga datos de nadie. Habla solo con el
    servicio del portal, que verifica el código y le devuelve la foto mínima. */
-const portal = { paso: 'dni', destino: '', sesion: '', foto: null, error: '', det: '', dniTxt: '', timer: null, demoCodigo: '', reenviarEn: 0, act: null };
+const portal = { paso: 'dni', destino: '', sesion: '', foto: null, error: '', det: '', dniTxt: '', timer: null, demoCodigo: '', reenviarEn: 0, act: null, extra: null, ciOk: null, ciLeido: false, ciTilde: false, ciAbierto: false, ciError: '' };
 
 function iniciarPortalPaciente() {
   document.body.classList.add('portal-pac');
@@ -31212,11 +31727,13 @@ function portalVistaEstado(f) {
       </div>`}
     </section>` : ''}
     ${f.cama ? `<section class="pp-card pp-cama"><small>Tu internación</small><b>🛏 ${esc(f.cama)}</b></section>` : ''}
+    ${ppCiHTML()}
     <section class="pp-card">
       <ol class="pp-linea">
         ${paso('ok', `${T.N} solicitad${T.o}`, `Por ${esc(f.cirujano || 'tu ' + T.medico)}`)}
         ${paso(f.adm === 'ok' ? 'ok' : f.adm === 'no' ? 'no' : 'pend', 'Admisión y Egresos', admTxt[f.adm] || admTxt.pend)}
-        ${paso(f.jef === 'ok' || f.jef === 'okrc' ? 'ok' : f.jef === 'susp' ? 'no' : f.jef === 'pend' ? 'pend' : 'espera', 'Jefatura de Quirófanos', jefTxt[f.jef] || jefTxt.espera)}
+        ${portal.extra && portal.extra.ci ? paso(portal.ciOk || f.ci === 'ok' ? 'ok' : 'pend', 'Tu consentimiento', portal.ciOk || f.ci === 'ok' ? '✓ Leído y aceptado' : 'Falta que lo leas y lo aceptes') : ''}
+        ${f.tipo === 'endo' ? '' : paso(f.jef === 'ok' || f.jef === 'okrc' ? 'ok' : f.jef === 'susp' ? 'no' : f.jef === 'pend' ? 'pend' : 'espera', 'Jefatura de Quirófanos', jefTxt[f.jef] || jefTxt.espera)}
         ${f.sinCama ? paso(f.clave === 'reprog_confirmar' ? 'pend' : ['confirmada', 'en_curso', 'operada'].includes(f.clave) ? 'ok' : 'espera', 'Vos', f.clave === 'reprog_confirmar' ? 'Falta tu OK a la nueva fecha' : ['confirmada', 'en_curso', 'operada'].includes(f.clave) ? 'Confirmaste la nueva fecha' : 'Te preguntamos cuando el equipo dé su OK') : ''}
         ${paso(diaEst, `Día ${T.del} ${T.n}`, f.fecha ? `${esc(fmtDiaLargo(f.fecha))} · ${esc(f.hora)} h` : 'A confirmar')}
       </ol>
@@ -31228,7 +31745,8 @@ function portalVistaEstado(f) {
       <div><small>Lugar</small><b>Hospital Regional Ushuaia · ${esc(f.lugar || '')}</b></div>
       <div><small>${T.Medico}</small><b>${esc(f.cirujano || '')}</b></div>
       <div><small>Código de pase</small><b>${esc(f.ref || '')}</b></div>
-    </section>`;
+    </section>
+    ${portal.extra ? ppPrepHTML(portal.extra.prep) + ppConsejosHTML(portal.extra.consejos) : ''}`;
 }
 
 /* ---- Conversación con el servicio del portal ---- */
@@ -31278,6 +31796,7 @@ async function portalValidar() {
   else { try { res = await portalServicio({ accion: 'validarCodigo', token: PORTAL_TOKEN, codigo: cod }); } catch (e) { res = { error: 'red' }; } }
   if (res && res.ok) {
     portal.sesion = res.sesion; portal.foto = res.foto; portal.act = new Date(); portal.paso = res.foto && res.foto.caducado ? 'caducado' : 'estado';
+    portal.extra = res.extra || null; portal.ciOk = res.ciOk || null;
     portal.demoCodigo = '';
     clearInterval(portal.timer);
     portal.timer = setInterval(portalConsultar, (cloudOn ? PORTAL.sondeoSeg : 5) * 1000);
@@ -31292,12 +31811,14 @@ async function portalConsultar() {
   else { try { res = await portalServicio({ accion: 'estado', token: PORTAL_TOKEN, sesion: portal.sesion }); } catch (e) { return; } }
   if (res && res.ok) {
     portal.foto = res.foto; portal.act = new Date();
+    if ('ciOk' in res) portal.ciOk = res.ciOk || portal.ciOk;
     if (res.foto && res.foto.caducado) { portal.paso = 'caducado'; clearInterval(portal.timer); }
   } else if (res && (res.error === 'sesion' || res.error === 'caducado')) {
     clearInterval(portal.timer);
     portal.paso = res.error === 'caducado' ? 'caducado' : 'dni';
     portal.error = res.error === 'sesion' ? PORTAL_ERRORES.sesion : '';
   }
+  if (portal.ciAbierto && portal.paso === 'estado') return;
   renderPortal();
 }
 /* 3.25 · Respuesta del paciente a la nueva fecha (va atada a la propuesta). */
@@ -31317,7 +31838,61 @@ async function portalResponderReprog(ok) {
   else portal.error = PORTAL_ERRORES[(res && res.error) || 'red'] || PORTAL_ERRORES.red;
   renderPortal();
 }
-function portalSalir() { clearInterval(portal.timer); Object.assign(portal, { paso: 'dni', sesion: '', foto: null, error: '' }); renderPortal(); }
+function portalSalir() { clearInterval(portal.timer); Object.assign(portal, { paso: 'dni', sesion: '', foto: null, error: '', extra: null, ciOk: null, ciLeido: false, ciTilde: false, ciAbierto: false, ciError: '' }); renderPortal(); }
+/* 3.34 · El consentimiento, dentro del pase: se lee entero (en un marco aislado, sin
+   programas) y se acepta tildando una casilla. Sirve igual en celular o computadora. */
+function ppPrepHTML(L) {
+  return (L || []).map((p) => `<section class="pp-card pp-prep"><small>Tu preparación</small><b>🧾 ${esc(p.titulo)}</b>
+    ${comoLista(p.sec).map((x) => `<details class="pp-prep-s" ${comoLista(p.sec).length <= 2 ? 'open' : ''}><summary>${esc(x.t)}</summary><ul>${comoLista(x.items).map((i) => `<li>${esc(i)}</li>`).join('')}</ul></details>`).join('')}
+    ${p.pie ? `<p class="pp-prep-pie">${esc(p.pie)}</p>` : ''}</section>`).join('');
+}
+function ppConsejosHTML(L) {
+  L = comoLista(L); if (!L.length) return '';
+  return `<section class="pp-card pp-cons"><small>Importante</small><ul>${L.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></section>`;
+}
+function ppCiHTML() {
+  const ci = portal.extra && portal.extra.ci;
+  if (!ci) return '';
+  if (portal.ciOk) return `<section class="pp-card pp-ci ok"><small>Tu consentimiento informado</small><b>✓ Aceptado</b>
+    <span>Tildaste «Leí y comprendo los alcances del consentimiento médico informado» el ${esc(fmtDT(portal.ciOk.t))}. El hospital ya lo tiene.</span>
+    <button class="pp-link" onclick="portal.ciAbierto=!portal.ciAbierto;renderPortal()">${portal.ciAbierto ? 'Cerrar el texto' : 'Volver a leerlo'}</button>
+    ${portal.ciAbierto ? `<iframe class="pp-ci-doc" sandbox="allow-same-origin" title="Consentimiento informado" srcdoc="${esc(ci.html)}"></iframe>` : ''}</section>`;
+  return `<section class="pp-card pp-ci"><small>Tu consentimiento informado</small><b>📝 Leelo y aceptalo desde acá</b>
+    <span>Es el mismo texto que te explicó tu médico/a. No hace falta imprimirlo ni firmarlo a mano.</span>
+    ${portal.ciAbierto ? `<iframe class="pp-ci-doc" id="pp-ci-doc" sandbox="allow-same-origin" title="Consentimiento informado" srcdoc="${esc(ci.html)}" onload="ppCiMirar(this)"></iframe>
+      <p class="pp-ci-ayuda" id="pp-ci-ayuda">${portal.ciLeido ? '✓ Llegaste al final del texto.' : '⬇ Deslizá el texto hasta el final para poder aceptarlo.'}</p>
+      <label class="pp-ci-tilde ${portal.ciLeido ? '' : 'off'}" id="pp-ci-lbl"><input type="checkbox" id="pp-ci-chk" ${portal.ciTilde ? 'checked' : ''} ${portal.ciLeido ? '' : 'disabled'} onchange="portal.ciTilde=this.checked;$('pp-ci-go').disabled=!this.checked">
+        <span>Leí y comprendo los alcances del consentimiento médico informado.</span></label>
+      ${portal.ciError ? `<div class="pp-error" role="alert">${esc(portal.ciError)}</div>` : ''}
+      <button class="pp-btn" id="pp-ci-go" ${portal.ciTilde && portal.ciLeido ? '' : 'disabled'} onclick="portalCiAceptar()">Aceptar el consentimiento</button>
+      <p class="pp-ci-nota">Queda registrado con la fecha y la hora. Si tenés dudas, no lo aceptes: consultá antes a tu médico/a. Podés revocarlo hasta el momento del ${esc(ppTipo(portal.foto && portal.foto.tipo).n)}.</p>`
+    : '<button class="pp-btn" onclick="portal.ciAbierto=true;renderPortal()">Leer mi consentimiento</button>'}</section>`;
+}
+/* Llegó al final del texto: recién ahí se habilita la casilla. */
+function ppCiMirar(fr) {
+  let d = null; try { d = fr.contentDocument; } catch (e) { d = null; }
+  const listo = () => { if (portal.ciLeido) return; portal.ciLeido = true;
+    const k = $('pp-ci-chk'), l = $('pp-ci-lbl'), a = $('pp-ci-ayuda'); if (k) k.disabled = false; if (l) l.classList.remove('off'); if (a) a.textContent = '✓ Llegaste al final del texto.'; };
+  if (!d) { listo(); return; }
+  const el = d.scrollingElement || d.documentElement;
+  const mirar = () => { if (el.scrollTop + fr.clientHeight >= el.scrollHeight - 40) listo(); };
+  d.addEventListener('scroll', mirar, { passive: true });
+  mirar();
+}
+async function portalCiAceptar() {
+  const ci = portal.extra && portal.extra.ci;
+  if (!ci || !portal.ciTilde || !portal.ciLeido) return;
+  const b = $('pp-ci-go'); if (b) { b.disabled = true; b.classList.add('pp-cargando'); }
+  let res;
+  if (!cloudOn) {
+    const m = portalDemoLeer(), t = nowDT();
+    m[PORTAL_TOKEN] = Object.assign(m[PORTAL_TOKEN] || {}, { firma: { t, hash: ci.hash, via: 'pase', texto: 'Leí y comprendo los alcances del consentimiento médico informado' } });
+    portalDemoGuardar(m); res = { ok: true, t };
+  } else { try { res = await portalServicio({ accion: 'ciAceptar', token: PORTAL_TOKEN, sesion: portal.sesion, hash: ci.hash }); } catch (e) { res = { error: 'red' }; } }
+  if (res && res.ok) { portal.ciOk = { t: res.t, hash: ci.hash }; portal.ciAbierto = false; portal.ciError = ''; }
+  else portal.ciError = res && res.error === 'ciCambio' ? 'Tu médico/a actualizó el consentimiento. Salí y volvé a entrar para leer la versión nueva.' : (PORTAL_ERRORES[(res && res.error) || 'red'] || PORTAL_ERRORES.red);
+  renderPortal();
+}
 
 /* ---- Simulación del servicio en modo local (misma lógica que el Apps Script) ---- */
 function portalDemoPase() { return portalDemoLeer()[PORTAL_TOKEN] || null; }
@@ -31340,12 +31915,13 @@ async function portalDemoValidar(cod) {
   sessionStorage.removeItem('hru_portal_demo_otp');
   const usados = JSON.parse(sessionStorage.getItem('hru_portal_demo_usados') || '[]');
   usados.push(cod); sessionStorage.setItem('hru_portal_demo_usados', JSON.stringify(usados));
-  return Object.assign({ sesion: 'demo' }, portalDemoFoto());
+  const p = portalDemoPase() || {}, pr = p.priv || {};
+  return Object.assign({ sesion: 'demo', extra: { prep: pr.prep || [], consejos: pr.consejos || [], ci: pr.ci || null }, ciOk: p.firma || null }, portalDemoFoto());
 }
 function portalDemoFoto() {
   const p = portalDemoPase();
   if (!p || !p.foto) return { error: 'caducado' };
-  return { ok: true, foto: p.foto };
+  return { ok: true, foto: p.foto, ciOk: p.firma || null };
 }
 
 /* ---- Estilos del pase y del portal (se inyectan una vez; el pase impreso los reusa) ---- */
