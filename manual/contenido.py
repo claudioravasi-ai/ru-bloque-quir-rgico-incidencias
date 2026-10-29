@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.34.3'
+VERSION = '3.34.4'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -555,6 +555,14 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.34'),
+('h2', 'Versión 3.34.4 — ✋ TOMAR: cada uno toma su lugar en la programación del día'),
+('ul', [
+    '**✋ TOMAR en la Programación Diaria.** En cada cirugía, cesárea y endoscopía del día, a cada persona de Enfermería, Instrumentación y Anestesiología le aparece en la tarjeta del turno **✋ TOMAR** cuando hay un puesto libre de su función. Al tocarlo se abre la ventana **Tomar mi lugar** justo en esa cirugía. El cirujano, la obstetra o el endoscopista no lo ve: ya figura porque programó el turno.',
+    '**La ventana «Tomar mi lugar»** muestra el día (Hoy / Mañana) por área —Quirófanos, Obstetricia y cesáreas, Endoscopía—. En cada una: el titular («programó») y los puestos, con **TOMAR** en el libre de su función y **Soltar** en el suyo. En Endoscopía, en este orden: Endoscopista, **Enfermería de anestesia**, **Enfermería de endoscopía** y **Anestesiología**. En Quirófanos y Obstetricia: Enfermería y técnico/a de anestesia, Instrumentación, Circulante y Anestesiología. En Endoscopía hay además **⚡ Tomar todas** para quedarse con todos los estudios del día de una vez.',
+    '**Aparece sola al entrar a la app** (una vez por día) si hay lugares libres para esa persona hoy o mañana, y se abre cuando quiera desde **Mi Sala** o el **Portal de Anestesiología** con el botón **✋ Tomar mi lugar**. Lo tomado queda a su nombre en el recorrido de la sala y en el historial, igual que «Anotarme».',
+    '**Endoscopía ya no está en la propuesta automática** (Equipos del día) de la Jefatura: no pertenece a Quirófanos centrales. El aviso de las 20 h a los jefes tampoco la cuenta.',
+    '**Arreglo: varias cirugías seguidas en la misma sala.** La regla «una persona, una sala» tomaba la cirugía siguiente de la MISMA sala como si fuera otra y, al anotarse en la segunda, la sacaba de la primera. Ahora solo pregunta por «cambio de sala» si es otra sala; la misma persona puede quedarse con todas las cirugías o endoscopías de su sala.',
+]),
 ('h2', 'Versión 3.34.3 — Endoscopía con su propio equipo: 4 personas y 5 pasos en sala'),
 ('ul', [
     '**En Endoscopía entran siempre cuatro:** enfermera de endoscopía, enfermera de anestesiología, endoscopista y anestesiólogo. No hay instrumentadora, circulante ni recuentos. En Mi Sala, la endoscopía muestra dos puestos de enfermería —**Enfermería de endoscopía** y **Enfermería de anestesiología**—, y cada enfermero/a ocupa uno solo.',

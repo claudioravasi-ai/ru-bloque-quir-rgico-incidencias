@@ -5064,6 +5064,36 @@
   .cie-it span { font-size: .86rem; line-height: 1.3; }
   .cie-pie { display: block; padding: 6px 10px 4px; color: var(--muted); font-size: .72rem; }
   input.auto-ok { box-shadow: 0 0 0 3px color-mix(in srgb, #10b981 45%, transparent); transition: box-shadow .3s; }
+  .tm-tomar-btn .eqx-btn-ic { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+  .slot-tomar { display: inline-flex; align-self: flex-start; margin-top: 5px; padding: 3px 10px; border-radius: 999px; font-size: .7rem; font-weight: 900; letter-spacing: .04em; color: #fff; background: #0d9488; cursor: pointer; box-shadow: 0 6px 14px -8px #0d9488; animation: enPulso 1.8s ease-out infinite; }
+  .slot-tomar:hover { background: #0f766e; }
+  .tk-area { display: flex; align-items: center; gap: 8px; margin: 14px 2px 8px; font-size: .95rem; }
+  .tk-area small { font-size: .72rem; font-weight: 800; color: var(--muted); background: color-mix(in srgb, var(--line) 60%, transparent); border-radius: 999px; padding: 1px 8px; }
+  .tk-ver { display: flex; gap: 8px; align-items: center; font-size: .82rem; color: var(--muted); margin: 2px 2px 6px; cursor: pointer; }
+  .en-cx.tk-qx { border-left-color: #2563eb; } .en-cx.tk-obs { border-left-color: #db2777; }
+  .en-cx.foco { box-shadow: 0 0 0 3px color-mix(in srgb, #0d9488 45%, transparent); }
+  .en-dias { display: flex; gap: 6px; margin: 12px 0 8px; }
+  .en-dias button { flex: 1; border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 7px 10px; font: inherit; font-weight: 700; cursor: pointer; color: var(--ink); }
+  .en-dias button.on { background: #0d9488; border-color: #0d9488; color: #fff; }
+  .en-todas { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
+  .en-todas button { border: 0; border-radius: 12px; padding: 9px 12px; font: inherit; font-weight: 800; font-size: .84rem; cursor: pointer; color: #fff; background: linear-gradient(120deg, #14b8a6, #0d9488); box-shadow: 0 8px 18px -10px #0d9488; }
+  .en-cx { border: 1px solid color-mix(in srgb, #0d9488 30%, var(--line)); border-left: 5px solid #0d9488; border-radius: 14px; padding: 10px; margin: 0 0 10px; background: var(--card); }
+  .en-cx > header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .en-cx > header > b { font-size: 1.1rem; color: #0f766e; }
+  .en-cx > header > span { flex: 1; min-width: 0; font-weight: 700; line-height: 1.25; }
+  .en-cx > header small { display: block; font-weight: 500; color: var(--muted); font-size: .78rem; }
+  .en-fila { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 10px; margin-top: 4px; }
+  .en-fila > i { font-style: normal; font-size: 1.15rem; width: 26px; text-align: center; }
+  .en-fila > span { flex: 1; min-width: 0; display: grid; }
+  .en-fila small { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 800; }
+  .en-fila b { font-size: .92rem; overflow-wrap: anywhere; }
+  .en-fila.libre { border: 1.5px dashed #fca5a5; background: color-mix(in srgb, #fecaca 18%, var(--card)); } .en-fila.libre b { color: #b91c1c; }
+  .en-fila.ok { background: color-mix(in srgb, #14b8a6 9%, var(--card)); }
+  .en-fila.mia { box-shadow: inset 0 0 0 2px #0d9488; }
+  .en-fila em { font-style: normal; font-size: .72rem; color: var(--muted); }
+  .en-tomar { border: 0; border-radius: 10px; padding: 8px 16px; font: inherit; font-weight: 900; letter-spacing: .03em; color: #fff; background: #0d9488; cursor: pointer; animation: enPulso 1.8s ease-out infinite; }
+  .en-soltar { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 6px 12px; font: inherit; font-size: .8rem; cursor: pointer; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .en-tomar, .slot-tomar { animation: none; } }
   .tq-ops { display: grid; gap: 10px; margin-top: 12px; }
   .tq-op { display: grid; grid-template-columns: 44px 1fr; gap: 2px 10px; text-align: left; padding: 14px; border-radius: 16px; border: 2px solid var(--line); background: var(--card); cursor: pointer; font: inherit; color: var(--ink); transition: transform .15s, box-shadow .15s; }
   .tq-op:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba(0,0,0,.4); }
@@ -9617,7 +9647,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.34.3';
+const APP_VERSION = '3.34.4';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11850,6 +11880,7 @@ function revisarRecordatorios() {
   rcVigilar();
   endoSinJefaturaBarrer();
   ciAceptacionesVigilar();
+  setTimeout(tomarAlEntrar, 900);
   // Los seis contadores del tablero abierto, si cambiaron.
   publicarEstadisticasSemana();
   // El correo verificado del profesional con sesión, si todavía no consta.
@@ -13263,7 +13294,7 @@ function renderSala() {
       ${guTiraHTML(salaDia)}
     </section>
     ${eqLlegueHTML()}
-    ${eqBotonHTML()}
+    ${eqBotonHTML()}${tomarBotonHTML()}
     ${flujoLista(salaDia, 'sala')}
   </div>`;
 }
@@ -13412,7 +13443,9 @@ function salaGuardar(c, hist) { pushHist(c, hist); upsert('cirugias', c); flRepi
 function flOcupadoEn(c, u) {
   const fin = ['realizada', 'finalizada', 'suspendida', 'cancelada', 'rechazada'];
   const anest = funcionDe(u) === 'anestesiologia';
-  return DB.cirugias.find((x) => String(x.id) !== String(c.id) && x.fecha === c.fecha && !fin.includes(x.estado) && !lvqCompleta(x, 'salida')
+  // 3.34.4 · Solo cuenta OTRA sala: las cirugías seguidas de la misma sala (por ejemplo,
+  // todas las endoscopías del día) las hace la misma persona sin «cambio de sala».
+  return DB.cirugias.find((x) => String(x.id) !== String(c.id) && x.fecha === c.fecha && x.sala !== c.sala && !fin.includes(x.estado) && !lvqCompleta(x, 'salida')
     && (anest ? (x.anest && x.anest.e === u.email) : Object.values(x.equipoSala || {}).some((p) => p && p.email === u.email)));
 }
 /* Si está en otra sala, solo puede pasar a esta como «cambio de sala»: deja
@@ -13749,7 +13782,7 @@ function renderAnestesia(embebido) {
   // 3.27.1 · Estilo infografía: las entradas animadas corren solo al cambiar de solapa o de día.
   const clave = anestTab + '|' + anestDia + '|' + (embebido ? 'e' : 'p');
   const entra = anxUltima !== clave; anxUltima = clave;
-  const html = `<div class="anx${entra ? ' anx-entra' : ''}">${anxHeroHTML(u, embebido)}${embebido ? '' : eqBotonHTML()}${tabsHTML}<div class="anx-cuerpo">${cuerpo}</div></div>`;
+  const html = `<div class="anx${entra ? ' anx-entra' : ''}">${anxHeroHTML(u, embebido)}${embebido ? '' : eqBotonHTML() + tomarBotonHTML()}${tabsHTML}<div class="anx-cuerpo">${cuerpo}</div></div>`;
   setTimeout(anxAnimar, 0);
   if (embebido) return html;
   $('main').innerHTML = html;
@@ -15254,7 +15287,9 @@ function eqPuntos(c) {
 /* Las salas del día con cirugías, de la más compleja a la más simple. */
 function eqSalas(d) {
   const por = {};
-  salaCirugias(d).forEach((c) => { (por[c.sala] = por[c.sala] || []).push(c); });
+  // 3.34.4 · Endoscopía ya no es de Quirófanos centrales: no entra en la propuesta
+  // automática. Cada uno toma su lugar con «Tomar» (tomarAbrir).
+  salaCirugias(d).filter((c) => c.sala !== 'END').forEach((c) => { (por[c.sala] = por[c.sala] || []).push(c); });
   return Object.entries(por).map(([id, cx]) => {
     const max = Math.max(...cx.map(eqPuntos)), min = cx.reduce((a, c) => a + (Number(c.duracionMin) || 60), 0);
     return { id, cx, max, min, pts: max * 2 + cx.length + Math.round(min / 120), nivel: max >= 5 ? 'alta' : max >= 3 ? 'media' : 'baja' };
@@ -15564,6 +15599,119 @@ function eqBotonHTML() {
   const pend = doc && doc.ok ? mis.filter((s) => !doc.ok[s]) : mis;
   const n = eqSalas(man).length;
   return `<button type="button" class="eqx-btn" onclick="eqAbrir()"><span class="eqx-btn-ic">🪄</span><span><b>Equipos de mañana</b><small>${n ? `${n} sala${n === 1 ? '' : 's'} · ${pend.length ? 'falta confirmar' : '✓ confirmado'}` : 'sin cirugías programadas'}</small></span><span class="eqx-btn-fl">›</span></button>`;
+}
+/* ================= (3.34.4) TOMAR: CADA UNO TOMA SU LUGAR EN LA PROGRAMACIÓN DEL DÍA =================
+   Pedido de Claudio: en cada cirugía, cesárea y endoscopía del día, a cada uno de
+   Enfermería, Instrumentación y Anestesiología le sale «TOMAR» en el puesto libre de su
+   función (el cirujano, la obstetra o el endoscopista ya figura: es quien programó).
+   En Endoscopía: enfermería de anestesia, enfermería de endoscopía y anestesiología.
+   Aparece en la grilla (✋ TOMAR), en Mi Sala y su portal, y solo al entrar a la app
+   (una vez por día, si hay lugares libres para esa persona). «Tomar» usa lo de siempre
+   (salaAnotarme / anestElegir): queda en el recorrido de la sala y en el historial. */
+let tomarDia = null, tomarFoco = null, tomarTodos = false, tomarMostrado = false;
+function tomarQue(c) { return c.sala === 'END' ? 'endoscopía' : c.sala === 'QOBS' ? 'cesárea' : 'cirugía'; }
+function tomarPuestos(c) {
+  const P = salaPuestosDe(c);
+  // Orden pedido por Claudio: enfermería (de anestesia y, en Endoscopía, de endoscopía), instrumentación y anestesiología al final.
+  return Object.entries(P).sort(([a], [b]) => (a === 'enfEndo') - (b === 'enfEndo') || 0)
+    .map(([k, p]) => ({ k, n: c.sala === 'END' && k === 'tecAnestesia' ? 'Enfermería de anestesia' : p.n, i: p.i }))
+    .sort((x, y) => (x.k === 'tecAnestesia' ? 0 : x.k === 'enfEndo' ? 1 : 2) - (y.k === 'tecAnestesia' ? 0 : y.k === 'enfEndo' ? 1 : 2))
+    .concat([{ k: 'anest', n: 'Anestesiología', i: '💤' }]);
+}
+function tomarQuien(c, k) { if (k === 'anest') return c.anest && c.anest.e ? { n: c.anest.n, e: c.anest.e } : null; const p = (c.equipoSala || {})[k]; return p ? { n: p.nombre, e: p.email } : null; }
+function tomarPuedo(c, k, u) {
+  if (!u || tomarQuien(c, k) || !['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado)) return false;
+  if (k === 'anest') return esAnestesia(u);
+  return salaPuedoPuesto(c, k, u);
+}
+function tomarLibresDe(c, u) { return u && (esEquipoSala(u) || esAnestesia(u)) ? tomarPuestos(c).filter((p) => tomarPuedo(c, p.k, u)) : []; }
+function tomarDelDia(d) { return salaCirugias(d).filter((c) => ['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado)); }
+function tomarLibres(u, d) { return tomarDelDia(d).reduce((n, c) => n + tomarLibresDe(c, u).length, 0); }
+function tomarBotonHTML() {
+  const u = usuarioActual();
+  if (!u || !(esEquipoSala(u) || esAnestesia(u))) return '';
+  const h = hoyISO(), L = tomarDelDia(h), libres = tomarLibres(u, h), lm = tomarLibres(u, sumarDias(h, 1));
+  return `<button type="button" class="eqx-btn tm-tomar-btn" onclick="tomarAbrir()"><span class="eqx-btn-ic">✋</span><span><b>Tomar mi lugar</b><small>${libres ? `Hoy: ${libres} lugar${libres === 1 ? '' : 'es'} libre${libres === 1 ? '' : 's'} para usted` : L.length ? 'Hoy: sin lugares libres para usted' : 'Hoy no hay programados'}${lm ? ` · mañana ${lm}` : ''}</small></span><span class="eqx-btn-fl">›</span></button>`;
+}
+function tomarAbrir(d, foco) {
+  const h = hoyISO(), u = usuarioActual();
+  tomarDia = d || (tomarLibres(u, h) || !tomarLibres(u, sumarDias(h, 1)) ? h : sumarDias(h, 1));
+  tomarFoco = foco != null ? String(foco) : null;
+  tomarTodos = foco != null;
+  tomarPintar();
+  $('rc-overlay').classList.add('open');
+  if (tomarFoco) setTimeout(() => { const el = document.querySelector('.tk-cx.foco'); if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 120);
+}
+function tomarPintar() {
+  const u = usuarioActual(), d = tomarDia, h = hoyISO(), todas = tomarDelDia(d);
+  const mia = (q) => q && u && q.e === u.email;
+  const conLugar = todas.filter((c) => tomarLibresDe(c, u).length || tomarPuestos(c).some((p) => mia(tomarQuien(c, p.k))));
+  const L = tomarTodos || !conLugar.length ? todas : conLugar;
+  const fila = (c, p) => {
+    const q = tomarQuien(c, p.k), id = esc(JSON.stringify(c.id));
+    const acc = mia(q) && c.estado !== 'en_curso' ? `<button type="button" class="en-soltar" onclick="tomarSoltar(${id},'${p.k}')">Soltar</button>`
+      : tomarPuedo(c, p.k, u) ? `<button type="button" class="en-tomar" onclick="tomarUno(${id},'${p.k}')">TOMAR</button>` : '';
+    return `<div class="en-fila ${q ? 'ok' : 'libre'} ${mia(q) ? 'mia' : ''}"><i>${p.i}</i><span><small>${esc(p.n)}</small><b>${q ? esc(q.n) + (mia(q) ? ' · usted' : '') : 'Libre'}</b></span>${acc}</div>`;
+  };
+  const AREAS = [['qx', 'Quirófanos', '🔪'], ['obs', 'Obstetricia y cesáreas', '👶'], ['endo', 'Endoscopía', '🔭']];
+  const area = (c) => c.sala === 'END' ? 'endo' : c.sala === 'QOBS' ? 'obs' : 'qx';
+  const titular = (c) => c.sala === 'END' ? 'Endoscopista' : c.sala === 'QOBS' ? 'Obstetra / cirujano' : 'Cirujano/a';
+  const endoTodas = (k) => L.filter((c) => area(c) === 'endo' && tomarPuedo(c, k, u)).length > 1;
+  rcModal().innerHTML = `<button class="modal-close" onclick="rcCerrar()" aria-label="Cerrar">✕</button>
+    <header class="rc-hero" style="--c:#0f766e"><span class="rc-kick">Programación del día</span>
+      <h2>✋ Tomar mi lugar</h2>
+      <p>${esc(fmtDiaLargo(d))}. Toque <b>TOMAR</b> en el puesto libre de su función: queda a su nombre en el recorrido de la sala.</p></header>
+    <div class="en-dias"><button type="button" class="${d === h ? 'on' : ''}" onclick="tomarDia='${h}';tomarFoco=null;tomarPintar()">Hoy</button><button type="button" class="${d === sumarDias(h, 1) ? 'on' : ''}" onclick="tomarDia='${sumarDias(h, 1)}';tomarFoco=null;tomarPintar()">Mañana</button></div>
+    ${todas.length && conLugar.length && conLugar.length < todas.length ? `<label class="tk-ver"><input type="checkbox" ${tomarTodos ? 'checked' : ''} onchange="tomarTodos=this.checked;tomarPintar()"> Ver también las ${todas.length - conLugar.length} sin lugar para usted</label>` : ''}
+    ${AREAS.map(([a, n, ic]) => {
+      const A = L.filter((c) => area(c) === a); if (!A.length) return '';
+      const ks = a === 'endo' ? tomarPuestos(A[0]).filter((p) => endoTodas(p.k)) : [];
+      return `<h3 class="tk-area tk-${a}">${ic} ${esc(n)} <small>${A.length}</small></h3>
+        ${ks.length ? `<div class="en-todas">${ks.map((p) => `<button type="button" onclick="tomarTodasEndo('${p.k}')">⚡ Tomar todas · ${esc(p.n.toLowerCase())}</button>`).join('')}</div>` : ''}
+        ${A.map((c) => `<section class="en-cx tk-cx tk-${a}${tomarFoco === String(c.id) ? ' foco' : ''}">
+          <header><b>${esc(c.horaProg || '—')}</b><span>${esc(c.procedimiento || '')}<small>${esc(String(c.quirofano || c.sala).replace(/^Sala de Endoscop[ií]a.*$/i, 'Endoscopía').replace(/^Quir[oó]fano de Obstetricia.*$/i, 'Obstetricia'))} · ${esc((c.paciente && c.paciente.nombre) || '')}</small></span>${estChip(c)}</header>
+          <div class="en-fila ok fija"><i>🩺</i><span><small>${titular(c)}</small><b>${esc(c.cirujano || '—')}</b></span><em>programó</em></div>
+          ${tomarPuestos(c).map((p) => fila(c, p)).join('')}
+        </section>`).join('')}`;
+    }).join('') || '<p class="rc-nota">No hay cirugías, cesáreas ni endoscopías programadas para este día.</p>'}
+    <p class="rc-nota">Una persona, un puesto por cirugía (la enfermera de quirófano puede además circular si no hay 2.ª instrumentadora). Si toma un lugar en otra sala el mismo día, la app le pregunta antes de cambiarlo.</p>`;
+}
+async function tomarUno(id, k, sinPintar) {
+  const c = salaCir(id), u = usuarioActual(); if (!c || !u || !tomarPuedo(c, k, u)) return false;
+  if (k === 'anest') { anestDia = c.fecha || hoyISO(); await anestElegir(id); }
+  else await salaAnotarme(id, k);
+  const ok = !!(tomarQuien(c, k) && tomarQuien(c, k).e === u.email);
+  if (!sinPintar) { tomarPintar(); if (ok) toastTurno('Tomado ✓ · queda a su nombre', '#0d9488'); }
+  return ok;
+}
+async function tomarSoltar(id, k) {
+  const c = salaCir(id), u = usuarioActual(); if (!c || !u) return;
+  if (!await preguntar(`Se libera su lugar en esta ${tomarQue(c)} para que lo tome otra persona.`, { titulo: '¿Soltar el lugar?', si: 'Sí, soltar', no: 'No' })) return;
+  if (k === 'anest') { if (c.anest && c.anest.e === u.email) { anestDia = c.fecha || hoyISO(); await anestElegir(id); } }
+  else salaDesanotarme(id, k);
+  tomarPintar();
+}
+async function tomarTodasEndo(k) {
+  const u = usuarioActual(); if (!u) return;
+  const L = tomarDelDia(tomarDia).filter((c) => c.sala === 'END' && tomarPuedo(c, k, u));
+  let n = 0;
+  for (const c of L) { if (await tomarUno(c.id, k, true)) n++; }
+  tomarPintar();
+  toastTurno(`Tomó ${n} endoscopía${n === 1 ? '' : 's'} ✓`, '#0d9488');
+}
+/* Al entrar a la app: una vez por día, si hay lugares libres para esa persona. */
+function tomarAlEntrar() {
+  if (tomarMostrado) return;
+  const u = usuarioActual(); if (!u || !(esEquipoSala(u) || esAnestesia(u))) return;
+  const h = hoyISO(), clave = 'hruq_tomar_' + h + '_' + u.email;
+  let visto = false; try { visto = !!localStorage.getItem(clave); } catch (e) {}
+  if (visto) { tomarMostrado = true; return; }
+  const d = tomarLibres(u, h) ? h : tomarLibres(u, sumarDias(h, 1)) ? sumarDias(h, 1) : null;
+  if (!d) return;
+  if (document.querySelector('.overlay.open')) return;   // no se encima a otra ventana: lo intenta en la próxima ronda
+  tomarMostrado = true;
+  try { localStorage.setItem(clave, '1'); } catch (e) {}
+  tomarAbrir(d);
 }
 /* Aviso en la app (y en el teléfono) la noche anterior, desde las 20 h. */
 function eqRecordatorios(add) {
@@ -25271,6 +25419,7 @@ function slotCard(d, s, f, salaOff) {
         ${consentimientoDeTurno(c) ? '<span class="slot-ci ci-ok">CI ✓</span>' : ''}
       </span>
       ${slotPendientes(c)}
+      ${tomarLibresDe(c, usuarioActual()).length ? `<span class="slot-tomar" role="button" tabindex="0" onclick="event.stopPropagation();cxFichaOcultar();tomarAbrir('${diaDeGrilla(c)}',${esc(JSON.stringify(c.id))})" title="Hay un lugar libre para usted en esta ${tomarQue(c)}">✋ TOMAR</span>` : ''}
     </button>`;
   }
   if (salaOff) {
