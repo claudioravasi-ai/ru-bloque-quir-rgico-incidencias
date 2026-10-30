@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.36.0'
+VERSION = '3.36.2'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -66,7 +66,7 @@ BLOQUES = [
 ('h1', '2. Perfiles de acceso y cuentas'),
 ('p', 'La aplicación distingue cinco modos de uso. No son niveles de jerarquía sino alcances de responsabilidad: cada perfil ve exactamente aquello sobre lo que puede actuar y responder.'),
 ('tabla', ['Perfil', 'Cómo ingresa', 'Qué alcanza'], [
-    ['Visitante sin cuenta', 'Abre la aplicación, sin ingresar', 'El tablero público de actividad semanal, la grilla con el estado de cada turno siempre al día (Programación Diaria y Quirófanos en vivo) y el formulario para reportar una incidencia. Ningún dato de pacientes ni de profesionales.'],
+    ['Visitante sin cuenta', 'Abre la aplicación, sin ingresar', 'El tablero público de actividad semanal, la grilla con cada turno siempre al día —médico, servicio, estudio y estado— (Programación Diaria y Quirófanos en vivo) y el formulario para reportar una incidencia. Ningún dato del paciente.'],
     ['Médico cirujano', 'Correo y contraseña propios, con correo verificado y cuenta autorizada por la Jefatura', 'Sus turnos, sus consentimientos y sus reclamos; las estadísticas y los módulos de sus servicios'],
     ['Admisión y Egresos', 'Correo y contraseña de la cuenta del sector', 'El dictamen sobre cada turno: autoriza o no autoriza, con motivo y con el nombre del agente'],
     ['Jefatura de Quirófanos', 'Correo y contraseña de la cuenta de Jefatura', 'Todo el bloque: agenda, validaciones, urgencias, incidencias, reclamos, comunicados, archivo de consentimientos, indicadores y cuentas profesionales'],
@@ -499,7 +499,7 @@ BLOQUES = [
 ]),
 ('h2', '12.2. Confidencialidad'),
 ('ul', [
-    '**Los datos de pacientes solo los lee quien tiene cuenta.** Quien abre la aplicación sin ingresar ve el estado de los turnos (franja, estado, autorización, prioridad y qué falta), pero no ve pacientes, profesionales, diagnósticos, estudios, consentimientos ni el padrón. Esos datos no están en lo que recibe: el tablero público es una carpeta aparte, y las reglas del servidor rechazan cualquier otro campo. Al cerrar la sesión, la copia con datos de pacientes se borra del equipo.',
+    '**Los datos de pacientes solo los lee quien tiene cuenta.** Quien abre la aplicación sin ingresar ve los turnos (franja, médico, servicio, estudio, estado, autorización, prioridad y qué falta), pero no ve nombre ni DNI del paciente, diagnósticos, consentimientos ni el padrón. Esos datos no están en lo que recibe: el tablero público es una carpeta aparte, y las reglas del servidor rechazan cualquier otro campo. Al cerrar la sesión, la copia con datos de pacientes se borra del equipo.',
     'Las incidencias las lee solo la Jefatura. Los reclamos, solo su autor y la Jefatura.',
     'La agenda del bloque (días, salas, turnos abiertos y reservas por especialidad) no tiene datos de pacientes ni de profesionales: la leen todas las cuentas y la escribe solo la Jefatura.',
     'Los consentimientos los ve el profesional que los emitió; el archivo completo, la Jefatura.',
@@ -555,10 +555,20 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.36'),
+('h2', 'Versión 3.36.2 — Médico y estudio sin ingresar; cierre de Endoscopía por todos los caminos'),
+('ul', [
+    '**Sin ingresar se ve el médico, el servicio y el estudio de cada turno,** nunca los datos del paciente.',
+    '**La lista cerrada de Endoscopía vale por todos los caminos:** grilla, Otro estudio, Pasar a otro día y la marca de urgencia en una franja común. Solo su Jefe/a anota fuera de término.',
+]),
+('h2', 'Versión 3.36.1 — Tablero más firme'),
+('ul', [
+    '**Ningún turno se libera por error al ingresar:** la app espera a tener los consentimientos antes de revisar los turnos provisionales.',
+    '**Un dato raro en un turno ya no frena el tablero público de todos los demás.**',
+]),
 ('h2', 'Versión 3.36.0 — Turnos al día sin ingresar, y Jefatura de Endoscopía con fuera de término y traslado del cargo'),
 ('ul', [
     '**Sin ingresar, los turnos se ven siempre al día.** Antes, sin sesión se veía la última copia que había quedado en ese equipo: lo que Admisión autorizaba recién aparecía después de ingresar. Ahora la Programación Diaria y Quirófanos en vivo se actualizan solos, en el momento, sin cuenta.',
-    '**Sin ingresar no se ven datos de personas.** Cada casilla dice «Turno reservado», con estado, prioridad, autorización y qué falta. El paciente, el profesional y el estudio se ven al ingresar. El Parte Quirúrgico también pide ingresar. Al cerrar la sesión, la copia con datos de pacientes se borra del equipo.',
+    '**Sin ingresar no se ven datos del paciente.** Cada casilla muestra médico, estudio, estado, prioridad, autorización y qué falta. El paciente y el diagnóstico se ven al ingresar. El Parte Quirúrgico también pide ingresar. Al cerrar la sesión, la copia con datos de pacientes se borra del equipo.',
     '**Fuera de término en Endoscopía: solo su Jefe/a.** La Jefatura de Quirófanos ya no tiene Endoscopía en Programación Fuera de Horario. El Jefe/a de Endoscopía, en su solapa, sección **⚡ Fuera de término**, elige fecha, horario, endoscopista, motivo y detalle, confirma con su contraseña y carga el turno aunque la lista esté cerrada o la franja sin abrir. En la grilla, esas casillas le aparecen como «Fuera de término».',
     '**Aviso al endoscopista:** si el turno es de otro médico, recibe el comunicado urgente con acuse de lectura; si el Jefe/a se anota a sí mismo/a, no hay aviso. Admisión y Egresos autoriza como en cualquier endoscopía.',
     '**Trasladar la jefatura.** Al final de su solapa, el Jefe/a de Endoscopía elige a otro médico de Endoscopía (con Gastroenterología o Endoscopía en su perfil, o con turnos en la sala), confirma con su contraseña y el cargo pasa en el acto: quien lo recibe tiene las atribuciones y un aviso; quien lo cede las pierde. La Jefatura de Quirófanos ve el último traslado en Portales y puede seguir designando.',

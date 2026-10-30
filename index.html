@@ -1742,6 +1742,8 @@
   .slot-hora { font-size: 0.72rem; font-weight: 800; color: var(--blue); letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
   .slot-mas { font-size: 1.5rem; line-height: 1; font-weight: 300; }
   .slot-hint { font-size: 0.66rem; font-weight: 700; }
+  /* 3.36.2 · Sin sesión la casilla vale por el médico y el estudio: dos renglones, sin cortarlos a mitad de palabra. */
+  .slot.slot-pub .slot-cir, .slot.slot-pub .slot-cx { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; white-space: normal; text-overflow: clip; overflow-wrap: anywhere; }
   .slot-cir { font-size: 0.79rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .slot-pac { font-size: 0.73rem; color: #4b5563; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .slot-cx { font-size: 0.7rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -9674,7 +9676,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.36.0';
+const APP_VERSION = '3.36.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -9960,9 +9962,9 @@ function saveLocal(col) {
    guardados en un equipo que puede ser compartido.
 
    Ahora hay un nodo aparte, `tablero`, que sí puede leer el pase anónimo y que NO
-   tiene datos de personas: en qué franja hay un turno, su estado, la autorización,
-   la prioridad y qué le falta. Sin nombres de paciente ni de profesional, sin DNI,
-   sin diagnóstico ni procedimiento (las reglas rechazan cualquier otro campo).
+   tiene datos del paciente: en qué franja hay un turno, el médico, el servicio, el
+   estudio, su estado, la autorización, la prioridad y qué le falta. Sin nombre del
+   paciente, DNI ni diagnóstico (las reglas rechazan cualquier otro campo).
 
    Lo mantiene al día cualquier equipo con sesión: cada vez que cambia algo compara
    lo que el tablero debería decir con lo que dice y escribe solo la diferencia.
@@ -9995,6 +9997,8 @@ function tabFirma(v) {
 function tableroTurno(c) {
   return tabPlano({
     id: c.id, fecha: c.fecha, diaGrilla: c.diaGrilla, sala: c.sala, franja: c.franja,
+    cirujano: String(c.cirujano || '').slice(0, 80), servicio: String(c.servicio || '').slice(0, 80),
+    procedimiento: String(c.procedimiento || '').slice(0, 120),
     horaProg: c.horaProg, horaInicio: c.horaInicio, horaFin: c.horaFin, duracionMin: Number(c.duracionMin) || undefined,
     estado: c.estado === 'realizada' && cirugiaCerrada(c) ? 'finalizada' : c.estado,
     auth: c.auth, urgencia: c.urgencia ? true : undefined, prioridad: prioridadEfectiva(c),
@@ -10033,8 +10037,11 @@ function tableroSincronizar() {
       Object.keys(va).forEach((k) => { if (tabFirma(hay[k]) !== tabFirma(va[k])) cambios[g + '/' + k] = va[k]; });
       Object.keys(hay).forEach((k) => { if (!(k in va)) cambios[g + '/' + k] = null; });
     });
-    if (Object.keys(cambios).length) firebase.database().ref('tablero').update(cambios)
-      .catch((e) => console.warn('HRU Quirófanos: tablero sin actualizar —', e && (e.code || e.message)));
+    const raiz = firebase.database().ref('tablero');
+    const fallo = (e) => console.warn('HRU Quirófanos: tablero sin actualizar —', e && (e.code || e.message));
+    // Si la base rechaza el lote, se manda de a uno: un dato raro no deja a todos sin tablero.
+    if (Object.keys(cambios).length) raiz.update(cambios)
+      .catch(() => Object.keys(cambios).forEach((k) => raiz.child(k).set(cambios[k]).catch(fallo)));
   } catch (e) { console.warn('HRU Quirófanos: tablero', e); }
 }
 function tableroPedir() { if (!tabT) tabT = setTimeout(tableroSincronizar, 700); }
@@ -17196,7 +17203,7 @@ function cxFicha(el, id) {
 /* 3.24.1 · Sin sesión, tocar un turno explica por qué no se ve el detalle
    (antes el botón quedaba apagado y parecía que la app no respondía). */
 async function pvSinSesion() {
-  if (await preguntar('Ingrese para ver el detalle\n\nSin ingresar se ve el estado de cada turno, siempre al día. El paciente, el profesional y el estudio solo los ve el equipo con sesión iniciada (Acceso Profesional o Jefatura).',
+  if (await preguntar('Ingrese para ver el detalle\n\nSin ingresar se ve cada turno al día: médico, estudio y estado. Los datos del paciente solo los ve el equipo con sesión iniciada (Acceso Profesional o Jefatura).',
     { tono: 'info', si: 'Ingresar', no: 'Ahora no' })) go('acceso');
 }
 function cxFichaOcultar() {
@@ -17244,9 +17251,9 @@ function panelVivo(st) {
       const mio = u && c.cirujanoEmail === u.email;
       // Urgencia o emergencia (prioridad 1 = riesgo vital): ambulancia, la palabra y un titileo suave; lo programado queda fijo.
       const urgN = c.urgencia ? (c.prioridad === 1 ? 'Emergencia' : 'Urgencia') : '';
-      const txt = c.urgencia ? `${urgN}${conSesion ? ` · ${c.horaProg || ''} · ${c.procedimiento || ''}` : ''}` : (conSesion ? `${c.horaProg || ''} · ${c.procedimiento || ''}` : (e.label || 'Turno'));
+      const txt = c.urgencia ? `${urgN}${conSesion || c._pub ? ` · ${c.horaProg || ''} · ${c.procedimiento || ''}` : ''}` : (conSesion || c._pub ? `${c.horaProg || ''} · ${c.procedimiento || ''}` : (e.label || 'Turno'));
       return `<button class="pv-b ${mio ? 'mio' : ''} ${c.estado === 'en_curso' ? 'curso' : ''} ${c.urgencia ? 'urg' : ''} ${c.prioridad === 1 && c.urgencia ? 'emerg' : ''}" style="left:${pct(ini).toFixed(2)}%;width:${Math.max(3, pct(ini + dur) - pct(ini)).toFixed(2)}%;--c:${e.color}"
-        ${conSesion ? `onclick="cxFichaOcultar();openCirugia(${c.id})" onmouseenter="cxFicha(this,${c.id})" onmouseleave="cxFichaOcultar()" onfocus="cxFicha(this,${c.id})" onblur="cxFichaOcultar()"` : `onclick="pvSinSesion()" title="${esc(e.label || 'Turno')} · ingrese para ver el detalle"`}>${c.urgencia ? '<i class="pv-amb" aria-hidden="true">🚑</i>' : ''}<span>${esc(txt)}</span></button>`;
+        ${conSesion ? `onclick="cxFichaOcultar();openCirugia(${c.id})" onmouseenter="cxFicha(this,${c.id})" onmouseleave="cxFichaOcultar()" onfocus="cxFicha(this,${c.id})" onblur="cxFichaOcultar()"` : `onclick="pvSinSesion()" title="${esc(c._pub ? [c.horaProg, c.cirujano, c.procedimiento, e.label].filter(Boolean).join(' · ') : (e.label || 'Turno') + ' · ingrese para ver el detalle')}"`}>${c.urgencia ? '<i class="pv-amb" aria-hidden="true">🚑</i>' : ''}<span>${esc(txt)}</span></button>`;
     }).join('');
     /* Las urgencias y emergencias que caen fuera del horario a la vista se
        cuentan al lado del nombre de la sala (tocar pasa a la vista de 24 h). */
@@ -25652,10 +25659,11 @@ function slotCard(d, s, f, salaOff) {
   // 3.36 · Sin sesión: el estado al día, sin datos de personas.
   if (c && c._pub) {
     const e = ESTC[estadoVisible(c)] || ESTC.borrador;
-    return `<button type="button" class="slot" style="border-left:4px solid ${e.color}" aria-label="${esc(slotTitulo(c))}" onclick="pvSinSesion()">
+    return `<button type="button" class="slot slot-pub" style="border-left:4px solid ${e.color}" title="${esc([c.cirujano, c.procedimiento].filter(Boolean).join(' · '))}" aria-label="${esc([c.cirujano, c.procedimiento, slotTitulo(c)].filter(Boolean).join('. '))}" onclick="pvSinSesion()">
       ${c.urgencia || c.ex ? `<span class="slot-tags">${c.urgencia ? '<i class="slot-urg-tag">URG</i>' : ''}${c.ex ? '<i class="slot-exc-tag">EXC</i>' : ''}</span>` : ''}
       <span class="slot-hora">${f.t}${nd}</span>
-      <span class="slot-cir">Turno reservado</span>
+      <span class="slot-cir">${esc(c.cirujano || 'Turno anotado')}</span>
+      ${c.procedimiento ? `<span class="slot-cx">${esc(c.procedimiento)}</span>` : ''}
       <span class="slot-chips">
         <span class="slot-est" style="background:${e.soft};color:${e.text}">${e.label}</span>
         ${PRIOS[c.prioridad] ? `<span class="slot-prio" style="background:${PRIOS[c.prioridad].color}">P${c.prioridad}</span>` : ''}
@@ -26228,6 +26236,14 @@ function openSlot(d, sid, fid) {
   const exc = excepcionPara(d, sid, fid);
 
   if (nuevo) {
+    // 3.36.2 · Endoscopía con la lista cerrada o la franja sin abrir: por ningún camino
+    // (grilla, Otro estudio, Pasar a otro día). Solo su Jefe/a, por Fuera de término.
+    if (sid === 'END' && !f.urg && !exc && !franjaReabierta(d, sid, fid) && (!puedeReservar(d, f, false) || !turnoHabilitado(d, sid, f.p))) {
+      solMover = null; solOtro = null; solCopia = null;
+      if (ejPuedeFuera(d, f)) { ejFueraIr(d, fid); return; }
+      alert(`La lista de Endoscopía del ${fmtFecha(fechaDeFranja(d, f))} está cerrada para el horario de las ${f.t} h.\n\nSolo el Jefe/a de Endoscopía puede anotar fuera de término. Si es una urgencia, use el turno de urgencia de la hora.`);
+      return;
+    }
     // La guardia solo admite las franjas que todavía no terminaron, salvo que
     // la Jefatura la haya reabierto para un registro fuera de término.
     if (franjaVencida(d, s, f) && !exc && !franjaReabierta(d, sid, fid)) {
@@ -26674,7 +26690,8 @@ async function guardarSlot() {
     alert(`La franja de las ${hora} h ya transcurrió mientras cargaba el turno.\n\nElija uno de los horarios que siguen en la guardia.`);
     return;
   }
-  if (!existente && !puedeReservar(d, f, urgencia) && !exc && !retro) {
+  // 3.36.2 · En Endoscopía tildar «urgencia» en una franja común no saltea el cierre.
+  if (!existente && !puedeReservar(d, f, sid === 'END' ? !!f.urg : urgencia) && !exc && !retro) {
     alert(`${anticipacionOk(d, f)
       ? `La lista del ${fmtFecha(fechaDeFranja(d, f))} cerró a las ${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(fechaDeFranja(d, f))}.`
       : `Este turno comienza en menos de ${HORAS_ANTICIPACION} horas.`}\n\nSolo puede programarse marcando "Urgencia / emergencia", y únicamente en el Quirófano 1 o en el quirófano de Obstetricia.`);
@@ -26902,6 +26919,9 @@ function confirmarTurnoProvisional(turnoId) {
 function barrerTurnosProvisionales() {
   const u = usuarioActual();
   if (!u && !jefe) return [];
+  // 3.36.1 · Recién ingresado todavía no llegaron los consentimientos: sin ellos un turno
+  // con consentimiento parecería no tenerlo, y se liberaría su franja por error.
+  if (cloudOn && !(tabListas.has('cirugias') && tabListas.has('consentimientos'))) return [];
   const liberados = [];
   DB.cirugias.filter(turnoProvisional).forEach((c) => {
     if (!jefe && c.cirujanoEmail !== u.email) return;
