@@ -9816,7 +9816,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.40.0';
+const APP_VERSION = '3.40.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10887,10 +10887,12 @@ function pushHist(c, accion) {
   c.historial = c.historial || [];
   c.historial.push({ t: nowDT(), a: accion });
 }
+function coordItemsDe(c) { return COORD_ITEMS.filter((it) => !(sinRecuento(c) && ['insumos', 'esterilizacion'].includes(it.k))); }
 function coordFaltantes(c) {
   const faltan = [];
-  if (!c.coordinacion?.insumos) faltan.push('Instrumentación: implantes/insumos sin verificar');
-  if (!c.coordinacion?.esterilizacion) faltan.push('Esterilización: instrumental sin confirmar');
+  // 3.40.1 · Endoscopía y partos no usan Instrumentación ni instrumental de la Central.
+  if (!sinRecuento(c) && !c.coordinacion?.insumos) faltan.push('Instrumentación: implantes/insumos sin verificar');
+  if (!sinRecuento(c) && !c.coordinacion?.esterilizacion) faltan.push('Esterilización: instrumental sin confirmar');
   if (c.recursos?.hemoderivados && !c.coordinacion?.hemoterapia) faltan.push('Hemoterapia: hemoderivados sin reservar');
   if (!c.coordinacion?.anestesia) faltan.push('Anestesiología: evaluación pre-anestésica pendiente');
   if (!c.hce?.preop) faltan.push('HCE: estudios preoperatorios incompletos');
@@ -10981,8 +10983,8 @@ function pendientesTurno(c) {
     : { corto: 'aceptación de Admisión', largo: 'Admisión y Egresos: aceptación pendiente' });
   // 3.33 · La endoscopía no pasa por la Jefatura: la confirma la autorización de Admisión.
   if (esEndo(c)) return f;
-  if (!c.coordinacion?.insumos) f.push({ corto: 'Instrumentación', largo: 'Instrumentación: implantes/insumos sin verificar' });
-  if (!c.coordinacion?.esterilizacion) f.push({ corto: 'Esterilización', largo: 'Esterilización: instrumental sin confirmar' });
+  if (!sinRecuento(c) && !c.coordinacion?.insumos) f.push({ corto: 'Instrumentación', largo: 'Instrumentación: implantes/insumos sin verificar' });
+  if (!sinRecuento(c) && !c.coordinacion?.esterilizacion) f.push({ corto: 'Esterilización', largo: 'Esterilización: instrumental sin confirmar' });
   if (c.recursos?.hemoderivados && !c.coordinacion?.hemoterapia) f.push({ corto: 'Hemoterapia', largo: 'Hemoterapia: hemoderivados sin reservar' });
   if (!['confirmada', 'en_curso'].includes(c.estado) && !jefaturaExenta(c)) f.push({ corto: 'confirmación de Jefatura', largo: 'Jefatura de Quirófanos: falta validar y confirmar el turno en el parte quirúrgico' });
   return f;
@@ -15532,7 +15534,7 @@ function portalEquipoHTML(k) {
   cx.forEach((c) => { const e = flEstado(c), p = e.pasos[e.activo]; if (!p) return; p.firmas.filter((x) => !x.f && q.roles.includes(x.rol)).forEach((x) => esperan.push({ c, p, x })); });
   const dif = k === 'inst' ? cx.filter((c) => recuentoDif(c)) : [];
   const vencidas = k === 'inst' ? cx.flatMap((c) => (c.cajas || []).filter((j) => j.vence && j.vence < (c.fecha || hoyISO())).map((j) => ({ c, j }))) : [];
-  const sinVerif = k === 'inst' ? cx.filter((c) => !(c.coordinacion && c.coordinacion.insumos) && !['realizada', 'finalizada'].includes(c.estado)) : [];
+  const sinVerif = k === 'inst' ? cx.filter((c) => !sinRecuento(c) && !(c.coordinacion && c.coordinacion.insumos) && !['realizada', 'finalizada'].includes(c.estado)) : [];
   // El mes del día elegido, sobre las cirugías ya operadas.
   const mes = d.slice(0, 7);
   const cm = DB.cirugias.filter((c) => cxVer(c) && String(c.fecha || '').startsWith(mes) && ['realizada', 'finalizada'].includes(c.estado));
@@ -21952,7 +21954,7 @@ function openCirugia(id) {
   ].filter(Boolean).join('');
 
   // Coordinación: cuántas casillas que aplican ya están verificadas.
-  const coordAplica = COORD_ITEMS.filter((it) => it.k !== 'hemoterapia' || c.recursos?.hemoderivados);
+  const coordAplica = coordItemsDe(c).filter((it) => it.k !== 'hemoterapia' || c.recursos?.hemoderivados);
   const coordOk = coordAplica.filter((it) => c.coordinacion && c.coordinacion[it.k]).length;
   const lvqOk = ['entrada', 'pausa', 'salida'].filter((f) => lvqCompleta(c, f)).length;
   const muestras = c.muestras || [];
@@ -22015,7 +22017,7 @@ function openCirugia(id) {
           ${['borrador', 'pendiente'].includes(c.estado) && faltan.length ? `<p class="fx-txt warn">Faltan ${faltan.length} verificación(es) para validar el turno.</p>` : ''}
           ${jefaturaPendienteDiferida(c) ? `<p class="fx-txt warn">${ico(ICONS.zap, 13)} <b>Lista diferida — ${esc(jefaturaMotivoExencion(c) || 'urgencia')}.</b> Se operó sin que la ${esc(JEFATURA)} la repasara antes: complete lo que corresponda y cierre con <b>Regularizar validación</b>.</p>` : ''}
           <div class="fx-coord">
-          ${COORD_ITEMS.map((it) => {
+          ${coordItemsDe(c).map((it) => {
             const aplica = it.k !== 'hemoterapia' || c.recursos?.hemoderivados;
             const val = !!(c.coordinacion && c.coordinacion[it.k]);
             return `<label class="fx-coord-i${val ? ' ok' : ''}${aplica ? '' : ' na'}">
