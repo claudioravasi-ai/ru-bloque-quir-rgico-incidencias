@@ -1035,7 +1035,48 @@ function scrPulsera() {
 function scrEscaneo() {
   return `<div class="camara"><span>Apuntá a la pulsera del paciente</span></div>
     <div class="s-card k" style="--k:var(--ok,#15803d)"><h4>✓ Identidad verificada</h4><p>Pérez, Juan Carlos · DNI 20.868.112<br>Sello SHA-256 D49F A6F5 ✓</p></div>
-    ${btn('lvq', '▶ Iniciar la LVQ de Entrada (punto 1 ✓)', '', 'var(--enf)')}`;
+    ${btn('lvq', '📣 Abrir para todo el equipo', '', 'var(--enf)')}`;
+}
+/* 3.39 · Endoscopía: su propia secuencia */
+const scrEndo = (tit, sub, L, t, txt) => () => `<div class="s-h"><div><b>${tit}</b><small>${sub}</small></div></div>
+  <div class="s-card">${L.map((x) => `<p>${x}</p>`).join('')}</div>${btn(t, txt, '', 'var(--enf)')}`;
+function scrCesarea() {
+  return `<div class="s-h"><div><b>👶 Panel de Obstetricia</b><small>Programado o de urgencia · campo «Atención»</small></div></div>
+    <div class="s-card k" style="--k:#db2777"><h4>Cesárea</h4><p>Equipo · Entrada · Recuento inicial · Pausa · Recuento final · Salida · Recuperación</p></div>
+    <div class="s-card k" style="--k:#0d9488"><h4>Parto</h4><p>Equipo · Entrada · Pausa · Salida · Recuperación. Sin conteo de gasas ni instrumentación.</p></div>
+    ${btn('cesarea', '✓ Entendido', 'ok')}`;
+}
+/* 3.39 · Del ingreso a la planilla común */
+function scrIngreso() {
+  return `<div class="s-h"><div><b>🗓️ Mi Sala · Hoy</b><small>El equipo que tomó este paciente</small></div></div>
+    <div class="s-card k" style="--k:#d97706"><h4>07:55 · Hernioplastia inguinal</h4><p>Pérez, Juan Carlos · Quirófano 2</p><p><b>🟡 Ingresó · lea su pulsera al hacerlo pasar</b></p></div>
+    <p class="nota">También llega un aviso a la app, sin el nombre del paciente. Se puede tomar el turno antes o después del ingreso.</p>
+    ${btn('ingreso', '✓ Visto: lo espero en la sala', '', 'var(--enf)')}`;
+}
+function scrTodos() {
+  const P4 = [['💉', 'Enfermería', 'leyó el QR'], ['💤', 'Anestesiología', 'se abrió sola'], ['🧰', 'Instrumentación', 'se abrió sola'], ['🩺', 'Cirujano/a', 'se abrió sola']];
+  return `<div class="s-h"><div><b>🟢 Planilla común abierta</b><small>En todos los teléfonos del equipo a la vez</small></div></div>
+    ${P4.map(([i, n, t]) => `<div class="s-card k" style="--k:var(--enf)"><h4>${i} ${n}</h4><p>${t} · Entrada · punto 1 ✓</p></div>`).join('')}
+    ${btn('todos', '📣 Escuchar y confirmar', '', 'var(--enf)')}`;
+}
+function scrEscucha() {
+  return `<div class="s-h"><div><b>📣 Lee en voz alta: Enfermería</b><small>Momento Entrada · En vivo</small></div></div>
+    <div class="s-card">${['Identidad, sitio, procedimiento y consentimiento', 'Sitio quirúrgico demarcado', 'Control de seguridad anestésica', 'Alergias conocidas verificadas'].map((x) => `<p>✓ ${x}</p>`).join('')}</div>
+    <p class="nota">Quien lee tilda y el equipo lo ve en vivo. Cada uno confirma con su botón: son las mismas firmas de siempre.</p>
+    ${btn('escucha', '✓ Confirmo', 'ok')}`;
+}
+function scrSigue() {
+  return `<div class="s-h"><div><b>✓ Terminó este paciente</b><small>Se cierra y se pasa al que sigue</small></div></div>
+    <div class="s-card k" style="--k:#d97706"><h4>Sigue en esta sala · 10:30</h4><p>Colecistectomía laparoscópica</p><p><b>🟡 Ya ingresó: al hacerlo pasar, lean su pulsera</b></p></div>
+    ${btn('sigue', '▶ Pasar al siguiente paciente', '', 'var(--enf)')}`;
+}
+function scrConsPDF() {
+  return `<div class="s-h"><div><b>📄 Consentimiento firmado</b><small>PDF para la historia clínica</small></div></div>
+    <div class="s-card k" style="--k:#15803d"><h4>Aceptado electrónicamente</h4><p>Sello en la Declaración, con fecha y hora</p></div>
+    <div class="s-card k" style="--k:#1d4ed8"><h4>✓ Firma electrónica</h4><p>Paciente y médico, cada uno en su lugar</p></div>
+    <div class="s-card k" style="--k:#b91c1c"><h4>Espacio anulado</h4><p>El espacio de revocación. El derecho a revocar sigue vigente.</p></div>
+    <p class="nota">Cada punto va entero, las hojas quedan parejas y cada una dice «Hoja 2 de 4», con el paciente, el código del documento y el comienzo del código SHA-256 de la firma.</p>
+    ${btn('conspdf', '✍️ Firmar y bajar el consentimiento (PDF)', 'ok')}`;
 }
 
 /* ---------- 3.31 · Equipos del día (la tarjeta de los jefes/as) ---------- */
@@ -1108,7 +1149,8 @@ const ACTOS = [
   { k: 'reg', n: 'Registro', i: '🪪', c: 'var(--cir)', d: 'El alta de cada integrante y la autorización de la Jefatura.' },
   { k: 'por', n: 'Portales', i: '🧭', c: 'var(--anest)', d: 'Lo primero, el panel central y el flujo de cada uno.' },
   { k: 'eqd', n: 'Equipos del día', i: '🪄', c: 'var(--jefa)', d: 'La víspera, la app arma los equipos de cada sala y los tres jefes los ajustan y confirman en vivo.' },
-  { k: 'prog', n: 'Cirugía programada', i: '📅', c: 'var(--enf)', d: 'Del turno al QR de la paciente, la LVQ y el cierre.' },
+  { k: 'prog', n: 'Cirugía y cesárea programadas', i: '📅', c: 'var(--enf)', d: 'Del turno al QR de la paciente, la LVQ con conteo de gasas y el cierre. El parto va sin gasas.' },
+  { k: 'endo', n: 'Endoscopía programada', i: '🔭', c: 'var(--enf)', d: 'Otra secuencia: 5 momentos, sin Jefatura de Quirófanos, sin cama y sin conteo de gasas.' },
   { k: 'mapa', n: 'Mapa de camas y pulsera', i: '🏷️', c: 'var(--enf)', d: 'Enfermería envía las camas a las 07:00, Admisión ocupa una y sale la pulsera con QR.' },
   { k: 'cama', n: 'Sin cama: prioridad', i: '🛏️', c: 'var(--adm)', d: 'No hubo cama: la app reprograma sola (48 h hábiles), tres OK, la paciente responde y el plazo de las 13 h.' },
   { k: 'urg', n: 'Urgencia', i: '🚑', c: 'var(--mal)', d: 'En horario y fuera de horario.' },
@@ -1136,7 +1178,8 @@ function finalHTML() {
       <div class="acto-c" style="--k:var(--cir)"><i>🪪</i><b>Registro</b><small>Cada uno pide el alta con su función; la Jefatura autoriza y designa al Jefe/a de Anestesiología.</small></div>
       <div class="acto-c" style="--k:var(--anest)"><i>🧭</i><b>Portales</b><small>Lo primero (perfil, llegada, lista, sala, cajas), el panel central y un flujo en orden.</small></div>
       <div class="acto-c" style="--k:var(--jefa)"><i>🪄</i><b>Equipos del día</b><small>20 h de la víspera: la app propone el equipo de cada sala; cada jefe/a cambia lo suyo y confirma. Al día siguiente: «Llegué», aviso si alguien no llegó y «Reemplazar».</small></div>
-      <div class="acto-c" style="--k:var(--enf)"><i>📅</i><b>Programada</b><small>Turno → QR → Admisión → Jefatura → equipo → LVQ → gasas → Pausa → cirugía → Salida → Recuperación → QR cerrado.</small></div>
+      <div class="acto-c" style="--k:var(--enf)"><i>📅</i><b>Cirugía y cesárea</b><small>El parto va sin gasas. Turno → QR → Admisión → Jefatura → equipo → LVQ → gasas → Pausa → cirugía → Salida → Recuperación → QR cerrado.</small></div>
+      <div class="acto-c" style="--k:var(--enf)"><i>🔭</i><b>Endoscopía</b><small>Turno → Admisión → pulsera sin cama → cuatro en sala → Entrada → Pausa → estudio → Salida → Recuperación. Sin gasas.</small></div>
       <div class="acto-c" style="--k:var(--enf)"><i>🏷️</i><b>Camas y pulsera</b><small>06:30 aviso, Enfermería envía el mapa, Admisión «Recibido», la cama pasa a rojo y la pulsera abre la LVQ.</small></div>
       <div class="acto-c" style="--k:var(--adm)"><i>🛏️</i><b>Sin cama</b><small>La app reprograma sola con prioridad; tres OK, la paciente confirma y queda marcado «SIN CAMA ×N».</small></div>
       <div class="acto-c" style="--k:var(--mal)"><i>🚑</i><b>Urgencia</b><small>Opera sin esperar. Fuera de horario, Admisión y Jefatura regularizan después; en horario, validan en el momento.</small></div>
@@ -1218,6 +1261,7 @@ const PR = (o) => P(Object.assign({ a: 'prog', pac: true }, o));
 PR({ e: 'Programar y pase QR', r: 'prog', q: 'cir', h: 'Lun 09:10', tit: 'El cirujano anota la cirugía', txt: `El Dr. Sosa programa la cirugía de ${CASO.pac}: procedimiento, día, sala y anestesia. Solo puede enviarla con los tres requisitos tildados: pre-anestésico, pre-quirúrgico y consentimiento firmado.`, t: 'programar', go: 'Toque «Programar»', ver: scrProgramar, hacer: (S) => { S.p.prog = true; }, ok: 'Turno cargado. Pasa a la bandeja de Admisión y Egresos.' });
 PR({ e: 'Programar y pase QR', r: 'prog', q: 'cir', h: 'Lun 09:11', tit: 'El pase de la paciente', txt: 'Con los requisitos completos y el consentimiento guardado, la app ofrece el pase: una tarjeta tipo pase de embarque con un código QR.', t: 'pase', go: 'Toque «Generar el pase del paciente»', ver: () => scrPase(false), hacer: (S) => { S.p.pase = true; }, ok: 'Pase generado. Se imprime o se le manda a la paciente.' });
 PR({ e: 'Programar y pase QR', r: 'prog', q: 'cir', h: 'Lun 09:12', tit: 'La paciente escanea el QR', txt: `${CASO.pac.split(' ')[0]} apunta la cámara al QR. Para entrar, la app le pide su DNI y un código de un solo uso que le llega al correo. Desde ahí sigue su cirugía en vivo, sin llamar a nadie.`, t: 'escanear', go: 'En el teléfono de Ana, toque «Escanear el QR»', ver: () => scrPase(true), hacer: (S) => { S.p.esc = true; }, ok: 'Ana ya ve su cirugía: «Admisión y Egresos · revisando tu turno».' });
+PR({ e: 'Programar y pase QR', r: 'prog', q: 'cir', h: 'Lun 18:20', tit: 'El consentimiento firmado, en PDF', txt: 'La paciente lee y acepta el consentimiento desde su pase. El cirujano toca «Firmar y bajar»: el PDF sale con el sello de cada firma en su lugar, el espacio de revocación anulado y las hojas numeradas («Hoja 2 de 4»), con el paciente, el código y el comienzo del SHA-256 de la firma en cada una. Cada punto va entero.', t: 'conspdf', go: 'Toque «Firmar y bajar el consentimiento»', ver: scrConsPDF, ok: 'Consentimiento firmado por la paciente y por el médico.' });
 PR({ e: 'Admisión y Jefatura', r: 'adm', q: 'adm', h: 'Lun 11:40', tit: 'Admisión y Egresos autoriza', txt: 'Admisión revisa los requisitos y la cobertura, y dictamina. Mire el teléfono de Ana: cambia en el mismo momento.', t: 'autorizar', go: 'Toque «Autorizar»', ver: scrAdmision, hacer: (S) => { S.p.adm = 'ok'; S.p.jef = 'pend'; }, ok: 'Autorizada. En el teléfono de Ana: «Admisión ✓ · Jefatura validando…».' });
 PR({ e: 'Admisión y Jefatura', r: 'jef', q: 'jef', h: 'Lun 12:05', tit: 'La Jefatura valida… o cancela', txt: 'La Jefatura de Quirófanos ve el turno en «Ahora te toca», ordenado por urgencia. Puede validarlo y confirmarlo en el parte, o cancelarlo (toque «Cancelar» para ver qué pasaría).', t: 'validar', go: 'Toque «Validar y confirmar»', ver: scrJefatura, hacer: (S) => { S.p.jef = 'ok'; }, ok: 'Validada y confirmada en el parte. Ana lo ve al instante.' });
 PR({ e: 'Ingreso y cama', r: 'cama', q: 'adm', h: 'Jue 07:05', tit: 'Paso 4: Admisión anota la cama', txt: 'Jueves, 07:05. Ana ingresa al hospital. Admisión y Egresos anota en qué sector, habitación y cama queda internada. Cada sector tiene su interno para llamarla a quirófano: <b>Adultos 1035 · Pediatría 1012 · Maternidad 1608 · UCI 1034</b>.', t: 'cama', go: 'Toque «Guardar cama»', ver: scrCama, hacer: (S) => { S.p.cama = true; }, ok: 'Cama registrada: aparece en la ficha, en el parte y en el teléfono de Ana.' });
@@ -1235,6 +1279,19 @@ PR({ e: 'Recuperación y QR', r: 'rec', q: 'anest', h: 'Jue 10:35', tit: 'Se act
 PR({ e: 'Recuperación y QR', r: 'lin', q: 'anest', h: 'Jue 13:10', tit: 'Mi línea: el tiempo entre cirugías', txt: 'En su Portal (ahora con diseño de infografía), la anestesióloga ve su línea del día: cada cirugía con su tiempo en sala y, entre una y otra, el <b>recambio</b> —de la salida de un paciente a la entrada del siguiente—, en verde hasta 30 min, ámbar hasta 45 y rojo después, con cronómetro en vivo y los totales del día.', t: 'entro', go: 'Toque «Entró el paciente 4 · Ahora»', ver: scrMiLinea, ok: 'Recambio 3 cerrado: 13 min. Arranca el tiempo en sala de la cirugía 4.' });
 PR({ e: 'Recuperación y QR', r: 'fin', q: 'cir', h: 'Jue 10:36', tit: 'El QR de la paciente se cierra', txt: 'Con la cirugía finalizada, el pase caduca solo: el QR deja de abrir para siempre. Compruébelo en el teléfono de Ana.', t: 'reabrir', go: 'En el teléfono de Ana, toque «Volver a abrir el QR»', ver: () => scrResumen(false), hacer: (S) => { S.p.qr = true; }, ok: 'El QR ya no abre nada: sus datos quedan protegidos.' });
 PR({ e: 'Recuperación y QR', r: 'fin+', q: 'cir', h: 'Jue 10:37', tit: 'Caso cerrado', txt: 'Todos los tiempos quedaron registrados solos y van a las estadísticas. El teléfono de Ana muestra el pase cerrado.', t: 'seguir', go: 'Toque «Seguir: una urgencia»', ver: () => scrResumen(true), ok: 'Ahora, una urgencia.' });
+PR({ e: 'Recuperación y QR', r: 'fin+', q: 'jef', h: 'Otro día', tit: 'Cesárea y parto en Obstetricia', txt: 'En el panel de Obstetricia, programado o de urgencia, el campo <b>Atención</b> dice Cesárea o Parto. La cesárea sigue los pasos que acaba de ver, con recuentos. El parto tiene 5 momentos, sin conteo de gasas y sin instrumentación, siempre con anestesiólogo/a, y su consentimiento es el <b>obstétrico</b>.', t: 'cesarea', go: 'Toque «Entendido»', ver: scrCesarea, fiesta: true, ok: 'Cesárea con gasas, parto sin gasas.' });
+
+/* Acto · Endoscopía programada (3.33 a 3.39) */
+const EN = (o) => P(Object.assign({ a: 'endo' }, o));
+EN({ e: 'Programar', r: 'prog', q: 'cir', h: 'Lun 09:10', tit: 'El/la endoscopista anota el estudio', txt: 'Elige el turno en la grilla de Endoscopía. Su Jefe/a de Endoscopía abre los días y es quien habilita lo que va fuera de término. El consentimiento es el <b>endoscópico</b>: habla de endoscopista y de estudio, con riesgos y cuidados propios, y va con su preparación.', t: 'enprog', go: 'Toque «Enviar el turno»', ver: scrEndo('🔭 Nueva endoscopía', 'Sala de Endoscopía', ['✓ Apto anestésico', '✓ Preparación indicada', '✓ Consentimiento Informado Endoscópico'], 'enprog', '📨 Enviar el turno'), ok: 'Turno enviado a Admisión.' });
+EN({ e: 'Admisión', r: 'adm', q: 'adm', h: 'Lun 11:40', tit: 'Admisión autoriza y queda confirmada', txt: 'Acá hay una diferencia: <b>no pasa por la Jefatura de Quirófanos</b>. Con la autorización de Admisión y Egresos, la endoscopía queda confirmada sola.', t: 'enadm', go: 'Toque «Autorizar»', ver: scrEndo('🗂️ Ingresos del día', 'Endoscopía · para autorizar', ['Autoriza Admisión', 'Se confirma sola', 'Sin paso por la Jefatura de Quirófanos'], 'enadm', '🗂️ Autorizar'), ok: 'Endoscopía confirmada.' });
+EN({ e: 'Ingreso', r: 'pul', q: 'adm', h: 'Jue 07:30', tit: 'Llega: pulsera, sin cama', txt: 'Es ambulatoria: no lleva cama. Admisión imprime la pulsera cuando el paciente se presenta con su DNI, y desde ese momento el equipo ve <b>🟡 Ingresó</b>.', t: 'enpul', go: 'Toque «Imprimir pulsera»', ver: scrEndo('🏷️ Ruta del paciente', 'Ambulatoria · sin cama', ['✓ Autoriza Admisión', '✓ Confirmada', 'Pulsera', 'En sala'], 'enpul', '🏷️ Imprimir pulsera'), ok: 'Pulsera lista: el paciente espera que lo llamen.' });
+EN({ e: 'En sala', r: 'eq', q: 'enf', h: 'Jue 07:40', tit: 'Entran siempre cuatro', txt: 'Endoscopista, anestesiólogo/a, enfermero/a de anestesia y enfermero/a de endoscopía. Cada uno toma su lugar con <b>✋ TOMAR</b>. Instrumentación no participa.', t: 'eneq', go: 'Toque «Tomar mi lugar»', ver: scrEndo('✋ Tomar mi lugar', 'Endoscopía · 08:00', ['🩺 Endoscopista', '💤 Anestesiólogo/a', '💉 Enfermería de anestesia', '🔭 Enfermería de endoscopía'], 'eneq', '✋ Tomar mi lugar'), ok: 'Equipo completo.' });
+EN({ e: 'En sala', r: 'lvq', q: 'enf', h: 'Jue 07:58', tit: 'Se lee la pulsera y se abre para todos', txt: 'Quien hace pasar al paciente toca <b>📷 Pulsera</b>, lee el QR y toca «Abrir para todo el equipo». La planilla común se abre en el equipo, con aviso si tienen la app cerrada, y lee en voz alta el/la enfermero/a de endoscopía.', t: 'enqr', go: 'Toque «Abrir para todo el equipo»', ver: scrEndo('✓ Identidad verificada', 'Pulsera · sello SHA-256 ✓', ['Paciente, DNI y estudio a la vista', 'Se abre en todo el equipo'], 'enqr', '📣 Abrir para todo el equipo'), ok: 'Planilla común abierta.' });
+EN({ e: 'Lista de Verificación', r: 'ent', q: 'enf', h: 'Jue 08:00', tit: 'Entrada, sin conteo de gasas', txt: 'La Entrada es antes de la sedación. Firman Enfermería de endoscopía y Anestesiología. <b>No hay recuento inicial ni final</b>, y el punto de gasas no aparece en la lista.', t: 'enent', go: 'Toque «Confirmo»', ver: scrEndo('✅ Entrada', 'Antes de la sedación', ['Identidad, sitio y consentimiento', 'Control de seguridad anestésica', 'Alergias verificadas'], 'enent', '✓ Confirmo'), ok: 'Entrada firmada.' });
+EN({ e: 'Lista de Verificación', r: 'pau', q: 'cir', h: 'Jue 08:06', tit: 'Pausa y comienzo del estudio', txt: 'Antes de empezar confirman endoscopista, Anestesiología y Enfermería de endoscopía.', t: 'enpau', go: 'Toque «Confirmo la Pausa e inicio»', ver: scrEndo('⏸️ Pausa', 'Antes de empezar el estudio', ['Equipo presentado', 'Paciente y estudio correctos', 'Eventos críticos revisados'], 'enpau', '▶ Confirmo la Pausa e inicio'), ok: 'Estudio en curso.' });
+EN({ e: 'Cierre', r: 'sal', q: 'enf', h: 'Jue 08:32', tit: 'Salida y parte', txt: 'Al terminar firma la Salida el/la enfermero/a de endoscopía, y el/la endoscopista carga el parte y finaliza.', t: 'ensal', go: 'Toque «Firmar la Salida»', ver: scrEndo('🏁 Salida', 'Antes de dejar la sala', ['Estudio registrado', 'Muestras rotuladas', 'Indicaciones para recuperación'], 'ensal', '✍️ Firmar la Salida'), ok: 'Salida firmada.' });
+EN({ e: 'Cierre', r: 'rec', q: 'anest', h: 'Jue 09:05', tit: 'Recuperación y siguiente paciente', txt: 'Anestesiología da el alta con la escala de Aldrete. La pantalla dice quién sigue en esa sala y si ya ingresó: su planilla se abre al leer su pulsera.', t: 'enrec', go: 'Toque «Registrar el Aldrete»', ver: scrEndo('💤 Recuperación', 'Escala de Aldrete', ['Aldrete 10/10', 'Sigue en esta sala: 08:30 · Colonoscopía'], 'enrec', '✓ Registrar el Aldrete'), fiesta: true, ok: 'Endoscopía cerrada.' });
 
 /* Acto · Mapa de camas y pulsera (3.26) */
 const MP = (o) => P(Object.assign({ a: 'mapa' }, o));
@@ -1245,7 +1302,11 @@ MP({ e: 'Admisión recibe', r: 'rec', q: 'adm', h: 'Mar 07:03', tit: 'Admisión 
 MP({ e: 'Ingreso y pulsera', r: 'ing', q: 'adm', h: 'Mar 07:08', tit: 'Admisión entra con su cuenta', txt: 'Admisión y Egresos tiene su propia entrada («Acceso Admisión y Egresos») con tres secciones: <b>Ingresos del día</b> (los pacientes de hoy y mañana por área, con su cama, autorización y pulsera), el <b>Mapa de camas en vivo</b> y los <b>Avisos</b>. Con la sesión abierta no le pide la contraseña en cada trámite.', t: 'anotar', go: 'Toque «Anotar cama de Pérez, Juan Carlos»', ver: scrIngresosAdm, ok: 'Se abre la ventana de la cama con el mapa del sector.' });
 MP({ e: 'Ingreso y pulsera', r: 'ing', q: 'adm', h: 'Mar 07:10', tit: 'Ingresa el paciente: cama verde → roja', txt: 'Al anotar la cama, Admisión ve el mapa en vivo del sector y toca una cama verde. Al guardar, en el mapa de Enfermería esa cama pasa a <b>rojo</b>, con las iniciales del paciente.', t: 'tocar', go: 'Toque la cama verde marcada (Hab. 4 · Cama 1)', ver: scrIngresoMapa, hacer: (S) => { S.m.ingreso = true; }, ok: 'Hab. 4 · Cama 1: ocupada. Se imprime la pulsera.' });
 MP({ e: 'Ingreso y pulsera', r: 'pul', q: 'adm', h: 'Mar 07:11', tit: 'La pulsera sale sola', txt: 'QR, apellido y nombre, DNI, patología, sector/habitación/cama, quién le dio ingreso y un sello <b>SHA-256</b> de esos datos. Sale en tira: se corta con tijera y se pega en la muñeca (la copia va a la historia clínica).', t: 'pegar', go: 'Toque «Cortar y pegar en la muñeca»', ver: scrPulsera, ok: 'Pulsera puesta.' });
-MP({ e: 'Ingreso y pulsera', r: 'lvq', q: 'enf', h: 'Mar 07:55', tit: 'En quirófano: se escanea y arranca la LVQ', txt: 'La enfermera escanea la pulsera con el teléfono. Con su sesión del hospital, la app abre la ficha, comprueba el sello (si los datos cambiaron, avisa) y arranca la LVQ de Entrada con el punto 1 —identidad del paciente— ya confirmado.', t: 'lvq', go: 'Toque «Iniciar la LVQ de Entrada»', ver: scrEscaneo, fiesta: true, ok: 'LVQ de Entrada iniciada con la identidad confirmada.' });
+MP({ e: 'Ingreso y pulsera', r: 'lvq', q: 'enf', h: 'Mar 07:12', tit: 'El equipo ve que ingresó', txt: 'Con la pulsera impresa (con cama o ambulatorio), el turno queda <b>habilitado</b>: quienes tomaron este paciente ven <b>🟡 Ingresó</b> y reciben un aviso. Se puede tomar el turno antes o después del ingreso.', t: 'ingreso', go: 'Toque «Visto»', ver: scrIngreso, ok: 'El equipo sabe que el paciente llegó.' });
+MP({ e: 'Paciente en sala', r: 'lvq', q: 'enf', h: 'Mar 07:55', tit: 'El primero que lee el QR abre la planilla', txt: 'Al hacerlo pasar, cualquiera del equipo toca <b>📷 Pulsera</b> en la app (o usa la cámara del teléfono). Con su cuenta del hospital, la app comprueba el sello (si los datos cambiaron, avisa) y muestra la identidad. Al confirmar, se abre para todos. Si no había tomado el paciente, primero toma su lugar. Sin pulsera, la pantalla de sala lo permite con la identidad verificada a mano.', t: 'lvq', go: 'Toque «Abrir para todo el equipo»', ver: scrEscaneo, ok: 'Planilla abierta, con el punto 1 —identidad— confirmado.' });
+MP({ e: 'Paciente en sala', r: 'lvq', q: 'anest', h: 'Mar 07:55', tit: 'Se abre sola en todos los teléfonos', txt: 'A quienes están anotados en este paciente y tienen la app abierta, la planilla se les abre sola. Si la tienen cerrada les llega <b>Paciente en sala</b> al teléfono: al tocarlo, se abre. Si falta anotarse alguien, empieza por el momento Equipo, con el botón Avisar.', t: 'todos', go: 'Toque «Escuchar y confirmar»', ver: scrTodos, ok: 'Todo el equipo está en la misma planilla.' });
+MP({ e: 'Paciente en sala', r: 'lvq', q: 'enf', h: 'Mar 07:57', tit: 'Una voz, todos escuchan', txt: 'Una persona lee en voz alta y tilda; el resto lo ve en vivo. Cada uno confirma con su botón: no hay casillas repetidas y las firmas son las de siempre. Al confirmar todos, pasa solo al momento siguiente.', t: 'escucha', go: 'Toque «Confirmo»', ver: scrEscucha, ok: 'Entrada confirmada por el equipo.' });
+MP({ e: 'Paciente en sala', r: 'lvq', q: 'enf', h: 'Mar 09:40', tit: 'Se cierra y sigue el próximo', txt: 'Al terminar, la pantalla cierra este paciente y dice quién sigue en esa sala y si ya ingresó. Su planilla se abre al leer su pulsera.', t: 'sigue', go: 'Toque «Pasar al siguiente paciente»', ver: scrSigue, fiesta: true, ok: 'Listo para el siguiente paciente.' });
 
 /* Acto · Sin cama: reprogramación con prioridad (3.25) */
 const CM = (o) => P(Object.assign({ a: 'cama', lado: pac2HTML }, o));
@@ -1295,7 +1356,7 @@ function leerGuardado() { try { return JSON.parse(localStorage.getItem(LLAVE) ||
 // En la portada no se guarda: así «Seguir donde quedé» no se pierde al volver a ella.
 function guardar() { if (cur === 0) return; try { localStorage.setItem(LLAVE, JSON.stringify({ cur, elec: ELEC })); } catch (e) {} }
 
-const RIEL_MAPA = [['al', '06:30'], ['pin', 'Mapa'], ['env', 'Enviar'], ['rec', 'Recibido'], ['ing', 'Cama roja'], ['pul', 'Pulsera'], ['lvq', 'LVQ']];
+const RIEL_MAPA = [['al', '06:30'], ['pin', 'Mapa'], ['env', 'Enviar'], ['rec', 'Recibido'], ['ing', 'Cama roja'], ['pul', 'Pulsera'], ['lvq', 'En sala']];
 const RIEL_CAMA = () => [['sin', 'Sin cama'], ['bus', 'Nueva fecha'], ['cir', 'OK cirujano'], ['adm', 'OK Admisión'], ['jef', 'OK Jefatura'], ['pac', 'Paciente'],
   ...(ELEC.camaNo === true ? [['no', 'Otra fecha']] : [['fin', 'Prioridad'], ['parte', 'Parte']]), ['cad', '13 h'], ['rep', 'Reprogramar'], ['mapa', 'Recorrido']];
 const RIEL_EQD = [['20h', '20:00 aviso'], ['ver', 'Propuesta'], ['camb', 'Cambiar'], ['vivo', 'En vivo'], ['conf', 'Confirmar'], ['sala', 'Llegué'], ['dia', 'Reemplazo']];
@@ -1303,6 +1364,7 @@ const RIEL_PROG = [['prog', 'Programada'], ['adm', 'Admisión'], ['jef', 'Jefatu
 function rielHTML(st) {
   let est;
   if (st.a === 'prog') est = RIEL_PROG;
+  else if (st.a === 'endo') est = [['prog', 'Programada'], ['adm', 'Admisión'], ['pul', 'Pulsera'], ['eq', 'Equipo'], ['lvq', 'QR'], ['ent', 'Entrada'], ['pau', 'Pausa'], ['sal', 'Salida'], ['rec', 'Recuperación']];
   else if (st.a === 'cama') est = RIEL_CAMA();
   else if (st.a === 'mapa') est = RIEL_MAPA;
   else if (st.a === 'eqd') est = RIEL_EQD;

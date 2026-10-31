@@ -2079,25 +2079,8 @@
   @media (max-width: 480px) { .ci-acciones { grid-template-columns: 1fr; } }
   .ci-doc {
     background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 26px 30px; overflow: auto; flex: 1;
-    font-family: 'Times New Roman', Times, serif; font-size: 0.83rem; line-height: 1.5; color: #111;
+    padding: 18px 20px; overflow: auto; flex: 1; font-size: 0.8rem;
   }
-  .ci-doc h1 { font-size: 1.05rem; text-align: center; text-transform: uppercase; margin: 6px 0; }
-  .ci-doc h3 { font-size: 0.86rem; border-bottom: 1px solid #bbb; margin: 14px 0 6px; padding-bottom: 2px; }
-  .ci-doc p { text-align: justify; margin: 6px 0; }
-  .ci-doc table.fil { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin: 6px 0; }
-  .ci-doc table.fil td { border: 1px solid #999; padding: 4px 6px; }
-  .ci-doc table.fil td.k { background: #f0f0f0; font-weight: 700; width: 22%; }
-  .ci-doc .membrete { text-align: center; border-bottom: 2px solid #143f60; padding-bottom: 6px; margin-bottom: 8px; }
-  .ci-doc .mb-tit { font-size: 0.98rem; font-weight: 700; color: #143f60; }
-  .ci-doc .mb-sub { font-size: 0.68rem; color: #333; }
-  .ci-doc .mb-blq { font-size: 0.76rem; font-weight: 700; margin-top: 4px; color: #1c5d8c; }
-  .ci-doc .meta { text-align: center; font-size: 0.72rem; color: #444; }
-  .ci-doc .cita { font-size: 0.7rem; font-style: italic; color: #333; }
-  .ci-doc .aaot-doc { font-size: 0.74rem; border: 1px solid #999; padding: 6px 8px; border-radius: 4px; }
-  .ci-doc .firmas { margin-top: 34px; display: flex; justify-content: space-between; gap: 10px; }
-  .ci-doc .firma { width: 46%; text-align: center; border-top: 1px solid #000; padding-top: 4px; font-size: 0.72rem; }
-  .ci-doc .legal { font-size: 0.66rem; color: #555; border-top: 1px dotted #bbb; margin-top: 18px; padding-top: 6px; }
   .ci-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
   .ci-tab {
     background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer;
@@ -4545,6 +4528,18 @@
   /* 3.38 · Guardia del día */
   .tb-gdx { display: inline-flex; flex: none; align-items: center; gap: 4px; margin-right: 6px; padding: 5px 10px; border: 0; border-radius: 99px; background: rgba(255,255,255,.16); color: inherit; font: inherit; font-size: .78rem; font-weight: 800; cursor: pointer; }
   .tb-gdx:hover { background: rgba(255,255,255,.28); }
+  .tb-lq[hidden] { display: none; }
+  .tb-lq > span:first-child { animation: none; }
+  @media (max-width: 460px) { .tb-lq > span:last-child { display: none; } }
+  .lq-btn { margin-bottom: 8px; }
+  body .overlay.lq-ov, body[data-tema] .overlay.lq-ov { z-index: 96; align-items: center; background: rgba(6,26,23,.94); }
+  .lq { display: grid; gap: 12px; width: min(440px, 100%); padding: 14px 16px; box-sizing: border-box; color: #eafff9; }
+  .lq header { display: flex; justify-content: space-between; align-items: center; font-size: 1.05rem; }
+  .lq header button { border: 0; border-radius: 99px; width: 40px; height: 40px; background: rgba(255,255,255,.14); color: inherit; font: inherit; cursor: pointer; }
+  .lq-cam { position: relative; aspect-ratio: 1; border-radius: 18px; overflow: hidden; background: #0f172a; }
+  .lq-cam video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .lq-cam i { position: absolute; inset: 16%; border: 3px solid rgba(255,255,255,.9); border-radius: 14px; box-shadow: 0 0 0 999px rgba(0,0,0,.28); }
+  .lq p { margin: 0; text-align: center; font-weight: 700; } .lq p.mal { color: #fecaca; }
   .tb-gdx > span:first-child { animation: gdxLatido 2.8s ease-in-out infinite; }
   .gdx-ov { z-index: 120; overflow-y: auto; align-items: flex-start; padding: 56px 12px 18px; backdrop-filter: blur(4px); }
   .gdx { width: min(430px, 100%); margin: 0 auto; border: 1px solid var(--line); border-radius: 16px; background: var(--card, #fff); color: var(--ink, #1f2937); box-sizing: border-box; box-shadow: 0 24px 50px -22px rgba(0,0,0,.6); overflow: hidden; }
@@ -4576,6 +4571,14 @@
   .ma-vacio { justify-content: center; color: var(--muted); }
   @keyframes gdxLatido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
   /* 3.38 · Pantalla de sala */
+  .fl-sala { display: inline-flex; align-items: center; padding: 5px 11px; border-radius: 99px; background: #fef3c7; color: #92400e; font-size: .78rem; font-weight: 800; }
+  .fl-sala.vivo { background: #d1fae5; color: #065f46; }
+  .tk-cx .fl-sala { margin: 0 0 6px; }
+  .sx-abrio { align-self: center; padding: 4px 12px; border-radius: 99px; background: rgba(16,185,129,.18); color: #a7f3d0; font-size: .8rem; font-weight: 700; text-align: center; }
+  .sx-llamar { min-height: 44px; padding: 8px 14px; border: 1px dashed rgba(255,255,255,.55); border-radius: 12px; background: none; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+  .sx-sig { display: grid; gap: 2px; width: min(100%, 420px); margin-top: 16px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,.1); text-align: center; }
+  .sx-sig small { font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .75; }
+  .sx-sig em { font-style: normal; font-weight: 700; color: #fde68a; }
   .fl-sx { border: 0; border-radius: 99px; padding: 6px 12px; background: #0f766e; color: #fff; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
   /* Vidrio sobre la app: se adivina lo de atrás, pero desenfocado, para que no se mezcle con las letras. */
   .sx-ov { z-index: 95; padding: 0; align-items: stretch; background: rgba(6, 26, 23, .84); -webkit-backdrop-filter: blur(14px) saturate(.75); backdrop-filter: blur(14px) saturate(.75); overflow-y: auto; }
@@ -7223,6 +7226,7 @@
       <button class="hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Abrir menú"></button>
       <div class="topbar-title" id="topbar-title">Panel</div>
       <div class="topbar-spacer"></div>
+      <button class="tb-gdx tb-lq" id="lq-btn" hidden onclick="lqAbrir()" aria-label="Leer pulsera" title="Leer pulsera"><span aria-hidden="true">📷</span><span>Pulsera</span></button>
       <button class="tb-gdx" id="gdx-btn" onclick="gdxAbrir()" aria-label="Guardia del día" title="Guardia del día"><span aria-hidden="true">🛡️</span><span>Guardia</span></button>
       <span class="conn" id="conn-chip" role="button" tabindex="0" onclick="explicarConexion()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();explicarConexion();}" title="Estado de la sincronización" aria-label="Estado de la sincronización"><span class="dotc" aria-hidden="true"></span><span id="conn-text" class="tb-oculto">Conectado</span></span>
       <div class="tema-wrap">
@@ -7789,7 +7793,7 @@ function franjasUrgenciaVisibles(d, s) {
 /* Cómo se llama la urgencia en cada sala. */
 function rotuloUrgencia(s) {
   if (s.tipo === 'endo') return { titulo: 'Endoscopías de urgencia', corto: 'endoscopía de urgencia' };
-  if (s.tipo === 'obs') return { titulo: 'Cesáreas de urgencia', corto: 'cesárea de urgencia' };
+  if (s.tipo === 'obs') return { titulo: 'Cesáreas y partos de urgencia', corto: 'cesárea o parto de urgencia' };
   return { titulo: 'Cirugías de urgencia y emergencia', corto: 'cirugía de urgencia' };
 }
 
@@ -7807,7 +7811,7 @@ const SALAS = [
   { id: 'Q3', nombre: 'Quirófano 3', tipo: 'qx', franjas: FRANJAS_QX },
   { id: 'Q4', nombre: 'Quirófano 4', tipo: 'qx', franjas: FRANJAS_QX },
   { id: 'END', nombre: 'Sala de Endoscopía Digestiva', tipo: 'endo', urgHoraria: true, franjas: FRANJAS_ENDO, etiqueta: 'ENDOSCOPÍA', clase: 'badge-endo' },
-  { id: 'QOBS', nombre: 'Quirófano de Obstetricia — Cesáreas', tipo: 'obs', urgHoraria: true, franjas: FRANJAS_QX, etiqueta: 'OBSTETRICIA', clase: 'badge-obs' },
+  { id: 'QOBS', nombre: 'Quirófano de Obstetricia — Cesáreas y partos', tipo: 'obs', urgHoraria: true, franjas: FRANJAS_QX, etiqueta: 'OBSTETRICIA', clase: 'badge-obs' },
 ];
 const sala = (id) => SALAS.find((s) => s.id === id) || SALAS[0];
 /* Además de las franjas fijas de cada sala resuelve las de urgencia —que se
@@ -9812,7 +9816,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.38.1';
+const APP_VERSION = '3.40.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10860,7 +10864,7 @@ function prioChip(c) {
   return html;
 }
 /* 3.34.3 · En Endoscopía no hay gasas ni instrumental para contar. */
-function lvqItems(c, f) { return LVQ[f].items.filter((it) => !(c && c.sala === 'END' && /^Conteo de gasas/.test(it))); }
+function lvqItems(c, f) { return LVQ[f].items.filter((it) => !(sinRecuento(c) && /^Conteo de gasas/.test(it))); }
 function lvqCompleta(c, fase) { return !!(c.lvq && c.lvq[fase] && c.lvq[fase].done); }
 /* ---- Cuándo se puede abrir la foja de verificación ----
    El día de la cirugía y no antes. Se admite también el día de grilla del
@@ -12120,6 +12124,7 @@ function calcRecordatorios() {
   try { guRecordatorios(add); } catch (e) {}
   try { eqRecordatorios(add); } catch (e) {}
   try { eqDiaRecordatorios(add); } catch (e) {}
+  try { salaRecordatorios(add); } catch (e) {}
   // 3.30 · Felicitaciones recibidas de la Jefatura de Anestesiología.
   try { saludosRecordatorios(add); } catch (e) {}
   // 3.22 · Recorrido de la cirugía: «Le toca» y los pedidos de firma de un compañero.
@@ -12177,6 +12182,7 @@ function revisarRecordatorios() {
   avisarVozVispera();
   // 3.25 · Respuestas del paciente a la reprogramación y lugar que se abrió.
   rcVigilar();
+  salaVigilar();
   endoSinJefaturaBarrer();
   ciAceptacionesVigilar();
   setTimeout(tomarAlEntrar, 900);
@@ -12458,6 +12464,7 @@ async function probarNotif(btn) {
 }
 
 function refreshView() {
+  salaVigilar();                   // 3.39 · la planilla común se abre sola en el equipo
   if (sxId !== null) sxPintar();   // 3.38 · la pantalla de sala se actualiza sola
   // No se re-renderizan las vistas con formularios en curso para no perder lo tipeado
   const conFormulario = ['nueva', 'acceso', 'perfil', 'consentimientos', 'excepcion'];
@@ -13320,6 +13327,7 @@ function volverAtras() {
 }
 
 function go(v, silencioso) {
+  lqBarra();
   // 3.31 · «Equipos del día» no es una pantalla: es una ventana que se abre sobre la que esté.
   if (v === 'guardiadia') { closeDrawer(); gdxAbrir(); return; }
   if (v === 'propuesta' || v === 'propuestahoy') { closeDrawer(); eqPendiente = true; eqPendDia = v === 'propuestahoy' ? 'hoy' : null; setTimeout(eqAlAbrir, 0); if (view && VIEWS[view]) return; v = 'panel'; }
@@ -13542,10 +13550,11 @@ const SALA_PUESTOS = {
 };
 /* Los puestos de ESTA cirugía (Endoscopía tiene los suyos). */
 function salaPuestosDe(c) {
-  const endo = c && c.sala === 'END', out = {};
+  const endo = c && c.sala === 'END', parto = esParto(c), out = {};
   Object.entries(SALA_PUESTOS).forEach(([k, p]) => {
     if (endo ? p.noEndo : p.soloEndo) return;
-    out[k] = endo && k === 'tecAnestesia' ? Object.assign({}, p, { n: 'Enfermería de anestesiología' }) : p;
+    if (parto && p.noEndo) return;
+    out[k] = endo && k === 'tecAnestesia' ? Object.assign({}, p, { n: 'Enfermería de anestesiología' }) : parto && k === 'tecAnestesia' ? Object.assign({}, p, { n: 'Enfermería' }) : p;
   });
   return out;
 }
@@ -13657,7 +13666,7 @@ function salaTarjeta(c) {
     <div class="ms2-fases">
       ${fase('entrada', 'Entrada', 'coordina Enfermería', lvqCompleta(c, 'entrada'), lv.entrada && lv.entrada.por ? 'Firmó ' + firma(lv.entrada.por) : (lvqCompleta(c, 'entrada') ? 'Hecha por el cirujano' : ''))}
       ${fase('pausa', 'Pausa', 'dirige el Cirujano', lvqCompleta(c, 'pausa'), [lvqCompleta(c, 'pausa') ? 'Cirujano ' + String((lv.pausa && lv.pausa.hora) || '').slice(11, 16) + ' h' : '', lv.pausaFirmas && lv.pausaFirmas.enfermeria ? 'Enf. ' + firma(lv.pausaFirmas.enfermeria) : ''].filter(Boolean).join(' · '))}
-      ${c.sala === 'END' ? '' : fase('recuento', 'Recuento', 'Instrumentación + Enfermería', !!(rc.final && rc.final.cofirma && !dif), rc.inicial ? (rc.final ? (dif ? '⚠ No coincide' : 'Coincide') : 'Inicial cargado') : '')}
+      ${sinRecuento(c) ? '' : fase('recuento', 'Recuento', 'Instrumentación + Enfermería', !!(rc.final && rc.final.cofirma && !dif), rc.inicial ? (rc.final ? (dif ? '⚠ No coincide' : 'Coincide') : 'Inicial cargado') : '')}
       ${fase('salida', 'Salida', 'coordina Enfermería · confirma el Cirujano', lvqCompleta(c, 'salida'), lv.salida && lv.salida.por ? 'Firmó ' + firma(lv.salida.por) : '')}
     </div>
     ${abierta ? salaDetalle(c, miFunc) : `<button class="ms2-abrir" onclick="salaIr(${JSON.stringify(c.id)},'${sig}')">${sig === 'material' ? '✓ Lista completa · ver cajas e insumos' : '▶ Seguir con: ' + ({ entrada: 'la Entrada', pausa: 'la Pausa', recuento: 'el Recuento', salida: 'la Salida' })[sig]}</button>`}
@@ -13719,13 +13728,13 @@ function salaDetalle(c, miFunc) {
     </section>`;
   // 3.22 · Se abre solo el paso que toca (o el que se eligió): menos pantalla, más foco.
   const sel = salaPaso[c.id] || salaSiguiente(c);
-  const pasos = c.sala === 'END'
+  const pasos = sinRecuento(c)
     ? [['entrada', '1 · Entrada', lvqCompleta(c, 'entrada')], ['pausa', '2 · Pausa', lvqCompleta(c, 'pausa')], ['salida', '3 · Salida', lvqCompleta(c, 'salida')], ['material', '📦 Insumos', false]]
     : [['entrada', '1 · Entrada', lvqCompleta(c, 'entrada')], ['pausa', '2 · Pausa', lvqCompleta(c, 'pausa')],
     ['recuento', '3 · Recuento', !!(rc.final && rc.final.cofirma && !dif)], ['salida', '4 · Salida', lvqCompleta(c, 'salida')], ['material', '📦 Cajas e insumos', false]];
   return `<div class="ms2-det">${ban}
     <div class="ms2-pasos" role="tablist">${pasos.map(([k, t, ok]) => `<button role="tab" class="${sel === k ? 'on' : ''} ${ok ? 'ok' : ''}" onclick="salaIr(${id},'${k}')">${ok ? '✓ ' : ''}${t}</button>`).join('')}</div>
-    ${sel === 'material' ? s_cajas + s_insumos : ({ entrada: s_entrada, pausa: s_pausa, recuento: c.sala === 'END' ? s_salida : s_recuento, salida: s_salida })[sel] || s_entrada}
+    ${sel === 'material' ? s_cajas + s_insumos : ({ entrada: s_entrada, pausa: s_pausa, recuento: sinRecuento(c) ? s_salida : s_recuento, salida: s_salida })[sel] || s_entrada}
   </div>`;
 }
 /* El próximo paso pendiente de la cirugía. */
@@ -13733,7 +13742,7 @@ function salaSiguiente(c) {
   const rc = c.recuento || {};
   if (!lvqCompleta(c, 'entrada')) return 'entrada';
   if (!lvqCompleta(c, 'pausa')) return 'pausa';
-  if (c.sala !== 'END' && !(rc.final && rc.final.cofirma && !recuentoDif(c))) return 'recuento';
+  if (!sinRecuento(c) && !(rc.final && rc.final.cofirma && !recuentoDif(c))) return 'recuento';
   if (!lvqCompleta(c, 'salida')) return 'salida';
   return 'material';
 }
@@ -13999,7 +14008,7 @@ function renderMiActividad() {
   if (!u) { go('acceso'); return; }
   const [desde, hasta] = maRango(), L = maActos(u, desde, hasta);
   const n = (t) => L.filter((x) => x.tipo === t).length;
-  const cards = [['Actos en total', L.length, '#0f766e', ''], ['Cirugías', n('cir'), '#2563eb', '🔪'], ['Endoscopías', n('endo'), '#0d9488', '🔭'], ['Cesáreas', n('ces'), '#d97706', '👶']];
+  const cards = [['Actos en total', L.length, '#0f766e', ''], ['Cirugías', n('cir'), '#2563eb', '🔪'], ['Endoscopías', n('endo'), '#0d9488', '🔭'], ['Cesáreas y partos', n('ces'), '#d97706', '👶']];
   const icono = { cir: '🔪', endo: '🔭', ces: '👶' };
   $('main').innerHTML = `<div class="page-head"><div class="head-row"><div class="head-icon">${ico(ICONS.activity, 22)}</div><div>
       <h1 class="page-title">Mi actividad</h1><p class="page-sub">Cada acto en el que participaste, uno por uno</p></div></div></div>
@@ -14033,6 +14042,81 @@ function sxAbrir(id) {
   ov.classList.add('open'); sxPintar();
 }
 function sxCerrar() { sxId = null; const ov = $('sx-ov'); if (ov) ov.classList.remove('open'); }
+/* 3.39 · PACIENTE EN SALA. La pulsera impresa por Admisión es la señal de que el paciente
+   ingresó. El primero del equipo que la lee abre la planilla común: queda en c.lvq.sala y
+   la base la lleva a las terminales abiertas del equipo, que la muestran solas (salaVigilar).
+   Lo tildado y las firmas siguen siendo los de la pantalla de sala. */
+function salaHoy(c) { const h = hoyISO(); return !!c && (c.fecha === h || diaDeGrilla(c) === h); }
+function salaTermino(c) { return ['realizada', 'finalizada', 'suspendida', 'cancelada', 'rechazada'].includes(c.estado); }
+function salaActiva(c) { return !!(c && c.lvq && c.lvq.sala && salaHoy(c) && !salaTermino(c)); }
+function salaIngreso(c) { return !!(c && c.pulsera && salaHoy(c) && !salaActiva(c) && !salaTermino(c)); }
+function sxVistoK(c) { return `hruq_sx_${c.id}_${c.lvq.sala.t}`; }
+function sxVisto(c) { try { return !!localStorage.getItem(sxVistoK(c)); } catch (e) { return false; } }
+function sxMarcarVisto(c) { try { localStorage.setItem(sxVistoK(c), '1'); } catch (e) {} }
+function sxVer(c) { sxMarcarVisto(c); sxAbrir(c.id); }
+function salaLlamar(c, via) {
+  if (!salaActiva(c)) {
+    const yo = (usuarioActual() || {}).nombre || JEFATURA;
+    c.lvq = c.lvq || {};
+    c.lvq.sala = { t: nowDT(), por: yo, via, e: (usuarioActual() || {}).email || '' };
+    sxMarcarVisto(c);   // a quien la abrió no se le avisa
+    // La pulsera con el sello válido ya confirmó la identidad: primer punto de la Entrada.
+    if (via === 'pulsera' && !lvqCompleta(c, 'entrada')) { c.lvq.vivo = c.lvq.vivo || {}; c.lvq.vivo.entrada = c.lvq.vivo.entrada || {}; c.lvq.vivo.entrada[0] = true; }
+    pushHist(c, `Paciente en sala: ${yo} abrió la planilla común para el equipo (${via === 'pulsera' ? 'leyó la pulsera' : 'sin pulsera, identidad verificada a mano'})`);
+    upsert('cirugias', c);
+    salaAvisarTelefonos(c);
+  }
+  sxVer(c);
+}
+/* 3.40 · A los teléfonos del equipo con la app cerrada les avisa el servicio del hospital. Solo
+   le decimos qué turno mirar: él comprueba en la base que la planilla se acaba de abrir, así
+   nadie puede mandar avisos de más. Se espera un poco para que la novedad ya esté guardada. */
+async function salaAvisarTelefonos(c, intento) {
+  if (!cloudOn) return;
+  await new Promise((ok) => setTimeout(ok, intento ? 6000 : 2500));
+  let r = null;
+  try { r = await portalServicio({ accion: 'avisarSala', id: String(c.id) }); } catch (e) {}
+  if (!intento && (!r || r.noSala)) salaAvisarTelefonos(c, 1);
+}
+async function sxLlamarManual(id) {
+  const c = salaCir(id); if (!c) return;
+  if (!await preguntar(`Verifique la identidad con el paciente:\n\n${c.paciente?.nombre || 's/d'} · DNI ${c.paciente?.dni || '—'}\n\nSe abre la planilla en los teléfonos de todo el equipo.`,
+    { titulo: '¿Abrir para todo el equipo?', si: 'Identidad verificada: abrir', no: 'Cancelar' })) return;
+  salaLlamar(c, 'manual');
+}
+/* Cuando la base avisa de un cambio: ¿abrieron la planilla de un paciente mío? */
+function salaVigilar() {
+  if (!usuarioActual()) return;
+  const abierta = sxId !== null && salaCir(sxId);
+  if (abierta && salaActiva(abierta)) return;
+  const c = DB.cirugias.find((x) => salaActiva(x) && flEsMia(x) && !sxVisto(x));
+  if (!c) return;
+  sxVer(c);
+  toastTurno(`${c.lvq.sala.por} abrió la planilla · ${c.quirofano || c.sala}`, '#0d9488');
+  if (navigator.vibrate) { try { navigator.vibrate([120, 60, 120]); } catch (e) {} }
+}
+function salaChipHTML(c) {
+  if (salaActiva(c)) return `<span class="fl-sala vivo" title="Abrió ${esc(c.lvq.sala.por)} · ${esc(String(c.lvq.sala.t).slice(11, 16))} h">🟢 En sala · planilla abierta</span>`;
+  if (salaIngreso(c)) return `<span class="fl-sala" title="Admisión imprimió la pulsera ${esc(fmtDT(c.pulsera.t))}">🟡 Ingresó · lea su pulsera al hacerlo pasar</span>`;
+  return '';
+}
+function salaRecordatorios(add) {
+  const u = usuarioActual(); if (!u) return;
+  const vista = esAnestesia(u) ? 'anestesia' : esEquipoSala(u) ? 'sala' : 'mis';
+  DB.cirugias.filter((c) => salaIngreso(c) && flEsMia(c)).forEach((c) => add({ key: `ingreso-${c.id}-${c.pulsera.tk}`, nivel: 'info', notif: true, vista, cirugia: c.id,
+    titulo: `Ingresó su paciente de las ${c.horaProg || '—'} h`, texto: `${c.quirofano || c.sala} · ${c.procedimiento || ''}. Al hacerlo pasar, lean la pulsera: se abre la planilla común en todo el equipo.`, cuando: 'Hoy' }));
+}
+/* El que sigue en la misma sala, para cerrar una y pasar a la otra. */
+function sxSiguiente(c) {
+  return salaCirugias(hoyISO()).filter((x) => x.sala === c.sala && String(x.id) !== String(c.id) && x.estado === 'confirmada')
+    .sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')))[0] || null;
+}
+function sxSiguienteHTML(c) {
+  const x = sxSiguiente(c);
+  if (!x) return '<div class="sx-sig"><small>En esta sala</small><b>No quedan pacientes hoy</b></div>';
+  return `<div class="sx-sig"><small>Sigue en esta sala</small><b>${esc(x.horaProg || '—')} · ${esc(x.procedimiento || '')}</b><span>${esc((x.paciente && x.paciente.nombre) || '')}</span>
+    <em>${x.pulsera ? '🟡 Ya ingresó: al hacerlo pasar, lean su pulsera' : '⏳ Todavía no ingresó'}</em></div>`;
+}
 function sxLector(c) { return c.sala === 'END' ? 'enfEndo' : 'enf'; }
 function sxDueno(c) { const u = usuarioActual(); return jefe || !!(u && c.cirujanoEmail === u.email); }
 function sxItemsHTML(c, k, puede, listo) {
@@ -14082,7 +14166,8 @@ function sxPintar() {
   const c = salaCir(sxId);
   if (!c) { sxCerrar(); return; }
   const e = flEstado(c), mis = flMisRoles(c), p = e.pasos[e.activo], hab = lvqHabilitada(c);
-  const clave = JSON.stringify([c.estado, e.activo, e.pasos.map((x) => x.firmas.map((y) => (y.f ? 1 : 0))), c.pedidos || 0, hab, c.tiempos || 0]);
+  const sig = sxSiguiente(c);
+  const clave = JSON.stringify([c.estado, e.activo, e.pasos.map((x) => x.firmas.map((y) => (y.f ? 1 : 0))), c.pedidos || 0, hab, c.tiempos || 0, (c.lvq || {}).sala || 0, sig ? [sig.id, !!sig.pulsera] : 0]);
   if (clave === sxClave) {   // Nada cambió de lugar: solo las casillas que tilda quien lee.
     const v = ((c.lvq || {}).vivo || {})[p && p.k] || {};
     ov.querySelectorAll('.sx-item input:disabled').forEach((x) => { x.checked = !!v[x.dataset.i]; x.closest('.sx-item').classList.toggle('si', x.checked); });
@@ -14098,7 +14183,10 @@ function sxPintar() {
   const quienLee = lector ? p.firmas.find((x) => x.rol === lector) : null;
   const rail = e.pasos.map((x, i) => `<li class="${x.estado}"><span>${x.hecho ? '✓' : i + 1}</span><small>${esc(x.n)}</small></li>`).join('');
   const equipo = p ? p.firmas.map((x, i) => `<div class="sx-p ${x.f ? 'ok' : ''}" style="--i:${i}"><span>${x.f ? '✓' : esc(FL_ROLES[x.rol].i)}</span><b>${esc(x.quien ? x.quien.n : flRolN(x.rol, c))}</b><small>${esc(flRolN(x.rol, c))}${x.f ? ' · confirmó' : ''}</small></div>`).join('') : '';
-  const cuerpo = !p ? `<section class="sx-fin"><span>✓</span><h2>Recorrido completo</h2><p>Todos los momentos quedaron confirmados.</p></section>`
+  const fin = !p || salaTermino(c), id = JSON.stringify(c.id), activa = salaActiva(c);
+  const llamada = activa ? `<div class="sx-abrio">${c.lvq.sala.via === 'pulsera' ? '🏷️ Pulsera leída' : '🖐 Sin pulsera'} · abrió ${esc(c.lvq.sala.por)} · ${esc(String(c.lvq.sala.t).slice(11, 16))} h</div>`
+    : !fin && flEsMia(c) && salaHoy(c) && hab ? `<button type="button" class="sx-llamar" onclick="sxLlamarManual(${id})">📣 Abrir para todo el equipo (sin pulsera)</button>` : '';
+  const cuerpo = fin ? `<section class="sx-fin"><span>✓</span><h2>${!p ? 'Recorrido completo' : 'Terminó este paciente'}</h2><p>${!p ? 'Todos los momentos quedaron confirmados.' : 'Se cierra acá. El recorrido sigue en su tarjeta.'}</p>${sxSiguienteHTML(c)}</section>`
     : `<section class="sx-mom"><small>Momento ${e.activo + 1} de ${e.pasos.length}</small><h2>${esc(p.n)}</h2><p>${esc(p.d)}</p>
         ${quienLee ? `<div class="sx-lee">📣 Lee en voz alta: <b>${esc(quienLee.quien ? quienLee.quien.n : flRolN(lector, c))}</b></div>` : ''}
         ${!hab ? `<div class="pp-error" role="alert">${esc(lvqMotivoBloqueo(c))}</div>` : ''}
@@ -14109,8 +14197,8 @@ function sxPintar() {
     <header><button type="button" onclick="sxCerrar()" aria-label="Cerrar">‹ Salir</button>
       <span><b>${esc(c.horaProg || '')} · ${esc(c.procedimiento || '')}</b><small>${esc(c.quirofano || c.sala)} · ${esc((c.paciente && c.paciente.nombre) || '')}</small></span>
       <i class="sx-vivo"><em></em>En vivo</i></header>
-    <ol class="sx-rail">${rail}</ol>${cuerpo}
-    ${c.estado === 'en_curso' && sxDueno(c) ? `<button type="button" class="sx-final" onclick="sxCirujano(${JSON.stringify(c.id)},'salida')">🏁 Cargar el parte y finalizar</button>` : ''}
+    <ol class="sx-rail">${rail}</ol>${llamada}${cuerpo}
+    ${c.estado === 'en_curso' && sxDueno(c) ? `<button type="button" class="sx-final" onclick="sxCirujano(${id},'salida')">🏁 Cargar el parte y finalizar</button>` : ''}
   </div>`;
   Object.keys(guardados).forEach((k) => { const x = $(k); if (x) x.value = guardados[k]; });
   if (p && (p.k === 'entrada' || p.k === 'salida') && $('ms2-ok-' + p.k)) salaChk(p.k);
@@ -16107,7 +16195,8 @@ function eqAplicar(s, d, salas, m) {
         cambio = true;
       };
       if (s === 'enf' && x.id === 'END') { poner('tecAnestesia', mm.e); poner('enfEndo', mm.ee); }
-      else if (s === 'inst' && x.id === 'END') { /* Endoscopía: sin instrumentación */ }
+      else if (s === 'inst' && (x.id === 'END' || esParto(c))) { /* Endoscopía y partos: sin instrumentación */ }
+      else if (s === 'enf' && esParto(c)) poner('tecAnestesia', mm.e);
       else if (s === 'enf') { poner('tecAnestesia', mm.e); if (!mm.c) { const pc = c.equipoSala.circulante; if (!pc || (pc.prop && pc.f === 'enfermeria')) poner('circulante', mm.e); } }
       else { poner('instrumentadora', mm.i); if (mm.c) poner('circulante', mm.c); }
       if (cambio) { pushHist(c, `Equipo de sala (${EQ_SECT[s].n}) asignado por ${anestQuien()} desde «Equipos del día»`); upsert('cirugias', c); }
@@ -16204,12 +16293,12 @@ function eqBotonHTML() {
    Aparece en la grilla (✋ TOMAR), en Mi Sala y su portal, y solo al entrar a la app
    (una vez por día, si hay lugares libres para esa persona). «Tomar» usa lo de siempre
    (salaAnotarme / anestElegir): queda en el recorrido de la sala y en el historial. */
-let tomarDia = null, tomarFoco = null, tomarTodos = false, tomarMostrado = false;
+let tomarDia = null, tomarFoco = null, tomarTodos = false, tomarMostrado = false, tomarLuego = null;
 const TOMAR_DIAS = 14;   // se puede tomar con dos semanas de anticipación
 const DIAS_CORTOS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 /* El primer día (desde hoy) con lugar libre para esta persona, o null. */
 function tomarPrimerDia(u) { for (let i = 0; i < TOMAR_DIAS; i++) { const x = sumarDias(hoyISO(), i); if (tomarLibres(u, x)) return x; } return null; }
-function tomarQue(c) { return c.sala === 'END' ? 'endoscopía' : c.sala === 'QOBS' ? 'cesárea' : 'cirugía'; }
+function tomarQue(c) { return c.sala === 'END' ? 'endoscopía' : c.sala === 'QOBS' ? obsNombre(c) : 'cirugía'; }
 function tomarPuestos(c) {
   const P = salaPuestosDe(c);
   // Orden pedido por Claudio: enfermería (de anestesia y, en Endoscopía, de endoscopía), instrumentación y anestesiología al final.
@@ -16225,14 +16314,14 @@ function tomarPuedo(c, k, u) {
   return salaPuedoPuesto(c, k, u);
 }
 function tomarLibresDe(c, u) { return u && (esEquipoSala(u) || esAnestesia(u)) ? tomarPuestos(c).filter((p) => tomarPuedo(c, p.k, u)) : []; }
-function tomarDelDia(d) { const u = usuarioActual(), sinEndo = u && funcionDe(u) === 'instrumentacion'; return salaCirugias(d).filter((c) => ['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado) && !(sinEndo && esEndo(c))); }
+function tomarDelDia(d) { const u = usuarioActual(), sinEndo = u && funcionDe(u) === 'instrumentacion'; return salaCirugias(d).filter((c) => ['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado) && !(sinEndo && sinRecuento(c))); }
 function tomarLibres(u, d) { return tomarDelDia(d).reduce((n, c) => n + tomarLibresDe(c, u).length, 0); }
 function tomarBotonHTML() {
   const u = usuarioActual();
   if (!u || !(esEquipoSala(u) || esAnestesia(u))) return '';
   const h = hoyISO(), libres = tomarLibres(u, h), prox = tomarPrimerDia(u);
   const tot = Array.from({ length: TOMAR_DIAS }, (_, i) => tomarLibres(u, sumarDias(h, i))).reduce((a, b) => a + b, 0);
-  return `<button type="button" class="eqx-btn tm-tomar-btn" onclick="tomarAbrir()"><span class="eqx-btn-ic">✋</span><span><b>Tomar mi lugar</b><small>${tot ? `${libres ? `Hoy ${libres} · ` : ''}${tot} lugar${tot === 1 ? '' : 'es'} libre${tot === 1 ? '' : 's'} en las próximas 2 semanas${!libres && prox ? ' · el primero, ' + fmtFecha(prox) : ''}` : 'Sin lugares libres para usted en las próximas 2 semanas'}</small></span><span class="eqx-btn-fl">›</span></button>`;
+  return `${lqBotonHTML()}<button type="button" class="eqx-btn tm-tomar-btn" onclick="tomarAbrir()"><span class="eqx-btn-ic">✋</span><span><b>Tomar mi lugar</b><small>${tot ? `${libres ? `Hoy ${libres} · ` : ''}${tot} lugar${tot === 1 ? '' : 'es'} libre${tot === 1 ? '' : 's'} en las próximas 2 semanas${!libres && prox ? ' · el primero, ' + fmtFecha(prox) : ''}` : 'Sin lugares libres para usted en las próximas 2 semanas'}</small></span><span class="eqx-btn-fl">›</span></button>`;
 }
 function tomarAbrir(d, foco) {
   const h = hoyISO(), u = usuarioActual();
@@ -16272,6 +16361,7 @@ function tomarPintar() {
         ${ks.length ? `<div class="en-todas">${ks.map((p) => `<button type="button" onclick="tomarTodasEndo('${p.k}')">⚡ Tomar todas · ${esc(p.n.toLowerCase())}</button>`).join('')}</div>` : ''}
         ${A.map((c) => `<section class="en-cx tk-cx tk-${a}${tomarFoco === String(c.id) ? ' foco' : ''}">
           <header><b>${esc(c.horaProg || '—')}</b><span>${esc(c.procedimiento || '')}<small>${esc(String(c.quirofano || c.sala).replace(/^Sala de Endoscop[ií]a.*$/i, 'Endoscopía').replace(/^Quir[oó]fano de Obstetricia.*$/i, 'Obstetricia'))} · ${esc((c.paciente && c.paciente.nombre) || '')}</small></span>${estChip(c)}</header>
+          ${salaChipHTML(c)}
           <div class="en-fila ok fija"><i>🩺</i><span><small>${titular(c)}</small><b>${esc(c.cirujano || '—')}</b></span><em>programó</em></div>
           ${tomarPuestos(c).map((p) => fila(c, p)).join('')}
         </section>`).join('')}`;
@@ -16286,6 +16376,8 @@ async function tomarUno(id, k, sinPintar) {
   else await salaAnotarme(id, k);
   const ok = !!(tomarQuien(c, k) && tomarQuien(c, k).e === u.email);
   if (!sinPintar) { tomarPintar(); if (ok) toastTurno('Tomado ✓ · queda a su nombre', '#0d9488'); }
+  // 3.39 · Tomó el lugar recién después de leer la pulsera: se sigue a la planilla sin volver a leerla.
+  if (ok && tomarLuego === String(id)) { tomarLuego = null; rcCerrar(); salaLlamar(c, 'pulsera'); }
   return ok;
 }
 async function tomarSoltar(id, k) {
@@ -16305,7 +16397,7 @@ async function tomarTodasEndo(k) {
 }
 /* Al entrar a la app: una vez por día, si hay lugares libres para esa persona. */
 function tomarAlEntrar() {
-  if (tomarMostrado) return;
+  if (tomarMostrado || PULSERA_TK) return;   // 3.40 · si entró leyendo una pulsera, primero la planilla
   const u = usuarioActual(); if (!u || !(esEquipoSala(u) || esAnestesia(u))) return;
   const h = hoyISO(), clave = 'hruq_tomar_' + h + '_' + u.email;
   let visto = false; try { visto = !!localStorage.getItem(clave); } catch (e) {}
@@ -16571,7 +16663,15 @@ const FLUJO_ENDO = [
   { k: 'salida', n: 'Salida', d: 'Antes de dejar la sala', roles: ['enfEndo'], lvq: true },
   { k: 'recup', n: 'Recuperación', d: 'Alta con la escala de Aldrete', roles: ['anest'] },
 ];
-function flujoDe(c) { return c && c.sala === 'END' ? FLUJO_ENDO : FLUJO; }
+/* 3.40 · Parto: sin recuentos ni instrumentación. */
+const FLUJO_PARTO = [
+  { k: 'equipo', n: 'Equipo', d: 'Quién está en la sala', roles: ['anest', 'enf'] },
+  { k: 'entrada', n: 'Entrada', d: 'Antes de la analgesia o la anestesia', roles: ['enf', 'anest'], lvq: true },
+  { k: 'pausa', n: 'Pausa', d: 'Antes del período expulsivo', roles: ['cir', 'anest', 'enf'], lvq: true },
+  { k: 'salida', n: 'Salida', d: 'Antes de dejar la sala', roles: ['enf'], lvq: true },
+  { k: 'recup', n: 'Recuperación', d: 'Alta con la escala de Aldrete', roles: ['anest'] },
+];
+function flujoDe(c) { return esEndo(c) ? FLUJO_ENDO : esParto(c) ? FLUJO_PARTO : FLUJO; }
 /* Lo que hay que HACER en cada paso, dicho con verbo («Le toca: …»). */
 const FL_ACCION = { equipo: 'anotarse en esta cirugía', entrada: 'firmar la Entrada', rec1: 'hacer el recuento inicial', pausa: 'confirmar la Pausa',
   rec2: 'hacer el recuento final', salida: 'firmar la Salida', recup: 'dar el alta de recuperación (Aldrete)' };
@@ -16643,7 +16743,7 @@ function flMisRoles(c) {
     const enf = flPersona(c, 'enf'); if ((enf && enf.e === u.email) || (!enf && !eq.tecAnestesia)) r.push('enf');
   }
   // 3.30 · La 2.ª instrumentadora circula: firma como circulante, no como instrumentadora.
-  if (f === 'instrumentacion' && c.sala !== 'END') {
+  if (f === 'instrumentacion' && !sinRecuento(c)) {
     if (yo(eq.circulante)) r.push('circ');
     else { if (!eq.instrumentadora || yo(eq.instrumentadora)) r.push('inst'); if (!eq.circulante && eq.instrumentadora && !yo(eq.instrumentadora)) r.push('circ'); }
   }
@@ -16662,7 +16762,7 @@ function flujoLista(d, modo) {
   const u = usuarioActual();
   // 3.35.1 · Instrumentación no participa de Endoscopía: no se le muestran.
   const sinEndo = u && funcionDe(u) === 'instrumentacion';
-  const todas = salaCirugias(d).filter((c) => !(sinEndo && esEndo(c)));
+  const todas = salaCirugias(d).filter((c) => !(sinEndo && sinRecuento(c)));
   const area = (c) => c.sala === 'END' ? 'endo' : c.sala === 'QOBS' ? 'obs' : 'qx';
   const soloMias = flMias && modo !== 'jefe' && !!u;
   const base = todas.filter((c) => (!soloMias || flEsMia(c)) && (!flToca || flMeTocaMia(c)));
@@ -16705,7 +16805,7 @@ function flTarjeta(c, modo, idx) {
       <span class="fl-prog"><span class="fl-linea">${linea}</span><small>${e.hechos}/${e.pasos.length}</small></span>
     </button>
     ${c.ciRevocado && !c.ciPaciente ? `<div class="pp-error" role="alert" style="margin:6px 12px">⛔ El consentimiento fue revocado: no se puede empezar.</div>` : ''}
-    <div class="fl-estado">${estadoTxt}${sxBotonHTML(c)}${flLlamarHTML(c, modo)}${c.parteAnest ? '<span class="pa-chip" title="Parte anestésico pre-quirúrgico adjuntado">💉 Parte pre-anestésico</span>' : ''}${!abierta ? `<button class="fl-link" onclick="flAbierta=${id};flRepintar()">${libre ? '➕ Anotarme' : meToca ? 'Hacerlo ahora →' : 'Ver el recorrido →'}</button>` : ''}</div>
+    <div class="fl-estado">${salaChipHTML(c)}${estadoTxt}${sxBotonHTML(c)}${flLlamarHTML(c, modo)}${c.parteAnest ? '<span class="pa-chip" title="Parte anestésico pre-quirúrgico adjuntado">💉 Parte pre-anestésico</span>' : ''}${!abierta ? `<button class="fl-link" onclick="flAbierta=${id};flRepintar()">${libre ? '➕ Anotarme' : meToca ? 'Hacerlo ahora →' : 'Ver el recorrido →'}</button>` : ''}</div>
     ${abierta ? `<ol class="fl-pasos">${e.pasos.map((p, i) => flPasoHTML(c, p, i, mis, modo)).join('')}</ol>${flMaterialHTML(c, modo)}${eqReemplazoHTML(c, modo)}${c.parteAnest || (c.anest && paPuedeSubir(c)) ? paTarjetaHTML(c) : ''}
       <button class="fl-link" onclick="openCirugia(${id})">Abrir la ficha de la cirugía →</button>` : ''}
   </article>`;
@@ -16718,7 +16818,7 @@ function flLlamarHTML(c, modo) {
   const u = usuarioActual(); if (!(u && esEquipoSala(u)) && !jefe) return '';
   const k = camaDe(c), S = k && SECTORES_CAMA[k.s];
   // 3.34.3 · Endoscopía: ambulatoria, el paciente espera en Admisión con su pulsera.
-  if (!k && esEndo(c)) return `<span class="fl-llamar sin" title="Endoscopía ambulatoria: no lleva cama">🚶 Ambulatoria${c.pulsera ? ' · pulsera ✓' : ''}</span>`;
+  if (!k && (esEndo(c) || c.pulsera)) return `<span class="fl-llamar sin" title="Ambulatoria: no lleva cama">🚶 Ambulatoria${c.pulsera ? ' · pulsera ✓' : ''}</span>`;
   if (!S || !S.tel) return '<span class="fl-llamar sin" title="Admisión y Egresos todavía no le asignó cama">📞 Sin cama anotada</span>';
   return `<a class="fl-llamar" href="tel:+54${S.tel}" onclick="event.stopPropagation()" title="Llamar a ${esc(S.n)} para pedir al paciente">📞 Pedir paciente · ${esc(S.corto)} <small>Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}</small></a>`;
 }
@@ -20013,7 +20113,7 @@ async function pulseraHTML(c) {
       <h1>HOSPITAL REGIONAL USHUAIA · PULSERA DE IDENTIFICACIÓN DEL PACIENTE</h1>
       <div class="corte">${banda(false)}</div>
       <div class="corte">${banda(true)}</div>
-      <p class="ayuda">✂ Corte por la línea de puntos y pegue los extremos «PEGAR» alrededor de la muñeca. La copia queda en la historia clínica. El QR no lleva datos: con la app del hospital abre la ficha, comprueba el sello SHA-256 y arranca la LVQ de Entrada con la identidad confirmada.</p>
+      <p class="ayuda">✂ Corte por la línea de puntos y pegue los extremos «PEGAR» alrededor de la muñeca. La copia queda en la historia clínica. El QR no lleva datos: lo lee el equipo al hacer pasar al paciente, con la cámara de cualquier teléfono; la app comprueba el sello SHA-256 y abre la planilla común en todo el equipo.</p>
     </div></body></html>`;
 }
 async function imprimirPulsera(id, ventana) {
@@ -20024,7 +20124,7 @@ async function imprimirPulsera(id, ventana) {
   setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 700);
 }
 async function reimprimirPulsera(id) {
-  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c || (!camaDe(c) && !esEndo(c))) return;
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c || (!camaDe(c) && !esEndo(c) && !c.pulsera)) return;
   const w = window.open('', '_blank');
   if (!c.pulsera) await pulseraArmar(c, camaDe(c) ? c.cama.por : (c.authAgente || 'Admisión y Egresos'));
   imprimirPulsera(c.id, w);
@@ -20032,15 +20132,77 @@ async function reimprimirPulsera(id) {
 /* 3.33 · Endoscopía: es ambulatoria. Admisión no le da cama; con la endoscopía
    confirmada imprime la pulsera (con el QR que abre la LVQ de Entrada). */
 function pulseraAmbulatoriaPuede(c) {
-  return esEndo(c) && ['confirmada', 'en_curso', 'realizada'].includes(c.estado) && c.fecha <= sumarDias(hoyISO(), 1);
+  return ['confirmada', 'en_curso', 'realizada'].includes(c.estado) && c.fecha <= sumarDias(hoyISO(), 1);
 }
 async function pulseraAmbulatoria(id) {
   const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!pulseraAmbulatoriaPuede(c)) return;
   const w = window.open('', '_blank');   // en el mismo toque, para que el navegador no la bloquee
   if (!c.pulsera) await pulseraArmar(c, c.authAgente || 'Admisión y Egresos');
-  toastTurno('Imprimiendo la pulsera · endoscopía ambulatoria', '#0d9488');
+  toastTurno(`Imprimiendo la pulsera · ${esEndo(c) ? 'endoscopía' : 'ingreso'} ambulatorio`, '#0d9488');
   imprimirPulsera(c.id, w);
   if (view === 'ingresos') renderIngresos();
+}
+/* ---- 3.40 · Leer la pulsera desde la app ----
+   En iPhone la cámara del teléfono abre Safari, no la app instalada; con este lector se queda en
+   la app y con la sesión abierta. Usa el lector del navegador y, si no lo trae (iPhone), jsQR
+   1.4.0 (licencia Apache 2.0), que se baja solo la primera vez. Del código se toma solo la llave:
+   nunca se abre la dirección que traiga. Las imágenes de la cámara no se guardan ni se envían. */
+const LQ_JSQR = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+let lqFlujo = null, lqVivo = false;
+function lqLlave(texto) {
+  try { return (new URL(String(texto)).searchParams.get('pulsera') || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 40); } catch (e) { return ''; }
+}
+function lqBotonHTML() { return `<button type="button" class="eqx-btn lq-btn" onclick="lqAbrir()"><span class="eqx-btn-ic">📷</span><span><b>Leer pulsera</b><small>Abre la planilla del paciente</small></span></button>`; }
+function lqBarra() { const b = $('lq-btn'); if (b) b.hidden = !usuarioActual(); }
+function lqCerrar() {
+  lqVivo = false;
+  if (lqFlujo) { lqFlujo.getTracks().forEach((t) => t.stop()); lqFlujo = null; }
+  const ov = $('lq-ov'); if (ov) ov.classList.remove('open');
+}
+function lqNota(t, mal) { const n = $('lq-nota'); if (n) { n.textContent = t; n.classList.toggle('mal', !!mal); } }
+async function lqAbrir() {
+  if (!usuarioActual() && !jefe) { avisar('Para leer una pulsera, ingrese con su cuenta del hospital.'); return; }
+  let ov = $('lq-ov');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'lq-ov'; ov.className = 'overlay lq-ov'; document.body.appendChild(ov); }
+  ov.innerHTML = `<div class="lq" role="dialog" aria-label="Leer pulsera"><header><b>📷 Leer pulsera</b><button type="button" onclick="lqCerrar()" aria-label="Cerrar">✕</button></header>
+    <div class="lq-cam"><video id="lq-v" playsinline muted></video><i></i></div><p id="lq-nota" role="status">Apunte al QR de la pulsera.</p></div>`;
+  ov.classList.add('open');
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { lqNota('Este navegador no permite usar la cámara. Use la cámara del teléfono o «Pantalla de sala».', true); return; }
+  try { lqFlujo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); }
+  catch (e) { lqNota('No se pudo usar la cámara. Permita el acceso en el navegador o use «Pantalla de sala».', true); return; }
+  const v = $('lq-v'); if (!v) { lqCerrar(); return; }
+  v.srcObject = lqFlujo; try { await v.play(); } catch (e) {}
+  lqVivo = true; lqMirar(v);
+}
+async function lqLector() {
+  if ('BarcodeDetector' in window) {
+    try { const d = new window.BarcodeDetector({ formats: ['qr_code'] }); return async (v) => { const r = await d.detect(v); return r[0] ? r[0].rawValue : ''; }; } catch (e) {}
+  }
+  await cargarScriptUnaVez(LQ_JSQR);
+  const lienzo = document.createElement('canvas'), ctx = lienzo.getContext('2d', { willReadFrequently: true });
+  return async (v) => {
+    const k = Math.min(1, 720 / Math.max(v.videoWidth || 720, 1));
+    lienzo.width = (v.videoWidth || 720) * k; lienzo.height = (v.videoHeight || 720) * k;
+    ctx.drawImage(v, 0, 0, lienzo.width, lienzo.height);
+    const r = window.jsQR(ctx.getImageData(0, 0, lienzo.width, lienzo.height).data, lienzo.width, lienzo.height);
+    return r ? r.data : '';
+  };
+}
+async function lqMirar(v) {
+  let leer;
+  try { leer = await lqLector(); } catch (e) { lqNota('No se pudo preparar el lector. Revise la conexión o use la cámara del teléfono.', true); return; }
+  while (lqVivo) {
+    let t = '';
+    try { if (v.readyState >= 2) t = await leer(v); } catch (e) {}
+    if (t && lqTexto(t)) return;
+    await new Promise((ok) => setTimeout(ok, 220));
+  }
+}
+function lqTexto(t) {
+  const tk = lqLlave(t);
+  if (!tk) { lqNota('Ese código no es una pulsera del hospital.', true); return false; }
+  lqCerrar(); pulseraPend = tk; pulseraAlAbrir();
+  return true;
 }
 /* ---- Escanear la pulsera ---- */
 const PULSERA_TK = (new URLSearchParams(location.search).get('pulsera') || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 40);
@@ -20060,10 +20222,24 @@ async function pulseraAlAbrir() {
   const ok = (await pulseraSello(c, c.pulsera)) === c.pulsera.sello;
   pushHist(c, `Pulsera escaneada por ${jefe ? JEFATURA : u.nombre} · sello ${ok ? 'válido' : 'NO coincide con los datos actuales'}`);
   upsert('cirugias', c);
+  if (!ok) { openCirugia(c.id); avisar('El sello de la pulsera NO coincide\n\nLos datos del paciente cambiaron después de imprimirla. Verifique la identidad de forma manual y reimprima la pulsera desde la ficha.', { tono: 'peligro' }); return; }
+  const txt = `✓ Identidad verificada con la pulsera\n\n${c.paciente?.nombre || ''} · DNI ${c.paciente?.dni || '—'}\n${c.procedimiento || ''} · ${c.quirofano || ''} ${c.horaProg || ''} h\nSello SHA-256 ${selloCorto(c.pulsera.sello)} ✓`;
+  const mia = !!u && flEsMia(c), sigue = salaHoy(c) && ['confirmada', 'en_curso'].includes(c.estado);
+  // 3.39 · Ya la abrió otro del equipo: se suma, sin preguntar.
+  if (mia && salaActiva(c)) { sxVer(c); return; }
+  if (mia && sigue) {
+    if (await preguntar(`${txt}\n\nSe abre la planilla común en los teléfonos de todo el equipo. Hágalo cuando el paciente esté entrando.`,
+      { tono: 'ok', si: 'Abrir para todo el equipo', no: 'Todavía no' })) salaLlamar(c, 'pulsera');
+    return;
+  }
+  // Del equipo de sala, con un puesto libre: toma el lugar y sigue.
+  if (u && sigue && tomarLibresDe(c, u).length) {
+    if (await preguntar(`${txt}\n\nTodavía no tomó este paciente. Tome su lugar y se abre la planilla común.`, { tono: 'ok', si: 'Tomar mi lugar', no: 'Cerrar' })) { tomarLuego = String(c.id); tomarAbrir(c.fecha, c.id); }
+    return;
+  }
   openCirugia(c.id);
-  if (!ok) { avisar('El sello de la pulsera NO coincide\n\nLos datos del paciente cambiaron después de imprimirla. Verifique la identidad de forma manual y reimprima la pulsera desde la ficha.', { tono: 'peligro' }); return; }
-  const puede = c.estado === 'confirmada' && (jefe || (u && c.cirujanoEmail === u.email));
-  if (await preguntar(`✓ Identidad verificada con la pulsera\n\n${c.paciente?.nombre || ''} · DNI ${c.paciente?.dni || '—'}\n${c.procedimiento || ''} · ${c.quirofano || ''} ${c.horaProg || ''} h\nSello SHA-256 ${selloCorto(c.pulsera.sello)} ✓`,
+  const puede = jefe && c.estado === 'confirmada';
+  if (await preguntar(`${txt}${sigue ? '' : `\n\nEste turno es del ${fmtFecha(c.fecha)} y no se puede empezar hoy.`}`,
     { tono: 'ok', si: puede ? 'Iniciar la LVQ de Entrada' : 'Ver la ficha', no: 'Cerrar' }) && puede) {
     closeCirugia();
     openLVQ(c.id, 'inicio');
@@ -20225,14 +20401,14 @@ function renderIngresos() {
       <div class="ing-p"><b>${esc(c.paciente?.nombre || 's/d')}</b>${rcSello(c, true)}<small>DNI ${esc(c.paciente?.dni || '—')} · ${c.paciente?.edad ?? '—'} años · ${esc(c.obraSocial || 'sin obra social')} · ☎ ${esc(c.paciente?.telefono || '—')}</small>
         <small class="ing-dx">${esc(c.diagnostico || '')} · ${esc(c.procedimiento || '')}</small></div>
       <div class="ing-e">${estChip(c)}<span class="ing-aut ${aut && !authPendienteDiferida(c) ? 'ok' : 'no'}">${authPendienteDiferida(c) ? '↷ Urgencia: falta regularizar' : aut ? '✓ Autorizada' : c.auth === 'NO AUTORIZADO' ? '✕ No autorizada' : '⏳ Falta autorizar'}</span></div>
-      <div class="ing-c">${k ? `<span class="ing-cama" style="--c:${S.c}">🛏 ${esc(S.corto)} · Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}<small>Int. ${S.int}</small></span>` : esEndo(c) ? enRutaHTML(c) : '<span class="ing-cama no">🛏 Sin cama</span>'}</div>
+      <div class="ing-c">${k ? `<span class="ing-cama" style="--c:${S.c}">🛏 ${esc(S.corto)} · Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}<small>Int. ${S.int}</small></span>` : esEndo(c) ? enRutaHTML(c) : c.pulsera ? '<span class="ing-cama">🚶 Ambulatorio · pulsera ✓</span>' : '<span class="ing-cama no">🛏 Sin cama</span>'}</div>
       <div class="ing-a">
         ${rc ? `<button class="btn btn-sm btn-red" onclick="openCirugia(${c.id})">Reprogramación: dar el OK</button>`
           : c.estado === 'pendiente' && !aut ? `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ Autorizar</button>`
           : authPendienteDiferida(c) ? `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ Regularizar</button>` : ''}
         ${camaPuedeCargarse(c) ? `<button class="btn btn-sm ${k ? 'btn-outline' : 'btn-green'}" onclick="pedirCama(${c.id})">🛏 ${k ? 'Cambiar cama' : 'Anotar cama'}</button>` : ''}
         ${k ? `<button class="btn btn-sm btn-outline" onclick="reimprimirPulsera(${c.id})">🏷️ Pulsera</button>` : ''}
-        ${!k && pulseraAmbulatoriaPuede(c) ? `<button class="btn btn-sm en-pul${c.pulsera ? ' hecha' : ''}" onclick="pulseraAmbulatoria(${c.id})">${EN_PULSERA} ${c.pulsera ? 'Reimprimir pulsera' : 'Imprimir pulsera'}</button>` : ''}
+        ${!k && pulseraAmbulatoriaPuede(c) ? `<button class="btn btn-sm en-pul${c.pulsera ? ' hecha' : ''}" onclick="pulseraAmbulatoria(${c.id})">${EN_PULSERA} ${c.pulsera ? 'Reimprimir pulsera' : esEndo(c) ? 'Imprimir pulsera' : 'Ambulatorio: pulsera sin cama'}</button>` : ''}
         <button class="btn btn-sm btn-outline" onclick="openCirugia(${c.id})">Ficha</button>
       </div></div>`;
   };
@@ -20277,11 +20453,11 @@ function enRutaHTML(c) {
   const P = [
     ['Autoriza Admisión', c.auth === 'AUTORIZADO' ? `Autorizó ${c.authAgente || 'Admisión y Egresos'}${c.authFecha ? ' · ' + fmtDT(c.authFecha) : ''}.` : authPendienteDiferida(c) ? 'Urgencia: se hace sin esperar; Admisión regulariza después con «Regularizar».' : c.auth === 'NO AUTORIZADO' ? 'No autorizada: ' + (c.authMotivo || 'sin motivo') + '.' : 'Falta su autorización. Con ella la endoscopía queda confirmada: no pasa por la Jefatura de Quirófanos.'],
     ['Confirmada', c.estado === 'confirmada' || n >= 2 ? 'Está en el parte de Endoscopía. El paciente lo ve en su pase.' : 'Se confirma sola cuando Admisión autoriza.'],
-    ['Pulsera', c.pulsera ? `Impresa ${fmtDT(c.pulsera.t)} · ${c.pulsera.por}. Su QR abre la LVQ de Entrada.`
+    ['Pulsera', c.pulsera ? `Impresa ${fmtDT(c.pulsera.t)} · ${c.pulsera.por}. El equipo ya ve que ingresó; su QR abre la planilla común en todos.`
       : c.estado === 'pendiente' ? 'Primero la autorización: con la endoscopía confirmada, el botón «Imprimir pulsera» aparece desde la víspera.'
       : pulseraAmbulatoriaPuede(c) ? 'Ya se puede imprimir. Admisión la imprime cuando el paciente se presenta en la ventanilla con su DNI (no lleva cama).'
       : `El botón «Imprimir pulsera» aparece desde la víspera (${fmtFecha(sumarDias(c.fecha, -1))}). Admisión la imprime cuando el paciente se presenta en la ventanilla con su DNI.`],
-    ['En sala', n >= 4 ? 'El equipo de Endoscopía ya inició la Lista de Verificación.' : 'La inicia el equipo de la sala con la Lista de Verificación.'],
+    ['En sala', n >= 4 ? 'El equipo de Endoscopía ya inició la Lista de Verificación.' : 'La inicia el primero del equipo que lee la pulsera.'],
   ];
   return `<div class="en-ruta"><span class="en-ruta-t">${EN_SCOPE} Ambulatoria · sin cama</span>
     <div class="en-pasos" style="--p:${(Math.min(n, 4) - 1 > 0 ? (Math.min(n, 4) - 1) / 3 : 0).toFixed(3)}">${P.map((x, i) => {
@@ -22832,8 +23008,8 @@ const EST_PUB_GRUPOS = [
   { k: 'cx_urg',    label: 'Cirugías de urgencia',    color: 'var(--cat-a)' },
   { k: 'endo_prog', label: 'Endoscopías programadas', color: 'var(--cat-c)' },
   { k: 'endo_urg',  label: 'Endoscopías de urgencia', color: 'var(--cat-b)' },
-  { k: 'ces_prog',  label: 'Cesáreas programadas',    color: 'var(--cat-e)' },
-  { k: 'ces_urg',   label: 'Cesáreas de urgencia',    color: 'var(--cat-f)' },
+  { k: 'ces_prog',  label: 'Cesáreas y partos programados', color: 'var(--cat-e)' },
+  { k: 'ces_urg',   label: 'Cesáreas y partos de urgencia', color: 'var(--cat-f)' },
 ];
 let estPublicas = null;     // lo último leído del nodo abierto
 let estPubUltimo = '';      // lo último escrito, para no reescribir igual
@@ -22901,7 +23077,7 @@ function estDonut(pct, color) {
 const EST_AREAS = [
   { k: 'cx', n: 'Quirófanos', i: '🔪', c: '#3b82f6', d: 'Cirugías' },
   { k: 'endo', n: 'Endoscopía', i: '🔬', c: '#14b8a6', d: 'Endoscopías' },
-  { k: 'ces', n: 'Obstetricia', i: '👶', c: '#d946ef', d: 'Cesáreas' },
+  { k: 'ces', n: 'Obstetricia', i: '👶', c: '#d946ef', d: 'Cesáreas y partos' },
 ];
 function renderEstPublicas() {
   // Sin nube todavía, se muestra lo que se pueda calcular acá mismo.
@@ -25961,6 +26137,11 @@ function onObraChange() {
    Admisión y Egresos con su autorización (la urgencia, sin esperar a nadie; Admisión
    regulariza después). Es ambulatoria: no lleva cama, lleva pulsera. */
 function esEndo(c) { return !!c && c.sala === 'END'; }
+/* 3.40 · En el panel de Obstetricia se anotan cesáreas y partos, programados o de urgencia.
+   El parto lleva su recorrido: sin conteo de gasas y sin instrumentación, igual que Endoscopía. */
+function esParto(c) { return !!c && c.sala === 'QOBS' && c.obsTipo === 'parto'; }
+function sinRecuento(c) { return esEndo(c) || esParto(c); }
+function obsNombre(c) { return esParto(c) ? 'parto' : 'cesárea'; }
 /* 3.35 · La Endoscopía Digestiva ya no es de Quirófanos centrales. La gestiona el
    Jefe/a de Endoscopía (un médico designado por la Jefatura en Portales; queda en
    agendaEndo/jefe), y la Jefatura de Quirófanos no ve nada de Endoscopía. */
@@ -26856,6 +27037,8 @@ function openSlot(d, sid, fid) {
           <select id="k-prio" ${ro}>${Object.keys(PRIOS).filter((k) => k !== '5').map((k) => `<option value="${k}" ${String(m?.prioridad || 6) === k ? 'selected' : ''}>P${k} — ${PRIOS[k].label}</option>`).join('')}</select>
           <span class="hint">La prioridad P5 (espera &gt; 90 días) la asigna el sistema automáticamente.</span></div>
         <div class="field"><label>Duración estimada (min)</label><input type="number" id="k-dur" min="15" step="5" value="${m?.duracionMin || (s.tipo === 'endo' ? 45 : 90)}" ${ro}></div>
+        ${s.tipo === 'obs' ? `<div class="field"><label>Atención *</label><select id="k-obs" ${ro}><option value="">Cesárea</option><option value="parto" ${m?.obsTipo === 'parto' ? 'selected' : ''}>Parto</option></select>
+          <span class="hint">El parto no lleva conteo de gasas ni instrumentación.</span></div>` : ''}
       </div>
       <div class="tm-chips">
         <label class="tm-chip"><input type="checkbox" id="k-implante" ${m?.recursos?.implante ? 'checked' : ''} ${ro} onchange="$('k-impdet-wrap').style.display=this.checked?'flex':'none'"><span>Implante / prótesis</span></label>
@@ -27196,7 +27379,7 @@ async function guardarSlot() {
     servicio: $('k-serv').value,
     anestesista: $('k-anest').value.trim(), anestesia: $('k-tanest').value,
     duracionMin: Number($('k-dur').value || 90),
-    prioridad: prio, urgencia,
+    prioridad: prio, urgencia, obsTipo: ($('k-obs') || {}).value === 'parto' ? 'parto' : '',
     recursos: {
       arcoC: [...document.querySelectorAll('.k-eq')].some((x) => x.checked && x.dataset.eq.indexOf('Arco en C') === 0),
       implante: $('k-implante').checked,
@@ -27477,7 +27660,7 @@ function turnoQueHacer(id) {
   if (bloq) { alert(bloq); return; }
   if ($('slot-overlay') && $('slot-overlay').classList.contains('open')) closeSlot();
   if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) closeCirugia();
-  const que = esEndo(c) ? 'la endoscopía' : c.sala === 'QOBS' ? 'la cesárea' : 'la cirugía';
+  const que = esEndo(c) ? 'la endoscopía' : esParto(c) ? 'el parto' : c.sala === 'QOBS' ? 'la cesárea' : 'la cirugía';
   rcModal().innerHTML = `<button class="modal-close" onclick="rcCerrar()" aria-label="Cerrar">✕</button>
     <header class="rc-hero" style="--c:#475569"><span class="rc-kick">Su turno</span><h2>¿Qué hacemos con ${que}?</h2>
       <p>${esc(c.procedimiento || '')} · ${esc(c.paciente?.nombre || 's/d')}<br>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg || '—')} h · ${esc(c.quirofano || '')}</p></header>
@@ -27530,7 +27713,7 @@ function eliminarTurnoPropio(id) {
   if (!jefe && !puedeEliminarPropio(c)) { alert('Solo el cirujano que creó el turno puede eliminarlo, y solo mientras no haya empezado.'); return; }
   const bloq = eliminarBloqueo(c);
   if (bloq) { alert(bloq); return; }
-  const que = esEndo(c) ? 'la endoscopía' : c.sala === 'QOBS' ? 'la cesárea' : 'la cirugía';
+  const que = esEndo(c) ? 'la endoscopía' : esParto(c) ? 'el parto' : c.sala === 'QOBS' ? 'la cesárea' : 'la cirugía';
   confirmarCancelacion('Eliminar el turno', `Se elimina ${que} de ${c.paciente?.nombre || 's/d'} (${fmtFecha(c.fecha)} ${c.horaProg || ''} h) y la franja queda libre.`, async () => {
     if (!await preguntar(`${c.procedimiento || ''} — ${c.paciente?.nombre || 's/d'}\n${fmtDiaLargo(c.fecha)} · ${c.horaProg || '—'} h · ${c.quirofano || ''}\n\n`
       + '· La franja vuelve a quedar libre en la grilla.\n'
@@ -30658,21 +30841,37 @@ function aaotFichaHTML(c) {
 }
 
 /* ---- Documento ---- */
+/* 3.40 · Endoscopía: el mismo documento con sus palabras. Del texto general de riesgos se sacó
+   lo que es de una herida quirúrgica. Lo del catálogo no se toca: ahí «cirugía» es la alternativa
+   o la complicación. El reemplazo se hace al armar el documento, así vale también para los ya guardados. */
+function ciRiesgosEndo() {
+  return CI_RIESGOS_GENERALES.replace('Todo acto quirúrgico y anestésico', 'Todo estudio endoscópico con sedación o anestesia')
+    .replace('hemorragia con eventual', 'sangrado con eventual')
+    .replace('infección de la herida o del sitio quirúrgico, dehiscencia o cicatrización defectuosa, seroma y hematoma, dolor postoperatorio, retención urinaria, ', 'infección, ')
+    .replace('(látex, antisépticos, prótesis)', '(látex, antisépticos)').replace('la mesa quirúrgica', 'la camilla')
+    .replace('complicaciones propias de la anestesia elegida', 'complicaciones propias de la sedación o la anestesia elegida')
+    .replace('la aspiración de contenido gástrico, la cefalea pospunción y,', 'la aspiración de contenido gástrico y,')
+    .replace('en cirugías de urgencia', 'en estudios de urgencia');
+}
+const CI_CUIDADOS_ENDO = 'Antes del estudio deberá cumplir el ayuno y la preparación indicados, informar todos los medicamentos que toma —en especial anticoagulantes, antiagregantes, insulina, corticoides y suplementos herbarios—, suspender el tabaco, retirar prótesis dentales, alhajas y esmalte de uñas, y concurrir con los estudios previos y la evaluación anestésica completos. Después del estudio deberá respetar el reposo y las indicaciones recibidas, concurrir a los controles indicados y consultar de inmediato ante fiebre, dolor que no cede con la medicación, sangrado, dificultad para respirar, hinchazón o dolor en las piernas.';
 function ciDocHTML(f) {
   const rep = String(f.p_lucidez || '').includes('representante');
   const edad = ciEdad(f.p_nac, f.p_edad);
   const hoy = ciHoy();
+  const tit = (n, t) => `<h3><span class="n">${n}.</span> ${t}</h3>`;
+  // 3.39 · El documento dice el área del turno: Endoscopía y Obstetricia no son Quirófanos Centrales.
+  const endo = /endosc/i.test(f.c_sala), obs = /obstetr/i.test(f.c_sala), area = endo ? 'ENDOSCOPÍA DIGESTIVA' : obs ? 'OBSTETRICIA' : 'BLOQUE DE QUIRÓFANOS CENTRALES';
   let h = `
   <div class="membrete">
     <div class="mb-tit">HOSPITAL REGIONAL USHUAIA</div>
     <div class="mb-sub">Gdor. Ernesto M. Campos — Ministerio de Salud, Tierra del Fuego A.I.A.S.</div>
     <div class="mb-sub">Av. 12 de Octubre y Maipú (V9410) Ushuaia · Tel. 02901-441000</div>
-    <div class="mb-blq">BLOQUE DE QUIRÓFANOS CENTRALES</div>
+    <div class="mb-blq">${area}</div>
   </div>
-  <h1>Consentimiento Informado Quirúrgico</h1>
+  <h1>${endo ? 'Consentimiento Informado Endoscópico' : obs && /parto/i.test(f.c_nombre) && !/ces[aá]rea/i.test(f.c_nombre) ? 'Consentimiento Informado Obstétrico' : 'Consentimiento Informado Quirúrgico'}</h1>
   <div class="meta">${esc(f.m_serv || f.m_esp || 'Servicio interviniente')} · ${hoy}</div>
 
-  <h3>1. Datos del paciente</h3>
+  <section class="cs">${tit(1, 'Datos del paciente')}
   <table class="fil">
     <tr><td class="k">Nombre y apellido</td><td>${esc(f.p_nombre)}</td><td class="k">DNI</td><td>${esc(f.p_dni)}</td></tr>
     <tr><td class="k">Fecha de nacimiento</td><td>${ciFechaLarga(f.p_nac)}${edad ? ` (${edad})` : ''}</td><td class="k">Teléfono</td><td>${esc(f.p_tel)}</td></tr>
@@ -30686,39 +30885,39 @@ function ciDocHTML(f) {
     <tr><td class="k">Vínculo / carácter</td><td colspan="3">${esc(f.r_vinculo)}</td></tr>
   </table>`;
   }
-  h += `
-  <h3>2. Médico responsable</h3>
+  h += `</section>
+  <section class="cs">${tit(2, 'Médico responsable')}
   <table class="fil">
-    <tr><td class="k">Cirujano</td><td>${esc(f.m_nombre)}</td><td class="k">Matrícula</td><td>${esc(f.m_mat)}</td></tr>
+    <tr><td class="k">${endo ? 'Endoscopista' : 'Cirujano'}</td><td>${esc(f.m_nombre)}</td><td class="k">Matrícula</td><td>${esc(f.m_mat)}</td></tr>
     <tr><td class="k">Especialidad</td><td>${esc(f.m_esp)}</td><td class="k">Institución</td><td>${esc(f.m_inst)}</td></tr>
-  </table>
+  </table></section>
 
-  <h3>3. Diagnóstico y procedimiento propuesto</h3>
+  <section class="cs">${tit(3, 'Diagnóstico y procedimiento propuesto')}
   <p><b>Patología / diagnóstico actual:</b> ${esc(f.c_dx) || '.....'}${f.c_cie10 ? ` (CIE-10: ${esc(f.c_cie10)})` : ''}</p>
   <p><b>Procedimiento propuesto:</b> ${esc(f.c_nombre) || '.....'}</p>
-  <p><b>Fecha programada:</b> ${ciFechaLarga(f.c_fecha) || '.....'} &nbsp;·&nbsp; <b>Hora:</b> ${esc(f.c_hora) || '.....'} &nbsp;·&nbsp; <b>Anestesia:</b> ${esc(f.c_anest)}</p>
-  ${f.c_sala ? `<p><b>Sala asignada:</b> ${esc(f.c_sala)}</p>` : ''}
+  <p class="cs-datos"><b>Fecha programada:</b> ${ciFechaLarga(f.c_fecha) || '.....'} &nbsp;·&nbsp; <b>Hora:</b> ${esc(f.c_hora) || '.....'} &nbsp;·&nbsp; <b>Anestesia:</b> ${esc(f.c_anest)}</p>
+  ${f.c_sala ? `<p class="cs-datos"><b>Sala asignada:</b> ${esc(f.c_sala)}</p>` : ''}</section>
 
-  <h3>4. Descripción del procedimiento</h3>
-  <p>${escNl(f.t_desc)}</p>
+  <section class="cs">${tit(4, 'Descripción del procedimiento')}
+  <p>${escNl(f.t_desc)}</p></section>
 ${f.t_benef ? `
-  <h3>5. Beneficios que se esperan del procedimiento</h3>
-  <p>${escNl(f.t_benef)}</p>` : ''}
-  <h3>${f.t_benef ? '6' : '5'}. Riesgos y complicaciones posibles</h3>
+  <section class="cs">${tit(5, 'Beneficios que se esperan del procedimiento')}
+  <p>${escNl(f.t_benef)}</p></section>` : ''}
+  <section class="cs cs-aviso" data-tag="Lea con atención">${tit(f.t_benef ? 6 : 5, 'Riesgos y complicaciones posibles')}
   <p><b>Propios de este procedimiento.</b> ${escNl(f.t_comp)}</p>
-  <p><b>Generales de todo acto quirúrgico y anestésico.</b> ${esc(CI_RIESGOS_GENERALES)}</p>
+  <p><b>${endo ? 'Generales de todo estudio endoscópico con sedación o anestesia.' : 'Generales de todo acto quirúrgico y anestésico.'}</b> ${esc(endo ? ciRiesgosEndo() : CI_RIESGOS_GENERALES)}</p></section>
 ${f.t_riesgo ? `
-  <h3>${f.t_benef ? '7' : '6'}. Riesgos personalizados del paciente</h3>
-  <p>${escNl(f.t_riesgo)}</p>` : ''}
-  <h3>${ciNum(f, 0)}. Alternativas terapéuticas y consecuencias de no tratarse</h3>
-  <p>${escNl(f.t_alt)}</p>
+  <section class="cs cs-aviso" data-tag="Propio de cada paciente">${tit(f.t_benef ? 7 : 6, 'Riesgos personalizados del paciente')}
+  <p>${escNl(f.t_riesgo)}</p></section>` : ''}
+  <section class="cs">${tit(ciNum(f, 0), 'Alternativas terapéuticas y consecuencias de no tratarse')}
+  <p>${escNl(f.t_alt)}</p></section>
 ${f.t_cuid ? `
-  <h3>${ciNum(f, 1)}. Preparación previa y cuidados posteriores</h3>
-  <p>${escNl(f.t_cuid)}</p>` : ''}
-  <h3>${ciNum(f, f.t_cuid ? 2 : 1)}. Modificación de la técnica quirúrgica (Lex Artis Ad-Hoc)</h3>
-  <p>${esc(CI_CLAUSULA_LEXARTIS)}</p>
+  <section class="cs">${tit(ciNum(f, 1), 'Preparación previa y cuidados posteriores')}
+  <p>${escNl(endo ? String(f.t_cuid).replace(CI_CUIDADOS_GENERALES, CI_CUIDADOS_ENDO) : f.t_cuid)}</p></section>` : ''}
+  <section class="cs">${tit(ciNum(f, f.t_cuid ? 2 : 1), endo ? 'Modificación de la técnica (Lex Artis Ad-Hoc)' : 'Modificación de la técnica quirúrgica (Lex Artis Ad-Hoc)')}
+  <p>${esc(endo ? CI_CLAUSULA_LEXARTIS.replace('durante el acto quirúrgico', 'durante el estudio').replace('la técnica quirúrgica programada', 'la técnica programada') : CI_CLAUSULA_LEXARTIS)}</p></section>
 
-  <h3>${ciNum(f, f.t_cuid ? 3 : 2)}. Declaración de consentimiento</h3>
+  <section class="cs cs-clave" data-tag="Su decisión">${tit(ciNum(f, f.t_cuid ? 3 : 2), 'Declaración de consentimiento')}
   <p>Declaro que se me ha explicado en lenguaje claro y comprensible la naturaleza, los beneficios y los riesgos del procedimiento propuesto, así como sus alternativas y las consecuencias de no realizarlo. He podido formular preguntas, que fueron respondidas satisfactoriamente. Comprendo que la medicina no es una ciencia exacta y que no se me ha garantizado un resultado determinado. En estas condiciones, en pleno uso de mis facultades, <b>presto mi consentimiento libre y voluntario</b> para la realización del procedimiento, pudiendo revocarlo por escrito en cualquier momento antes de su ejecución.</p>
 
   <p class="cita">${esc(f.t_cita)}</p>
@@ -30726,22 +30925,22 @@ ${(() => { const a = f.c_esp === AAOT_ESP ? aaotDe(f.aaot) : null; return a ? `
   <p class="aaot-doc"><b>Documento complementario.</b> Forma parte de este consentimiento el consentimiento informado específico de la Asociación Argentina de Ortopedia y Traumatología (AAOT) «${esc(a.t)}» (${esc(a.cat)}), que se me entregó, leí y firmo junto con el presente.</p>` : ''; })()}
   <div class="firmas">
     <div class="firma">Firma y aclaración<br>${esc(rep ? (f.r_nombre || 'Representante legal') : (f.p_nombre || 'Paciente'))}<br>DNI ${esc(rep ? f.r_dni : f.p_dni)}</div>
-    <div class="firma">Firma y sello<br>${esc(f.m_nombre || 'Médico cirujano')}<br>Mat. ${esc(f.m_mat)}</div>
+    <div class="firma">Firma y sello<br>${esc(f.m_nombre || (endo ? 'Médico endoscopista' : 'Médico cirujano'))}<br>Mat. ${esc(f.m_mat)}</div>
   </div>
-  <p style="margin-top:20px;font-size:11.5px">Lugar y fecha: ${esc(f.m_inst)} , ${hoy} &nbsp;&nbsp; Hora: ............</p>
+  <p class="lugar">Lugar y fecha: ${esc(f.m_inst)} , ${hoy} &nbsp;&nbsp; Hora: ............</p></section>
 
-  <h3>${ciNum(f, f.t_cuid ? 4 : 3)}. Revocación del consentimiento</h3>
+  <section class="cs cs-rev" data-tag="Su derecho">${tit(ciNum(f, f.t_cuid ? 4 : 3), 'Revocación del consentimiento')}
   <p>${esc(CI_REVOCACION)}</p>
   <p style="margin-top:8px">Revoco el consentimiento otorgado en el presente documento.</p>
   <div class="firmas">
     <div class="firma">Firma y aclaración de quien revoca<br>DNI ............................</div>
     <div class="firma">Firma y sello del profesional<br>Fecha y hora ............................</div>
-  </div>
+  </div></section>
 
   <p class="legal">${esc(CI_LEGAL)}<br>
-    <b>Código de verificación del documento:</b> ${esc(ciCodigoVerificacion(f))} — se genera con los datos del paciente,
+    <b>Código de verificación del documento:</b> <span class="cod">${esc(ciCodigoVerificacion(f))}</span> — se genera con los datos del paciente,
     del procedimiento y de la matrícula del profesional. Permite comprobar que el ejemplar firmado en papel es el mismo
-    que quedó registrado en el archivo del bloque quirúrgico.</p>`;
+    que quedó registrado en el archivo ${endo ? 'de Endoscopía' : 'del bloque quirúrgico'}.</p>`;
   return h;
 }
 
@@ -30777,33 +30976,171 @@ function ciCodigoVerificacion(f) {
   return `HRU-${huella(2166136261)}-${huella(4283543511)}`;
 }
 
-const CI_DOC_CSS = `
-  @page{size:A4;margin:2.2cm}
-  body{font-family:'Times New Roman',serif;font-size:11.5pt;line-height:1.5;color:#000}
-  h1{font-size:15pt;text-align:center;text-transform:uppercase}
-  h3{font-size:12pt;border-bottom:1px solid #999;margin-top:14pt}
-  p{text-align:justify;margin:6pt 0}
-  table.fil{width:100%;border-collapse:collapse;font-size:10.5pt;margin:6pt 0}
-  table.fil td{border:1px solid #999;padding:4pt 6pt}
-  table.fil td.k{background:#f0f0f0;font-weight:bold}
-  .meta{text-align:center;font-size:10pt;color:#444}
-  .membrete{text-align:center;border-bottom:2px solid #143f60;padding-bottom:6pt;margin-bottom:10pt}
-  .membrete .mb-tit{font-size:14pt;font-weight:bold;color:#143f60}
-  .membrete .mb-sub{font-size:9.5pt;color:#333}
-  .membrete .mb-blq{font-size:10.5pt;font-weight:bold;margin-top:4pt;color:#1c5d8c}
-  .cita{font-size:9.5pt;font-style:italic;color:#333}
-  .aaot-doc{font-size:10pt;border:1px solid #999;padding:6px 8px}
-  .firmas{margin-top:44pt;display:flex;justify-content:space-between}
-  .firma{display:inline-block;width:44%;text-align:center;border-top:1px solid #000;padding-top:4pt;font-size:10pt}
-  .legal{font-size:8.5pt;color:#444;border-top:1px dotted #999;margin-top:16pt;padding-top:6pt;text-align:justify}
+/* 3.39 · Diseño del documento. CI_CD_CSS vale para la hoja, la vista previa de la app y el
+   pase (todo cuelga de .cd); CI_HOJA_CSS es lo propio del papel: márgenes y número de página.
+   Los tamaños van en em para que la vista previa se pueda achicar. */
+const CI_CD_CSS = `
+  .cd{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:10.5pt;line-height:1.48;color:#0f172a;-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}
+  .cd *{box-sizing:border-box}
+  .cd .membrete{text-align:center;background:#0f3557;color:#fff;border-radius:.8em;border-bottom:.32em solid #14b8a6;padding:.85em 1em .8em;margin:0 0 .9em}
+  .cd .mb-tit{font-size:1.32em;font-weight:800;letter-spacing:.09em}
+  .cd .mb-sub{font-size:.8em;opacity:.88}
+  .cd .mb-blq{display:inline-block;font-size:.76em;font-weight:800;letter-spacing:.14em;margin-top:.5em;padding:.14em 1.1em;border:1px solid rgba(255,255,255,.55);border-radius:99em}
+  .cd h1{font-size:1.5em;line-height:1.2;text-align:center;text-transform:uppercase;letter-spacing:.05em;color:#0f3557;margin:.3em 0 .25em}
+  .cd .meta{display:table;margin:0 auto 1em;padding:.14em 1.1em;border:1px solid #bcd0e0;border-radius:99em;text-align:center;font-size:.84em;color:#334155}
+  .cd h3{font-size:1em;line-height:1.3;text-align:center;color:#0f3557;background:#e8f0f7;border-radius:.5em;margin:1em 0 .55em;padding:.34em .7em;break-after:avoid;page-break-after:avoid}
+  .cd h3 .n{display:inline-block;min-width:1.7em;margin-right:.25em;padding:0 .3em;border-radius:99em;background:#0f3557;color:#fff;font-size:.86em;font-weight:800}
+  .cd p{text-align:justify;margin:.42em 0;orphans:3;widows:3}
+  .cd .cs{position:relative;border:1px solid #c9d8e4;border-radius:.8em;padding:.62em .85em .55em;margin:.72em 0;break-inside:avoid;page-break-inside:avoid}
+  .cd .cs h3{margin-top:0}
+  .cd .cs-datos{text-align:center;background:#f4f8fb;border-radius:.45em;padding:.26em .6em}
+  .cd .cs[data-tag]::before{content:attr(data-tag);display:table;margin:-1.25em auto .32em;padding:.08em 1em;border-radius:99em;background:var(--t);color:#fff;font-size:.68em;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+  .cd .cs-aviso{--t:#b45309;border:1.5pt solid #f59e0b;border-left-width:5pt;background:#fffbeb}
+  .cd .cs-aviso h3{background:#fef3c7;color:#92400e}
+  .cd .cs-aviso h3 .n{background:#b45309}
+  .cd .cs-clave{--t:#0f3557;border:2pt solid #0f3557;background:#f5f9fc}
+  .cd .cs-clave h3{background:#0f3557;color:#fff}
+  .cd .cs-clave h3 .n{background:#14b8a6}
+  .cd .cs-rev{--t:#b91c1c;border:1.5pt solid #dc2626}
+  .cd .cs-rev h3{background:#fee2e2;color:#991b1b}
+  .cd .cs-rev h3 .n{background:#b91c1c}
+  .cd table.fil{width:100%;border-collapse:separate;border-spacing:0;font-size:.92em;margin:.35em 0;border:1px solid #c9d8e4;border-radius:.5em;overflow:hidden}
+  .cd table.fil td{border-bottom:1px solid #dfe8ef;padding:.26em .5em;vertical-align:top}
+  .cd table.fil tr:last-child td{border-bottom:0}
+  .cd table.fil td.k{width:21%;background:#f0f5f9;color:#0f3557;font-weight:700}
+  .cd .cita{font-size:.84em;font-style:italic;color:#334155;text-align:center}
+  .cd .aaot-doc{font-size:.9em;border:1px solid #94a3b8;border-radius:.5em;padding:.4em .6em;background:#fff}
+  .cd .lugar{text-align:center;font-size:.86em;margin-top:.7em}
+  .cd .legal{font-size:.74em;color:#475569;border-top:1px solid #c9d8e4;margin-top:1em;padding-top:.5em}
+  .cd .cod{font-family:'Courier New',monospace;font-weight:700;color:#0f3557;background:#e8f0f7;border-radius:.3em;padding:0 .35em;white-space:nowrap}
+  .cd .firmas{display:flex;gap:1em;margin-top:1em;break-inside:avoid;page-break-inside:avoid}
+  .cd .firma{position:relative;flex:1 1 0;min-width:0;background:#fff;border:1px solid #94a3b8;border-radius:.6em;padding:5.9em .7em .5em;text-align:center;font-size:.86em;line-height:1.35}
+  .cd .firma::before{content:'';position:absolute;left:10%;right:10%;top:5.5em;border-top:1px solid #334155}
+  .cd .ci-sello{position:absolute;left:50%;top:.7em;width:max-content;max-width:94%;transform:translateX(-50%) rotate(-2.5deg);border:2pt solid #1d4ed8;border-radius:.5em;background:#eff6ff;color:#1d4ed8;padding:.28em .8em;text-align:center;line-height:1.25}
+  .cd .ci-sello b{display:block;font-size:1em;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
+  .cd .ci-sello b::before{content:'✓ '}
+  .cd .ci-sello small{display:block;font-size:.88em;font-weight:700}
+  .cd .ci-sello.falta{border-style:dashed;border-color:#d97706;background:#fffbeb;color:#b45309;transform:translateX(-50%)}
+  .cd .ci-sello.falta b::before{content:''}
+  .cd .ci-marca{display:table;margin:.1em auto .5em;border:2.5pt double #15803d;border-radius:.5em;background:#f0fdf4;color:#15803d;padding:.22em 1.1em;text-align:center;font-weight:900;letter-spacing:.06em;text-transform:uppercase;line-height:1.3;transform:rotate(-1deg)}
+  .cd .ci-marca small{display:block;font-size:.8em;font-weight:700;letter-spacing:0;text-transform:none}
+  .cd .ci-marca.rev{border-color:#b91c1c;background:#fef2f2;color:#b91c1c}
+  .cd .ci-anulada{position:relative;break-inside:avoid;page-break-inside:avoid;margin-top:.5em;padding:.15em 0 .55em}
+  .cd .ci-anulada-txt{color:#94a3b8}
+  .cd .ci-anulada-txt .firma{border-color:#cbd5e1}
+  .cd .ci-anulada svg{position:absolute;left:0;top:0;width:100%;height:100%}
+  .cd .ci-anulada-cartel{position:absolute;left:50%;top:50%;width:72%;transform:translate(-50%,-50%) rotate(-4deg);border:3pt double #b91c1c;border-radius:.45em;background:#fff;color:#b91c1c;padding:.4em .9em;font-size:1.28em;font-weight:900;letter-spacing:.14em;text-align:center;line-height:1.2}
+  .cd .ci-anulada-cartel small{display:block;margin-top:.15em;font-size:.56em;font-weight:600;letter-spacing:0}
+  .cd .ci-anulada-nota{font-size:.8em;color:#475569}
+  .cd .ci-cinta{border:2pt solid #15803d;border-radius:.6em;background:#f0fdf4;color:#14532d;padding:.4em .8em;margin:0 0 .8em;text-align:center;font-size:.8em;font-weight:800}
+  .cd .ci-cinta.rev{border-color:#b91c1c;background:#fef2f2;color:#7f1d1d}
+  .cd .ci-const{position:relative;break-inside:avoid;page-break-inside:avoid;margin-top:1em;border:2pt solid #0f3557;border-radius:.8em;padding:.8em 1em;font-size:.92em;background:#fff}
+  .cd .ci-const h2{margin:-.15em 0 .6em;padding:.34em .7em;border-radius:.5em;background:#0f3557;color:#fff;font-size:1em;letter-spacing:.05em;text-align:center}
+  .cd .ci-const p{margin:.5em 0}
+  .cd .cc-fila{display:flex;gap:1.2em;flex-wrap:wrap;align-items:flex-end}
+  .cd .cc-firma{flex:1 1 15em;min-width:0}
+  .cd .cc-nombre{font:italic 2.1em 'Brush Script MT','Segoe Script','Lucida Handwriting',cursive;color:#1e3a8a;line-height:1.1;padding:.15em .1em;text-align:center}
+  .cd .cc-linea{border-top:1px solid #334155;padding-top:.2em;font-size:.92em;text-align:center}
+  .cd .cc-datos{flex:1 1 13em;min-width:0;font-size:.92em;line-height:1.5}
+  .cd .cc-hash{font-family:'Courier New',monospace;font-size:1.02em;background:#e8f0f7;border-radius:.45em;padding:.4em .6em;color:#0f3557;letter-spacing:.03em;text-align:center}
+  .cd .cc-hash span{display:inline-block;white-space:nowrap;margin:0 .3em}
+  .cd .cc-ok{margin-top:.5em;text-align:center;font-weight:800;color:#15803d}
+  .cd .cc-ok.no{color:#b45309}
+  .cd .cc-med{font-size:.92em;margin-top:.7em;border-top:1px solid #cbd5e1;padding-top:.55em}
+  .cd .cc-rev{font-size:.92em;margin-top:.5em;color:#7f1d1d}
+  .cd .cc-nota{font-size:.84em;color:#475569;line-height:1.4}
+  @media screen and (max-width:560px){
+    .cd table.fil td{display:block;width:auto !important}
+    .cd table.fil td.k{border-bottom:0;padding-bottom:0;background:none;font-size:.86em}
+    .cd .firmas{flex-direction:column}
+    .cd .ci-anulada-cartel{width:90%;font-size:1em}
+  }
 `;
+const CI_HOJA_CSS = `
+  @page{size:A4;margin:15mm 14mm 15mm;@bottom-center{content:'Hoja ' counter(page) ' de ' counter(pages);font:8pt Arial,sans-serif;color:#475569}}
+  html,body{background:#fff}
+  @media print{body{margin:0}}
+  body.pag .cd{width:182mm;margin:0 auto}
+  body.pag .cs{margin:0}
+  .hoja{display:flex;flex-direction:column;justify-content:space-between;gap:3mm;box-sizing:border-box;height:258mm;padding-top:3mm;break-after:page;page-break-after:always}
+  .hoja:last-child{break-after:auto;page-break-after:auto}
+  .hoja.suelta{justify-content:flex-start}
+  .hoja.larga{height:auto}
+  .hoja.larga .cs{break-inside:auto;page-break-inside:auto}
+  .hoja .cab,.hoja .cs,.hoja .legal,.hoja .ci-const{flex:none;margin:0}
+  .hoja.suelta .hoja-pie{margin-top:auto}
+  .hoja-pie{flex:none;display:flex;justify-content:space-between;gap:4mm;border-top:1px solid #94a3b8;padding-top:1.4mm;font-size:8pt;color:#334155}
+  .hoja-pie b{white-space:nowrap;color:#0f3557}
+  .hoja-pie small{display:block;font:7.5pt 'Courier New',monospace;color:#1e3a8a}
+`;
+const CI_DOC_CSS = CI_HOJA_CSS + CI_CD_CSS;
+/* 3.39 · Al imprimir, cada punto va entero y las hojas quedan parejas: se miden los puntos y
+   se reparten, en orden, en la menor cantidad de hojas con el hueco más igualado posible.
+   Solo se corta un punto que por sí solo no entra en una hoja. Actúa sobre la ventana que se
+   imprime: lo guardado y su huella no cambian. Sirve también para los documentos anteriores,
+   que no traen los puntos en recuadros: se agrupan por su título. */
+function ciPaginar(d) {
+  const cd = d.querySelector('.cd'); if (!cd || cd.querySelector('.hoja')) return;
+  d.body.classList.add('pag');
+  const nuevo = (t, k) => { const x = d.createElement(t); x.className = k; return x; };
+  const bloques = [nuevo('div', 'cab')];
+  Array.from(cd.children).forEach((el) => {
+    if (el.matches('.cs,.legal,.ci-const')) { bloques.push(el); bloques.push(null); return; }
+    let ult = bloques[bloques.length - 1];
+    if (el.matches('h3') || !ult) { ult = nuevo('section', 'cs'); bloques.push(ult); }
+    ult.appendChild(el);
+  });
+  const L = bloques.filter(Boolean);
+  L.forEach((b) => cd.appendChild(b));
+  // 3.39 · Cada hoja lleva dentro «Hoja n de N», el paciente, el código y, si está firmado, el comienzo de la
+  // huella de la firma (completa en la constancia): una hoja suelta se sabe de qué documento y de qué firma es.
+  const mm = (cd.getBoundingClientRect().width / 182) || 3.78, ALTO = 243 * mm, HUECO = 3 * mm;
+  const h = L.map((b) => b.getBoundingClientRect().height);
+  const n = h.length, suma = (i, j) => { let t = 0; for (let k = i; k < j; k++) t += h[k]; return t + (j - i - 1) * HUECO; };
+  // mejor[i][p]: repartir desde el punto i en p hojas. Un punto que no entra solo va en su hoja.
+  const entra = (i, j) => j === i + 1 || suma(i, j) <= ALTO;
+  let hojas = 1, lleno = 0;
+  for (let i = 0; i < n; i++) { const t = h[i] + (lleno ? HUECO : 0); if (lleno && lleno + t > ALTO) { hojas++; lleno = h[i]; } else lleno += t; }
+  const mejor = Array.from({ length: n + 1 }, () => Array(hojas + 2).fill(null));
+  mejor[n][0] = { c: 0 };
+  for (let p = 1; p <= hojas; p++) for (let i = n - 1; i >= 0; i--) for (let j = i + 1; j <= n; j++) {
+    if (!entra(i, j) || !mejor[j][p - 1]) continue;
+    const libre = Math.max(0, ALTO - suma(i, j)), c = mejor[j][p - 1].c + libre * libre;
+    if (!mejor[i][p] || c < mejor[i][p].c) mejor[i][p] = { c, j };
+  }
+  if (!mejor[0][hojas]) return;
+  const dato = (t) => { const k = Array.from(cd.querySelectorAll('td.k')).find((x) => x.textContent.trim() === t); return k && k.nextElementSibling ? k.nextElementSibling.textContent.trim() : ''; };
+  const codigo = (cd.textContent.match(/HRU-[0-9A-Z]+-[0-9A-Z]+/) || [''])[0];
+  const quien = [dato('Nombre y apellido'), dato('DNI') && 'DNI ' + dato('DNI'), codigo && 'Código ' + codigo].filter(Boolean).join(' · ');
+  const huella = cd.querySelector('.cc-hash');
+  const firma = huella ? `Firma electrónica · SHA-256 ${Array.from(huella.children).slice(0, 3).map((x) => x.textContent).join(' ')}… · completa en la constancia` : '';
+  const armadas = [];
+  let i = 0, p = hojas;
+  while (i < n) {
+    const j = mejor[i][p].j, hoja = nuevo('div', 'hoja');
+    const alto = suma(i, j);
+    if (alto > ALTO) hoja.classList.add('larga');
+    else if (alto < ALTO * 0.72) hoja.classList.add('suelta');
+    L.slice(i, j).forEach((b) => hoja.appendChild(b));
+    cd.appendChild(hoja); armadas.push(hoja);
+    i = j; p--;
+  }
+  // Un punto que ocupa más de una hoja corre por su cuenta: ahí numera el navegador.
+  if (armadas.some((x) => x.classList.contains('larga'))) return;
+  armadas.forEach((x, k) => { const pie = nuevo('div', 'hoja-pie'); pie.innerHTML = '<span></span><b></b>'; pie.firstChild.textContent = quien; pie.lastChild.textContent = `Hoja ${k + 1} de ${armadas.length}`;
+    if (firma) { const f = nuevo('small', ''); f.textContent = firma; pie.firstChild.appendChild(f); }
+    x.appendChild(pie); });
+  d.head.insertAdjacentHTML('beforeend', '<style>@page{@bottom-center{content:none}}</style>');
+}
+// La vista previa de la app usa el mismo diseño que el papel.
+document.head.insertAdjacentHTML('beforeend', `<style>${CI_CD_CSS}</style>`);
 function ciDocWord(cuerpo) {
   return `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
 <head><meta charset='utf-8'><title>Consentimiento Informado Quirúrgico</title><style>${CI_DOC_CSS}</style></head>
-<body>${cuerpo}</body></html>`;
+<body><div class="cd">${cuerpo}</div></body></html>`;
 }
 function ciDocImprimible(cuerpo) {
-  return `<!DOCTYPE html><html lang="es"><head><meta charset='utf-8'><title>Consentimiento Informado Quirúrgico</title><style>${CI_DOC_CSS}</style></head><body>${cuerpo}</body></html>`;
+  return `<!DOCTYPE html><html lang="es"><head><meta charset='utf-8'><title>Consentimiento Informado Quirúrgico</title><style>${CI_DOC_CSS}</style></head><body><div class="cd">${cuerpo}</div></body></html>`;
 }
 
 /* ---- Edición del formulario ----
@@ -31024,6 +31361,7 @@ function ciImprimirCuerpo(cuerpo) {
   if (!w) { alert('El navegador bloqueó la ventana de impresión. Habilite las ventanas emergentes para este sitio.'); return; }
   w.document.write(ciDocImprimible(cuerpo));
   w.document.close();
+  ciPaginar(w.document);
   w.focus();
   setTimeout(() => w.print(), 400);
 }
@@ -31372,7 +31710,7 @@ function ciVerDelRegistro(id) {
       <div><strong>Documento archivado — solo lectura</strong>
       El consentimiento informado integra la historia clínica del paciente (Ley 26.529, arts. 5 a 11).
       Una vez guardado no se edita: si hay que corregirlo o ampliarlo, se emite uno nuevo desde la programación del turno.</div></div>
-    <div class="ci-doc" style="max-height:58vh">${ciDocHTML({ ...CI_VACIO, ...r.datos })}</div>
+    <div class="ci-doc cd" style="max-height:58vh">${ciDocHTML({ ...CI_VACIO, ...r.datos })}</div>
     <div class="form-actions" style="margin-top:14px">
       <button class="btn btn-blue" onclick="ciImprimirDelRegistro('${r.id}', this)">${ico(ICONS.download, 15)} Descargar PDF</button>
       <button class="btn btn-outline" onclick="ciCerrarVer()">Cerrar</button>
@@ -31730,7 +32068,7 @@ function renderConsentimientos() {
       <div class="ci-col ci-preview-col">
         <div class="ci-col-hdr">${ICONS.eyeSm} Vista previa del documento
           <span class="ci-col-nota">se completa solo</span></div>
-        <div class="ci-doc" id="ci-doc">${ciDocHTML(ciForm)}</div>
+        <div class="ci-doc cd" id="ci-doc">${ciDocHTML(ciForm)}</div>
       </div>
     </div>`;
   ciPintarAcuse();
@@ -32028,10 +32366,11 @@ const PP_TIPOS = {
   cir:  { n: 'cirugía', N: 'Cirugía', o: 'a', del: 'de la', mi: 'Mi cirugía', medico: 'cirujano/a', Medico: 'Cirujano/a', equipo: 'El equipo quirúrgico está trabajando.', sector: 'Quirófanos' },
   endo: { n: 'estudio', N: 'Estudio', o: 'o', del: 'del', mi: 'Mi estudio', medico: 'médico/a', Medico: 'Médico/a', equipo: 'El equipo de Endoscopía está trabajando.', sector: 'Endoscopía' },
   ces:  { n: 'cesárea', N: 'Cesárea', o: 'a', del: 'de la', mi: 'Mi cesárea', medico: 'obstetra', Medico: 'Obstetra', equipo: 'El equipo de Obstetricia está trabajando.', sector: 'Obstetricia' },
+  parto: { n: 'parto', N: 'Parto', o: 'o', del: 'del', mi: 'Mi parto', medico: 'obstetra', Medico: 'Obstetra', equipo: 'El equipo de Obstetricia está trabajando.', sector: 'Obstetricia' },
 };
 function portalTipo(c) {
   const t = c && c.sala ? sala(c.sala).tipo : 'qx';
-  return t === 'endo' ? 'endo' : t === 'obs' ? 'ces' : 'cir';
+  return t === 'endo' ? 'endo' : esParto(c) ? 'parto' : t === 'obs' ? 'ces' : 'cir';
 }
 const ppTipo = (k) => PP_TIPOS[k] || PP_TIPOS.cir;
 /* El destino corto del pase: QX 2, ENDO u OBST, que entra en la tarjeta. */
@@ -32390,47 +32729,40 @@ function ciDesfaseHTML(c) {
   const L = ciDesfasado(c);
   return L.length ? `<p class="form-note" style="margin:6px 0 0;color:#b45309"><b>⚠ Cambió ${esc(L.join(', '))} del turno y el consentimiento guardado sigue con el dato anterior.</b> Ábralo, corríjalo y guárdelo${c.pase ? ': el paciente recibe un aviso para aceptar la versión nueva' : ''}.</p>` : '';
 }
-/* 3.37 · Sin la fecha del día (que cambia sola), para saber si el TEXTO cambió de verdad. */
-function ciSinFecha(html) {
-  return String(html || '').replace(/(<div class="meta">[^<]*·)[^<]*/, '$1').replace(/(Lugar y fecha:[^,]*,)[^&]*/, '$1');
+/* 3.37 · Sin la fecha del día (que cambia sola), para saber si el TEXTO cambió de verdad.
+   3.39 · Se compara solo lo que se lee: un cambio de diseño no es una versión nueva y no le
+   pide al paciente que acepte otra vez. */
+function ciSinFecha(html) {   // el encabezado con el área tampoco cuenta como texto nuevo
+  return String(html || '').replace(/(<div class="meta">[^<]*·)[^<]*/, '$1').replace(/(Lugar y fecha:[^,]*,)[^&]*/, '$1')
+    .replace(/<div class="mb-blq">[^<]*<\/div>/, ' ').replace(/<h1>[^<]*<\/h1>/, ' ').replace(/<style[\s\S]*?<\/style>/g, ' ').replace(/<title>[\s\S]*?<\/title>/, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+}
+/* 3.39 · Lo que firmó el paciente no se reescribe: los documentos anteriores conservan su texto
+   y al emitirlos solo se les cambia la hoja de estilos, igual que a los nuevos. */
+function ciConDiseno(html) {
+  const h = String(html).replace(/<style>[\s\S]*?<\/style>/, () => `<style>${CI_DOC_CSS}</style>`);
+  return h.includes('<div class="cd">') ? h : h.replace(/<body([^>]*)>/, (m) => m + '<div class="cd">').replace('</body>', '</div></body>');
 }
 /* 3.37 · Las marcas que se agregan AL EMITIR sobre el texto aceptado, que no se toca (su
-   huella SHA-256 se calcula antes): «Firma electrónica» en los lugares de las firmas y el
-   espacio de revocación anulado. La cláusula de revocación queda legible: es un derecho del
-   paciente (Ley 26.529, art. 10), y lo que se anula es el espacio para firmarla. */
-const CI_SELLO_CSS = `
-  .firmas{margin-top:66pt}
-  .firma{position:relative}
-  .ci-sello{position:absolute;left:0;right:0;bottom:100%;margin-bottom:3pt;text-align:center;color:#1e3a8a;line-height:1.15}
-  .ci-sello b{display:block;font:italic 700 16pt 'Brush Script MT','Segoe Script','Lucida Handwriting',cursive}
-  .ci-sello small{display:block;font:8pt Arial,sans-serif;color:#334155}
-  .ci-sello.falta{color:#b45309}
-  .ci-sello.falta b{font:700 9pt Arial,sans-serif}
-  .ci-anulada{position:relative;page-break-inside:avoid;margin-top:8pt;padding:2pt 0 8pt}
-  .ci-anulada-txt{color:#64748b;text-decoration:line-through}
-  .ci-anulada-txt .firmas{margin-top:40pt}
-  .ci-anulada svg{position:absolute;left:0;top:0;width:100%;height:100%}
-  .ci-anulada-cartel{position:absolute;left:50%;top:50%;width:74%;transform:translate(-50%,-50%) rotate(-3deg);box-sizing:border-box;border:2px solid #b91c1c;background:#fff;color:#b91c1c;padding:4pt 10pt;font:700 10pt Arial,sans-serif;text-align:center}
-  .ci-anulada-cartel small{display:block;font:400 8pt Arial,sans-serif}
-  .ci-anulada-nota{font-size:8.5pt;color:#444}
-`;
+   huella SHA-256 se calcula antes): el sello en cada lugar de firma y el espacio de revocación
+   anulado. La cláusula de revocación queda legible: es un derecho del paciente (Ley 26.529,
+   art. 10), y lo que se anula es el espacio para firmarla.
+   3.39 · Además, una marca en la declaración: se ve de un vistazo en qué estado está. */
 function ciSellarDoc(html, m) {
   const sello = (s) => (s ? `<span class="ci-sello"><b>Firma electrónica</b><small>${esc(s)}</small></span>` : '');
+  const marca = (x) => ciConDiseno(html).replace(/<p[^>]*>(?=Declaro que se me ha explicado)/, (p) => x + p);
   // 3.37.1 · Revocado: el espacio de revocación es el que vale.
   if (m.revocado) {
-    return String(html)
-      .replace('</head>', `<style>${CI_SELLO_CSS}</style></head>`)
+    return marca(`<div class="ci-marca rev">Consentimiento revocado<small>${esc(m.revocado.txt)}</small></div>`)
       .replace('<div class="firma">Firma y aclaración<br>', `<div class="firma">${sello(m.paciente)}Firma y aclaración<br>`)
       .replace('<div class="firma">Firma y sello<br>', `<div class="firma">${sello(m.medico)}Firma y sello<br>`)
       .replace('<div class="firma">Firma y aclaración de quien revoca<br>', `<div class="firma">${m.revocado.via === 'pase' ? sello(m.revocado.txt) : `<span class="ci-sello falta"><b>Firmar en papel</b><small>${esc(m.revocado.txt)}</small></span>`}Firma y aclaración de quien revoca<br>`);
   }
-  const falta = m.faltaMedico ? '<span class="ci-sello falta"><b>Falta la firma electrónica del médico</b></span>' : '';
-  return String(html)
-    .replace('</head>', `<style>${CI_SELLO_CSS}</style></head>`)
+  const falta = m.faltaMedico ? '<span class="ci-sello falta"><b>Falta la firma del médico</b></span>' : '';
+  return marca(`<div class="ci-marca">Aceptado electrónicamente<small>${esc(m.paciente)}</small></div>`)
     .replace('<div class="firma">Firma y aclaración<br>', `<div class="firma">${sello(m.paciente)}Firma y aclaración<br>`)
     .replace('<div class="firma">Firma y sello<br>', `<div class="firma">${m.medico ? sello(m.medico) : falta}Firma y sello<br>`)
     .replace(/<p style="margin-top:8px">Revoco el consentimiento[\s\S]*?<div class="firma">Firma y sello del profesional[\s\S]*?<\/div>\s*<\/div>/, (x) => `<div class="ci-anulada"><div class="ci-anulada-txt">${x}</div>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="100" x2="100" y2="0" stroke="#b91c1c" stroke-width="1" vector-effect="non-scaling-stroke"/><line x1="0" y1="0" x2="100" y2="100" stroke="#b91c1c" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="100" x2="100" y2="0" stroke="#b91c1c" stroke-width="1.4" vector-effect="non-scaling-stroke"/><line x1="0" y1="0" x2="100" y2="100" stroke="#b91c1c" stroke-width="1.4" vector-effect="non-scaling-stroke"/></svg>
       <div class="ci-anulada-cartel">ESPACIO ANULADO<small>Consentimiento aceptado · sin revocación registrada al ${esc(m.alDia)}</small></div></div>
       <p class="ci-anulada-nota">El espacio de firmas de arriba queda anulado para que no se preste a confusión. El derecho a revocar sigue vigente: si el/la paciente lo ejerce antes del procedimiento, se usa un ejemplar sin firmar del consentimiento y se asienta en la historia clínica.</p>`);
 }
@@ -32457,42 +32789,43 @@ async function ciFirmadoDescargar(id) {
   const dniTxt = dni ? Number(dni).toLocaleString('es-AR') : 's/d';
   const hashTxt = String(f.hash || '').toUpperCase().replace(/(.{8})/g, '$1 ').trim();
   const cuando = fmtDT(f.t);
-  const cinta = `<div style="border:2px solid ${rev ? '#b91c1c' : '#15803d'};background:${rev ? '#fef2f2' : '#f0fdf4'};color:${rev ? '#7f1d1d' : '#14532d'};border-radius:8px;padding:6px 10px;margin:0 0 10px;font:600 9pt Arial,sans-serif;text-align:center">
+  const cinta = `<div class="ci-cinta ${rev ? 'rev' : ''}">
     ${rev ? `CONSENTIMIENTO REVOCADO · ${esc(fmtDT(rev.t))} · Firmado antes por el ${rotulo.toLowerCase()} el ${esc(cuando)}` : `FIRMADO ELECTRÓNICAMENTE POR EL ${rotulo}${med ? ' Y POR EL MÉDICO' : ''} · ${esc(cuando)} · Verificación SHA-256 al pie`}</div>`;
-  const constancia = `<div style="page-break-inside:avoid;margin-top:18px;border:2px solid #1e3a8a;border-radius:10px;padding:14px 16px;font-family:Arial,sans-serif;color:#0f172a">
-    <div style="font:800 11pt Arial,sans-serif;letter-spacing:.04em;color:#1e3a8a;margin-bottom:8px">CONSTANCIA DE FIRMA ELECTRÓNICA ${quien.rep ? 'DEL REPRESENTANTE LEGAL' : 'DEL PACIENTE'}</div>
-    <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end">
-      <div style="flex:1;min-width:240px">
-        <div style="font:italic 24pt 'Brush Script MT','Segoe Script','Lucida Handwriting',cursive;color:#1e3a8a;line-height:1.1;padding:4px 2px">${esc(nombre || 'Paciente')}</div>
-        <div style="border-top:1px solid #334155;padding-top:3px;font-size:9pt">Firma electrónica de <b>${esc(nombre.toUpperCase())}</b> · DNI ${esc(dniTxt)}${quien.rep ? ` · en representación de <b>${esc(quien.paciente)}</b>` : ''}</div>
+  const constancia = `<div class="ci-const">
+    <h2>CONSTANCIA DE FIRMA ELECTRÓNICA ${quien.rep ? 'DEL REPRESENTANTE LEGAL' : 'DEL PACIENTE'}</h2>
+    <div class="cc-fila">
+      <div class="cc-firma">
+        <div class="cc-nombre">${esc(nombre || 'Paciente')}</div>
+        <div class="cc-linea">Firma electrónica de <b>${esc(nombre.toUpperCase())}</b> · DNI ${esc(dniTxt)}${quien.rep ? ` · en representación de <b>${esc(quien.paciente)}</b>` : ''}</div>
       </div>
-      <div style="font-size:9pt;line-height:1.5;min-width:200px">
+      <div class="cc-datos">
         <b>Fecha y hora:</b> ${esc(cuando)} (hora del servidor)<br>
         <b>Turno:</b> ${esc(c.procedimiento || '')} · ${esc(fmtFecha(c.fecha))} ${esc(c.horaProg || '')} h · ${esc(c.quirofano || '')}<br>
         <b>Código de pase:</b> ${esc((c.pase && c.pase.ref) || '—')}
       </div>
     </div>
-    <p style="font-size:9.5pt;line-height:1.5;margin:10px 0 6px"><b>Leído y validado ${quien.rep ? 'por el/la representante legal' : 'por el paciente'}.</b> ${quien.rep ? `El/la representante legal ingresó al pase de ${esc(quien.paciente)} con el DNI del paciente` : 'El/la paciente ingresó a su pase del Hospital Regional Ushuaia identificándose con su DNI'}
+    <p><b>Leído y validado ${quien.rep ? 'por el/la representante legal' : 'por el paciente'}.</b> ${quien.rep ? `El/la representante legal ingresó al pase de ${esc(quien.paciente)} con el DNI del paciente` : 'El/la paciente ingresó a su pase del Hospital Regional Ushuaia identificándose con su DNI'}
       y con un código de un solo uso enviado a su correo electrónico (${esc(enmascararMail(pa.email) || 's/d')}), leyó este documento completo
       y tildó: <i>«Leí y comprendo los alcances del consentimiento médico informado»</i>.</p>
-    <div style="font-size:9pt;margin:6px 0 2px"><b>Código de verificación de la firma (SHA-256 del documento aceptado):</b></div>
-    <div style="font:10pt 'Courier New',monospace;background:#eef2ff;border-radius:6px;padding:6px 8px;color:#1e3a8a;letter-spacing:.03em">${hashTxt.split(' ').map((g) => `<span style="display:inline-block;white-space:nowrap;margin-right:.6em">${esc(g)}</span>`).join('')}</div>
-    <div style="font-size:9pt;margin-top:6px;color:${coincide ? '#15803d' : '#b45309'};font-weight:700">${coincide
+    <p style="text-align:center;margin-bottom:.2em"><b>Código de verificación de la firma (SHA-256 del documento aceptado):</b></p>
+    <div class="cc-hash">${hashTxt.split(' ').map((g) => `<span>${esc(g)}</span>`).join('')}</div>
+    <div class="cc-ok ${coincide ? '' : 'no'}">${coincide
       ? '✓ Verificado al descargar: este texto es idéntico, carácter por carácter, al que aceptó el paciente.'
       : '⚠ No se encontró la copia exacta del texto aceptado: esta es una copia regenerada del consentimiento. La huella de arriba corresponde al texto original aceptado.'}</div>
-    <div style="font-size:9pt;margin-top:10px;border-top:1px solid #cbd5e1;padding-top:8px">${med
+    <div class="cc-med">${med
       ? `<b>Firma electrónica del médico:</b> ${esc(med.nombre)}${med.mat ? ` · Mat. ${esc(med.mat)}` : ''} · ${esc(fmtDT(med.t))}. Firmó con su cuenta personal (${esc(enmascararMail(med.email))}) el documento aceptado por el paciente.`
-      : '<b>Firma electrónica del médico:</b> pendiente. La pone el/la cirujano/a del turno desde su cuenta, con «Firmar y bajar el consentimiento».'}</div>
-    ${rev ? `<div style="font-size:9pt;margin-top:8px;color:#7f1d1d"><b>Revocación:</b> ${esc(fmtDT(rev.t))} · ${esc(rev.por)}${rev.via === 'pase' ? ', con su DNI y un código de un solo uso' : ''}.</div>` : ''}
-    <p style="font-size:8.5pt;color:#475569;line-height:1.4;margin:6px 0 0">Los sellos «Firma electrónica» y la anulación del espacio de revocación se agregan al emitir este PDF: no modifican el texto verificado.</p>
-    <p style="font-size:8pt;color:#475569;line-height:1.4;margin:8px 0 0">Firma electrónica en los términos del art. 5 de la Ley 25.506. Consentimiento informado según la Ley 26.529 de Derechos del Paciente.
+      : '<b>Firma electrónica del médico:</b> pendiente. La pone ' + (esEndo(c) ? 'el/la endoscopista' : 'el/la cirujano/a') + ' del turno desde su cuenta, con «Firmar y bajar el consentimiento».'}</div>
+    ${rev ? `<div class="cc-rev"><b>Revocación:</b> ${esc(fmtDT(rev.t))} · ${esc(rev.por)}${rev.via === 'pase' ? ', con su DNI y un código de un solo uso' : ''}.</div>` : ''}
+    <p class="cc-nota">El diseño de la hoja, los sellos y la anulación del espacio de revocación se aplican al emitir este PDF: no modifican el texto verificado.</p>
+    <p class="cc-nota">Firma electrónica en los términos del art. 5 de la Ley 25.506. Consentimiento informado según la Ley 26.529 de Derechos del Paciente.
       El paciente puede revocarlo en cualquier momento antes del procedimiento. Documento emitido por HRU Quirófanos el ${esc(fmtDT(nowDT()))} para su incorporación a la historia clínica.</p>
   </div>`;
   const sellado = ciSellarDoc(html, { paciente: cuando, medico: med ? fmtDT(med.t) : '', faltaMedico: !med, alDia: fmtDT(nowDT()),
     revocado: rev ? { via: rev.via, txt: fmtDT(rev.t) } : null });
-  const doc = sellado.replace(/<title>[^<]*<\/title>/, `<title>Consentimiento firmado - ${esc(nombre)} - ${esc(c.fecha || '')}</title>`)
-    .replace(/<body([^>]*)>/, (m) => m + cinta).replace(/<\/body>/, constancia + '</body>');
+  const doc = sellado.replace(/<title>[^<]*<\/title>/, () => `<title>Consentimiento firmado - ${esc(nombre)} - ${esc(c.fecha || '')}</title>`)
+    .replace('<div class="cd">', () => '<div class="cd">' + cinta).replace(/<\/div>\s*<\/body>/, () => constancia + '</div></body>');
   w.document.open(); w.document.write(doc); w.document.close();
+  ciPaginar(w.document);
   pushHist(c, `Se descargó el consentimiento ${rev ? 'revocado' : 'firmado electrónicamente por el paciente'} (${coincide ? 'texto verificado por SHA-256' : 'copia regenerada'}) — ${(usuarioActual() || {}).nombre || JEFATURA}`);
   upsert('cirugias', c);
   setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 500);
