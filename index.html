@@ -4524,43 +4524,56 @@
   @keyframes cixLatido { 0% { opacity: .5; transform: scale(.92); } 70%, 100% { opacity: 0; transform: scale(1.14); } }
   @media (max-width: 720px) { .cix-cards { grid-template-columns: minmax(0, 1fr); } .cix-panel-top button { margin-left: 0; } }
   @media (prefers-reduced-motion: reduce) { .cix *, .cix-panel, .cix-ficha { animation: none !important; transition: none !important; } }
+  /* 3.38.1 · Estadísticas de Endoscopía */
+  .eex { margin: 0 0 16px; padding: 14px; border-radius: 18px; border: 2px solid #99f6e4; background: var(--sup1, #fff); }
+  .eex summary { font-weight: 800; font-size: 1.05rem; cursor: pointer; }
+  .eex-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 12px; }
+  .eex-card { --c: #0f766e; padding: 12px; border-radius: 14px; background: color-mix(in srgb, var(--c) 12%, var(--sup1, #fff)); animation: cixSube .4s ease both; animation-delay: calc(var(--i, 0) * 70ms); }
+  .eex-card.tot { background: #0f766e; color: #fff; } .eex-card.tot small { color: #fff; }
+  .eex-card b { display: block; font-size: 1.7rem; line-height: 1.1; color: var(--c); font-variant-numeric: tabular-nums; } .eex-card.tot b { color: #fff; }
+  .eex-card small { font-size: .78rem; color: var(--muted); }
+  .eex-nota { margin: 8px 0 0; font-size: .82rem; color: var(--muted); }
+  .eex-sec h3 { margin: 16px 0 6px; font-size: .98rem; }
+  .eex-tabla { overflow-x: auto; }
+  .eex-tabla table { width: 100%; min-width: 420px; border-collapse: collapse; font-size: .86rem; }
+  .eex-tabla th { text-align: left; font-size: .74rem; color: var(--muted); padding: 4px 6px; } .eex-tabla .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .eex-tabla td { padding: 6px; border-top: 1px solid var(--line, #e5e7eb); }
+  .eex-tabla tbody tr { animation: cixSube .32s ease both; animation-delay: calc(var(--i) * 30ms); }
+  .eex-bar { display: block; height: 5px; margin-top: 3px; border-radius: 99px; background: var(--sup2, #eef1f4); overflow: hidden; } .eex-bar i { display: block; height: 100%; border-radius: 99px; background: #0d9488; }
+  @media (max-width: 600px) { .eex-tabla table { min-width: 0; font-size: .78rem; } .eex-tabla th { font-size: .64rem; } .eex-tabla th, .eex-tabla td { padding: 5px 3px; } }
+  @media (prefers-reduced-motion: reduce) { .eex-card, .eex-tabla tbody tr { animation: none; } }
   /* 3.38 · Guardia del día */
-  .gdx-boton { display: flex; align-items: center; gap: 12px; width: 100%; margin: 0 0 14px; padding: 12px 16px; border: 0; border-radius: 18px; cursor: pointer; text-align: left; font: inherit; color: #fff;
-    background: linear-gradient(120deg, #0f766e, #7c3aed); box-shadow: 0 12px 24px -16px #7c3aed; transition: transform .16s ease; }
-  .gdx-boton:hover { transform: translateY(-2px); }
-  .gdx-boton > span:nth-child(2) { display: grid; flex: 1; min-width: 0; }
-  .gdx-boton b { font-size: 1.05rem; } .gdx-boton small { font-size: .78rem; opacity: .92; } .gdx-boton i { font-style: normal; font-size: 1.5rem; }
-  .gdx-b-i { font-size: 1.5rem; animation: gdxLatido 2.8s ease-in-out infinite; }
-  .gdx-ov { z-index: 120; overflow-y: auto; align-items: flex-start; padding: 18px 12px; }
-  .gdx { position: relative; width: min(760px, 100%); margin: auto; padding: 20px; border-radius: 24px; background: var(--sup1, #fff); color: var(--ink, #1f2937); box-sizing: border-box; }
-  .gdx.entra { animation: cixSube .32s ease both; }
-  .gdx-cerrar { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--sup2, #eef1f4); color: inherit; font: inherit; cursor: pointer; }
-  .gdx header > small { font-weight: 800; letter-spacing: .08em; color: #0f766e; font-size: .72rem; }
-  .gdx header h2 { margin: 2px 40px 0 0; font-size: 1.35rem; } .gdx header p { margin: 2px 0; font-size: .86rem; color: var(--muted); }
-  .gdx-reloj { height: 8px; margin-top: 10px; border-radius: 99px; background: var(--sup2, #eef1f4); overflow: hidden; }
+  .tb-gdx { display: inline-flex; flex: none; align-items: center; gap: 4px; margin-right: 6px; padding: 5px 10px; border: 0; border-radius: 99px; background: rgba(255,255,255,.16); color: inherit; font: inherit; font-size: .78rem; font-weight: 800; cursor: pointer; }
+  .tb-gdx:hover { background: rgba(255,255,255,.28); }
+  .tb-gdx > span:first-child { animation: gdxLatido 2.8s ease-in-out infinite; }
+  .gdx-ov { z-index: 120; overflow-y: auto; align-items: flex-start; padding: 56px 12px 18px; backdrop-filter: blur(4px); }
+  .gdx { width: min(430px, 100%); margin: 0 auto; border: 1px solid var(--line); border-radius: 16px; background: var(--card, #fff); color: var(--ink, #1f2937); box-sizing: border-box; box-shadow: 0 24px 50px -22px rgba(0,0,0,.6); overflow: hidden; }
+  .gdx.entra { animation: cixSube .28s ease both; }
+  .gdx header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 12px 14px 10px; border-bottom: 1px solid var(--line); }
+  .gdx header b { display: block; font-size: .96rem; } .gdx header small { color: var(--muted); font-size: .76rem; }
+  .gdx header button { border: 0; background: none; color: var(--muted); font-size: 1.05rem; cursor: pointer; }
+  .gdx-cuerpo { padding: 10px; }
+  .gdx-reloj { height: 6px; margin: 0 4px; border-radius: 99px; background: var(--sup2, #eef1f4); overflow: hidden; }
   .gdx-reloj span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #0f766e, #7c3aed); transition: width .8s ease; }
-  .gdx-sel { display: inline-flex; gap: 4px; margin-top: 10px; padding: 3px; border-radius: 99px; background: var(--sup2, #eef1f4); }
-  .gdx-sel button { border: 0; border-radius: 99px; padding: 6px 14px; background: none; color: inherit; font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
+  .gdx-resta { margin: 4px 4px 0; font-size: .76rem; color: var(--muted); }
+  .gdx-sel { display: inline-flex; gap: 4px; margin: 8px 0; padding: 3px; border-radius: 99px; background: var(--sup2, #eef1f4); }
+  .gdx-sel button { border: 0; border-radius: 99px; padding: 5px 12px; background: none; color: inherit; font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
   .gdx-sel button.on { background: #0f766e; color: #fff; }
-  .gdx-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; perspective: 1000px; }
-  .gdx-card { min-height: 128px; }
-  .gdx.entra .gdx-card { animation: cixSube .42s ease both; animation-delay: calc(var(--i) * 80ms); }
-  .gdx-giro { position: relative; height: 100%; min-height: 128px; transform-style: preserve-3d; transition: transform .45s cubic-bezier(.3,.8,.3,1); }
-  .gdx-card.vuelta .gdx-giro { transform: rotateY(180deg); }
-  .gdx-cara, .gdx-dorso { position: absolute; inset: 0; box-sizing: border-box; padding: 14px; border-radius: 18px; backface-visibility: hidden; -webkit-backface-visibility: hidden;
-    border: 2px solid color-mix(in srgb, var(--c) 30%, var(--line, #e5e7eb)); background: linear-gradient(140deg, color-mix(in srgb, var(--c) 12%, var(--sup1, #fff)), var(--sup1, #fff)); color: inherit; font: inherit; text-align: left; }
-  .gdx-cara { display: flex; align-items: center; gap: 12px; cursor: pointer; width: 100%; }
-  .gdx-card.vacia .gdx-cara { position: relative; min-height: 128px; cursor: default; border-style: dashed; }
-  .gdx-cara > i { position: absolute; right: 12px; bottom: 8px; font-style: normal; font-size: .74rem; font-weight: 700; color: var(--c); }
-  .gdx-av { display: grid; place-items: center; flex: none; width: 54px; height: 54px; border-radius: 50%; background: var(--c); color: #fff; font-weight: 800; }
-  .gdx-t { display: grid; gap: 1px; min-width: 0; } .gdx-t small { font-size: .76rem; color: var(--muted); } .gdx-t b { font-size: 1.02rem; line-height: 1.2; overflow-wrap: anywhere; }
-  .gdx-t em { font-style: normal; font-size: .74rem; font-weight: 700; color: var(--c); }
-  .gdx-dorso { display: grid; gap: 6px; align-content: start; transform: rotateY(180deg); }
-  .gdx-x { border: 0; background: none; padding: 0; text-align: left; color: var(--c); font: inherit; font-weight: 700; font-size: .84rem; cursor: pointer; }
-  .gdx-acc { display: flex; flex-wrap: wrap; gap: 6px; } .gdx-acc a, .gdx-acc .off { padding: 7px 10px; border-radius: 10px; background: var(--c); color: #fff; font-size: .8rem; font-weight: 700; text-decoration: none; }
-  .gdx-acc a.wa { background: #16a34a; } .gdx-acc .off { background: var(--sup2, #eef1f4); color: var(--muted); }
-  .gdx-dorso > small { font-size: .74rem; color: var(--muted); overflow-wrap: anywhere; }
-  .gdx-nota { margin: 12px 0 0; font-size: .8rem; color: var(--muted); text-align: center; }
+  .gdx-lista { display: grid; gap: 8px; }
+  .gdx-f { transition: transform .16s ease; } .gdx-f:hover { transform: translateX(3px); } .gdx-f > div { min-width: 0; }
+  .gdx.entra .gdx-f { animation: cixSube .36s ease both; animation-delay: calc(var(--i) * 70ms); }
+  .gdx-f.vacia { border: 1px dashed var(--line); }
+  .gdx-sin { margin-top: 4px; }
+  .gdx-acc { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; } .gdx-acc a { padding: 7px 11px; border-radius: 10px; background: var(--k); color: #fff !important; font-size: .78rem; font-weight: 700; text-decoration: none; word-break: normal; }
+  .gdx-acc a.wa { background: #16a34a; }
+  .gdx-nota { margin: 12px; font-size: .8rem; color: var(--muted); text-align: center; }
+  /* 3.38.1 · Mi actividad */
+  .ma-pres { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; } .ma-pres button { padding: 7px 12px; border: 1px solid var(--line); border-radius: 99px; background: var(--sup1, #fff); color: inherit; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
+  .ma-lista { list-style: none; display: grid; gap: 6px; margin: 14px 0 0; padding: 0; }
+  .ma-lista li { display: flex; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--sup1, #fff); animation: cixSube .32s ease both; animation-delay: calc(var(--i) * 35ms); }
+  .ma-f { display: grid; flex: none; width: 74px; align-content: start; } .ma-f b { font-size: .84rem; } .ma-f small { font-size: .74rem; color: var(--muted); }
+  .ma-t { display: grid; min-width: 0; gap: 1px; } .ma-t b { font-size: .92rem; overflow-wrap: anywhere; } .ma-t small { font-size: .76rem; color: var(--muted); overflow-wrap: anywhere; } .ma-t em { font-style: normal; font-size: .76rem; font-weight: 700; color: #0f766e; }
+  .ma-vacio { justify-content: center; color: var(--muted); }
   @keyframes gdxLatido { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
   /* 3.38 · Pantalla de sala */
   .fl-sx { border: 0; border-radius: 99px; padding: 6px 12px; background: #0f766e; color: #fff; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
@@ -4604,8 +4617,8 @@
   @keyframes sxEntra { from { opacity: 0; transform: translateX(32px); } to { opacity: 1; transform: none; } }
   @keyframes sxTilde { from { transform: scale(.5); } 70% { transform: scale(1.18); } to { transform: scale(1); } }
   @keyframes sxLatir { 0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,.5); } 50% { box-shadow: 0 0 0 10px rgba(16,185,129,0); } }
-  @media (max-width: 600px) { .gdx-cards { grid-template-columns: minmax(0, 1fr); } .sx-mom h2 { font-size: 1.7rem; } .sx-rail li small { display: none; } .sx-rail li.activo small { display: block; } }
-  @media (prefers-reduced-motion: reduce) { .gdx *, .sx *, .gdx, .sx, .gdx-b-i { animation: none !important; transition: none !important; } }
+  @media (max-width: 600px) { .sx-mom h2 { font-size: 1.7rem; } .sx-rail li small { display: none; } .sx-rail li.activo small { display: block; } }
+  @media (prefers-reduced-motion: reduce) { .gdx *, .sx *, .gdx, .sx, .tb-gdx *, .ma-lista li { animation: none !important; transition: none !important; } }
   .ci-hero { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 18px 20px; border-radius: 20px; margin-bottom: 16px; color: #fff;
     background: linear-gradient(120deg, #be185d 0%, #7c3aed 50%, #2563eb 100%); background-size: 180% 100%; animation: ciFondo 12s ease-in-out infinite alternate;
     box-shadow: 0 14px 34px -14px rgba(124,58,237,.6); position: relative; overflow: hidden; }
@@ -7210,6 +7223,7 @@
       <button class="hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Abrir menú"></button>
       <div class="topbar-title" id="topbar-title">Panel</div>
       <div class="topbar-spacer"></div>
+      <button class="tb-gdx" id="gdx-btn" onclick="gdxAbrir()" aria-label="Guardia del día" title="Guardia del día"><span aria-hidden="true">🛡️</span><span>Guardia</span></button>
       <span class="conn" id="conn-chip" role="button" tabindex="0" onclick="explicarConexion()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();explicarConexion();}" title="Estado de la sincronización" aria-label="Estado de la sincronización"><span class="dotc" aria-hidden="true"></span><span id="conn-text" class="tb-oculto">Conectado</span></span>
       <div class="tema-wrap">
         <button class="top-btn" id="tema-btn" onclick="toggleTemaMenu(event)"
@@ -9798,7 +9812,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.38.0';
+const APP_VERSION = '3.38.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -13043,10 +13057,11 @@ function renderSidebar() {
     items.push({ id: 'estpublicas', icon: ICONS.pieChart, label: 'Estadísticas' });
   }
   const recl = reclamosPendientes();
-  if (gdxPuede()) items.push({ id: 'guardiadia', icon: ICONS.shield, label: 'Guardia del día' });
+  items.push({ id: 'guardiadia', icon: ICONS.shield, label: 'Guardia del día' });
   if (u && esAnestesia(u)) {
     items.push({ sep: 'Anestesiología' });
     items.push({ id: 'anestesia', icon: ICONS.clipboard, label: 'Portal de Anestesiología' });
+    items.push({ id: 'miactividad', icon: ico(ICONS.activity, 18), label: 'Mi actividad' });
     items.push({ id: 'guardias', icon: ICONS.calPlus, label: 'Guardias del mes' });
     items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
     items.push({ id: 'reconocimiento', icon: ICO_CORAZON, label: 'Reconocimiento' });
@@ -13054,6 +13069,7 @@ function renderSidebar() {
   } else if (u && esEquipoSala(u)) {
     items.push({ sep: FUNCIONES[funcionDe(u)].n });
     items.push({ id: 'sala', icon: ICONS.clipboard, label: 'Mi Sala' });
+    items.push({ id: 'miactividad', icon: ico(ICONS.activity, 18), label: 'Mi actividad' });
     items.push({ id: 'guardias', icon: ICONS.calPlus, label: 'Guardias del mes' });
     items.push({ id: 'relevo', icon: ICONS.refresh, label: 'Relevo de turno' });
     items.push({ id: 'reclamos', icon: ICONS.mail, label: 'Reclamos', badge: recl || null });
@@ -13240,7 +13256,7 @@ const TITULOS = {
   consentimientos: 'Consentimientos Médicos Informados',
   modulos: 'Módulos Quirúrgicos',
   reconocimiento: 'Reconocimiento',
-  sala: 'Mi Sala', relevo: 'Relevo de turno',
+  sala: 'Mi Sala', relevo: 'Relevo de turno', miactividad: 'Mi actividad',
   anestesia: 'Portal de Anestesiología', portales: 'Portales del equipo', guardias: 'Guardias del mes',
   pulso: 'Mi pulso en quirófano',
   libro: 'Manual y Libro Blanco',
@@ -13460,7 +13476,7 @@ function renderPanel() {
   $('main').innerHTML = `
     ${panelHero()}
 
-    ${gdxBotonHTML()}${cuentaFaltaHTML(usuarioActual())}
+    ${cuentaFaltaHTML(usuarioActual())}
     ${oroPanelFicha()}
     ${panelRecordatorios()}
 
@@ -13873,7 +13889,7 @@ const GDX_ROLES = [
   { s: 'inst', f: 'I', n: 'Instrumentación', i: '🧰', c: '#d97706', falta: 'Instrumentación' },
   { s: 'inst', f: 'C', n: 'Circulante', i: '🚶', c: '#2563eb', opcional: true },
 ];
-let gdxDia = null, gdxTel = null, gdxReloj = null, gdxVuelta = {};
+let gdxDia = null, gdxTel = null, gdxPub = null, gdxReloj = null;
 function gdxPuede() { return !!(usuarioActual() || jefe || director || admis); }
 function guardiaDiaActual() { const h = Number(nowDT().slice(11, 13)), d = hoyISO(); return h < 8 ? sumarDias(d, -1) : d; }
 function gdxRestante() {
@@ -13881,14 +13897,8 @@ function gdxRestante() {
   const m = Math.max(0, Math.round((fin - ahora) / 60000));
   return { pct: Math.min(100, Math.max(0, (ahora - ini) / 864e5 * 100)), txt: `${Math.floor(m / 60)} h ${m % 60} min` };
 }
-function gdxBotonHTML() {
-  if (!gdxPuede()) return '';
-  return `<button type="button" class="gdx-boton" onclick="gdxAbrir()"><span class="gdx-b-i">🛡️</span>
-    <span><b>Guardia del día</b><small>De 8:00 a 8:00 · quién está y cómo contactarlo</small></span><i aria-hidden="true">›</i></button>`;
-}
 async function gdxAbrir() {
-  if (!gdxPuede()) return;
-  gdxDia = guardiaDiaActual(); gdxVuelta = {};
+  gdxDia = guardiaDiaActual();
   let ov = $('gdx-ov');
   if (!ov) { ov = document.createElement('div'); ov.id = 'gdx-ov'; ov.className = 'overlay gdx-ov'; ov.onclick = (e) => { if (e.target === ov) gdxCerrar(); }; document.body.appendChild(ov); }
   ov.classList.add('open');
@@ -13898,54 +13908,112 @@ async function gdxAbrir() {
 }
 function gdxCerrar() { const ov = $('gdx-ov'); if (ov) ov.classList.remove('open'); clearInterval(gdxReloj); }
 async function gdxCargar() {
+  gdxTel = {}; gdxPub = null;
+  // Sin cuenta se leen solo los nombres que publica el servicio del hospital: la grilla es de las cuentas.
+  if (cloudOn && !gdxPuede()) {
+    try { gdxPub = (await firebase.database().ref('guardiaPub/' + gdxDia).once('value')).val() || {}; } catch (e) { gdxPub = {}; }
+    return;
+  }
   const ym = gdxDia.slice(0, 7);
   await Promise.all([guCargar('enf', ym), guCargar('inst', ym), anestCargarMes(ym)]).catch(() => {});
-  gdxTel = {};
   if (gdxDia !== guardiaDiaActual()) return;
   if (!cloudOn) { gdxTel = contactoLocal(); return; }
   try { gdxTel = (await firebase.database().ref('guardiaTel/' + gdxDia).once('value')).val() || {}; } catch (e) { gdxTel = {}; }
 }
+function gdxEquipo() {
+  if (!gdxPub) return guEquipoDia(gdxDia);
+  return GDX_ROLES.filter((q) => gdxPub[q.f]).map((q) => ({ s: q.s, f: q.f, k: '', n: gdxPub[q.f] }));
+}
 function gdxTic() { const r = gdxRestante(), a = $('gdx-resta'), b = $('gdx-barra'); if (a) a.textContent = r.txt; if (b) b.style.width = r.pct + '%'; }
-async function gdxIr(d) { gdxDia = d; gdxVuelta = {}; await gdxCargar(); gdxPintar(true); }
+async function gdxIr(d) { gdxDia = d; await gdxCargar(); gdxPintar(true); }
 function gdxPersona(x) {
   const u = DB.usuarios.find((y) => anestK(y.email) === x.k), t = gdxTel && gdxTel[x.k];
   const cel = (t && t.cel) || (u && gdxDia === guardiaDiaActual() ? celDe(u) : '');
-  const wa = cel ? celWA(cel) : '';
-  return { mail: (u && u.email) || '', cel, wa };
+  return { mail: (u && u.email) || '', cel, wa: cel ? celWA(cel) : '' };
 }
 function gdxPintar(entra) {
   const ov = $('gdx-ov'); if (!ov) return;
-  const eq = guEquipoDia(gdxDia), r = gdxRestante(), hoy = guardiaDiaActual(), yo = usuarioActual(), yoK = yo ? anestK(yo.email) : '';
-  const tarjetas = GDX_ROLES.map((q, i) => {
+  const eq = gdxEquipo(), r = gdxRestante(), hoy = guardiaDiaActual(), yo = usuarioActual(), yoK = yo ? anestK(yo.email) : '', puede = gdxPuede();
+  const fichas = GDX_ROLES.map((q, i) => {
     const x = eq.find((y) => y.s === q.s && y.f === q.f);
-    if (!x) return q.opcional ? '' : `<div class="gdx-card vacia" style="--c:${q.c};--i:${i}"><div class="gdx-cara"><span class="gdx-av">${q.i}</span><span class="gdx-t"><small>${esc(q.n)}</small><b>Sin cargar</b><em>Falta la lista de ${esc(q.falta)}</em></span></div></div>`;
-    const p = gdxPersona(x), v = !!gdxVuelta[q.f];
-    return `<div class="gdx-card ${v ? 'vuelta' : ''}" style="--c:${q.c};--i:${i}">
-      <div class="gdx-giro">
-        <button type="button" class="gdx-cara" aria-expanded="${v}" onclick="gdxVolver('${q.f}')">
-          <span class="gdx-av">${esc(anestIniciales(x.n))}</span>
-          <span class="gdx-t"><small>${q.i} ${esc(q.n)}</small><b>${esc(x.n)}</b>${x.k === yoK ? '<em>Sos vos</em>' : ''}</span>
-          <i aria-hidden="true">Contacto ›</i></button>
-        <div class="gdx-dorso">
-          <button type="button" class="gdx-x" onclick="gdxVolver('${q.f}')" aria-label="Volver">‹ ${esc(x.n)}</button>
-          <div class="gdx-acc">
-            ${p.wa ? `<a class="wa" href="https://wa.me/${p.wa}" target="_blank" rel="noopener">💬 WhatsApp</a><a href="tel:+${p.wa}">📞 Llamar</a>` : `<span class="off">${gdxDia === hoy ? '📵 Sin celular cargado' : '📵 El teléfono se ve al empezar la guardia'}</span>`}
-            ${p.mail ? `<a href="mailto:${esc(p.mail)}">✉️ Correo</a>` : ''}
-          </div>
-          ${p.cel || p.mail ? `<small>${esc([p.cel, p.mail].filter(Boolean).join(' · '))}</small>` : ''}
-        </div>
-      </div></div>`;
+    if (!x) return q.opcional ? '' : `<div class="gu-ficha gdx-f vacia" style="--k:#94a3b8;--i:${i}"><i>${q.i}</i><div><b>Sin cargar</b><small>${esc(q.n)} · falta la lista de ${esc(q.falta)}</small></div></div>`;
+    const p = gdxPersona(x);
+    return `<div class="gu-ficha gdx-f" style="--k:${q.c};--i:${i}"><i>${esc(anestIniciales(x.n))}</i><div>
+      <b>${esc(x.n)}${x.k && x.k === yoK ? ' · sos vos' : ''}</b><small>${q.i} ${esc(q.n)} de guardia</small>
+      ${!puede ? '<small class="gdx-sin">Ingresá con tu cuenta para ver cómo contactarlo/a.</small>' : `<ul>
+        ${p.mail ? `<li>✉️ <a href="mailto:${esc(p.mail)}">${esc(p.mail)}</a></li>` : ''}
+        <li>📱 ${p.cel ? esc(p.cel) : gdxDia === hoy ? 'Sin celular cargado' : 'El teléfono se ve al empezar la guardia'}</li></ul>
+      ${p.wa ? `<div class="gdx-acc"><a class="wa" href="https://wa.me/${p.wa}" target="_blank" rel="noopener">💬 WhatsApp</a><a href="tel:+${p.wa}">📞 Llamar</a></div>` : ''}`}
+    </div></div>`;
   }).join('');
   ov.innerHTML = `<div class="gdx ${entra ? 'entra' : ''}" role="dialog" aria-label="Guardia del día">
-    <button type="button" class="gdx-cerrar" onclick="gdxCerrar()" aria-label="Cerrar">✕</button>
-    <header><small>🛡️ GUARDIA DEL DÍA</small><h2>${esc(fmtDiaLargo(gdxDia))}</h2><p>De las 8:00 a las 8:00 del día siguiente</p>
+    <header><div><b>${esc(fmtDiaLargo(gdxDia))}</b><small>🛡️ Guardia del día · de 8:00 a 8:00</small></div><button type="button" aria-label="Cerrar" onclick="gdxCerrar()">✕</button></header>
+    <div class="gdx-cuerpo">
       ${gdxDia === hoy ? `<div class="gdx-reloj"><span id="gdx-barra" style="width:${r.pct}%"></span></div><p class="gdx-resta">Termina en <b id="gdx-resta">${r.txt}</b></p>` : ''}
       <div class="gdx-sel"><button type="button" class="${gdxDia === hoy ? 'on' : ''}" onclick="gdxIr('${hoy}')">Ahora</button><button type="button" class="${gdxDia !== hoy ? 'on' : ''}" onclick="gdxIr('${sumarDias(hoy, 1)}')">Próxima guardia</button></div>
-    </header>
-    <div class="gdx-cards">${tarjetas}</div>
-    <p class="gdx-nota">Tocá una tarjeta para ver los datos de contacto.</p></div>`;
+      <div class="gdx-lista">${fichas}</div>
+    </div></div>`;
 }
-function gdxVolver(f) { gdxVuelta[f] = !gdxVuelta[f]; gdxPintar(false); }
+
+/* ================= 3.38.1 · MI ACTIVIDAD =================
+   Anestesiología, Enfermería e Instrumentación: cada acto en el que participó cada persona,
+   uno por uno. Sale de los puestos de la cirugía (c.anest y c.equipoSala). Cuenta lo que
+   empezó o se hizo, nunca lo suspendido. Sin datos de pacientes. */
+let maDesde = '', maHasta = '', maViejas = [], maTrayendo = false;
+function maRango() { if (!maDesde) { const h = hoyISO(); maDesde = h.slice(0, 8) + '01'; maHasta = h; } return [maDesde, maHasta]; }
+function maPuestos(c, u) {
+  const L = [];
+  if (c.anest && c.anest.e === u.email) L.push('Anestesiología');
+  Object.keys(c.equipoSala || {}).forEach((k) => { const p = c.equipoSala[k]; if (p && p.email === u.email) L.push((SALA_PUESTOS[k] || {}).n || k); });
+  return L;
+}
+function maActos(u, desde, hasta) {
+  const vistos = {}, L = [];
+  DB.cirugias.concat(maViejas).forEach((c) => {
+    if (!c || vistos[c.id] || !c.fecha || c.fecha < desde || c.fecha > hasta) return;
+    vistos[c.id] = 1;
+    if (!(operada(c) || c.estado === 'en_curso')) return;
+    const puestos = maPuestos(c, u);
+    if (puestos.length) L.push({ c, puestos, tipo: portalTipo(c) });
+  });
+  return L.sort((a, b) => String(b.c.fecha).localeCompare(String(a.c.fecha)) || String(b.c.horaProg || '').localeCompare(String(a.c.horaProg || '')));
+}
+function maPreset(k) {
+  const h = hoyISO(), m = h.slice(0, 8) + '01';
+  if (k === 'mes') { maDesde = m; maHasta = h; }
+  if (k === 'ant') { const d = sumarDias(m, -1); maDesde = d.slice(0, 8) + '01'; maHasta = d; }
+  if (k === 'anio') { maDesde = h.slice(0, 5) + '01-01'; maHasta = h; }
+  renderMiActividad();
+}
+async function maTraerViejas(btn) {
+  const u = usuarioActual(); if (!u || !cloudOn || maTrayendo) return;
+  maTrayendo = true; btn.disabled = true; btn.textContent = 'Trayendo…';
+  try {
+    const snap = await firebase.database().ref('cirugias').orderByChild('fecha').endAt(sumarDias(ventanaSync().desde, -1)).once('value');
+    maViejas = Object.values(snap.val() || {}).filter((c) => c && maPuestos(c, u).length);
+  } catch (e) { btn.disabled = false; btn.textContent = 'No se pudo traer: reintentar'; maTrayendo = false; return; }
+  maTrayendo = false; renderMiActividad();
+}
+function renderMiActividad() {
+  const u = usuarioActual();
+  if (!u) { go('acceso'); return; }
+  const [desde, hasta] = maRango(), L = maActos(u, desde, hasta);
+  const n = (t) => L.filter((x) => x.tipo === t).length;
+  const cards = [['Actos en total', L.length, '#0f766e', ''], ['Cirugías', n('cir'), '#2563eb', '🔪'], ['Endoscopías', n('endo'), '#0d9488', '🔭'], ['Cesáreas', n('ces'), '#d97706', '👶']];
+  const icono = { cir: '🔪', endo: '🔭', ces: '👶' };
+  $('main').innerHTML = `<div class="page-head"><div class="head-row"><div class="head-icon">${ico(ICONS.activity, 22)}</div><div>
+      <h1 class="page-title">Mi actividad</h1><p class="page-sub">Cada acto en el que participaste, uno por uno</p></div></div></div>
+    <div class="est-toolbar est-bar">
+      <div class="field"><label>Desde</label><input type="date" value="${desde}" max="${hasta}" onchange="maDesde=this.value;renderMiActividad()"></div>
+      <div class="field"><label>Hasta</label><input type="date" value="${hasta}" min="${desde}" onchange="maHasta=this.value;renderMiActividad()"></div>
+      <div class="ma-pres"><button type="button" onclick="maPreset('mes')">Este mes</button><button type="button" onclick="maPreset('ant')">Mes anterior</button><button type="button" onclick="maPreset('anio')">Este año</button></div>
+    </div>
+    <div class="eex-cards">${cards.map(([t, v, c, i], k) => `<div class="eex-card ${k ? '' : 'tot'}" style="--c:${c};--i:${k}"><b>${v}</b><small>${i} ${t}</small></div>`).join('')}</div>
+    <ol class="ma-lista">${L.map((x, i) => `<li style="--i:${Math.min(i, 12)}"><span class="ma-f"><b>${esc(fmtFecha(x.c.fecha))}</b><small>${esc(x.c.horaProg || '')}${x.c.horaProg ? ' h' : ''}</small></span>
+      <span class="ma-t"><b>${icono[x.tipo]} ${esc(x.c.procedimiento || 'Sin nombre')}</b><small>${esc(x.c.quirofano || x.c.sala || '')} · ${esc(x.c.cirujano || '')}</small><em>${esc(x.puestos.join(' · '))}</em></span></li>`).join('') || '<li class="ma-vacio">No hay actos en este período.</li>'}</ol>
+    ${cloudOn && !maViejas.length ? `<div style="text-align:center;margin-top:12px"><button class="btn btn-sm btn-outline" onclick="maTraerViejas(this)">Traer también los meses anteriores</button></div>` : ''}
+    <p class="form-note">Solo vos ves esta lista. No lleva datos de pacientes. Figuran los actos en los que quedaste anotado/a en el puesto.</p>`;
+}
 
 /* ================= 3.38 · PANTALLA DE SALA =================
    Un solo momento a la vista: quién lee, qué se controla y quién confirma. No es otra LVQ:
@@ -19502,6 +19570,13 @@ function rcRecordatorios(add) {
       texto: `La reprogramación del ${fmtFecha(c.fecha)} ${c.horaProg} h no tuvo todos los OK al cierre de las ${BLOQUE.cierreSolicitudes} h (faltaba: ${(c.reprogCama.vencida && c.reprogCama.vencida.falta) || '—'}). Quedó Caducada en Mis Solicitudes: ${mio ? 'pida un turno nuevo' : 'el cirujano tiene que pedir un turno nuevo'}.`,
       cuando: 'Reprogramación por falta de cama' });
   });
+  // 3.38.1 · Le pasaron un turno: se le avisa a quien lo recibe.
+  DB.cirugias.filter((c) => c.reasignado && u && c.reasignado.e === u.email && c.cirujanoEmail === u.email && c.fecha >= hoyISO()).forEach((c) => {
+    add({ key: 'turno-pasado-' + c.id + '-' + c.reasignado.t, nivel: 'warn', notif: true, vista: 'mis', cirugia: c.id,
+      titulo: `Le asignaron un turno — ${c.procedimiento || ''}`,
+      texto: `${c.reasignado.por} le asignó el turno del ${fmtFecha(c.fecha)} ${c.horaProg || ''} h. Ya está en Mis Solicitudes. Revise el consentimiento: tiene que quedar a su nombre.`,
+      cuando: 'Turno recibido' });
+  });
   // 3.37.1 · Consentimiento revocado: aviso crítico al cirujano y a la Jefatura.
   DB.cirugias.filter((c) => c.ciRevocado && !c.ciPaciente && !CI_TURNO_CERRADO.includes(c.estado) && c.fecha >= hoyISO() && (jefe || (u && c.cirujanoEmail === u.email))).forEach((c) => {
     add({ key: 'ci-rev-' + c.id + '-' + c.ciRevocado.t, nivel: 'crit', notif: true, vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
@@ -20932,22 +21007,29 @@ function turnoHuerfano(c) { return !!c && !c.cirujanoEmail; }
    así que se vuelve al campo de texto antes que dejar a la Jefatura sin poder
    cargar el turno. */
 function campoCirujano(c, u, exc, ro) {
-  const conSesion = !!u || !!exc;
   const padron = profesionalesActivos();
-  if (conSesion || !padron.length) {
+  // 3.38.1 · Un turno siempre pertenece a una CUENTA, no a un nombre: con el campo de texto
+  // quedaba a nombre de uno y en «Mis Solicitudes» del otro. Se elige siempre de la lista de
+  // cuentas autorizadas; el texto queda solo para la excepción (ya eligió) y sin padrón.
+  if (exc || !padron.length) {
     return `<div class="field"><label>Cirujano / especialista *</label>
       <input type="text" id="k-cir" value="${esc((c && c.cirujano) || (exc ? exc.cirujano.nombre : (u ? u.nombre : '')) || '')}" ${ro}>
       ${exc ? '<span class="hint">Es el profesional al que se le envía el aviso de la excepción.</span>'
         : (!padron.length ? '<span class="hint">No hay cuentas profesionales activas en el padrón: el turno va a quedar sin dueño y sus avisos, solo en manos de la Jefatura.</span>' : '')}</div>`;
   }
-  const actual = String((c && c.cirujanoEmail) || (duenoProbable(c) || {}).email || '').toLowerCase();
+  // Turno con un nombre y la cuenta de otro (pasó por el campo de texto): se propone el del nombre.
+  const porNombre = c ? padron.filter((p) => mismoProfesional(c.cirujano, p.nombre)) : [];
+  const desfasado = !!(c && c.cirujanoEmail && porNombre.length === 1 && porNombre[0].email.toLowerCase() !== c.cirujanoEmail.toLowerCase());
+  const actual = String((desfasado && porNombre[0].email) || (c && c.cirujanoEmail) || (duenoProbable(c) || {}).email || (!c && u && u.email) || '').toLowerCase();
   return `<div class="field"><label>Cirujano / especialista *</label>
     <select id="k-cir-sel" ${ro} onchange="cirujanoElegido(this)">
       <option value="">— Elegir el profesional —</option>
       ${padron.map((p) => `<option value="${esc(p.email)}" data-nombre="${esc(p.nombre)}" data-serv="${esc(p.servicio || '')}"
         ${String(p.email).toLowerCase() === actual ? 'selected' : ''}>${esc(p.nombre)}${serviciosDe(p).length ? ' — ' + esc(serviciosTexto(p)) : ''}</option>`).join('')}
     </select>
-    <span class="hint">${turnoHuerfano(c) && duenoProbable(c)
+    <span class="hint">${desfasado ? `Este turno dice <b>${esc(c.cirujano)}</b>, pero sigue asociado a otra cuenta. Toque «Guardar cambios» para pasárselo: desde ahí le aparece en sus solicitudes y recibe los avisos.`
+      : u ? 'Elija al médico de la lista: el turno queda en su cuenta, le aparece en sus solicitudes y recibe el aviso.'
+      : turnoHuerfano(c) && duenoProbable(c)
       ? `Este turno figura a nombre de <b>${esc(c.cirujano || 's/d')}</b> pero no está asociado a ninguna cuenta, así que su cirujano no recibe los avisos. Se propone la coincidencia por nombre: confírmela para repararlo.`
       : 'Se elige del padrón para que los recordatorios de esta cirugía le lleguen al cirujano. Un turno sin profesional identificado queda solo en manos de la Jefatura.'}</span>
   </div>`;
@@ -20978,6 +21060,7 @@ function cirujanoElegido(sel) {
   if (!serv || !ss) return;
   const i = [...ss.options].findIndex((o) => mismoServicio(o.value || o.textContent, serv));
   if (i >= 0) ss.selectedIndex = i;
+  else { ss.add(new Option(serv, serv, true, true)); }   // 3.38.1 · El médico elegido puede ser de otro servicio.
 }
 
 /* ================= TURNO HUÉRFANO: AVISO Y REPARACIÓN =================
@@ -23231,6 +23314,50 @@ function estvDestacadosTipo(arr) {
   ]);
 }
 
+/* ================= 3.38.1 · ESTADÍSTICAS DE ENDOSCOPÍA =================
+   Solo para el Jefe/a de Endoscopía: todos los estudios de la sala, por tipo, por médico, por
+   estudio y por fecha, en el período de arriba. Sin datos de pacientes. Acá «realizados» son
+   los hechos, aunque falte cerrarlos; se muestra aparte cuántos faltan cerrar, porque
+   Estadísticas Quirúrgicas cuenta solo los cerrados. */
+const EE_TIPOS = [['veda', 'VEDA', '#0d9488'], ['colono', 'Colonoscopías', '#7c3aed'], ['ambos', 'VEDA + Colonoscopía', '#d97706'], ['otro', 'Otros estudios', '#64748b']];
+function eeTipo(c) {
+  const k = prepClaves(c);
+  return k.length > 1 ? 'ambos' : k[0] || 'otro';
+}
+function eeDatos(desde, hasta) {
+  const L = DB.cirugias.filter((c) => esEndo(c) && c.fecha && c.fecha >= desde && c.fecha <= hasta && ['confirmada', 'en_curso', 'realizada', 'finalizada', 'suspendida'].includes(c.estado));
+  const hechos = L.filter(operada), vacio = () => ({ veda: 0, colono: 0, ambos: 0, otro: 0, total: 0 });
+  const sumar = (m, k, n, c) => { const g = m[k] || (m[k] = Object.assign(vacio(), { n })); g[eeTipo(c)]++; g.total++; };
+  const tot = vacio(), med = {}, est = {}, fec = {}, porMes = diasEntre(desde, hasta) > 45;
+  hechos.forEach((c) => {
+    tot[eeTipo(c)]++; tot.total++;
+    const nm = profesionalCanonico(c.cirujano || '') || 'Sin asignar';
+    sumar(med, claveProfesional(c.cirujano || '') || nm, nm, c);
+    const pr = String(c.procedimiento || 'Sin nombre').trim();
+    sumar(est, sinTildes(pr), pr, c);
+    const d = c.fecha.slice(0, porMes ? 7 : 10);
+    sumar(fec, d, porMes ? nombreMes(d) : fmtFecha(d), c);
+  });
+  const orden = (m) => Object.values(m).sort((a, b) => b.total - a.total || String(a.n).localeCompare(String(b.n), 'es'));
+  return { tot, med: orden(med), est: orden(est), fec: Object.keys(fec).sort().map((k) => fec[k]), porMes,
+    programados: L.filter((c) => !['suspendida'].includes(c.estado)).length, suspendidos: L.filter((c) => c.estado === 'suspendida').length, sinCerrar: hechos.filter((c) => !cirugiaCerrada(c)).length };
+}
+function eeTablaHTML(tit, col, L) {
+  if (!L.length) return '';
+  const max = Math.max(1, ...L.map((g) => g.total));
+  return `<section class="eex-sec"><h3>${tit}</h3><div class="eex-tabla"><table><thead><tr><th>${col}</th><th class="num">VEDA</th><th class="num">Colono</th><th class="num">Ambas</th><th class="num">Otros</th><th class="num">Total</th></tr></thead>
+    <tbody>${L.map((g, i) => `<tr style="--i:${Math.min(i, 12)}"><td><b>${esc(g.n)}</b><span class="eex-bar"><i style="width:${(g.total / max * 100).toFixed(1)}%"></i></span></td><td class="num">${g.veda}</td><td class="num">${g.colono}</td><td class="num">${g.ambos}</td><td class="num">${g.otro}</td><td class="num"><b>${g.total}</b></td></tr>`).join('')}</tbody></table></div></section>`;
+}
+function eeHTML(desde, hasta) {
+  if (!esJefeEndo(usuarioActual())) return '';
+  const e = eeDatos(desde, hasta);
+  return `<details class="eex" open><summary>🔭 Endoscopía · ${fmtFecha(desde)} al ${fmtFecha(hasta)}</summary>
+    <div class="eex-cards"><div class="eex-card tot"><b>${e.tot.total}</b><small>Estudios realizados</small></div>
+      ${EE_TIPOS.map(([k, n, c], i) => `<div class="eex-card" style="--c:${c};--i:${i}"><b>${e.tot[k]}</b><small>${n}</small></div>`).join('')}</div>
+    <p class="eex-nota">${e.programados} en el parte · ${e.suspendidos} suspendido(s)${e.sinCerrar ? ` · ${e.sinCerrar} realizado(s) sin cerrar: no cuentan en las cifras quirúrgicas de abajo hasta cerrarse` : ''}.</p>
+    ${e.tot.total ? eeTablaHTML('👨‍⚕️ Por médico', 'Médico', e.med) + eeTablaHTML('🧪 Por estudio', 'Estudio', e.est) + eeTablaHTML(e.porMes ? '🗓️ Por mes' : '🗓️ Por fecha', e.porMes ? 'Mes' : 'Fecha', e.fec) : '<p class="eex-nota">No hay estudios realizados en este período.</p>'}
+  </details>`;
+}
 function renderEstadisticas() {
   const u = usuarioActual();
   const [desde, hasta] = estRango();
@@ -23295,6 +23422,7 @@ function renderEstadisticas() {
       </div>
     </div>
 
+    ${eeHTML(desde, hasta)}
     ${(() => {
       // Lo operado que todavía no cerró no entra en ninguna de estas cifras.
       const sc = DB.cirugias.filter((c) => cxVer(c) && c.fecha >= desde && c.fecha <= hasta && c.estado === 'realizada' && !cirugiaCerrada(c)).length;
@@ -27122,9 +27250,16 @@ async function guardarSlot() {
     pushHist(c, `Programada por excepción de la ${esEndo(c) ? JEFATURA_ENDO : 'Jefatura de Quirófanos'}${esEndo(c) ? ` (${u.nombre})` : ''}, fuera del cronograma habitual — ${exc.motivo}`);
   }
   if (existente && cirEmailElegido && cirEmailElegido !== duenoPrevio) {
+    if (duenoPrevio) { c.reasignado = { e: cirEmailElegido, t: nowDT(), por: (u && u.nombre) || JEFATURA }; toastTurno(`Turno pasado a ${cirujano}`, '#0f766e'); }
     pushHist(c, duenoPrevio
       ? `Turno reasignado a ${cirujano} (${cirEmailElegido})`
       : `Turno asignado a ${cirujano} (${cirEmailElegido}) — hasta ahora no tenía profesional asociado, así que sus recordatorios quedaban solo en manos de la ${JEFATURA} y no figuraba en «Mis Solicitudes» del cirujano`);
+  }
+  // 3.38.1 · Turno nuevo cargado para otro médico: se le avisa igual que si se lo hubieran pasado.
+  if (!existente && cirEmailElegido && !(u && cirEmailElegido === u.email)) {
+    c.reasignado = { e: cirEmailElegido, t: nowDT(), por: (u && u.nombre) || JEFATURA };
+    pushHist(c, `Turno cargado por ${c.reasignado.por} y asignado a ${cirujano} (${cirEmailElegido})`);
+    toastTurno(`Turno asignado a ${cirujano}`, '#0f766e');
   }
   if (existente) pushHist(c, 'Turno actualizado');
   // 3.32.4 · Turno nuevo armado con «Reprogramar» desde una caducada: quedan unidos.
@@ -36114,6 +36249,7 @@ Object.assign(VIEWS, {
   acceso: renderAcceso,
   perfil: renderPerfil,
   pulso: renderPulso,
+  miactividad: renderMiActividad,
   libro: renderLibro,
   modulos: renderModulos,
 });

@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.38.0'
+VERSION = '3.38.1'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -555,9 +555,19 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.38'),
+('h2', 'Versión 3.38.1 — El turno siempre con la cuenta del médico; estadísticas de Endoscopía'),
+('ul', [
+    '**El médico se elige de la lista.** Todo turno se crea eligiendo al médico en el desplegable «Cirujano / especialista», con las cuentas autorizadas del padrón. Viene propuesto quien está cargando; si se elige a otro, el turno queda en la cuenta de esa persona: le aparece en Mis Solicitudes y recibe los recordatorios.',
+    '**Pasar un turno.** Se abre el turno, se elige otro médico y se toca «Guardar cambios». Deja de figurar en las solicitudes de quien lo tenía.',
+    '**Turnos que quedaron a medias.** Si un turno dice un nombre pero sigue en la cuenta de otro, el desplegable propone el del nombre: alcanza con tocar «Guardar cambios».',
+    '**Aviso.** Quien recibe un turno ve «Le asignaron un turno» en la app y recibe push y correo, sin datos del paciente. La ficha le indica actualizar el consentimiento si hace falta.',
+    '**Botón Guardia.** Está arriba, junto al LED de conexión, y se ve sin ingresar. Abre una ventana con las fichas de la guardia de 8:00 a 8:00. Sin ingresar se ven solo el nombre y la función; el correo, el celular, WhatsApp y llamar requieren cuenta.',
+    '**Mi actividad.** Anestesiología, Enfermería e Instrumentación tienen en su menú **Mi actividad**: los totales de cirugías, endoscopías y cesáreas y cada acto uno por uno, con fecha, hora, sala, médico y puesto. La ve solo cada persona y no lleva datos de pacientes. Figuran los actos en los que la persona quedó anotada en el puesto.',
+    '**Estadísticas de Endoscopía.** El Jefe/a de Endoscopía ve en Estadísticas, para el período elegido, los totales, VEDA, colonoscopías, ambas y otros estudios, por médico, por estudio y por fecha (o por mes, si el período supera 45 días). Sin datos de pacientes. Cuenta los estudios realizados y avisa cuántos faltan cerrar.',
+]),
 ('h2', 'Versión 3.38.0 — Guardia del día y pantalla de sala'),
 ('ul', [
-    '**Guardia del día.** En el Panel y en el menú, para quien tiene cuenta: tarjetas con anestesiología, enfermería, instrumentación y circulante (si la hay), de 8:00 a 8:00. Antes de las 8 sigue la guardia del día anterior. Cada tarjeta se da vuelta y muestra WhatsApp, llamar y correo. Sale de las grillas que carga cada sector. «Próxima guardia» muestra quién sigue, sin teléfono.',
+    '**Guardia del día.** Fichas de anestesiología, enfermería, instrumentación y circulante (si la hay), de 8:00 a 8:00. Antes de las 8 sigue la guardia del día anterior. Sale de las grillas que carga cada sector. «Próxima guardia» muestra quién sigue, sin teléfono.',
     '**Privacidad del celular.** El celular sigue siendo privado: las cuentas del hospital ven solo el de quien está de guardia y solo ese día. Lo publica el servicio del hospital en un nodo aparte y borra los días anteriores.',
     '**Plazo de las guardias.** Se entregan del 15 al 18 del mes previo. Desde el 15, el/la jefe/a de Anestesiología, Enfermería de Quirófano e Instrumentación recibe el aviso todos los días (en la app, en el teléfono y por correo) hasta tocar «Enviar»; ahí se corta solo.',
     '**Pantalla de sala.** Desde la tarjeta de la cirugía o la ficha: **▶ Pantalla de sala**. Muestra un solo momento: quién lee en voz alta, los puntos a controlar, quién confirma y quién falta. Son 7 momentos en cirugía y 5 en endoscopía. Quien lee tilda, el equipo lo ve en vivo y, cuando confirman todos, pasa sola al momento siguiente. Usa las mismas firmas de siempre: no cambian el recorrido, los bloqueos ni los indicadores.',
