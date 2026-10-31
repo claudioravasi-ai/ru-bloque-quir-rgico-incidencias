@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.36.2'
+VERSION = '3.38.0'
 FECHA = 'Octubre de 2026'
 
 PORTADA = {
@@ -554,7 +554,30 @@ BLOQUES = [
 ]),
 
 # ─────────────────────────────────────────────────────────────── 14
-('h1', '14. Novedades de las versiones 3.12 a 3.36'),
+('h1', '14. Novedades de las versiones 3.12 a 3.38'),
+('h2', 'Versión 3.38.0 — Guardia del día y pantalla de sala'),
+('ul', [
+    '**Guardia del día.** En el Panel y en el menú, para quien tiene cuenta: tarjetas con anestesiología, enfermería, instrumentación y circulante (si la hay), de 8:00 a 8:00. Antes de las 8 sigue la guardia del día anterior. Cada tarjeta se da vuelta y muestra WhatsApp, llamar y correo. Sale de las grillas que carga cada sector. «Próxima guardia» muestra quién sigue, sin teléfono.',
+    '**Privacidad del celular.** El celular sigue siendo privado: las cuentas del hospital ven solo el de quien está de guardia y solo ese día. Lo publica el servicio del hospital en un nodo aparte y borra los días anteriores.',
+    '**Plazo de las guardias.** Se entregan del 15 al 18 del mes previo. Desde el 15, el/la jefe/a de Anestesiología, Enfermería de Quirófano e Instrumentación recibe el aviso todos los días (en la app, en el teléfono y por correo) hasta tocar «Enviar»; ahí se corta solo.',
+    '**Pantalla de sala.** Desde la tarjeta de la cirugía o la ficha: **▶ Pantalla de sala**. Muestra un solo momento: quién lee en voz alta, los puntos a controlar, quién confirma y quién falta. Son 7 momentos en cirugía y 5 en endoscopía. Quien lee tilda, el equipo lo ve en vivo y, cuando confirman todos, pasa sola al momento siguiente. Usa las mismas firmas de siempre: no cambian el recorrido, los bloqueos ni los indicadores.',
+    '**Parte quirúrgico.** Basta con escribir algo, aunque sea un punto, para activar el botón. Vacío no se puede cerrar, y la app lo avisa.',
+]),
+('h2', 'Versión 3.37.1 — Revocar el consentimiento y firma del representante legal'),
+('ul', [
+    '**Revocar desde el pase.** Quien aceptó el consentimiento ve **Revocar mi consentimiento**. Pide confirmación, no exige motivo y usa el mismo ingreso con DNI y código. El cirujano y la Jefatura (la de Endoscopía, si corresponde) reciben un correo urgente, y el paciente recibe una constancia.',
+    '**Revocar en persona.** En la ficha, el cirujano o la Jefatura tocan **Registrar revocación** e imprimen un ejemplar sin firmar para que el paciente firme la revocación.',
+    '**Qué pasa después.** El consentimiento deja de valer y la LVQ no se puede empezar. El turno no se suspende solo: lo decide el equipo con el paciente. Hay aviso crítico en la app, y la ficha baja el PDF **Bajar la revocación**. Si el paciente cambia de idea, lo acepta de nuevo desde su pase y todo se habilita otra vez.',
+    '**Representante legal.** Cuando firma un representante, el pase indica quién debe aceptar y la constancia del PDF va a su nombre, en representación del paciente. El ingreso sigue siendo con el DNI del paciente y su correo.',
+]),
+('h2', 'Versión 3.37.0 — Firmas en el consentimiento, avisos al paciente y nueva pantalla de Consentimientos'),
+('ul', [
+    '**Cambios en el turno.** El pase se actualiza solo. Ahora, además, si cambia el procedimiento, la especialidad, el médico, la fecha, la hora o el lugar de un pase ya enviado, al paciente le llega un correo «Hay novedades en tu turno» (sin nombrar la cirugía) y en su pase ve qué se actualizó. Si cambian el cirujano, la especialidad o el procedimiento, la ficha avisa que hay que actualizar el consentimiento.',
+    '**Cambios en el consentimiento.** Si el texto cambia después de que el paciente lo aceptó, esa aceptación queda en el registro pero deja de valer: el paciente recibe un correo, su pase le pide leer y aceptar la versión nueva, y el médico vuelve a firmar. Reenviar el pase sin tocar el texto no pide nada.',
+    '**Firma electrónica en el PDF.** En el lugar de la firma del paciente aparece «Firma electrónica» con fecha y hora. El médico firma con su cuenta tocando **Firmar y bajar el consentimiento (PDF)**, y aparece su firma en su lugar. Si lo baja la Jefatura sin esa firma, el lugar dice «Falta la firma electrónica del médico».',
+    '**Revocación anulada.** Con el consentimiento aceptado, el espacio de firmas de la revocación sale tachado y con el cartel «ESPACIO ANULADO». La cláusula queda legible porque el paciente conserva el derecho a revocar: en ese caso se usa un ejemplar sin firmar y se asienta en la historia clínica.',
+    '**Pantalla de Consentimientos.** Al entrar se ven tres tarjetas con sus números: **Firmados**, **Falta firmar** (el turno sigue y el paciente todavía puede firmar) y **Turnos ya cerrados** (no se firmaron por la app: pudo ser en papel). No se muestra ningún nombre hasta tocar una tarjeta o buscar. Se dejó de usar el filtro inicial por semana: dentro de la lista está «Solo esta semana».',
+]),
 ('h2', 'Versión 3.36.2 — Médico y estudio sin ingresar; cierre de Endoscopía por todos los caminos'),
 ('ul', [
     '**Sin ingresar se ve el médico, el servicio y el estudio de cada turno,** nunca los datos del paciente.',
