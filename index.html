@@ -9817,7 +9817,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.40.4';
+const APP_VERSION = '3.40.5';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -28483,10 +28483,12 @@ function confirmarCancelacion(titulo, desc, onOk) {
    entran en una hoja; si hay más, siguen en otra con los títulos de las
    columnas). Sin zoom: queda igual en Chrome, Safari y Edge. */
 /* 3.25 · Un parte por área, cada uno en su PDF y con el mismo diseño. */
+const PARTE_QX = { uno: 'cirugía', varios: 'cirugías', med: 'Cir.', sinSala: 'Otros quirófanos / sin sala', jefe: 'Jefatura de Quirófanos', enf: 'Enfermería del bloque', uso: 'del bloque quirúrgico', app: 'la App HRU Quirófanos' };
 const PARTE_AREAS = {
-  qx:   { t: 'Parte Quirúrgico', sub: 'Quirófanos centrales', b: 'Quirófanos centrales' },
-  endo: { t: 'Parte de Endoscopía', sub: 'Sala de Endoscopía Digestiva', b: 'Endoscopía' },
-  obs:  { t: 'Parte de Obstetricia', sub: 'Cesáreas y cirugías gineco-obstétricas', b: 'Obstetricia y cesáreas' },
+  qx:   { t: 'Parte Quirúrgico', sub: 'Quirófanos centrales', b: 'Quirófanos centrales', ...PARTE_QX },
+  // 3.40.5 · El parte de Endoscopía habla de estudios y de su propia Jefatura, también al pie.
+  endo: { t: 'Parte de Endoscopía', sub: 'Sala de Endoscopía Digestiva', b: 'Endoscopía', ...PARTE_QX, uno: 'estudio', varios: 'estudios', med: 'Méd.', sinSala: 'Sin sala', jefe: 'Jefatura de Endoscopía', enf: 'Enfermería de Endoscopía', uso: 'de la Unidad de Endoscopía', app: 'el Sistema de Programación Endoscópica del HRU' },
+  obs:  { t: 'Parte de Obstetricia', sub: 'Cesáreas y cirugías gineco-obstétricas', b: 'Obstetricia y cesáreas', ...PARTE_QX },
 };
 function areaDe(c) { const s = SALAS.find((x) => x.id === c.sala); return s ? s.tipo : 'qx'; }
 function delParteArea(d, area) { return DB.cirugias.filter((c) => c.fecha === d && ESTADOS_PARTE.includes(c.estado) && areaDe(c) === area); }
@@ -28508,7 +28510,7 @@ function imprimirParte(d, area) {
   const T0 = 8 * 60, T1 = 20 * 60;
   const necesita = {};
   let minutos = 0;
-  const grupos = [...SALAS.filter((s) => s.tipo === area), ...(sinSala.length ? [{ id: null, nombre: 'Otros quirófanos / sin sala' }] : [])].map((s) => {
+  const grupos = [...SALAS.filter((s) => s.tipo === area), ...(sinSala.length ? [{ id: null, nombre: AR.sinSala }] : [])].map((s) => {
     const turnos = (s.id === null ? sinSala : delParte.filter((c) => c.sala === s.id)).sort(ordenPrelacion);
     if (!turnos.length) return '';
     // Línea de tiempo de la sala (08 a 20 h).
@@ -28537,7 +28539,7 @@ function imprimirParte(d, area) {
           <small>DNI ${esc(p.dni || '—')} · ${p.edad ?? '—'} años · ☎ ${esc(p.telefono || '—')}</small>
           ${camaDe(c) ? `<span class="cama">🛏 ${esc(camaTexto(c, true))}</span>` : '<span class="cama no">🛏 Cama: ____ Hab.: ____</span>'}</td>
         <td><b class="proc">${esc(c.procedimiento || '')}</b><small>${esc(c.diagnostico || '')}${c.cie10 ? ' · CIE-10 ' + esc(c.cie10) : ''}</small></td>
-        <td class="eq"><span><u>Cir.</u> ${esc(c.cirujano || '—')}${c.servicio ? ` <u>· ${esc(c.servicio)}</u>` : ''}</span>${ay ? `<span><u>Ay.</u> ${esc(ay.nombre)}</span>` : ''}
+        <td class="eq"><span><u>${esc(AR.med)}</u> ${esc(c.cirujano || '—')}${c.servicio ? ` <u>· ${esc(c.servicio)}</u>` : ''}</span>${ay ? `<span><u>Ay.</u> ${esc(ay.nombre)}</span>` : ''}
           <span><u>Anest.</u> ${esc(c.anestesista || '—')}${c.anestesia ? ' · ' + esc(c.anestesia) : ''}</span></td>
         <td class="esp">${esp.length ? esp.map((x) => `<span>${esc(x)}</span>`).join('') : '<i>Ninguno</i>'}</td>
         <td class="est">${rcVeces(c) ? `<em class="tag sincama">SIN CAMA ×${rcVeces(c)} · PRIORIDAD</em>` : ''}<em class="tag" style="--c:${PRIO_COL[pe] || '#475569'}">P${pe} ${esc(P.label)}</em>${c.urgencia ? '<em class="tag" style="--c:#b91c1c">URGENCIA</em>' : ''}
@@ -28546,7 +28548,7 @@ function imprimirParte(d, area) {
       </tr>`;
     }).join('');
     const primero = turnos.map((c) => c.horaProg).filter(Boolean).sort()[0] || '';
-    return `<tr class="grp"><td colspan="7"><div class="gh"><b>${esc(s.nombre)}</b><span>${turnos.length} cirugía${turnos.length === 1 ? '' : 's'}${primero ? ' · desde ' + esc(primero) + ' h' : ''}</span>
+    return `<tr class="grp"><td colspan="7"><div class="gh"><b>${esc(s.nombre)}</b><span>${turnos.length} ${turnos.length === 1 ? AR.uno : AR.varios}${primero ? ' · desde ' + esc(primero) + ' h' : ''}</span>
         <div class="tl">${bloques}${[8, 10, 12, 14, 16, 18, 20].map((h) => `<s style="left:${((h * 60 - T0) / (T1 - T0) * 100).toFixed(2)}%">${h}</s>`).join('')}</div></div></td></tr>${filas}`;
   }).join('');
   const urg = delParte.filter((c) => c.urgencia).length;
@@ -28629,7 +28631,7 @@ function imprimirParte(d, area) {
         <div class="tit"><small>Hospital Regional Ushuaia · ${esc(AR.sub)}</small><h1>${esc(AR.t)}</h1>
           <span>${esc(fmtDiaLargo(d))} · emitido ${esc(fmtDT(nowDT()))}${u && u.nombre ? ' por ' + esc(u.nombre) : jefe ? ' por la Jefatura' : ''}</span></div>
         <div class="kpis">
-          <div class="kpi"><b>${delParte.length}</b><small>cirugías</small></div>
+          <div class="kpi"><b>${delParte.length}</b><small>${esc(AR.varios)}</small></div>
           <div class="kpi r"><b>${urg}</b><small>urgencias</small></div>
           <div class="kpi"><b>${salas}</b><small>salas</small></div>
           <div class="kpi"><b>${hs}</b><small>programadas</small></div>
@@ -28641,12 +28643,12 @@ function imprimirParte(d, area) {
       ${grupos ? `<table class="tabla">
         <colgroup><col style="width:6%"><col style="width:17%"><col style="width:18%"><col style="width:17%"><col style="width:12%"><col style="width:16%"><col style="width:14%"></colgroup>
         <thead><tr><th>Hora</th><th>Paciente · obra social</th><th>Procedimiento · diagnóstico</th><th>Equipo</th><th>Equipamiento especial</th><th>Prioridad · estado</th><th class="ctlh">Ingresó · Inicio · Fin<small>(hora, a mano)</small></th></tr></thead>
-        <tbody>${grupos}</tbody></table>` : '<div class="vacio">Sin cirugías en el parte de esta fecha.</div>'}
+        <tbody>${grupos}</tbody></table>` : `<div class="vacio">Sin ${esc(AR.varios)} en el parte de esta fecha.</div>`}
       <div class="pie">
-        <div class="firma">Jefatura de Quirófanos · firma y sello</div>
-        <div class="firma">Enfermería del bloque · firma</div>
+        <div class="firma">${esc(AR.jefe)} · firma y sello</div>
+        <div class="firma">${esc(AR.enf)} · firma</div>
         <div class="ints">☎ Internos para llamar al paciente: Adultos 1035 · Pediatría 1012 · Maternidad 1608 · UCI 1034</div>
-        <div class="ley"><b>Datos personales y de salud (Ley 25.326).</b> Uso interno del bloque quirúrgico: no dejar a la vista, no fotografiar, destruir al terminar la jornada. Generado por la App HRU Quirófanos; el parte se publica a las ${BLOQUE.publicacionParte} h del día hábil previo.</div>
+        <div class="ley"><b>Datos personales y de salud (Ley 25.326).</b> Uso interno ${esc(AR.uso)}: no dejar a la vista, no fotografiar, destruir al terminar la jornada. Generado por ${esc(AR.app)}; el parte se publica a las ${BLOQUE.publicacionParte} h del día hábil previo.</div>
       </div>
     </div>
     <script>
