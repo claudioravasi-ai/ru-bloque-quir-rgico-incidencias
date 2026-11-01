@@ -4531,6 +4531,7 @@
   .tb-lq[hidden] { display: none; }
   .tb-lq > span:first-child { animation: none; }
   @media (max-width: 460px) { .tb-lq > span:last-child { display: none; } }
+  @media (max-width: 340px) { .tb-gdx > span:last-child { display: none; } .tb-gdx { padding: 5px 7px; margin-right: 3px; } }
   .lq-btn { margin-bottom: 8px; }
   body .overlay.lq-ov, body[data-tema] .overlay.lq-ov { z-index: 96; align-items: center; background: rgba(6,26,23,.94); }
   .lq { display: grid; gap: 12px; width: min(440px, 100%); padding: 14px 16px; box-sizing: border-box; color: #eafff9; }
@@ -9816,7 +9817,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.40.1';
+const APP_VERSION = '3.40.4';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10986,7 +10987,7 @@ function pendientesTurno(c) {
   if (!sinRecuento(c) && !c.coordinacion?.insumos) f.push({ corto: 'Instrumentación', largo: 'Instrumentación: implantes/insumos sin verificar' });
   if (!sinRecuento(c) && !c.coordinacion?.esterilizacion) f.push({ corto: 'Esterilización', largo: 'Esterilización: instrumental sin confirmar' });
   if (c.recursos?.hemoderivados && !c.coordinacion?.hemoterapia) f.push({ corto: 'Hemoterapia', largo: 'Hemoterapia: hemoderivados sin reservar' });
-  if (!['confirmada', 'en_curso'].includes(c.estado) && !jefaturaExenta(c)) f.push({ corto: 'confirmación de Jefatura', largo: 'Jefatura de Quirófanos: falta validar y confirmar el turno en el parte quirúrgico' });
+  if (!['confirmada', 'en_curso'].includes(c.estado) && !jefaturaExenta(c) && !esParto(c)) f.push({ corto: 'confirmación de Jefatura', largo: 'Jefatura de Quirófanos: falta validar y confirmar el turno en el parte quirúrgico' });
   return f;
 }
 /* Caso cerrado. Se calcula, no se cree: sirve también para los turnos viejos
@@ -12170,6 +12171,7 @@ function cambioDeIdentidad(entra) {
 }
 
 function revisarRecordatorios() {
+  if (alCambiarDia()) refreshView();
   // Antes de recalcular: las franjas provisionales vencidas vuelven al bloque.
   barrerTurnosProvisionales();
   // Y los turnos que quedaron atrás más de DIAS_CIERRE_ADMIN días, se cierran.
@@ -13328,8 +13330,23 @@ function volverAtras() {
   setTimeout(() => { if (view === ult.v) window.scrollTo(0, y); }, 350);
 }
 
+/* 3.40.2 · La terminal de Admisión o de la sala queda abierta de un día para otro: quien estaba
+   mirando «hoy» sigue en hoy, no en el día anterior. */
+let diaVisto = hoyISO();
+function alCambiarDia() {
+  const h = hoyISO(), a = diaVisto;
+  if (h === a) return false;
+  diaVisto = h;
+  if (ingDia === a) ingDia = h;
+  if (diaSel === a) diaSel = h;
+  if (salaDia === a) salaDia = h;
+  if (anestDia === a) anestDia = h;
+  if (tomarDia === a) tomarDia = h;
+  return true;
+}
 function go(v, silencioso) {
   lqBarra();
+  alCambiarDia();
   // 3.31 · «Equipos del día» no es una pantalla: es una ventana que se abre sobre la que esté.
   if (v === 'guardiadia') { closeDrawer(); gdxAbrir(); return; }
   if (v === 'propuesta' || v === 'propuestahoy') { closeDrawer(); eqPendiente = true; eqPendDia = v === 'propuestahoy' ? 'hoy' : null; setTimeout(eqAlAbrir, 0); if (view && VIEWS[view]) return; v = 'panel'; }
@@ -14169,7 +14186,7 @@ function sxPintar() {
   if (!c) { sxCerrar(); return; }
   const e = flEstado(c), mis = flMisRoles(c), p = e.pasos[e.activo], hab = lvqHabilitada(c);
   const sig = sxSiguiente(c);
-  const clave = JSON.stringify([c.estado, e.activo, e.pasos.map((x) => x.firmas.map((y) => (y.f ? 1 : 0))), c.pedidos || 0, hab, c.tiempos || 0, (c.lvq || {}).sala || 0, sig ? [sig.id, !!sig.pulsera] : 0]);
+  const clave = JSON.stringify([c.estado, e.activo, e.pasos.map((x) => x.firmas.map((y) => (y.f ? 1 : 0))), c.pedidos || 0, hab, c.tiempos || 0, (c.lvq || {}).sala || 0, sig ? [sig.id, !!sig.pulsera] : 0, recuentoDif(c) || 0]);
   if (clave === sxClave) {   // Nada cambió de lugar: solo las casillas que tilda quien lee.
     const v = ((c.lvq || {}).vivo || {})[p && p.k] || {};
     ov.querySelectorAll('.sx-item input:disabled').forEach((x) => { x.checked = !!v[x.dataset.i]; x.closest('.sx-item').classList.toggle('si', x.checked); });
@@ -14185,16 +14202,16 @@ function sxPintar() {
   const quienLee = lector ? p.firmas.find((x) => x.rol === lector) : null;
   const rail = e.pasos.map((x, i) => `<li class="${x.estado}"><span>${x.hecho ? '✓' : i + 1}</span><small>${esc(x.n)}</small></li>`).join('');
   const equipo = p ? p.firmas.map((x, i) => `<div class="sx-p ${x.f ? 'ok' : ''}" style="--i:${i}"><span>${x.f ? '✓' : esc(FL_ROLES[x.rol].i)}</span><b>${esc(x.quien ? x.quien.n : flRolN(x.rol, c))}</b><small>${esc(flRolN(x.rol, c))}${x.f ? ' · confirmó' : ''}</small></div>`).join('') : '';
-  const fin = !p || salaTermino(c), id = JSON.stringify(c.id), activa = salaActiva(c);
+  const fin = !p, termino = salaTermino(c), id = JSON.stringify(c.id), activa = salaActiva(c);
   const llamada = activa ? `<div class="sx-abrio">${c.lvq.sala.via === 'pulsera' ? '🏷️ Pulsera leída' : '🖐 Sin pulsera'} · abrió ${esc(c.lvq.sala.por)} · ${esc(String(c.lvq.sala.t).slice(11, 16))} h</div>`
-    : !fin && flEsMia(c) && salaHoy(c) && hab ? `<button type="button" class="sx-llamar" onclick="sxLlamarManual(${id})">📣 Abrir para todo el equipo (sin pulsera)</button>` : '';
-  const cuerpo = fin ? `<section class="sx-fin"><span>✓</span><h2>${!p ? 'Recorrido completo' : 'Terminó este paciente'}</h2><p>${!p ? 'Todos los momentos quedaron confirmados.' : 'Se cierra acá. El recorrido sigue en su tarjeta.'}</p>${sxSiguienteHTML(c)}</section>`
+    : !fin && !termino && flEsMia(c) && salaHoy(c) && hab ? `<button type="button" class="sx-llamar" onclick="sxLlamarManual(${id})">📣 Abrir para todo el equipo (sin pulsera)</button>` : '';
+  const cuerpo = fin ? `<section class="sx-fin"><span>✓</span><h2>Recorrido completo</h2><p>Todos los momentos quedaron confirmados.</p>${sxSiguienteHTML(c)}</section>`
     : `<section class="sx-mom"><small>Momento ${e.activo + 1} de ${e.pasos.length}</small><h2>${esc(p.n)}</h2><p>${esc(p.d)}</p>
         ${quienLee ? `<div class="sx-lee">📣 Lee en voz alta: <b>${esc(quienLee.quien ? quienLee.quien.n : flRolN(lector, c))}</b></div>` : ''}
         ${!hab ? `<div class="pp-error" role="alert">${esc(lvqMotivoBloqueo(c))}</div>` : ''}
         ${lector ? sxItemsHTML(c, p.k, puedeLeer, !!(quienLee && quienLee.f)) : ''}
         <div class="sx-eq">${equipo}</div>
-        ${hab ? `<div class="sx-accion">${sxAccionesHTML(c, e, p, mis)}${flTiemposHTML(c, p.k, mis)}</div>` : ''}</section>`;
+        ${hab ? `<div class="sx-accion">${sxAccionesHTML(c, e, p, mis)}${flTiemposHTML(c, p.k, mis)}</div>` : ''}${termino ? sxSiguienteHTML(c) : ''}</section>`;
   ov.innerHTML = `<div class="sx ${avanzo ? 'avanza' : ''}" role="dialog" aria-label="Pantalla de sala">
     <header><button type="button" onclick="sxCerrar()" aria-label="Cerrar">‹ Salir</button>
       <span><b>${esc(c.horaProg || '')} · ${esc(c.procedimiento || '')}</b><small>${esc(c.quirofano || c.sala)} · ${esc((c.paciente && c.paciente.nombre) || '')}</small></span>
@@ -17166,6 +17183,7 @@ async function recEnviarGracias() {
   } catch (e) { alert('No se pudo publicar el agradecimiento.' + (e && e.code === 'PERMISSION_DENIED' ? '\n\n(La base todavía no tiene las reglas de Reconocimiento publicadas.)' : '')); return; }
   (recEstado.gratitud = recEstado.gratitud || []).push(Object.assign({ id, t: Date.now() }, nota));
   recSello = '';
+  $('rc2-g-para').value = ''; $('rc2-g-txt').value = '';
   renderReconocimiento();
 }
 async function recBorrarGracias(id) {
@@ -17230,6 +17248,7 @@ function renderReconocimiento() {
   const mes = recMes();
   const voto = Object.assign({ valores: [] }, recEstado.miVoto || {}, recVotoTmp || {});
   const colegas = recColegas();
+  const bPara = ($('rc2-g-para') || {}).value || '', bTxt = ($('rc2-g-txt') || {}).value || '';   // 3.40.3 · postal a medio escribir
   const q = sinTildes(recBusca);
   const lista = colegas.filter((x) => !q || sinTildes(x.nombre + ' ' + serviciosTexto(x)).includes(q));
   const elegido = voto.para ? recUsuarioDeK(voto.para) : null;
@@ -17306,6 +17325,7 @@ function renderReconocimiento() {
     </div>
     <p class="form-note">Datos personales (Ley 25.326): el voto es secreto y lo cuenta un servicio automático del hospital; ni la Jefatura ni nadie ve quién votó a quién. Se publica solo el resultado, sin cantidades.</p>`;
   recRelojTic();
+  if ((bPara || bTxt) && $('rc2-g-txt')) { $('rc2-g-para').value = bPara; $('rc2-g-txt').value = bTxt; recMuroPrevia(); }
 }
 /* ================= 3.22 · MURO DE GRATITUD COMO POSTALES =================
    Antes eran papelitos de colores sin jerarquía. Ahora cada agradecimiento es
@@ -18037,6 +18057,7 @@ function pickCat(k) {
 
 function submitIncidencia(e) {
   e.preventDefault();
+  if ($('ok-overlay').classList.contains('open')) return;   // 3.40.3 · doble toque
   if (!formCat) {
     $('cat-info-slot').innerHTML = `<div class="cat-info urgente">${ICONS.alertTri.replace('22','18').replace('22','18')}<div><strong>Seleccione una categoría</strong>Debe elegir la categoría de la incidencia (A–F) antes de enviar el reporte.</div></div>`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -18157,7 +18178,7 @@ function incCard(i) {
   const cat = catDe(i);
   const est = estadoDe(i);
   return `
-    <div class="inc-card" onclick="openDetalle(${i.id})">
+    <div class="inc-card" onclick="openDetalle(${i.id})" tabindex="0" role="button" onkeydown="if(event.key==='Enter')this.click()">
       <div class="inc-top">
         <span class="chip"><span class="cat-letter" style="background:${cat.color};width:20px;height:20px;font-size:0.72rem;border-radius:6px">${esc(i.categoria) || '?'}</span> ${cat.nombre}</span>
         <span class="chip chip-estado-${est.replace(' ', '\\ ')}">${est === 'Resuelta' ? ICONS.checkCircle.replace('22','13').replace('22','13') : est === 'En Revisión' ? ICONS.eyeSm.replace('16','13') : ICONS.clockSm.replace('14','13')} ${esc(est)}</span>
@@ -18300,7 +18321,7 @@ function setParteFecha(f) { parteFecha = f; renderParte(); }
 
 function parteCard(c) {
   return `
-    <div class="inc-card" onclick="openCirugia(${c.id})">
+    <div class="inc-card" onclick="openCirugia(${c.id})" tabindex="0" role="button" onkeydown="if(event.key==='Enter')this.click()">
       <div class="inc-top">
         ${estChip(c)}
         ${prioChip(c)}
@@ -18702,7 +18723,7 @@ function emElegir(btn, k) {
 function cirCard(c, rol) {
   const acciones = accionesCirugia(c, rol);
   return `
-    <div class="inc-card" onclick="openCirugia(${c.id})">
+    <div class="inc-card" onclick="openCirugia(${c.id})" tabindex="0" role="button" onkeydown="if(event.key==='Enter')this.click()">
       <div class="inc-top">
         ${estChip(c)}
         ${prioChip(c)}
@@ -18746,11 +18767,11 @@ function accionesCirugia(c, rol) {
   if (c.estado === 'pendiente' && jefe && !vencido && !rcActivo(c)) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${!c.auth ? '1º Aceptación de Admisión y Egresos' : authBotonTexto(c)}</button>`);
   }
-  if (c.estado === 'pendiente' && jefe && authOk(c) && !vencido && !rcActivo(c) && !esEndo(c)) {
+  if (c.estado === 'pendiente' && jefe && authOk(c) && !vencido && !rcActivo(c) && !sinJefatura(c)) {
     a.push(`<button class="btn btn-sm btn-green" onclick="validarCirugia(${c.id}, this)">${ICONS.check} Validar y confirmar en el parte</button>`);
   }
   // Turnos de la versión anterior, que quedaron detenidos en «Validada».
-  if (c.estado === 'validada' && jefe && !vencido && !rcActivo(c) && !esEndo(c)) {
+  if (c.estado === 'validada' && jefe && !vencido && !rcActivo(c) && !sinJefatura(c)) {
     a.push(`<button class="btn btn-sm btn-green" onclick="confirmarCirugia(${c.id})">${ICONS.check} Confirmar en el parte</button>`);
   }
   // El turno confirmado en el parte arranca con la LVQ. La urgencia que entró
@@ -18837,9 +18858,9 @@ function validarCirugia(id, btn) {
   const c = DB.cirugias.find((x) => x.id === id);
   if (!c) return;
   if (rcActivo(c)) { avisar('Reprogramación por falta de cama\n\nEste turno se confirma con el OK del cirujano, de Admisión y Egresos y de la Jefatura, y después con la respuesta del paciente. Use los botones de la tarjeta «Reprogramación prioritaria» de la ficha.'); return; }
-  if (esEndo(c)) {
-    if (endoConfirmar(c, '')) { upsert('cirugias', c); refreshView(); toastTurno('Endoscopía confirmada con la autorización de Admisión ✓', '#059669'); }
-    else avisar('Endoscopía\n\nLas endoscopías no las valida la ' + JEFATURA + ': quedan CONFIRMADAS solas cuando Admisión y Egresos las autoriza.');
+  if (sinJefatura(c)) {
+    if (endoConfirmar(c, '')) { upsert('cirugias', c); refreshView(); toastTurno(`${turnoNombre(c, true)} confirmad${esParto(c) ? 'o' : 'a'} con la autorización de Admisión ✓`, '#059669'); }
+    else avisar(`${turnoNombre(c, true)}\n\nNo lo valida la ${JEFATURA}: queda CONFIRMADO solo cuando Admisión y Egresos lo autoriza.`);
     return;
   }
   // Un segundo toque sobre un turno ya validado no hace nada, pero lo dice.
@@ -18927,8 +18948,8 @@ function openLVQ(id, modo) {
     </div>
     <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">${modo === 'inicio'
       ? 'Complete la fase de <b>Entrada</b> (antes de la inducción) y la <b>Pausa Quirúrgica</b> (antes de la incisión) para registrar el inicio del procedimiento.'
-      : 'Complete la fase de <b>Salida</b> (antes de salir de quirófano) y el <b>parte quirúrgico</b>. El conteo de gasas e instrumental es obligatorio. Al confirmar, la cirugía se cierra y queda <b>finalizada</b>.'}</p>
-    ${modo === 'inicio' && puedeIniciarSinJefatura(c) && !esEndo(c) ? `<div class="banner banner-amber" style="margin:0 0 14px;padding:10px 14px">${ico(ICONS.zap, 16)}
+      : `Complete la fase de <b>Salida</b> (antes de salir de quirófano) y el <b>parte${sinRecuento(c) ? '' : ' quirúrgico'}</b>.${sinRecuento(c) ? '' : ' El conteo de gasas e instrumental es obligatorio.'} Al confirmar, ${esEndo(c) ? 'la endoscopía' : esParto(c) ? 'el parto' : 'la cirugía'} se cierra y queda <b>finalizad${esParto(c) ? 'o' : 'a'}</b>.`}</p>
+    ${modo === 'inicio' && puedeIniciarSinJefatura(c) && !sinJefatura(c) ? `<div class="banner banner-amber" style="margin:0 0 14px;padding:10px 14px">${ico(ICONS.zap, 16)}
       <div><strong>Validación de Jefatura diferida — ${esc(jefaturaMotivoExencion(c))}</strong>
       Este turno todavía no lo validó la ${esc(JEFATURA)}. Por ser ${esc(jefaturaMotivoExencion(c))} <b>no hace falta esperarla</b>:
       complete la Lista de Verificación, opere y cargue el parte quirúrgico cuando termine. Lo que sí queda pendiente es el
@@ -18985,7 +19006,7 @@ function cierreFaltantesPrevios(c) {
   const f = [];
   if (c.auth === 'NO AUTORIZADO') f.push('Admisión y Egresos: dictamen NO AUTORIZADO sin rectificar');
   else if (c.auth !== 'AUTORIZADO') f.push('Admisión y Egresos: aceptación pendiente');
-  if (jefaturaExenta(c) && !esEndo(c) && ['pendiente', 'validada'].includes(c.estado)) f.push(`Validación de la ${JEFATURA} (diferida por ${jefaturaMotivoExencion(c)})`);
+  if (jefaturaExenta(c) && !sinJefatura(c) && ['pendiente', 'validada'].includes(c.estado)) f.push(`Validación de la ${JEFATURA} (diferida por ${jefaturaMotivoExencion(c)})`);
   else if (jefaturaPendienteDiferida(c)) f.push(`Validación de la ${JEFATURA}: diferida, sin regularizar`);
   return f;
 }
@@ -18997,7 +19018,7 @@ function confirmLVQ() {
   if (lvqModo === 'inicio') {
     // Urgencia que arranca sin el visto de la Jefatura: queda escrito que la
     // validación se difiere, no que no hizo falta.
-    if (['pendiente', 'validada'].includes(c.estado) && jefaturaExenta(c) && !esEndo(c)) {
+    if (['pendiente', 'validada'].includes(c.estado) && jefaturaExenta(c) && !sinJefatura(c)) {
       c.jefaturaDiferida = { motivo: jefaturaMotivoExencion(c), desdeEstado: c.estado, t };
       pushHist(c, `Iniciada sin la validación previa de la ${JEFATURA} (${jefaturaMotivoExencion(c)}) — la validación y la lista de verificación de coordinación quedan diferidas y se regularizan después`);
     }
@@ -20664,48 +20685,75 @@ function autEscalon(c) {
   const n = diasHabilesHasta(c.fecha);
   return n <= 2 ? 3 : n <= 3 ? 2 : n <= 5 ? 1 : 0;
 }
+function autBajaTxt(c) { return esEndo(c) ? { q: 'el Jefe/a de Endoscopía', Q: 'El Jefe/a de Endoscopía', d: 'ofrecer el turno a otro paciente', l: 'el turno' } : { q: 'la Jefatura', Q: 'La Jefatura', d: 'ofrecer el quirófano a otra especialidad', l: 'el quirófano' }; }
 function autQueFalta(c) { return c.auth === 'NO AUTORIZADO' ? `la obra social o el pago de anestesiología NO autorizó (${c.authMotivo || 'sin motivo registrado'})` : 'falta la autorización de la obra social o del pago de anestesiología'; }
 function autRecordatorios(add) {
   const u = usuarioActual(), hoy = hoyISO();
+  // 3.40.4 · Le dieron de baja un turno: se le avisa al médico, hasta que lo marque visto.
+  if (u) DB.cirugias.filter((c) => c.estado === 'caducada' && c.caducada && c.caducada.baja && !c.reprogramadaEn && c.cirujanoEmail === u.email && c.fecha >= sumarDias(hoy, -7) && !jefeDe(c)).forEach((c) => {
+    add({ key: `aut-baja-${c.id}`, nivel: 'crit', notif: true, vista: 'mis', cirugia: c.id,
+      titulo: `Se dio de baja su ${turnoNombre(c)} por falta de autorización`,
+      texto: `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} · ${fmtFecha(c.fecha)} ${c.horaProg || ''} h · ${c.quirofano || ''}. Lo decidió ${c.caducada.por}. Al paciente se le avisó por correo. Desde la ficha puede reprogramar el turno.`, cuando: fmtDT(c.caducada.t) });
+  });
   DB.cirugias.filter((c) => autEscalon(c) && cxVer(c)).forEach((c) => {
     const e = autEscalon(c), mio = u && c.cirujanoEmail === u.email, quedan = diasHabilesHasta(c.fecha);
     const cx = `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} · ${fmtFecha(c.fecha)} ${c.horaProg || ''} h · ${c.quirofano || ''}`;
+    const jf = jefeDe(c), b = autBajaTxt(c), tn = turnoNombre(c);
     const cuando = `Faltan ${quedan} día${quedan === 1 ? '' : 's'} hábil${quedan === 1 ? '' : 'es'}`;
-    if (mio && !jefe) add(e < 3
+    if (mio && !jf) add(e < 3
       ? { key: `aut-${e}-${c.id}`, nivel: e === 2 ? 'crit' : 'warn', notif: true, vista: 'mis', cirugia: c.id,
-          titulo: e === 2 ? `Faltan 3 días hábiles y la cirugía sigue sin autorizar` : `Su cirugía todavía no está autorizada`,
-          texto: `${cx}. Admisión y Egresos no puede avanzar: ${autQueFalta(c)}. Gestiónelo con el paciente y la obra social. Si a 48 h hábiles sigue igual, la Jefatura la da de baja para ofrecer el quirófano a otra especialidad.`, cuando }
-      : { key: `aut-3-${c.id}`, nivel: 'crit', notif: true, vista: 'reclamos', cirugia: c.id,
-          titulo: `⚠ La Jefatura va a dar de baja su cirugía por falta de autorización`,
-          texto: `${cx}. Quedan 48 h hábiles y ${autQueFalta(c)}. La franja se va a ofrecer a otra especialidad. Si considera que no corresponde, escríbale un reclamo a la Jefatura de Quirófanos (en Reclamos ya está el borrador).`, cuando });
+          titulo: e === 2 ? `Faltan 3 días hábiles y su ${tn} sigue sin autorizar` : `Su ${tn} todavía no está autorizad${esParto(c) ? 'o' : 'a'}`,
+          texto: `${cx}. Admisión y Egresos no puede avanzar: ${autQueFalta(c)}. Gestiónelo con el paciente y la obra social. Si a 48 h hábiles sigue igual, ${b.q} la da de baja para ${b.d}.`, cuando }
+      : { key: `aut-3-${c.id}`, nivel: 'crit', notif: true, vista: esEndo(c) ? 'mis' : 'reclamos', cirugia: c.id,
+          titulo: `⚠ ${b.Q} va a dar de baja su ${tn} por falta de autorización`,
+          texto: `${cx}. Quedan 48 h hábiles y ${autQueFalta(c)}. ${esEndo(c) ? 'El turno se va a ofrecer a otro paciente. Si considera que no corresponde, hable con el Jefe/a de Endoscopía.' : 'La franja se va a ofrecer a otra especialidad. Si considera que no corresponde, escríbale un reclamo a la Jefatura de Quirófanos (en Reclamos ya está el borrador).'}`, cuando });
     if (admis && !jefe) add({ key: `aut-adm-${e}-${c.id}`, nivel: e >= 2 ? 'warn' : 'info', notif: e >= 2, vista: 'ingresos', cirugia: c.id,
-      titulo: `Sin autorización ${AUT_ESCALONES[e].n}`, texto: `${cx}. ${e === 3 ? 'La Jefatura la va a dar de baja si no se autoriza.' : 'Si llega la autorización, cárguela para que el turno avance.'}`, cuando });
-    if (jefe && e >= 2) add(e === 3
-      ? { key: `aut-3-${c.id}`, nivel: 'crit', notif: true, vista: 'programacion', cirugia: c.id,
+      titulo: `Sin autorización ${AUT_ESCALONES[e].n}`, texto: `${cx}. ${e === 3 ? `${b.Q} la va a dar de baja si no se autoriza.` : 'Si llega la autorización, cárguela para que el turno avance.'}`, cuando });
+    if (jf && e >= 2) add(e === 3
+      ? { key: `aut-3-${c.id}`, nivel: 'crit', notif: true, vista: esEndo(c) ? 'endojefe' : 'programacion', cirugia: c.id,
           titulo: `🔴 Prioridad: dar de baja por falta de autorización`,
-          texto: `${cx}. Quedan 48 h hábiles y ${autQueFalta(c)}. Abra la ficha y toque «Dar de baja y liberar el quirófano» para ofrecer la franja a otra especialidad. Al cirujano ya se le avisó que puede reclamar.`, cuando }
-      : { key: `aut-2-${c.id}`, nivel: 'warn', notif: true, vista: 'programacion', cirugia: c.id,
+          texto: `${cx}. Quedan 48 h hábiles y ${autQueFalta(c)}. Abra la ficha y toque «Dar de baja y liberar ${b.l}» para ${b.d}. ${esEndo(c) ? 'Al médico ya se le avisó.' : 'Al cirujano ya se le avisó que puede reclamar.'}`, cuando }
+      : { key: `aut-2-${c.id}`, nivel: 'warn', notif: true, vista: esEndo(c) ? 'endojefe' : 'programacion', cirugia: c.id,
           titulo: `Sin autorización a 3 días hábiles`, texto: `${cx}. Se le avisó al cirujano y a Admisión. A las 48 h hábiles le va a llegar la alerta para darla de baja.`, cuando });
   });
 }
 /* En la ficha: la franja de la escalera y, para la Jefatura en el escalón 3, el botón de baja. */
 function autFichaHTML(c) {
   const e = autEscalon(c); if (!e) return '';
-  const quedan = diasHabilesHasta(c.fecha), u = usuarioActual(), mio = u && c.cirujanoEmail === u.email;
+  const quedan = diasHabilesHasta(c.fecha), u = usuarioActual(), mio = u && c.cirujanoEmail === u.email, jf = jefeDe(c), b = autBajaTxt(c);
   return `<div class="aut-esc e${e}"><div class="aut-esc-pasos">${[1, 2, 3].map((k) => `<span class="${k <= e ? 'on' : ''}">${k === 3 ? '48 h' : AUT_ESCALONES[k].dh + ' días'}</span>`).join('')}</div>
     <div class="aut-esc-t"><b>${e === 3 ? '⚠ Sin autorización a 48 h hábiles' : `Sin autorización · faltan ${quedan} días hábiles`}</b>
-      <small>${esc(autQueFalta(c))}. ${e === 3 ? 'La Jefatura la da de baja para ofrecer el quirófano a otra especialidad.' : 'Si a 48 h hábiles sigue igual, la Jefatura la da de baja.'}</small>
-      ${e === 3 && jefe ? `<button class="btn btn-sm btn-red" onclick="autDarDeBaja(${esc(JSON.stringify(c.id))})">Dar de baja y liberar el quirófano</button>` : ''}
-      ${e === 3 && mio && !jefe ? `<button class="btn btn-sm btn-outline" onclick="autReclamar(${esc(JSON.stringify(c.id))})">✉ No estoy de acuerdo: escribir un reclamo</button>` : ''}</div></div>`;
+      <small>${esc(autQueFalta(c))}. ${e === 3 ? `${b.Q} la da de baja para ${b.d}.` : `Si a 48 h hábiles sigue igual, ${b.q} la da de baja.`}</small>
+      ${e === 3 && jf ? `<button class="btn btn-sm btn-red" onclick="autDarDeBaja(${esc(JSON.stringify(c.id))})">Dar de baja y liberar ${b.l}</button>` : ''}
+      ${e === 3 && mio && !jf && !esEndo(c) ? `<button class="btn btn-sm btn-outline" onclick="autReclamar(${esc(JSON.stringify(c.id))})">✉ No estoy de acuerdo: escribir un reclamo</button>` : ''}</div></div>`;
 }
 async function autDarDeBaja(id) {
-  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c || !jefe || autEscalon(c) !== 3) return;
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c || !jefeDe(c) || autEscalon(c) !== 3) return;
+  const endo = esEndo(c), libre = endo ? 'el turno queda libre para otro paciente' : 'la franja queda libre para otra especialidad';
   const rec = DB.reclamos.find((r) => r.estado !== 'cerrado' && r.cirugia != null && String(r.cirugia) === String(c.id));
-  if (!await preguntar(`Dar de baja por falta de autorización\n\n${c.procedimiento} · ${fmtFecha(c.fecha)} ${c.horaProg || ''} h · ${c.quirofano || ''}\n${c.cirujano || ''}\n\nEl turno queda «Caducada» (falta de autorización del financiador) y la franja queda libre para otra especialidad. El cirujano lo ve en su lista.${rec ? '\n\n⚠ El cirujano escribió un reclamo sobre esta cirugía: léalo antes.' : ''}`, { si: 'Dar de baja', no: 'Cancelar', tono: 'aviso' })) return;
-  caducarTurno(c, 'Falta de autorización del financiador', 'Sin autorización a 48 h hábiles de la cirugía; la franja se ofrece a otra especialidad', JEFATURA, false);
+  if (!await preguntar(`Dar de baja por falta de autorización\n\n${c.procedimiento} · ${fmtFecha(c.fecha)} ${c.horaProg || ''} h · ${c.quirofano || ''}\n${c.cirujano || ''}\n\nEl turno queda «Caducada» (falta de autorización del financiador) y ${libre}. Se les avisa por correo al médico y al paciente.${rec ? '\n\n⚠ El cirujano escribió un reclamo sobre esta cirugía: léalo antes.' : ''}`, { si: 'Dar de baja', no: 'Cancelar', tono: 'aviso' })) return;
+  caducarTurno(c, 'Falta de autorización del financiador', endo ? 'Sin autorización a 48 h hábiles del estudio; el turno se ofrece a otro paciente' : 'Sin autorización a 48 h hábiles de la cirugía; la franja se ofrece a otra especialidad', endo ? `${(usuarioActual() || {}).nombre || ''} (Jefatura de Endoscopía)` : JEFATURA, false, true);
+  autAvisarBaja(c);
   if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) closeCirugia();
-  toastTurno('Dada de baja: la franja quedó libre para otra especialidad', '#e11d48');
+  toastTurno(endo ? 'Dada de baja: el turno quedó libre' : 'Dada de baja: la franja quedó libre para otra especialidad', '#e11d48');
   refreshView();
+}
+/* 3.40.4 · La baja llega al paciente y al médico por correo (y al médico también al teléfono).
+   Si el servicio no responde ahora, el reloj del Apps Script la manda igual. */
+async function autAvisarBaja(c) {
+  const conMail = !!(c.paciente && c.paciente.email);
+  let res = { ok: true, paciente: conMail, medico: !!c.cirujanoEmail };
+  if (cloudOn && PORTAL.servicio) {
+    await new Promise((r) => setTimeout(r, 2500));   // un respiro para que la baja llegue antes a la base
+    try { res = await portalServicio({ accion: 'avisarBaja', id: String(c.id) }); } catch (e) { res = { error: 'red' }; }
+  }
+  const ok = !!(res && res.ok);
+  pushHist(c, ok ? `Aviso de la baja por correo: ${res.medico ? 'médico avisado' : 'médico sin correo'} · ${res.paciente ? 'paciente avisado' : 'paciente sin correo: avisarle por teléfono'}`
+    : 'El aviso de la baja no salió en este momento: el servicio lo vuelve a intentar solo');
+  upsert('cirugias', c);
+  if (ok && !res.paciente) toastTurno('El paciente no tiene correo cargado: avísele por teléfono', '#b45309');
+  else if (ok) toastTurno('Se les avisó al médico y al paciente', '#7c3aed');
+  else toastTurno('El aviso no salió ahora: el servicio lo vuelve a intentar', '#b45309');
 }
 /* El cirujano que no está de acuerdo: el reclamo ya escrito, para revisar y mandar. */
 let autReclamoPrevio = null;
@@ -20719,13 +20767,14 @@ function autReclamar(id) {
 /* En Reclamos: si hay cirugías propias por darse de baja, el aviso con el borrador listo. */
 function autReclamosHTML() {
   const u = usuarioActual(); if (!u || jefe) return '';
-  const l = DB.cirugias.filter((c) => c.cirujanoEmail === u.email && autEscalon(c) === 3);
+  const l = DB.cirugias.filter((c) => c.cirujanoEmail === u.email && autEscalon(c) === 3 && !esEndo(c));
   if (!l.length) return '';
   return `<div class="banner banner-amber">${ico(ICONS.alertTri, 18)}<div><strong>La Jefatura va a dar de baja ${l.length === 1 ? 'una cirugía suya' : l.length + ' cirugías suyas'} por falta de autorización.</strong> Si considera que no corresponde, escríbale un reclamo:
     ${l.map((c) => `<div style="margin-top:6px">· ${esc(fmtFecha(c.fecha))} ${esc(c.horaProg || '')} h · ${esc(c.procedimiento)} <button class="btn btn-sm btn-outline" onclick="autReclamar(${esc(JSON.stringify(c.id))})">Escribir el reclamo</button></div>`).join('')}</div></div>`;
 }
-function caducarTurno(c, motivo, detalle, quien, automatica) {
+function caducarTurno(c, motivo, detalle, quien, automatica, baja) {
   c.caducada = { motivo, detalle: detalle || '', desdeEstado: c.estado, por: quien, t: nowDT(), automatica: !!automatica };
+  if (baja) c.caducada.baja = true;   // 3.40.4 · baja por falta de autorización: se avisa al paciente y al médico
   c.estado = 'caducada';
   pushHist(c, `Caducada — ${motivo}${detalle ? ': ' + detalle : ''}. Asentado por ${quien}. El turno del ${fmtFecha(c.fecha)} nunca llegó a confirmarse en el parte`);
   upsert('cirugias', c);
@@ -21722,7 +21771,7 @@ function flTareas() {
     } else if (c.estado === 'validada') {
       t.push({ c, score: 760 + apuro - d * 4, tono: 'azul', tag: 'Para el parte', mot: 'Turno de la versión anterior: falta confirmarlo en el parte.',
         btn: 'Confirmar en el parte', on: `confirmarCirugia(${c.id})`, ic: ICONS.check });
-    } else if (c.estado === 'pendiente' && authOk(c) && !esEndo(c)) {
+    } else if (c.estado === 'pendiente' && authOk(c) && !sinJefatura(c)) {
       const f = coordFaltantes(c);
       if (!f.length) t.push({ c, score: 800 + apuro - d * 4, tono: 'verde', tag: 'Lista para validar', mot: `Admisión autorizó y la coordinación está completa. Opera ${cu}.`,
         btn: 'Validar', on: `validarCirugia(${c.id}, this)`, ic: ICONS.check });
@@ -21774,7 +21823,7 @@ function renderFlujoJefatura() {
   const visibles = flVerTodas ? tareas : tareas.slice(0, 6);
   const tarea = (t, i) => `<article class="fl-t ${t.tono}${i === 0 ? ' top' : ''}" style="--d:${Math.min(i, 8) * 55}ms">
       <div class="fl-rank">${i + 1}</div>
-      <div class="fl-main" onclick="openCirugia(${t.c.id})" title="Abrir el turno">
+      <div class="fl-main" onclick="openCirugia(${t.c.id})" title="Abrir el turno" tabindex="0" role="button" onkeydown="if(event.key==='Enter')this.click()">
         ${i === 0 ? '<div class="fl-primero">Lo primero</div>' : ''}
         <div class="fl-tags"><span class="fl-tag">${esc(t.tag)}</span><span class="fl-cuando">${esc(fmtFecha(t.c.fecha))}${t.c.horaProg ? ' · ' + esc(t.c.horaProg) + ' h' : ''} · ${esc(t.c.quirofano || 'sin sala')}</span></div>
         <b class="fl-proc">${esc(t.c.procedimiento || 's/d')}</b>
@@ -21818,7 +21867,7 @@ function renderFlujoJefatura() {
       </section>
       <section class="fl-panel" id="fl-espera">
         <h3>${ico(ICONS.users, 16)} Esperando a otros <em>no depende de vos</em></h3>
-        ${espera.length ? espera.slice(0, 7).map((x) => `<div class="fl-esp" style="--c:${x.color}" onclick="openCirugia(${x.c.id})">
+        ${espera.length ? espera.slice(0, 7).map((x) => `<div class="fl-esp" style="--c:${x.color}" onclick="openCirugia(${x.c.id})" tabindex="0" role="button" onkeydown="if(event.key==='Enter')this.click()">
             <span class="fl-esp-q">${esc(x.quien)}</span>
             <span class="fl-ev-t"><b>${esc(x.c.procedimiento || 's/d')}</b><small>${esc(x.txt)} · ${esc(fmtFecha(x.c.fecha))}</small></span></div>`).join('')
           + (espera.length > 7 ? `<div class="fl-vacio">y ${espera.length - 7} más en «Todo el circuito».</div>` : '')
@@ -21972,7 +22021,7 @@ function openCirugia(id) {
       <div class="fx-facts">
         <div class="fx-fact"><i>${ico(ICONS.calendar, 16)}</i><span><small>Fecha</small><b>${fmtFecha(c.fecha)}</b><em>${c.horaProg || '—'} h · ${c.duracionMin || '?'} min</em></span></div>
         <div class="fx-fact"><i>${ico(ICONS.grid, 16)}</i><span><small>Sala</small><b>${esc(c.quirofano || '—')}</b><em>${c.horaInicioReal ? 'Inicio ' + esc(String(c.horaInicioReal).slice(11, 16)) + ' h' : 'sin iniciar'}</em></span></div>
-        <div class="fx-fact"><i>${ico(ICONS.steth, 16)}</i><span><small>Cirujano</small><b>${esc(c.cirujano || 's/d')}</b><em>${esc(c.servicio || '')}</em></span></div>
+        <div class="fx-fact"><i>${ico(ICONS.steth, 16)}</i><span><small>${titularNombre(c)}</small><b>${esc(c.cirujano || 's/d')}</b><em>${esc(c.servicio || '')}</em></span></div>
         <div class="fx-fact"><i>${ico(ICONS.clockSm, 16)}</i><span><small>Espera</small><b>${esperaDias(c)} días</b><em>desde ${fmtFecha(c.fechaSolicitud)}</em></span></div>
       </div>
     </header>
@@ -22004,7 +22053,7 @@ function openCirugia(id) {
           ['Fecha y hora', `${fmtFecha(c.fecha)} · ${c.horaProg || '—'} h`],
           ['Duración', `${c.duracionMin || '?'} min estimados`],
           ['Prioridad', esc(PRIOS[pe].desc)],
-          ['Cirujano', `${esc(c.cirujano || 's/d')}${c.cirujanoEmail ? `<small>${esc(c.cirujanoEmail)}</small>` : ''}`],
+          [titularNombre(c), `${esc(c.cirujano || 's/d')}${c.cirujanoEmail ? `<small>${esc(c.cirujanoEmail)}</small>` : ''}`],
           ['Recursos', recursos],
           c.horaInicioReal ? ['Inicio real', fmtDT(c.horaInicioReal)] : null,
           c.horaFinReal ? ['Fin real', `${fmtDT(c.horaFinReal)}<small>duración real ${diffMin(c.horaInicioReal, c.horaFinReal)} min</small>`] : null,
@@ -22106,7 +22155,7 @@ function fichaCamino(c) {
       : c.auth === 'NO AUTORIZADO' ? { t: 'Admisión', tono: 'bad', d: 'rechazado' }
       : authExenta(c) ? { t: 'Admisión', tono: 'warn', d: 'diferida' } : { t: 'Admisión', d: 'pendiente' },
     // 3.34.1 · Endoscopía: la confirma Admisión y es ambulatoria (pulsera en lugar de cama).
-    esEndo(c) ? { t: 'En el parte', ok: confirmado, d: confirmado ? 'confirmó Admisión' : 'espera a Admisión' }
+    sinJefatura(c) ? { t: 'En el parte', ok: confirmado, d: confirmado ? 'confirmó Admisión' : 'espera a Admisión' }
       : jefaturaPendienteDiferida(c) ? { t: 'Jefatura', tono: 'warn', d: 'diferida' }
       : { t: 'Jefatura', ok: confirmado, d: confirmado ? 'en el parte' : 'pendiente' },
     // 3.25 · Paso 4: la cama que anota Admisión el día del ingreso.
@@ -26143,7 +26192,11 @@ function esEndo(c) { return !!c && c.sala === 'END'; }
    El parto lleva su recorrido: sin conteo de gasas y sin instrumentación, igual que Endoscopía. */
 function esParto(c) { return !!c && c.sala === 'QOBS' && c.obsTipo === 'parto'; }
 function sinRecuento(c) { return esEndo(c) || esParto(c); }
+/* 3.40.4 · Endoscopía y partos no pasan por la validación de la Jefatura de Quirófanos. */
+function sinJefatura(c) { return esEndo(c) || esParto(c); }
 function obsNombre(c) { return esParto(c) ? 'parto' : 'cesárea'; }
+function titularNombre(c) { return esEndo(c) ? 'Endoscopista' : c && c.sala === 'QOBS' ? 'Obstetra' : 'Cirujano'; }
+function turnoNombre(c, may) { const n = esEndo(c) ? 'endoscopía' : c && c.sala === 'QOBS' ? obsNombre(c) : 'cirugía'; return may ? n[0].toUpperCase() + n.slice(1) : n; }
 /* 3.35 · La Endoscopía Digestiva ya no es de Quirófanos centrales. La gestiona el
    Jefe/a de Endoscopía (un médico designado por la Jefatura en Portales; queda en
    agendaEndo/jefe), y la Jefatura de Quirófanos no ve nada de Endoscopía. */
@@ -26157,9 +26210,9 @@ const JEFATURA_ENDO = 'Jefatura de Endoscopía';
 function cxVer(c) { return !(jefe && esEndo(c)); }
 /* Admisión autorizó una endoscopía todavía sin confirmar: con eso queda CONFIRMADA. */
 function endoConfirmar(c, agente) {
-  if (!esEndo(c) || c.auth !== 'AUTORIZADO' || !['pendiente', 'validada'].includes(c.estado) || rcActivo(c)) return false;
+  if (!sinJefatura(c) || c.auth !== 'AUTORIZADO' || !['pendiente', 'validada'].includes(c.estado) || rcActivo(c)) return false;
   c.estado = 'confirmada';
-  pushHist(c, 'Endoscopía CONFIRMADA en el parte con la autorización de Admisión y Egresos' + (agente ? ' (' + agente + ')' : '') + ' — no requiere validación de la ' + JEFATURA);
+  pushHist(c, (esParto(c) ? 'Parto CONFIRMADO' : 'Endoscopía CONFIRMADA') + ' en el parte con la autorización de Admisión y Egresos' + (agente ? ' (' + agente + ')' : '') + ' — no requiere validación de la ' + JEFATURA);
   return true;
 }
 /* Las endoscopías anotadas antes de la 3.33 que ya tenían la autorización de
@@ -26222,7 +26275,7 @@ function jefaturaMotivoExencion(c) {
 }
 /* El turno se operó sin el visto previo de la Jefatura y nadie lo regularizó
    todavía. No frena nada: queda a la vista hasta que se cierre. */
-function jefaturaPendienteDiferida(c) { return !!(c && c.jefaturaDiferida) && !(c && c.jefaturaRegularizada) && !esEndo(c); }
+function jefaturaPendienteDiferida(c) { return !!(c && c.jefaturaDiferida) && !(c && c.jefaturaRegularizada) && !sinJefatura(c); }
 /* ¿Puede el cirujano arrancar sin esperar a la Jefatura? Solo si el turno está
    exento y todavía no pasó por la validación. */
 function puedeIniciarSinJefatura(c) {
@@ -27107,8 +27160,8 @@ function tmEstadoAdmision(c) {
   return { est: 'pend', txt: 'Pendiente de su dictamen' };
 }
 function tmEstadoJefatura(c) {
-  if (esEndo(c) && !['suspendida', 'caducada', 'anticipada', 'borrador'].includes(c.estado)) return ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado)
-    ? { est: 'ok', txt: 'No interviene: la confirmó Admisión' } : { est: 'espera', txt: 'No interviene en endoscopía' };
+  if (sinJefatura(c) && !['suspendida', 'caducada', 'anticipada', 'borrador'].includes(c.estado)) return ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado)
+    ? { est: 'ok', txt: `No interviene: ${esParto(c) ? 'lo' : 'la'} confirmó Admisión` } : { est: 'espera', txt: `No interviene en ${esParto(c) ? 'partos' : 'endoscopía'}` };
   if (c.estado === 'suspendida') return { est: 'no', txt: `Suspendida: ${esc(recortar((c.suspension && c.suspension.causa) || 'causa registrada', 60))}` };
   if (['caducada', 'anticipada'].includes(c.estado)) return { est: 'espera', txt: ESTC[c.estado].label };
   if (jefaturaPendienteDiferida(c)) return { est: 'dif', txt: 'Validación diferida' };
@@ -27262,6 +27315,7 @@ function closeSlot() {
 }
 
 async function guardarSlot() {
+  if (!slotCtx) return;   // 3.40.3 · doble toque: el turno ya se guardó
   const { d, sid, fid, hora } = slotCtx;
   const s = sala(sid);
   const f = franjaDe(sid, fid);
@@ -27286,9 +27340,10 @@ async function guardarSlot() {
   const diagnostico = $('k-diag').value.trim();
   const { procedimiento, modulo, practica } = nomLeer();
   if (!paciente || !cirujano || !diagnostico || !procedimiento) {
-    alert('Complete los campos obligatorios: paciente, cirujano, diagnóstico y la cirugía a realizar (elíjala en el nomenclador).');
+    alert('Complete los campos obligatorios: paciente, médico/a responsable, diagnóstico y la práctica a realizar (elíjala en el nomenclador).');
     return;
   }
+  if (!$('k-serv').value) { alert('Elija el servicio o especialidad del turno.'); return; }
   // Sin módulo la cirugía no puede imputarse en la solapa Módulos Quirúrgicos.
   if (!modulo) {
     alert('Indique el módulo que corresponde a la práctica (A, B o C).\n\nSi la eligió del nomenclador, el módulo se completa solo; si la cargó a mano, debe seleccionarlo.');
@@ -27593,7 +27648,7 @@ function openTurnoOk(c) {
   $('cxok-modal').innerHTML = `
     ${turnoProvisional(c) ? '' : '<button class="modal-close" onclick="closeTurnoOk()" aria-label="Cerrar">✕</button>'}
     <div class="success-icon">${ICONS.checkCircle.replace('22', '30').replace('22', '30')}</div>
-    <h2>Su cirugía se programó correctamente</h2>
+    <h2>El turno de ${turnoNombre(c)} se programó correctamente</h2>
     <p class="modal-sub" style="color:var(--muted)">${esc(c.procedimiento)}</p>
     <div class="notify-list">
       <b>${ICONS.calendar.replace('16', '14')} Turno asignado</b><br>
@@ -27603,7 +27658,7 @@ function openTurnoOk(c) {
       · Estado: ${ESTC[c.estado].label} · prioridad P${prioridadEfectiva(c)}${c.urgencia ? ' · <b style="color:var(--red)">URGENCIA</b>' : ''}<br>
       ${c.excepcion ? `· <b style="color:#7c3aed">Excepción de Jefatura</b> — se emitió el aviso a ${esc(c.excepcion.cirujano)}<br>` : ''}
       · Autorización: ${authExenta(c)
-        ? '<b style="color:#5b21b6">no requiere Admisión y Egresos</b> — pasa directo a la Jefatura de Quirófanos'
+        ? `<b style="color:#5b21b6">no requiere Admisión y Egresos</b> — ${sinJefatura(c) ? 'Admisión la regulariza después' : 'pasa directo a la Jefatura de Quirófanos'}`
         : 'pendiente del sector <b>Admisión y Egresos</b>'}
     </div>
     ${tieneAyudante(c)
@@ -27614,7 +27669,7 @@ function openTurnoOk(c) {
           Se imputan en la solapa <b>Módulos Quirúrgicos</b> recién cuando la cirugía se marque como
           <b>Realizada</b>.</div></div>`
       : `<div class="banner banner-amber" style="text-align:left;margin:0 0 14px">${ico(ICONS.alertTri, 20)}
-          <div><strong>Cirugía sin ayudante</strong>
+          <div><strong>${turnoNombre(c, true)} sin ayudante</strong>
           Quedó registrada con <b>módulo ${c.modulo}</b> a nombre de ${esc(c.cirujano)} y sin segundo módulo.
           Si finalmente opera con un 1er ayudante, cárguelo desde el turno: el módulo que le corresponde
           se asigna solo.</div></div>
@@ -27668,7 +27723,7 @@ function turnoQueHacer(id) {
       <p>${esc(c.procedimiento || '')} · ${esc(c.paciente?.nombre || 's/d')}<br>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg || '—')} h · ${esc(c.quirofano || '')}</p></header>
     <div class="tq-ops">
       <button type="button" class="tq-op mover" onclick="rcCerrar();turnoMoverIniciar(${esc(JSON.stringify(c.id))})"><i>📅</i><b>Pasarlo a otro día</b>
-        <small>Elige la franja nueva. Se conservan el paciente, el consentimiento${c.pase ? ', el pase del paciente (le muestra la fecha nueva)' : ''} y los requisitos. Admisión${esEndo(c) ? '' : ' y la Jefatura'} lo vuelve${esEndo(c) ? '' : 'n'} a autorizar para la fecha nueva.</small></button>
+        <small>Elige la franja nueva. Se conservan el paciente, el consentimiento${c.pase ? ', el pase del paciente (le muestra la fecha nueva)' : ''} y los requisitos. Admisión${sinJefatura(c) ? '' : ' y la Jefatura'} lo vuelve${esEndo(c) ? '' : 'n'} a autorizar para la fecha nueva.</small></button>
       <button type="button" class="tq-op borrar" onclick="rcCerrar();eliminarTurnoPropio(${esc(JSON.stringify(c.id))})"><i>🗑</i><b>Eliminarlo</b>
         <small>Se borra el turno y la franja queda libre. No se puede deshacer.</small></button>
     </div>
@@ -27692,7 +27747,7 @@ async function turnoMoverA(d, sid, fid) {
   const tipoDe = (x) => (sala(x) || {}).tipo || 'qx';
   if (tipoDe(sid) !== tipoDe(c.sala)) { alert(`Este turno es de ${esEndo(c) ? 'Endoscopía' : tipoDe(c.sala) === 'obs' ? 'Obstetricia' : 'Quirófanos'}: elija una franja de ese mismo sector.`); return true; }
   if (!await preguntar(`${c.procedimiento || ''} — ${c.paciente?.nombre || 's/d'}\n\nDe: ${fmtDiaLargo(c.fecha)} · ${c.horaProg || '—'} h · ${c.quirofano || ''}\nA:  ${fmtDiaLargo(nueva)} · ${f.t} h · ${s.nombre}\n\n`
-    + `Admisión y Egresos${esEndo(c) ? '' : ' y la Jefatura de Quirófanos'} lo vuelve${esEndo(c) ? '' : 'n'} a autorizar para la fecha nueva.${camaDe(c) ? ' La cama asignada queda libre.' : ''}`,
+    + `Admisión y Egresos${sinJefatura(c) ? '' : ' y la Jefatura de Quirófanos'} lo vuelve${sinJefatura(c) ? '' : 'n'} a autorizar para la fecha nueva.${camaDe(c) ? ' La cama asignada queda libre.' : ''}`,
     { titulo: '¿Pasar el turno a esta fecha?', si: 'Sí, pasarlo', no: 'Elegir otra' })) return true;
   const antes = `${fmtFecha(c.fecha)} ${c.horaProg || ''} h (${c.quirofano || ''})`;
   const k = camaDe(c);
@@ -27931,15 +27986,15 @@ function guardarAuth() {
   // 3.33 · Endoscopía: la autorización de Admisión la confirma (sin Jefatura).
   // Si se rectifica a NO AUTORIZADO antes de empezar, vuelve a pendiente.
   const endoOk = endoConfirmar(c, agente);
-  if (esEndo(c) && c.auth === 'NO AUTORIZADO' && c.estado === 'confirmada') {
+  if (sinJefatura(c) && c.auth === 'NO AUTORIZADO' && c.estado === 'confirmada') {
     c.estado = 'pendiente';
-    pushHist(c, 'Endoscopía: vuelve a pendiente — Admisión y Egresos rectificó a NO AUTORIZADO');
+    pushHist(c, `${turnoNombre(c, true)}: vuelve a pendiente — Admisión y Egresos rectificó a NO AUTORIZADO`);
   }
   // Si era lo último que faltaba, el caso se cierra acá mismo.
   revisarCierre(c);
   upsert('cirugias', c);
   closeAuth();
-  if (endoOk) toastTurno('Endoscopía AUTORIZADA y CONFIRMADA ✓ — ya está en el parte', '#059669');
+  if (endoOk) toastTurno(`${turnoNombre(c, true)} ${esParto(c) ? 'AUTORIZADO y CONFIRMADO' : 'AUTORIZADA y CONFIRMADA'} ✓ — ya está en el parte`, '#059669');
   if ($('slot-overlay').classList.contains('open')) openSlot(diaDeGrilla(c), c.sala, c.franja);
   else refreshView();
 }
@@ -30862,7 +30917,7 @@ function ciDocHTML(f) {
   const hoy = ciHoy();
   const tit = (n, t) => `<h3><span class="n">${n}.</span> ${t}</h3>`;
   // 3.39 · El documento dice el área del turno: Endoscopía y Obstetricia no son Quirófanos Centrales.
-  const endo = /endosc/i.test(f.c_sala), obs = /obstetr/i.test(f.c_sala), area = endo ? 'ENDOSCOPÍA DIGESTIVA' : obs ? 'OBSTETRICIA' : 'BLOQUE DE QUIRÓFANOS CENTRALES';
+  const endo = /endosc/i.test(f.c_sala), obs = /obstetr/i.test(f.c_sala), partoDoc = obs && /parto/i.test(f.c_nombre) && !/ces[aá]rea/i.test(f.c_nombre), area = endo ? 'ENDOSCOPÍA DIGESTIVA' : obs ? 'OBSTETRICIA' : 'BLOQUE DE QUIRÓFANOS CENTRALES';
   let h = `
   <div class="membrete">
     <div class="mb-tit">HOSPITAL REGIONAL USHUAIA</div>
@@ -30870,7 +30925,7 @@ function ciDocHTML(f) {
     <div class="mb-sub">Av. 12 de Octubre y Maipú (V9410) Ushuaia · Tel. 02901-441000</div>
     <div class="mb-blq">${area}</div>
   </div>
-  <h1>${endo ? 'Consentimiento Informado Endoscópico' : obs && /parto/i.test(f.c_nombre) && !/ces[aá]rea/i.test(f.c_nombre) ? 'Consentimiento Informado Obstétrico' : 'Consentimiento Informado Quirúrgico'}</h1>
+  <h1>${endo ? 'Consentimiento Informado Endoscópico' : partoDoc ? 'Consentimiento Informado Obstétrico' : 'Consentimiento Informado Quirúrgico'}</h1>
   <div class="meta">${esc(f.m_serv || f.m_esp || 'Servicio interviniente')} · ${hoy}</div>
 
   <section class="cs">${tit(1, 'Datos del paciente')}
@@ -30890,7 +30945,7 @@ function ciDocHTML(f) {
   h += `</section>
   <section class="cs">${tit(2, 'Médico responsable')}
   <table class="fil">
-    <tr><td class="k">${endo ? 'Endoscopista' : 'Cirujano'}</td><td>${esc(f.m_nombre)}</td><td class="k">Matrícula</td><td>${esc(f.m_mat)}</td></tr>
+    <tr><td class="k">${endo ? 'Endoscopista' : obs ? 'Obstetra' : 'Cirujano'}</td><td>${esc(f.m_nombre)}</td><td class="k">Matrícula</td><td>${esc(f.m_mat)}</td></tr>
     <tr><td class="k">Especialidad</td><td>${esc(f.m_esp)}</td><td class="k">Institución</td><td>${esc(f.m_inst)}</td></tr>
   </table></section>
 
@@ -30915,7 +30970,7 @@ ${f.t_riesgo ? `
   <p>${escNl(f.t_alt)}</p></section>
 ${f.t_cuid ? `
   <section class="cs">${tit(ciNum(f, 1), 'Preparación previa y cuidados posteriores')}
-  <p>${escNl(endo ? String(f.t_cuid).replace(CI_CUIDADOS_GENERALES, CI_CUIDADOS_ENDO) : f.t_cuid)}</p></section>` : ''}
+  <p>${escNl(endo ? String(f.t_cuid).replace(CI_CUIDADOS_GENERALES, CI_CUIDADOS_ENDO) : partoDoc ? String(f.t_cuid).replace(CI_CUIDADOS_GENERALES, CI_CUIDADOS_GENERALES.replace(/de la cirugía/g, 'del parto')) : f.t_cuid)}</p></section>` : ''}
   <section class="cs">${tit(ciNum(f, f.t_cuid ? 2 : 1), endo ? 'Modificación de la técnica (Lex Artis Ad-Hoc)' : 'Modificación de la técnica quirúrgica (Lex Artis Ad-Hoc)')}
   <p>${esc(endo ? CI_CLAUSULA_LEXARTIS.replace('durante el acto quirúrgico', 'durante el estudio').replace('la técnica quirúrgica programada', 'la técnica programada') : CI_CLAUSULA_LEXARTIS)}</p></section>
 
@@ -32228,7 +32283,7 @@ body.portal-pac .pp-input::placeholder{color:#9ca3af;-webkit-text-fill-color:#9c
 .pp-btn{width:100%;margin-top:12px;border:0;border-radius:14px;padding:14px;font:inherit;font-size:1rem;font-weight:800;color:#fff;cursor:pointer;
   background:linear-gradient(120deg,#7c3aed,#db2777 60%,#f97316);box-shadow:0 8px 20px rgba(219,39,119,.3)}
 .pp-btn:disabled{opacity:.6;cursor:wait}
-.pp-link{display:block;margin:12px auto 0;background:none;border:0;color:#7c3aed;font:inherit;font-weight:700;font-size:.86rem;cursor:pointer}
+.pp-link{display:block;margin:4px auto 0;min-height:44px;padding:10px 16px;background:none;border:0;color:#7c3aed;font:inherit;font-weight:700;font-size:.86rem;cursor:pointer}
 .pp-link:disabled{color:#a1a1aa;cursor:default}
 .pp-error{background:#fee2e2;color:#991b1b;border-radius:12px;padding:10px 12px;font-size:.86rem;margin-bottom:12px}
 .pp-demo{background:#fef9c3;color:#713f12;border-radius:12px;padding:10px 12px;font-size:.84rem;margin-bottom:12px}
@@ -32397,7 +32452,7 @@ function portalElegible(c) {
 function portalEstadoPaciente(c, borrado) {
   if (borrado) return { clave: 'cancelada', caducado: true };
   const vis = estadoVisible(c);
-  if (['finalizada', 'anticipada', 'caducada'].includes(vis) || c.estado === 'finalizada') return { clave: vis, caducado: true };
+  if (['finalizada', 'anticipada', 'caducada'].includes(vis) || c.estado === 'finalizada') return { clave: vis === 'caducada' && c.caducada && c.caducada.baja ? 'baja_autorizacion' : vis, caducado: true };
   // 3.27.1 · En una reprogramación por falta de cama vale también el OK de Admisión a la nueva fecha.
   const admRc = !!(c.reprogCama && c.reprogCama.oks && c.reprogCama.oks.adm);
   const adm = c.auth === 'AUTORIZADO' || admRc ? 'ok' : c.auth === 'NO AUTORIZADO' ? 'no' : 'pend';
@@ -32657,13 +32712,15 @@ async function ciAceptacionesVigilar() {
       if (!cloudOn) f = (portalDemoLeer()[c.pase.token] || {}).firma || null;
       else { try { f = (await firebase.database().ref('portalFirma/' + c.pase.token).once('value')).val(); } catch (e) { f = null; } }
       if (!f || !f.t || (f.hash && f.hash !== c.ciPase.hash)) continue;   // 3.37 · firma de un texto anterior: no vale para el actual
-      // 3.37.1 · Revocada desde el pase, o la misma firma que el médico ya dio por revocada.
-      if (f.revocado || (c.ciRevocado && c.ciRevocado.firmado === f.t)) continue;
+      // 3.37.1 · La misma firma que ya se dio por revocada.
+      if (c.ciRevocado && c.ciRevocado.firmado === f.t) continue;
       c.ciPaciente = { t: f.t, hash: f.hash || '', via: f.via || 'pase', vigente: f.hash === c.ciPase.hash };
       delete c.ciCambio; delete c.ciRevocado;
       c.hce = { ...(c.hce || {}), consentimiento: true };
       pushHist(c, `El paciente aceptó el consentimiento informado desde su pase («Leí y comprendo los alcances del consentimiento médico informado») · ${fmtDT(f.t)} · huella ${String(f.hash || '').slice(0, 12)}…`);
-      upsert('cirugias', c);
+      // 3.40.3 · Aceptó y revocó antes de que una terminal lo viera: quedan las dos cosas y sale el aviso.
+      if (f.revocado) ciAsentarRevocacion(c, { t: f.revocado.t, via: 'pase', por: 'El/la paciente, desde su pase' });
+      else upsert('cirugias', c);
     }
     // 3.37.1 · El paciente revocó desde su pase: se asienta y deja de valer.
     const vivos = DB.cirugias.filter((c) => c.pase && c.pase.token && !c.pase.caducado && c.ciPaciente
@@ -32774,11 +32831,13 @@ async function ciFirmadoDescargar(id) {
   const w = window.open('', '_blank');   // en el mismo toque, para que el navegador no la bloquee
   if (!w) { alert('El navegador bloqueó la ventana. Habilite las ventanas emergentes para descargar el PDF.'); return; }
   const rev = !c.ciPaciente ? c.ciRevocado : null;
+  let firmo = false;
   // 3.37 · El botón decía «Firmar y bajar»: tocarlo es la firma del médico, con su cuenta.
   if (puedeFirmarMedico(c)) {
     const yo = usuarioActual(), d = (consentimientoDeTurno(c) || {}).datos || {};
     c.ciMedico = { t: nowDT(), nombre: d.m_nombre || yo.nombre || '', mat: d.m_mat || '', email: yo.email, hash: c.ciPaciente.hash };
     pushHist(c, `${c.ciMedico.nombre} firmó electrónicamente el consentimiento aceptado por el paciente · huella ${String(c.ciPaciente.hash || '').slice(0, 12)}…`);
+    firmo = true;
   }
   const f = rev ? { t: rev.firmado, hash: rev.hash } : c.ciPaciente, ci = consentimientoDeTurno(c), pa = c.paciente || {}, med = rev ? rev.medico : c.ciMedico;
   const quien = ciFirmante(ci);
@@ -32830,6 +32889,8 @@ async function ciFirmadoDescargar(id) {
   ciPaginar(w.document);
   pushHist(c, `Se descargó el consentimiento ${rev ? 'revocado' : 'firmado electrónicamente por el paciente'} (${coincide ? 'texto verificado por SHA-256' : 'copia regenerada'}) — ${(usuarioActual() || {}).nombre || JEFATURA}`);
   upsert('cirugias', c);
+  // 3.40.2 · Firmó: la ficha abierta no puede seguir ofreciendo «Firmar y bajar».
+  if (firmo) { toastTurno('Consentimiento firmado ✓', '#059669'); if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) openCirugia(c.id); }
   setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 500);
 }
 
@@ -33277,7 +33338,7 @@ function paseFormulario(c, recien) {
   return `<button class="modal-close" onclick="closePase()" aria-label="Cerrar">✕</button>
     <div class="pase-intro">
       <div class="pase-intro-ico">${ico(ICONS.qr, 30)}</div>
-      ${recien ? '<div class="pase-intro-kick">Cirugía programada y consentimiento guardado</div>' : ''}
+      ${recien ? `<div class="pase-intro-kick">${esc(turnoNombre(c, true))} programad${esParto(c) ? 'o' : 'a'} y consentimiento guardado</div>` : ''}
       <h2>Pase del paciente</h2>
       <p>Una tarjeta con un <b>código QR</b> para ${esc(primerNombre(c.paciente && c.paciente.nombre) || 'el paciente')}: con ella sigue
       en su teléfono, <b>en tiempo real</b>, si Admisión y Egresos autorizó, si la Jefatura confirmó y para qué día y hora quedó.</p>
@@ -33317,6 +33378,7 @@ const PASE_PASOS = {
   esperando_admision: { txt: 'En revisión por Admisión y Egresos', tono: 'pe' },
   no_autorizada: { txt: 'Admisión y Egresos no la autorizó', tono: 'no' },
   esperando_jefatura: { txt: 'Autorizada · espera a la Jefatura', tono: 'az' },
+  baja_autorizacion: { txt: 'Dada de baja: sin autorización', tono: 'no' },
   confirmada: { txt: 'Confirmada en el parte', tono: 'ok' },
   suspendida: { txt: 'Suspendida', tono: 'no' },
   reprogramando: { txt: 'Reprogramándose', tono: 'gr' },
@@ -33594,8 +33656,10 @@ function renderPortal() {
     return;
   }
   if (portal.paso === 'caducado') {
-    r.innerHTML = portalMarco(portalTarjeta('gr', 'Este pase ya no está activo',
-      'Tu turno se cerró en el sistema del hospital, así que el pase caducó y no se puede volver a usar. Si tenés dudas, consultá a tu médico/a.'));
+    r.innerHTML = portalMarco(portal.cadClave === 'baja_autorizacion'
+      ? portalTarjeta('no', 'Tu turno se dio de baja', 'No llegó a tiempo la autorización de la obra social o del pago de anestesiología. Comunicate con tu médico/a para saber cómo seguir.')
+      : portalTarjeta('gr', 'Este pase ya no está activo',
+        'Tu turno se cerró en el sistema del hospital, así que el pase caducó y no se puede volver a usar. Si tenés dudas, consultá a tu médico/a.'));
     return;
   }
   if (portal.paso === 'dni' || portal.paso === 'codigo') {
@@ -33684,7 +33748,7 @@ function portalVistaEstado(f) {
         ${paso('ok', `${T.N} solicitad${T.o}`, `Por ${esc(f.cirujano || 'tu ' + T.medico)}`)}
         ${paso(f.adm === 'ok' ? 'ok' : f.adm === 'no' ? 'no' : 'pend', 'Admisión y Egresos', admTxt[f.adm] || admTxt.pend)}
         ${portal.extra && portal.extra.ci ? ((ok) => paso(ok ? 'ok' : 'pend', 'Tu consentimiento', ok ? '✓ Leído y aceptado' : f.ci === 'rev' || (portal.ciOk && portal.ciOk.revocado) ? 'Revocado' : f.ciCambio ? 'Se actualizó: falta que lo aceptes de nuevo' : 'Falta que lo leas y lo aceptes'))(portalCiVigente() || (f.ci === 'ok' && !portal.ciOk)) : ''}
-        ${f.tipo === 'endo' ? '' : paso(f.jef === 'ok' || f.jef === 'okrc' ? 'ok' : f.jef === 'susp' ? 'no' : f.jef === 'pend' ? 'pend' : 'espera', 'Jefatura de Quirófanos', jefTxt[f.jef] || jefTxt.espera)}
+        ${f.tipo === 'endo' || f.tipo === 'parto' ? '' : paso(f.jef === 'ok' || f.jef === 'okrc' ? 'ok' : f.jef === 'susp' ? 'no' : f.jef === 'pend' ? 'pend' : 'espera', 'Jefatura de Quirófanos', jefTxt[f.jef] || jefTxt.espera)}
         ${f.sinCama ? paso(f.clave === 'reprog_confirmar' ? 'pend' : ['confirmada', 'en_curso', 'operada'].includes(f.clave) ? 'ok' : 'espera', 'Vos', f.clave === 'reprog_confirmar' ? 'Falta tu OK a la nueva fecha' : ['confirmada', 'en_curso', 'operada'].includes(f.clave) ? 'Confirmaste la nueva fecha' : 'Te preguntamos cuando el equipo dé su OK') : ''}
         ${paso(diaEst, `Día ${T.del} ${T.n}`, f.fecha ? `${esc(fmtDiaLargo(f.fecha))} · ${esc(f.hora)} h` : 'A confirmar')}
       </ol>
@@ -33734,7 +33798,7 @@ async function portalPedirCodigo(reenvio) {
     portal.paso = 'codigo'; portal.destino = res.destino || 'tu correo'; portal.demoCodigo = res.demo || '';
     portal.reenviarEn = Date.now() + 60000;
     setTimeout(() => { const b = $('pp-reenv'); if (b) b.disabled = false; }, 60000);
-  } else if (res && res.error === 'caducado') portal.paso = 'caducado';
+  } else if (res && res.error === 'caducado') { portal.paso = 'caducado'; portal.cadClave = res.clave || ''; }
   else { portal.error = PORTAL_ERRORES[(res && res.error) || 'red'] || PORTAL_ERRORES.red; portal.det = (res && res.det) || ''; }
   renderPortal();
 }
@@ -33747,12 +33811,12 @@ async function portalValidar() {
   if (!cloudOn) res = await portalDemoValidar(cod);
   else { try { res = await portalServicio({ accion: 'validarCodigo', token: PORTAL_TOKEN, codigo: cod }); } catch (e) { res = { error: 'red' }; } }
   if (res && res.ok) {
-    portal.sesion = res.sesion; portal.foto = res.foto; portal.act = new Date(); portal.paso = res.foto && res.foto.caducado ? 'caducado' : 'estado';
+    portal.sesion = res.sesion; portal.foto = res.foto; portal.act = new Date(); portal.paso = res.foto && res.foto.caducado ? 'caducado' : 'estado'; portal.cadClave = (res.foto && res.foto.clave) || '';
     portal.extra = res.extra || null; portal.ciOk = res.ciOk || null;
     portal.demoCodigo = '';
     clearInterval(portal.timer);
     portal.timer = setInterval(portalConsultar, (cloudOn ? PORTAL.sondeoSeg : 5) * 1000);
-  } else if (res && res.error === 'caducado') portal.paso = 'caducado';
+  } else if (res && res.error === 'caducado') { portal.paso = 'caducado'; portal.cadClave = res.clave || ''; }
   else portal.error = PORTAL_ERRORES[(res && res.error) || 'red'] || PORTAL_ERRORES.red;
   renderPortal();
 }
@@ -33773,7 +33837,7 @@ async function portalConsultar() {
       else { try { r2 = await portalServicio({ accion: 'estado', token: PORTAL_TOKEN, sesion: portal.sesion, extra: true }); } catch (e) { r2 = null; } }
       if (r2 && r2.extra) { portal.extra = r2.extra; Object.assign(portal, { ciLeido: false, ciTilde: false, ciAbierto: false, ciError: '' }); }
     }
-    if (res.foto && res.foto.caducado) { portal.paso = 'caducado'; clearInterval(portal.timer); }
+    if (res.foto && res.foto.caducado) { portal.paso = 'caducado'; portal.cadClave = res.foto.clave || ''; clearInterval(portal.timer); }
   } else if (res && (res.error === 'sesion' || res.error === 'caducado')) {
     clearInterval(portal.timer);
     portal.paso = res.error === 'caducado' ? 'caducado' : 'dni';
@@ -33869,6 +33933,14 @@ function ppCiMirar(fr) {
   window.ppCiObs = new IntersectionObserver((es) => { if (es.some((x) => x.isIntersecting)) listo(); }, { threshold: 0.6 });
   // Recién después de que el marco tomó su alto: si no, el final se vería de entrada.
   setTimeout(() => { if (window.ppCiObs) window.ppCiObs.observe(fin); }, 600);
+  // 3.40.2 · Bajando rápido el final puede pasar de largo sin aparecer en ningún cuadro.
+  if (window.ppCiBaja) removeEventListener('scroll', window.ppCiBaja);
+  window.ppCiBaja = () => {
+    const x = $('pp-ci-ayuda');
+    if (portal.ciLeido || !x) { removeEventListener('scroll', window.ppCiBaja); return; }
+    if (x.getBoundingClientRect().top < innerHeight - 20) listo();
+  };
+  setTimeout(() => addEventListener('scroll', window.ppCiBaja, { passive: true }), 600);
 }
 async function portalCiAceptar() {
   const ci = portal.extra && portal.extra.ci;
@@ -33904,7 +33976,7 @@ function portalDemoPase() { return portalDemoLeer()[PORTAL_TOKEN] || null; }
 async function portalDemoPedir(huella) {
   const p = portalDemoPase();
   if (!p || !p.foto) return { error: 'caducado' };
-  if (p.foto.caducado || !p.priv) return { error: 'caducado' };
+  if (p.foto.caducado || !p.priv) return { error: 'caducado', clave: p.foto.clave };
   if (p.priv.dniHuella !== huella) return { error: 'dni' };
   const usados = JSON.parse(sessionStorage.getItem('hru_portal_demo_usados') || '[]');
   let cod;
@@ -35791,7 +35863,11 @@ function nomElegir(i) {
   // sugiere alinear el turno para que la imputación caiga donde corresponde.
   const sug = servicioDePractica(r);
   const sel = $('k-serv');
-  if (sel && sug && !sel.disabled && sel.value !== sug && SERVICIOS_HRU.includes(sug)) sel.value = sug;
+  if (sel && sug && !sel.disabled && sel.value !== sug && SERVICIOS_HRU.includes(sug)) {
+    // 3.40.2 · Si el servicio no estaba en la lista, asignarlo a mano dejaba el campo vacío y el turno sin servicio.
+    if (![...sel.options].some((o) => (o.value || o.textContent) === sug)) sel.add(new Option(sug, sug));
+    sel.value = sug;
+  }
 }
 function nomLimpiar() { nomSel = null; nomLibre = false; nomPintarSel(); const q = $('k-nomq'); if (q) q.focus(); }
 function nomUsarLibre(c) { nomSel = null; nomLibre = true; nomPintarSel(c); }
@@ -35920,7 +35996,9 @@ function comDispositivo() {
 /* Un overlay «fijo» no se cierra con Escape, con el botón atrás ni tocando el
    fondo. Hoy solo lo es el comunicado: su razón de ser es que no se pueda
    esquivar sin dejar constancia de la lectura. */
-function esOverlayFijo(ov) { return !!ov && ov.classList.contains('overlay-fijo'); }
+/* 3.40.3 · El turno a medio cargar no se pierde con Esc, un toque afuera o «atrás»: se cierra con su botón. */
+function slotConDatos() { return !!slotCtx && !!String(($('k-pac') || {}).value || '').trim(); }
+function esOverlayFijo(ov) { return !!ov && (ov.classList.contains('overlay-fijo') || (ov.id === 'slot-overlay' && slotConDatos())); }
 
 function comPrio(c) { return COM_PRIOS[c && c.prioridad] ? c.prioridad : 'informativo'; }
 function comLecturas(c) { return (c && c.lecturas && typeof c.lecturas === 'object') ? c.lecturas : {}; }
@@ -36237,7 +36315,13 @@ function comLecturasPublico(c) {
     .map(([clave, l]) => Object.assign({ clave }, l))
     .sort((a, b) => String(a.t || '').localeCompare(String(b.t || '')));
 }
+let comEmitiendo = false;   // 3.40.3 · doble toque
 async function emitirComunicado() {
+  if (comEmitiendo) return;
+  comEmitiendo = true;
+  try { await emitirComunicadoYa(); } finally { comEmitiendo = false; }
+}
+async function emitirComunicadoYa() {
   const err = $('c-error');
   const fail = (m) => { err.textContent = m; err.style.display = 'block'; };
   const titulo = $('c-titulo').value.trim();
