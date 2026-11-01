@@ -7179,6 +7179,187 @@
   .fl-reemp .fl-btn { background: #d97706; }
   @media (prefers-reduced-motion: reduce) { .eqx-lleg, .eqx, .eqx-hero, .eqx-blob, .eqx-vivo i, .eqx-sec, .eqx-sala, .eqx-btn, .eqx-btn-ic, .eqx-kpis span { animation: none !important; } }
 
+
+  /* ===== 3.41 · Botones de arriba: gemas con su propio movimiento ===== */
+  @property --tbx-g { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+  body .topbar .tbx, body[data-tema] .topbar .tbx { --a: #2563eb; --b: #06b6d4; --g: #0891b2; position: relative; isolation: isolate; display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 7px;
+    width: 46px; height: 46px; margin: 0; padding: 0 !important; border: 0 !important; border-radius: 16px !important; color: #fff !important; cursor: pointer; font: inherit; font-size: .8rem; font-weight: 800;
+    background: linear-gradient(145deg, var(--a), var(--b)) !important; filter: none;
+    box-shadow: 0 9px 18px -9px var(--g), inset 0 1px 0 rgba(255,255,255,.5), inset 0 -3px 0 rgba(0,0,0,.14) !important; transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
+  body .topbar .tbx[hidden] { display: none !important; }
+  body .topbar .tbx.tbx-gua { --a: #059669; --b: #14b8a6; --g: #0d9488; }
+  body .topbar .tbx.tbx-tem, body[data-tema] .topbar #tema-btn.tbx { --a: #7c3aed; --b: #ec4899; --g: #c026d3; background: linear-gradient(145deg, #7c3aed, #ec4899 60%, #fb923c) !important; }
+  body .topbar .tbx.tbx-cam, body[data-tema] .topbar #bell-btn.tbx { --a: #f97316; --b: #e11d48; --g: #e11d48; background: linear-gradient(145deg, #f59e0b, #f97316 45%, #e11d48) !important; }
+  .tbx::before { content: ''; position: absolute; inset: -3px; z-index: -1; border-radius: 19px; padding: 2px; pointer-events: none; opacity: .9;
+    background: conic-gradient(from var(--tbx-g), transparent 0 58%, rgba(255,255,255,.95) 74%, var(--b) 84%, transparent 94%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: tbxGira 4.5s linear infinite; }
+  .tbx-gua::before { animation-delay: -1.1s; } .tbx-tem::before { animation-delay: -2.2s; } .tbx-cam::before { animation-delay: -3.3s; }
+  .tbx::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.5) 50%, transparent 62%) no-repeat; background-size: 260% 100%; background-position: 130% 0; animation: tbxBrillo 6s ease-in-out infinite; }
+  @keyframes tbxGira { to { --tbx-g: 360deg; } }
+  @keyframes tbxBrillo { 0%, 62% { background-position: 130% 0; } 82%, 100% { background-position: -40% 0; } }
+  body .topbar .tbx:hover, body[data-tema] .topbar .tbx:hover { transform: translateY(-3px) scale(1.07) rotate(-2deg); filter: none; box-shadow: 0 15px 24px -10px var(--g), inset 0 1px 0 rgba(255,255,255,.6), inset 0 -3px 0 rgba(0,0,0,.14) !important; }
+  body .topbar .tbx:active, body[data-tema] .topbar .tbx:active { transform: scale(.9); }
+  .tbx:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+  .tbx .tbx-svg, body[data-tema] .topbar .tbx svg { width: 26px; height: 26px; overflow: visible; }
+  .tbx-t { display: none; position: relative; z-index: 1; letter-spacing: .01em; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  .tbx-laser { animation: tbxLaser 2.4s ease-in-out infinite; filter: drop-shadow(0 0 3px #fef08a); }
+  @keyframes tbxLaser { 0%, 100% { transform: translateY(-7.5px); opacity: .4; } 50% { transform: translateY(7.5px); opacity: 1; } }
+  .tbx-ecg { stroke-dasharray: 26; stroke-dashoffset: 26; animation: tbxEcg 2.6s ease-in-out infinite; }
+  @keyframes tbxEcg { 0% { stroke-dashoffset: 26; } 50%, 78% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -26; } }
+  .tb-cam .ond { opacity: 0; }
+  #bell-btn:has(.top-badge:not([style*="none"])) .tb-cam .ond { animation: tbxOnda 2.2s ease-in-out infinite; }
+  @keyframes tbxOnda { 0%, 100% { opacity: 0; } 30%, 60% { opacity: 1; } }
+  body[data-tema] .topbar .tbx .top-badge, .tbx .top-badge { z-index: 2; top: -7px; right: -7px; min-width: 21px; height: 21px; background: #fff !important; color: #e11d48 !important; border: 2px solid #e11d48 !important; font-weight: 900; }
+  @media (min-width: 1100px) { body .topbar .tbx, body[data-tema] .topbar .tbx { width: auto; padding: 0 14px 0 10px !important; } .tbx-t { display: inline; } }
+  @media (max-width: 460px) { body .topbar .tbx, body[data-tema] .topbar .tbx { width: 40px; height: 40px; border-radius: 14px !important; } .tbx .tbx-svg, body[data-tema] .topbar .tbx svg { width: 23px; height: 23px; } .tbx::before { border-radius: 17px; } }
+  @media (max-width: 370px) { body .topbar .tbx, body[data-tema] .topbar .tbx { width: 35px; height: 35px; border-radius: 12px !important; } .tbx .tbx-svg, body[data-tema] .topbar .tbx svg { width: 20px; height: 20px; } .tbx::before { inset: -2px; border-radius: 14px; } }
+  @media (prefers-reduced-motion: reduce) { .tbx::before, .tbx::after, .tbx-laser, .tbx-ecg, .tb-cam .ond { animation: none !important; } .tbx-ecg { stroke-dashoffset: 0; } }
+
+  /* ===== 3.41 · Turno nuevo, de a un paso ===== */
+  .tmw-riel { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin: 0 0 12px; }
+  .tmw-riel::before { content: ''; position: absolute; left: 10%; right: 10%; top: 17px; height: 3px; border-radius: 3px; background: var(--tm-linea); }
+  .tmw-riel button { position: relative; display: grid; justify-items: center; gap: 4px; padding: 0; border: 0; background: none; color: var(--muted); font: inherit; font-size: .74rem; font-weight: 700; cursor: pointer; min-width: 0; }
+  .tmw-riel i { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-style: normal; font-weight: 800; font-size: .9rem; background: var(--sup1, #fff); border: 2px solid var(--tm-linea); color: var(--muted); transition: transform .3s cubic-bezier(.34,1.56,.64,1), background .25s, color .25s, border-color .25s; }
+  .tmw-riel button.ok i { background: var(--tm-ok); border-color: var(--tm-ok); color: transparent; position: relative; }
+  .tmw-riel button.ok i::after { content: '✓'; position: absolute; color: #fff; font-size: 1rem; }
+  .tmw-riel button.on { color: var(--ink, inherit); }
+  .tmw-riel button.on i { transform: scale(1.14); border-color: #2563eb; box-shadow: 0 0 0 5px color-mix(in srgb, #2563eb 18%, transparent); animation: tmwAro 2s ease-in-out infinite; }
+  .tmw-riel button.on:not(.ok) i { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; }
+  @keyframes tmwAro { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, #2563eb 7%, transparent); } }
+  .tmw-riel span { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .tmw-nuevo .tm-sec[data-tmw] { display: none; }
+  .tmw-nuevo .tm-sec[data-tmw].on { display: block; animation: tmwEntraD .32s cubic-bezier(.22,1,.36,1); }
+  .tmw-nuevo .tm-sec[data-tmw].on[data-dir="izq"] { animation-name: tmwEntraI; }
+  @keyframes tmwEntraD { from { opacity: 0; transform: translateX(26px); } }
+  @keyframes tmwEntraI { from { opacity: 0; transform: translateX(-26px); } }
+  .tmw-nuevo .tm-sec { box-shadow: 0 14px 30px -24px rgba(15,23,42,.5); }
+  .tmw-nuevo .tm-n { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; }
+  .tm-sec.tmw-falta { animation: tmwSacude .45s ease; border-color: var(--tm-no); }
+  @keyframes tmwSacude { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+  .tm .field.lleno > label::after { content: '✓'; margin-left: 5px; color: var(--tm-ok); font-weight: 900; animation: tmwTilde .3s cubic-bezier(.34,1.56,.64,1); display: inline-block; }
+  @keyframes tmwTilde { from { transform: scale(0); } }
+  .tm .field input:focus, .tm .field select:focus { box-shadow: 0 0 0 3px color-mix(in srgb, #2563eb 22%, transparent); }
+  .tmw-etapa { color: #7c3aed; font-weight: 800; }
+  .tmw-nav { position: sticky; bottom: -1px; z-index: 3; display: flex; justify-content: space-between; gap: 10px; padding: 10px 0 2px; background: linear-gradient(transparent, var(--card, #fff) 30%); }
+  .tmw-nuevo.tmw-ult .tmw-nav, .tmw-nuevo.tmw-urg .tmw-nav { position: static; }
+  .tmw-nuevo:not(.tmw-ult):not(.tmw-urg) .tm-pie { display: none; }
+  .tmw-nav #tmw-sig { flex: 1; max-width: 300px; margin-left: auto; }
+  .tmw-nuevo .tm-pie { margin-top: 6px; }
+  .tmw-nuevo.tmw-ult #tmw-sig { display: none; }
+  .tmw-nuevo.tmw-ult .tm-pie-main { animation: tmwLlama 1.8s ease-in-out infinite; }
+  @keyframes tmwLlama { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, #2563eb 16%, transparent); } }
+  .tmw-hist { display: flex !important; flex-direction: row; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 12px; background: var(--blue-soft, #e3eefb); animation: tmwEntraD .3s ease; flex-wrap: wrap; }
+  .tmw-hist[hidden] { display: none !important; }
+  .tmw-hist > div { flex: 1; min-width: 150px; } .tmw-hist b { display: block; font-size: .86rem; } .tmw-hist small { color: var(--muted); }
+  .tmw-hist-i { font-size: 1.3rem; }
+  .tmw-durs { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+  .tmw-durs button { flex: 1; min-height: 34px; border: 1.5px solid var(--tm-linea); border-radius: 10px; background: var(--sup1, #fff); color: inherit; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; transition: transform .15s; }
+  .tmw-durs button:hover { transform: translateY(-2px); border-color: #2563eb; } .tmw-durs button:active { transform: scale(.94); }
+  .tmf { margin-bottom: 12px; } .tmf > b { display: block; font-size: .84rem; margin-bottom: 6px; } .tmf small { font-weight: 400; color: var(--muted); }
+  .tmf .tm-chips { margin-top: 0; }
+
+  /* Prioridad */
+  .tmp-sel { display: none !important; }
+  .tmp-campo { gap: 6px; }
+  .tmp-reco { display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: center; padding: 11px 13px; border-radius: 14px; color: #fff; background: linear-gradient(120deg, var(--c), color-mix(in srgb, var(--c) 58%, #0f172a)); box-shadow: 0 12px 22px -16px var(--c); }
+  .tmp-reco.cambio { animation: tmpCambio .55s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes tmpCambio { 0% { transform: scale(.95); filter: brightness(1.4); } }
+  .tmp-reco-c small { display: block; font-size: .72rem; opacity: .92; } .tmp-reco-c b { font-size: 1.04rem; }
+  .tmp-aplicar { min-height: 38px; padding: 0 16px; border: 0; border-radius: 11px; background: #fff; color: #0f172a; font: inherit; font-size: .84rem; font-weight: 800; cursor: pointer; animation: tmwAplicar 1.6s ease-in-out infinite; }
+  @keyframes tmwAplicar { 50% { box-shadow: 0 0 0 6px rgba(255,255,255,.28); } }
+  .tmp-ya { font-size: .8rem; font-weight: 800; }
+  .tmp-mot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 5px; } .tmp-mot span { padding: 2px 9px; border-radius: 99px; background: rgba(255,255,255,.2); font-size: .74rem; font-weight: 600; }
+  .tmp-reco p { grid-column: 1 / -1; margin: 0; font-size: .77rem; line-height: 1.35; }
+  .tmp-btn { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 8px; padding: 9px 12px; border: 2px solid var(--c); border-radius: 13px; background: var(--sup1, #fff); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  .tmp-btn i, .tmp-op i { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 11px; background: var(--c); color: #fff; font-style: normal; font-weight: 800; font-size: .84rem; }
+  .tmp-btn span { flex: 1; min-width: 0; } .tmp-btn b { display: block; font-size: .92rem; } .tmp-btn small { color: var(--muted); font-size: .75rem; }
+  .tmp-btn u { text-decoration: none; font-size: 1.2rem; transition: transform .2s; } .tmp-btn[aria-expanded="true"] u { transform: rotate(180deg); }
+  .tmp-lista { display: grid; gap: 6px; margin: 7px 0 0; padding: 0; list-style: none; }
+  .tmp-lista li { animation: tmwEntraD .28s ease backwards; } .tmp-lista li:nth-child(2) { animation-delay: .04s; } .tmp-lista li:nth-child(3) { animation-delay: .08s; } .tmp-lista li:nth-child(4) { animation-delay: .12s; } .tmp-lista li:nth-child(5) { animation-delay: .16s; } .tmp-lista li:nth-child(6) { animation-delay: .2s; }
+  .tmp-op { display: flex; gap: 10px; width: 100%; padding: 10px 11px; border: 1.5px solid var(--tm-linea); border-radius: 13px; background: var(--sup1, #fff); color: inherit; font: inherit; text-align: left; cursor: pointer; transition: transform .15s, border-color .15s; }
+  .tmp-op:not(:disabled):hover { transform: translateX(3px); border-color: var(--c); }
+  .tmp-op:disabled { cursor: default; opacity: .78; }
+  .tmp-op.on { border: 2px solid var(--c); background: color-mix(in srgb, var(--c) 8%, var(--sup1, #fff)); }
+  .tmp-op.reco { box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 35%, transparent); }
+  .tmp-op > span { min-width: 0; } .tmp-op b { display: block; font-size: .9rem; } .tmp-op em { font-style: normal; font-size: .72rem; color: var(--c); white-space: nowrap; }
+  .tmp-op small { display: block; font-size: .78rem; color: var(--muted); line-height: 1.35; margin-top: 1px; }
+  .tmp-aplica { display: block; margin-top: 4px; font-size: .75rem; font-weight: 700; color: var(--c); line-height: 1.3; }
+  body[data-tema="noche"] .tmp-aplica, body[data-tema="noche"] .tmp-op em { filter: brightness(1.5); }
+
+  /* ===== 3.41 · Turno programado: el camino guiado ===== */
+  .tmw-edit .tm-progreso { display: none; }
+  .tm.tmw-edit .tm-pie, .tm.tmw-nuevo .tm-pie { position: static; }
+  .tmw-edit:not(.tmw-tocado) .tm-pie-main { display: none; }
+  .tmw-datos { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 16px 2px 8px; font-size: .92rem; } .tmw-datos span { font-size: .76rem; color: var(--muted); }
+  .tmw-edit .tm-sec[data-tmw] { padding: 0; margin-bottom: 7px; overflow: hidden; transition: box-shadow .2s, transform .2s; }
+  .tmw-edit .tm-sec[data-tmw]:hover { transform: translateY(-1px); box-shadow: 0 10px 20px -18px rgba(15,23,42,.6); }
+  .tmw-edit .tm-sec-h { margin: 0; padding: 10px 12px; cursor: pointer; }
+  .tmw-edit .tm-sec-h > div { flex: none; max-width: 48%; } .tmw-edit .tm-sec-h > div > span { display: none !important; }
+  .tmw-edit .tm-sec-h::after { content: '⌄'; flex: none; transition: transform .2s; color: var(--muted); }
+  .tmw-edit .tm-sec.abierta > .tm-sec-h::after { transform: rotate(180deg); }
+  .tmw-res { flex: 1; min-width: 0; font-style: normal; font-size: .78rem; color: var(--muted); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .tmw-nuevo .tmw-res { display: none; }
+  .tmw-edit .tm-sec[data-tmw]:not(.abierta) > :not(.tm-sec-h) { display: none !important; }
+  .tmw-edit .tm-sec.abierta { padding-bottom: 14px; } .tmw-edit .tm-sec.abierta > :not(.tm-sec-h) { margin-left: 14px; margin-right: 14px; animation: tmwEntraD .25s ease; }
+  .tmg { margin: 2px 0 6px; }
+  .tmg-cab { display: grid; grid-template-columns: 1fr auto; gap: 5px 10px; margin-bottom: 9px; font-size: .92rem; } .tmg-cab span { font-size: .78rem; color: var(--muted); font-weight: 700; }
+  .tmg-bar { grid-column: 1 / -1; height: 8px; border-radius: 99px; background: var(--tm-es-s); overflow: hidden; }
+  .tmg-bar i { display: block; height: 100%; width: var(--p); border-radius: 99px; background: linear-gradient(90deg, #22c55e, #14b8a6, #2563eb); animation: tmgLlena 1s cubic-bezier(.22,1,.36,1); }
+  @keyframes tmgLlena { from { width: 0; } }
+  .tmg-foco { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border: 0; border-radius: 18px; color: #fff; font: inherit; text-align: left; cursor: pointer; overflow: hidden;
+    background: linear-gradient(120deg, #2563eb, #7c3aed 60%, #db2777); box-shadow: 0 18px 30px -18px #7c3aed; animation: tmgEntra .5s cubic-bezier(.34,1.56,.64,1) .15s backwards, tmgLatido 2.2s ease-in-out .7s infinite; transition: transform .2s; }
+  .tmg-foco.tmg-espera { background: linear-gradient(120deg, #0f766e, #0891b2); box-shadow: 0 18px 30px -18px #0891b2; animation: tmgEntra .5s cubic-bezier(.34,1.56,.64,1) .15s backwards; }
+  .tmg-foco.tmg-frenado { background: linear-gradient(120deg, #dc2626, #9f1239); box-shadow: 0 18px 30px -18px #dc2626; }
+  .tmg-foco:hover { transform: translateY(-2px) scale(1.01); } .tmg-foco:active { transform: scale(.98); }
+  .tmg-foco::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.28) 50%, transparent 65%) no-repeat; background-size: 260% 100%; animation: tbxBrillo 4.5s ease-in-out infinite; background-position: 130% 0; }
+  @keyframes tmgEntra { from { opacity: 0; transform: translateY(14px) scale(.96); } }
+  @keyframes tmgLatido { 50% { box-shadow: 0 18px 30px -18px #7c3aed, 0 0 0 7px color-mix(in srgb, #7c3aed 16%, transparent); } }
+  .tmg-foco-ico { display: grid; place-items: center; flex: none; width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,.2); font-size: 1.35rem; } .tmg-foco-ico svg { width: 22px; height: 22px; }
+  .tmg-foco-txt { flex: 1; min-width: 0; } .tmg-foco-txt small { display: block; font-size: .72rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; opacity: .9; } .tmg-foco-txt b { display: block; font-size: 1.08rem; line-height: 1.2; } .tmg-foco-txt span { display: block; font-size: .8rem; opacity: .94; line-height: 1.3; margin-top: 2px; }
+  .tmg-flecha { flex: none; font-size: 1.5rem; font-weight: 800; animation: tmgFlecha 1.2s ease-in-out infinite; } @keyframes tmgFlecha { 50% { transform: translateX(6px); } }
+  .tmg-listo { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-radius: 16px; background: var(--tm-ok-s); color: var(--tm-ok-t); animation: tmgEntra .5s ease; } .tmg-listo > span { font-size: 1.6rem; } .tmg-listo b { display: block; } .tmg-listo div span { font-size: .8rem; }
+  .tmg-camino { position: relative; margin: 12px 0 0; padding: 0; list-style: none; }
+  .tmg-p { position: relative; animation: tmgPaso .4s ease backwards; animation-delay: calc(var(--i) * 70ms + .2s); }
+  @keyframes tmgPaso { from { opacity: 0; transform: translateX(-12px); } }
+  .tmg-p:not(:last-child)::before { content: ''; position: absolute; left: 14px; top: 30px; bottom: -6px; width: 3px; border-radius: 3px; background: var(--tm-linea); }
+  .tmg-p.tmg-hecho:not(:last-child)::before { background: var(--tm-ok); }
+  .tmg-p button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 5px 8px 5px 0; border: 0; border-radius: 10px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  .tmg-p button:hover { background: var(--tm-es-s); }
+  .tmg-pt { position: relative; z-index: 1; display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 50%; font-size: .78rem; font-weight: 800; background: var(--sup1, #fff); border: 2px solid var(--tm-linea); color: var(--muted); }
+  .tmg-ptx { min-width: 0; } .tmg-ptx b { display: block; font-size: .86rem; line-height: 1.2; } .tmg-ptx small { display: block; font-size: .74rem; color: var(--muted); line-height: 1.25; }
+  .tmg-hecho .tmg-pt { background: var(--tm-ok); border-color: var(--tm-ok); color: #fff; } .tmg-hecho .tmg-ptx b { color: var(--tm-ok-t); }
+  .tmg-ahora .tmg-pt { background: linear-gradient(135deg, #2563eb, #7c3aed); border-color: #7c3aed; color: #fff; animation: tmwAro 2s ease-in-out infinite; }
+  .tmg-frenado .tmg-pt { background: var(--tm-no); border-color: var(--tm-no); color: #fff; }
+  .tmg-espera .tmg-pt { border-style: dashed; }
+  .tmg-avanzo .tmg-hecho:has(+ .tmg-ahora) .tmg-pt { animation: tmgFesteja .8s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes tmgFesteja { 0% { transform: scale(.4); } 45% { transform: scale(1.45); box-shadow: 0 0 0 11px color-mix(in srgb, var(--tm-ok) 30%, transparent); } }
+
+  /* ===== 3.41 · Feriados ===== */
+  .ds-fer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; font-size: .8rem; } .ds-fer > span { font-weight: 800; }
+  .ds-fer button { min-height: 34px; padding: 3px 11px; border: 1.5px solid color-mix(in srgb, #dc2626 45%, transparent); border-radius: 99px; background: color-mix(in srgb, #dc2626 9%, transparent); color: #b91c1c; font: inherit; font-size: .76rem; cursor: pointer; }
+  .ds-fer button.on { background: #dc2626; color: #fff; }
+  body[data-tema="noche"] .ds-fer button:not(.on) { color: #fca5a5; }
+  .overlay.fa-ov, body[data-tema] .overlay.fa-ov { z-index: 130; align-items: center; padding: 14px; background: rgba(69,10,10,.72); backdrop-filter: blur(4px); }
+  .fa { width: min(480px, 100%); max-height: 90vh; overflow-y: auto; box-sizing: border-box; border-radius: 20px; background: var(--card, #fff); color: var(--ink, #1f2937); box-shadow: 0 30px 60px -20px #450a0a; animation: tmgEntra .4s cubic-bezier(.34,1.56,.64,1); }
+  .fa-cab { display: flex; align-items: center; gap: 12px; padding: 16px 18px; color: #fff; background: linear-gradient(120deg, #dc2626, #9f1239); border-radius: 20px 20px 0 0; }
+  .fa-ico { font-size: 2rem; animation: faLate 1.1s ease-in-out infinite; } @keyframes faLate { 50% { transform: scale(1.18); } }
+  .fa-cab small { font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: .72rem; } .fa-cab h2 { margin: 0; font-size: 1.14rem; line-height: 1.2; text-align: left; color: inherit; }
+  .fa-lista { display: grid; gap: 8px; margin: 14px 16px 0; padding: 0; list-style: none; }
+  .fa-lista li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px solid color-mix(in srgb, #dc2626 35%, transparent); border-radius: 13px; flex-wrap: wrap; } .fa-lista li > div { flex: 1; min-width: 170px; }
+  .fa-lista b { display: block; font-size: .92rem; } .fa-lista span { display: block; color: #dc2626; font-weight: 700; font-size: .84rem; } .fa-lista small { display: block; color: var(--muted); font-size: .76rem; }
+  body[data-tema="noche"] .fa-lista span { color: #fca5a5; }
+  .fa > p { margin: 12px 18px; font-size: .84rem; line-height: 1.4; } .fa-ok { display: block; width: calc(100% - 36px); margin: 0 18px 18px; min-height: 46px; }
+  .fa-banner { animation: tmwEntraD .35s ease; }
+  body.portal-pac .pp-feriado { margin: 0 0 14px; padding: 18px; border-radius: 22px; color: #fff; background: linear-gradient(135deg, #dc2626, #9f1239); box-shadow: 0 16px 30px -16px #dc2626; animation: ppFerLate 1.8s ease-in-out infinite; }
+  @keyframes ppFerLate { 50% { box-shadow: 0 16px 30px -16px #dc2626, 0 0 0 7px rgba(220,38,38,.2); } }
+  body.portal-pac .pp-feriado small { display: block; font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; }
+  body.portal-pac .pp-feriado h2 { margin: 4px 0 8px; font-size: 1.28rem; line-height: 1.2; color: #fff; }
+  body.portal-pac .pp-feriado p { margin: 0 0 12px; line-height: 1.45; color: #fff; }
+  body.portal-pac .pp-feriado .pp-btn { background: #fff; color: #b91c1c; box-shadow: none; }
+  @media (prefers-reduced-motion: reduce) { body.portal-pac .pp-feriado { animation: none; } }
+
+  @media (max-width: 520px) { .tmw-riel span { font-size: .66rem; } .tmw-riel i { width: 32px; height: 32px; } .tmw-riel::before { top: 15px; } .tmp-reco { grid-template-columns: 1fr; } .tmp-aplicar { width: 100%; } .tmg-foco-txt b { font-size: 1rem; } }
+  @media (prefers-reduced-motion: reduce) { .tm *, .tm, .fa, .fa *, .tmp-lista li { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body data-tema="sobrio">
@@ -7227,17 +7408,17 @@
       <button class="hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Abrir menú"></button>
       <div class="topbar-title" id="topbar-title">Panel</div>
       <div class="topbar-spacer"></div>
-      <button class="tb-gdx tb-lq" id="lq-btn" hidden onclick="lqAbrir()" aria-label="Leer pulsera" title="Leer pulsera"><span aria-hidden="true">📷</span><span>Pulsera</span></button>
-      <button class="tb-gdx" id="gdx-btn" onclick="gdxAbrir()" aria-label="Guardia del día" title="Guardia del día"><span aria-hidden="true">🛡️</span><span>Guardia</span></button>
+      <button class="tbx tbx-pul" id="lq-btn" hidden onclick="lqAbrir()" aria-label="Leer pulsera" title="Leer pulsera"><svg class="tbx-svg" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8V5.5a2 2 0 0 1 2-2H8M16 3.5h2.5a2 2 0 0 1 2 2V8M20.5 16v2.5a2 2 0 0 1-2 2H16M8 20.5H5.5a2 2 0 0 1-2-2V16"/><path d="M8 8h3v3H8zM13 13h3v3h-3z" fill="currentColor" stroke-width="1"/><path d="M13.5 8h2.5M8 15.5h2.5" stroke-width="2"/><path class="tbx-laser" d="M2 12h20" stroke="#fef08a" stroke-width="2.4"/></svg><span class="tbx-t">Pulsera</span></button>
+      <button class="tbx tbx-gua" id="gdx-btn" onclick="gdxAbrir()" aria-label="Guardia del día" title="Guardia del día"><svg class="tbx-svg" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.6 4.2 5.4v6.2c0 4.7 3.2 8 7.8 9.8 4.6-1.8 7.8-5.1 7.8-9.8V5.4z" fill="rgba(255,255,255,.2)"/><path class="tbx-ecg" d="M6.4 12.2h3l1.5-3.4 2.4 6.2 1.5-2.8h3" stroke="#fff" stroke-width="2"/></svg><span class="tbx-t">Guardia</span></button>
       <span class="conn" id="conn-chip" role="button" tabindex="0" onclick="explicarConexion()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();explicarConexion();}" title="Estado de la sincronización" aria-label="Estado de la sincronización"><span class="dotc" aria-hidden="true"></span><span id="conn-text" class="tb-oculto">Conectado</span></span>
       <div class="tema-wrap">
-        <button class="top-btn" id="tema-btn" onclick="toggleTemaMenu(event)"
+        <button class="top-btn tbx tbx-tem" id="tema-btn" onclick="toggleTemaMenu(event)"
                 aria-haspopup="true" aria-expanded="false" aria-label="Apariencia">
-          <span id="tema-ico"></span><span class="lbl" id="tema-lbl">Apariencia</span>
+          <span id="tema-ico"></span><span class="tbx-t">Temas</span><span class="tb-oculto" id="tema-lbl">Apariencia</span>
         </button>
         <div class="tema-menu" id="tema-menu" role="menu" aria-label="Apariencia"></div>
       </div>
-      <button class="top-btn" id="bell-btn" onclick="openRecordatorios()" aria-label="Recordatorios" title="Recordatorios"><span id="bell-ico"></span><span class="lbl">Recordatorios</span><span class="top-badge" id="bell-badge" style="display:none">0</span></button>
+      <button class="top-btn tbx tbx-cam" id="bell-btn" onclick="openRecordatorios()" aria-label="Recordatorios" title="Recordatorios"><span id="bell-ico"></span><span class="tbx-t">Avisos</span><span class="top-badge" id="bell-badge" style="display:none">0</span></button>
     </header>
     <main class="main" id="main"></main>
     <div class="volver-dock"><button type="button" class="volver-btn" id="volver-btn" hidden onclick="volverAtras()"></button></div>
@@ -9817,7 +9998,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.40.5';
+const APP_VERSION = '3.41.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11461,6 +11642,7 @@ function remClaveReal(key) {
 function marcarRemLeido(key, silencioso) {
   key = remClaveReal(key);
   if (String(key).startsWith('cierre-1h-')) acuseCierreApp();
+  if (String(key).startsWith('feriado-')) feriadoLeer([String(key).split('-')[1]]);
   remLeidos[remClaveLector() + '|' + key] = hoyISO();
   guardarLeidos();
   if (silencioso) return;
@@ -11872,7 +12054,7 @@ function calcRecordatorios() {
       add({
         key: 'jefdif-' + c.id, nivel: hecha && c.fecha < hoy ? 'warn' : 'info', vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
         titulo: `Validación de Jefatura sin regularizar — ${c.paciente?.nombre || 's/d'}`,
-        texto: `${c.procedimiento} (${c.quirofano || 's/d'}, ${fmtFecha(c.fecha)}). Entró por ${(c.jefaturaDiferida && c.jefaturaDiferida.motivo) || 'urgencia'} y se operó sin la validación previa de la ${JEFATURA}. Repase la lista de verificación de coordinación y cierre el trámite desde la ficha de la cirugía.`,
+        texto: `${c.procedimiento} (${c.quirofano || 's/d'}, ${fmtFecha(c.fecha)}). Entró por ${(c.jefaturaDiferida && c.jefaturaDiferida.motivo) || 'urgencia'} y ${opTxt(c).hizoMin} sin la validación previa de la ${JEFATURA}. Repase la lista de verificación de coordinación y cierre el trámite desde la ficha de la cirugía.`,
         cuando: hecha ? 'Trámite pendiente' : `Cirugía ${fmtFecha(c.fecha)}`,
       });
     });
@@ -11890,11 +12072,21 @@ function calcRecordatorios() {
       const dias = Math.max(0, diasEntre(c.fecha, hoy));
       add({
         key: 'cierre-' + c.id, nivel: dias >= 2 ? 'crit' : 'warn', vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
-        titulo: `Cirugía sin cerrar — ${c.paciente?.nombre || 's/d'}`,
-        texto: `${c.procedimiento} (${c.quirofano || 's/d'}, ${fmtFecha(c.fecha)}). Se operó pero el caso no está finalizado. Falta: ${pend.join('; ')}. Hasta que se cierre no computa en las estadísticas ni en los módulos quirúrgicos.`,
-        cuando: dias ? `Operada hace ${dias} día(s)` : 'Operada hoy',
+        titulo: `${turnoNombre(c, true)} sin cerrar — ${c.paciente?.nombre || 's/d'}`,
+        texto: `${c.procedimiento} (${c.quirofano || 's/d'}, ${fmtFecha(c.fecha)}). ${opTxt(c).hizo}, pero el caso no está finalizado. Falta: ${pend.join('; ')}. Hasta que se cierre no computa en las estadísticas ni en los módulos quirúrgicos.`,
+        cuando: dias ? `${opTxt(c).hecha} hace ${dias} día(s)` : `${opTxt(c).hecha} hoy`,
       });
     });
+
+  /* ---- 3 bis. Turnos que quedaron en un feriado (3.41) ---- */
+  DB.cirugias.filter(feriadoPendiente).filter(remMia).forEach((c) => {
+    add({
+      key: `feriado-${c.id}-${c.fecha}`, nivel: 'crit', notif: true, vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
+      titulo: `Turno en día feriado — ${c.paciente?.nombre || 's/d'}`,
+      texto: `${c.procedimiento} (${c.quirofano || 's/d'}, ${fmtDiaLargo(c.fecha)}, ${c.horaProg || '—'} h). Ese día es feriado: ${feriadoDeTurno(c)}. Decida si lo pasa a otro día y avísele al paciente.`,
+      cuando: `Faltan ${Math.max(0, diasEntre(hoy, c.fecha))} día(s)`,
+    });
+  });
 
   /* ---- 4. Retraso de inicio > 60 min (incidencia D reportable) ---- */
   DB.cirugias.filter((c) => c.estado === 'confirmada' && c.fecha === hoy).filter(remMia).forEach((c) => {
@@ -11924,7 +12116,7 @@ function calcRecordatorios() {
     add({
       key: 'sinres-' + c.id, nivel: 'crit', vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
       titulo: `Turno del ${fmtFecha(c.fecha)} sin resolver`,
-      texto: `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.quirofano || 's/d'}, ${c.horaProg || '—'} h). La fecha pasó y el turno sigue en «${ESTC[c.estado].label}»: indique si se operó, se suspendió o se resolvió antes. Si nadie lo resuelve, se cierra solo el ${fmtFecha(cierra)} como ${c.estado === 'confirmada' ? 'suspendido sin registro del equipo' : 'caducado'}.`,
+      texto: `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} (${c.quirofano || 's/d'}, ${c.horaProg || '—'} h). La fecha pasó y el turno sigue en «${ESTC[c.estado].label}»: indique si ${opTxt(c).se}, se suspendió o se resolvió antes. Si nadie lo resuelve, se cierra solo el ${fmtFecha(cierra)} como ${c.estado === 'confirmada' ? 'suspendido sin registro del equipo' : 'caducado'}.`,
       cuando: `Se cierra solo el ${fmtFecha(cierra)}`,
     });
   });
@@ -12176,10 +12368,12 @@ function revisarRecordatorios() {
   barrerTurnosProvisionales();
   // Y los turnos que quedaron atrás más de DIAS_CIERRE_ADMIN días, se cierran.
   if (cerrarTurnosVencidos().length && ['programacion', 'mis', 'grilla', 'parte'].includes(view)) refreshView();
+  try { const a = hoyISO().slice(0, 4); anestCargarFeriados(a); anestCargarFeriados(String(Number(a) + 1)); } catch (e) {}
   remLista = calcRecordatorios();
   pintarCampana();
   if (view === 'recordatorios') renderRecordatorios();
   notificarCriticos();
+  feriadoAlertaRevisar();
   // Tono de apertura: suena una sola vez, y solo si al entrar había algo sin ver.
   sonarAvisosPendientes();
   // Y desde las 20 h, el aviso hablado de lo que se opera mañana.
@@ -14338,18 +14532,24 @@ function anestMesPorDefecto() { const h = hoyISO(); return Number(h.slice(8, 10)
    fuente pública los publica, por eso van acá: 1 de junio, Día de la
    Provincia (Ley provincial N.º 7, 1992). */
 const FERIADOS_PROV = { '06-01': 'Día de la Provincia de Tierra del Fuego' };
+/* 3.41 · Feriados de una sola fecha que no publica ninguna fuente: los indica el hospital. */
+const FERIADOS_FECHA = { '2026-11-20': 'Feriado provincial' };
 /* Los nacionales —con los trasladables y los puentes de cada decreto— se
    bajan solos de la web, una vez por año y por equipo: ArgentinaDatos y, si
    no responde, Nager.Date (1,4k★). Solo se manda el año: ningún dato de nadie.
-   Se guardan en el navegador; sin conexión se usa la lista de FERIADOS_BASE. */
+   Se guardan en el navegador; sin conexión se usa la lista de FERIADOS_BASE.
+   3.41 · Se revisan todos los días (antes, cada 15): un feriado por decreto aparece de un
+   día para el otro y hay turnos que avisar. Si la web no responde, sigue valiendo lo último bajado. */
+const FERIADOS_REVISAR_MS = 86400000;
 const feriadosWeb = {};      // año → { 'AAAA-MM-DD': nombre }
 const feriadosCargando = {};
+const feriadosT = {};        // año → cuándo se bajó la lista
 function anestCargarFeriados(anio) {
   anio = String(anio);
-  if (feriadosWeb[anio] || feriadosCargando[anio]) return;
-  try { const g = JSON.parse(localStorage.getItem('hru_feriados_' + anio) || 'null'); if (g && g.t && Date.now() - g.t < 15 * 86400000) { feriadosWeb[anio] = g.f; return; } } catch (e) {}
+  if (feriadosCargando[anio] || (feriadosWeb[anio] && Date.now() - (feriadosT[anio] || 0) < FERIADOS_REVISAR_MS)) return;
+  try { const g = JSON.parse(localStorage.getItem('hru_feriados_' + anio) || 'null'); if (g && g.t) { feriadosWeb[anio] = g.f; feriadosT[anio] = g.t; if (Date.now() - g.t < FERIADOS_REVISAR_MS) return; } } catch (e) {}
   feriadosCargando[anio] = true;
-  const ok = (f) => { feriadosWeb[anio] = f; feriadosCargando[anio] = false; try { localStorage.setItem('hru_feriados_' + anio, JSON.stringify({ t: Date.now(), f })); } catch (e) {}
+  const ok = (f) => { feriadosWeb[anio] = f; feriadosT[anio] = Date.now(); feriadosCargando[anio] = false; try { localStorage.setItem('hru_feriados_' + anio, JSON.stringify({ t: Date.now(), f })); } catch (e) {}
     // Cambian los días hábiles: se recalculan los avisos y se repintan solo
     // las pantallas sin formularios a medio cargar.
     try { revisarRecordatorios(); } catch (e) {}
@@ -14364,6 +14564,7 @@ function feriadoNombre(d) {
   const w = feriadosWeb[d.slice(0, 4)];
   if (w && w[d]) return w[d];
   if (FERIADOS_PROV[d.slice(5)]) return FERIADOS_PROV[d.slice(5)];
+  if (FERIADOS_FECHA[d]) return FERIADOS_FECHA[d];
   if (!w && FERIADOS_BASE.has(d)) return 'Feriado nacional';
   return '';
 }
@@ -14371,6 +14572,76 @@ function esFeriado(d, disp) {
   const extra = String((disp && disp.fer) || '').split(',').filter(Boolean);
   const dd = d.slice(8, 10), quitado = extra.includes('-' + dd), puesto = extra.includes(dd);
   return puesto || (!!feriadoNombre(d) && !quitado);
+}
+/* 3.41 · Turnos que quedaron en un feriado: por un decreto nuevo o porque se marcó a mano.
+   La urgencia, la excepción de la Jefatura y el registro tardío se hicieron a sabiendas. */
+const FERIADO_ESTADOS = ['pendiente', 'validada', 'confirmada'];
+function feriadoDeTurno(c) {
+  if (!c || !c.fecha || c.urgencia || c.excepcion || c.registroTardio || !FERIADO_ESTADOS.includes(c.estado) || c.fecha < hoyISO()) return '';
+  const w = new Date(c.fecha + 'T12:00:00').getDay();
+  if (w === 0 || w === 6) return '';
+  const disp = (typeof anestCache !== 'undefined' && anestCache.disp[c.fecha.slice(0, 7)]) || null;
+  return esFeriado(c.fecha, disp && !disp.error ? disp : null) ? (feriadoNombre(c.fecha) || 'Feriado') : '';
+}
+const feriadoPendiente = (c) => !!feriadoDeTurno(c) && !(c.feriadoVisto && c.feriadoVisto.fecha === c.fecha);
+/* Se apaga solo cuando el médico que lo programó abre la app y lo lee. */
+function feriadoLeer(ids) {
+  const u = usuarioActual();
+  ids.forEach((id) => {
+    const c = DB.cirugias.find((x) => String(x.id) === String(id));
+    if (!c || !u || c.cirujanoEmail !== u.email) return;
+    c.feriadoVisto = { fecha: c.fecha, t: nowDT(), por: u.nombre || u.email };
+    pushHist(c, `${c.feriadoVisto.por} leyó la alerta: el turno quedó en un día feriado (${feriadoDeTurno(c)})`);
+    upsert('cirugias', c);
+  });
+}
+function feriadoMisTurnos() {
+  const u = usuarioActual();
+  return u ? DB.cirugias.filter((c) => c.cirujanoEmail === u.email && feriadoPendiente(c)) : [];
+}
+let feriadoPausa = 0;
+function feriadoAlertaRevisar() {
+  const ov = $('fa-ov');
+  const L = PORTAL_TOKEN ? [] : feriadoMisTurnos();
+  if (!L.length) { if (ov) ov.remove(); return; }
+  if (ov || Date.now() < feriadoPausa || document.querySelector('.overlay.open')) return;
+  const d = document.createElement('div');
+  d.id = 'fa-ov'; d.className = 'overlay overlay-fijo open fa-ov';
+  d.setAttribute('role', 'alertdialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'fa-tit');
+  d.innerHTML = `<div class="fa">
+    <div class="fa-cab"><span class="fa-ico" aria-hidden="true">⚠️</span><div><small>Alerta</small><h2 id="fa-tit">${L.length === 1 ? 'Tiene un turno en un día feriado' : `Tiene ${L.length} turnos en días feriados`}</h2></div></div>
+    <ul class="fa-lista">${L.map((c) => `<li><div><b>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg || '—')} h</b>
+      <span>${esc(feriadoDeTurno(c))}</span><small>${esc(c.procedimiento || '')} · ${esc(c.paciente?.nombre || 's/d')} · ${esc(c.quirofano || '')}</small></div>
+      <button type="button" class="btn btn-sm btn-outline" onclick="feriadoIrAlTurno(${c.id})">Ver el turno</button></li>`).join('')}</ul>
+    <p>${L.some((c) => c.pase && c.pase.token) ? 'El paciente recibió la misma alerta en su pase. ' : ''}Decida si lo pasa a otro día y avísele. Esta alerta sigue apareciendo, y le llega por correo y al teléfono, hasta que la lea.</p>
+    <button type="button" class="btn btn-red fa-ok" onclick="feriadoOk()">Leí la alerta</button></div>`;
+  document.body.appendChild(d);
+}
+function feriadoOk() {
+  feriadoLeer(feriadoMisTurnos().map((c) => c.id));
+  const ov = $('fa-ov'); if (ov) ov.remove();
+  try { revisarRecordatorios(); } catch (e) {}
+  refreshView();
+}
+function feriadoIrAlTurno(id) { feriadoPausa = Date.now() + 300000; const ov = $('fa-ov'); if (ov) ov.remove(); openCirugia(id); }
+/* Cartel rojo en la ventana del turno, y lista de feriados del mes en Programación Diaria. */
+function feriadoBannerHTML(c) {
+  const n = feriadoDeTurno(c);
+  return n ? `<div class="banner banner-red fa-banner" style="margin-bottom:12px">${ico(ICONS.alertTri, 18)}<div><strong>Este turno quedó en un día feriado</strong>${esc(n)}. Decida si lo pasa a otro día y avísele al paciente.</div></div>` : '';
+}
+function feriadosDelMes(ym) {
+  const [a, m] = ym.split('-').map(Number), L = [], n = new Date(a, m, 0).getDate();
+  const disp = (typeof anestCache !== 'undefined' && anestCache.disp[ym]) || null;
+  for (let i = 1; i <= n; i++) {
+    const d = `${ym}-${String(i).padStart(2, '0')}`, w = new Date(d + 'T12:00:00').getDay();
+    if (w !== 0 && w !== 6 && esFeriado(d, disp && !disp.error ? disp : null)) L.push({ d, n: feriadoNombre(d) || 'Feriado' });
+  }
+  return L;
+}
+function dselFeriadosHTML(d) {
+  const L = feriadosDelMes(d.slice(0, 7));
+  return L.length ? `<div class="ds-fer" role="group" aria-label="Feriados del mes"><span>🗓️ Feriados de ${MESES_FULL[Number(d.slice(5, 7)) - 1].toLowerCase()}</span>
+    ${L.map((x) => `<button type="button" class="${x.d === d ? 'on' : ''}" onclick="setDia('${x.d}')" title="${esc(x.n)}"><b>${DSEL_CORTO[new Date(x.d + 'T12:00:00').getDay()]} ${Number(x.d.slice(8))}</b> ${esc(x.n)}</button>`).join('')}</div>` : '';
 }
 /* Sábado, domingo o feriado: urgencias y emergencias habilitadas solas. */
 function diaUrgAutomatica(d, disp) { const w = new Date(d + 'T12:00:00').getDay(); return w === 0 || w === 6 || esFeriado(d, disp); }
@@ -20553,9 +20824,9 @@ function openResolverTurno(id) {
         ${fmtFecha(c.fecha)}${c.horaProg ? ' · ' + esc(c.horaProg) + ' h' : ''} · ${esc(c.quirofano || 's/d')} · ${esc(c.cirujano || 's/d')}</div>
     </div>
     <div class="res-ops">
-      ${op('opero', 'ok', ICONS.check, 'Se operó', jefe ? 'Se hizo pero nadie la cargó. Queda <b>Finalizada</b>.' : 'Lo registra la Jefatura de Quirófanos: avísele.', !jefe)}
-      ${op('no', confirmado ? 'bad' : 'gris', ICONS.x, 'No se operó', confirmado ? 'Queda <b>Suspendida</b>, con su causa.' : 'Nunca llegó al parte: queda <b>Caducada</b>.')}
-      ${!c.urgencia ? op('antes', 'violeta', ICONS.zap, 'Se operó antes', 'De urgencia u otro día: <b>Resuelta por anticipado</b>.') : ''}
+      ${op('opero', 'ok', ICONS.check, opTxt(c).hizo, jefe ? 'Se hizo pero nadie la cargó. Queda <b>Finalizada</b>.' : 'Lo registra la Jefatura de Quirófanos: avísele.', !jefe)}
+      ${op('no', confirmado ? 'bad' : 'gris', ICONS.x, opTxt(c).no, confirmado ? 'Queda <b>Suspendida</b>, con su causa.' : 'Nunca llegó al parte: queda <b>Caducada</b>.')}
+      ${!c.urgencia ? op('antes', 'violeta', ICONS.zap, opTxt(c).antes, 'De urgencia u otro día: <b>Resuelta por anticipado</b>.') : ''}
     </div>
 
     <div class="res-panel" data-k="opero" hidden>
@@ -22179,7 +22450,7 @@ function fichaCamino(c) {
       : pac && !pac.ok ? { t: 'Paciente', tono: 'bad', d: 'no podía · otra fecha' }
       : { t: 'Paciente', d: 'tras los 3 OK' });
   }
-  const fin = { suspendida: { t: 'Suspendida', tono: 'bad', d: 'no se operó' }, anticipada: { t: 'Resuelta antes', tono: 'violeta', d: 'franja liberada' }, caducada: { t: 'Caducada', tono: 'gris', d: 'no llegó al parte' } }[c.estado];
+  const fin = { suspendida: { t: 'Suspendida', tono: 'bad', d: opTxt(c).no.toLowerCase() }, anticipada: { t: 'Resuelta antes', tono: 'violeta', d: 'franja liberada' }, caducada: { t: 'Caducada', tono: 'gris', d: 'no llegó al parte' } }[c.estado];
   if (fin) pasos[pasos.length - 1] = Object.assign({ fin: true }, fin);
   const cur = fin ? -1 : pasos.findIndex((p) => !p.ok);
   const vencido = sinResolver(c);
@@ -22227,7 +22498,7 @@ function fichaSiguiente(c) {
   if (p.length) {
     const grave = p.some((x) => x.grave);
     return caja(grave ? 'bad' : 'warn', operada(c) ? ICONS.flag : ICONS.list,
-      operada(c) ? 'Operada — falta para cerrar el caso' : `Para avanzar falta${p.length > 1 ? 'n ' + p.length + ' cosas' : ' una cosa'}`,
+      operada(c) ? `${opTxt(c).hecha} — falta para cerrar el caso` : `Para avanzar falta${p.length > 1 ? 'n ' + p.length + ' cosas' : ' una cosa'}`,
       `<div class="fx-faltan">${p.map((x) => `<span class="fx-falta${x.grave ? ' grave' : ''}" title="${esc(x.largo)}">${esc(x.corto)}</span>`).join('')}</div>
       <details class="fx-mas"><summary>Qué significa cada uno</summary><ul>${p.map((x) => `<li>${esc(x.largo)}</li>`).join('')}</ul></details>
       ${operada(c) ? '<small>Hasta que se complete, el caso no computa en estadísticas ni en módulos.</small>' : ''}`);
@@ -26196,6 +26467,16 @@ function sinRecuento(c) { return esEndo(c) || esParto(c); }
 function sinJefatura(c) { return esEndo(c) || esParto(c); }
 function obsNombre(c) { return esParto(c) ? 'parto' : 'cesárea'; }
 function titularNombre(c) { return esEndo(c) ? 'Endoscopista' : c && c.sala === 'QOBS' ? 'Obstetra' : 'Cirujano'; }
+/* 3.41 · Una VEDA no «se opera»: se realiza. Lo que se dice de un turno hecho, según lo que era. */
+function opTxt(c) {
+  const p = String((c && c.procedimiento) || '');
+  const cir = !esEndo(c) && !(c && c.sala === 'QOBS');
+  const que = esEndo(c) ? (/veda|gastro|esofago|duodeno/i.test(p) ? 'la VEDA' : /colono|vcc/i.test(p) ? 'la colonoscopía' : 'el estudio')
+    : c && c.sala === 'QOBS' ? (esParto(c) ? 'el parto' : 'la cesárea') : 'la cirugía';
+  const a = que.startsWith('la') ? 'a' : 'o';
+  return cir ? { que, hizo: 'Se operó', hizoMin: 'se operó', se: 'se operó', no: 'No se operó', antes: 'Se operó antes', hecha: 'Operada' }
+    : { que, hizo: `Se realizó ${que}`, hizoMin: `se realizó ${que}`, se: 'se realizó', no: 'No se realizó', antes: 'Se realizó antes', hecha: 'Realizad' + a };
+}
 function turnoNombre(c, may) { const n = esEndo(c) ? 'endoscopía' : c && c.sala === 'QOBS' ? obsNombre(c) : 'cirugía'; return may ? n[0].toUpperCase() + n.slice(1) : n; }
 /* 3.35 · La Endoscopía Digestiva ya no es de Quirófanos centrales. La gestiona el
    Jefe/a de Endoscopía (un médico designado por la Jefatura en Portales; queda en
@@ -26743,7 +27024,7 @@ function dselHTML(d, ocupadas, capacidad) {
       <span class="ds-bar"><b style="width:${p}%"></b></span>
     </button>`;
   }).join('');
-  return `<div class="dsel${dir ? ' cambia' : ''}" data-dir="${dir}">
+  return `${dselFeriadosHTML(d)}<div class="dsel${dir ? ' cambia' : ''}" data-dir="${dir}">
     <div class="ds-hero" id="ds-hero">
       <button type="button" class="ds-flecha" onclick="moverDia(-1)" aria-label="Día anterior">‹</button>
       <div class="ds-fecha">
@@ -27004,7 +27285,7 @@ function openSlot(d, sid, fid) {
      identificadores son los mismos de siempre: `guardarSlot` no cambia. */
   $('slot-modal').innerHTML = `
     <button class="modal-close" onclick="closeSlot()" aria-label="Cerrar">✕</button>
-    <div class="tm" id="tm">
+    <div class="tm ${nuevo ? 'tmw-nuevo' : 'tmw-edit'}${f.urg ? ' tmw-urg' : ''}" id="tm">
     <div class="tm-head">
       <div class="tm-head-ico">${ICONS.calPlus}</div>
       <div class="tm-head-txt">
@@ -27022,20 +27303,24 @@ function openSlot(d, sid, fid) {
         : `Los datos vienen de la cirugía caducada del ${esc(fmtFecha(m.deFecha))}. Revíselos y vuelva a tildar los requisitos para Admisión y Egresos.`}
       <button type="button" class="btn btn-sm btn-outline" style="margin-top:6px" onclick="solCopia=null;solOtro=null;closeSlot();openSlot('${d}','${sid}','${fid}')">Empezar en blanco</button></div></div>` : ''}
     ${avisoAnticip}
+    ${c ? feriadoBannerHTML(c) : ''}
     ${resv && nuevo ? `<div class="banner banner-reserva" style="margin-bottom:14px">${ico(ICONS.shield, 18)}<div><strong>Franja con prioridad por especialidad</strong>
         La Jefatura de Quirófanos reservó este horario para <b>${esc(resv.servicios.join(', '))}</b>. El turno solo se guarda con
         uno de esos servicios.</div></div>` : ''}
+    ${nuevo ? tmwRielHTML() : c ? tmGuiaHTML(c, u) : ''}
     ${puedeEditar ? '<div class="tm-progreso" id="tm-progreso" aria-live="polite"></div>' : ''}
+    ${c ? '<div class="tmw-datos"><b>Datos del turno</b><span>toque una tarjeta para verla o corregirla</span></div>' : ''}
 
-    <section class="tm-sec">
-      <div class="tm-sec-h"><span class="tm-n">1</span><div><b>Paciente</b><span>quién se opera y cómo se lo contacta</span></div></div>
+    <section class="tm-sec" data-tmw="1">
+      <div class="tm-sec-h" onclick="tmwSec(1)"><span class="tm-n">1</span><div><b>Paciente</b><span>quién es y cómo se lo contacta</span></div><em class="tmw-res" id="tmw-res-1"></em></div>
       <p class="tm-ayuda">${ICONS.info.replace('18', '13')} Estos datos se importan de la Historia Clínica Electrónica cuando la interfaz HCE/HIS esté disponible; mientras tanto se declaran manualmente.</p>
       <div class="form-grid">
         <div class="field full"><label>Apellido y nombre *</label><input type="text" id="k-pac" value="${v(m && m.paciente?.nombre)}" ${ro}></div>
-        <div class="field"><label>DNI</label><input type="text" id="k-dni" inputmode="numeric" value="${v(m && m.paciente?.dni)}" ${ro}></div>
+        <div class="field"><label>DNI</label><input type="text" id="k-dni" inputmode="numeric" value="${v(m && m.paciente?.dni)}" ${ro} oninput="tmwDni()"></div>
+        <div class="field full tmw-hist" id="tmw-hist" hidden></div>
         <div class="field"><label>Fecha de nacimiento</label><input type="date" id="k-nac" value="${v(m && m.paciente?.nacimiento)}" ${ro} oninput="edadDesdeNac()" onchange="edadDesdeNac()">
           <span class="hint">Se vuelca al consentimiento informado.</span></div>
-        <div class="field"><label>Edad</label><input type="number" id="k-edad" min="0" max="120" value="${m?.paciente?.edad ?? ''}" ${ro}></div>
+        <div class="field"><label>Edad <span class="tmw-etapa" id="tmw-etapa"></span></label><input type="number" id="k-edad" min="0" max="120" value="${m?.paciente?.edad ?? ''}" ${ro}></div>
         <div class="field"><label>Teléfono</label><input type="tel" id="k-tel" value="${v(m && m.paciente?.telefono)}" ${ro}></div>
         <div class="field full"><label>Correo electrónico del paciente</label><input type="email" id="k-mail" autocomplete="off" placeholder="nombre@correo.com" value="${v(m && m.paciente?.email)}" ${ro}>
           <span class="hint">Opcional. Hace falta para el <b>pase del paciente</b>: cada vez que el paciente consulta su cirugía le llega a este correo un código de un solo uso.</span></div>
@@ -27048,8 +27333,8 @@ function openSlot(d, sid, fid) {
       </div>
     </section>
 
-    <section class="tm-sec">
-      <div class="tm-sec-h"><span class="tm-n">2</span><div><b>Diagnóstico y cirugía</b><span>qué se opera, elegido del nomenclador</span></div></div>
+    <section class="tm-sec" data-tmw="2">
+      <div class="tm-sec-h" onclick="tmwSec(2)"><span class="tm-n">2</span><div><b>Diagnóstico y ${s.tipo === 'endo' ? 'estudio' : 'práctica'}</b><span>qué se va a hacer, elegido del nomenclador</span></div><em class="tmw-res" id="tmw-res-2"></em></div>
       <div class="form-grid">
         <div class="field cie-campo"><label>Diagnóstico preoperatorio *</label><input type="text" id="k-diag" value="${v(m && m.diagnostico)}" ${ro} autocomplete="off" placeholder="Escriba: gastritis, hernia inguinal, K80…" oninput="cieBuscar()" onfocus="cieBuscar()" onkeydown="cieTecla(event)" onblur="setTimeout(cieCerrar, 180)"><div class="cie-lista" id="cie-lista" role="listbox"></div></div>
         <div class="field"><label>Código CIE-10</label><input type="text" id="k-cie" placeholder="Ej: K80.2" value="${v(m && m.cie10)}" ${ro}></div>
@@ -27057,8 +27342,8 @@ function openSlot(d, sid, fid) {
       </div>
     </section>
 
-    <section class="tm-sec">
-      <div class="tm-sec-h"><span class="tm-n">3</span><div><b>Requisitos para Admisión y Egresos</b><span>toque cada uno cuando esté hecho</span></div></div>
+    <section class="tm-sec" data-tmw="3">
+      <div class="tm-sec-h" onclick="tmwSec(3)"><span class="tm-n">3</span><div><b>Requisitos para Admisión y Egresos</b><span>toque cada uno cuando esté hecho</span></div><em class="tmw-res" id="tmw-res-3"></em></div>
       <div class="tm-reqs">
         <label class="tm-req"><input type="checkbox" id="k-preanest" ${m?.coordinacion?.anestesia ? 'checked' : ''} ${ro}>
           <span class="tm-req-ico">${ico(ICONS.check, 16)}</span><span class="tm-req-txt"><b>Pre-anestésico</b><small>apto anestésico registrado en la HCE</small></span></label>
@@ -27071,8 +27356,8 @@ function openSlot(d, sid, fid) {
       ${!f.urg ? ' Con los tres listos y el consentimiento guardado, la app genera el <b>pase del paciente</b>: una tarjeta con un código QR para que siga su cirugía.' : ''}</p>
     </section>
 
-    <section class="tm-sec">
-      <div class="tm-sec-h"><span class="tm-n">4</span><div><b>Equipo quirúrgico</b><span>quién opera y con qué anestesia</span></div></div>
+    <section class="tm-sec" data-tmw="4">
+      <div class="tm-sec-h" onclick="tmwSec(4)"><span class="tm-n">4</span><div><b>Equipo</b><span>quién lo hace y con qué anestesia</span></div><em class="tmw-res" id="tmw-res-4"></em></div>
       <div class="form-grid">
         ${campoCirujano(c, u, exc, ro)}
         <div class="field"><label>Servicio / especialidad *</label>
@@ -27085,13 +27370,16 @@ function openSlot(d, sid, fid) {
       <div id="k-ayu-mods"></div>
     </section>
 
-    <section class="tm-sec">
-      <div class="tm-sec-h"><span class="tm-n">5</span><div><b>Prioridad y recursos</b><span>orden de prelación, tiempo y lo que hay que reservar</span></div></div>
+    <section class="tm-sec" data-tmw="5">
+      <div class="tm-sec-h" onclick="tmwSec(5)"><span class="tm-n">5</span><div><b>Prioridad y recursos</b><span>la app mira el caso y recomienda</span></div><em class="tmw-res" id="tmw-res-5"></em></div>
+      <div class="tmf"><b>Factores del paciente <small>opcional · ayudan a recomendar la prioridad</small></b>
+        <div class="tm-chips">${PRIO_FACTORES.map((x) => `<label class="tm-chip"><input type="checkbox" class="k-fac" data-f="${x.k}" ${(m?.comorb || []).includes(x.k) ? 'checked' : ''} ${ro}><span>${x.n}</span></label>`).join('')}</div></div>
       <div class="form-grid">
-        <div class="field"><label>Prioridad de prelación *</label>
-          <select id="k-prio" ${ro}>${Object.keys(PRIOS).filter((k) => k !== '5').map((k) => `<option value="${k}" ${String(m?.prioridad || 6) === k ? 'selected' : ''}>P${k} — ${PRIOS[k].label}</option>`).join('')}</select>
-          <span class="hint">La prioridad P5 (espera &gt; 90 días) la asigna el sistema automáticamente.</span></div>
-        <div class="field"><label>Duración estimada (min)</label><input type="number" id="k-dur" min="15" step="5" value="${m?.duracionMin || (s.tipo === 'endo' ? 45 : 90)}" ${ro}></div>
+        <div class="field full tmp-campo"><label>Prioridad de prelación *</label>
+          <select id="k-prio" class="tmp-sel" ${ro}>${Object.keys(PRIOS).filter((k) => k !== '5').map((k) => `<option value="${k}" ${String(m?.prioridad || 6) === k ? 'selected' : ''}>P${k} — ${PRIOS[k].label}</option>`).join('')}</select>
+          <div id="tmp-box"></div></div>
+        <div class="field"><label>Duración estimada (min)</label><input type="number" id="k-dur" min="15" step="5" value="${m?.duracionMin || (s.tipo === 'endo' ? 45 : 90)}" ${ro}>
+          ${ro ? '' : `<div class="tmw-durs" role="group" aria-label="Duraciones habituales">${(s.tipo === 'endo' ? [30, 45, 60, 90] : [60, 90, 120, 180]).map((x) => `<button type="button" onclick="tmwDur(${x})">${x}</button>`).join('')}</div>`}</div>
         ${s.tipo === 'obs' ? `<div class="field"><label>Atención *</label><select id="k-obs" ${ro}><option value="">Cesárea</option><option value="parto" ${m?.obsTipo === 'parto' ? 'selected' : ''}>Parto</option></select>
           <span class="hint">El parto no lleva conteo de gasas ni instrumentación.</span></div>` : ''}
       </div>
@@ -27112,8 +27400,6 @@ function openSlot(d, sid, fid) {
       </details>
     </section>
 
-    ${c ? tmAcciones(c, u) : ''}
-
     ${c ? `<details class="tm-detalle">
       <summary>Detalle del circuito</summary>
       <div class="det-row"><b>Estado</b> ${ESTC[estadoVisible(c)].label} — ${ESTC[estadoVisible(c)].desc}</div>
@@ -27126,9 +27412,11 @@ function openSlot(d, sid, fid) {
       ${c.pase && c.pase.token ? `<div class="det-row"><b>Pase del paciente</b> ${c.pase.caducado ? 'caducado' : 'activo'} · código ${esc(c.pase.ref || '')} · emitido el ${fmtDT(c.pase.creado)}</div>` : ''}
     </details>` : ''}
 
+    ${nuevo ? `<div class="tmw-nav"><button type="button" class="btn btn-outline" id="tmw-atras" onclick="tmwMover(-1)">← Atrás</button>
+      <button type="button" class="btn btn-blue" id="tmw-sig" onclick="tmwMover(1)">Siguiente →</button></div>` : ''}
     <div class="tm-pie">
       ${c && rcActivo(c) && puedeEditar ? '<p class="tm-ayuda rc-nota-guardar">«Guardar cambios» solo guarda los datos del turno que haya corregido arriba (paciente, cirugía, duración, equipos…). <b>No</b> es el OK a la nueva fecha: ese es el botón 🛏 de «Lo que sigue».</p>' : ''}
-      ${puedeEditar ? `<button class="btn btn-blue tm-pie-main" onclick="guardarSlot()">${ICONS.check.replace('14', '16')} ${nuevo ? 'Programar turno' : 'Guardar cambios'}</button>` : ''}
+      ${puedeEditar ? `<button class="btn btn-blue tm-pie-main" onclick="${nuevo ? 'tmwProgramar()' : 'guardarSlot()'}">${ICONS.check.replace('14', '16')} ${nuevo ? 'Programar turno' : 'Guardar cambios'}</button>` : ''}
       ${c && puedeOtroEstudio(c) ? `<button class="btn btn-outline tm-pie-otro" onclick="otroEstudio(${c.id})">➕ Otro estudio del mismo paciente</button>` : ''}
       ${c && !sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email)) ? `<button class="btn btn-outline tm-pie-red" onclick="cancelarSlot(${c.id})">${ICONS.trash} ${jefe ? 'Cancelar turno' : 'Eliminar o pasar a otro día'}</button>` : ''}
       <button class="btn btn-outline" onclick="closeSlot()">Cerrar</button>
@@ -27140,6 +27428,7 @@ function openSlot(d, sid, fid) {
   nomIniciar(m, ro);
   pintarModEquipo();
   tmEnlazar();
+  tmwMontar(nuevo);
 }
 /* ---- Ventana del turno: el circuito a la vista ----
    Cuatro casilleros con el mismo código de color en toda la app: verde hecho,
@@ -27172,6 +27461,13 @@ function tmEstadoJefatura(c) {
 }
 function recortar(t, n) { t = String(t || ''); return t.length > n ? t.slice(0, n - 1) + '…' : t; }
 
+function ciTarjeta(c) {
+  if (c.ciPaciente && c.ciMedico) return { est: 'ok', txt: 'Firmado por el paciente y por el médico' };
+  if (c.ciPaciente) return { est: 'pend', txt: 'El paciente firmó · falta la firma del médico' };
+  if (c.ciRevocado) return { est: 'no', txt: 'El paciente lo revocó' };
+  if (c.pase && c.pase.token && !c.pase.caducado) return { est: 'pend', txt: c.ciCambio ? 'Cambió el texto: falta que el paciente lo acepte de nuevo' : 'Guardado · falta la firma del paciente' };
+  return { est: 'ok', txt: 'Guardado · el paciente todavía no tiene pase' };
+}
 function tmCircuito(c, u) {
   const ci = consentimientoDeTurno(c);
   const adm = tmEstadoAdmision(c);
@@ -27180,7 +27476,8 @@ function tmCircuito(c, u) {
     ? { est: 'pend', txt: c.ciLiberado ? 'Franja liberada: elegir otra' : 'Borrador sin presentar' }
     : turnoProvisional(c) ? { est: 'pend', txt: 'Provisional hasta guardar el consentimiento' }
     : { est: 'ok', txt: `${esc(c.quirofano || '')} · ${esc(c.horaProg || '')} h` };
-  const cons = ci ? { est: 'ok', txt: 'Generado y guardado' }
+  // 3.41 · La tarjeta dice quién firmó: antes solo se veía en la ficha y en el tablero de firmas.
+  const cons = ci ? ciTarjeta(c)
     : authExenta(c) ? { est: 'dif', txt: 'Se completa después' }
     : { est: 'pend', txt: 'Falta generarlo' };
   const resolver = sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email));
@@ -27223,47 +27520,75 @@ function tmBoton(n, estado, icono, titulo, detalle, accion) {
     ${estado === 'falta' ? '<span class="tm-acc-tag">falta</span>' : estado === 'hecho' ? '<span class="tm-acc-tag">hecho</span>' : ''}
   </button>`;
 }
-function tmAcciones(c, u) {
+/* 3.41 · Los pasos del turno, en orden. `e`: falta (le toca a quien mira), espera (depende de
+   otro), hecho, frenado o neutro. De acá sale el camino guiado de «Lo que sigue». */
+function tmPasosDe(c, u) {
   const ci = consentimientoDeTurno(c);
   const b = [];
-  let n = 0;
+  const add = (e, i, t, d, a) => b.push({ e, i, t, d, a });
   // 3.27.1 · Reprogramada por falta de cama: el OK va acá y no en «Guardar cambios».
   if (rcActivo(c)) {
     const o = c.reprogCama.oks || {};
     const mioCir = c.reprogCama.estado === 'esperando_equipo' && !o.cir && rcPuede(c, 'cir');
     const mioJef = c.reprogCama.estado === 'esperando_equipo' && !o.jef && rcPuede(c, 'jef');
-    b.push(tmBoton(++n, mioCir || mioJef ? 'falta' : 'neutro', '🛏',
-      mioCir || mioJef ? 'Dar mi OK a la nueva fecha' : 'Reprogramación por falta de cama', esc(rcPasoTexto(c)),
-      `closeSlot();openCirugia(${c.id});${mioCir ? `rcOk(${c.id},'cir')` : mioJef ? `rcOk(${c.id},'jef')` : 'rcIrATarjeta()'}`));
+    add(mioCir || mioJef ? 'falta' : 'neutro', '🛏', mioCir || mioJef ? 'Dar mi OK a la nueva fecha' : 'Reprogramación por falta de cama', esc(rcPasoTexto(c)),
+      `closeSlot();openCirugia(${c.id});${mioCir ? `rcOk(${c.id},'cir')` : mioJef ? `rcOk(${c.id},'jef')` : 'rcIrATarjeta()'}`);
   }
-  b.push(tmBoton(++n, ci ? 'hecho' : 'falta', ico(ICONS.fileText, 18),
-    ci ? 'Consentimiento informado' : 'Generar el consentimiento informado',
-    ci ? `Guardado el ${esc(String(ci.fecha || '').split(',')[0])} · ver o reimprimir` : 'Con los datos del turno ya volcados',
-    `closeSlot();irAConsentimiento(${c.id})`));
+  add(ci ? 'hecho' : 'falta', ico(ICONS.fileText, 18), ci ? 'Consentimiento informado' : 'Generar el consentimiento informado',
+    ci ? `Guardado el ${esc(String(ci.fecha || '').split(',')[0])} · ver o reimprimir` : 'Con los datos del turno ya volcados', `closeSlot();irAConsentimiento(${c.id})`);
+  if (c.pase && c.pase.token) {
+    add(c.pase.caducado ? 'neutro' : 'hecho', ICONS.qr, 'Pase del paciente', c.pase.caducado ? 'Caducado: el turno se cerró' : `Código ${esc(c.pase.ref || '')} · ver, imprimir o enviar`, `openPase(${c.id})`);
+  } else if (portalElegible(c)) {
+    add('falta', ICONS.qr, 'Generar el pase del paciente', 'Tarjeta con QR para que siga su turno y firme', `openPase(${c.id})`);
+  }
+  if (ci && !c.urgencia) {
+    const fp = c.ciPaciente ? String(c.ciPaciente.t || '') : '';
+    if (c.ciPaciente) add('hecho', '✍️', 'Firma del paciente', `Aceptó desde su pase el ${esc(fmtDT(fp))}`, `closeSlot();irAConsentimiento(${c.id})`);
+    else if (c.ciRevocado) add('frenado', '✍️', 'Firma del paciente', 'Revocó el consentimiento: no se puede empezar', `closeSlot();openCirugia(${c.id})`);
+    else if (c.pase && c.pase.token && !c.pase.caducado) add('espera', '✍️', 'Firma del paciente', c.ciCambio ? 'Cambió el texto: tiene que aceptarlo de nuevo · reenviar el pase' : 'Falta que firme desde su pase · reenviar el pase', `openPase(${c.id})`);
+    if (c.ciPaciente) {
+      if (c.ciMedico) add('hecho', '🖋️', 'Firma del médico', `${esc(c.ciMedico.nombre || '')} · bajar el PDF firmado`, `closeSlot();ciFirmadoDescargar(${c.id})`);
+      else if (puedeFirmarMedico(c)) add('falta', '🖋️', 'Firmar el consentimiento', 'El paciente ya firmó: falta la firma suya', `closeSlot();ciFirmadoDescargar(${c.id}).then(()=>tmReabrir(${c.id}))`);
+      else add('espera', '🖋️', 'Firma del médico', ciDesfasado(c).length ? 'El turno cambió: actualice el consentimiento antes de firmar' : 'Falta que firme el médico del turno', `closeSlot();irAConsentimiento(${c.id})`);
+    }
+  }
   const admHecha = c.auth === 'AUTORIZADO';
   const admFalta = !c.auth && (ci || authExenta(c));
-  b.push(tmBoton(++n, admHecha ? 'hecho' : c.auth === 'NO AUTORIZADO' ? 'frenado' : admFalta ? 'falta' : 'neutro', ico(ICONS.shield, 18),
-    'Admisión y Egresos', admHecha ? 'Aceptado · modificar el dictamen' : c.auth === 'NO AUTORIZADO' ? 'No autorizado · rectificar' : authBotonTexto(c),
-    `pedirAutorizacion(${c.id})`));
-  b.push(tmBoton(++n, ayudanteDefinido(c) ? 'hecho' : 'falta', ico(ICONS.users, 18),
-    'Equipo y módulos', ayudanteDefinido(c) ? (tieneAyudante(c) ? `Ayudante: ${esc((ayudanteDe(c) || {}).nombre || '')}` : 'Sin ayudante') : 'Falta decir si opera con ayudante',
-    `openEquipoMod(${c.id})`));
+  add(admHecha ? 'hecho' : c.auth === 'NO AUTORIZADO' ? 'frenado' : admFalta ? 'falta' : 'neutro', ico(ICONS.shield, 18), 'Admisión y Egresos',
+    admHecha ? 'Aceptado · modificar el dictamen' : c.auth === 'NO AUTORIZADO' ? 'No autorizado · rectificar' : authBotonTexto(c), `pedirAutorizacion(${c.id})`);
+  add(ayudanteDefinido(c) ? 'hecho' : 'falta', ico(ICONS.users, 18), 'Equipo y módulos',
+    ayudanteDefinido(c) ? (tieneAyudante(c) ? `Ayudante: ${esc((ayudanteDe(c) || {}).nombre || '')}` : 'Sin ayudante') : 'Falta decir si lo hace con ayudante', `openEquipoMod(${c.id})`);
   // La ficha completa es donde se hace la LVQ, la coordinación y el informe:
   // aprieta cuando el turno ya está en el parte y algo de eso falta.
   const fichaFalta = (c.estado === 'confirmada' && !lvqCompleta(c, 'entrada'))
     || c.estado === 'en_curso' || (operada(c) && cierreFaltantes(c).length > 0)
     || (jefe && c.estado === 'pendiente' && authOk(c) && coordFaltantes(c).length > 0);
-  b.push(tmBoton(++n, fichaFalta ? 'falta' : 'neutro', ICONS.eyeSm,
-    'Ver y completar ficha', 'LVQ, coordinación, informe e historial', `closeSlot();openCirugia(${c.id})`));
-  if (c.pase && c.pase.token) {
-    b.push(tmBoton(++n, c.pase.caducado ? 'neutro' : 'hecho', ICONS.qr, 'Pase del paciente',
-      c.pase.caducado ? 'Caducado: la cirugía se cerró' : `Código ${esc(c.pase.ref || '')} · ver, imprimir o enviar`, `openPase(${c.id})`));
-  } else if (portalElegible(c)) {
-    b.push(tmBoton(++n, 'pase', ICONS.qr, 'Generar el pase del paciente', 'Tarjeta con QR para que siga su cirugía', `openPase(${c.id})`));
-  }
-  return `<section class="tm-sec tm-sec-acc">
-    <div class="tm-sec-h"><span class="tm-n">${ico(ICONS.flag, 14)}</span><div><b>Lo que sigue</b><span>en el orden del circuito · color pleno = falta hacerlo</span></div></div>
-    <div class="tm-accs">${b.join('')}</div>
+  add(fichaFalta ? 'falta' : 'neutro', ICONS.eyeSm, 'Ver y completar ficha', 'LVQ, coordinación, informe e historial', `closeSlot();openCirugia(${c.id})`);
+  return b;
+}
+function tmReabrir(id) { const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (c && c.franja) openSlot(diaDeGrilla(c), c.sala, c.franja); }
+/* El camino guiado: arriba el paso que toca, grande y latiendo; abajo el recorrido. Al volver de
+   cumplir uno, festeja el que se hizo y el siguiente entra solo. */
+const tmgVisto = {};
+function tmGuiaHTML(c, u) {
+  const P = tmPasosDe(c, u);
+  const total = P.filter((x) => x.e !== 'neutro').length || 1, hechos = P.filter((x) => x.e === 'hecho').length;
+  const k = [P.findIndex((x) => x.e === 'falta'), P.findIndex((x) => x.e === 'frenado'), P.findIndex((x) => x.e === 'espera')].find((x) => x >= 0);
+  const yo = k === undefined ? null : P[k];
+  const prev = tmgVisto[c.id];
+  const avanzo = prev !== undefined && hechos > prev;
+  tmgVisto[c.id] = hechos;
+  const estTxt = { falta: 'Su próximo paso', frenado: 'Hay que resolver esto', espera: 'Ahora depende de otro' };
+  return `<section class="tmg${avanzo ? ' tmg-avanzo' : ''}" aria-label="Lo que sigue">
+    <div class="tmg-cab"><b>Lo que sigue</b><span>${hechos} de ${total} listos</span><div class="tmg-bar"><i style="--p:${Math.round(hechos / total * 100)}%"></i></div></div>
+    ${yo ? `<button type="button" class="tmg-foco tmg-${yo.e}" onclick="${yo.a}">
+        <span class="tmg-foco-ico">${yo.i}</span>
+        <span class="tmg-foco-txt"><small>${estTxt[yo.e]}</small><b>${yo.t}</b><span>${yo.d}</span></span>
+        <span class="tmg-flecha" aria-hidden="true">→</span></button>`
+      : `<div class="tmg-listo"><span>🎉</span><div><b>Todo al día</b><span>No queda nada pendiente de su parte.</span></div></div>`}
+    <ol class="tmg-camino">${P.map((x, i) => `<li class="tmg-p tmg-${i === k ? 'ahora' : x.e}" style="--i:${i}">
+      <button type="button" onclick="${x.a}"><span class="tmg-pt">${x.e === 'hecho' ? ico(ICONS.check, 13) : x.e === 'frenado' ? '✕' : i + 1}</span>
+      <span class="tmg-ptx"><b>${x.t}</b><small>${x.d}</small></span></button></li>`).join('')}</ol>
   </section>`;
 }
 
@@ -27289,6 +27614,7 @@ function tmProgreso() {
     <div class="tm-prog-barra"><i style="width:${pct}%"></i></div>
     ${ok < req.length ? `<div class="tm-prog-faltan">Falta: ${req.filter((r) => !r[1]).map((r) => `<span>${r[0]}</span>`).join('')}</div>` : ''}`;
   box.classList.toggle('tm-prog-ok', ok === req.length);
+  tmwPintar();
 }
 function tmEnlazar() {
   const m = $('slot-modal');
@@ -27306,6 +27632,213 @@ function tmEnlazar() {
   m.onchange = () => { pintarReqs(); contarEq(); tmProgreso(); };
   // El nomenclador se elige con un clic en su lista, que no dispara `change`.
   m.onclick = (e) => { if (e.target.closest('#k-nomlist, #k-nomsel')) setTimeout(tmProgreso, 0); };
+}
+/* ---- 3.41 · Turno nuevo, de a un paso; turno programado, tarjetas plegadas ----
+   Los campos y sus identificadores siguen siendo los mismos: lo que se esconde sigue en la
+   ventana y `guardarSlot` lo lee igual. */
+const TMW_PASOS = ['Paciente', 'Práctica', 'Requisitos', 'Equipo', 'Prioridad'];
+let tmwPaso = 1;
+function tmwRielHTML() {
+  return `<nav class="tmw-riel" id="tmw-riel" aria-label="Pasos del turno">${TMW_PASOS.map((t, i) => `<button type="button" data-p="${i + 1}" onclick="tmwIr(${i + 1})"><i>${i + 1}</i><span>${t}</span></button>`).join('')}</nav>`;
+}
+const tmwVal = (id) => String((($(id) || {}).value) || '').trim();
+function tmwPasoOk(n) {
+  if (n === 1) return !!tmwVal('k-pac');
+  if (n === 2) { const q = nomLeer(); return !!(tmwVal('k-diag') && q.procedimiento && q.modulo); }
+  if (n === 3) return ['k-preanest', 'k-preop', 'k-consent'].every((id) => ($(id) || {}).checked);
+  if (n === 4) return !!((tmwVal('k-cir-sel') || tmwVal('k-cir')) && tmwVal('k-serv'));
+  return true;
+}
+function tmwIr(n) {
+  const t = $('tm'); if (!t || !t.classList.contains('tmw-nuevo')) return;
+  const dir = n >= tmwPaso ? 'der' : 'izq';
+  tmwPaso = Math.min(5, Math.max(1, n));
+  t.querySelectorAll('.tm-sec[data-tmw]').forEach((x) => { const on = Number(x.dataset.tmw) === tmwPaso; x.classList.toggle('on', on); if (on) x.dataset.dir = dir; });
+  t.classList.toggle('tmw-ult', tmwPaso === 5);
+  const a = $('tmw-atras'), b = $('tmw-sig');
+  if (a) a.disabled = tmwPaso === 1;
+  if (b) b.textContent = tmwPaso < 5 ? `Siguiente: ${TMW_PASOS[tmwPaso]} →` : '';
+  tmwPintar();
+  const sec = t.querySelector('.tm-sec.on');
+  if (sec) { const c = t.closest('.modal') || $('slot-modal'); if (c) c.scrollTop = Math.max(0, $('tmw-riel').offsetTop - 12); }
+  if (sec && window.matchMedia('(pointer: fine)').matches) { const i = sec.querySelector('input:not([type=checkbox]):not([disabled]), select:not(.tmp-sel):not([disabled])'); if (i) setTimeout(() => { try { i.focus({ preventScroll: true }); } catch (e) {} }, 240); }
+}
+function tmwMover(d) { tmwIr(tmwPaso + d); }
+/* Antes de programar: si falta algo obligatorio, lleva al paso y lo marca, en lugar de un cartel. */
+function tmwProgramar() {
+  const n = [1, 2, 4].find((x) => !tmwPasoOk(x));
+  if (n) { tmwIr(n); const sec = document.querySelector(`.tm-sec[data-tmw="${n}"]`); if (sec) { sec.classList.remove('tmw-falta'); void sec.offsetWidth; sec.classList.add('tmw-falta'); } return; }
+  guardarSlot();
+}
+function tmwSec(n) {
+  const t = $('tm'); if (!t || !t.classList.contains('tmw-edit')) return;
+  const sec = t.querySelector(`.tm-sec[data-tmw="${n}"]`); if (!sec) return;
+  sec.classList.toggle('abierta');
+  sec.querySelector('.tm-sec-h').setAttribute('aria-expanded', sec.classList.contains('abierta'));
+  if (sec.classList.contains('abierta')) t.classList.add('tmw-tocado');
+}
+function tmwDur(x) { const i = $('k-dur'); if (i) { i.value = x; i.dispatchEvent(new Event('input', { bubbles: true })); } }
+function tmwResumenes() {
+  const set = (n, t) => { const e = $('tmw-res-' + n); if (e) e.textContent = t; };
+  const sel = (id) => { const e = $(id), o = e && e.selectedOptions && e.selectedOptions[0]; return o ? String(o.dataset.nombre || o.textContent || '').trim() : ''; };
+  set(1, [tmwVal('k-pac'), tmwVal('k-dni') && 'DNI ' + tmwVal('k-dni')].filter(Boolean).join(' · '));
+  set(2, nomLeer().procedimiento || tmwVal('k-diag'));
+  set(3, `${['k-preanest', 'k-preop', 'k-consent'].filter((id) => ($(id) || {}).checked).length} de 3`);
+  set(4, tmwVal('k-cir-sel') ? sel('k-cir-sel') : tmwVal('k-cir'));
+  set(5, `P${tmwVal('k-prio')} · ${tmwVal('k-dur')} min`);
+}
+function tmwPintar() {
+  const t = $('tm'); if (!t) return;
+  t.querySelectorAll('.tm-sec .field').forEach((f) => {
+    const i = f.querySelector('input:not([type=checkbox]):not([type=hidden]), select');
+    f.classList.toggle('lleno', !!(i && String(i.value || '').trim()));
+  });
+  const edad = tmwVal('k-edad'), et = $('tmw-etapa');
+  if (et) { const a = Number(edad); et.textContent = edad === '' ? '' : a < PRIO_EDAD_NINO ? '· pediátrico' : a >= PRIO_EDAD_MAYOR ? '· adulto mayor' : ''; }
+  const r = $('tmw-riel');
+  if (r) r.querySelectorAll('button').forEach((b) => {
+    const n = Number(b.dataset.p);
+    b.classList.toggle('on', n === tmwPaso);
+    b.classList.toggle('ok', n < 5 && tmwPasoOk(n));
+    b.setAttribute('aria-current', n === tmwPaso ? 'step' : 'false');
+  });
+  tmwResumenes();
+  prioPintar();
+}
+function tmwMontar(nuevo) {
+  const t = $('tm'); if (!t) return;
+  tmwPaso = 1; prioAbierto = false; prioFirma = '';
+  if (nuevo) tmwIr(1);
+  else {
+    t.querySelectorAll('.tm-sec[data-tmw] > .tm-sec-h').forEach((h) => { h.setAttribute('role', 'button'); h.tabIndex = 0; h.setAttribute('aria-expanded', 'false');
+      h.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); h.click(); } }; });
+    t.addEventListener('input', () => t.classList.add('tmw-tocado'), { once: true });
+    tmwPintar();
+  }
+  tmwDni();
+}
+/* El DNI de un paciente que ya pasó por la app: completa lo vacío y deja ver sus suspensiones. */
+function pacienteHistorial(dni, sinId) {
+  const x = soloDigitos(dni);
+  if (x.length < 7) return [];
+  return DB.cirugias.filter((c) => !c._pub && String(c.id) !== String(sinId) && soloDigitos(c.paciente && c.paciente.dni) === x).sort((a, b) => String(b.fecha || '').localeCompare(String(a.fecha || '')));
+}
+function tmwDni() {
+  const box = $('tmw-hist'), ro = $('k-dni') && $('k-dni').disabled;
+  if (!box) return;
+  const yo = slotCtx ? turnoEn(slotCtx.d, slotCtx.sid, slotCtx.fid) : null;
+  const L = ro ? [] : pacienteHistorial(tmwVal('k-dni'), yo && yo.id);
+  if (!L.length) { box.hidden = true; box.innerHTML = ''; return; }
+  const u0 = L[0], sus = L.filter((c) => c.estado === 'suspendida').length;
+  box.hidden = false;
+  box.innerHTML = `<span class="tmw-hist-i">🗂️</span><div><b>Paciente conocido: ${esc(u0.paciente?.nombre || 's/d')}</b><small>${L.length} turno${L.length === 1 ? '' : 's'} en la app${sus ? ` · ${sus} suspensión${sus === 1 ? '' : 'es'}` : ''} · último: ${esc(fmtFecha(u0.fecha))}</small></div>
+    ${yo ? '' : '<button type="button" class="btn btn-sm btn-outline" onclick="tmwCompletar()">Completar sus datos</button>'}`;
+}
+function tmwCompletar() {
+  const c = pacienteHistorial(tmwVal('k-dni'))[0]; if (!c) return;
+  const pa = c.paciente || {};
+  [['k-pac', pa.nombre], ['k-nac', pa.nacimiento], ['k-edad', pa.edad], ['k-tel', pa.telefono], ['k-mail', pa.email]].forEach(([id, val]) => { const e = $(id); if (e && !e.value && val != null && val !== '') e.value = val; });
+  const o = $('k-obra'); if (o && !o.value && c.obraSocial && [...o.options].some((x) => x.value === c.obraSocial)) o.value = c.obraSocial;
+  edadDesdeNac();
+  (c.comorb || []).forEach((k) => { const e = document.querySelector(`.k-fac[data-f="${k}"]`); if (e) e.checked = true; });
+  const m = $('slot-modal'); if (m && m.onchange) m.onchange();
+}
+
+/* ---- 3.41 · Prioridad de prelación: qué significa cada una y cuál recomienda la app ----
+   Es una sugerencia con reglas fijas, sin inteligencia artificial: decide el médico. */
+const PRIO_EDAD_NINO = 15;      // el mismo corte de «pediátrico» que usa guardarSlot
+const PRIO_EDAD_MAYOR = 75;
+const PRIO_DUR_LARGA = 180;     // minutos
+const PRIO_ESPERA = 90;         // días, como prioridadEfectiva
+const PRIO_FACTORES = [
+  { k: 'dm', n: 'Diabetes' }, { k: 'cardio', n: 'Cardiopatía' }, { k: 'resp', n: 'EPOC o asma' }, { k: 'renal', n: 'Insuficiencia renal' },
+  { k: 'anticoag', n: 'Anticoagulado/a' }, { k: 'obes', n: 'Obesidad mórbida' }, { k: 'inmuno', n: 'Inmunosuprimido/a' }, { k: 'latex', n: 'Alergia al látex' },
+];
+const PRIO_DETALLE = {
+  1: 'Riesgo de vida inmediato. Entra antes que todo: la meta es la incisión en menos de 30 minutos.',
+  2: 'No puede esperar al programa, pero tolera unas horas: se resuelve dentro de las 6 horas.',
+  3: 'Va en los primeros horarios del día: acorta el ayuno y da margen a la anestesia y a la recuperación.',
+  4: 'Depende de algo que hay poco (implante único, Arco en C, sangre reservada): se agrupa para aprovecharlo.',
+  5: 'Electiva que lleva más de 90 días esperando: la app la sube sola, no se elige.',
+  6: 'Sin nada que la adelante: va por orden de solicitud y con equidad entre servicios.',
+};
+const PRIO_VITAL = /shock|perforaci|peritonitis|hemorragia|sangrado activo|isquemia|ruptura|rotura|cuerpo extra[ñn]o|torsi[oó]n|obstrucci[oó]n aguda/i;
+const PRIO_ONCO = /c[aá]ncer|carcinoma|neoplasia|tumor|linfoma|melanoma|sarcoma|met[aá]stasis/i;
+const PRIO_EQ_COMUN = ['Laparoscopio', 'Torre de endoscopía'];
+function prioRecomendar() {
+  const urg = !!(slotCtx && franjaDe(slotCtx.sid, slotCtx.fid).urg);
+  const yo = slotCtx ? turnoEn(slotCtx.d, slotCtx.sid, slotCtx.fid) : null;
+  const edadT = tmwVal('k-edad'), edad = Number(edadT), dur = Number(tmwVal('k-dur')) || 0;
+  const texto = `${tmwVal('k-diag')} ${nomLeer().procedimiento || ''}`, cie = tmwVal('k-cie').toUpperCase();
+  const fac = [...document.querySelectorAll('.k-fac:checked')].map((x) => x.dataset.f);
+  const facN = (k) => (PRIO_FACTORES.find((x) => x.k === k) || {}).n;
+  const eq = [...document.querySelectorAll('.k-eq:checked')].map((x) => x.dataset.eq);
+  const r3 = [], r4 = [];
+  if (edadT !== '' && edad > 0 && edad < PRIO_EDAD_NINO) r3.push(`Paciente pediátrico (${edad} años)`);
+  if (edad >= PRIO_EDAD_MAYOR) r3.push(`${edad} años: conviene acortar el ayuno`);
+  if (fac.includes('dm')) r3.push('Diabetes: mejor temprano por el ayuno');
+  if (fac.includes('latex')) r3.push('Alergia al látex: primer turno, con la sala limpia');
+  if (fac.length >= 2) r3.push(`${fac.length} comorbilidades`);
+  if (PRIO_ONCO.test(texto) || /^C\d|^D0\d/.test(cie)) r3.push('Diagnóstico oncológico');
+  if (dur >= PRIO_DUR_LARGA) r3.push(`Duración larga (${dur} min)`);
+  if (($('k-implante') || {}).checked) r4.push('Implante o prótesis');
+  if (($('k-hemo') || {}).checked) r4.push('Reserva de hemoderivados');
+  eq.filter((x) => !PRIO_EQ_COMUN.includes(x)).forEach((x) => r4.push(x));
+  const H = pacienteHistorial(tmwVal('k-dni'), yo && yo.id), hoy = hoyISO();
+  const sus = H.filter((c) => c.estado === 'suspendida' && diasEntre(c.fecha, hoy) <= 365);
+  const camas = H.some((c) => rcVeces(c)) || (yo && rcVeces(yo));
+  const espera = H.filter((c) => ['suspendida', 'caducada'].includes(c.estado) && c.fechaSolicitud).map((c) => diasEntre(c.fechaSolicitud, hoy)).reduce((a, b) => Math.max(a, b), yo ? esperaDias(yo) : 0);
+  let p = 6; const mot = [], notas = [];
+  if (urg) {
+    if (PRIO_VITAL.test(texto)) { p = 1; mot.push('El diagnóstico sugiere riesgo de vida'); } else { p = 2; mot.push('Turno de urgencia'); }
+  } else {
+    p = r3.length ? 3 : r4.length ? 4 : 6;
+    mot.push(...(r3.length ? r3 : r4));
+    if (sus.length) {
+      const antes = p;
+      p = sus.length >= 2 ? Math.min(p, 3) : p === 6 ? 4 : p === 4 ? 3 : p;
+      mot.push(`${sus.length} suspensión${sus.length === 1 ? '' : 'es'} en el último año${p < antes ? ': sube un escalón' : ''}`);
+    }
+    if (p === 6 && espera > PRIO_ESPERA) notas.push(`Lleva ${espera} días de espera: la app la pasa sola a P5.`);
+  }
+  if (camas) notas.push('Tuvo una suspensión por falta de cama: la reprogramación conserva esa prioridad y va primero.');
+  if (fac.includes('anticoag')) notas.push('Anticoagulado/a: revise el manejo antes del procedimiento.');
+  const fin = { 3: r3, 4: r4 };
+  return { p, mot, notas, urg, fac: fac.map(facN), aplica: {
+    1: urg ? (p === 1 ? 'Recomendada: ' + mot[0].toLowerCase() + '.' : 'Solo si hay riesgo de vida inmediato.') : 'No aplica: esta franja es programada. Una emergencia va por el turno de urgencia.',
+    2: urg ? (p === 2 ? 'Recomendada: es un turno de urgencia.' : 'Si el riesgo no es inmediato.') : 'No aplica: esta franja es programada.',
+    3: fin[3].length ? 'Aplica por: ' + fin[3].join(' · ') + '.' : `No se detectó menor de ${PRIO_EDAD_NINO} años, ${PRIO_EDAD_MAYOR} años o más, diabetes, látex, oncológico, 2 comorbilidades ni ${PRIO_DUR_LARGA} min o más.`,
+    4: fin[4].length ? 'Aplica por: ' + fin[4].join(' · ') + '.' : 'No se pidió implante, hemoderivados ni equipamiento escaso.',
+    5: 'La pone sola la app: no se elige.',
+    6: r3.length || r4.length ? 'Podría ir, pero el caso tiene motivos para adelantarlo.' : 'Aplica: no hay nada que lo adelante.',
+  } };
+}
+let prioAbierto = false, prioFirma = '';
+function prioElegir(k) {
+  const e = $('k-prio'); if (!e || e.disabled || !e.querySelector(`option[value="${k}"]`)) return;
+  e.value = String(k); prioAbierto = false; prioFirma = '';
+  e.dispatchEvent(new Event('change', { bubbles: true }));
+}
+function prioAlternar() { prioAbierto = !prioAbierto; prioFirma = ''; prioPintar(); }
+function prioPintar() {
+  const box = $('tmp-box'), sel = $('k-prio');
+  if (!box || !sel) return;
+  const r = prioRecomendar(), ya = Number(sel.value), ro = sel.disabled;
+  const firma = JSON.stringify([r.p, r.mot, r.notas, ya, prioAbierto, r.aplica]);
+  if (firma === prioFirma) return;
+  const cambio = !!prioFirma && JSON.parse(prioFirma)[0] !== r.p;
+  prioFirma = firma;
+  const P = PRIOS[r.p], A = PRIOS[ya] || P;
+  const opc = [1, 2, 3, 4, 5, 6].map((k) => `<li><button type="button" role="option" class="tmp-op${k === ya ? ' on' : ''}${k === r.p ? ' reco' : ''}" style="--c:${PRIOS[k].color}" aria-selected="${k === ya}" ${k === 5 || ro ? 'disabled' : ''} onclick="prioElegir(${k})">
+      <i>P${k}</i><span><b>${esc(PRIOS[k].label)}${k === r.p ? ' <em>⭐ recomendada</em>' : ''}</b><small>${esc(PRIO_DETALLE[k])}</small><span class="tmp-aplica">${esc(r.aplica[k])}</span></span></button></li>`).join('');
+  box.innerHTML = `<div class="tmp-reco${cambio ? ' cambio' : ''}" style="--c:${P.color}">
+      <div class="tmp-reco-c"><small>La app recomienda para este caso</small><b>P${r.p} · ${esc(P.label)}</b></div>
+      ${ya === r.p || ro ? `<span class="tmp-ya">${ya === r.p ? '✓ Es la elegida' : ''}</span>` : `<button type="button" class="tmp-aplicar" onclick="prioElegir(${r.p})">Aplicar</button>`}
+      ${r.mot.length ? `<div class="tmp-mot">${r.mot.map((x) => `<span>${esc(x)}</span>`).join('')}</div>` : '<div class="tmp-mot"><span>Sin factores que la adelanten</span></div>'}
+      ${r.notas.map((x) => `<p>${esc(x)}</p>`).join('')}
+    </div>
+    <button type="button" class="tmp-btn" style="--c:${A.color}" aria-expanded="${prioAbierto}" aria-haspopup="listbox" onclick="prioAlternar()"><i>P${ya}</i><span><b>${esc(A.label)}</b><small>${esc(A.desc)}</small></span><u aria-hidden="true">⌄</u></button>
+    ${prioAbierto ? `<ul class="tmp-lista" role="listbox" aria-label="Prioridad de prelación">${opc}</ul>` : ''}`;
 }
 function closeSlot() {
   $('slot-overlay').classList.remove('open');
@@ -27437,6 +27970,7 @@ async function guardarSlot() {
     anestesista: $('k-anest').value.trim(), anestesia: $('k-tanest').value,
     duracionMin: Number($('k-dur').value || 90),
     prioridad: prio, urgencia, obsTipo: ($('k-obs') || {}).value === 'parto' ? 'parto' : '',
+    comorb: [...document.querySelectorAll('.k-fac')].filter((x) => x.checked).map((x) => x.dataset.f),
     recursos: {
       arcoC: [...document.querySelectorAll('.k-eq')].some((x) => x.checked && x.dataset.eq.indexOf('Arco en C') === 0),
       implante: $('k-implante').checked,
@@ -28903,6 +29437,7 @@ const TB_PALETA = `<svg class="tb-pal" viewBox="0 0 24 24" aria-hidden="true">
 const TB_CAMPANA = `<svg class="tb-cam" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
   <g class="cam"><path d="M12 3a1 1 0 0 1 1 1v.4a6 6 0 0 1 5 5.9c0 5.4 2.5 7.2 2.5 7.2h-17S6 15.7 6 10.3a6 6 0 0 1 5-5.9V4a1 1 0 0 1 1-1z" fill="rgba(255,255,255,.22)"/></g>
   <g class="bad"><path d="M10.2 20.4a2 2 0 0 0 3.6 0" stroke-width="2.2"/></g>
+  <g class="ond" stroke-width="1.8"><path d="M20.6 4.6a6.5 6.5 0 0 1 1.9 4.6"/><path d="M3.4 4.6a6.5 6.5 0 0 0-1.9 4.6"/></g>
 </svg>`;
 const TB_INSTALAR = `<svg class="tb-ins" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
   <rect x="6" y="2.5" width="12" height="19" rx="2.6" fill="rgba(255,255,255,.16)"/>
@@ -32487,6 +33022,7 @@ function portalFoto(c, borrado) {
     ciH: String((c.ciPase && c.ciPase.hash) || '').slice(0, 12), ciCambio: !c.ciPaciente && !!c.ciCambio,
     serv: c.servicio || '', novedad: (c.pase && c.pase.novedad) || null,
     sinCama: rcVeces(c),
+    ferN: feriadoDeTurno(c),   // 3.41 · el turno quedó en un feriado
     reprog: rcActivo(c) && c.reprogCama.estado === 'esperando_paciente' ? { pid: c.reprogCama.pid, fecha: c.fecha, hora: c.horaProg, lugar: c.quirofano } : null,
   };
 }
@@ -33712,6 +34248,21 @@ function ppTitulos(T) {
     operada: ['ok', `${T.N} realizad${T.o}`, `${tu} ya se hizo. El pase se cierra cuando el equipo complete los registros.`],
   };
 }
+/* 3.41 · Alerta roja: sigue en el pase hasta que el paciente la lee. */
+function ppFeriadoHTML(f) {
+  const x = portal.fer || {}, n = x.nombre || f.ferN;
+  if (!n || !f.fecha || (x.visto && (!x.fecha || x.fecha === f.fecha))) return '';
+  return `<section class="pp-feriado" role="alert"><small>⚠️ Alerta</small><h2>Tu turno quedó en un día feriado</h2>
+    <p><b>${esc(fmtDiaLargo(f.fecha))}</b>: ${esc(n)}. Antes de venir, hablá con tu ${esc(ppTipo(f.tipo).medico)} para saber cómo sigue.</p>
+    <button class="pp-btn" onclick="portalFeriadoVisto()">Leí la alerta</button></section>`;
+}
+async function portalFeriadoVisto() {
+  const f = portal.foto || {}, t = nowDT();
+  if (!cloudOn) { const m = portalDemoLeer(); m[PORTAL_TOKEN] = Object.assign(m[PORTAL_TOKEN] || {}, { fer: { fecha: f.fecha, visto: t } }); portalDemoGuardar(m); }
+  else { try { const r = await portalServicio({ accion: 'feriadoVisto', token: PORTAL_TOKEN, sesion: portal.sesion }); if (!r || !r.ok) return; } catch (e) { return; } }
+  portal.fer = { fecha: f.fecha, visto: t };
+  renderPortal();
+}
 function portalVistaEstado(f) {
   const T = ppTipo(f.tipo);
   const t = ppTitulos(T)[f.clave] || ['gr', `Estado de tu ${T.n}`, ''];
@@ -33723,7 +34274,7 @@ function portalVistaEstado(f) {
   const jefTxt = { ok: `Confirmó ${el} en el parte`, okrc: 'Dio el OK a la nueva fecha', susp: f.motivo ? `Suspendid${T.o} · motivo: ${esc(f.motivo)}` : `${lo === 'lo' ? 'Lo' : 'La'} suspendió`, pend: 'Verificando sala, insumos y equipo', espera: 'Espera a Admisión y Egresos' };
   const diaEst = f.clave === 'en_curso' ? 'pend' : f.clave === 'operada' ? 'ok' : 'espera';
   return `
-    <div id="pp-dyn1"><section class="pp-estado pp-${t[0]}">
+    <div id="pp-dyn1">${ppFeriadoHTML(f)}<section class="pp-estado pp-${t[0]}">
       <div class="pp-vivo"><span></span> En vivo · actualizado ${portal.act ? portal.act.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
       ${f.nombre ? `<div class="pp-hola">Hola, ${esc(f.nombre)}</div>` : ''}
       <h1>${t[1]}</h1>
@@ -33814,7 +34365,7 @@ async function portalValidar() {
   else { try { res = await portalServicio({ accion: 'validarCodigo', token: PORTAL_TOKEN, codigo: cod }); } catch (e) { res = { error: 'red' }; } }
   if (res && res.ok) {
     portal.sesion = res.sesion; portal.foto = res.foto; portal.act = new Date(); portal.paso = res.foto && res.foto.caducado ? 'caducado' : 'estado'; portal.cadClave = (res.foto && res.foto.clave) || '';
-    portal.extra = res.extra || null; portal.ciOk = res.ciOk || null;
+    portal.extra = res.extra || null; portal.ciOk = res.ciOk || null; portal.fer = res.fer || null;
     portal.demoCodigo = '';
     clearInterval(portal.timer);
     portal.timer = setInterval(portalConsultar, (cloudOn ? PORTAL.sondeoSeg : 5) * 1000);
@@ -33828,7 +34379,7 @@ async function portalConsultar() {
   if (!cloudOn) res = portalDemoFoto();
   else { try { res = await portalServicio({ accion: 'estado', token: PORTAL_TOKEN, sesion: portal.sesion }); } catch (e) { return; } }
   if (res && res.ok) {
-    portal.foto = res.foto; portal.act = new Date();
+    portal.foto = res.foto; portal.act = new Date(); portal.fer = res.fer || null;
     if ('ciOk' in res) portal.ciOk = res.ciOk || portal.ciOk;
     // 3.37 · El médico cambió el texto con el pase abierto: se trae el nuevo (una vez por versión).
     const h = (res.foto && res.foto.ciH) || '', cargado = (portal.extra && portal.extra.ci && portal.extra.ci.hash) || '';
@@ -34000,7 +34551,7 @@ async function portalDemoValidar(cod) {
 function portalDemoFoto(conExtra) {
   const p = portalDemoPase();
   if (!p || !p.foto) return { error: 'caducado' };
-  const r = { ok: true, foto: p.foto, ciOk: p.firma || null }, pr = p.priv || {};
+  const r = { ok: true, foto: p.foto, ciOk: p.firma || null, fer: p.fer || null }, pr = p.priv || {};
   if (conExtra) r.extra = { prep: pr.prep || [], consejos: pr.consejos || [], ci: pr.ci || null };
   return r;
 }
