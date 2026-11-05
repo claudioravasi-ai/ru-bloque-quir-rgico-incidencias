@@ -9998,7 +9998,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.41.0';
+const APP_VERSION = '3.41.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -32878,6 +32878,16 @@ body.portal-pac .pp-input::placeholder{color:#9ca3af;-webkit-text-fill-color:#9c
 .pp-prep-s summary{font-weight:800;cursor:pointer;color:#0f766e}
 .pp-prep-s ul,.pp-cons ul{margin:6px 0 0;padding-left:20px;font-size:.9rem;line-height:1.5;color:#1f2937}
 .pp-prep-pie{font-size:.74rem;color:#6b7280;margin:6px 0 0}
+.pvp{display:grid;gap:12px;padding-top:4px}
+.pvp-cab{display:flex;gap:12px;align-items:center;padding-right:40px}
+.pvp-ico{display:grid;place-items:center;width:46px;height:46px;flex:none;border-radius:14px;background:linear-gradient(135deg,#0d9488,#14b8a6);font-size:1.4rem}
+.pvp-cab b{display:block;font-size:1.12rem;color:#111827;line-height:1.25}
+.pvp-cab small{display:block;color:#6b7280;font-size:.85rem;margin-top:2px;overflow-wrap:anywhere}
+.pvp-est{margin:0;padding:10px 12px;border-radius:12px;background:#f0fdfa;border:1px solid #99f6e4;color:#115e59;font-size:.9rem;overflow-wrap:anywhere}
+.pvp .pp-card{margin:0;box-shadow:none;border:1px solid #e5e7eb}
+.pvp-nota{margin:0;font-size:.78rem;color:#6b7280}
+.pvp-acc{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+.pvp-acc .btn{flex:1 1 160px}
 .pp-cons{border-left:6px solid #f59e0b;background:#fffbeb} .pp-cons>small{color:#b45309}
 .pp-gracias{margin:12px 0 0;font-weight:800;color:#047857}
 .pp-cama{border-left:5px solid #2563eb}.pp-cama small{color:#1d4ed8}.pp-cama b{display:block;font-size:.95rem;margin-top:3px;color:#1e3a8a}
@@ -34002,9 +34012,48 @@ function paseMosaico(c, url, tel, msg) {
       (p.envio && p.envio.ok) ? 'ya salió solo · otra copia a ' + esc(enmascararMail(c.paciente && c.paciente.email)) : 'Le llega solo a ' + esc(enmascararMail(c.paciente && c.paciente.email)) + ', sin abrir tu correo', { on: `paseEnviarCorreo(${c.id}, false, this)` }) : ''}
     ${t('giro', '#0ea5e9', '#6366f1', ICONS.refresh, 'Dar vuelta', 'cómo se usa', { on: `paseGirar(this)` })}
     ${t('', '#f97316', '#e11d48', ICONS.fileText, 'Imprimir', 'frente y dorso', { on: 'imprimirPase()' })}
+    ${prepDe(c).length ? t('', '#0d9488', '#14b8a6', ICONS.fileText, 'Preparación', 'la que recibió', { on: `paseVerPrep(${c.id})` }) : ''}
     ${!p.caducado && wa ? t('', '#16a34a', '#22c55e', ICONS.msg || ICONS.send, 'WhatsApp', 'mensaje listo', { href: wa }) : ''}
     ${!p.caducado ? t('', '#0891b2', '#10b981', ICONS.eyeSm || ICONS.eye, 'Ver como paciente', 'abre el portal', { href: url }) : ''}
   </div>`;
+}
+/* 3.41.1 · Pedido de Claudio: el médico lee la preparación (VEDA/VCC) que va con el pase sin
+   pedirle el código al paciente. Es el protocolo del HRU cargado en la app: no muestra datos del paciente. */
+function paseVerPrep(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id));
+  if (!c) return;
+  const prep = prepDe(c);
+  const e = c.pase && c.pase.envio;
+  const estado = e && e.ok
+    ? `Salió con el pase el ${esc(fmtDT(e.t))} a ${esc(e.a || enmascararMail(c.paciente && c.paciente.email))}.`
+    : 'El pase todavía no salió por correo: esto es lo que va a recibir cuando salga.';
+  $('pase-modal').innerHTML = `<button class="modal-close pase-x" onclick="closePase()" aria-label="Cerrar">✕</button>
+    <div class="pvp">
+      <div class="pvp-cab"><span class="pvp-ico">🧾</span><div><b>Preparación que recibe el paciente</b>
+        <small>${esc(c.procedimiento || '')} · ${esc(fmtFecha(c.fecha))} ${esc(c.horaProg || '')} h</small></div></div>
+      <p class="pvp-est">${estado}</p>
+      ${prep.length ? ppPrepHTML(prep) : '<p class="form-note">Este estudio no lleva preparación cargada.</p>'}
+      ${ppConsejosHTML(consejosDe(c))}
+      <p class="pvp-nota">Es el protocolo del HRU tal como está cargado en la app, igual al que ve el paciente en su pase. Solo lectura.</p>
+      <div class="pvp-acc">
+        <button class="btn btn-outline" onclick="openPase(${JSON.stringify(c.id)})">← Volver al pase</button>
+        <button class="btn btn-teal" onclick="paseImprimirPrep()">${ico(ICONS.fileText, 16)} Imprimir</button>
+      </div>
+    </div>`;
+  const m = $('pase-modal'); if (m) m.scrollTop = 0;
+}
+function paseImprimirPrep() {
+  const box = document.querySelector('#pase-modal .pvp');
+  if (!box) return;
+  const w = window.open('', '_blank');
+  if (!w) { alert('El navegador bloqueó la ventana para imprimir. Permitila e intentá de nuevo.'); return; }
+  const css = [...document.querySelectorAll('style')].map((x) => x.textContent).filter((t) => t.includes('.pp-prep')).join('\n');
+  w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Preparación</title><style>${css}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:24px;color:#111827;background:#fff}
+    .pvp-acc{display:none} details{display:block} details>*{display:block}</style></head><body>${box.outerHTML}</body></html>`);
+  w.document.close();
+  w.document.querySelectorAll('details').forEach((d) => { d.open = true; });
+  setTimeout(() => { try { w.focus(); w.print(); } catch (_) {} }, 300);
 }
 /* Brillo donde se toca: el botón responde aunque la acción tarde. */
 function paseToque(e, el) {
