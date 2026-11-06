@@ -10057,7 +10057,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.42.0';
+const APP_VERSION = '3.42.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -12461,6 +12461,7 @@ function revisarRecordatorios() {
   rcVigilar();
   salaVigilar();
   endoSinJefaturaBarrer();
+  ciEndoRepararGuardados();
   ciAceptacionesVigilar();
   setTimeout(tomarAlEntrar, 900);
   // Los seis contadores del tablero abierto, si cambiaron.
@@ -31928,6 +31929,14 @@ function ciSetProc(v) {
     ciVolcarTextos(ciForm, p);
     ciForm.c_anest = p.anest;
     ciEvidencia = 'consenso cargado';
+    // 3.42.1 · En un turno de Endoscopía no se puede elegir el texto del otro estudio.
+    const t = ciForm.turnoId ? DB.cirugias.find((x) => String(x.id) === String(ciForm.turnoId)) : null;
+    const fix = t ? ciEndoCorregir(ciForm, t) : null;
+    if (fix) {
+      const tipo = ciEndoTipo(t.procedimiento, t.practica) || ciEndoTipo(ciForm.c_nombre);
+      ciForm = fix;
+      alert(`El turno es ${CI_ENDO_TIPO_TXT[tipo]}: no puede llevar el texto de «${p.label}».\n\nSe dejó el que corresponde («${CI_PROCEDIMIENTOS[CI_ENDO][fix.c_proc].label}»).\n\nSi el estudio es otro, corrija primero el procedimiento del turno.`);
+    }
     if (ciForm.c_esp === AAOT_ESP && (ciForm.aaotAuto || !ciForm.aaot)) {
       const s = aaotSugerir(ciForm.c_nombre, null, ciForm.c_dx);
       if (s) { ciForm.aaot = s; ciForm.aaotAuto = true; }
@@ -31954,6 +31963,9 @@ function ciNormalizar(s) {
    contra el rótulo, el nombre completo y el campo `nom`, que lleva los términos
    con que el nomenclador nombra esa misma cirugía. */
 function ciSugerirProc(esp, texto, practica) {
+  return esp === CI_ENDO ? ciSugerirEndo(texto, practica) : ciSugerirProcBase(esp, texto, practica);
+}
+function ciSugerirProcBase(esp, texto, practica) {
   const procs = CI_PROCEDIMIENTOS[esp];
   if (!procs) return '';
   // Cada fuente aporta sus palabras con un peso distinto.
@@ -31976,10 +31988,124 @@ function ciSugerirProc(esp, texto, practica) {
   if (mejorPunt >= 5) return mejor;
   return Object.keys(procs).find((k) => k.startsWith('otro')) || '';
 }
+/* ---- 3.42.1 · VEDA o colonoscopía: nunca el texto de la otra ----
+   El puntaje por palabras sueltas elegía el texto de COLONOSCOPÍA para la práctica
+   «videogastroduodenoscopía con polipectomía»: la palabra más larga que coincidía era
+   «polipectomía», y la primera ficha que la tiene es la de colonoscopía. El paciente de
+   una VEDA leía desde el punto 4 que el endoscopio entra por el ano.
+   Ahora primero se decide POR DÓNDE entra el endoscopio (alta, baja o las dos en el mismo
+   acto), con las mismas palabras con que la app elige la preparación, y la ficha elegida
+   tiene que ser de ese lado. Los textos son los del catálogo, sin agregar nada clínico. */
+const CI_ENDO = 'Endoscopía digestiva';
+const CI_ENDO_LADO = {
+  alta: ['endoscopia_alta', 'cpre', 'gastrostomia', 'varices_esofagicas', 'dilatacion_esofagica'],
+  baja: ['colonoscopia', 'polipectomia'],
+  ambos: ['veda_vcc'],
+};
+// Lo que contradice cada lado (otro_endo, el genérico, no contradice a nadie).
+const CI_ENDO_CONTRA = {
+  alta: ['colonoscopia', 'polipectomia', 'veda_vcc'],
+  baja: ['endoscopia_alta', 'cpre', 'gastrostomia', 'varices_esofagicas', 'dilatacion_esofagica', 'veda_vcc'],
+  ambos: ['endoscopia_alta', 'colonoscopia', 'polipectomia'],
+};
+// VEDA y colonoscopía en el mismo acto: las dos fichas del catálogo, una detrás de la otra.
+(() => {
+  const e = CI_PROCEDIMIENTOS[CI_ENDO], a = e && e.endoscopia_alta, b = e && e.colonoscopia;
+  if (!a || !b || e.veda_vcc) return;
+  const dos = (x, y) => `En la endoscopía alta (VEDA): ${x} En la colonoscopía: ${y}`;
+  const vv = {
+    label: 'VEDA + colonoscopía (en el mismo acto)',
+    nombre: 'Videoendoscopía digestiva alta (VEDA) y videocolonoscopía en el mismo acto, diagnósticas y eventualmente terapéuticas',
+    anest: a.anest,
+    nom: 'veda colonoscopia videocolonoscopia endoscopia alta y baja mismo acto',
+    desc: 'Se realizarán dos estudios en el mismo acto y bajo la misma sedación. ' + dos(a.desc.replace(/ La duración habitual[^.]*\./, ''), b.desc),
+    benef: dos(a.benef, b.benef),
+    comp: dos(a.comp, b.comp),
+    alt: dos(a.alt, b.alt),
+    cuid: dos(a.cuid, b.cuid),
+    cita: a.cita.replace(/ Ley 26\.529, Decreto 1089\/2012\.$/, '') + ' ' + b.cita,
+  };
+  const orden = {};
+  Object.keys(e).forEach((k) => { orden[k] = e[k]; if (k === 'colonoscopia') orden.veda_vcc = vv; });
+  Object.keys(e).forEach((k) => delete e[k]);
+  Object.assign(e, orden);
+})();
+/* Por dónde entra el endoscopio, según el nombre del estudio y la práctica del nomenclador. */
+function ciEndoTipo(...textos) {
+  const t = ciNormalizar(textos.map((x) => (x && typeof x === 'object' ? x.p : x) || '').join(' '));
+  const alta = /\bveda\b|esofag|gastroscop|gastrovideo|videogastro|gastroduoden|duodenoscop|endoscopia alta|digestiva alta|\bcpre\b|papilotom|colangio|gastrostom/.test(t);
+  const baja = /colonoscop|\bvcc\b|rectosigmoid|rectoscop|\bcolon\b|anoscop/.test(t);
+  return alta && baja ? 'ambos' : alta ? 'alta' : baja ? 'baja' : '';
+}
+function ciEndoAjustar(k, tipo) {
+  if (!tipo || CI_ENDO_LADO[tipo].includes(k)) return k;
+  return tipo === 'alta' ? 'endoscopia_alta' : tipo === 'baja' ? 'colonoscopia' : 'veda_vcc';
+}
+function ciSugerirEndo(texto, practica) {
+  return ciEndoAjustar(ciSugerirProcBase(CI_ENDO, texto, practica), ciEndoTipo(texto, practica));
+}
+/* Un consentimiento ya guardado de un turno de Endoscopía, ¿dice lo contrario del estudio?
+   Devuelve los datos corregidos (mismo paciente, mismo nombre del estudio, mismos riesgos
+   personalizados; cambian solo los textos del catálogo) o null si está bien. */
+function ciEndoCorregir(d, c) {
+  if (!d || !c || !esEndo(c)) return null;
+  const tipo = ciEndoTipo(c.procedimiento, c.practica) || ciEndoTipo(d.c_nombre);
+  if (!tipo) return null;
+  const desc = String(d.t_desc || ''), ano = /por el ano/i.test(desc), boca = /por la boca/i.test(desc);
+  const textoMal = tipo === 'alta' ? ano : tipo === 'baja' ? boca : ano !== boca;
+  const fichaMal = d.c_esp === CI_ENDO && CI_ENDO_CONTRA[tipo].includes(d.c_proc);
+  if (!textoMal && !fichaMal) return null;
+  const k = ciSugerirEndo(c.procedimiento || d.c_nombre, c.practica);
+  const p = CI_PROCEDIMIENTOS[CI_ENDO][k];
+  if (!p || !CI_ENDO_LADO[tipo].includes(k)) return null;
+  const n = { ...d, c_esp: CI_ENDO, c_proc: k };
+  // El nombre del estudio (punto 3) tampoco puede decir el otro: vuelve al del turno.
+  const tn = ciEndoTipo(d.c_nombre);
+  if (tn && tn !== tipo) n.c_nombre = c.procedimiento || p.nombre;
+  ciVolcarTextos(n, p);
+  return n;
+}
+const CI_ENDO_TIPO_TXT = { alta: 'una VEDA (endoscopía alta, por la boca)', baja: 'una colonoscopía (por el ano)', ambos: 'una VEDA y una colonoscopía en el mismo acto' };
+/* Revisa los consentimientos guardados de las endoscopías que todavía no se hicieron y
+   corrige los que contradicen el estudio. Si el turno ya tiene pase, portalEscribirPrivado
+   pone el texto nuevo en el pase, guarda la aceptación vieja en el registro, le pide al
+   paciente aceptar otra vez y le avisa por correo (lo mismo que cuando el médico lo cambia). */
+const ciEndoRevisados = new Set();
+function ciEndoRepararGuardados() {
+  const u = usuarioActual();
+  if (!u || esEquipoSala(u)) return 0;
+  if (cloudOn && !(tabListas.has('cirugias') && tabListas.has('consentimientos'))) return 0;
+  const hoy = hoyISO(), arreglados = [];
+  (DB.cirugias || []).forEach((c) => {
+    if (!esEndo(c) || c._pub || !c.fecha || c.fecha < hoy) return;
+    if (['realizada', 'finalizada', 'anticipada', 'suspendida', 'caducada', 'cancelada', 'en_curso', 'cerrado'].includes(c.estado)) return;
+    const ci = consentimientoDeTurno(c);
+    if (!ci || !ci.datos || ciEndoRevisados.has(String(ci.id))) return;
+    const nuevo = ciEndoCorregir({ ...CI_VACIO, ...ci.datos }, c);
+    if (!nuevo) return;
+    ciEndoRevisados.add(String(ci.id));
+    const deProc = ci.datos.c_proc || '';
+    const antes = (ci.datos.c_esp === CI_ENDO && (CI_PROCEDIMIENTOS[CI_ENDO][deProc] || {}).label) || 'otro estudio';
+    ci.datos = nuevo;
+    ci.especialidad = nuevo.c_esp;
+    ci.corregido = { t: nowDT(), de: deProc, a: nuevo.c_proc, motivo: 'texto de otro estudio' };
+    upsert('consentimientos', ci);
+    const conPase = !!(c.pase && c.pase.token && !c.pase.caducado);
+    pushHist(c, `La app corrigió el consentimiento: el texto guardado («${antes}») no correspondía a ${CI_ENDO_TIPO_TXT[ciEndoTipo(c.procedimiento, c.practica) || ciEndoTipo(nuevo.c_nombre)]}. Se puso el texto correcto${conPase ? '; el pase del paciente se actualizó y, si ya lo había aceptado, se le pide aceptarlo de nuevo' : ''}`);
+    upsert('cirugias', c);
+    if (conPase) portalEscribirPrivado(c).then(() => upsert('cirugias', c)).catch(() => {});
+    arreglados.push(c);
+  });
+  if (arreglados.length && typeof toastTurno === 'function') {
+    toastTurno(arreglados.length === 1 ? 'Se corrigió el consentimiento de 1 endoscopía que tenía el texto de otro estudio' : `Se corrigieron los consentimientos de ${arreglados.length} endoscopías que tenían el texto de otro estudio`, '#7c3aed');
+  }
+  return arreglados.length;
+}
 function ciDesdeTurno(c) {
   const u = usuarioActual();
   // 3.28 · «Traumatología», «TRAUMA» u «Ortopedia» escritos a mano también son Traumatología y Ortopedia.
-  const esp = CI_MAP_SERVICIO[c.servicio] || (esTrauma(c.servicio) ? AAOT_ESP : 'Otra especialidad');
+  // 3.42.1 · Un estudio en la Sala de Endoscopía lleva el consentimiento endoscópico, sea cual sea el servicio del médico.
+  const esp = esEndo(c) ? CI_ENDO : CI_MAP_SERVICIO[c.servicio] || (esTrauma(c.servicio) ? AAOT_ESP : 'Otra especialidad');
   const f = { ...CI_VACIO };
   f.turnoId = c.id;
   f.p_nombre = c.paciente?.nombre || '';
@@ -32023,11 +32149,14 @@ function irAConsentimiento(turnoId) {
   const previo = consentimientoDeTurno(c);
   ciForm = previo ? { ...CI_VACIO, ...previo.datos } : ciDesdeTurno(c);
   if (previo) ciForm.c_proc = ciClaveVigente(ciForm.c_esp, ciForm.c_proc);
+  // 3.42.1 · Si el guardado tenía el texto de otro estudio (colonoscopía en una VEDA), se abre ya corregido.
+  const ciFix = previo ? ciEndoCorregir(ciForm, c) : null;
+  if (ciFix) ciForm = ciFix;
   // 3.28 · Los consentimientos de Traumatología guardados antes no traen el de la AAOT: se sugiere.
   if (previo && ciForm.c_esp === AAOT_ESP && !('aaot' in (previo.datos || {}))) {
     ciForm.aaot = aaotSugerir(c.procedimiento, c.practica, c.diagnostico); ciForm.aaotAuto = !!ciForm.aaot;
   }
-  ciEvidencia = previo ? 'recuperado del registro' : 'volcado desde la programación';
+  ciEvidencia = ciFix ? 'corregido: tenía el texto de otro estudio' : previo ? 'recuperado del registro' : 'volcado desde la programación';
   ciTab = 'generar';
   ciIrTurno = true;
   go('consentimientos');
@@ -32125,6 +32254,14 @@ function ciImprimirCuerpo(cuerpo) {
 function ciRegistrar() {
   const previo = ciForm.turnoId ? DB.consentimientos.find((x) => String(x.turnoId) === String(ciForm.turnoId)) : null;
   const delTurno = ciForm.turnoId ? DB.cirugias.find((x) => String(x.id) === String(ciForm.turnoId)) : null;
+  // 3.42.1 · Nunca se guarda el texto de colonoscopía para una VEDA (ni al revés).
+  const arreglo = delTurno ? ciEndoCorregir(ciForm, delTurno) : null;
+  if (arreglo) {
+    const tipo = ciEndoTipo(delTurno.procedimiento, delTurno.practica) || ciEndoTipo(ciForm.c_nombre);
+    Object.assign(ciForm, arreglo);
+    alert(`El turno es ${CI_ENDO_TIPO_TXT[tipo]} y el texto del consentimiento era de otro estudio.\n\nSe cambió por el texto que corresponde («${CI_PROCEDIMIENTOS[CI_ENDO][arreglo.c_proc].label}») y se guarda así.\n\nSi el estudio es otro, corrija primero el procedimiento del turno.`);
+    renderConsentimientos();
+  }
   const reg = {
     id: previo ? previo.id : Date.now(),
     // Con `hour12: false`: sin eso, según el navegador, las 16:36 quedaban
@@ -33282,6 +33419,14 @@ async function portalEscribirPrivado(c) {
   priv.consejos = consejosDe(c);
   const ci = consentimientoDeTurno(c);
   let cambioCi = false;
+  // 3.42.1 · Al pase nunca viaja el texto de otro estudio (colonoscopía en una VEDA o al revés).
+  const ciFix = ci && ci.datos ? ciEndoCorregir({ ...CI_VACIO, ...ci.datos }, c) : null;
+  if (ciFix) {
+    ci.datos = ciFix; ci.especialidad = ciFix.c_esp;
+    ci.corregido = { t: nowDT(), a: ciFix.c_proc, motivo: 'texto de otro estudio' };
+    upsert('consentimientos', ci);
+    pushHist(c, 'La app corrigió el consentimiento antes de mandarlo al pase: tenía el texto de otro estudio');
+  }
   if (ci && ci.datos) {
     const docs = Object.assign({}, ci.pase || {});
     // 3.37 · El documento lleva la fecha del día en que se arma: sin esto, reenviar el pase otro
@@ -33384,7 +33529,8 @@ const PREP_ENDO = {
 /* Qué preparación lleva el turno, por el nombre del procedimiento. */
 function prepClaves(c) {
   if (!esEndo(c)) return [];
-  const t = sinTildes(`${c.procedimiento || ''} ${c.practica || ''}`).toLowerCase();
+  const pr = c.practica && typeof c.practica === 'object' ? c.practica.p : c.practica;
+  const t = sinTildes(`${c.procedimiento || ''} ${pr || ''}`).toLowerCase();
   const k = [];
   if (/veda|digestiva alta|esofag|gastroscop|gastrovideoscop|videogastro|gastroduodeno|duodenoscop|endoscopia alta/.test(t)) k.push('veda');
   if (/colonoscop|vcc|rectosigmoid|colon\b|ileocolonoscop/.test(t)) k.push('colono');

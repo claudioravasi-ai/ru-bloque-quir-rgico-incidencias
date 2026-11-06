@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.42.0'
+VERSION = '3.42.1'
 FECHA = 'Noviembre de 2026'
 
 PORTADA = {
@@ -558,7 +558,14 @@ BLOQUES = [
 ]),
 
 # ─────────────────────────────────────────────────────────────── 14
-('h1', '14. Novedades de las versiones 3.12 a 3.41'),
+('h1', '14. Novedades de las versiones 3.12 a 3.42'),
+('h2', 'Versión 3.42.1 — El consentimiento de la VEDA ya no habla de colonoscopía'),
+('ul', [
+    '**Error corregido.** Cuando el turno de Endoscopía se cargaba con la práctica «videogastroduodenoscopía con polipectomía», la app elegía sola el texto de la **colonoscopía**, y el paciente de una VEDA leía desde el punto 4 que el endoscopio entra por el ano.',
+    '**Ahora la app decide primero por dónde entra el endoscopio.** VEDA (esófago, estómago y duodeno): **por la boca**. Colonoscopía: **por el ano**. VEDA y colonoscopía en el mismo acto: el consentimiento lleva las dos (ficha nueva «VEDA + colonoscopía»). Los textos son los mismos del catálogo de siempre.',
+    '**No se puede guardar ni mandar al pase el texto del otro estudio.** Si se elige a mano, la app avisa y deja el que corresponde. Un estudio en la Sala de Endoscopía lleva siempre el consentimiento endoscópico, sea cual sea el servicio del médico.',
+    '**Los consentimientos que ya estaban mal se corrigen solos** (endoscopías que todavía no se hicieron) al abrir la app con una cuenta del hospital: se pone el texto correcto, se actualiza el pase, la aceptación anterior queda en el registro, al paciente se le pide aceptarlo de nuevo con un correo y el médico vuelve a firmar. Queda escrito en la historia del turno.',
+]),
 ('h2', 'Versión 3.42.0 — Parte de Endoscopía anticipado, «Visto» que no se olvida y navegadores viejos'),
 ('ul', [
     '**Parte diario de Endoscopía antes de las 14 h (solo el Jefe/a de Endoscopía).** En **Parte**, eligiendo la fecha, el Jefe/a de Endoscopía ve una tarjeta azul 👑 con el botón **Generar parte diario**. Pide su contraseña y muestra el parte con lo confirmado hasta ese momento, marcado **PRELIMINAR** en cada hoja; desde ahí se imprime o se guarda en PDF. Dice cuántos turnos siguen sin confirmar (esos no figuran). **No queda guardado en la app**: al cerrar la ventana desaparece, y si se cierra la sesión se va sola. Nadie más lo ve (ni otros médicos, ni la Jefatura de Quirófanos). El botón «Imprimir el parte» de su pantalla «Jefatura de Endoscopía» hace lo mismo antes de las 14 h.',
