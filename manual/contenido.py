@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.42.1'
+VERSION = '3.42.2'
 FECHA = 'Noviembre de 2026'
 
 PORTADA = {
@@ -559,6 +559,14 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.42'),
+('h2', 'Versión 3.42.2 — El Jefe/a de Endoscopía cierra los turnos sin resolver'),
+('ul', [
+    '**Error corregido.** En una endoscopía «Sin resolver», el Jefe/a de Endoscopía podía tocar el botón verde de «Se realizó» pero no se guardaba nada: el botón solo respondía a la sesión de la Jefatura de Quirófanos. Ahora el Jefe/a de Endoscopía la cierra con las tres opciones: **Se realizó** (queda Finalizada, con su nombre y su contraseña), **No se realizó** (Suspendida con su causa, o Caducada si nunca se confirmó) o **Se realizó antes**.',
+    '**El botón verde se prende recién con todo lo obligatorio (*) completo** y mientras tanto dice qué falta (por ejemplo «Falta: hora de fin, informe»).',
+    '**Con las palabras de cada área.** «¿Qué pasó con esta endoscopía?», «Registrar la endoscopía» e «Informe del estudio» en lugar de cirugía y parte quirúrgico.',
+    '**Resuelto antes fuera de la app:** la historia del turno dice lo que se escribió (dónde y cuándo), en vez de «resuelta por urgencia hoy».',
+    '**Parte anticipado de Endoscopía en un solo lugar:** se genera desde la pantalla Jefatura de Endoscopía (Parte de Endoscopía › Imprimir el parte). La solapa Parte ya no repite el botón: ahí sale el parte automático de las 14 h del día hábil previo.',
+]),
 ('h2', 'Versión 3.42.1 — El consentimiento de la VEDA ya no habla de colonoscopía'),
 ('ul', [
     '**Error corregido.** Cuando el turno de Endoscopía se cargaba con la práctica «videogastroduodenoscopía con polipectomía», la app elegía sola el texto de la **colonoscopía**, y el paciente de una VEDA leía desde el punto 4 que el endoscopio entra por el ano.',

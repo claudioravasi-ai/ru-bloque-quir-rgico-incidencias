@@ -10057,7 +10057,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.42.1';
+const APP_VERSION = '3.42.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11292,7 +11292,7 @@ function revisarCierre(c) {
   if (c.estado === 'realizada' && !faltan.length) {
     c.estado = 'finalizada';
     c.cierre = { t: nowDT() };
-    pushHist(c, 'Caso cerrado — LVQ completa, parte quirúrgico cargado, aceptación de Admisión y Egresos y validación de la Jefatura asentadas. La cirugía queda FINALIZADA y computa en estadísticas y módulos');
+    pushHist(c, esEndo(c) ? 'Caso cerrado — LVQ completa, informe del estudio cargado y aceptación de Admisión y Egresos asentada. La endoscopía queda FINALIZADA y computa en estadísticas' : 'Caso cerrado — LVQ completa, parte quirúrgico cargado, aceptación de Admisión y Egresos y validación de la Jefatura asentadas. La cirugía queda FINALIZADA y computa en estadísticas y módulos');
     return true;
   }
   if (c.estado === 'finalizada' && faltan.length) {
@@ -18662,8 +18662,6 @@ function renderParte() {
       </div>
     </div>
 
-    ${parteEndoPrelHTML(f)}
-
     <div class="banner banner-blue">${ICONS.info}
       <div><strong>Plazos del ciclo de programación</strong>
       Cierre de solicitudes: <b>${BLOQUE.cierreSolicitudes} h del día hábil previo</b> · Publicación del parte: <b>${BLOQUE.publicacionParte} h del día hábil previo</b> (lo del lunes, el viernes) · Emergencias: ingreso directo con meta de incisión &lt; 30 min.</div></div>
@@ -18682,6 +18680,9 @@ function parteEndoPuede(f) {
   const u = usuarioActual();
   return !jefe && !admis && !!u && esJefeEndo(u) && !partePublicado(f) && !DB.cirugias.some((c) => c._pub);
 }
+/* 3.42.2 · Pedido de Claudio: el parte anticipado queda SOLO en la pantalla del Jefe/a de Endoscopía
+   («Parte de Endoscopía · Imprimir el parte»). En la solapa Parte ya no se repite: ahí sale el
+   automático de las 14 h del día hábil previo. Esta tarjeta quedó sin uso. */
 function parteEndoPrelHTML(f) {
   if (!parteEndoPuede(f)) return '';
   const n = delParteArea(f, 'endo').length;
@@ -19548,8 +19549,13 @@ function confirmSuspender() {
 }
 
 /* Suspende con causa y genera la incidencia de categoría D. */
+/* 3.42.2 · Quién asienta el cierre: la Jefatura de Quirófanos, el Jefe/a de Endoscopía (con su nombre) o el médico. */
+function quienResuelve(c) {
+  const u = usuarioActual(), n = (u && u.nombre) || c.cirujano || 'Sistema';
+  return jefe ? JEFATURA : esEndo(c) && esJefeEndo(u) ? `${JEFATURA_ENDO} (${n})` : n;
+}
 function suspenderTurno(c, causa, det) {
-  const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || c.cirujano || 'Sistema');
+  const quien = quienResuelve(c);
   const tarde = sinResolver(c);
   c.estado = 'suspendida';
   c.suspension = { causa, detalle: det, fechaHora: nowDT(), por: quien };
@@ -19561,7 +19567,7 @@ function suspenderTurno(c, causa, det) {
     categoria: 'D', estado: 'Pendiente',
     fechaIncidencia: hoyISO(), horaIncidencia: nowDT().slice(11, 16), fechaReporte: hoyISO(),
     personal: c.cirujano || '—', servicio: c.servicio || '—',
-    desglose: `[Generada automáticamente por el sistema] Suspensión no planificada de cirugía: ${c.procedimiento} (${c.paciente?.nombre}, ${fmtFecha(c.fecha)}, ${c.quirofano}). Causa registrada: ${causa}. ${det}`,
+    desglose: `[Generada automáticamente por el sistema] Suspensión no planificada de ${esEndo(c) ? 'endoscopía' : 'cirugía'}: ${c.procedimiento} (${c.paciente?.nombre}, ${fmtFecha(c.fecha)}, ${c.quirofano}). Causa registrada: ${causa}. ${det}`,
     informante: { nombre: 'Sistema HRU Quirófanos', dni: '—', telefono: '—', mail: 'sistema@hru.gob.ar' },
   });
 }
@@ -20954,6 +20960,8 @@ function openResolverTurno(id) {
   if (!sinResolver(c)) { toastTurno('Este turno ya quedó «' + ESTC[estadoVisible(c)].label + '».'); return; }
   resCtx = { id: c.id, k: '' };
   const confirmado = c.estado === 'confirmada';
+  // 3.42.2 · Endoscopía con sus palabras: la registra el Jefe/a de Endoscopía, con informe del estudio.
+  const endo = esEndo(c), nom = turnoNombre(c), quienReg = endo ? 'el Jefe/a de Endoscopía' : 'la Jefatura de Quirófanos';
   const cand = urgenciasCandidatas(c);
   // UNA sola ventana: se elige qué pasó, los datos aparecen debajo y se guarda
   // con un botón. Antes cada opción abría otra ventana y la cadena no terminaba.
@@ -20967,12 +20975,12 @@ function openResolverTurno(id) {
     <button class="modal-close" onclick="closeSuspender()" aria-label="Cerrar">✕</button>
     <div class="res-cab">
       <div class="res-k">${ico(ICONS.alertTri, 14)} Turno sin resolver</div>
-      <h2>¿Qué pasó con esta cirugía?</h2>
+      <h2>¿Qué pasó con est${nom === 'parto' ? 'e' : 'a'} ${esc(nom)}?</h2>
       <div class="res-turno"><b>${esc(c.procedimiento)}</b> · ${esc((c.paciente && c.paciente.nombre) || 's/d')}<br>
         ${fmtFecha(c.fecha)}${c.horaProg ? ' · ' + esc(c.horaProg) + ' h' : ''} · ${esc(c.quirofano || 's/d')} · ${esc(c.cirujano || 's/d')}</div>
     </div>
     <div class="res-ops">
-      ${op('opero', 'ok', ICONS.check, opTxt(c).hizo, jefe ? 'Se hizo pero nadie la cargó. Queda <b>Finalizada</b>.' : 'Lo registra la Jefatura de Quirófanos: avísele.', !jefe)}
+      ${op('opero', 'ok', ICONS.check, opTxt(c).hizo, jefe ? `Se hizo pero nadie l${nom === 'parto' ? 'o' : 'a'} cargó. Queda <b>Finalizad${nom === 'parto' ? 'o' : 'a'}</b>.` : `Lo registra ${quienReg}: avísele.`, !jefe)}
       ${op('no', confirmado ? 'bad' : 'gris', ICONS.x, opTxt(c).no, confirmado ? 'Queda <b>Suspendida</b>, con su causa.' : 'Nunca llegó al parte: queda <b>Caducada</b>.')}
       ${!c.urgencia ? op('antes', 'violeta', ICONS.zap, opTxt(c).antes, 'De urgencia u otro día: <b>Resuelta por anticipado</b>.') : ''}
     </div>
@@ -20982,10 +20990,10 @@ function openResolverTurno(id) {
         <div class="field"><label>Hora real de inicio *</label><input type="time" id="res-ini" value="${esc(c.horaProg || '')}"></div>
         <div class="field"><label>Hora real de fin *</label><input type="time" id="res-fin"></div>
       </div>
-      <div class="field"><label>Parte quirúrgico *</label>
-        <textarea id="res-inf" style="min-height:90px" placeholder="Procedimiento realizado, hallazgos, técnica, complicaciones, muestras...">${esc((c.informe && c.informe.texto) || '')}</textarea></div>
-      <div class="field"><label>Por qué no se cargó a tiempo *</label><input type="text" id="res-mot" placeholder="Ej: falla de conexión en el quirófano"></div>
-      <label class="check-row"><input type="checkbox" id="res-lvq"> La Lista de Verificación se hizo en papel y está en la historia clínica.</label>
+      <div class="field"><label>${endo ? 'Informe del estudio *' : 'Parte quirúrgico *'}</label>
+        <textarea id="res-inf" style="min-height:90px" placeholder="${endo ? 'Estudio realizado, hallazgos, biopsias, terapéutica, complicaciones...' : 'Procedimiento realizado, hallazgos, técnica, complicaciones, muestras...'}">${esc((c.informe && c.informe.texto) || '')}</textarea></div>
+      <div class="field"><label>Por qué no se cargó a tiempo *</label><input type="text" id="res-mot" placeholder="Ej: falla de conexión en ${endo ? 'la sala' : 'el quirófano'}"></div>
+      <label class="check-row"><input type="checkbox" id="res-lvq"> La Lista de Verificación se hizo en papel y está en la historia clínica. *</label>
     </div>
     <div class="res-panel" data-k="no" hidden>
       <div class="field"><label>${confirmado ? 'Causa de la suspensión *' : 'Motivo *'}</label>
@@ -20994,10 +21002,10 @@ function openResolverTurno(id) {
       <p class="res-nota">${confirmado ? 'Como toda suspensión, genera una incidencia de categoría D.' : 'No cuenta como suspensión: se informa aparte en Indicadores.'}</p>
     </div>
     <div class="res-panel" data-k="antes" hidden>
-      <div class="field"><label>¿Qué cirugía lo resolvió?</label>
+      <div class="field"><label>¿Qué ${endo ? 'estudio' : 'cirugía'} lo resolvió?</label>
         <select id="res-urg">${cand.map((x) => `<option value="${x.id}">${fmtFecha(x.fecha)} · ${esc(x.quirofano || 's/d')} · ${esc(x.procedimiento)}</option>`).join('')}
           <option value="">No figura en la app (otro hospital, guardia sin carga...)</option></select></div>
-      <div class="field"><label>Detalle${cand.length ? '' : ' *'}</label><textarea id="res-det-antes" style="min-height:60px" placeholder="Dónde y cuándo se operó el paciente."></textarea></div>
+      <div class="field"><label>Detalle${cand.length ? '' : ' *'}</label><textarea id="res-det-antes" style="min-height:60px" placeholder="Dónde y cuándo ${endo ? 'se hizo el estudio' : 'se operó el paciente'}."></textarea></div>
     </div>
 
     <div class="res-acc">
@@ -21007,8 +21015,40 @@ function openResolverTurno(id) {
     <p class="res-pie">${ico(ICONS.clockSm, 14)} Si nadie responde, la app lo cierra sola el <b>${fmtFecha(cierreAdminFecha(c))}</b> como
       ${confirmado ? '<b>Suspendida</b> «sin registro del equipo»' : '<b>Caducada</b>'}.</p>`;
   abrirVentanaTurno();
+  // El botón se prende recién con todo lo obligatorio (*) completo.
+  $('susp-modal').querySelectorAll('.res-panel input, .res-panel textarea, .res-panel select').forEach((el) => {
+    el.addEventListener('input', resValidar); el.addEventListener('change', resValidar);
+  });
 }
 let resCtx = null;
+/* 3.42.2 · Lo obligatorio (*) que falta en la opción elegida. */
+function resFaltan(k) {
+  const v = (id) => (($(id) || {}).value || '').trim();
+  if (k === 'opero') {
+    const f = [];
+    if (!v('res-ini')) f.push('hora de inicio');
+    if (!v('res-fin')) f.push('hora de fin');
+    if (v('res-inf').length < 10) f.push(esEndo(DB.cirugias.find((x) => x.id === (resCtx || {}).id)) ? 'informe' : 'parte quirúrgico');
+    if (!v('res-mot')) f.push('por qué no se cargó');
+    if (!($('res-lvq') || {}).checked) f.push('Lista de Verificación');
+    return f;
+  }
+  if (k === 'antes') return (!v('res-urg') && !v('res-det-antes')) ? ['detalle'] : [];
+  if (k === 'no') return v('res-causa') ? [] : ['causa'];
+  return ['una opción'];
+}
+function resAccionTxt(k, c) {
+  return k === 'opero' ? 'Registrar ' + (c ? (esParto(c) ? 'el parto' : 'la ' + turnoNombre(c)) : 'la cirugía')
+    : k === 'no' ? (c && c.estado === 'confirmada' ? 'Suspender' : 'Dar por caducado') : 'Cerrar como resuelta antes';
+}
+function resValidar() {
+  const g = $('res-guardar');
+  if (!g || !resCtx || !resCtx.k) return;
+  const c = DB.cirugias.find((x) => x.id === resCtx.id), falta = resFaltan(resCtx.k);
+  g.disabled = falta.length > 0;
+  g.innerHTML = falta.length ? `${ICONS.lock || ''} Falta: ${esc(falta.join(', '))}` : ICONS.check + ' ' + resAccionTxt(resCtx.k, c);
+  const e = $('res-err'); if (e && !falta.length) e.remove();
+}
 /* Elegir una salida: se marca, se despliegan sus datos y el botón dice qué va a hacer. */
 function resElegir(k) {
   if (!resCtx) return;
@@ -21018,9 +21058,8 @@ function resElegir(k) {
   document.querySelectorAll('#susp-modal .res-op').forEach((b) => { const on = b.dataset.k === k; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
   document.querySelectorAll('#susp-modal .res-panel').forEach((p) => { p.hidden = p.dataset.k !== k; });
   const g = $('res-guardar');
-  g.disabled = false;
   g.className = 'btn ' + (k === 'opero' ? 'btn-green' : k === 'no' ? 'btn-red' : 'btn-blue');
-  g.innerHTML = ICONS.check + ' ' + (k === 'opero' ? 'Registrar la cirugía' : k === 'no' ? (c && c.estado === 'confirmada' ? 'Suspender' : 'Dar por caducado') : 'Cerrar como resuelta antes');
+  resValidar();
   const p = document.querySelector(`#susp-modal .res-panel[data-k="${k}"]`);
   if (p) setTimeout(() => p.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 30);
 }
@@ -21033,8 +21072,10 @@ function resGuardar() {
   const c = DB.cirugias.find((x) => x.id === resCtx.id);
   if (!c) return;
   if (!sinResolver(c)) { closeSuspender(); toastTurno('Este turno ya quedó «' + ESTC[estadoVisible(c)].label + '»: no se cambió.'); return; }
-  const quien = jefe ? JEFATURA : ((usuarioActual() && usuarioActual().nombre) || c.cirujano || 'Sistema');
+  const quien = quienResuelve(c);
   const k = resCtx.k;
+  const falta = resFaltan(k);
+  if (falta.length) return resError('Falta completar: ' + falta.join(', ') + '.');
   if (k === 'no') {
     const causa = $('res-causa').value, det = ($('res-det-no').value || '').trim();
     if (c.estado === 'confirmada') suspenderTurno(c, causa, det);
@@ -21048,13 +21089,20 @@ function resGuardar() {
     anticiparTurno(c, urg, quien, det);
     return trasResolverTurno(c);
   }
-  // Se operó: solo la Jefatura, con su clave, que se pide recién al guardar.
-  if (!jefe) return;
+  // Se operó: solo la Jefatura (en Endoscopía, el Jefe/a de Endoscopía), con su clave, que se pide recién al guardar.
+  // 3.42.2 · Antes miraba solo la sesión de la Jefatura de Quirófanos: al Jefe/a de Endoscopía el botón no le hacía nada.
+  if (!jefeDe(c)) return resError(`Solo ${esEndo(c) ? 'el Jefe/a de Endoscopía' : 'la Jefatura de Quirófanos'} puede registrarl${esParto(c) ? 'o' : 'a'} fuera de término.`);
   const d = { hi: $('res-ini').value, hf: $('res-fin').value, inf: ($('res-inf').value || '').trim(), mot: ($('res-mot').value || '').trim(), lvq: $('res-lvq').checked };
   if (!d.hi || !d.hf) return resError('Indique la hora real de inicio y de fin.', d.hi ? 'res-fin' : 'res-ini');
   if (d.inf.length < 10) return resError('Cargue el parte quirúrgico: sin él la cirugía no se cierra.', 'res-inf');
   if (!d.mot) return resError('Escriba por qué no se cargó a tiempo.', 'res-mot');
   if (!d.lvq) return resError('Sin la Lista de Verificación no se puede registrar por acá. Si no se hizo, corresponde una incidencia.', 'res-lvq');
+  if (esEndo(c) && !jefe) {
+    pedirCredencial({ titulo: 'Registro fuera de término', propia: true,
+      desc: `${c.procedimiento} — ${fmtFecha(c.fecha)}. Confirme con su contraseña de Jefe/a de Endoscopía.`,
+      onOk: () => { if (!sinResolver(c)) return; aplicarRegistroTardio(c, d); trasResolverTurno(c); } });
+    return;
+  }
   pedirJefatura('Registro fuera de término', `${c.procedimiento} — ${fmtFecha(c.fecha)}. Confirme con la clave de la Jefatura.`, () => {
     aplicarRegistroTardio(c, d);
     trasResolverTurno(c);
@@ -21078,9 +21126,12 @@ function aplicarRegistroTardio(c, d) {
   c.horaInicioReal = ini;
   c.horaFinReal = fin;
   c.informe = { texto: d.inf, fechaHora: ahora };
-  c.registroTardio = { motivo: d.mot, autorizadoPor: JEFATURA, fechaHora: ahora, sobreTurno: true, desdeEstado: c.estado };
+  const endo = esEndo(c), por = endo && !jefe ? quienResuelve(c) : JEFATURA;
+  c.registroTardio = { motivo: d.mot, autorizadoPor: por, fechaHora: ahora, sobreTurno: true, desdeEstado: c.estado };
   c.estado = 'realizada';
-  pushHist(c, `Registrada fuera de término por la ${JEFATURA}: operada el ${fmtFecha(c.fecha)} de ${d.hi} a ${d.hf} h — ${d.mot}. LVQ declarada en papel; parte quirúrgico cargado`);
+  pushHist(c, endo
+    ? `Registrada fuera de término por ${por}: ${opTxt(c).hizoMin} el ${fmtFecha(c.fecha)} de ${d.hi} a ${d.hf} h — ${d.mot}. LVQ declarada en papel; informe del estudio cargado`
+    : `Registrada fuera de término por la ${JEFATURA}: operada el ${fmtFecha(c.fecha)} de ${d.hi} a ${d.hf} h — ${d.mot}. LVQ declarada en papel; parte quirúrgico cargado`);
   revisarCierre(c);
   upsert('cirugias', c);
 }
@@ -21380,7 +21431,9 @@ function anticiparTurno(prog, urg, quien, detalle) {
   };
   // La franja se devuelve al bloque: es el sentido de todo esto.
   prog.sala = ''; prog.franja = '';
-  const comoSeResolvio = prog.anticipada.tipo === 'adelanto'
+  // 3.42.2 · Sin turno en la app (otro centro, guardia sin carga) no se inventa «por urgencia de hoy»: va lo que se escribió.
+  const comoSeResolvio = !urg ? `Resuelto antes, fuera de la app${detalle ? ' (' + detalle + ')' : ''} — asentado por ${quien || JEFATURA}`
+    : prog.anticipada.tipo === 'adelanto'
     ? `Adelantada al ${fmtFecha(prog.anticipada.fechaUrgencia)}`
     : `Resuelta por urgencia el ${fmtFecha(prog.anticipada.fechaUrgencia)}`;
   pushHist(prog, `${comoSeResolvio} — se libera la franja del ${fmtFecha(prog.liberado.fecha)} (${prog.liberado.quirofano || 's/d'}, ${prog.liberado.hora || '—'} h)`);
@@ -22616,7 +22669,7 @@ function fichaSiguiente(c) {
   if (sinResolver(c)) {
     return caja('bad', ICONS.alertTri, 'Turno sin resolver',
       `La fecha (${fmtFecha(c.fecha)}) pasó y el turno sigue en «${esc(ESTC[c.estado].label)}»: nadie lo inició, lo suspendió ni lo cerró.
-      ${jefe || (u && c.cirujanoEmail === u.email) ? 'Toque <b>Resolver turno</b> e indique qué pasó.' : ''}
+      ${jefeDe(c) || (u && c.cirujanoEmail === u.email) ? 'Toque <b>Resolver turno</b> e indique qué pasó.' : ''}
       Si nadie lo resuelve, la app lo cierra sola el <b>${fmtFecha(cierreAdminFecha(c))}</b>.`);
   }
   if (rcActivo(c)) {
@@ -27628,7 +27681,7 @@ function tmCircuito(c, u) {
   const cons = ci ? ciTarjeta(c)
     : authExenta(c) ? { est: 'dif', txt: 'Se completa después' }
     : { est: 'pend', txt: 'Falta generarlo' };
-  const resolver = sinResolver(c) && (jefe || (u && c.cirujanoEmail === u.email));
+  const resolver = sinResolver(c) && (jefeDe(c) || (u && c.cirujanoEmail === u.email));
   return `<div class="tm-circuito" role="list" aria-label="Circuito del turno">
       ${tmPaso(1, 'Programación', prog.est, prog.txt)}
       ${tmPaso(2, 'Consentimiento', cons.est, cons.txt)}
