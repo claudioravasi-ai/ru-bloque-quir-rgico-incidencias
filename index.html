@@ -7348,6 +7348,19 @@
   .fa-lista li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px solid color-mix(in srgb, #dc2626 35%, transparent); border-radius: 13px; flex-wrap: wrap; } .fa-lista li > div { flex: 1; min-width: 170px; }
   .fa-lista b { display: block; font-size: .92rem; } .fa-lista span { display: block; color: #dc2626; font-weight: 700; font-size: .84rem; } .fa-lista small { display: block; color: var(--muted); font-size: .76rem; }
   body[data-tema="noche"] .fa-lista span { color: #fca5a5; }
+  /* 3.42 · Parte de Endoscopía anticipado: solo el Jefe/a de Endoscopía, antes de las 14 h. */
+  .pprel { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; margin: 14px 0; padding: 16px 18px; border-radius: 18px; color: #fff; background: linear-gradient(120deg, #0f2a5f, #1e40af 55%, #0e7490); box-shadow: 0 18px 40px -22px #0f2a5f; }
+  .pprel-ico { font-size: 1.9rem; line-height: 1; }
+  .pprel-tx small { display: block; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: .7rem; opacity: .85; }
+  .pprel-tx b { display: block; font-size: 1.06rem; margin: 2px 0 4px; }
+  .pprel-tx span { display: block; font-size: .86rem; line-height: 1.4; opacity: .95; }
+  .pprel .btn { background: #fff; color: #1e3a8a; font-weight: 800; white-space: nowrap; }
+  @media (max-width: 640px) { .pprel { grid-template-columns: auto minmax(0, 1fr); } .pprel .btn { grid-column: 1 / -1; justify-content: center; } }
+  .overlay.pprel-ov, body[data-tema] .overlay.pprel-ov { z-index: 140; padding: 10px; align-items: stretch; background: rgba(15,23,42,.78); backdrop-filter: blur(3px); }
+  .pprel-m { display: flex; flex-direction: column; width: min(1180px, 100%); margin: 0 auto; border-radius: 16px; overflow: hidden; background: #e2e8f0; box-shadow: 0 30px 60px -20px #000; }
+  .pprel-bar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 10px 14px; background: #fff; color: #0f172a; border-bottom: 3px solid #d97706; }
+  .pprel-bar div { flex: 1 1 220px; min-width: 0; } .pprel-bar b { display: block; font-size: .98rem; } .pprel-bar span { display: block; font-size: .8rem; color: #92400e; font-weight: 700; }
+  .pprel-m iframe { flex: 1 1 auto; width: 100%; min-height: 0; border: 0; background: #e2e8f0; }
   .fa > p { margin: 12px 18px; font-size: .84rem; line-height: 1.4; } .fa-ok { display: block; width: calc(100% - 36px); margin: 0 18px 18px; min-height: 46px; }
   .fa-banner { animation: tmwEntraD .35s ease; }
   body.portal-pac .pp-feriado { margin: 0 0 14px; padding: 18px; border-radius: 22px; color: #fff; background: linear-gradient(135deg, #dc2626, #9f1239); box-shadow: 0 16px 30px -16px #dc2626; animation: ppFerLate 1.8s ease-in-out infinite; }
@@ -7367,6 +7380,52 @@
      arranque de la app, quien eligió «Guardia nocturna» vería un fogonazo
      blanco en cada apertura. -->
 <script>try{var t=localStorage.getItem('hru_tema');if(/^(sobrio|acero|papel|noche)$/.test(t))document.body.dataset.tema=t;}catch(e){}</script>
+<script>
+/* 3.42 · Navegador que no logra abrir la app (Firefox o Chrome viejos, Internet Explorer…).
+   Escrito a la antigua (ES5) a propósito, para que corra justamente donde la app no.
+   Si a los 4 s de cargar la página la app no arrancó, en vez de una pantalla en blanco
+   se dice qué navegador es, qué hacer y el error exacto (para soporte). Vale también
+   para el pase del paciente y la tarjeta del médico, que salen de este mismo archivo. */
+(function () {
+  var errores = [];
+  window.addEventListener('error', function (e) { if (e && e.message && errores.length < 3) errores.push(e.message); }, true);
+  function navegador() {
+    var u = navigator.userAgent || '', m;
+    if ((m = u.match(/Firefox\/(\d+)/))) return 'Mozilla Firefox ' + m[1];
+    if ((m = u.match(/Edg(?:e|A|iOS)?\/(\d+)/))) return 'Microsoft Edge ' + m[1];
+    if ((m = u.match(/SamsungBrowser\/(\d+)/))) return 'Samsung Internet ' + m[1];
+    if ((m = u.match(/OPR\/(\d+)/))) return 'Opera ' + m[1];
+    if ((m = u.match(/(?:Chrome|CriOS)\/(\d+)/))) return 'Google Chrome ' + m[1];
+    if ((m = u.match(/Version\/([\d.]+).*Safari/))) return 'Safari ' + m[1];
+    if (/Trident|MSIE/.test(u)) return 'Internet Explorer';
+    return 'no identificado';
+  }
+  function txt(t) { return String(t).replace(/[&<>]/g, function (c) { return c === '&' ? '&amp;' : c === '<' ? '&lt;' : '&gt;'; }); }
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      if (window.__hruArranco) return;
+      var n = navegador(), ff = /Firefox/.test(n);
+      var d = document.createElement('div');
+      d.setAttribute('role', 'alert');
+      d.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;overflow:auto;background:#0f172a;color:#fff;font:16px/1.5 Arial,sans-serif;padding:24px 16px;';
+      d.innerHTML = '<div style="max-width:560px;margin:0 auto">'
+        + '<div style="font-size:40px">\u26A0\uFE0F</div>'
+        + '<h1 style="font-size:22px;margin:8px 0 12px">Este navegador no pudo abrir la app del HRU</h1>'
+        + '<p style="margin:0 0 12px">Navegador: <b>' + txt(n) + '</b>. Lo m\u00e1s probable es que est\u00e9 desactualizado.</p>'
+        + '<p style="margin:0 0 6px"><b>Qu\u00e9 hacer:</b></p>'
+        + '<ol style="margin:0 0 14px;padding-left:22px">'
+        + '<li style="margin-bottom:6px">Actualizarlo' + (ff ? ' (men\u00fa \u2630 \u203A Ayuda \u203A Acerca de Firefox) y volver a abrir el enlace.' : ' y volver a abrir el enlace.') + '</li>'
+        + '<li>O abrir este mismo enlace con <b>Google Chrome</b>, <b>Microsoft Edge</b> o <b>Safari</b> actualizados.</li></ol>'
+        + '<p style="margin:0 0 6px;font-size:13px;opacity:.8">Enlace:</p>'
+        + '<div style="background:#1e293b;border-radius:10px;padding:10px;word-break:break-all;font-size:13px;user-select:all">' + txt(location.href) + '</div>'
+        + '<p style="margin:14px 0 4px;font-size:13px;opacity:.8">Dato para soporte (puede sacarle una foto):</p>'
+        + '<div style="background:#1e293b;border-radius:10px;padding:10px;font-size:12px;word-break:break-word">' + txt(errores.join(' \u00B7 ') || 'La app no lleg\u00f3 a arrancar') + '<br>' + txt(navigator.userAgent || '') + '</div>'
+        + '</div>';
+      document.body.appendChild(d);
+    }, 4000);
+  });
+})();
+</script>
 <div class="app rail" id="app">
   <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
   <aside class="sidebar" id="sidebar">
@@ -9998,7 +10057,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.41.1';
+const APP_VERSION = '3.42.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10275,7 +10334,27 @@ function loadLocal(col) {
 }
 function saveLocal(col) {
   if (cloudOn && TAB_COLS.includes(col) && !conSesionApp()) return;   // 3.36 · sin sesión no hay espejo con datos
-  try { localStorage.setItem(LOCAL_KEYS[col], JSON.stringify(DB[col])); } catch (e) {}
+  try { localStorage.setItem(LOCAL_KEYS[col], JSON.stringify(DB[col])); }
+  // 3.42 · Si no entra, no se deja la copia vieja (con la nube, los datos vuelven solos al abrir).
+  catch (e) { if (cloudOn) { try { localStorage.removeItem(LOCAL_KEYS[col]); } catch (e2) {} } }
+}
+/* 3.42 · La memoria del navegador (localStorage) tiene un tope de unos 5 MB por sitio.
+   Con la copia local de turnos y consentimientos creciendo, se llenaba y TODO guardado
+   fallaba callado: «Visto» retiraba el aviso, pero no quedaba anotado y al volver a
+   abrir la app los avisos estaban otra vez. Lo chico y propio del equipo (vistos,
+   avisados) tiene prioridad: si no entra, se borran las copias de la base que la nube
+   vuelve a mandar al abrir —nunca la cola de cambios sin enviar ni las cuentas— y se
+   reintenta. */
+const LS_PRESCINDIBLES = ['consentimientos', 'incidencias', 'reclamos', 'comunicados', 'camas', 'agenda', 'agendaEndo', 'cirugias'];
+function lsGuardar(clave, texto) {
+  try { localStorage.setItem(clave, texto); return true; } catch (e) {}
+  if (!cloudOn) return false;
+  for (const col of LS_PRESCINDIBLES) {
+    try { localStorage.removeItem(LOCAL_KEYS[col]); } catch (e) {}
+    try { localStorage.removeItem(TAB_KEY); } catch (e) {}
+    try { localStorage.setItem(clave, texto); return true; } catch (e) {}
+  }
+  return false;
 }
 /* ================= 3.36 · TABLERO PÚBLICO =================
    `cirugias` solo se lee con cuenta (tiene datos de pacientes). Quien abría la app
@@ -11563,7 +11642,7 @@ function cargarNotificados() {
   cargarLeidos();
 }
 function guardarNotificados() {
-  try { localStorage.setItem(REM_NOTIF_KEY, JSON.stringify(remNotificados)); } catch (e) {}
+  try { lsGuardar(REM_NOTIF_KEY, JSON.stringify(remNotificados)); } catch (e) {}
 }
 
 /* ================= RECORDATORIOS LEÍDOS =================
@@ -11595,7 +11674,7 @@ function cargarLeidos() {
   guardarLeidos();
 }
 function guardarLeidos() {
-  try { localStorage.setItem(REM_LEIDOS_KEY, JSON.stringify(remLeidos)); } catch (e) {}
+  try { lsGuardar(REM_LEIDOS_KEY, JSON.stringify(remLeidos)); } catch (e) {}
 }
 function remEsLeido(r) { return remLeidos[remClaveLector() + '|' + r.key] === hoyISO(); }
 function remSinLeer() { return remLista.filter((r) => !remEsLeido(r)); }
@@ -18582,6 +18661,8 @@ function renderParte() {
       </div>
     </div>
 
+    ${parteEndoPrelHTML(f)}
+
     <div class="banner banner-blue">${ICONS.info}
       <div><strong>Plazos del ciclo de programación</strong>
       Cierre de solicitudes: <b>${BLOQUE.cierreSolicitudes} h del día hábil previo</b> · Publicación del parte: <b>${BLOQUE.publicacionParte} h del día hábil previo</b> (lo del lunes, el viernes) · Emergencias: ingreso directo con meta de incisión &lt; 30 min.</div></div>
@@ -18589,6 +18670,72 @@ function renderParte() {
     ${contenido}`;
 }
 function setParteFecha(f) { parteFecha = f; renderParte(); }
+
+/* 3.42 · Parte de Endoscopía ANTICIPADO. El definitivo sigue saliendo solo a las
+   14 h del día hábil previo, para todos, como el de Quirófanos y Obstetricia.
+   Antes de esa hora, y solo el Jefe/a de Endoscopía (con su contraseña), puede
+   generarlo con lo confirmado hasta ese momento. Se arma en la memoria del
+   navegador: no se escribe en la base, ni en localStorage, ni en la cirugía; al
+   cerrar la ventana desaparece. La hoja dice PRELIMINAR en cada página. */
+function parteEndoPuede(f) {
+  const u = usuarioActual();
+  return !jefe && !admis && !!u && esJefeEndo(u) && !partePublicado(f) && !DB.cirugias.some((c) => c._pub);
+}
+function parteEndoPrelHTML(f) {
+  if (!parteEndoPuede(f)) return '';
+  const n = delParteArea(f, 'endo').length;
+  const sinConf = DB.cirugias.filter((c) => c.fecha === f && areaDe(c) === 'endo' && ['borrador', 'pendiente', 'validada'].includes(c.estado)).length;
+  return `<div class="pprel">
+    <div class="pprel-ico" aria-hidden="true">👑</div>
+    <div class="pprel-tx"><small>Solo para el Jefe/a de Endoscopía</small><b>Parte diario de Endoscopía · ${esc(fmtFecha(f))}</b>
+      <span>Para ese día hay ${n} estudio${n === 1 ? '' : 's'} confirmado${n === 1 ? '' : 's'}${sinConf ? ` y ${sinConf} sin confirmar (no figuran)` : ''}. Puede generarlo ahora para verlo, imprimirlo o guardarlo en PDF: lo ve solo usted y no queda guardado en la app. El definitivo se publica solo a las ${BLOQUE.publicacionParte} h ${esc(textoDiaCierre(f))}.</span></div>
+    <button type="button" class="btn" onclick="parteEndoGenerar('${f}')">📄 Generar parte diario</button>
+  </div>`;
+}
+function parteEndoGenerar(f) {
+  if (partePublicado(f)) { imprimirParte(f, 'endo'); return; }
+  if (!parteEndoPuede(f)) { alert('Antes de las ' + BLOQUE.publicacionParte + ' h, el parte de Endoscopía solo lo puede generar el Jefe/a de Endoscopía, con su cuenta.'); return; }
+  pedirCredencial({
+    titulo: 'Generar parte diario',
+    desc: `Parte de Endoscopía del ${fmtFecha(f)}, antes de su publicación. Confirme con su contraseña: lo ve solo usted y no queda guardado en la app.`,
+    propia: true,
+    onOk: () => parteEndoVer(f),
+  });
+}
+let parteEndoReloj = null;
+function parteEndoVer(f) {
+  if (!parteEndoPuede(f)) return;
+  parteEndoCerrar();
+  const d = document.createElement('div');
+  d.id = 'pprel-ov'; d.className = 'overlay overlay-fijo open pprel-ov';
+  d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-label', 'Parte preliminar de Endoscopía');
+  d.innerHTML = `<div class="pprel-m">
+    <div class="pprel-bar"><div><b>Parte de Endoscopía · ${esc(fmtFecha(f))} · PRELIMINAR</b><span>No queda guardado en la app: al cerrar esta ventana, desaparece.</span></div>
+      <button type="button" class="btn btn-blue btn-sm" onclick="parteEndoImprimir('${f}')">🖨 Imprimir o guardar en PDF</button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="parteEndoCerrar()">Cerrar</button></div>
+    <iframe id="pprel-if" title="Parte preliminar de Endoscopía"></iframe></div>`;
+  document.body.appendChild(d);
+  const fr = $('pprel-if');
+  // En pantallas angostas la hoja A4 se achica para entrar a lo ancho.
+  fr.addEventListener('load', () => {
+    try {
+      const doc = fr.contentDocument, h = doc.getElementById('hoja');
+      const s = Math.min(1, (fr.clientWidth - 16) / (h.offsetWidth + 4));
+      if (s < 1) { h.style.margin = '0'; h.style.transformOrigin = 'top left'; h.style.transform = 'scale(' + s.toFixed(3) + ')'; doc.body.style.padding = '8px'; doc.body.style.height = Math.ceil(h.offsetHeight * s + 24) + 'px'; doc.body.style.overflow = 'hidden auto'; }
+    } catch (e) {}
+  });
+  fr.srcdoc = parteHTML(f, 'endo', { prel: true, sinBarra: true });
+  // Si se cierra la sesión (o pasa la hora de publicación), la ventana se va sola.
+  parteEndoReloj = setInterval(() => { if (!parteEndoPuede(f)) parteEndoCerrar(); }, 2000);
+}
+function parteEndoImprimir(f) {
+  if (!parteEndoPuede(f)) { parteEndoCerrar(); return; }
+  imprimirParte(f, 'endo', { prel: true });
+}
+function parteEndoCerrar() {
+  if (parteEndoReloj) { clearInterval(parteEndoReloj); parteEndoReloj = null; }
+  const ov = $('pprel-ov'); if (ov) ov.remove();
+}
 
 function parteCard(c) {
   return `
@@ -29026,7 +29173,8 @@ const PARTE_AREAS = {
 };
 function areaDe(c) { const s = SALAS.find((x) => x.id === c.sala); return s ? s.tipo : 'qx'; }
 function delParteArea(d, area) { return DB.cirugias.filter((c) => c.fecha === d && ESTADOS_PARTE.includes(c.estado) && areaDe(c) === area); }
-function imprimirParte(d, area) {
+function parteHTML(d, area, op) {
+  op = op || {};
   area = PARTE_AREAS[area] ? area : 'qx';
   const AR = PARTE_AREAS[area];
   const delParte = delParteArea(d, area);
@@ -29090,9 +29238,12 @@ function imprimirParte(d, area) {
   const hs = `${Math.floor(minutos / 60)} h${minutos % 60 ? ' ' + (minutos % 60) + ' m' : ''}`;
   const u = usuarioActual();
   const [dSem, ...dResto] = fmtDiaLargo(d).split(' ');
+  /* 3.42 · Preliminar del Jefe/a de Endoscopía: se avisa en la hoja que no es el definitivo. */
+  const sinConf = op.prel ? DB.cirugias.filter((c) => c.fecha === d && areaDe(c) === area && ['borrador', 'pendiente', 'validada'].includes(c.estado)).length : 0;
+  const prelTxt = op.prel ? `Generado antes de la publicación, a pedido de ${u && u.nombre ? u.nombre : 'la Jefatura de Endoscopía'}. Puede cambiar: el definitivo se publica a las ${BLOQUE.publicacionParte} h ${textoDiaCierre(d)}.${sinConf ? ` Hay ${sinConf} turno${sinConf === 1 ? '' : 's'} sin confirmar que no figura${sinConf === 1 ? '' : 'n'}.` : ''} No queda guardado en la app.` : '';
   const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${esc(AR.t)} HRU — ${d}</title>
+    <title>${esc(AR.t)}${op.prel ? ' PRELIMINAR' : ''} HRU — ${d}</title>
     <style>
       @page { size: A4 landscape; margin: 9mm; }
       * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -29157,12 +29308,18 @@ function imprimirParte(d, area) {
       .ints { grid-column: 1 / -1; order: -1; font-weight: 700; color: #1e3a8a; text-align: center; }
       .ley { border-left: 0.378em solid #b91c1c; padding-left: 0.756em; } .ley b { color: #b91c1c; }
       .vacio { text-align: center; padding: 5.292em; color: #64748b; font-size: 1.3em; border: 0.113em dashed #cbd5e1; border-radius: 1.134em; margin-top: 1.134em; }
+      .hoja { position: relative; }
+      .prelb { display: flex; gap: 0.8em; align-items: center; margin-bottom: 0.7em; padding: 0.6em 1em; border-radius: 0.9em; background: #fffbeb; border: 0.15em solid #d97706; color: #78350f; }
+      .prelb b { flex: none; font-size: 1.15em; letter-spacing: .08em; color: #b45309; }
+      .marca { position: absolute; left: 0; right: 0; top: 42%; text-align: center; font-size: 9em; font-weight: 900; letter-spacing: .12em; color: rgba(217,119,6,.10); transform: rotate(-16deg); pointer-events: none; z-index: 5; }
+      @media print { .marca { position: fixed; top: 40%; } }
     </style></head><body>
-    <div class="barra"><button onclick="window.print()">🖨 Imprimir o guardar en PDF</button></div>
+    ${op.sinBarra ? '' : '<div class="barra"><button onclick="window.print()">🖨 Imprimir o guardar en PDF</button></div>'}
     <div class="hoja" id="hoja">
+      ${op.prel ? `<div class="marca" aria-hidden="true">PRELIMINAR</div><div class="prelb"><b>PRELIMINAR</b><span>${esc(prelTxt)}</span></div>` : ''}
       <div class="cab">
         <div class="fecha"><small>${esc(dSem)}</small><b>${esc(d.slice(8, 10))}</b><small>${esc(dResto.slice(2).join(' ') || '')}</small></div>
-        <div class="tit"><small>Hospital Regional Ushuaia · ${esc(AR.sub)}</small><h1>${esc(AR.t)}</h1>
+        <div class="tit"><small>Hospital Regional Ushuaia · ${esc(AR.sub)}</small><h1>${esc(AR.t)}${op.prel ? ' · preliminar' : ''}</h1>
           <span>${esc(fmtDiaLargo(d))} · emitido ${esc(fmtDT(nowDT()))}${u && u.nombre ? ' por ' + esc(u.nombre) : jefe ? ' por la Jefatura' : ''}</span></div>
         <div class="kpis">
           <div class="kpi"><b>${delParte.length}</b><small>${esc(AR.varios)}</small></div>
@@ -29182,7 +29339,7 @@ function imprimirParte(d, area) {
         <div class="firma">${esc(AR.jefe)} · firma y sello</div>
         <div class="firma">${esc(AR.enf)} · firma</div>
         <div class="ints">☎ Internos para llamar al paciente: Adultos 1035 · Pediatría 1012 · Maternidad 1608 · UCI 1034</div>
-        <div class="ley"><b>Datos personales y de salud (Ley 25.326).</b> Uso interno ${esc(AR.uso)}: no dejar a la vista, no fotografiar, destruir al terminar la jornada. Generado por ${esc(AR.app)}; el parte se publica a las ${BLOQUE.publicacionParte} h del día hábil previo.</div>
+        <div class="ley"><b>Datos personales y de salud (Ley 25.326).</b> Uso interno ${esc(AR.uso)}: no dejar a la vista, no fotografiar, destruir al terminar la jornada. Generado por ${esc(AR.app)}; ${op.prel ? 'parte PRELIMINAR, no reemplaza al definitivo, que' : 'el parte'} se publica a las ${BLOQUE.publicacionParte} h del día hábil previo.</div>
       </div>
     </div>
     <script>
@@ -29196,6 +29353,10 @@ function imprimirParte(d, area) {
       })();
     <\/script>
     </body></html>`;
+  return html;
+}
+function imprimirParte(d, area, op) {
+  const html = parteHTML(d, area, op);
   const w = window.open('', '_blank');
   if (!w) { alert('El navegador bloqueó la ventana emergente. Habilite las ventanas emergentes para imprimir el parte.'); return; }
   w.document.write(html);
@@ -33766,7 +33927,7 @@ function renderEndoJefe() {
     ${ejFueraHTML(u)}
     <section class="ej-sec"><h3>📄 Parte de Endoscopía</h3>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input type="date" value="${ejParte}" onchange="ejParte=this.value" style="padding:8px 10px;border-radius:10px;border:1px solid var(--line);font-family:inherit">
-      <button class="btn btn-sm btn-blue" onclick="imprimirParte(ejParte, 'endo')">${ICONS.fileText} Imprimir el parte</button></div></section>
+      <button class="btn btn-sm btn-blue" onclick="parteEndoGenerar(ejParte)">${ICONS.fileText} Imprimir el parte</button></div></section>
     <section class="ej-sec"><h3>🔭 Turnos de la Unidad</h3>
       <div class="en-dias" style="max-width:420px"><button type="button" class="${ejTab === 'activos' ? 'on' : ''}" onclick="ejTab='activos';renderEndoJefe()">En curso del circuito</button><button type="button" class="${ejTab === 'todos' ? 'on' : ''}" onclick="ejTab='todos';renderEndoJefe()">Últimos 60 días</button></div>
       ${L.length ? L.map((c) => cirCard(c, 'jefe')).join('') : '<div class="empty">No hay turnos de Endoscopía en esta lista.</div>'}
@@ -37278,7 +37439,7 @@ Object.assign(VIEWS, {
 /* ================= INIT ================= */
 document.addEventListener('DOMContentLoaded', () => {
   // Enlace del pase del paciente: se abre solo el portal, nunca la app del hospital.
-  if (PORTAL_TOKEN) { iniciarPortalPaciente(); return; }
+  if (PORTAL_TOKEN) { iniciarPortalPaciente(); window.__hruArranco = 1; return; }
   pintarEstiloPase();
   $('i-activity').innerHTML = ICONS.activity;
   $('shield-slot').innerHTML = ICONS.shieldCheck;
@@ -37367,6 +37528,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Service worker: abre la app sin conexión y trae sola cada versión publicada.
   window.addEventListener('load', initActualizaciones);
+  window.__hruArranco = 1;   // 3.42 · la app arrancó: no hace falta el cartel de navegador
 });
 </script>
 </body>

@@ -15,8 +15,8 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.38.1'
-FECHA = 'Octubre de 2026'
+VERSION = '3.42.0'
+FECHA = 'Noviembre de 2026'
 
 PORTADA = {
     'institucion': 'HOSPITAL REGIONAL USHUAIA',
@@ -124,7 +124,7 @@ BLOQUES = [
 ('p', 'Quedan exentos de esta regla las urgencias, las emergencias, los turnos de prioridad P1 y P2 y los turnos que carga la Jefatura en nombre de un profesional, que no está frente a la pantalla para guardar el documento.'),
 ('h3', 'Paso 3 bis — El pase del paciente'),
 ('p', '**También para endoscopías y cesáreas programadas.** El pase vale igual para los turnos programados de la Sala de Endoscopía y del Quirófano de Obstetricia, con las mismas condiciones. Cambian las palabras: el paciente de endoscopía ve «Mi estudio» («Tu estudio está confirmado», médico/a, destino ENDO) y la de cesárea, «Mi cesárea» (obstetra, destino OBST). Antes de ingresar con el código, el portal dice «Mi turno». Las urgencias, también las de endoscopía y las cesáreas de urgencia, no llevan pase.'),
-('p', 'Si la cirugía es programada (no urgencia ni emergencia), tiene los tres requisitos marcados y el consentimiento quedó guardado, la aplicación ofrece el **pase del paciente**: una tarjeta tipo pase de embarque, de colores vivos, con un **código QR**, el nombre de pila del paciente, la cirugía, el día, la hora, el quirófano, el cirujano y el estado del turno. **Apenas se genera, el pase le llega solo al correo del paciente**: lo manda el servicio del hospital, sin abrir el correo de nadie, y desde la 3.21 la ventana solo muestra un recuadro si el envío **falló**, con el motivo. Debajo, un mosaico de botones de colores: **Reenviar el pase por correo**, **Dar vuelta** (instrucciones), **Imprimir** (frente y dorso lado a lado, en **una sola hoja A4**), **WhatsApp** y **Ver como paciente**. Si el cirujano armó su **tarjeta de presentación** en Mi Perfil, el correo del pase la lleva al pie, con su foto.'),
+('p', 'Si la cirugía es programada (no urgencia ni emergencia), tiene los tres requisitos marcados y el consentimiento quedó guardado, la aplicación ofrece el **pase del paciente**: una tarjeta tipo pase de embarque, de colores vivos, con un **código QR**, el nombre de pila del paciente, la cirugía, el día, la hora, el quirófano, el cirujano y el estado del turno. **Apenas se genera, el pase le llega solo al correo del paciente**: lo manda el servicio del hospital, sin abrir el correo de nadie, y desde la 3.21 la ventana solo muestra un recuadro si el envío **falló**, con el motivo. Debajo, un mosaico de botones de colores: **Reenviar el pase por correo**, **Dar vuelta** (instrucciones), **Imprimir** (frente y dorso lado a lado, en **una sola hoja A4**), **WhatsApp**, **Ver como paciente** y, en los estudios de Endoscopía con preparación (VEDA o colonoscopía), **Preparación**: abre, en la misma ventana, la preparación y los cuidados que recibe el paciente con el pase, tal como los ve él, con el día en que salió el correo, **Imprimir** y **Volver al pase**. Así el médico la lee sin pedirle al paciente su código; no muestra datos del paciente. Si el cirujano armó su **tarjeta de presentación** en Mi Perfil, el correo del pase la lleva al pie, con su foto.'),
 ('ul', [
     'Para emitirlo se confirman el **correo** y el **DNI** del paciente y se tilda que el paciente fue informado y aceptó recibir los códigos en ese correo.',
     'El paciente escanea el QR, escribe su DNI y recibe en su correo un **código de 8 letras y números**, que vence a los 10 minutos y sirve para **un solo ingreso**. Cada vez que entra recibe uno nuevo.',
@@ -151,6 +151,7 @@ BLOQUES = [
     '**A 5 días hábiles:** aviso al **cirujano** («Su cirugía todavía no está autorizada») y a **Admisión**.',
     '**A 3 días hábiles:** aviso **crítico** al cirujano, y aviso a **Admisión** y a la **Jefatura**.',
     '**A 48 h hábiles (2 días):** **alerta de prioridad** a la **Jefatura**: va a dar de baja la cirugía para ofrecer el quirófano a otra especialidad. En la ficha aparece la franja roja con el botón **Dar de baja y liberar el quirófano** (el turno queda «Caducada · Falta de autorización del financiador» y la franja, libre; si el cirujano escribió un reclamo, la app lo advierte antes). Al mismo tiempo, **al cirujano**: «La Jefatura va a dar de baja su cirugía». Si considera que no corresponde, toca **No estoy de acuerdo: escribir un reclamo** (en la ficha o en Reclamos) y el reclamo ya viene escrito para completar el motivo y mandarlo.',
+    '**La baja la decide una persona:** en cirugías, cesáreas y partos, la Jefatura de Quirófanos; en Endoscopía, su Jefe/a, con el botón **Dar de baja y liberar el turno**. Si no se da de baja, el turno sigue hasta su fecha. Al darla de baja, se les avisa por correo al médico y al paciente.',
     '**Llegan también con la app cerrada:** cada escalón sale una sola vez por cirugía, en un día hábil desde las 09:00, como **notificación al teléfono** (si el teléfono está apagado, la notificación espera hasta 24 h y aparece al prenderlo) y por **correo** al cirujano; a Admisión y a la Jefatura, por correo (propiedades ADMISION_CORREO y JEFATURA_CORREO). En la app, cada aviso suena hasta que se lo marca leído.',
 ]),
 ('h3', 'Paso 6 — El día de la cirugía'),
@@ -401,7 +402,7 @@ BLOQUES = [
     '**El contenido clínico viene cargado.** La práctica elegida en el nomenclador se cruza con un catálogo de 113 procedimientos de 14 especialidades y precarga la descripción de la técnica, los beneficios, los riesgos, las alternativas, la preparación y los cuidados.',
     '**El cirujano lo adecua al caso.** Todo el texto es editable: es la Lex Artis Ad-Hoc, y la aplicación la facilita en lugar de sustituirla.',
     '**Riesgos personalizados.** Un apartado propio para las condiciones de ese paciente —cardiopatía, diabetes, anticoagulación, edad, cirugías previas—. Es el que la jurisprudencia exige individualizar.',
-    '**Vista en vivo.** A la izquierda lo que se completa; a la derecha el documento armándose, con membrete y paginación.',
+    '**Vista en vivo.** A la izquierda lo que se completa; a la derecha el documento armándose, con el mismo diseño del papel. Al imprimirlo, cada punto va entero y cada hoja lleva «Hoja n de N», el paciente y el código del documento.',
     '**Nace del turno.** Se abre desde el turno (al terminar de programar, o desde **Lo que sigue › Generar el consentimiento**); la solapa Consentimientos Informados es el registro de lo ya emitido.',
     '**Traumatología: el consentimiento de la AAOT (3.28).** En las cirugías de Traumatología y Ortopedia la aplicación elige sola, entre los 130 consentimientos informados de la **Asociación Argentina de Ortopedia y Traumatología**, el que corresponde a la cirugía (por la práctica del nomenclador, el procedimiento y el diagnóstico). Aparece en el recuadro **🦴 Consentimiento específico de la AAOT**, con la marca «Elegido por la app»; el cirujano puede cambiarlo por otro de la lista (ordenada por Columna, Miembro superior, Ortopedia general, Pelvis-cadera-muslo, Pierna-tobillo-pie, Rodilla, COVID-19 y Telemedicina) o dejar «Ninguno». **Abrir el PDF de la AAOT para imprimir** lo abre desde aaot.org.ar, en su versión vigente. El documento del hospital dice que el de la AAOT forma parte del consentimiento y se firma junto con él. La ficha de la cirugía muestra el renglón **AAOT: …** con **Abrir PDF**. Los servicios escritos a mano como «Traumatología» o «TRAUMA» también cuentan como Traumatología y Ortopedia.',
     '**Cuatro botones**: Bajar e imprimir, Imprimir / PDF, Guardar en registro y Limpiar. Guardarlo en el registro marca el consentimiento en la historia clínica del turno, confirma la franja provisional y habilita el paso por Admisión.',
@@ -524,8 +525,11 @@ BLOQUES = [
     '**Premio de oro:** el conteo se hace en cada equipo con los turnos que ya tiene; lo único que se guarda es el premio en el legajo del propio ganador. Nadie ve el ranking de otros colegas.',
     '**PDF y Excel** se arman en el equipo de quien los pide: los datos no pasan por ningún servicio externo. Contienen datos de salud y hay que guardarlos en lugar seguro.',
     'El **parte impreso** incluye el teléfono y la obra social del paciente para coordinar el día; es de uso interno del bloque, no se deja a la vista ni se fotografía, y se destruye al terminar la jornada.',
+    '**Lector de pulsera (3.40):** la cámara se usa solo mientras está abierta la ventana de lectura. Las imágenes no se guardan ni se envían, y del código se toma solo la llave de la pulsera. En los teléfonos sin lector propio se baja una vez la librería jsQR (licencia Apache 2.0), sin mandar ningún dato. El aviso «Paciente en sala» no lleva el nombre del paciente.',
+    '**Paciente en sala (3.39):** el QR no lleva datos y solo funciona con una cuenta del hospital. Abrir la planilla guarda en la cirugía quién la abrió, la hora y si fue con pulsera o a mano. Las notificaciones en el teléfono dicen sala, hora y procedimiento, nunca el nombre del paciente. La planilla con nombre la ve solo quien está anotado en ese paciente.',
     '**Mapa de camas y pulsera (3.26):** el mapa guarda solo el estado de cada cama, las iniciales del paciente y el número de turno (sin nombres completos ni diagnósticos); los correos a Admisión y a Enfermería llevan solo estados de camas. La pulsera lleva los datos mínimos para identificar al paciente en la muñeca; su QR no contiene datos y solo abre la ficha a quien tiene sesión del hospital.',
     '**Cama y reprogramación (3.25):** la cama (sector, habitación y cama) se guarda en el turno y la ven solo las cuentas del hospital y el propio paciente en su pase. El correo al paciente no lleva cirugía, diagnóstico ni nombre: solo el aviso de que hay una fecha para confirmar. Su respuesta viaja por el servicio del portal (que valida su sesión de DNI + código) y queda en una carpeta que solo escribe ese servicio. Los correos a Admisión y a la Jefatura llevan solo una referencia, sin nombres ni datos de salud. El correo de confirmación al paciente (3.27.1) tampoco lleva cirugía, fecha ni diagnóstico: solo el aviso de que está todo confirmado y el enlace a su pase. «Ver el seguimiento del paciente» muestra a las cuentas del hospital lo mismo que ya ve el paciente, sin datos nuevos.',
+    '**Factores del paciente y alerta de feriado (3.41):** los factores son opcionales y se guardan en el turno, visible solo para cuentas del hospital. La alerta de feriado al paciente no nombra la práctica ni el diagnóstico.',
     'Los datos de salud reciben el tratamiento de dato sensible que exige la Ley 25.326.',
 ]),
 ('h2', '12.3. Continuidad'),
@@ -554,7 +558,81 @@ BLOQUES = [
 ]),
 
 # ─────────────────────────────────────────────────────────────── 14
-('h1', '14. Novedades de las versiones 3.12 a 3.38'),
+('h1', '14. Novedades de las versiones 3.12 a 3.41'),
+('h2', 'Versión 3.42.0 — Parte de Endoscopía anticipado, «Visto» que no se olvida y navegadores viejos'),
+('ul', [
+    '**Parte diario de Endoscopía antes de las 14 h (solo el Jefe/a de Endoscopía).** En **Parte**, eligiendo la fecha, el Jefe/a de Endoscopía ve una tarjeta azul 👑 con el botón **Generar parte diario**. Pide su contraseña y muestra el parte con lo confirmado hasta ese momento, marcado **PRELIMINAR** en cada hoja; desde ahí se imprime o se guarda en PDF. Dice cuántos turnos siguen sin confirmar (esos no figuran). **No queda guardado en la app**: al cerrar la ventana desaparece, y si se cierra la sesión se va sola. Nadie más lo ve (ni otros médicos, ni la Jefatura de Quirófanos). El botón «Imprimir el parte» de su pantalla «Jefatura de Endoscopía» hace lo mismo antes de las 14 h.',
+    '**El parte definitivo no cambia:** se publica solo a las **14 h del día hábil previo**, para todos, igual que el de Quirófanos, Cesáreas y Partos.',
+    '**«Visto» ya no se olvida.** Cuando la memoria del navegador se llenaba con la copia local de turnos y consentimientos, el aviso se retiraba pero no quedaba anotado, y al volver a abrir la app reaparecía. Ahora lo que usted marcó como visto tiene prioridad: si no entra, la app libera la copia local (la nube la vuelve a mandar al abrir) y lo guarda.',
+    '**Navegadores que no pueden abrir la app.** Si la app, el pase del paciente o la tarjeta del médico se abren en un navegador muy viejo (Firefox o Chrome desactualizados, Internet Explorer), ya no queda la pantalla en blanco: aparece un cartel con el nombre del navegador, qué hacer (actualizarlo o abrir el enlace con Chrome, Edge o Safari) y un dato para soporte.',
+]),
+('h2', 'Versión 3.41.0 — Turno guiado, prioridad recomendada y feriados con alerta'),
+('ul', [
+    '**Nuevo turno, de a un paso.** Se conservan las cuatro tarjetas del circuito. Debajo, cinco pasos: Paciente, Práctica, Requisitos, Equipo y Prioridad. Cada dato completo se tilda solo; si falta algo obligatorio, «Programar turno» lleva al paso que corresponde. Con un DNI que ya pasó por la app se ofrece completar sus datos.',
+    '**Prioridad recomendada.** La app dice qué prioridad recomienda para ese caso y por qué. Mira edad, diagnóstico, factores tildados, duración, recursos pedidos, suspensiones del mismo DNI en el último año y si es turno de urgencia. Cada opción explica qué significa y si aplica. Es una sugerencia con reglas fijas: decide el médico.',
+    '**Factores del paciente.** Casillas opcionales: diabetes, cardiopatía, EPOC o asma, insuficiencia renal, anticoagulado/a, obesidad mórbida, inmunosuprimido/a y alergia al látex. Se guardan en el turno y no salen en el tablero sin ingresar, en el pase ni en el parte.',
+    '**Turno programado guiado.** Un cartel grande marca el próximo paso y debajo se ve todo el camino. Al cumplir un paso, festeja y aparece el siguiente. Los datos quedan en tarjetas plegadas: se tocan para verlos o corregirlos.',
+    '**Firmas a la vista.** La tarjeta Consentimiento dice si falta la firma del paciente, si falta la del médico o si está firmado por los dos, también en los turnos anteriores a esta versión.',
+    '**Endoscopía con sus palabras.** Los avisos y el cierre dicen «Se realizó la VEDA» en lugar de «Se operó», y lo mismo con colonoscopía, parto y cesárea.',
+    '**Botones de arriba.** Pulsera, Guardia, Temas y Avisos tienen diseño nuevo y animado.',
+    '**Feriados.** La lista nacional se revisa todos los días en la web. Programación Diaria muestra los feriados del mes. Los provinciales no tienen fuente pública: el 1 de junio y las fechas indicadas por el hospital (20/11/2026) están cargados en la app, y la Jefatura puede marcar otros a mano.',
+    '**Alerta roja de feriado.** Si un turno programado queda en un feriado, el médico que lo programó ve una alerta roja al abrir la app, y recibe correo y aviso al teléfono una vez por día. El paciente con pase la ve en su pase y la recibe por correo una vez por día. Cada una se apaga recién cuando esa persona la lee. No alcanza a urgencias ni a excepciones de la Jefatura.',
+]),
+('h2', 'Versión 3.40.5 — Parte de Endoscopía con sus propios textos'),
+('ul', [
+    '**Parte de Endoscopía.** La hoja impresa ya no habla de quirófanos: cuenta **estudios**, firma la **Jefatura de Endoscopía** y la **Enfermería de Endoscopía**, y al pie dice **Sistema de Programación Endoscópica**. Los partes de Quirófanos y Obstetricia siguen igual.',
+]),
+('h2', 'Versión 3.40.4 — Parto programado sin Jefatura y aviso de la baja'),
+('ul', [
+    '**Parto programado.** Ya no pasa por la validación de la Jefatura de Quirófanos: queda confirmado en el parte cuando Admisión y Egresos lo autoriza. La cesárea sigue igual, con la Jefatura. Los partos que ya estaban autorizados y esperando a la Jefatura se confirman solos.',
+    '**Aviso de la baja.** Cuando se da de baja un turno por falta de autorización, el **paciente** recibe un correo y su pase lo explica. El **médico** recibe correo, notificación al teléfono y un aviso en la app. Si el paciente no tiene correo cargado, la app avisa que hay que llamarlo.',
+]),
+('h2', 'Versión 3.40.3 — Segunda vuelta de la prueba HUMANOIDE'),
+('ul', [
+    '**Baja a 48 h hábiles en Endoscopía.** La alerta de prioridad y el botón **Dar de baja y liberar el turno** ahora le llegan al **Jefe/a de Endoscopía**. En cirugías, cesáreas y partos siguen en la Jefatura de Quirófanos. La baja no es automática: si nadie la da, el turno sigue hasta su fecha.',
+    '**Consentimiento revocado.** Si el paciente acepta y revoca desde su pase antes de que el equipo tenga la app abierta, quedan asentadas las dos cosas y el médico recibe el aviso.',
+    '**Turno a medio cargar.** Ya no se pierde con la tecla Esc, un toque afuera de la ventana o el botón de volver: se cierra con su botón.',
+    '**Doble toque.** Una incidencia o un comunicado ya no se guardan dos veces.',
+    '**Reconocimiento.** La postal a medio escribir no se borra al tocar otra parte de la pantalla.',
+    '**Palabras y botones.** Parto y Endoscopía dicen Obstetra y Endoscopista en la ficha; el consentimiento de parto habla del parto en los cuidados. En el pase, «Revocar mi consentimiento» y «No puedo ese día» son más fáciles de tocar. Las tarjetas de turno se abren con el teclado.',
+]),
+('h2', 'Versión 3.40.2 — Correcciones de la prueba HUMANOIDE'),
+('ul', [
+    '**Cambio de día.** Si Admisión, la sala o la grilla quedan abiertas de un día para otro y estaban en «hoy», pasan solas al día nuevo.',
+    '**Servicio del turno.** Cuando la práctica elegida es de otro servicio, el campo se completa con ese servicio. Si queda vacío, la app pide elegirlo antes de guardar.',
+    '**Pase del paciente.** La casilla para aceptar el consentimiento se habilita aunque baje rápido por el texto.',
+    '**Pantalla de sala.** Muestra que el recuento no coincide y deja cargar la Recuperación después de terminar.',
+    '**Ficha y textos.** Al firmar, la ficha pasa a «Bajar el consentimiento firmado». Los carteles dicen endoscopía, cesárea o parto según el turno, y la Salida de Endoscopía y partos no pide conteo de gasas.',
+]),
+('h2', 'Versión 3.40.1 — Avisos de coordinación sin pendientes que no corresponden'),
+('ul', [
+    '**Endoscopía y partos.** El aviso «Coordinación incompleta», la ficha y el recorrido del turno ya no piden Instrumentación ni Esterilización en Endoscopía ni en partos, porque no las usan. Siguen pidiendo lo que corresponde: evaluación preanestésica, estudios previos y consentimiento. La cirugía y la cesárea no cambian.',
+    '**Jefe/a de Endoscopía.** Sigue viendo los avisos de todos los turnos de Endoscopía. «Admisión y Egresos sin regularizar» se apaga cuando Admisión deja asentada la autorización.',
+]),
+('h2', 'Versión 3.40.0 — Leer pulsera en la app, aviso con la app cerrada y partos'),
+('ul', [
+    '**Leer pulsera dentro de la app.** Con la sesión abierta aparece **📷 Pulsera** arriba y **Leer pulsera** en Mi Sala y Anestesia. Usa la cámara dentro de la app, así en iPhone no se va a Safari. La primera vez el teléfono pide permiso para la cámara. Lo que sigue es igual que con la cámara del teléfono. Si el código no es una pulsera del hospital, lo avisa y no abre nada.',
+    '**Aviso con la app cerrada.** Cuando se abre la planilla común, los teléfonos del equipo de ese paciente reciben **Paciente en sala**, también con la app cerrada, si tienen activados los avisos. Dice quién la abrió, la sala y la hora, sin el nombre del paciente. Al tocarlo se abre la app y la planilla aparece sola.',
+    '**Partos en el panel de Obstetricia.** En ese panel, programado o de urgencia, el turno tiene el campo **Atención**: Cesárea o Parto.',
+    '**Con o sin conteo de gasas.** La cesárea sigue con sus 7 momentos, instrumentación y conteo de gasas. El parto tiene 5 momentos (Equipo, Entrada, Pausa, Salida y Recuperación), sin instrumentación y sin conteo de gasas, igual que Endoscopía. Siempre hay anestesiólogo/a: su firma es obligatoria, como en cesárea y Endoscopía.',
+    '**Nombres.** El pase del paciente dice «Mi parto», Tomar dice «parto» y el consentimiento de parto se titula **Consentimiento Informado Obstétrico**. Las estadísticas de Obstetricia cuentan cesáreas y partos juntos.',
+]),
+('h2', 'Versión 3.39.0 — Consentimiento rediseñado y paciente en sala con la pulsera'),
+('ul', [
+    '**Consentimiento rediseñado.** Membrete en banda, cada punto en su recuadro con el título centrado y número, Riesgos resaltados en ámbar, Declaración en azul y Revocación en rojo. Los sellos se ven en su lugar: **Aceptado electrónicamente** en la Declaración, **Firma electrónica** en cada firma (o **Falta la firma del médico**) y **Espacio anulado** en la Revocación; si revocó, **Consentimiento revocado**. Las funciones no cambian: firma del paciente, anulación del espacio de revocación y firma del médico.',
+    '**El área correcta.** El encabezado dice el área del turno: **Endoscopía Digestiva**, **Obstetricia y Cesáreas** o **Bloque de Quirófanos Centrales**. En Endoscopía el título es **Consentimiento Informado Endoscópico**. Los que ya se aceptaron conservan su encabezado original.',
+    '**Texto propio de Endoscopía.** El consentimiento endoscópico dice Endoscopista y estudio en lugar de Cirujano y acto quirúrgico. De los riesgos generales y los cuidados se sacó lo que corresponde a una herida quirúrgica. Lo que ya se aceptó no cambia: si se reenvía el pase de un consentimiento endoscópico sin aceptar la versión nueva, el paciente la acepta de nuevo.',
+    '**Puntos enteros y hojas parejas.** Al imprimir o bajar el PDF, la app reparte los puntos completos en la menor cantidad de hojas, con los espacios igualados. Solo se corta un punto que por sí solo no entra en una hoja.',
+    '**Hojas numeradas.** Cada hoja dice **Hoja 2 de 4** y lleva el nombre y DNI del paciente y el código del documento, para dar continuidad a todo el ejemplar y que una hoja suelta se reconozca. Si está firmado, el pie suma el comienzo del código SHA-256 de la firma, que aparece completo en la constancia final.',
+    '**El texto firmado no se toca.** Los consentimientos ya aceptados conservan su texto y su huella SHA-256; al emitirlos toman el diseño nuevo. Cambiar el diseño no le pide al paciente que acepte de nuevo: esa nueva aceptación solo se pide si cambia lo que el documento dice.',
+    '**Ingresó el paciente.** Cuando Admisión imprime la pulsera (con cama o ambulatorio), el equipo que tomó ese turno ve **🟡 Ingresó** en su tarjeta y recibe un aviso. El equipo puede tomar el turno antes o después del ingreso.',
+    '**Ingreso ambulatorio de cirugía.** En Ingresos del día, una cirugía sin cama confirmada tiene **Ambulatorio: pulsera sin cama**.',
+    '**La pulsera abre la planilla común.** El primero del equipo que lee el QR (enfermería, anestesia, instrumentación o quien opera) ve la identidad verificada y toca **Abrir para todo el equipo**, cuando el paciente está entrando. La planilla se abre sola en los teléfonos del equipo que tengan la app abierta; a los demás se les abre al entrar. El punto de identidad queda tildado. Quien lee en voz alta tilda, el equipo lo ve en vivo y cada uno confirma con su botón, con las mismas firmas de siempre.',
+    '**Casos especiales.** Si quien lee no tomó el paciente y hay lugar, toma su puesto y sigue sin volver a leer. Si falta anotarse alguien, la planilla empieza por el momento Equipo, con el botón Avisar. Sin pulsera (se rompió o es una urgencia), la pantalla de sala tiene **Abrir para todo el equipo (sin pulsera)**, con verificación de identidad a mano. Con el consentimiento revocado no se puede empezar. Si los datos cambiaron, el sello avisa y hay que reimprimir la pulsera.',
+    '**Se cierra y sigue el próximo.** Al terminar, la pantalla dice quién sigue en esa sala y si ya ingresó. Su planilla se abre al leer su pulsera.',
+    '**Manual interactivo.** El recorrido programado se llama **Cirugía y cesárea programadas**, y Endoscopía tiene el suyo: 5 momentos, sin Jefatura de Quirófanos, sin cama y sin conteo de gasas.',
+    '**Privacidad.** El QR sigue sin llevar datos y solo funciona con una cuenta del hospital. El aviso en el teléfono no lleva el nombre del paciente. La apertura queda registrada en la ficha: quién, a qué hora y cómo.',
+]),
 ('h2', 'Versión 3.38.1 — El turno siempre con la cuenta del médico; estadísticas de Endoscopía'),
 ('ul', [
     '**El médico se elige de la lista.** Todo turno se crea eligiendo al médico en el desplegable «Cirujano / especialista», con las cuentas autorizadas del padrón. Viene propuesto quien está cargando; si se elige a otro, el turno queda en la cuenta de esa persona: le aparece en Mis Solicitudes y recibe los recordatorios.',
