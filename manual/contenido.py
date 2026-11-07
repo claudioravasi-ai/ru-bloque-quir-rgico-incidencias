@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.42.2'
+VERSION = '3.42.3'
 FECHA = 'Noviembre de 2026'
 
 PORTADA = {
@@ -559,6 +559,14 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.42'),
+('h2', 'Versión 3.42.3 — Botones que dicen qué falta y repaso completo como persona'),
+('ul', [
+    '**Un botón que todavía no sirve se ve apagado y dice qué falta.** Vale para «Programar turno» (por ejemplo «🔒 Falta: paciente, diagnóstico»; si igual se toca, lleva al paso que falta), «Generar el pase» (correo, DNI y la casilla de que el paciente aceptó), «Mandarme el código» e «Ingresar» en el pase del paciente (su DNI y las 8 letras y números del código), «Aceptar el consentimiento» (leerlo hasta el final y tildar la casilla), el dictamen de Admisión (elegir AUTORIZADO o NO AUTORIZADO, el motivo si es rechazo y el agente), «Guardar cama» (sector, habitación, cama y agente) y «Validar y confirmar en el parte» de la Jefatura (dice qué verificación falta y se prende en el acto al tildarla). Antes se veían prendidos y frenaban con un cartel.',
+    '**Admisión ve el motivo en la tarjeta.** En Ingresos, si el turno todavía no puede pasar por Admisión, el botón dice qué falta (apto anestésico, estudios, consentimiento). Si el paciente revocó su consentimiento desde el pase, lo dice así, en lugar de pedirle al cirujano que lo complete.',
+    '**Un solo botón para bajar el consentimiento firmado** en la ficha (estaba repetido abajo).',
+    '**«Cierre de solicitudes»** ya no les aparece a Enfermería, Instrumentación ni Anestesiología: es solo para quien programa (médicos, Jefatura y Dirección).',
+    '**Textos:** «Falta 1 día hábil» (antes «Faltan 1»), y el saludo del pase deja en minúscula «de», «del» y «la» del apellido (por ejemplo «Ana María Pérez de Prueba»).',
+]),
 ('h2', 'Versión 3.42.2 — El Jefe/a de Endoscopía cierra los turnos sin resolver'),
 ('ul', [
     '**Error corregido.** En una endoscopía «Sin resolver», el Jefe/a de Endoscopía podía tocar el botón verde de «Se realizó» pero no se guardaba nada: el botón solo respondía a la sesión de la Jefatura de Quirófanos. Ahora el Jefe/a de Endoscopía la cierra con las tres opciones: **Se realizó** (queda Finalizada, con su nombre y su contraseña), **No se realizó** (Suspendida con su causa, o Caducada si nunca se confirmó) o **Se realizó antes**.',

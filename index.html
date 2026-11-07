@@ -265,6 +265,7 @@
      un texto: estirado lo aplastaba contra el margen. */
   .btn-sm.btn-teal { width: auto; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn.tm-pie-apagado { opacity: .55; filter: saturate(.3); white-space: normal; line-height: 1.25; }
 
   /* ============ CARDS ============ */
   .card {
@@ -1671,7 +1672,7 @@
   .guia-btn {
     margin-left: auto; flex: none; border: 1px solid var(--line); background: transparent;
     border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 0.76rem; font-weight: 700;
-    color: var(--muted); cursor: pointer; white-space: nowrap;
+    color: var(--muted); cursor: pointer; white-space: nowrap; min-height: 32px;
   }
   .guia-btn:hover { border-color: #cbd5e1; color: #334155; }
   .guia-car { font-size: 0.7rem; }
@@ -3851,6 +3852,7 @@
     color: #fff; cursor: pointer; background: linear-gradient(120deg, #6366f1, #a855f7 55%, #ec4899); background-size: 200% 100%; animation: auFluye 6s ease-in-out infinite;
     box-shadow: 0 10px 22px -10px #7c3aed; transition: transform .2s, filter .2s; }
   .au-ir:hover { transform: translateY(-2px); filter: brightness(1.06); }
+  .au-ir.au-apagado, .au-ir:disabled { opacity: .5; filter: saturate(.25); cursor: not-allowed; transform: none; animation: none; font-size: .86rem; }
   .au-ir.ok { background: linear-gradient(120deg, #059669, #10b981); animation: none; }
   .au-ir.no { background: linear-gradient(120deg, #be123c, #f43f5e); animation: none; }
   @media (max-width: 520px) { .au-ficha { grid-template-columns: 1fr 1fr; } .au-ops { grid-template-columns: 1fr; } .au-op { flex-direction: row; align-items: center; } .au-op > span { flex: 1; }
@@ -3881,7 +3883,7 @@
   .fl { --fl-card: var(--card, #fff); --fl-ink: var(--ink, #111827); --fl-mut: var(--muted, #6b7280); --fl-line: var(--line, #e5e7eb); }
   .fl-hero { position: relative; overflow: hidden; border-radius: 24px; padding: 20px 22px; color: #fff; margin-bottom: 16px;
     background: linear-gradient(120deg, #0f172a, #312e81 35%, #7c3aed 65%, #db2777); background-size: 220% 220%; animation: flFluye 12s ease-in-out infinite; }
-  .fl-hero::after { content: ""; position: absolute; width: 260px; height: 260px; right: -80px; top: -120px; border-radius: 50%;
+  .fl-hero::after { content: ""; position: absolute; width: 260px; height: 260px; right: -80px; top: -120px; border-radius: 50%; pointer-events: none; z-index: 0; /* 07-11: el adorno no tapa los números */
     background: radial-gradient(circle, rgba(255,255,255,.22), transparent 65%); animation: flFlota 8s ease-in-out infinite; }
   @keyframes flFluye { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
   @keyframes flFlota { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-30px,20px); } }
@@ -5191,6 +5193,7 @@
   .ing-cama { display: inline-grid; gap: 1px; border-radius: 10px; padding: 5px 9px; font-size: .78rem; font-weight: 800; color: #fff; background: var(--c); box-shadow: 0 6px 14px -8px var(--c); }
   .ing-cama small { font-weight: 600; opacity: .9; font-size: .66rem; } .ing-cama.no { color: #b91c1c; background: #fee2e2; box-shadow: none; }
   .ing-a { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
+  .ing-a .ing-apagado, .btn.ing-apagado { opacity: .55; filter: saturate(.3); white-space: normal; text-align: left; max-width: 260px; }
   /* 3.33 · Endoscopía ambulatoria: fila propia con la ruta del paciente (sin cama). */
   .tm-pie-otro { border-color: #5eead4 !important; color: #0f766e !important; }
   .pase-envio.ok { border: 1px solid #86efac; background: #f0fdf4; color: #14532d; align-items: flex-start; }
@@ -5685,7 +5688,7 @@
   .pv-urg-ley { font-style: normal; font-size: .8rem; animation: pvUrgTit 1.6s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce) { .pv-b.urg, .pv-urg-ley { animation: none; } }
   .pv-rango { display: inline-flex; margin-top: 6px; padding: 2px; border-radius: 999px; background: var(--sup2, #f1f5f9); border: 1px solid var(--line); }
-  .pv-rango button { white-space: nowrap; border: 0; background: none; padding: 3px 9px; border-radius: 999px; font: 700 .66rem/1.2 inherit; font-family: inherit; color: var(--muted); cursor: pointer; }
+  .pv-rango button { white-space: nowrap; border: 0; background: none; padding: 3px 9px; min-height: 30px; min-width: 44px; border-radius: 999px; font: 700 .66rem/1.2 inherit; font-family: inherit; color: var(--muted); cursor: pointer; }
   .pv-rango button.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
   .pv-b { position: absolute; top: 4px; bottom: 4px; min-width: 18px; border: 0; border-radius: 8px; padding: 0 7px; overflow: hidden; cursor: pointer; font: inherit; text-align: left;
     color: #fff; background: linear-gradient(120deg, var(--c), color-mix(in srgb, var(--c) 70%, #000)); box-shadow: 0 4px 10px -4px var(--c);
@@ -5801,7 +5804,7 @@
   .rc2-n { width: 36px; height: 36px; flex: none; border-radius: 12px; display: grid; place-items: center; font-weight: 900; color: #fff; background: linear-gradient(135deg, #7c3aed, #db2777); box-shadow: 0 6px 14px -6px #db2777; }
   .rc2-paso { font-size: .7rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #db2777; margin: 12px 0 8px; }
   .rc2-busca { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 12px; border: 1.5px solid color-mix(in srgb, #db2777 30%, var(--line)); color: var(--muted); }
-  .rc2-busca input { flex: 1; border: 0 !important; background: none !important; outline: none; font: inherit; color: var(--ink); box-shadow: none !important; }
+  .rc2-busca input { flex: 1; align-self: stretch; min-height: 36px; border: 0 !important; background: none !important; outline: none; font: inherit; color: var(--ink); box-shadow: none !important; }
   .rc2-colegas { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; margin-top: 10px; max-height: 330px; overflow: auto; padding: 4px; }
   .rc2-col { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--sup2, #f8fafc);
     font: inherit; color: var(--ink); cursor: pointer; text-align: center; transition: transform .25s cubic-bezier(.3,1.4,.5,1), border-color .2s, box-shadow .2s; animation: mhFicha .4s calc(var(--i) * .03s) both; }
@@ -10057,7 +10060,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.42.2';
+const APP_VERSION = '3.42.3';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11174,8 +11177,14 @@ function requisitosAdmision(c) {
   if (!c.coordinacion?.anestesia) f.push('Evaluación pre-anestésica aprobada (apto anestésico)');
   if (!c.hce?.preop) f.push('Estudios preoperatorios completos y verificados en la HCE');
   if (!consentimientoDeTurno(c)) f.push('Consentimiento informado generado y guardado en el historial del cirujano');
+  else if (c.ciRevocado) f.push('El paciente revocó su consentimiento: tiene que volver a aceptarlo');
   else if (!c.hce?.consentimiento) f.push('Consentimiento informado firmado y registrado en la HCE');
   return f;
+}
+/* 07-11 · Versión corta de cada requisito, para el botón apagado de Admisión. */
+function reqCorto(t) {
+  return /revocó/.test(t) ? 'el paciente revocó el consentimiento' : /pre-anest/i.test(t) ? 'apto anestésico' : /preoperatorios/i.test(t) ? 'estudios preoperatorios'
+    : /generado/.test(t) ? 'consentimiento sin generar' : /consentimiento/i.test(t) ? 'consentimiento en la HCE' : t;
 }
 
 /* ================= CIERRE DEL CASO =================
@@ -11969,7 +11978,8 @@ function calcRecordatorios() {
   }
   const proxHabil = diasQueCierran[diasQueCierran.length - 1];
   const parteDe = proxHabil ? `${DIAS_S[new Date(proxHabil + 'T12:00:00').getDay()].toLowerCase()} ${fmtFecha(proxHabil)}` : '';
-  if (proxHabil && ahora < cierreHoy) {
+  /* 07-11 · Solo a quien programa (médicos, Jefatura, Dirección): al equipo de sala y a Anestesiología no les sirve. */
+  if (proxHabil && ahora < cierreHoy && (jefe || director || programaCirugias(usuarioActual()))) {
     const falta = cierreHoy - ahora;
     add({
       key: 'ciclo-cierre', nivel: falta <= 2 * 36e5 ? 'warn' : 'info', vista: 'solicitud',
@@ -12163,7 +12173,7 @@ function calcRecordatorios() {
       key: `feriado-${c.id}-${c.fecha}`, nivel: 'crit', notif: true, vista: jefe ? 'programacion' : 'mis', cirugia: c.id,
       titulo: `Turno en día feriado — ${c.paciente?.nombre || 's/d'}`,
       texto: `${c.procedimiento} (${c.quirofano || 's/d'}, ${fmtDiaLargo(c.fecha)}, ${c.horaProg || '—'} h). Ese día es feriado: ${feriadoDeTurno(c)}. Decida si lo pasa a otro día y avísele al paciente.`,
-      cuando: `Faltan ${Math.max(0, diasEntre(hoy, c.fecha))} día(s)`,
+      cuando: ((n) => `Falta${n === 1 ? '' : 'n'} ${n} día${n === 1 ? '' : 's'}`)(Math.max(0, diasEntre(hoy, c.fecha))),
     });
   });
 
@@ -19161,7 +19171,7 @@ function cirCard(c, rol) {
     </div>`;
 }
 
-function accionesCirugia(c, rol) {
+function accionesCirugia(c, rol, enFicha) {
   const jefe = jefeDe(c);   // 3.35 · en Endoscopía, «jefe» es el Jefe/a de Endoscopía
   const u = usuarioActual();
   const esDueno = u && c.cirujanoEmail === u.email;
@@ -19185,10 +19195,15 @@ function accionesCirugia(c, rol) {
   // Admisión y Egresos no acepte, lo único que se ofrece es su trámite; recién
   // con la aceptación aparece la validación de la Jefatura.
   if (c.estado === 'pendiente' && jefe && !vencido && !rcActivo(c)) {
-    a.push(`<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${!c.auth ? '1º Aceptación de Admisión y Egresos' : authBotonTexto(c)}</button>`);
+    const fAdm = !c.auth && !authExenta(c) ? requisitosAdmision(c) : [];
+    a.push(fAdm.length ? `<button class="btn btn-sm btn-outline ing-apagado" disabled title="${esc(fAdm.join(' · '))}">🔒 Admisión: falta ${esc(fAdm.map(reqCorto).join(', '))}</button>`
+      : `<button class="btn btn-sm btn-outline" onclick="pedirAutorizacion(${c.id})">${ICONS.shield.replace('18', '14')} ${!c.auth ? '1º Aceptación de Admisión y Egresos' : authBotonTexto(c)}</button>`);
   }
   if (c.estado === 'pendiente' && jefe && authOk(c) && !vencido && !rcActivo(c) && !sinJefatura(c)) {
-    a.push(`<button class="btn btn-sm btn-green" onclick="validarCirugia(${c.id}, this)">${ICONS.check} Validar y confirmar en el parte</button>`);
+    /* 07-11 · Apagado y con lo que falta verificar, en lugar de un cartel al tocarlo. */
+    const fVal = coordFaltantes(c);
+    a.push(fVal.length ? `<button class="btn btn-sm btn-green ing-apagado" disabled title="${esc(fVal.join(' · '))}">🔒 Para validar falta: ${esc(fVal.map((t) => t.split(':')[0].toLowerCase()).join(', '))}</button>`
+      : `<button class="btn btn-sm btn-green" onclick="validarCirugia(${c.id}, this)">${ICONS.check} Validar y confirmar en el parte</button>`);
   }
   // Turnos de la versión anterior, que quedaron detenidos en «Validada».
   if (c.estado === 'validada' && jefe && !vencido && !rcActivo(c) && !sinJefatura(c)) {
@@ -19229,7 +19244,8 @@ function accionesCirugia(c, rol) {
   if (puedeEliminarPropio(c) && c.estado !== 'borrador') {
     a.push(`<button class="btn btn-sm btn-outline" style="border-color:#fca5a5;color:#b91c1c" onclick="turnoQueHacer(${c.id})">${ICONS.trash} Eliminar o pasar a otro día</button>`);
   }
-  if (puedeBajarCiFirmado(c)) {
+  /* 07-11 · En la ficha ya está junto al consentimiento: no se repite abajo. */
+  if (puedeBajarCiFirmado(c) && !enFicha) {
     a.push(`<button class="btn btn-sm btn-green" onclick="ciFirmadoDescargar(${c.id})">${ico(ICONS.download, 14)} ${esc(ciFirmadoRotulo(c))}</button>`);
   }
   if (c.estado === 'caducada' && c.reprogramadaEn) {
@@ -19737,11 +19753,25 @@ function openCama(id) {
     <label class="rc-lbl">Agente que lo registra *<input id="rc-agente" value="${esc(k.por || '')}" placeholder="Apellido y nombre"></label>
     <p class="pass-error" id="rc-err"></p>
     <div class="rc-acc">
-      <button class="btn btn-blue" onclick="guardarCama()">${ico(ICONS.check, 16)} Guardar cama</button>
+      <button class="btn btn-blue" id="rc-guardar" onclick="guardarCama()">${ico(ICONS.check, 16)} Guardar cama</button>
       <button class="btn btn-red" onclick="sinCama()">🛏✕ No hay cama: suspender y reprogramar</button>
     </div>
     <p class="rc-nota">«No hay cama» suspende el turno y la app busca sola el primer turno libre, con prioridad sobre todo lo programado. Después lo aprueban el cirujano, Admisión y la Jefatura, y por último el paciente.</p>`;
   $('rc-overlay').classList.add('open');
+  /* 07-11 · «Guardar cama» apagado y diciendo qué falta hasta tener sector, habitación, cama y agente. */
+  const m = rcModal(); const v = () => setTimeout(camaValidar, 0);
+  m.oninput = v; m.onchange = v; m.onclick = v;
+  camaValidar();
+}
+function camaValidar() {
+  const b = $('rc-guardar'); if (!b) return;
+  const f = [];
+  if (!document.querySelector('input[name="rc-s"]:checked')) f.push('sector');
+  if (!(($('rc-hab') || {}).value || '').trim()) f.push('habitación');
+  if (!(($('rc-cama') || {}).value || '').trim()) f.push('cama');
+  if ((($('rc-agente') || {}).value || '').trim().length < 3) f.push('agente que lo registra');
+  b.disabled = f.length > 0; b.classList.toggle('ing-apagado', f.length > 0);
+  b.innerHTML = f.length ? '🔒 Falta: ' + esc(f.join(', ')) : `${ico(ICONS.check, 16)} Guardar cama`;
 }
 function rcErr(t) { const e = $('rc-err'); if (e) { e.textContent = t; e.style.display = 'block'; } }
 async function guardarCama() {
@@ -20852,7 +20882,9 @@ function renderIngresos() {
       <div class="ing-c">${k ? `<span class="ing-cama" style="--c:${S.c}">🛏 ${esc(S.corto)} · Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}<small>Int. ${S.int}</small></span>` : esEndo(c) ? enRutaHTML(c) : c.pulsera ? '<span class="ing-cama">🚶 Ambulatorio · pulsera ✓</span>' : '<span class="ing-cama no">🛏 Sin cama</span>'}</div>
       <div class="ing-a">
         ${rc ? `<button class="btn btn-sm btn-red" onclick="openCirugia(${c.id})">Reprogramación: dar el OK</button>`
-          : c.estado === 'pendiente' && !aut ? `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ Autorizar</button>`
+          : c.estado === 'pendiente' && !aut ? ((f) => f.length
+            ? `<button class="btn btn-sm btn-blue ing-apagado" disabled title="${esc(f.join(' · '))}">🔒 Falta: ${esc(f.map(reqCorto).join(', '))}</button>`
+            : `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ Autorizar</button>`)(!authExenta(c) && !operada(c) ? requisitosAdmision(c) : [])
           : authPendienteDiferida(c) ? `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ Regularizar</button>` : ''}
         ${camaPuedeCargarse(c) ? `<button class="btn btn-sm ${k ? 'btn-outline' : 'btn-green'}" onclick="pedirCama(${c.id})">🛏 ${k ? 'Cambiar cama' : 'Anotar cama'}</button>` : ''}
         ${k ? `<button class="btn btn-sm btn-outline" onclick="reimprimirPulsera(${c.id})">🏷️ Pulsera</button>` : ''}
@@ -21169,7 +21201,7 @@ function autRecordatorios(add) {
     const e = autEscalon(c), mio = u && c.cirujanoEmail === u.email, quedan = diasHabilesHasta(c.fecha);
     const cx = `${c.procedimiento} — ${c.paciente?.nombre || 's/d'} · ${fmtFecha(c.fecha)} ${c.horaProg || ''} h · ${c.quirofano || ''}`;
     const jf = jefeDe(c), b = autBajaTxt(c), tn = turnoNombre(c);
-    const cuando = `Faltan ${quedan} día${quedan === 1 ? '' : 's'} hábil${quedan === 1 ? '' : 'es'}`;
+    const cuando = `Falta${quedan === 1 ? '' : 'n'} ${quedan} día${quedan === 1 ? '' : 's'} hábil${quedan === 1 ? '' : 'es'}`;
     if (mio && !jf) add(e < 3
       ? { key: `aut-${e}-${c.id}`, nivel: e === 2 ? 'crit' : 'warn', notif: true, vista: 'mis', cirugia: c.id,
           titulo: e === 2 ? `Faltan 3 días hábiles y su ${tn} sigue sin autorizar` : `Su ${tn} todavía no está autorizad${esParto(c) ? 'o' : 'a'}`,
@@ -22596,7 +22628,7 @@ function openCirugia(id) {
       </details>` : ''}
     </div>
 
-    <div class="cir-actions fx-acc">${accionesCirugia(c, jefe ? 'jefe' : 'cirujano').join('') || '<span class="fx-txt">Sin acciones disponibles para su perfil en este estado.</span>'}</div>`;
+    <div class="cir-actions fx-acc">${accionesCirugia(c, jefe ? 'jefe' : 'cirujano', true).join('') || '<span class="fx-txt">Sin acciones disponibles para su perfil en este estado.</span>'}</div>`;
   $('cir-overlay').classList.add('open');
   $('cir-modal').scrollTop = 0;
 }
@@ -22714,6 +22746,9 @@ function setCoord(id, k, val) {
   c.coordinacion[k] = val;
   pushHist(c, (val ? 'Verificado: ' : 'Desmarcado: ') + (COORD_ITEMS.find((i) => i.k === k)?.label || k));
   upsert('cirugias', c);
+  /* 07-11 · Los botones de la ficha (Validar) se enteran en el acto de lo que se tildó. */
+  const acc = document.querySelector('#cir-overlay.open .fx-acc');
+  if (acc) acc.innerHTML = accionesCirugia(c, jefe ? 'jefe' : 'cirujano', true).join('') || '<span class="fx-txt">Sin acciones disponibles para su perfil en este estado.</span>';
 }
 /* ---- Anatomía Patológica ---- */
 function agregarMuestra(id) {
@@ -27756,7 +27791,8 @@ function tmPasosDe(c, u) {
   const admHecha = c.auth === 'AUTORIZADO';
   const admFalta = !c.auth && (ci || authExenta(c));
   add(admHecha ? 'hecho' : c.auth === 'NO AUTORIZADO' ? 'frenado' : admFalta ? 'falta' : 'neutro', ico(ICONS.shield, 18), 'Admisión y Egresos',
-    admHecha ? 'Aceptado · modificar el dictamen' : c.auth === 'NO AUTORIZADO' ? 'No autorizado · rectificar' : authBotonTexto(c), `pedirAutorizacion(${c.id})`);
+    admHecha ? 'Aceptado · modificar el dictamen' : c.auth === 'NO AUTORIZADO' ? 'No autorizado · rectificar'
+      : ((f) => f.length ? '🔒 Falta: ' + f.map(reqCorto).join(', ') : authBotonTexto(c))(!c.auth && !authExenta(c) && !operada(c) ? requisitosAdmision(c) : []), `pedirAutorizacion(${c.id})`);
   add(ayudanteDefinido(c) ? 'hecho' : 'falta', ico(ICONS.users, 18), 'Equipo y módulos',
     ayudanteDefinido(c) ? (tieneAyudante(c) ? `Ayudante: ${esc((ayudanteDe(c) || {}).nombre || '')}` : 'Sin ayudante') : 'Falta decir si lo hace con ayudante', `openEquipoMod(${c.id})`);
   // La ficha completa es donde se hace la LVQ, la coordinación y el informe:
@@ -27815,6 +27851,15 @@ function tmProgreso() {
     <div class="tm-prog-barra"><i style="width:${pct}%"></i></div>
     ${ok < req.length ? `<div class="tm-prog-faltan">Falta: ${req.filter((r) => !r[1]).map((r) => `<span>${r[0]}</span>`).join('')}</div>` : ''}`;
   box.classList.toggle('tm-prog-ok', ok === req.length);
+  /* 07-11 · El botón de programar se ve apagado y dice qué falta (regla de Claudio:
+     un botón que todavía no sirve no puede verse prendido). Tocarlo igual lleva al paso. */
+  const pie = document.querySelector('#slot-modal .tm-pie-main');
+  if (pie && $('tm') && $('tm').classList.contains('tmw-nuevo')) {
+    const faltan = req.filter((r) => !r[1]).map((r) => r[0].toLowerCase());
+    pie.classList.toggle('tm-pie-apagado', faltan.length > 0);
+    pie.setAttribute('aria-disabled', faltan.length ? 'true' : 'false');
+    pie.innerHTML = faltan.length ? `🔒 Falta: ${esc(faltan.join(', '))}` : `${ICONS.check.replace('14', '16')} Programar turno`;
+  }
   tmwPintar();
 }
 function tmEnlazar() {
@@ -28571,7 +28616,7 @@ function pedirAutorizacion(id) {
     const falta = requisitosAdmision(c);
     if (falta.length) {
       alert('El turno todavía no está en condiciones de pasar por Admisión y Egresos.\n\nFalta:\n\n· ' + falta.join('\n· ')
-        + '\n\nEl cirujano debe completarlo desde el propio turno antes de que Admisión dictamine.');
+        + (c.ciRevocado ? '\n\nEl cirujano tiene que hablar con el paciente: el turno no avanza hasta que lo vuelva a aceptar.' : '\n\nEl cirujano debe completarlo desde el propio turno antes de que Admisión dictamine.'));
       return;
     }
   }
@@ -28642,11 +28687,11 @@ function openAuth(id) {
       <div id="auth-motivo-wrap" class="au-motivo" style="display:${prev ? 'block' : 'none'}">
         <p class="au-t" style="color:#be123c">Motivo del rechazo *</p>
         <div class="au-chips">${MOTIVOS_NO_AUT.map((m) => `<button type="button" class="au-chip${c.authMotivo === m ? ' on' : ''}" onclick="onAuthMotivoChip(this)">${esc(m)}</button>`).join('')}</div>
-        <textarea id="auth-motivo" rows="3" placeholder="Toque un motivo frecuente o escriba otro. El cirujano verá este texto.">${esc(c.authMotivo || '')}</textarea>
+        <textarea id="auth-motivo" rows="3" oninput="authValidar()" placeholder="Toque un motivo frecuente o escriba otro. El cirujano verá este texto.">${esc(c.authMotivo || '')}</textarea>
         <span class="au-hint">Queda visible para el cirujano, la Jefatura y en el parte quirúrgico.</span>
       </div>
       <p class="au-t">Agente que dictamina *</p>
-      <input type="text" id="auth-agente" placeholder="Apellido y nombre del administrativo" value="${esc(c.authAgente || '')}">
+      <input type="text" id="auth-agente" placeholder="Apellido y nombre del administrativo" value="${esc(c.authAgente || '')}" oninput="authValidar()">
       <span class="au-hint">Queda asentado en el historial del turno con la fecha y la hora.</span>
       <p class="pass-error" id="auth-err" style="margin:10px 0 0"></p>
       <div class="au-acc">
@@ -28655,6 +28700,21 @@ function openAuth(id) {
       </div>
     </div>`;
   $('auth-overlay').classList.add('open');
+  authValidar();
+}
+/* 07-11 · «Registrar» queda apagado y dice qué falta: el dictamen, el motivo del rechazo y el agente. */
+function authFaltan() {
+  const v = authOpcion(), f = [];
+  if (v !== '1' && v !== '2') f.push('elegir el dictamen');
+  if (v === '2' && ((($('auth-motivo') || {}).value || '').trim()).length < 5) f.push('el motivo del rechazo');
+  if (((($('auth-agente') || {}).value || '').trim()).length < 3) f.push('el agente que dictamina');
+  return f;
+}
+function authValidar() {
+  const ir = $('auth-ir'); if (!ir) return;
+  const f = authFaltan(), v = authOpcion();
+  ir.disabled = f.length > 0; ir.classList.toggle('au-apagado', f.length > 0);
+  const t = ir.querySelector('span'); if (t) t.textContent = f.length ? 'Falta: ' + f.join(', ') : v === '1' ? 'Registrar: AUTORIZADO' : 'Registrar: NO AUTORIZADO';
 }
 function closeAuth() { $('auth-overlay').classList.remove('open'); authCtx = null; }
 function authOpcion() {
@@ -28672,6 +28732,7 @@ function onAuthOpcion() {
     ir.classList.toggle('no', v === '2');
     ir.querySelector('span').textContent = v === '1' ? 'Registrar: AUTORIZADO' : v === '2' ? 'Registrar: NO AUTORIZADO' : 'Registrar dictamen';
   }
+  authValidar();
   const err = $('auth-err');
   if (err) err.style.display = 'none';
 }
@@ -28680,6 +28741,7 @@ function onAuthMotivoChip(b) {
   const t = $('auth-motivo');
   document.querySelectorAll('#auth-modal .au-chip').forEach((x) => x.classList.toggle('on', x === b));
   if (t) { t.value = b.textContent; t.focus(); }
+  authValidar();
 }
 function guardarAuth() {
   const c = DB.cirugias.find((x) => x.id === authCtx);
@@ -33171,6 +33233,7 @@ body.portal-pac .pp-input::placeholder{color:#9ca3af;-webkit-text-fill-color:#9c
 .pp-btn{width:100%;margin-top:12px;border:0;border-radius:14px;padding:14px;font:inherit;font-size:1rem;font-weight:800;color:#fff;cursor:pointer;
   background:linear-gradient(120deg,#7c3aed,#db2777 60%,#f97316);box-shadow:0 8px 20px rgba(219,39,119,.3)}
 .pp-btn:disabled{opacity:.6;cursor:wait}
+.pp-btn.pp-apagado{opacity:.5;cursor:not-allowed;filter:saturate(.25);font-size:.92rem}
 .pp-link{display:block;margin:4px auto 0;min-height:44px;padding:10px 16px;background:none;border:0;color:#7c3aed;font:inherit;font-weight:700;font-size:.86rem;cursor:pointer}
 .pp-link:disabled{color:#a1a1aa;cursor:default}
 .pp-error{background:#fee2e2;color:#991b1b;border-radius:12px;padding:10px 12px;font-size:.86rem;margin-bottom:12px}
@@ -33307,7 +33370,8 @@ function primerNombre(n) {
 function nombreSaludo(n) {
   const t = String(n || '').trim(); if (!t) return '';
   const orden = t.includes(',') ? t.split(',').slice(1).join(' ') + ' ' + t.split(',')[0] : t;
-  return orden.trim().split(/\s+/).map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+  /* 07-11 · «de», «del», «la», «y» en medio del apellido quedan en minúscula (Pérez de Prueba). */
+  return orden.trim().split(/\s+/).map((p, i) => (i && /^(de|del|la|las|los|y|da|do|dos|van|von)$/i.test(p)) ? p.toLowerCase() : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
 }
 function enmascararMail(m) {
   const [u, d] = String(m || '').split('@');
@@ -34253,19 +34317,36 @@ function paseFormulario(c, recien) {
     </div>
     <div class="pase-form">
       <div class="field"><label>Correo del paciente *</label>
-        <input type="email" id="pase-mail" value="${esc((c.paciente && c.paciente.email) || '')}" placeholder="nombre@correo.com" autocomplete="off">
+        <input type="email" id="pase-mail" value="${esc((c.paciente && c.paciente.email) || '')}" placeholder="nombre@correo.com" autocomplete="off" oninput="paseValidar()">
         <span class="hint">Al generarlo, el pase le llega solo a este correo. Cada vez que entre, le llega ahí un código de un solo uso.</span></div>
       <div class="field"><label>DNI del paciente *</label>
-        <input type="text" id="pase-dni" inputmode="numeric" value="${esc((c.paciente && c.paciente.dni) || '')}">
+        <input type="text" id="pase-dni" inputmode="numeric" value="${esc((c.paciente && c.paciente.dni) || '')}" oninput="paseValidar()">
         <span class="hint">Con su DNI pide el código. No viaja en el QR.</span></div>
-      <label class="check-row pase-ok"><input type="checkbox" id="pase-acepta">
+      <label class="check-row pase-ok"><input type="checkbox" id="pase-acepta" onchange="paseValidar()">
         <span>Le expliqué al paciente para qué es el pase y aceptó recibir los códigos en ese correo. Ve solo su cirugía, sin diagnóstico, y el pase caduca solo cuando se cierra la cirugía.</span></label>
     </div>
     <div class="pase-acc">
-      <button class="btn pase-btn-main" onclick="confirmarPase(this)">${ico(ICONS.qr, 16)} Generar el pase</button>
+      <button class="btn pase-btn-main" id="pase-generar" onclick="confirmarPase(this)" disabled>🔒 Falta: ${esc(paseFaltan(c).join(', '))}</button>
       <button class="btn btn-outline" onclick="closePase()">Ahora no</button>
     </div>
     <p class="form-note" style="text-align:center;margin-top:10px">Lo puede generar después desde el turno: <b>Lo que sigue › Generar el pase del paciente</b>.</p>`;
+}
+/* 07-11 · «Generar el pase» queda apagado y dice qué falta hasta tener correo, DNI y la conformidad
+   (regla de Claudio: el aviso del navegador no cuenta como freno). */
+function paseFaltan(c) {
+  const v = (id, def) => { const e = $(id); return e ? String(e.value || '').trim() : def; };
+  const mail = v('pase-mail', (c && c.paciente && c.paciente.email) || ''), dni = v('pase-dni', (c && c.paciente && c.paciente.dni) || '');
+  const f = [];
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail.toLowerCase())) f.push(mail ? 'un correo válido' : 'correo');
+  if (soloDigitos(dni).length < 6) f.push('DNI');
+  if (!($('pase-acepta') || {}).checked) f.push('marcar que el paciente aceptó');
+  return f;
+}
+function paseValidar() {
+  const b = $('pase-generar'); if (!b || b.dataset.enviando) return;
+  const f = paseFaltan(DB.cirugias.find((x) => x.id === paseId));
+  b.disabled = f.length > 0;
+  b.innerHTML = f.length ? `🔒 Falta: ${esc(f.join(', '))}` : `${ico(ICONS.qr, 16)} Generar el pase`;
 }
 async function confirmarPase(btn) {
   const c = DB.cirugias.find((x) => x.id === paseId);
@@ -34275,7 +34356,7 @@ async function confirmarPase(btn) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) { alert('Escriba un correo válido del paciente: ahí le llega el código de cada ingreso.'); $('pase-mail').focus(); return; }
   if (soloDigitos(dni).length < 6) { alert('Escriba el DNI del paciente: es lo que le pide el portal antes de mandarle el código.'); $('pase-dni').focus(); return; }
   if (!$('pase-acepta').checked) { alert('Confirme que el paciente fue informado y aceptó recibir los códigos en su correo.'); return; }
-  btn.disabled = true;
+  btn.disabled = true; btn.dataset.enviando = '1';
   await generarPase(c, mail, dni);
   openPase(c.id);
   // 3.20: el pase le llega solo al paciente, sin abrir el correo de nadie.
@@ -34625,14 +34706,14 @@ function renderPortal() {
         ${codigo ? `
           <label class="pp-lbl" for="pp-cod">Código del correo</label>
           <input class="pp-input pp-cod" id="pp-cod" maxlength="8" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false"
-            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" onkeydown="if(event.key==='Enter')portalValidar()">
-          <button class="pp-btn" id="pp-go" onclick="portalValidar()">Ingresar</button>
+            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');ppBotonListo()" onkeydown="if(event.key==='Enter')portalValidar()">
+          <button class="pp-btn pp-apagado" id="pp-go" onclick="portalValidar()" disabled>${ppFaltaTxt('cod', '')}</button>
           <button class="pp-link" id="pp-reenv" onclick="portalPedirCodigo(true)" ${portal.reenviarEn > Date.now() ? 'disabled' : ''}>Mandarme otro código</button>`
         : `
           <label class="pp-lbl" for="pp-dni">Tu DNI</label>
           <input class="pp-input" id="pp-dni" inputmode="numeric" autocomplete="off" placeholder="Sin puntos" value="${esc(portal.dniTxt)}"
-            oninput="portal.dniTxt=this.value" onkeydown="if(event.key==='Enter')portalPedirCodigo()">
-          <button class="pp-btn" id="pp-go" onclick="portalPedirCodigo()">Mandarme el código</button>`}
+            oninput="portal.dniTxt=this.value;ppBotonListo()" onkeydown="if(event.key==='Enter')portalPedirCodigo()">
+          <button class="pp-btn${ppFaltaTxt('dni', portal.dniTxt) ? ' pp-apagado' : ''}" id="pp-go" onclick="portalPedirCodigo()" ${ppFaltaTxt('dni', portal.dniTxt) ? 'disabled' : ''}>${ppFaltaTxt('dni', portal.dniTxt) || 'Mandarme el código'}</button>`}
       </section>`);
     setTimeout(() => { const i = $(codigo ? 'pp-cod' : 'pp-dni'); if (i) i.focus(); }, 50);
     return;
@@ -34744,6 +34825,18 @@ const PORTAL_ERRORES = {
   sinPase: 'Tu pase todavía no está listo en el sistema del hospital. Probá de nuevo en unos minutos o consultá a tu cirujano/a.',
 };
 function portalOcupado(si) { const b = $('pp-go'); if (b) { b.disabled = si; b.classList.toggle('pp-cargando', si); } }
+/* 07-11 · El botón del ingreso del paciente queda apagado y dice qué falta (DNI o las 8 del código). */
+function ppFaltaTxt(k, v) {
+  if (k === 'dni') { const n = soloDigitos(v || '').length; return n >= 6 ? '' : n ? '🔒 Falta: el DNI completo' : '🔒 Falta: tu DNI'; }
+  const n = String(v || '').length; return n === 8 ? '' : `🔒 Faltan ${8 - n} de las 8 letras y números del código`;
+}
+function ppBotonListo() {
+  const b = $('pp-go'); if (!b || b.classList.contains('pp-cargando')) return;
+  const cod = $('pp-cod'), k = cod ? 'cod' : 'dni', v = ((cod || $('pp-dni')) || {}).value || '';
+  const f = ppFaltaTxt(k, v);
+  b.disabled = !!f; b.classList.toggle('pp-apagado', !!f);
+  b.textContent = f || (k === 'cod' ? 'Ingresar' : 'Mandarme el código');
+}
 
 async function portalPedirCodigo(reenvio) {
   portal.error = ''; portal.det = '';
@@ -34870,10 +34963,10 @@ function ppCiHTML() {
     ${portal.ciAbierto ? `<p class="pp-ci-ayuda">⬇ Leelo completo: al final está la casilla para aceptarlo.</p>
       <iframe class="pp-ci-doc" id="pp-ci-doc" sandbox="allow-same-origin" scrolling="no" title="Consentimiento informado" srcdoc="${esc(ci.html)}" onload="ppCiMirar(this)"></iframe>
       <p class="pp-ci-ayuda" id="pp-ci-ayuda">${portal.ciLeido ? '✓ Llegaste al final del texto.' : '⬇ Seguí bajando hasta el final del texto.'}</p>
-      <label class="pp-ci-tilde ${portal.ciLeido ? '' : 'off'}" id="pp-ci-lbl"><input type="checkbox" id="pp-ci-chk" ${portal.ciTilde ? 'checked' : ''} ${portal.ciLeido ? '' : 'disabled'} onchange="portal.ciTilde=this.checked;$('pp-ci-go').disabled=!this.checked">
+      <label class="pp-ci-tilde ${portal.ciLeido ? '' : 'off'}" id="pp-ci-lbl"><input type="checkbox" id="pp-ci-chk" ${portal.ciTilde ? 'checked' : ''} ${portal.ciLeido ? '' : 'disabled'} onchange="portal.ciTilde=this.checked;ppCiBoton()">
         <span>Leí y comprendo los alcances del consentimiento médico informado.</span></label>
       ${portal.ciError ? `<div class="pp-error" role="alert">${esc(portal.ciError)}</div>` : ''}
-      <button class="pp-btn" id="pp-ci-go" ${portal.ciTilde && portal.ciLeido ? '' : 'disabled'} onclick="portalCiAceptar()">Aceptar el consentimiento</button>
+      <button class="pp-btn${portal.ciTilde && portal.ciLeido ? '' : ' pp-apagado'}" id="pp-ci-go" ${portal.ciTilde && portal.ciLeido ? '' : 'disabled'} onclick="portalCiAceptar()">${ppCiBotonTxt()}</button>
       <p class="pp-ci-nota">Queda registrado con la fecha y la hora. Si tenés dudas, no lo aceptes: consultá antes a tu médico/a. Podés revocarlo hasta el momento del ${esc(ppTipo(portal.foto && portal.foto.tipo).n)}.</p>`
     : '<button class="pp-btn" onclick="portal.ciAbierto=true;renderPortal()">Leer mi consentimiento</button>'}</section>`;
 }
@@ -34881,9 +34974,16 @@ function ppCiHTML() {
    3.34.2 · El texto ya no se desliza DENTRO de un recuadro (en el iPhone ese recuadro
    no avisa y la casilla nunca se habilitaba): el marco toma el alto de todo el texto,
    se baja con la página, y cuando el final del texto aparece en pantalla, listo. */
+/* 07-11 · El botón apagado dice qué falta: leer hasta el final o tildar la casilla. */
+function ppCiBotonTxt() { return !portal.ciLeido ? '🔒 Falta: leerlo hasta el final' : !portal.ciTilde ? '🔒 Falta: tildar la casilla' : 'Aceptar el consentimiento'; }
+function ppCiBoton() {
+  const b = $('pp-ci-go'); if (!b || b.classList.contains('pp-cargando')) return;
+  const listo = !!(portal.ciLeido && portal.ciTilde);
+  b.disabled = !listo; b.classList.toggle('pp-apagado', !listo); b.textContent = ppCiBotonTxt();
+}
 function ppCiMirar(fr) {
   const listo = () => { if (portal.ciLeido) return; portal.ciLeido = true;
-    const k = $('pp-ci-chk'), l = $('pp-ci-lbl'), a = $('pp-ci-ayuda'); if (k) k.disabled = false; if (l) l.classList.remove('off'); if (a) a.textContent = '✓ Llegaste al final del texto.';
+    const k = $('pp-ci-chk'), l = $('pp-ci-lbl'), a = $('pp-ci-ayuda'); if (k) k.disabled = false; if (l) l.classList.remove('off'); if (a) a.textContent = '✓ Llegaste al final del texto.'; ppCiBoton();
     if (window.ppCiObs) { window.ppCiObs.disconnect(); window.ppCiObs = null; } };
   let d = null; try { d = fr.contentDocument; } catch (e) { d = null; }
   const alto = () => { try { const h = Math.max(d.documentElement.scrollHeight, d.body ? d.body.scrollHeight : 0); if (h) fr.style.height = (h + 24) + 'px'; } catch (e) {} };
