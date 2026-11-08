@@ -10064,7 +10064,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.42.4';
+const APP_VERSION = '3.42.5';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -12478,6 +12478,7 @@ function revisarRecordatorios() {
   salaVigilar();
   endoSinJefaturaBarrer();
   ciEndoRepararGuardados();
+  ciFechasRevisar();
   ciAceptacionesVigilar();
   setTimeout(tomarAlEntrar, 900);
   // Los seis contadores del tablero abierto, si cambiaron.
@@ -33823,6 +33824,32 @@ function ciFechaAlDia(c) {
     delete c.ciPaciente; delete c.ciMedico; c.ciCambio = { t: nowDT(), m: 'fecha' }; delete c.ciMotivo;
   }
   return true;
+}
+/* 3.42.5 · Red de seguridad: un turno movido con la versión anterior abierta, o justo al abrir
+   la app (antes de que llegaran los consentimientos de la base), quedaba con el consentimiento
+   en la fecha vieja. Al abrir la app, el médico del turno o la Jefatura que corresponde los pone
+   al día (y el paciente recibe el aviso para aceptarlo de nuevo, como en cualquier cambio de fecha). */
+const ciFechasRevisados = new Set();
+function ciFechaDesfasada(c) {
+  const ci = consentimientoDeTurno(c), d = ci && ci.datos;
+  if (!d || String(ci.turnoId) !== String(c.id) || !d.c_fecha) return false;
+  return d.c_fecha !== c.fecha || !!(c.horaProg && d.c_hora && ciHoraN(d.c_hora) !== ciHoraN(c.horaProg));
+}
+function ciFechasRevisar() {
+  const u = usuarioActual();
+  if (!(jefe || (u && !esEquipoSala(u)))) return 0;
+  if (cloudOn && !(tabListas.has('cirugias') && tabListas.has('consentimientos'))) return 0;
+  const hoy = hoyISO(), L = [];
+  (DB.cirugias || []).forEach((c) => {
+    if (c._pub || !c.fecha || c.fecha < hoy || !CI_ESTADOS_VIVOS.includes(c.estado) || rcActivo(c)) return;
+    const mio = (u && c.cirujanoEmail === u.email) || (jefe && !esEndo(c)) || (esEndo(c) && u && esJefeEndo(u));
+    if (!mio || ciFechasRevisados.has(String(c.id)) || !ciFechaDesfasada(c)) return;
+    ciFechasRevisados.add(String(c.id));
+    upsert('cirugias', c);   // el gancho de upsert (ciFechaAlDia) actualiza el consentimiento y avisa al paciente
+    L.push(c);
+  });
+  if (L.length && typeof toastTurno === 'function') toastTurno(L.length === 1 ? `Se puso al día la fecha del consentimiento de ${L[0].paciente?.nombre || '1 turno'}` : `Se puso al día la fecha de ${L.length} consentimientos`, '#7c3aed');
+  return L.length;
 }
 function ciTurnoFoto(c) { return { cir: c.cirujano || '', serv: c.servicio || '', proc: c.procedimiento || '' }; }
 function ciDesfasado(c) {
