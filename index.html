@@ -1229,8 +1229,9 @@
   }
   .modal-white { background: #fff; max-width: 640px; max-height: 88vh; overflow-y: auto; }
   @keyframes pop { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
-  .modal-close {
-    position: absolute; top: 14px; right: 16px;
+  .modal-close {   /* 3.42.4 · 44 px para el dedo, con la ✕ en el mismo lugar que antes */
+    position: absolute; top: 4px; right: 6px; min-width: 44px; min-height: 44px;
+    display: grid; place-items: center;
     background: none; border: none; cursor: pointer; color: #3d4b50; padding: 4px;
   }
   .modal-shield {
@@ -4473,7 +4474,8 @@
   .cix-tit { font-size: 1.3rem; font-weight: 800; margin: 4px 0 2px; color: var(--ink, #1f2937); }
   .cix-tit b { color: #d97706; font-size: 1.6rem; }
   .cix-guia { margin: 0 0 14px; font-size: .86rem; color: var(--muted); }
-  .cix-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+  .cix-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+  @media (max-width: 1180px) { .cix-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .cix-card { display: flex; gap: 12px; align-items: center; min-width: 0; text-align: left; padding: 14px; border-radius: 18px; cursor: pointer; font: inherit; color: inherit;
     border: 2px solid color-mix(in srgb, var(--c) 28%, var(--line, #e5e7eb)); background: linear-gradient(140deg, color-mix(in srgb, var(--c) 10%, var(--sup1, #fff)), var(--sup1, #fff));
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
@@ -4501,7 +4503,9 @@
   .cix-panel-top button { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--line, #e5e7eb); background: var(--sup1, #fff); color: inherit; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
   .cix-panel-top button.on { background: var(--blue, #2980d9); border-color: var(--blue, #2980d9); color: #fff; }
   .cix-ficha { border-left: 4px solid #64748b; animation: cixSube .34s ease both; animation-delay: calc(var(--i) * 40ms); }
-  .cix-ficha.ok { border-left-color: #16a34a; } .cix-ficha.falta { border-left-color: #d97706; }
+  .cix-ficha.ok { border-left-color: #16a34a; } .cix-ficha.falta { border-left-color: #d97706; } .cix-ficha.nc { border-left-color: #be123c; }
+  .cix-estado.nc { background: #ffe4e6; color: #9f1239; }
+  .cix-ant-tit { margin: 16px 0 6px; font-size: .92rem; font-weight: 800; color: #9f1239; }
   .cix-estado { display: inline-block; margin: 4px 0; padding: 3px 10px; border-radius: 99px; font-size: .78rem; font-weight: 700; background: #f1f5f9; color: #475569; }
   .cix-estado.ok { background: #dcfce7; color: #166534; } .cix-estado.falta { background: #fef3c7; color: #92400e; } .cix-estado.rev { background: #fee2e2; color: #991b1b; }
   @keyframes cixSube { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
@@ -10060,7 +10064,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.42.3';
+const APP_VERSION = '3.42.4';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -10890,6 +10894,8 @@ function agendaNegada() {
 function upsert(col, obj) {
   if (obj && obj._pub) return Promise.resolve(false);   // 3.36 · la copia del tablero jamás pisa la cirugía real
   // El pase del paciente acompaña cada cambio de su cirugía (ver PORTAL).
+  // 3.42.4 · Si cambió el día o la hora del turno, el consentimiento toma la fecha nueva (y se vuelve a aceptar).
+  if (col === 'cirugias' && obj) ciFechaAlDia(obj);
   if (col === 'cirugias' && obj && obj.pase) portalAlGuardar(obj);
   obj._m = ahoraServidor();
   const plano = JSON.parse(JSON.stringify(obj));
@@ -18833,7 +18839,7 @@ function renderSolicitud() {
     </div>
 
     ${solMover && DB.cirugias.find((x) => String(x.id) === String(solMover)) ? (() => { const m = DB.cirugias.find((x) => String(x.id) === String(solMover)); return `<div class="banner banner-blue" style="margin-bottom:12px">📅<div><strong>Pasando a otro día: ${esc(m.paciente?.nombre || 's/d')} · ${esc(m.procedimiento || '')}</strong>
-      Hoy está el ${esc(fmtFecha(m.fecha))} a las ${esc(m.horaProg || '')} h. Toque la franja libre nueva${esEndo(m) ? ' de Endoscopía' : ''}: el mismo turno se muda, con sus datos y su consentimiento.
+      Hoy está el ${esc(fmtFecha(m.fecha))} a las ${esc(m.horaProg || '')} h. Toque la franja libre nueva${esEndo(m) ? ' de Endoscopía' : ''}: el mismo turno se muda con sus datos, y el consentimiento toma la fecha nueva${m.ciPaciente ? ' (el paciente lo vuelve a aceptar desde su pase)' : ''}.
       <button type="button" class="btn btn-sm btn-outline" style="margin-top:6px" onclick="solMover=null;renderSolicitud()">Cancelar</button></div></div>`; })() : ''}
     ${solMolde() ? `<div class="banner banner-blue" style="margin-bottom:12px">${ICONS.refresh}<div><strong>${solOtro ? 'Otro estudio para' : 'Reprogramando:'} ${esc(solMolde().paciente?.nombre || 's/d')}${solOtro ? '' : ' · ' + esc(solMolde().procedimiento || '')}</strong>
       Elija una franja libre: el turno se abre con los datos del paciente ya cargados.
@@ -22547,11 +22553,11 @@ function openCirugia(id) {
             <span class="fx-pill ${c.hce?.consentimiento ? 'ok' : 'bad'}">${ico(c.hce?.consentimiento ? ICONS.check : ICONS.x, 12)} Consentimiento en la HCE</span>
             ${c.ciPaciente ? `<span class="fx-pill ok" style="white-space:normal;max-width:100%" title="Tildó «Leí y comprendo los alcances del consentimiento médico informado» en su pase · ${esc(fmtDT(c.ciPaciente.t))}">${ico(ICONS.check, 12)} Firmado por el paciente en el pase</span>${c.ciMedico ? `<span class="fx-pill ok" style="white-space:normal;max-width:100%" title="${esc(fmtDT(c.ciMedico.t))}">${ico(ICONS.check, 12)} Firmado por el médico</span>` : ''}`
               : c.ciRevocado ? `<span class="fx-pill bad" style="white-space:normal;max-width:100%">⛔ Revocado · ${esc(fmtDT(c.ciRevocado.t))} · No se puede empezar la LVQ</span>`
-              : c.ciCambio ? `<span class="fx-pill bad" style="white-space:normal;max-width:100%">${ico(ICONS.clockSm, 12)} Cambió el texto: falta que el paciente acepte la versión nueva</span>`
+              : c.ciCambio ? `<span class="fx-pill bad" style="white-space:normal;max-width:100%">${ico(ICONS.clockSm, 12)} ${ciCambioQue(c)}: falta que el paciente acepte la versión nueva</span>`
               : c.ciPase ? `<span class="fx-pill bad">${ico(ICONS.clockSm, 12)} Falta que el paciente lo acepte en su pase</span>` : ''}
           </div>
           ${c.pase && prepFaltaCargar(c).length ? `<p class="form-note" style="color:#b45309">Falta cargar en la app el protocolo oficial: ${esc(prepFaltaCargar(c).join(' · '))}. Hasta entonces el correo no lleva la preparación.</p>` : ''}
-          <button class="btn btn-sm btn-outline fx-btn" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Ver / reimprimir el consentimiento' : 'Generar el consentimiento informado'}</button>${puedeBajarCiFirmado(c) ? `<button class="btn btn-sm btn-green fx-btn" onclick="ciFirmadoDescargar(${esc(JSON.stringify(c.id))})">${ico(ICONS.download, 14)} ${esc(ciFirmadoRotulo(c))}</button>` : c.ciPase && !c.ciPaciente ? '<p class="form-note" style="margin:6px 0 0">Cuando el paciente lo acepte en su pase, acá aparece el botón para firmarlo usted y bajar el consentimiento (PDF).</p>' : ''}${puedeRegistrarRevocacion(c) ? `<button class="btn btn-sm btn-outline fx-btn" style="border-color:#fca5a5;color:#b91c1c" onclick="ciRegistrarRevocacion(${esc(JSON.stringify(c.id))})">⛔ Registrar revocación</button>` : ''}${ciDesfaseHTML(c)}${aaotFichaHTML(c)}`)}
+          ${!consentimientoDeTurno(c) || ciDesfasado(c).length ? `<button class="btn btn-sm btn-outline fx-btn" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Abrir y corregir el consentimiento' : 'Generar el consentimiento informado'}</button>` : ''}${puedeBajarCiFirmado(c) ? `<button class="btn btn-sm btn-green fx-btn" onclick="ciFirmadoDescargar(${esc(JSON.stringify(c.id))})">${ico(ICONS.download, 14)} ${esc(ciFirmadoRotulo(c))}</button>` : ciFichaNotaHTML(c)}${puedeRegistrarRevocacion(c) ? `<button class="btn btn-sm btn-outline fx-btn" style="border-color:#fca5a5;color:#b91c1c" onclick="ciRegistrarRevocacion(${esc(JSON.stringify(c.id))})">⛔ Registrar revocación</button>` : ''}${ciDesfaseHTML(c)}${aaotFichaHTML(c)}`)}
 
         ${tarjeta(ICONS.calendar, 'Programación', kv([
           ['Fecha y hora', `${fmtFecha(c.fecha)} · ${c.horaProg || '—'} h`],
@@ -27701,7 +27707,7 @@ function ciTarjeta(c) {
   if (c.ciPaciente && c.ciMedico) return { est: 'ok', txt: 'Firmado por el paciente y por el médico' };
   if (c.ciPaciente) return { est: 'pend', txt: 'El paciente firmó · falta la firma del médico' };
   if (c.ciRevocado) return { est: 'no', txt: 'El paciente lo revocó' };
-  if (c.pase && c.pase.token && !c.pase.caducado) return { est: 'pend', txt: c.ciCambio ? 'Cambió el texto: falta que el paciente lo acepte de nuevo' : 'Guardado · falta la firma del paciente' };
+  if (c.pase && c.pase.token && !c.pase.caducado) return { est: 'pend', txt: c.ciCambio ? ciCambioQue(c) + ': falta que el paciente lo acepte de nuevo' : 'Guardado · falta la firma del paciente' };
   return { est: 'ok', txt: 'Guardado · el paciente todavía no tiene pase' };
 }
 function tmCircuito(c, u) {
@@ -27781,7 +27787,7 @@ function tmPasosDe(c, u) {
     const fp = c.ciPaciente ? String(c.ciPaciente.t || '') : '';
     if (c.ciPaciente) add('hecho', '✍️', 'Firma del paciente', `Aceptó desde su pase el ${esc(fmtDT(fp))}`, `closeSlot();irAConsentimiento(${c.id})`);
     else if (c.ciRevocado) add('frenado', '✍️', 'Firma del paciente', 'Revocó el consentimiento: no se puede empezar', `closeSlot();openCirugia(${c.id})`);
-    else if (c.pase && c.pase.token && !c.pase.caducado) add('espera', '✍️', 'Firma del paciente', c.ciCambio ? 'Cambió el texto: tiene que aceptarlo de nuevo · reenviar el pase' : 'Falta que firme desde su pase · reenviar el pase', `openPase(${c.id})`);
+    else if (c.pase && c.pase.token && !c.pase.caducado) add('espera', '✍️', 'Firma del paciente', c.ciCambio ? ciCambioQue(c) + ': tiene que aceptarlo de nuevo · reenviar el pase' : 'Falta que firme desde su pase · reenviar el pase', `openPase(${c.id})`);
     if (c.ciPaciente) {
       if (c.ciMedico) add('hecho', '🖋️', 'Firma del médico', `${esc(c.ciMedico.nombre || '')} · bajar el PDF firmado`, `closeSlot();ciFirmadoDescargar(${c.id})`);
       else if (puedeFirmarMedico(c)) add('falta', '🖋️', 'Firmar el consentimiento', 'El paciente ya firmó: falta la firma suya', `closeSlot();ciFirmadoDescargar(${c.id}).then(()=>tmReabrir(${c.id}))`);
@@ -28503,7 +28509,7 @@ function turnoQueHacer(id) {
       <p>${esc(c.procedimiento || '')} · ${esc(c.paciente?.nombre || 's/d')}<br>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg || '—')} h · ${esc(c.quirofano || '')}</p></header>
     <div class="tq-ops">
       <button type="button" class="tq-op mover" onclick="rcCerrar();turnoMoverIniciar(${esc(JSON.stringify(c.id))})"><i>📅</i><b>Pasarlo a otro día</b>
-        <small>Elige la franja nueva. Se conservan el paciente, el consentimiento${c.pase ? ', el pase del paciente (le muestra la fecha nueva)' : ''} y los requisitos. Admisión${sinJefatura(c) ? '' : ' y la Jefatura'} lo vuelve${esEndo(c) ? '' : 'n'} a autorizar para la fecha nueva.</small></button>
+        <small>Elige la franja nueva. Se conservan el paciente${c.pase ? ', el pase del paciente (le muestra la fecha nueva)' : ''} y los requisitos. ${consentimientoDeTurno(c) ? `El consentimiento toma la fecha nueva${c.ciPaciente ? ': el paciente lo vuelve a aceptar y la versión anterior queda en «No concretados»' : ''}. ` : ''} Admisión${sinJefatura(c) ? '' : ' y la Jefatura'} lo vuelve${esEndo(c) ? '' : 'n'} a autorizar para la fecha nueva.</small></button>
       <button type="button" class="tq-op borrar" onclick="rcCerrar();eliminarTurnoPropio(${esc(JSON.stringify(c.id))})"><i>🗑</i><b>Eliminarlo</b>
         <small>Se borra el turno y la franja queda libre. No se puede deshacer.</small></button>
     </div>
@@ -28527,7 +28533,8 @@ async function turnoMoverA(d, sid, fid) {
   const tipoDe = (x) => (sala(x) || {}).tipo || 'qx';
   if (tipoDe(sid) !== tipoDe(c.sala)) { alert(`Este turno es de ${esEndo(c) ? 'Endoscopía' : tipoDe(c.sala) === 'obs' ? 'Obstetricia' : 'Quirófanos'}: elija una franja de ese mismo sector.`); return true; }
   if (!await preguntar(`${c.procedimiento || ''} — ${c.paciente?.nombre || 's/d'}\n\nDe: ${fmtDiaLargo(c.fecha)} · ${c.horaProg || '—'} h · ${c.quirofano || ''}\nA:  ${fmtDiaLargo(nueva)} · ${f.t} h · ${s.nombre}\n\n`
-    + `Admisión y Egresos${sinJefatura(c) ? '' : ' y la Jefatura de Quirófanos'} lo vuelve${sinJefatura(c) ? '' : 'n'} a autorizar para la fecha nueva.${camaDe(c) ? ' La cama asignada queda libre.' : ''}`,
+    + `Admisión y Egresos${sinJefatura(c) ? '' : ' y la Jefatura de Quirófanos'} lo vuelve${sinJefatura(c) ? '' : 'n'} a autorizar para la fecha nueva.${camaDe(c) ? ' La cama asignada queda libre.' : ''}`
+    + (consentimientoDeTurno(c) ? `\n\nEl consentimiento toma la fecha nueva.${c.ciPaciente ? ` El paciente ${c.pase && !c.pase.caducado ? 'recibe un correo para aceptarlo de nuevo desde su pase' : 'lo tiene que aceptar de nuevo'}, y usted vuelve a firmarlo. La versión que ya había aceptado queda guardada en Consentimientos › No concretados.` : ''}` : ''),
     { titulo: '¿Pasar el turno a esta fecha?', si: 'Sí, pasarlo', no: 'Elegir otra' })) return true;
   const antes = `${fmtFecha(c.fecha)} ${c.horaProg || ''} h (${c.quirofano || ''})`;
   const k = camaDe(c);
@@ -32625,16 +32632,45 @@ function ciEnSemana(r) {
 /* 3.37 · En qué está cada consentimiento, según su turno. Un turno cerrado sin firma
    electrónica no se cuenta como «falta»: pudo firmarse en papel y la app no lo sabe. */
 const CI_TURNO_CERRADO = ['realizada', 'finalizada', 'suspendida', 'caducada', 'anticipada'];
+const CI_NO_CONCRETADO = { suspendida: 'Turno suspendido', caducada: 'Turno caducado', anticipada: 'Resuelto antes, fuera de la app' };
+/* 3.42.4 · Versiones que el paciente había aceptado y quedaron sin efecto (cambió la fecha o el texto). */
+function ciReemplazadas() {
+  const L = [];
+  ciRegistroVisible().forEach((r) => {
+    const c = r.turnoId ? DB.cirugias.find((x) => String(x.id) === String(r.turnoId)) : null;
+    (c && c.ciFirmasAnt || []).forEach((a, i) => { if (ciAlcance === 'todo' || ciEnSemana(r)) L.push({ r, c, a, i }); });
+  });
+  return L.sort((x, y) => String(y.a.reemplazada || '').localeCompare(String(x.a.reemplazada || '')));
+}
+function ciMotivoTxt(a) {
+  const m = a && a.motivo;
+  return m && m.m === 'fecha' ? `Cambió la fecha del turno${m.txt ? ` (${m.txt})` : ''}` : 'Cambió el texto del consentimiento';
+}
+function ciAntHTML() {
+  const q = ciRegQ.toLowerCase();
+  const L = ciReemplazadas().filter(({ r }) => !q || [r.paciente, r.dni, r.procedimiento, r.medico].some((x) => String(x || '').toLowerCase().includes(q)));
+  if (!L.length) return '';
+  return `<p class="cix-ant-tit">Versiones aceptadas que quedaron sin efecto (${L.length})</p>` + L.map(({ r, c, a, i }, k) => `
+    <div class="ci-reg-card cix-ficha nc" style="--i:${Math.min(k, 12)}">
+      <div class="ci-reg-top"><span class="nm">${esc(r.paciente || 's/d')}</span>${r.dni ? `<span style="font-size:0.78rem;color:var(--muted)">DNI ${esc(r.dni)}</span>` : ''}<span class="dt">Aceptado el ${esc(fmtDT(a.t))}</span></div>
+      <div class="cix-estado nc">↺ ${esc(ciMotivoTxt(a))} · sin efecto desde el ${esc(fmtDT(a.reemplazada))}</div>
+      <div class="ci-reg-sub">${esc(r.procedimiento || '')}${r.medico ? ` · ${esc(r.medico)}` : ''}${a.medico ? ' · con la firma del médico' : ''}</div>
+      <div class="ci-reg-acc">${puedeBajarCiFirmado({ ...c, ciPaciente: a }) ? `<button class="btn btn-sm btn-outline" onclick="ciFirmadoDescargar(${esc(JSON.stringify(c.id))}, ${i})">${ico(ICONS.download, 14)} Bajar esa versión (PDF)</button>` : ''}
+        <button class="btn btn-sm btn-outline" onclick="openCirugia(${esc(JSON.stringify(c.id))})">${ICONS.eyeSm} Abrir el turno</button></div>
+    </div>`).join('');
+}
 function ciEstadoDe(r) {
   let c = r.turnoId ? DB.cirugias.find((x) => String(x.id) === String(r.turnoId)) : null;
   // El turno rearmado por falta de cama usa el consentimiento del suspendido.
   const hijo = c ? DB.cirugias.find((x) => x.reprogCama && String(x.reprogCama.de) === String(c.id)) : null;
   if (hijo) c = hijo;
-  if (!c) return { k: 'otro', c: null, t: 'Sin turno vinculado' };
+  if (!c) return r.turnoId ? { k: 'nc', c: null, t: 'Turno eliminado: no se concretó' } : { k: 'otro', c: null, t: 'Sin turno vinculado' };
+  // 3.42.4 · No concretados: el turno no se hizo (suspendido, caducado, resuelto antes) o el paciente revocó.
+  if (CI_NO_CONCRETADO[c.estado]) return { k: 'nc', c, rev: !c.ciPaciente && !!c.ciRevocado, t: CI_NO_CONCRETADO[c.estado] + (c.ciPaciente ? ' · el paciente lo había aceptado' : c.ciRevocado ? ' · revocado' : '') };
   if (c.ciPaciente) return { k: 'ok', c, t: c.ciMedico ? 'Firmado por el paciente y por el médico' : 'Firmado por el paciente · falta la firma del médico' };
-  if (c.ciRevocado) return { k: CI_TURNO_CERRADO.includes(c.estado) ? 'otro' : 'falta', c, rev: true, t: `Revocado · ${fmtDT(c.ciRevocado.t)}` };
-  if (CI_TURNO_CERRADO.includes(c.estado)) return { k: 'otro', c, t: 'Turno cerrado sin firma electrónica (pudo firmarse en papel)' };
-  if (c.ciCambio) return { k: 'falta', c, t: 'Cambió el texto: falta que acepte la versión nueva' };
+  if (c.ciRevocado) return { k: 'nc', c, rev: true, t: `Revocado por el paciente · ${fmtDT(c.ciRevocado.t)}` };
+  if (CI_TURNO_CERRADO.includes(c.estado)) return { k: 'otro', c, t: 'Turno realizado sin firma electrónica (pudo firmarse en papel)' };
+  if (c.ciCambio) return { k: 'falta', c, t: ciCambioQue(c) + ': falta que acepte la versión nueva' };
   if (c.ciPase) return { k: 'falta', c, t: 'Pase enviado: falta que el paciente lo acepte' };
   return { k: 'falta', c, t: 'Todavía no tiene pase del paciente' };
 }
@@ -32643,7 +32679,7 @@ function ciRegistroAlcance() {
   return (ciAlcance === 'todo' ? v : v.filter(ciEnSemana)).filter((r) => !ciFiltro || ciEstadoDe(r).k === ciFiltro);
 }
 function ciRegistroContados() {
-  const total = ciRegistroAlcance().length;
+  const total = ciRegistroAlcance().length + (ciFiltro === 'nc' ? ciReemplazadas().length : 0);
   const q = ciRegQ.toLowerCase();
   if (!q) return `${total} consentimiento(s)`;
   const n = ciRegistroAlcance().filter((r) => [r.paciente, r.dni, r.procedimiento, r.medico]
@@ -32656,6 +32692,8 @@ function ciRegistroLista() {
     .filter((r) => !q || [r.paciente, r.dni, r.procedimiento, r.medico].some((x) => String(x || '').toLowerCase().includes(q)))
     // Lo que falta firmar va por la cirugía más próxima; lo demás, del más nuevo al más viejo.
     .sort((a, b) => (ciFiltro === 'falta' ? String(a.fechaCx || '9').localeCompare(String(b.fechaCx || '9')) : 0) || b.id - a.id);
+  const ant = ciFiltro === 'nc' ? ciAntHTML() : '';
+  if (!list.length && ant) return ant;
   if (!list.length) {
     if (ciAlcance === 'semana') {
       return `<div class="empty">${ciRegQ ? 'Ninguno de esta semana coincide con la búsqueda.' : 'Esta semana no hay ninguno.'}
@@ -32666,8 +32704,8 @@ function ciRegistroLista() {
   // La Jefatura ve el archivo completo: se agrupa por servicio y, dentro de
   // cada servicio, por profesional en orden alfabético de apellido. Cada
   // médico se despliega a un clic. El médico ve solo lo suyo, en lista simple.
-  if (ciVeTodo()) return ciRegistroAgrupado(list);
-  return ciFichas(list);
+  if (ciVeTodo()) return ciRegistroAgrupado(list) + ant;
+  return ciFichas(list) + ant;
 }
 
 /* Las fichas propiamente dichas. Se usan tal cual en la lista simple del médico
@@ -32795,12 +32833,14 @@ const CI_PASOS = [
 const CI_GRUPOS = {
   ok: { t: 'Firmados', s: 'por el paciente, electrónicamente', c: '#16a34a', i: '✍️', vacio: 'Ninguno firmado todavía' },
   falta: { t: 'Falta firmar', s: 'turno en curso: el paciente todavía puede firmar', c: '#d97706', i: '⏳', vacio: 'Ninguno pendiente' },
-  otro: { t: 'Turnos ya cerrados', s: 'no se firmaron por la app: pudo ser en papel', c: '#64748b', i: '🗂️', vacio: 'Ninguno' },
+  nc: { t: 'No concretados', s: 'cambio de fecha, revocados, suspendidos o eliminados', c: '#be123c', i: '📁', vacio: 'Ninguno' },
+  otro: { t: 'Realizados sin firma en la app', s: 'pudo firmarse en papel', c: '#64748b', i: '🗂️', vacio: 'Ninguno' },
 };
 function ciTableroFirmas() {
   const est = ciRegistroVisible().map(ciEstadoDe);
-  const n = { ok: 0, falta: 0, otro: 0 };
+  const n = { ok: 0, falta: 0, nc: 0, otro: 0 };
   est.forEach((e) => { n[e.k]++; });
+  { const g = ciAlcance; ciAlcance = 'todo'; n.nc += ciReemplazadas().length; ciAlcance = g; }
   const total = est.length, faltaMed = est.filter((e) => e.k === 'ok' && !e.c.ciMedico).length;
   const titular = !total ? (ciVeTodo() ? 'Todavía no hay consentimientos guardados.' : 'Todavía no generó ningún consentimiento. Se generan desde cada turno.')
     : n.falta ? `<b>${n.falta}</b> ${n.falta === 1 ? 'espera' : 'esperan'} la firma del paciente` : 'No hay firmas de pacientes pendientes ✓';
@@ -33444,7 +33484,7 @@ function portalFoto(c, borrado) {
     ci: c.ciPaciente ? 'ok' : c.ciRevocado ? 'rev' : consentimientoDeTurno(c) ? 'pend' : '',
     ciRevT: (!c.ciPaciente && c.ciRevocado && c.ciRevocado.t) || '',
     // 3.37 · Versión del texto (para refrescarlo con el pase abierto), aviso de texto nuevo y qué cambió del turno.
-    ciH: String((c.ciPase && c.ciPase.hash) || '').slice(0, 12), ciCambio: !c.ciPaciente && !!c.ciCambio,
+    ciH: String((c.ciPase && c.ciPase.hash) || '').slice(0, 12), ciCambio: !c.ciPaciente && !!c.ciCambio, ciCambioM: (!c.ciPaciente && c.ciCambio && c.ciCambio.m) || '',
     serv: c.servicio || '', novedad: (c.pase && c.pase.novedad) || null,
     sinCama: rcVeces(c),
     ferN: feriadoDeTurno(c),   // 3.41 · el turno quedó en un feriado
@@ -33559,11 +33599,12 @@ async function portalEscribirPrivado(c) {
     if (c.ciPaciente && c.ciPaciente.hash !== hash) {
       // 3.37 · Lo que firmó ya no es lo que dice el documento: esa firma queda en el registro,
       // pero no vale para el texto nuevo. Se le pide aceptarlo otra vez (y el médico vuelve a firmar).
-      c.ciFirmasAnt = (c.ciFirmasAnt || []).concat({ ...c.ciPaciente, medico: c.ciMedico || null, reemplazada: nowDT() }).slice(-5);
+      c.ciFirmasAnt = (c.ciFirmasAnt || []).concat({ ...c.ciPaciente, medico: c.ciMedico || null, reemplazada: nowDT(), motivo: c.ciMotivo || { m: 'texto' } }).slice(-5);
       pushHist(c, `El consentimiento cambió después de que el paciente lo aceptara (${fmtDT(c.ciPaciente.t)}): esa aceptación queda en el registro y se le pide aceptar la versión nueva`);
       delete c.ciPaciente; delete c.ciMedico;
     }
-    if (cambioCi) c.ciCambio = { t: nowDT() };
+    if (cambioCi) c.ciCambio = { t: nowDT(), m: c.ciMotivo ? c.ciMotivo.m : 'texto' };
+    delete c.ciMotivo;
     c.ciPase = { hash, t: nowDT() };
     // 3.34 · El texto exacto que va a leer el paciente queda en el registro, por su huella:
     // es lo que se descarga como «consentimiento firmado» (las últimas 3 versiones).
@@ -33728,6 +33769,13 @@ async function ciRegistrarRevocacion(id) {
 /* 3.34 · El consentimiento firmado electrónicamente por el paciente, en PDF, para
    adjuntarlo a la historia clínica: el texto EXACTO que aceptó (se comprueba su
    huella SHA-256) y al pie la constancia de la firma electrónica (Ley 25.506, art. 5). */
+/* 3.42.4 · En la ficha el consentimiento no se repite: el botón verde aparece recién cuando el
+   paciente lo acepta. Antes, una línea dice dónde verlo (solo al médico del turno y a la Jefatura). */
+function ciFichaNotaHTML(c) {
+  const u = usuarioActual();
+  if (!consentimientoDeTurno(c) || c.ciPaciente || c.ciRevocado || !(jefe || (u && c.cirujanoEmail === u.email))) return '';
+  return `<p class="form-note" style="margin:6px 0 0">El botón para bajar el consentimiento firmado (PDF) aparece acá cuando el paciente lo acepte en su pase. Para verlo o reimprimirlo antes, entre en <b>Consentimientos Informados</b>.</p>`;
+}
 function puedeBajarCiFirmado(c) {
   const u = usuarioActual();
   return !!(c && (c.ciPaciente || c.ciRevocado) && (jefe || (u && c.cirujanoEmail === u.email)));
@@ -33745,6 +33793,37 @@ function puedeFirmarMedico(c) {
 }
 function ciFirmadoRotulo(c) { return !c.ciPaciente && c.ciRevocado ? 'Bajar la revocación (PDF)' : puedeFirmarMedico(c) ? 'Firmar y bajar el consentimiento (PDF)' : c.ciMedico ? 'Bajar el consentimiento firmado (PDF)' : 'Bajar el firmado por el paciente (PDF)'; }
 /* Qué cambió en el turno desde que se guardó el consentimiento (afecta lo que el documento dice). */
+/* 3.42.4 · Pedido de Claudio: el consentimiento dice «Fecha programada» y tiene que decir la
+   fecha real. Si el turno cambia de día o de hora, el documento se actualiza solo; si ya tiene
+   pase, el paciente recibe el correo para aceptarlo de nuevo (circuito de «cambió el texto»).
+   Lo que había firmado no se pierde: queda en «No concretados» (c.ciFirmasAnt, con el motivo). */
+const CI_ESTADOS_VIVOS = ['borrador', 'pendiente', 'validada', 'confirmada'];
+function ciCambioQue(c) { return c && c.ciCambio && c.ciCambio.m === 'fecha' ? 'Cambió la fecha del turno' : 'Cambió el texto'; }
+function ciHoraN(h) { return String(h || '').trim().replace(/^0(\d):/, '$1:'); }
+function ciFechaAlDia(c) {
+  if (!c || !c.fecha || !CI_ESTADOS_VIVOS.includes(c.estado) || rcActivo(c)) return false;
+  const ci = consentimientoDeTurno(c);
+  if (!ci || !ci.datos || String(ci.turnoId) !== String(c.id) || !ci.datos.c_fecha) return false;
+  const d = ci.datos;
+  if (d.c_fecha === c.fecha && (!c.horaProg || !d.c_hora || ciHoraN(d.c_hora) === ciHoraN(c.horaProg))) return false;
+  const de = { fecha: d.c_fecha, hora: d.c_hora || '', lugar: d.c_sala || '' };
+  ci.datos = { ...d, c_fecha: c.fecha, c_hora: c.horaProg || d.c_hora || '', c_sala: c.quirofano || d.c_sala || '' };
+  ci.fechaCx = c.fecha;
+  ci.verificacion = ciCodigoVerificacion({ ...CI_VACIO, ...ci.datos });
+  ci.cambiosFecha = (ci.cambiosFecha || []).concat({ t: nowDT(), de, a: { fecha: c.fecha, hora: c.horaProg || '' } }).slice(-10);
+  upsert('consentimientos', ci);
+  const txt = `${fmtFecha(de.fecha)} ${de.hora ? de.hora + ' h' : ''}`.trim() + ' → ' + `${fmtFecha(c.fecha)} ${c.horaProg ? c.horaProg + ' h' : ''}`.trim();
+  c.ciMotivo = { m: 'fecha', de, txt, t: nowDT() };
+  pushHist(c, `Cambió la fecha del turno (${txt}): el consentimiento se actualizó con la fecha nueva`
+    + (c.ciPaciente ? '; la aceptación anterior del paciente queda guardada en «No concretados» y se le pide aceptarlo de nuevo' : ''));
+  // Con pase: el texto nuevo viaja al pase y, si ya lo había aceptado, se le pide aceptarlo otra vez.
+  if (c.pase && c.pase.token && !c.pase.caducado) portalEscribirPrivado(c).then(() => upsert('cirugias', c)).catch(() => {});
+  else if (c.ciPaciente) {   // sin pase vigente: igual la aceptación vieja no vale para la fecha nueva
+    c.ciFirmasAnt = (c.ciFirmasAnt || []).concat({ ...c.ciPaciente, medico: c.ciMedico || null, reemplazada: nowDT(), motivo: c.ciMotivo }).slice(-5);
+    delete c.ciPaciente; delete c.ciMedico; c.ciCambio = { t: nowDT(), m: 'fecha' }; delete c.ciMotivo;
+  }
+  return true;
+}
 function ciTurnoFoto(c) { return { cir: c.cirujano || '', serv: c.servicio || '', proc: c.procedimiento || '' }; }
 function ciDesfasado(c) {
   const ci = consentimientoDeTurno(c);
@@ -33797,21 +33876,24 @@ function ciSellarDoc(html, m) {
       <div class="ci-anulada-cartel">ESPACIO ANULADO<small>Consentimiento aceptado · sin revocación registrada al ${esc(m.alDia)}</small></div></div>
       <p class="ci-anulada-nota">El espacio de firmas de arriba queda anulado para que no se preste a confusión. El derecho a revocar sigue vigente: si el/la paciente lo ejerce antes del procedimiento, se usa un ejemplar sin firmar del consentimiento y se asienta en la historia clínica.</p>`);
 }
-async function ciFirmadoDescargar(id) {
+async function ciFirmadoDescargar(id, antI) {
   const c = DB.cirugias.find((x) => String(x.id) === String(id));
-  if (!puedeBajarCiFirmado(c)) return;
+  // 3.42.4 · antI = una versión que el paciente aceptó y quedó sin efecto (No concretados).
+  const ant = antI != null && c && c.ciFirmasAnt ? c.ciFirmasAnt[antI] : null;
+  if (antI != null && !ant) return;
+  if (!(ant ? puedeBajarCiFirmado({ ...c, ciPaciente: ant }) : puedeBajarCiFirmado(c))) return;
   const w = window.open('', '_blank');   // en el mismo toque, para que el navegador no la bloquee
   if (!w) { alert('El navegador bloqueó la ventana. Habilite las ventanas emergentes para descargar el PDF.'); return; }
-  const rev = !c.ciPaciente ? c.ciRevocado : null;
+  const rev = !ant && !c.ciPaciente ? c.ciRevocado : null;
   let firmo = false;
   // 3.37 · El botón decía «Firmar y bajar»: tocarlo es la firma del médico, con su cuenta.
-  if (puedeFirmarMedico(c)) {
+  if (!ant && puedeFirmarMedico(c)) {
     const yo = usuarioActual(), d = (consentimientoDeTurno(c) || {}).datos || {};
     c.ciMedico = { t: nowDT(), nombre: d.m_nombre || yo.nombre || '', mat: d.m_mat || '', email: yo.email, hash: c.ciPaciente.hash };
     pushHist(c, `${c.ciMedico.nombre} firmó electrónicamente el consentimiento aceptado por el paciente · huella ${String(c.ciPaciente.hash || '').slice(0, 12)}…`);
     firmo = true;
   }
-  const f = rev ? { t: rev.firmado, hash: rev.hash } : c.ciPaciente, ci = consentimientoDeTurno(c), pa = c.paciente || {}, med = rev ? rev.medico : c.ciMedico;
+  const f = ant ? { t: ant.t, hash: ant.hash } : rev ? { t: rev.firmado, hash: rev.hash } : c.ciPaciente, ci = consentimientoDeTurno(c), pa = c.paciente || {}, med = ant ? ant.medico : rev ? rev.medico : c.ciMedico;
   const quien = ciFirmante(ci);
   let html = ci && ci.pase && ci.pase[f.hash], original = !!html;
   if (!html && ci && ci.datos) html = ciDocImprimible(ciDocHTML({ ...CI_VACIO, ...ci.datos }));
@@ -33822,8 +33904,8 @@ async function ciFirmadoDescargar(id) {
   const dniTxt = dni ? Number(dni).toLocaleString('es-AR') : 's/d';
   const hashTxt = String(f.hash || '').toUpperCase().replace(/(.{8})/g, '$1 ').trim();
   const cuando = fmtDT(f.t);
-  const cinta = `<div class="ci-cinta ${rev ? 'rev' : ''}">
-    ${rev ? `CONSENTIMIENTO REVOCADO · ${esc(fmtDT(rev.t))} · Firmado antes por el ${rotulo.toLowerCase()} el ${esc(cuando)}` : `FIRMADO ELECTRÓNICAMENTE POR EL ${rotulo}${med ? ' Y POR EL MÉDICO' : ''} · ${esc(cuando)} · Verificación SHA-256 al pie`}</div>`;
+  const cinta = `<div class="ci-cinta ${rev || ant ? 'rev' : ''}">
+    ${ant ? `VERSIÓN SIN EFECTO · ${esc(ciMotivoTxt(ant).toUpperCase())} · ${esc(fmtDT(ant.reemplazada))} · Había sido firmada por el ${rotulo.toLowerCase()} el ${esc(cuando)}` : rev ? `CONSENTIMIENTO REVOCADO · ${esc(fmtDT(rev.t))} · Firmado antes por el ${rotulo.toLowerCase()} el ${esc(cuando)}` : `FIRMADO ELECTRÓNICAMENTE POR EL ${rotulo}${med ? ' Y POR EL MÉDICO' : ''} · ${esc(cuando)} · Verificación SHA-256 al pie`}</div>`;
   const constancia = `<div class="ci-const">
     <h2>CONSTANCIA DE FIRMA ELECTRÓNICA ${quien.rep ? 'DEL REPRESENTANTE LEGAL' : 'DEL PACIENTE'}</h2>
     <div class="cc-fila">
@@ -33833,7 +33915,7 @@ async function ciFirmadoDescargar(id) {
       </div>
       <div class="cc-datos">
         <b>Fecha y hora:</b> ${esc(cuando)} (hora del servidor)<br>
-        <b>Turno:</b> ${esc(c.procedimiento || '')} · ${esc(fmtFecha(c.fecha))} ${esc(c.horaProg || '')} h · ${esc(c.quirofano || '')}<br>
+        <b>Turno${ant ? ' (cuando lo aceptó)' : ''}:</b> ${esc(c.procedimiento || '')} · ${((x) => `${esc(fmtFecha(x.fecha))} ${esc(x.hora || '')} h · ${esc(x.lugar || '')}`)(ant && ant.motivo && ant.motivo.de ? ant.motivo.de : { fecha: c.fecha, hora: c.horaProg, lugar: c.quirofano })}<br>
         <b>Código de pase:</b> ${esc((c.pase && c.pase.ref) || '—')}
       </div>
     </div>
@@ -33859,7 +33941,7 @@ async function ciFirmadoDescargar(id) {
     .replace('<div class="cd">', () => '<div class="cd">' + cinta).replace(/<\/div>\s*<\/body>/, () => constancia + '</div></body>');
   w.document.open(); w.document.write(doc); w.document.close();
   ciPaginar(w.document);
-  pushHist(c, `Se descargó el consentimiento ${rev ? 'revocado' : 'firmado electrónicamente por el paciente'} (${coincide ? 'texto verificado por SHA-256' : 'copia regenerada'}) — ${(usuarioActual() || {}).nombre || JEFATURA}`);
+  pushHist(c, `Se descargó el consentimiento ${ant ? 'aceptado antes (versión sin efecto)' : rev ? 'revocado' : 'firmado electrónicamente por el paciente'} (${coincide ? 'texto verificado por SHA-256' : 'copia regenerada'}) — ${(usuarioActual() || {}).nombre || JEFATURA}`);
   upsert('cirugias', c);
   // 3.40.2 · Firmó: la ficha abierta no puede seguir ofreciendo «Firmar y bajar».
   if (firmo) { toastTurno('Consentimiento firmado ✓', '#059669'); if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) openCirugia(c.id); }
@@ -34945,7 +35027,7 @@ function portalCiVigente() {
 function ppCiHTML() {
   const ci = portal.extra && portal.extra.ci;
   if (!ci) return '';
-  const nuevo = !!(portal.foto && portal.foto.ciCambio);
+  const nuevo = !!(portal.foto && portal.foto.ciCambio), porFecha = nuevo && portal.foto.ciCambioM === 'fecha';
   const revocado = !!(portal.foto && portal.foto.ci === 'rev') || !!(portal.ciOk && portal.ciOk.revocado);
   const firma = ci.rep ? `<p class="pp-ci-ayuda">Lo firma ${esc(ci.rep)}, como representante legal. Aceptalo solo si sos esa persona.</p>` : '';
   if (portalCiVigente()) return `<section class="pp-card pp-ci ok"><small>Tu consentimiento informado</small><b>✓ Aceptado</b>
@@ -34957,8 +35039,8 @@ function ppCiHTML() {
       <button class="pp-btn pp-btn-rev" id="pp-ci-rev" onclick="portalCiRevocar()">Sí, revocar mi consentimiento</button>
       <button class="pp-link" onclick="portal.ciRevPide=false;portal.ciError='';renderPortal()">No, dejarlo como está</button>`
     : '<button class="pp-link pp-link-rev" onclick="portal.ciRevPide=true;renderPortal()">Revocar mi consentimiento</button>'}</section>`;
-  return `<section class="pp-card pp-ci${nuevo ? ' nuevo' : ''}"><small>Tu consentimiento informado</small><b>${revocado ? '⛔ Revocaste tu consentimiento' : nuevo ? '⚠️ Tu médico/a lo actualizó: leelo y aceptalo de nuevo' : '📝 Leelo y aceptalo desde acá'}</b>
-    <span>${revocado ? 'Tu médico/a ya está avisado/a. Si cambiás de idea, podés leerlo y aceptarlo otra vez.' : `${nuevo ? 'Cambió algo del texto, así que la aceptación anterior ya no vale para esta versión.' : 'Es el mismo texto que te explicó tu médico/a.'} No hace falta imprimirlo ni firmarlo a mano.`}</span>
+  return `<section class="pp-card pp-ci${nuevo ? ' nuevo' : ''}"><small>Tu consentimiento informado</small><b>${revocado ? '⛔ Revocaste tu consentimiento' : porFecha ? '⚠️ Cambió la fecha de tu turno: aceptá de nuevo tu consentimiento' : nuevo ? '⚠️ Tu médico/a lo actualizó: leelo y aceptalo de nuevo' : '📝 Leelo y aceptalo desde acá'}</b>
+    <span>${revocado ? 'Tu médico/a ya está avisado/a. Si cambiás de idea, podés leerlo y aceptarlo otra vez.' : `${porFecha ? 'El consentimiento ahora dice la fecha nueva, así que la aceptación anterior ya no vale para esta versión.' : nuevo ? 'Cambió algo del texto, así que la aceptación anterior ya no vale para esta versión.' : 'Es el mismo texto que te explicó tu médico/a.'} No hace falta imprimirlo ni firmarlo a mano.`}</span>
     ${firma}
     ${portal.ciAbierto ? `<p class="pp-ci-ayuda">⬇ Leelo completo: al final está la casilla para aceptarlo.</p>
       <iframe class="pp-ci-doc" id="pp-ci-doc" sandbox="allow-same-origin" scrolling="no" title="Consentimiento informado" srcdoc="${esc(ci.html)}" onload="ppCiMirar(this)"></iframe>
