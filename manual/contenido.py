@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.44.0'
+VERSION = '3.44.1'
 FECHA = 'Noviembre de 2026'
 
 PORTADA = {
@@ -560,6 +560,12 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.42'),
+('h2', 'Versión 3.44.1 — Muro de gratitud y Módulos sin recortes'),
+('ul', [
+    '**Postales «para usted».** La cinta en diagonal del rincón se cortaba contra el borde de la tarjeta y escondía el sello (Compañerismo, Ética…). Ahora es una etiqueta «💌 Para usted» entera arriba de la postal, el sello se ve siempre y el nombre largo pasa a dos renglones.',
+    '**Muro parejo.** Las postales se reparten en una grilla pareja: con pocas postales ya no quedan columnas vacías.',
+    '**Módulos en tablet.** El porcentaje de las tarjetas A, B y C ya no queda cortado contra el borde.',
+]),
 ('h2', 'Versión 3.44.0 — Preguntale a la app, módulo al 50 % en todas las áreas y reclamos a Endoscopía'),
 ('ul', [
     '**Preguntale a la app lo que consideres.** Barra en el Panel, a la vista de todos. Se escribe una pregunta y la app responde con sus propios datos, sin inteligencia artificial y sin mandar nada afuera. Sin ingresar responde cómo se usa la app (desde el Manual de uso), cuándo sale el parte, qué días hay franjas abiertas, el próximo cierre de la lista y los feriados. Con la cuenta abierta, además: por qué un módulo salió al 50 % o dado de baja, qué le falta a un turno o cuándo está programado (escribiendo el apellido del paciente, aunque tenga un error de tipeo), cuántos turnos propios están sin autorizar, confirmados, sin resolver o al 50 %, cuántos módulos A, B y C lleva en el mes, la semana o el año —comparado con el mes o la semana anterior a la misma fecha— y su importe estimado, cuánto le falta para la copa de oro, quién está de guardia un día, quién es un colega y si está de guardia, las camas libres, su agenda de un día y atajos («abrí módulos»).',
