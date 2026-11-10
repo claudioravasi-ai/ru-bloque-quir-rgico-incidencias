@@ -10214,7 +10214,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.44.1';
+const APP_VERSION = '3.45.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -23245,19 +23245,19 @@ function openCirugia(id) {
   let informeHTML = '';
   if (c.informe) {
     const min = c.horaFinReal ? diffMin(c.horaFinReal, c.informe.fechaHora) : null;
-    informeHTML = tarjeta(ICONS.fileText, 'Parte quirúrgico', `
+    informeHTML = tarjeta(ICONS.fileText, esEndo(c) ? 'Informe del estudio' : 'Parte quirúrgico', `
       <div class="det-desc">${esc(c.informe.texto)}</div>
       <div class="fx-pie">Cargado el ${fmtDT(c.informe.fechaHora)}${min !== null ? ` · ${min <= 120
         ? `<span class="fx-pill ok">${ico(ICONS.check, 12)} dentro del plazo de 2 h (${min} min)</span>`
         : `<span class="fx-pill bad">${ico(ICONS.clockSm, 12)} fuera del plazo de 2 h (${Math.round(min / 60 * 10) / 10} h)</span>`}` : ''}</div>`, { full: true });
   } else if (puedeInforme) {
-    informeHTML = tarjeta(ICONS.fileText, 'Parte quirúrgico' + (c.estado === 'en_curso' ? '' : ' — pendiente'), `
+    informeHTML = tarjeta(ICONS.fileText, (esEndo(c) ? 'Informe del estudio' : 'Parte quirúrgico') + (c.estado === 'en_curso' ? '' : ' — pendiente'), `
       <p class="fx-txt">${c.estado === 'en_curso'
         ? 'El parte se completa dentro de la <b>LVQ de Salida</b>, que es la que cierra la cirugía. Acá puede adelantarlo: lo escrito aparece ya cargado en esa ventana.'
-        : `Meta: parte cargado en <b>2 horas</b> o menos tras la cirugía.${c.horaFinReal ? ` Fin del procedimiento: ${fmtDT(c.horaFinReal)}.` : ''} <b>Al guardarlo se cierra el caso</b>, salvo que falte regularizar Admisión o la Jefatura.`}</p>
+        : `Meta: ${esEndo(c) ? 'informe cargado' : 'parte cargado'} en <b>2 horas</b> o menos tras ${esEndo(c) ? 'el estudio' : 'la cirugía'}.${c.horaFinReal ? ` Fin del procedimiento: ${fmtDT(c.horaFinReal)}.` : ''} <b>Al guardarlo se cierra el caso</b>, salvo que falte regularizar Admisión o la Jefatura.`}</p>
       ${aplicaCierreTardio(c) && c.estado === 'realizada' ? `<p class="fx-txt cc-tardio ${cierreTardio(c) ? 'mal' : ''}">⏱ ${cierreTardio(c) ? `Pasaron ${Math.floor(horasDesdeFin(c))} h ${ctDel(c)} (plazo ${CIERRE_PLAZO_H} h): se puede cerrar igual, pero el módulo se liquida al 50 % del valor vigente.` : `Quedan ${Math.ceil(cierreHorasRestan(c))} h para cerrar el caso con el módulo completo (plazo ${CIERRE_PLAZO_H} h desde el fin ${ctDel(c)}).`}</p>` : ''}
       <div class="field"><textarea id="inf-texto" placeholder="Describa el procedimiento realizado, hallazgos, técnica, complicaciones, muestras enviadas a Anatomía Patológica..."></textarea></div>
-      <button class="btn btn-blue" style="margin-top:12px" onclick="guardarInforme(${c.id})">${ICONS.fileText} ${c.estado === 'en_curso' ? 'Guardar el borrador del parte' : 'Guardar parte quirúrgico y cerrar'}</button>`, { full: true });
+      <button class="btn btn-blue" style="margin-top:12px" onclick="guardarInforme(${c.id})">${ICONS.fileText} ${c.estado === 'en_curso' ? 'Guardar el borrador del parte' : esEndo(c) ? 'Guardar informe del estudio y cerrar' : 'Guardar parte quirúrgico y cerrar'}</button>`, { full: true });
   } else if (operada(c)) {
     informeHTML = tarjeta(ICONS.fileText, 'Parte quirúrgico', '<p class="fx-txt">Pendiente de carga por el cirujano. Sin él, el caso no se cierra.</p>', { full: true, n: 'Falta', tono: 'bad' });
   }
@@ -25986,6 +25986,9 @@ function guardarBorrador() {
     campos[el.id] = (el.type === 'checkbox' || el.type === 'radio') ? !!el.checked : el.value;
   });
   const b = { t: Date.now(), view, titulo: TITULOS[view] || view, campos, diaSel: typeof diaSel !== 'undefined' ? diaSel : null };
+  // 10-11 · Si estaba cargando un turno, se recuerda cuál y en qué paso (antes volvía a la grilla
+  // con el formulario cerrado y los datos guardados no tenían dónde cargarse).
+  if ($('slot-overlay') && $('slot-overlay').classList.contains('open') && slotCtx) b.slot = { d: slotCtx.d, sid: slotCtx.sid, fid: slotCtx.fid, paso: typeof tmwPaso !== 'undefined' ? tmwPaso : 1 };
   if (view === 'consentimientos') { b.ciForm = ciForm; b.ciTab = ciTab; }
   try { localStorage.setItem(claveBorrador(u.email), JSON.stringify(b)); return true; } catch (e) { return false; }
 }
@@ -26028,6 +26031,7 @@ function retomarSi() {
   if (b.diaSel) diaSel = b.diaSel;
   if (b.view === 'consentimientos' && b.ciForm) { ciForm = b.ciForm; ciTab = b.ciTab || 'registro'; }
   go(b.view || 'panel');
+  if (b.slot && b.slot.d) { try { openSlot(b.slot.d, b.slot.sid, b.slot.fid); } catch (e) {} }
   setTimeout(() => {
     Object.entries(b.campos || {}).forEach(([id, v]) => {
       const el = document.getElementById(id);
@@ -26035,6 +26039,7 @@ function retomarSi() {
       if (el.type === 'checkbox' || el.type === 'radio') el.checked = !!v; else el.value = v;
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
+    if (b.slot && b.slot.paso > 1 && typeof tmwIr === 'function') { try { tmwIr(b.slot.paso); } catch (e) {} }
     if (typeof toastTurno === 'function') toastTurno('Listo: está donde lo dejó', '#0d9488');
   }, 250);
   retomarDatos = null;
@@ -34098,6 +34103,9 @@ body.portal-pac .pp-input::placeholder{color:#9ca3af;-webkit-text-fill-color:#9c
 .pp-az{background:linear-gradient(135deg,#1d4ed8,#2563eb 55%,#06b6d4)}
 .pp-vi{background:linear-gradient(135deg,#6d28d9,#8b5cf6 60%,#c026d3)}
 .pp-gr{background:linear-gradient(135deg,#475569,#64748b)}
+.pp-metria-pasos{margin:0 0 10px;padding-left:20px;display:grid;gap:8px;font-size:.92rem;line-height:1.45;color:#1f2937}
+.pp-metria-ojo{margin:0;font-size:.84rem;line-height:1.45;color:#065f46;background:#d1fae5;border-radius:12px;padding:10px 12px}
+.pp-metria-btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box;background:linear-gradient(120deg,#059669,#10b981 55%,#0ea5e9)!important;box-shadow:0 8px 20px rgba(16,185,129,.3)!important}
 .pp-vivo{display:inline-flex;align-items:center;gap:7px;font-size:.72rem;font-weight:700;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:99px}
 .pp-vivo span{width:8px;height:8px;border-radius:50%;background:#fff;animation:ppVivo 1.6s ease-in-out infinite}
 @keyframes ppVivo{0%,100%{opacity:1}50%{opacity:.3}}
@@ -34262,6 +34270,8 @@ function portalElegible(c) {
 function portalEstadoPaciente(c, borrado) {
   if (borrado) return { clave: 'cancelada', caducado: true };
   const vis = estadoVisible(c);
+  // 10-11 · Endoscopía cerrada: el pase invita a retirar el informe en METRIA (pedido de Claudio).
+  if (c.estado === 'finalizada' && esEndo(c)) return { clave: 'endo_finalizada', caducado: true };
   if (['finalizada', 'anticipada', 'caducada'].includes(vis) || c.estado === 'finalizada') return { clave: vis === 'caducada' && c.caducada && c.caducada.baja ? 'baja_autorizacion' : vis, caducado: true };
   // 3.27.1 · En una reprogramación por falta de cama vale también el OK de Admisión a la nueva fecha.
   const admRc = !!(c.reprogCama && c.reprogCama.oks && c.reprogCama.oks.adm);
@@ -35349,7 +35359,7 @@ function paseFormulario(c, recien) {
       ${recien ? `<div class="pase-intro-kick">${esc(turnoNombre(c, true))} programad${esParto(c) ? 'o' : 'a'} y consentimiento guardado</div>` : ''}
       <h2>Pase del paciente</h2>
       <p>Una tarjeta con un <b>código QR</b> para ${esc(primerNombre(c.paciente && c.paciente.nombre) || 'el paciente')}: con ella sigue
-      en su teléfono, <b>en tiempo real</b>, si Admisión y Egresos autorizó, si la Jefatura confirmó y para qué día y hora quedó.</p>
+      en su teléfono, <b>en tiempo real</b>, si Admisión y Egresos autorizó, ${sinJefatura(c) ? 'si quedó confirmad' + (esParto(c) ? 'o' : 'a') : 'si la Jefatura confirmó'} y para qué día y hora quedó.${esEndo(c) ? ' Al terminar el estudio, le indica dónde retirar su informe (METRIA).' : ''}</p>
     </div>
     <div class="pase-form">
       <div class="field"><label>Correo del paciente *</label>
@@ -35359,7 +35369,7 @@ function paseFormulario(c, recien) {
         <input type="text" id="pase-dni" inputmode="numeric" value="${esc((c.paciente && c.paciente.dni) || '')}" oninput="paseValidar()">
         <span class="hint">Con su DNI pide el código. No viaja en el QR.</span></div>
       <label class="check-row pase-ok"><input type="checkbox" id="pase-acepta" onchange="paseValidar()">
-        <span>Le expliqué al paciente para qué es el pase y aceptó recibir los códigos en ese correo. Ve solo su cirugía, sin diagnóstico, y el pase caduca solo cuando se cierra la cirugía.</span></label>
+        <span>Le expliqué al paciente para qué es el pase y aceptó recibir los códigos en ese correo. Ve solo su ${esc(turnoNombre(c))}, sin diagnóstico, y el pase caduca solo cuando se cierra ${esEndo(c) ? 'el estudio' : 'el caso'}.</span></label>
     </div>
     <div class="pase-acc">
       <button class="btn pase-btn-main" id="pase-generar" onclick="confirmarPase(this)" disabled>🔒 Falta: ${esc(paseFaltan(c).join(', '))}</button>
@@ -35720,6 +35730,7 @@ function renderPortal() {
     return;
   }
   if (portal.paso === 'caducado') {
+    if (portal.cadClave === 'endo_finalizada') { r.innerHTML = portalMarco(portalInformeEndoHTML()); return; }
     r.innerHTML = portalMarco(portal.cadClave === 'baja_autorizacion'
       ? portalTarjeta('no', 'Tu turno se dio de baja', 'No llegó a tiempo la autorización de la obra social o del pago de anestesiología. Comunicate con tu médico/a para saber cómo seguir.')
       : portalTarjeta('gr', 'Este pase ya no está activo',
@@ -35755,6 +35766,22 @@ function renderPortal() {
     return;
   }
   r.innerHTML = portalMarco(portalVistaEstado(portal.foto || {}));
+}
+/* 10-11 · Al terminar la endoscopía: dónde retira el informe y las fotos (METRIA, otra app del médico).
+   El enlace no lleva ningún dato del paciente: entra con su correo, un código y su DNI. */
+const METRIA_URL = 'https://claudioravasi-ai.github.io/metria/';
+function portalInformeEndoHTML() {
+  return `<section class="pp-estado pp-ok"><span class="pp-hola">Tu estudio terminó</span><h1>Tu informe va a estar en METRIA</h1>
+      <p>Ahí retirás el <b>informe en PDF</b> y las <b>fotos de tu estudio</b>, cuando tu médico/a los cargue.</p></section>
+    <section class="pp-card pp-metria">
+      <ol class="pp-metria-pasos">
+        <li><b>Entrá a METRIA</b> con el botón de abajo y tocá «Soy paciente».</li>
+        <li>Escribí <b>tu correo</b>: te llega un código. Con el código y tu <b>DNI</b> entrás (la primera vez completás tus datos).</li>
+        <li>En <b>Estudios</b> vas a ver tu informe y tus fotos. Descargalos y <b>guardalos en tu teléfono, tablet o computadora</b>.</li>
+      </ol>
+      <p class="pp-metria-ojo">🔒 Por tu privacidad, después de descargarlos se borran de la app a los pocos días, para que nadie más pueda retirarlos.</p>
+      <a class="pp-btn pp-metria-btn" href="${METRIA_URL}" target="_blank" rel="noopener">Retirar mi informe en METRIA</a>
+    </section>`;
 }
 function portalTarjeta(tono, titulo, texto) {
   return `<section class="pp-estado pp-${tono}"><h1>${titulo}</h1><p>${texto}</p></section>`;

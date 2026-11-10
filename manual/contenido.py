@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.44.1'
+VERSION = '3.45.0'
 FECHA = 'Noviembre de 2026'
 
 PORTADA = {
@@ -560,6 +560,14 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.42'),
+('h2', 'Versión 3.45.0 — Al terminar la endoscopía, el paciente retira su informe en METRIA'),
+('ul', [
+    '**Pase del paciente.** Cuando una endoscopía queda finalizada (informe del estudio, Lista de Verificación y Admisión), su pase deja de mostrar el seguimiento y muestra «Tu estudio terminó — Tu informe va a estar en METRIA», con tres pasos y el botón «Retirar mi informe en METRIA». Vale también para los pases ya entregados: se actualizan solos. Las cirugías, cesáreas y partos siguen igual.',
+    '**Correo al paciente.** El servicio del hospital (Apps Script) le manda una sola vez un correo «Tu estudio terminó: retirá tu informe», con el mismo botón. Sale entre las 8 y las 21 h, solo para endoscopías con pase cerradas en las últimas 72 h, y no nombra el estudio ni el diagnóstico. El enlace no lleva ningún dato del paciente.',
+    '**En METRIA.** El paciente entra con su correo, el código que le llega y su DNI (la primera vez completa sus datos). El endoscopista lo busca por apellido o por los 3 últimos dígitos del DNI, verifica su identidad y sube el PDF del informe y las fotos; las fotos se achican solas antes de subir. El paciente las ve, las descarga y se le avisa que las guarde: se borran de la app 72 h después de la primera descarga, o a los 90 días si nunca las baja.',
+    '**Textos de endoscopía.** En el formulario del pase y en la ficha, una endoscopía ya no dice «cirugía», «Jefatura» ni «parte quirúrgico»: dice «estudio» e «Informe del estudio», y el botón es «Guardar informe del estudio y cerrar».',
+    '**Cierre por inactividad.** Si la sesión se cerraba sola mientras se cargaba un turno nuevo, al volver a entrar la app llevaba a la grilla pero sin el formulario. Ahora reabre el turno en el mismo paso, con todo lo que se había cargado.',
+]),
 ('h2', 'Versión 3.44.1 — Muro de gratitud y Módulos sin recortes'),
 ('ul', [
     '**Postales «para usted».** La cinta en diagonal del rincón se cortaba contra el borde de la tarjeta y escondía el sello (Compañerismo, Ética…). Ahora es una etiqueta «💌 Para usted» entera arriba de la postal, el sello se ve siempre y el nombre largo pasa a dos renglones.',
