@@ -5361,6 +5361,25 @@
   .tq-op b { font-size: 1rem; } .tq-op small { color: var(--muted); font-size: .8rem; line-height: 1.35; }
   .tq-op.mover { border-color: #93c5fd; } .tq-op.mover b { color: #1d4ed8; }
   .tq-op.borrar { border-color: #fca5a5; } .tq-op.borrar b { color: #b91c1c; }
+  .tq-op.susp { border-color: #fcd34d; } .tq-op.susp b { color: #b45309; }
+  .tq-op.apagada { cursor: not-allowed; border-style: dashed; border-color: var(--line); background: transparent; }
+  .tq-op.apagada:hover { transform: none; box-shadow: none; }
+  .tq-op.apagada i { filter: grayscale(1); opacity: .5; } .tq-op.apagada b { color: var(--muted); }
+  body[data-tema] .tq-op.mover:not(.apagada) b { color: color-mix(in srgb, #3b82f6 70%, var(--ink)); }
+  body[data-tema] .tq-op.susp:not(.apagada) b { color: color-mix(in srgb, #f59e0b 70%, var(--ink)); }
+  body[data-tema] .tq-op.borrar:not(.apagada) b { color: color-mix(in srgb, #ef4444 70%, var(--ink)); }
+  /* 11-11 · Jerarquía de los botones de la tarjeta del turno */
+  .cir-actions { align-items: center; }
+  .cir-actions .btn.acc-main { padding: 11px 20px; font-size: .95rem; font-weight: 800; border-radius: 11px; background: linear-gradient(135deg, #ea580c, #c2410c); color: #fff; border: 0; box-shadow: 0 8px 18px -10px #c2410c; }
+  .cir-actions .btn.acc-main svg { width: 17px; height: 17px; }
+  .cir-actions .btn.acc-sec { border: 1.5px solid #f97316; }
+  .cir-actions .btn.acc-sec svg { color: #f97316; }
+  .cir-actions .btn.acc-sec.ing-apagado { border-style: dashed; }
+  .cir-actions .acc-menores { flex: 1 0 100%; display: flex; flex-wrap: wrap; gap: 2px 6px; margin-top: -2px; }
+  .cir-actions .btn.acc-men { flex: 0 0 auto; background: transparent !important; box-shadow: none !important; border: 1px solid transparent !important; color: var(--muted); font-size: .78rem; font-weight: 600; padding: 6px 9px; min-height: 36px; }
+  .cir-actions .btn.acc-men:hover { color: var(--ink); text-decoration: underline; }
+  .cir-actions .btn.acc-men svg { opacity: .75; }
+  @media (max-width: 640px) { .cir-actions .btn.acc-main { flex: 1 0 100%; padding: 13px 18px; } .cir-actions .btn.acc-men { min-height: 44px; } }
   .ing-f.endo { position: relative; overflow: hidden; border-color: color-mix(in srgb, #0d9488 35%, var(--line)); background: linear-gradient(110deg, color-mix(in srgb, #14b8a6 10%, var(--card)), var(--card) 55%); padding-left: 16px; transition: transform .2s, box-shadow .2s; }
   .ing-f.endo::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(#2dd4bf, #0d9488); }
   .ing-f.endo:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -18px #0d9488; }
@@ -8149,7 +8168,7 @@ const LVQ = {
 const LVQ_ENDO = {
   entrada: { titulo: 'Antes de sedar — Entrada', resp: 'Enfermería de endoscopía · Anestesiología',
     items: ['Identidad, estudio y consentimiento confirmados', 'Ayuno y preparación cumplidos', 'Alergias y anticoagulantes revisados', 'Vía aérea y riesgo de aspiración evaluados', 'Oxímetro y monitoreo colocados y funcionando'] },
-  pausa: { titulo: 'Antes de empezar — Pausa', resp: 'Endoscopista · Anestesiología · Enfermería de endoscopía',
+  pausa: { titulo: 'Antes de empezar — Pausa endoscópica', resp: 'Endoscopista · Anestesiología · Enfermería de endoscopía',
     items: ['Equipo presentado: paciente y estudio correctos', 'Endoscopio reprocesado y probado', 'Eventos críticos previstos'] },
   salida: { titulo: 'Al terminar — Salida', resp: 'Enfermería de endoscopía · Endoscopista',
     items: ['Estudio realizado registrado', 'Biopsias rotuladas (o no hubo)', 'Problemas del equipo comunicados y cuidados de recuperación revisados'] },
@@ -8165,6 +8184,8 @@ const CAUSAS_SUSP = [
   'Falta de hemoderivados',
   'Emergencia desplazó el turno',
   'Ausencia del paciente',
+  'El paciente no puede concurrir (avisó)',
+  'Médico no disponible',
   'Falta de cama de internación / UTI',
   'Falta de autorización del financiador',
   'Reprogramada',
@@ -10271,7 +10292,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.46.0';
+const APP_VERSION = '3.47.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -20164,11 +20185,17 @@ function accionesCirugia(c, rol, enFicha) {
   // El turno confirmado en el parte arranca con la LVQ. La urgencia que entró
   // fuera de horario, también: la validación de la Jefatura queda diferida y el
   // cirujano no espera a nadie para operar.
-  if ((c.estado === 'confirmada' || puedeIniciarSinJefatura(c)) && (jefe || esDueno) && !vencido) {
-    a.push(`<button class="btn btn-sm btn-orange" onclick="openLVQ(${c.id}, 'inicio')">${ICONS.play} Iniciar (LVQ Entrada + Pausa)</button>`);
-  }
+  /* 11-11 · Orden pedido por Claudio: primero y más destacada la Pantalla de sala; después,
+     más chico, Iniciar LVQ (apagado y con el motivo hasta el día del turno); después
+     «Pasar a otro día o suspender»; y al final, discretos, Resuelta por urgencia y el pase. */
+  const men = [];
   if (['confirmada', 'en_curso'].includes(c.estado) && (jefe || esDueno) && !vencido && lvqHabilitada(c)) {
-    a.push(`<button class="btn btn-sm btn-outline" onclick="sxAbrir(${c.id})">${ICONS.play} Pantalla de sala</button>`);
+    a.push(`<button class="btn btn-sm btn-orange acc-main" onclick="sxAbrir(${c.id})">${ICONS.play} Pantalla de sala</button>`);
+  }
+  if ((c.estado === 'confirmada' || puedeIniciarSinJefatura(c)) && (jefe || esDueno) && !vencido) {
+    a.push(lvqHabilitada(c)
+      ? `<button class="btn btn-sm btn-outline acc-sec" onclick="openLVQ(${c.id}, 'inicio')">${ICONS.play} Iniciar LVQ</button>`
+      : `<button class="btn btn-sm btn-outline acc-sec ing-apagado" disabled title="${esc(lvqMotivoBloqueo(c))}">🔒 Iniciar LVQ · ${c.ciRevocado && !c.ciPaciente ? 'consentimiento revocado' : 'se habilita el ' + esc(fmtFecha(c.fecha))}</button>`);
   }
   // Terminado el procedimiento, el cirujano completa la Salida del check-list
   // —que incluye el parte quirúrgico— y con eso la cirugía se cierra y queda
@@ -20176,13 +20203,16 @@ function accionesCirugia(c, rol, enFicha) {
   if (c.estado === 'en_curso' && (jefe || esDueno)) {
     a.push(`<button class="btn btn-sm btn-darkgreen" onclick="openLVQ(${c.id}, 'salida')">${ICONS.flag} Finalizar (LVQ Salida + parte)</button>`);
   }
-  if (['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado) && jefe && !vencido) {
-    a.push(`<button class="btn btn-sm btn-red" onclick="openSuspender(${c.id})">${ICONS.x} Suspender</button>`);
+  {
+    const pSusp = ['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado) && jefe && !vencido;
+    const pProp = puedeEliminarPropio(c) && c.estado !== 'borrador';
+    if (c.estado === 'en_curso' && pSusp) a.push(`<button class="btn btn-sm btn-outline acc-ter" onclick="openSuspender(${c.id})">${ICONS.x} Suspender</button>`);
+    else if (pSusp || pProp) a.push(`<button class="btn btn-sm btn-outline acc-ter" onclick="turnoQueHacer(${c.id})">${ICONS.calendar} Pasar a otro día o suspender</button>`);
   }
   // El paciente pudo operarse de urgencia antes de su fecha: el turno se cierra
   // por anticipación —no por suspensión— y la franja queda libre.
   if (['pendiente', 'validada', 'confirmada'].includes(c.estado) && !c.urgencia && (jefe || esDueno) && !vencido) {
-    a.push(`<button class="btn btn-sm btn-outline" onclick="openAnticipar(${c.id})">${ICONS.zap} Resuelta por urgencia</button>`);
+    men.push(`<button class="btn btn-sm acc-men" onclick="openAnticipar(${c.id})">${ICONS.zap} Resuelta por urgencia</button>`);
   }
   if (c.estado === 'anticipada' && jefe) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="reabrirAnticipada(${c.id})">${ICONS.refresh} Reponer el turno</button>`);
@@ -20193,13 +20223,7 @@ function accionesCirugia(c, rol, enFicha) {
   if (puedeReprogramarCaducada(c)) {
     a.push(`<button class="btn btn-sm btn-blue" onclick="reprogramarCaducada(${c.id})">${ICONS.refresh} Reprogramar</button>`);
   }
-  if (puedeEliminarPropio(c) && c.estado !== 'borrador') {
-    a.push(`<button class="btn btn-sm btn-outline" style="border-color:#fca5a5;color:#b91c1c" onclick="turnoQueHacer(${c.id})">${ICONS.trash} Eliminar o pasar a otro día</button>`);
-  }
-  /* 07-11 · En la ficha ya está junto al consentimiento: no se repite abajo. */
-  if (ciBajaDesdeTurno(c) && !enFicha) {
-    a.push(`<button class="btn btn-sm btn-green" onclick="ciFirmadoDescargar(${c.id})">${ico(ICONS.download, 14)} ${esc(ciFirmadoRotulo(c))}</button>`);
-  }
+  /* 11-11 · «Bajar el consentimiento» ya no va en la tarjeta: está en la ficha, junto al consentimiento. */
   if (c.estado === 'caducada' && c.reprogramadaEn) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="openCirugia(${c.reprogramadaEn})">${ICONS.refresh} Ver el turno nuevo</button>`);
   }
@@ -20223,7 +20247,7 @@ function accionesCirugia(c, rol, enFicha) {
   }
   // Pase del paciente: se emite o se vuelve a mostrar desde la propia tarjeta.
   if ((jefe || esDueno) && c.pase && c.pase.token && !c.pase.caducado) {
-    a.push(`<button class="btn btn-sm btn-outline" onclick="openPase(${c.id})">${ico(ICONS.qr, 14)} Pase del paciente</button>`);
+    men.push(`<button class="btn btn-sm acc-men" onclick="openPase(${c.id})">${ico(ICONS.qr, 14)} Pase del paciente</button>`);
   } else if ((jefe || esDueno) && !c.pase && portalElegible(c)) {
     a.push(`<button class="btn btn-sm pase-btn-main" onclick="openPase(${c.id})">${ico(ICONS.qr, 14)} Generar pase del paciente</button>`);
   }
@@ -20233,6 +20257,7 @@ function accionesCirugia(c, rol, enFicha) {
   if (jefe && ['borrador', 'suspendida', 'caducada'].includes(c.estado)) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="delCirugia(${c.id})">${ICONS.trash} Eliminar</button>`);
   }
+  if (men.length) a.push(`<div class="acc-menores">${men.join('')}</div>`);
   return a;
 }
 
@@ -20341,7 +20366,9 @@ function openLVQ(id, modo) {
       </div>
     </div>
     <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">${modo === 'inicio'
-      ? 'Complete la fase de <b>Entrada</b> (antes de la inducción) y la <b>Pausa Quirúrgica</b> (antes de la incisión) para registrar el inicio del procedimiento.'
+      ? (esEndo(c)
+        ? 'Complete la fase de <b>Entrada</b> (antes de la inducción) y la <b>Pausa Endoscópica</b> (antes de la introducción) para registrar el inicio del estudio.'
+        : 'Complete la fase de <b>Entrada</b> (antes de la inducción) y la <b>Pausa Quirúrgica</b> (antes de la incisión) para registrar el inicio del procedimiento.')
       : `Complete la fase de <b>Salida</b> (antes de salir de quirófano) y el <b>parte${sinRecuento(c) ? '' : ' quirúrgico'}</b>.${sinRecuento(c) ? '' : ' El conteo de gasas e instrumental es obligatorio.'} Al confirmar, ${esEndo(c) ? 'la endoscopía' : esParto(c) ? 'el parto' : 'la cirugía'} se cierra y queda <b>finalizad${esParto(c) ? 'o' : 'a'}</b>.`}</p>
     ${modo === 'inicio' && puedeIniciarSinJefatura(c) && !sinJefatura(c) ? `<div class="banner banner-amber" style="margin:0 0 14px;padding:10px 14px">${ico(ICONS.zap, 16)}
       <div><strong>Validación de Jefatura diferida — ${esc(jefaturaMotivoExencion(c))}</strong>
@@ -20494,27 +20521,36 @@ function openSuspender(id, desdeResolver) {
   if (!c) return;
   $('susp-modal').innerHTML = `
     <button class="modal-close" onclick="closeSuspender()" aria-label="Cerrar">✕</button>
-    <h2 style="text-align:left;display:flex;align-items:center;gap:10px">${ICONS.alertTri.replace('22', '20').replace('22', '20')} Suspender cirugía</h2>
+    <h2 style="text-align:left;display:flex;align-items:center;gap:10px">${ICONS.alertTri.replace('22', '20').replace('22', '20')} Suspender ${esEndo(c) ? 'el estudio' : esParto(c) ? 'el parto' : 'la cirugía'}</h2>
     <p style="font-size:0.88rem;color:var(--muted);margin:6px 0 18px">${esc(c.procedimiento)} — ${esc(c.paciente?.nombre)} · ${fmtFecha(c.fecha)}. La carga de la causa es <b>obligatoria</b>.</p>
     <div class="field" style="margin-bottom:14px">
       <label>Causa de suspensión *</label>
-      <select id="susp-causa">${CAUSAS_SUSP.map((x) => `<option>${x}</option>`).join('')}</select>
+      <select id="susp-causa" onchange="suspValidar()"><option value="">Elija la causa…</option>${CAUSAS_SUSP.map((x) => `<option>${x}</option>`).join('')}</select>
     </div>
     <div class="field" style="margin-bottom:18px">
       <label>Detalle</label>
       <textarea id="susp-det" style="min-height:90px" placeholder="Circunstancias de la suspensión..."></textarea>
     </div>
     <div class="form-actions" style="margin-top:0">
-      <button class="btn btn-red" onclick="confirmSuspender()">${ICONS.x} Confirmar suspensión</button>
+      <button class="btn btn-red" id="susp-ok" disabled style="opacity:.5" onclick="confirmSuspender()">${ICONS.x} Falta elegir la causa</button>
       ${desdeResolver ? `<button class="btn btn-outline" onclick="openResolverTurno(${c.id})">Volver</button>` : '<button class="btn btn-outline" onclick="closeSuspender()">Cancelar</button>'}
     </div>
     <p class="form-note" style="margin-top:14px">${ICONS.info.replace('18', '13')} La suspensión no planificada genera automáticamente una incidencia de <b>categoría D</b> en el módulo de mejora continua.</p>`;
   abrirVentanaTurno();
 }
 function closeSuspender() { $('susp-overlay').classList.remove('open'); }
+/* 11-11 · La causa no viene elegida: «Confirmar» queda apagado y dice qué falta. */
+function suspValidar() {
+  const b = $('susp-ok'), ok = !!($('susp-causa') && $('susp-causa').value);
+  if (!b) return;
+  b.disabled = !ok; b.style.opacity = ok ? '' : '.5';
+  b.innerHTML = ok ? `${ICONS.x} Confirmar suspensión` : `${ICONS.x} Falta elegir la causa`;
+}
 function confirmSuspender() {
-  const c = DB.cirugias.find((x) => x.id === suspCirId);
+  const c = DB.cirugias.find((x) => String(x.id) === String(suspCirId));
   if (!c) return;
+  if (!$('susp-overlay').classList.contains('open')) return;   // doble toque: el primero ya la cerró
+  if (!$('susp-causa').value) { suspValidar(); return; }
   // Solo lo que sigue en el circuito se suspende: un formulario viejo no
   // puede pisar un turno que ya se cerró por otro lado.
   if (!['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado)) { closeSuspender(); avisar('Este turno ya quedó «' + ESTC[estadoVisible(c)].label + '»: no se suspendió.'); return; }
@@ -28693,7 +28729,7 @@ function openSlot(d, sid, fid) {
       ${c && rcActivo(c) && puedeEditar ? '<p class="tm-ayuda rc-nota-guardar">«Guardar cambios» solo guarda los datos del turno que haya corregido arriba (paciente, cirugía, duración, equipos…). <b>No</b> es el OK a la nueva fecha: ese es el botón 🛏 de «Lo que sigue».</p>' : ''}
       ${puedeEditar ? `<button class="btn btn-blue tm-pie-main" onclick="${nuevo ? 'tmwProgramar()' : 'guardarSlot()'}">${ICONS.check.replace('14', '16')} ${nuevo ? 'Programar turno' : 'Guardar cambios'}</button>` : ''}
       ${c && puedeOtroEstudio(c) ? `<button class="btn btn-outline tm-pie-otro" onclick="otroEstudio(${c.id})">➕ Otro estudio del mismo paciente</button>` : ''}
-      ${c && !sinResolver(c) && EST_ELIMINABLE.includes(c.estado) && (jefe || (u && c.cirujanoEmail === u.email)) ? `<button class="btn btn-outline tm-pie-red" onclick="cancelarSlot(${c.id})">${ICONS.trash} ${jefe ? 'Cancelar turno' : 'Eliminar o pasar a otro día'}</button>` : ''}
+      ${c && !sinResolver(c) && EST_ELIMINABLE.includes(c.estado) && (jefe || (u && c.cirujanoEmail === u.email)) ? (jefe ? `<button class="btn btn-outline tm-pie-red" onclick="cancelarSlot(${c.id})">${ICONS.trash} Cancelar turno</button>` : `<button class="btn btn-outline" onclick="cancelarSlot(${c.id})">${ICONS.calendar} Pasar a otro día o suspender</button>`) : ''}
       <button class="btn btn-outline" onclick="closeSlot()">Cerrar</button>
       ${!puedeEditar ? `<p class="form-note" style="flex-basis:100%;margin:4px 0 0">${cerradaFirme(c) ? `🔒 <b>Finalizada y cerrada${cierreCuando(c) ? ' el ' + esc(cierreCuando(c)) : ''}.</b> El turno ya no se modifica, no se elimina ni se pasa a otro día: queda para consulta.` : ['en_curso', 'realizada'].includes(c.estado) ? `${esEndo(c) ? 'El estudio' : 'La cirugía'} ya ${c.estado === 'en_curso' ? 'empezó' : 'se hizo'}: el turno no se elimina ni se pasa a otro día. Lo que falta se completa desde <b>Ver y completar ficha</b>.` : 'El turno ya avanzó en el circuito: los datos se corrigen desde <b>Ver y completar ficha</b>.'}</p>` : ''}
     </div>
@@ -29546,24 +29582,41 @@ function eliminarBloqueo(c) {
     return `El turno ya está CONFIRMADO en el parte del ${fmtFecha(c.fecha)}, que cerró a las ${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(c.fecha)}: tiene equipo, sala${camaDe(c) ? ' y cama' : ''} asignados.\n\nYa no se elimina: se SUSPENDE con su causa. Pídaselo a la Jefatura de Quirófanos (solapa «Reclamos» o por teléfono).`;
   return '';
 }
-/* Primero se pregunta: ¿eliminarlo o pasarlo a otro día? */
+/* 11-11 · Una sola ventana para las tres salidas de un turno que no se hace ese día:
+   pasarlo a otro día, suspenderlo con causa o eliminarlo (error de carga). Cada opción
+   está prendida solo para quien puede usarla; apagada dice por qué y quién la hace. */
+function turnoOpciones(c) {
+  const dueno = esDuenoTurno(c), prop = puedeEliminarPropio(c), bloq = prop ? eliminarBloqueo(c) : '';
+  const jf = jefeDe(c), jefNom = esEndo(c) ? JEFATURA_ENDO : JEFATURA;
+  const cerro = `La lista del ${fmtFecha(c.fecha)} ya cerró y el turno está en el parte: queda suspenderlo con causa.`;
+  const noProp = !dueno ? 'Lo hace el médico que creó el turno.' : sinResolver(c) ? 'El día del turno ya pasó: use «Resolver turno».' : 'El turno ya empezó o se cerró.';
+  const estSusp = ['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado) && !sinResolver(c);
+  return {
+    mover: prop && !bloq ? '' : prop ? cerro : noProp,
+    susp: estSusp && jf ? '' : !estSusp ? (c.estado === 'borrador' ? 'Un borrador todavía no está en la lista: no hay nada que suspender.' : 'Este turno ya no está en el circuito.') : `La suspende la ${jefNom}: pídasela por «Reclamos» o por teléfono.`,
+    borrar: prop && !bloq ? '' : prop ? cerro : noProp,
+  };
+}
 function turnoQueHacer(id) {
   const c = DB.cirugias.find((x) => String(x.id) === String(id));
   if (!c) return;
-  if (!puedeEliminarPropio(c)) { alert('Solo el cirujano que creó el turno puede eliminarlo o pasarlo a otro día, y solo mientras no haya empezado.'); return; }
-  const bloq = eliminarBloqueo(c);
-  if (bloq) { alert(bloq); return; }
+  const op = turnoOpciones(c);
+  if (!esDuenoTurno(c) && !jefeDe(c)) { alert('Solo el médico que creó el turno o la Jefatura pueden pasarlo a otro día, suspenderlo o eliminarlo.'); return; }
   if ($('slot-overlay') && $('slot-overlay').classList.contains('open')) closeSlot();
   if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) closeCirugia();
   const que = esEndo(c) ? 'la endoscopía' : esParto(c) ? 'el parto' : c.sala === 'QOBS' ? 'la cesárea' : 'la cirugía';
+  const est = esEndo(c) ? 'el estudio' : 'el turno';
+  const J = esc(JSON.stringify(c.id));
+  const boton = (k, ico, tit, txt, accion) => op[k]
+    ? `<button type="button" class="tq-op ${k} apagada" disabled aria-disabled="true"><i>${ico}</i><b>${tit}</b><small>🔒 ${esc(op[k])}</small></button>`
+    : `<button type="button" class="tq-op ${k}" onclick="rcCerrar();${accion}"><i>${ico}</i><b>${tit}</b><small>${txt}</small></button>`;
   rcModal().innerHTML = `<button class="modal-close" onclick="rcCerrar()" aria-label="Cerrar">✕</button>
     <header class="rc-hero" style="--c:#475569"><span class="rc-kick">Su turno</span><h2>¿Qué hacemos con ${que}?</h2>
       <p>${esc(c.procedimiento || '')} · ${esc(c.paciente?.nombre || 's/d')}<br>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg || '—')} h · ${esc(c.quirofano || '')}</p></header>
     <div class="tq-ops">
-      <button type="button" class="tq-op mover" onclick="rcCerrar();turnoMoverIniciar(${esc(JSON.stringify(c.id))})"><i>📅</i><b>Pasarlo a otro día</b>
-        <small>Elige la franja nueva. Se conservan el paciente${c.pase ? ', el pase del paciente (le muestra la fecha nueva)' : ''} y los requisitos. ${consentimientoDeTurno(c) ? `El consentimiento toma la fecha nueva${c.ciPaciente ? ': el paciente lo vuelve a aceptar y la versión anterior queda en «No concretados»' : ''}. ` : ''} Admisión${sinJefatura(c) ? '' : ' y la Jefatura'} lo vuelve${esEndo(c) ? '' : 'n'} a autorizar para la fecha nueva.</small></button>
-      <button type="button" class="tq-op borrar" onclick="rcCerrar();eliminarTurnoPropio(${esc(JSON.stringify(c.id))})"><i>🗑</i><b>Eliminarlo</b>
-        <small>Se borra el turno y la franja queda libre. No se puede deshacer.</small></button>
+      ${boton('mover', '📅', 'Pasarlo a otro día', `Elige la franja nueva. Se conservan el paciente${c.pase ? ', el pase del paciente (le muestra la fecha nueva)' : ''} y los requisitos. ${consentimientoDeTurno(c) ? `El consentimiento toma la fecha nueva${c.ciPaciente ? ': el paciente lo vuelve a aceptar y la versión anterior queda en «No concretados»' : ''}. ` : ''}Admisión${sinJefatura(c) ? '' : ' y la Jefatura'} lo vuelve${sinJefatura(c) ? '' : 'n'} a autorizar para esa fecha.`, `turnoMoverIniciar(${J})`)}
+      ${boton('susp', '⏸', `Suspender ${est} con causa`, `No se hace y queda anotado por qué: el paciente no puede venir, el médico no está disponible… Queda como «Suspendido» y cuenta en las estadísticas.`, `openSuspender(${J})`)}
+      ${boton('borrar', '🗑', `Eliminar ${est}`, `Se borra y sale de la lista, como si nunca se hubiera anotado. Es para un error de carga. La franja queda libre. No se puede deshacer.`, `eliminarTurnoPropio(${J})`)}
     </div>
     <button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:10px" onclick="rcCerrar()">Volver sin cambiar nada</button>`;
   $('rc-overlay').classList.add('open');
@@ -29636,7 +29689,7 @@ function cancelarSlot(id) {
     return;
   }
   // 3.34 · El cirujano dueño elimina su turno (también el confirmado, hasta el cierre).
-  if (!jefe) { turnoQueHacer(id); return; }
+  if (!jefe || esDuenoTurno(c)) { turnoQueHacer(id); return; }
   if (c.estado === 'confirmada') {
     alert('El turno ya está confirmado en el parte oficial: debe suspenderse con causa registrada, no cancelarse.');
     closeSlot();
