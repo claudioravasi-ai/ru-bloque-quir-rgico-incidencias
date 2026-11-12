@@ -5223,7 +5223,8 @@
   /* ================= 3.27 · Ingresos del día (Admisión) ================= */
   .ing-sec { border-radius: 18px; background: var(--card); border: 1px solid var(--line); padding: 10px; margin-bottom: 14px; }
   .ing-sec > header { display: flex; align-items: baseline; gap: 10px; margin: 2px 4px 8px; } .ing-sec > header b { font-size: 1rem; } .ing-sec > header span { color: var(--muted); font-size: .8rem; } .ing-sec em { color: #b91c1c; font-style: normal; font-weight: 800; }
-  .ing-f { display: grid; grid-template-columns: 64px minmax(0, 1.6fr) minmax(0, .9fr) minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 6px; background: var(--sup2, #f8fafc); }
+  @media (max-width: 640px) { .ing-sec > header { flex-direction: column; gap: 2px; } }
+  .ing-f { display: grid; grid-template-columns: 64px minmax(0, 1.6fr) minmax(210px, .9fr) minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 6px; background: var(--sup2, #f8fafc); }
   .ing-f.prio { border-color: #fca5a5; background: #fff1f2; }
   .ing-h b { display: block; font-size: 1.1rem; } .ing-h small { color: var(--muted); font-size: .7rem; }
   .ing-p b { font-size: .92rem; } .ing-p small { display: block; color: var(--muted); font-size: .74rem; } .ing-p .ing-dx { color: var(--ink); font-weight: 600; }
@@ -5231,6 +5232,18 @@
   .ing-cama { display: inline-grid; gap: 1px; border-radius: 10px; padding: 5px 9px; font-size: .78rem; font-weight: 800; color: #fff; background: var(--c); box-shadow: 0 6px 14px -8px var(--c); }
   .ing-cama small { font-weight: 600; opacity: .9; font-size: .66rem; } .ing-cama.no { color: #b91c1c; background: #fee2e2; box-shadow: none; }
   .ing-a { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
+  .ie { display: grid; gap: 5px; margin: 0; width: 100%; max-width: 300px; }
+  .ie-r { --c: #64748b; --s: color-mix(in srgb, var(--c) 12%, var(--card)); --t: var(--ink); display: grid; grid-template-columns: 66px minmax(0, 1fr); align-items: stretch; min-height: 42px; border-radius: 10px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line)); background: var(--s); }
+  .ie-r dt { display: flex; align-items: center; padding: 0 8px; font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: var(--c); }
+  .ie-r dd { margin: 0; display: flex; align-items: center; gap: 6px; padding: 5px 8px; font-size: .8rem; font-weight: 700; line-height: 1.2; color: var(--t); }
+  .ie-r dd i { flex: none; font-style: normal; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: .7rem; font-weight: 900; color: #fff; background: var(--c); }
+  .ie-turno dd i { width: 10px; height: 10px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent); }
+  .ie-ok { --c: #15803d; --t: #166534; }
+  .ie-no { --c: #d97706; --t: #92400e; }
+  .ie-mal { --c: #b91c1c; --t: #991b1b; }
+  .ie-mod { --c: #b91c1c; --t: #991b1b; }
+  body[data-tema="noche"] .ie-r, body[data-tema="noche"] .ie-r[style] { --t: #f1f5f9 !important; }
+  body[data-tema="noche"] .ie-r { background: color-mix(in srgb, var(--c) 22%, var(--sup1, #1c272f)); }
   .ing-a .ing-apagado, .btn.ing-apagado { opacity: .55; filter: saturate(.3); white-space: normal; text-align: left; max-width: 260px; }
   /* 3.33 · Endoscopía ambulatoria: fila propia con la ruta del paciente (sin cama). */
   .tm-pie-otro { border-color: #5eead4 !important; color: #0f766e !important; }
@@ -5393,7 +5406,14 @@
   @keyframes enLlena { from { width: 0; } }
   .en-paso { position: relative; z-index: 1; display: grid; justify-items: center; gap: 3px; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: var(--muted); }
   .en-paso i { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .72rem; font-weight: 900; background: var(--card); border: 2px solid color-mix(in srgb, #0d9488 30%, var(--line)); transition: transform .15s; }
-  .en-paso small { font-size: .62rem; font-weight: 700; line-height: 1.1; text-align: center; }
+  .en-paso small { font-size: .7rem; font-weight: 700; line-height: 1.2; text-align: center; white-space: nowrap; }
+  /* 12-11 · Pedido de Claudio: en Ingresos la tira de pasos tapaba «Acreditar» y la pulsera.
+     En las endoscopías la tira va en su propio renglón, a lo ancho, debajo del paciente,
+     y los botones quedan arriba a la derecha. Rótulos de una palabra: todos en un renglón. */
+  .ing-f.endo { grid-template-columns: 64px minmax(0, 1.5fr) minmax(230px, 1fr) auto; }
+  .ing-f.endo .ing-a { grid-column: 4; grid-row: 1; }
+  .ing-f.endo .ing-c { grid-column: 2 / -1; grid-row: 2; padding-top: 8px; border-top: 1px dashed color-mix(in srgb, #0d9488 30%, var(--line)); }
+  .ing-f.endo .en-ruta { max-width: 560px; }
   .en-paso:hover i, .en-paso.sel i { transform: scale(1.15); }
   .en-paso.ok i { background: #0d9488; border-color: #0d9488; color: #fff; }
   .en-paso.ok small { color: #0f766e; }
@@ -5410,7 +5430,9 @@
   .en-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 4px 8px; }
   .en-chips span { font-size: .72rem; font-weight: 800; border-radius: 999px; padding: 3px 9px; background: color-mix(in srgb, #14b8a6 14%, var(--card)); color: #0f766e; }
   @media (prefers-reduced-motion: reduce) { .en-ruta-t svg, .en-paso.ya i, .en-pasos::after, .en-hint { animation: none !important; } }
-  @media (max-width: 900px) { .ing-f { grid-template-columns: 54px minmax(0, 1fr); } .ing-e, .ing-c { grid-column: 2; } .ing-a { grid-column: 1 / -1; justify-content: flex-start; } }
+  @media (max-width: 900px) { .ing-f { grid-template-columns: 54px minmax(0, 1fr); } .ing-e, .ing-c { grid-column: 2; } .ing-a { grid-column: 1 / -1; justify-content: flex-start; }
+    .ing-f.endo { grid-template-columns: 54px minmax(0, 1fr); } .ing-f.endo .ing-e { grid-column: 2; }
+    .ing-f.endo .ing-c { grid-column: 1 / -1; grid-row: auto; } .ing-f.endo .ing-a { grid-column: 1 / -1; grid-row: auto; } }
 
   /* ================= 3.21 · Tarjeta-infografía (v2) ================= */
   .pf-acentos { display: flex; gap: 8px; margin-bottom: 10px; }
@@ -7593,6 +7615,129 @@
 
   @media (max-width: 520px) { .tmw-riel span { font-size: .66rem; } .tmw-riel i { width: 32px; height: 32px; } .tmw-riel::before { top: 15px; } .tmp-reco { grid-template-columns: 1fr; } .tmp-aplicar { width: 100%; } .tmg-foco-txt b { font-size: 1rem; } }
   @media (prefers-reduced-motion: reduce) { .tm *, .tm, .fa, .fa *, .tmp-lista li { animation: none !important; transition: none !important; } }
+  /* ===== 3.48 · Mi actividad (Estadísticas) ===== */
+  @keyframes emaSube { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+  @keyframes emaTraza { from { stroke-dasharray: 0 var(--c); } to { stroke-dasharray: var(--l) var(--c); } }
+  @keyframes emaCrece { from { width: 0; } to { width: var(--w); } }
+  @keyframes emaAlto { from { height: 0; } to { height: var(--h); } }
+  @keyframes emaBrillo { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  .ema-elegir { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 14px; padding: 12px 14px; border-radius: 16px; background: var(--sup1, #fff); border: 1px solid var(--line); }
+  .ema-elegir label { font-weight: 700; }
+  .ema-elegir select { flex: 1 1 220px; min-width: 0; font-size: 16px; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--sup1, #fff); color: var(--ink); }
+  .ema-nadie { padding: 40px 16px; text-align: center; color: var(--muted); border: 2px dashed var(--line); border-radius: 18px; }
+  .ema { display: grid; gap: 14px; min-width: 0; }
+  .ema-hero { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 20px; border-radius: 22px; color: #fff;
+    background: linear-gradient(120deg, #1e3a8a, #0f766e, #7c3aed, #1e3a8a); background-size: 300% 100%; animation: emaBrillo 18s linear infinite, emaSube .5s ease both; box-shadow: 0 10px 30px rgba(30, 58, 138, .25); }
+  .ema-hero::after { content: ''; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.18), transparent 70%); pointer-events: none; }
+  .ema-hero-txt { min-width: 0; position: relative; z-index: 1; }
+  .ema-yo-id { display: flex; align-items: center; gap: 12px; }
+  .ema-av { flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 1.15rem; background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.55); }
+  .ema-yo-id small { display: block; opacity: .8; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; }
+  .ema-yo-id b { display: block; font-size: 1.35rem; line-height: 1.15; overflow-wrap: anywhere; }
+  .ema-yo-id em { display: block; font-style: normal; opacity: .85; font-size: .85rem; overflow-wrap: anywhere; }
+  .ema-frase { margin: 12px 0 0; font-size: 1.05rem; line-height: 1.45; }
+  .ema-frase b { font-size: 1.25em; }
+  .ema-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .ema-chips button { --c: #fff; min-height: 38px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.45); background: rgba(255,255,255,.12); color: #fff; font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; transition: transform .15s, background .2s; }
+  .ema-chips button:hover { transform: translateY(-1px); background: rgba(255,255,255,.22); }
+  .ema-chips button.on { background: #fff; color: #1e293b; border-color: #fff; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 55%, transparent); }
+  .ema-sep { width: 1px; align-self: stretch; background: rgba(255,255,255,.35); margin: 0 4px; }
+  .ema-hero-graf { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .ema-anillo { width: 150px; height: 150px; }
+  .ema-anillo-f { fill: none; stroke: rgba(255,255,255,.18); stroke-width: 16; }
+  .ema-arco { fill: none; stroke-width: 16; stroke-linecap: butt; animation: emaTraza 1s cubic-bezier(.2,.8,.3,1) both; }
+  .ema-anillo-n { fill: #fff; font-size: 30px; font-weight: 800; text-anchor: middle; }
+  .ema-anillo-s { fill: rgba(255,255,255,.85); font-size: 11px; text-anchor: middle; }
+  .ema-cero { width: 130px; height: 130px; border-radius: 50%; border: 14px solid rgba(255,255,255,.18); display: grid; place-items: center; align-content: center; font-size: 2rem; font-weight: 800; }
+  .ema-cero small { font-size: .7rem; font-weight: 500; opacity: .85; }
+  .ema-ley { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 10px; font-size: .8rem; }
+  .ema-ley i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--c); margin-right: 4px; vertical-align: -1px; box-shadow: 0 0 0 1px rgba(255,255,255,.6); }
+  .ema-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .ema-tile { --t: #2563eb; position: relative; overflow: hidden; display: grid; gap: 2px; text-align: left; padding: 14px; border-radius: 18px; border: 1px solid color-mix(in srgb, var(--t) 30%, var(--line)); background: color-mix(in srgb, var(--t) 9%, var(--sup1, #fff)); color: var(--ink); font: inherit; animation: emaSube .45s ease both; animation-delay: calc(var(--i) * 70ms); }
+  button.ema-tile { cursor: pointer; transition: transform .15s, box-shadow .2s; }
+  button.ema-tile:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 18px color-mix(in srgb, var(--t) 25%, transparent); }
+  button.ema-tile:disabled { cursor: default; }
+  .ema-tile span { font-size: 1.3rem; }
+  .ema-tile b { font-size: 2rem; line-height: 1; color: var(--t); font-weight: 800; }
+  .ema-tile small { font-weight: 700; font-size: .92rem; }
+  .ema-tile em { font-style: normal; font-size: .8rem; color: var(--muted); overflow-wrap: anywhere; }
+  .ema-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .ema-card { min-width: 0; padding: 16px; border-radius: 18px; background: var(--sup1, #fff); border: 1px solid var(--line); animation: emaSube .5s ease both; }
+  .ema-card-ancha { grid-column: 1 / -1; }
+  .ema-card h3 { margin: 0 0 12px; font-size: 1.02rem; }
+  .ema-card h3 small { display: block; font-weight: 500; color: var(--muted); font-size: .8rem; margin-top: 2px; }
+  .ema-vacio { color: var(--muted); font-size: .9rem; margin: 6px 0; }
+  .ema-mods { display: grid; gap: 10px; }
+  .ema-mod { display: flex; gap: 12px; align-items: center; animation: emaSube .45s ease both; animation-delay: calc(var(--i) * 90ms + 150ms); }
+  .ema-mod-l { flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; font-size: 1.3rem; color: #fff; background: var(--m); box-shadow: 0 6px 14px color-mix(in srgb, var(--m) 40%, transparent); }
+  .ema-mod-txt { flex: 1; min-width: 0; display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: baseline; }
+  .ema-mod-txt b { font-size: 1.5rem; color: var(--m); }
+  .ema-mod-txt small { color: var(--muted); font-size: .82rem; }
+  .ema-mod-bar { grid-column: 1 / -1; display: flex; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; margin: 4px 0 2px; }
+  .ema-mod-bar i { display: block; height: 100%; background: var(--m); width: var(--w); animation: emaCrece .9s cubic-bezier(.2,.8,.3,1) both .3s; }
+  .ema-mod-bar i.p { background: repeating-linear-gradient(45deg, var(--m) 0 4px, color-mix(in srgb, var(--m) 35%, transparent) 4px 8px); }
+  .ema-mod-txt em { grid-column: 1 / -1; font-style: normal; font-size: .78rem; color: var(--muted); }
+  .ema-linea { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; align-items: end; height: 170px; overflow-x: auto; }
+  .ema-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; height: 100%; min-width: 0; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; cursor: pointer; }
+  .ema-col-b { display: flex; flex-direction: column-reverse; width: min(100%, 30px); height: var(--h); min-height: 3px; border-radius: 7px 7px 3px 3px; overflow: hidden; background: var(--line); animation: emaAlto .8s cubic-bezier(.2,.8,.3,1) both; animation-delay: calc(var(--i) * 40ms + 200ms); transition: filter .15s, transform .15s; }
+  .ema-col:hover .ema-col-b { filter: brightness(1.12); transform: scaleX(1.08); }
+  .ema-col-b i { display: block; width: 100%; }
+  .ema-col-n { font-size: .75rem; font-weight: 700; min-height: 1em; }
+  .ema-col small { font-size: .68rem; color: var(--muted); white-space: nowrap; }
+  .ema-pr { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .ema-pr li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; animation: emaSube .4s ease both; animation-delay: calc(var(--i) * 60ms + 150ms); }
+  .ema-pr-n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: .82rem; background: color-mix(in srgb, #f59e0b 20%, var(--sup1, #fff)); color: #b45309; }
+  .ema-pr li:first-child .ema-pr-n { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; }
+  .ema-pr b { display: block; font-size: .9rem; font-weight: 600; overflow-wrap: anywhere; }
+  .ema-pr-bar { display: block; height: 6px; border-radius: 99px; background: var(--line); margin-top: 4px; overflow: hidden; }
+  .ema-pr-bar i { display: block; height: 100%; width: var(--w); border-radius: 99px; background: linear-gradient(90deg, #2563eb, #0d9488); animation: emaCrece .9s cubic-bezier(.2,.8,.3,1) both .3s; }
+  .ema-pr strong { font-size: 1.1rem; }
+  .ema-pend { border-radius: 18px; border: 2px solid #fcd34d; background: color-mix(in srgb, #f59e0b 8%, var(--sup1, #fff)); padding: 4px 14px; scroll-margin-top: 80px; }
+  .ema-pend summary { cursor: pointer; padding: 10px 0; font-weight: 700; }
+  .ema-pend summary small { display: block; font-weight: 500; color: var(--muted); font-size: .8rem; }
+  .ema-pend ul { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
+  .ema-pend li button { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; text-align: left; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--sup1, #fff); color: var(--ink); font: inherit; cursor: pointer; }
+  .ema-pend li button:hover { border-color: #f59e0b; }
+  .ema-pend li span { min-width: 0; overflow-wrap: anywhere; }
+  .ema-pend li small { display: block; color: #b45309; font-size: .8rem; }
+  .ema-pend li i { font-style: normal; font-size: 1.3rem; color: var(--muted); }
+  .ema-h2 { margin: 8px 0 0; font-size: 1.15rem; }
+  .ema-h2 small { font-weight: 500; color: var(--muted); font-size: .85rem; }
+  .ema-servs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+  .ema-serv { --sc: #2563eb; min-width: 0; padding: 16px; border-radius: 20px; background: var(--sup1, #fff); border: 1px solid var(--line); border-top: 5px solid var(--sc); display: grid; gap: 12px; animation: emaSube .5s ease both; animation-delay: calc(var(--i) * 120ms + 200ms); }
+  .ema-serv header { display: flex; gap: 10px; align-items: center; }
+  .ema-serv-i { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 1.3rem; background: color-mix(in srgb, var(--sc) 15%, var(--sup1, #fff)); }
+  .ema-serv header b { display: block; font-size: 1.05rem; }
+  .ema-serv header small { color: var(--muted); font-size: .8rem; }
+  .ema-serv-nums { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .ema-serv-nums div { text-align: center; padding: 8px 2px; border-radius: 12px; background: color-mix(in srgb, var(--sc) 7%, var(--sup1, #fff)); min-width: 0; }
+  .ema-serv-nums b { display: block; font-size: 1.3rem; color: var(--sc); }
+  .ema-serv-nums .rojo b { color: #dc2626; }
+  .ema-serv-nums small { font-size: .7rem; color: var(--muted); }
+  .ema-yo { display: grid; grid-template-columns: auto minmax(60px, 1fr) auto; gap: 8px; align-items: center; font-size: .85rem; }
+  .ema-yo-bar { height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; }
+  .ema-yo-bar i { display: block; height: 100%; width: var(--w); background: var(--sc); border-radius: 99px; animation: emaCrece 1s cubic-bezier(.2,.8,.3,1) both .4s; }
+  .ema-serv-mods { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .ema-serv-mods span { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 3px; border-radius: 99px; background: color-mix(in srgb, var(--m) 12%, var(--sup1, #fff)); font-weight: 700; }
+  .ema-serv-mods span i { font-style: normal; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--m); color: #fff; font-size: .78rem; }
+  .ema-serv-mods small { color: var(--muted); font-size: .78rem; }
+  .ema-serv-top > small { display: block; color: var(--muted); font-size: .8rem; margin-bottom: 6px; }
+  .ema-nota { font-size: .8rem; color: var(--muted); display: flex; gap: 6px; align-items: flex-start; }
+  .ema-nota svg { flex: none; margin-top: 2px; }
+  @media (max-width: 720px) {
+    .ema-hero { grid-template-columns: 1fr; padding: 16px; }
+    .ema-hero-graf { flex-direction: row; justify-content: center; flex-wrap: wrap; }
+    .ema-anillo { width: 120px; height: 120px; }
+    .ema-grid { grid-template-columns: 1fr; }
+    .ema-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ema-tile b { font-size: 1.7rem; }
+    .ema-serv-nums { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .ema-linea { height: 140px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ema *, .ema, .ema-servs * { animation: none !important; transition: none !important; }
+  }
+
 </style>
 </head>
 <body data-tema="sobrio">
@@ -10292,7 +10437,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.47.0';
+const APP_VERSION = '3.48.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11218,7 +11363,7 @@ let accesoTab = 'login';
 /* Estadísticas quirúrgicas */
 let estDesde = null;        // inicio del período analizado (ISO)
 let estHasta = null;        // fin del período analizado (ISO)
-let estTab = 'servicio';    // 'servicio' | 'cirujano' | 'tipo'
+let estTab = 'yo';          // 'yo' (Mi actividad) | 'servicio' | 'cirujano' | 'tipo'
 let estOrden = 'realizadas';// columna de ordenamiento
 let estAsc = false;         // sentido del ordenamiento
 let estServicio = '';       // filtro de servicio al desglosar por cirujano
@@ -21872,7 +22017,7 @@ function renderIngresos() {
       <div class="ing-h"><b>${esc(c.horaProg || '—')}</b><small>${esc(String(c.quirofano || '').replace(/^Quir[oó]fano\s*/i, 'Q').replace(/^Sala de Endoscop[ií]a.*$/i, 'Endoscopía').replace(/^Q de Obstetricia.*$|^Qde Obstetricia.*$/i, 'Obstetricia').replace(/^Q\s*Obstetricia.*$/i, 'Obstetricia'))}</small></div>
       <div class="ing-p"><b>${esc(c.paciente?.nombre || 's/d')}</b>${rcSello(c, true)}<small>DNI ${esc(c.paciente?.dni || '—')} · ${c.paciente?.edad ?? '—'} años · ${esc(c.obraSocial || 'sin obra social')} · ☎ ${esc(c.paciente?.telefono || '—')}</small>
         <small class="ing-dx">${esc(c.diagnostico || '')} · ${esc(c.procedimiento || '')}</small></div>
-      <div class="ing-e">${estChip(c)}<span class="ing-aut ${aut && !authPendienteDiferida(c) ? 'ok' : 'no'}">${authPendienteDiferida(c) ? (cierreTardio(c) ? '↷ Falta acreditar · +48 h: módulo al 50 %' : '↷ Urgencia: falta regularizar') : aut ? '✓ Autorizada' : c.auth === 'NO AUTORIZADO' ? '✕ No autorizada' : '⏳ Falta autorizar'}</span></div>
+      <div class="ing-e">${ingEstadoHTML(c, aut)}</div>
       <div class="ing-c">${k ? `<span class="ing-cama" style="--c:${S.c}">🛏 ${esc(S.corto)} · Hab. ${esc(k.hab)} · Cama ${esc(k.cama)}<small>Int. ${S.int}</small></span>` : esEndo(c) ? enRutaHTML(c) : c.pulsera ? '<span class="ing-cama">🚶 Ambulatorio · pulsera ✓</span>' : '<span class="ing-cama no">🛏 Sin cama</span>'}</div>
       <div class="ing-a">
         ${rc ? `<button class="btn btn-sm btn-red" onclick="openCirugia(${c.id})">Reprogramación: dar el OK</button>`
@@ -21924,10 +22069,22 @@ function enPasoN(c) {
   if (c.estado === 'confirmada' || authOk(c)) return 2;
   return 0;
 }
+/* 12-11 · Pedido de Claudio: la columna de estado de Ingresos, legible y pareja. Cada renglón
+   dice a qué corresponde (Turno, Admisión y, si pasaron las 48 h, Módulo), con el mismo alto,
+   el mismo ancho de rótulo y su color; antes era una línea suelta con todo junto. */
+function ingEstadoHTML(c, aut) {
+  const e = ESTC[estadoVisible(c)];
+  const dif = authPendienteDiferida(c), tarde = dif && cierreTardio(c);
+  const adm = dif ? { k: 'no', i: '↷', t: tarde ? 'Falta acreditar' : 'Urgencia: falta regularizar' }
+    : aut ? { k: 'ok', i: '✓', t: 'Autorizada' }
+    : c.auth === 'NO AUTORIZADO' ? { k: 'mal', i: '✕', t: 'No autorizada' } : { k: 'no', i: '⏳', t: 'Falta autorizar' };
+  const fila = (rot, cls, est, ico, txt) => `<div class="ie-r ${cls}"${est ? ` style="${est}"` : ''}><dt>${rot}</dt><dd><i>${ico}</i><span>${esc(txt)}</span></dd></div>`;
+  return `<dl class="ie">${fila('Turno', 'ie-turno', `--c:${e.color};--t:${e.text}`, '', e.label)}${fila('Admisión', 'ie-' + adm.k, '', adm.i, adm.t)}${tarde ? fila('Módulo', 'ie-mod', '', '½', 'Se liquida al 50 % (+48 h)') : ''}</dl>`;
+}
 function enRutaHTML(c) {
   const n = enPasoN(c), sel = enSel && String(enSel.id) === String(c.id) ? enSel.i : -1;
   const P = [
-    ['Autoriza Admisión', c.auth === 'AUTORIZADO' ? `Autorizó ${c.authAgente || 'Admisión y Egresos'}${c.authFecha ? ' · ' + fmtDT(c.authFecha) : ''}.` : authPendienteDiferida(c) ? 'Urgencia: se hace sin esperar; Admisión regulariza después con «Regularizar».' : c.auth === 'NO AUTORIZADO' ? 'No autorizada: ' + (c.authMotivo || 'sin motivo') + '.' : 'Falta su autorización. Con ella la endoscopía queda confirmada: no pasa por la Jefatura de Quirófanos.'],
+    ['Autorizada', c.auth === 'AUTORIZADO' ? `Autorizó ${c.authAgente || 'Admisión y Egresos'}${c.authFecha ? ' · ' + fmtDT(c.authFecha) : ''}.` : authPendienteDiferida(c) ? 'Urgencia: se hace sin esperar; Admisión regulariza después con «Regularizar».' : c.auth === 'NO AUTORIZADO' ? 'No autorizada: ' + (c.authMotivo || 'sin motivo') + '.' : 'Falta su autorización. Con ella la endoscopía queda confirmada: no pasa por la Jefatura de Quirófanos.'],
     ['Confirmada', c.estado === 'confirmada' || n >= 2 ? 'Está en el parte de Endoscopía. El paciente lo ve en su pase.' : 'Se confirma sola cuando Admisión autoriza.'],
     ['Pulsera', c.pulsera ? `Impresa ${fmtDT(c.pulsera.t)} · ${c.pulsera.por}. El equipo ya ve que ingresó; su QR abre la planilla común en todos.`
       : c.estado === 'pendiente' ? 'Primero la autorización: con la endoscopía confirmada, el botón «Imprimir pulsera» aparece desde la víspera.'
@@ -24032,7 +24189,8 @@ function renderKPIs() {
 function estRango() {
   if (!estDesde || !estHasta) {
     const hoy = hoyISO();
-    estDesde = hoy.slice(0, 8) + '01';
+    // 3.48 · Arranca en el año en curso: con el mes recién empezado casi todo daba cero.
+    estDesde = hoy.slice(0, 5) + '01-01';
     estHasta = hoy;
   }
   return [estDesde, estHasta];
@@ -25126,12 +25284,296 @@ function eeHTML(desde, hasta) {
     ${e.tot.total ? eeTablaHTML('👨‍⚕️ Por médico', 'Médico', e.med) + eeTablaHTML('🧪 Por estudio', 'Estudio', e.est) + eeTablaHTML(e.porMes ? '🗓️ Por mes' : '🗓️ Por fecha', e.porMes ? 'Mes' : 'Fecha', e.fec) : '<p class="eex-nota">No hay estudios realizados en este período.</p>'}
   </details>`;
 }
+/* ================= 3.48 · MI ACTIVIDAD =================
+   12-11 · Pedido de Claudio: «que de un solo pantallazo cualquier cirujano o endoscopista
+   sepa qué hizo, cuántas, qué módulos, todo discriminado». Es la primera solapa de
+   Estadísticas. A diferencia de las otras, cuenta TODO lo hecho (operado o realizado),
+   aunque falte cerrarlo, y lo separa: cerrado / falta cerrar. Así nadie ve «cero» porque
+   le falte un parte. Suma lo que hizo como titular y como ayudante, por área (Quirófanos,
+   Endoscopía, Obstetricia), por módulo y por práctica, y debajo una tarjeta por cada uno
+   de sus servicios (un profesional con dos servicios ve los dos por separado). De los
+   servicios se muestra el agregado y la parte propia, nunca el nombre de los colegas.
+   La Jefatura y la Dirección eligen al profesional en un desplegable. Sin datos de pacientes. */
+let emaQuien = '';     // Jefatura/Dirección: correo (o nombre) del profesional elegido
+let emaArea = '';      // '' | 'qx' | 'endo' | 'obs'
+let emaRol = '';       // '' | 'tit' | 'ayu'
+const EMA_AREAS = {
+  qx: { n: 'Quirófanos', i: '🔪', c: '#2563eb', u: 'cirugía', us: 'cirugías' },
+  endo: { n: 'Endoscopía', i: '🔭', c: '#0d9488', u: 'estudio', us: 'estudios' },
+  obs: { n: 'Obstetricia', i: '👶', c: '#d946ef', u: 'cesárea o parto', us: 'cesáreas y partos' },
+};
+const EMA_ESTADOS = ['confirmada', 'en_curso', 'realizada', 'finalizada', 'suspendida'];
+function emaAreaDe(c) { return esEndo(c) ? 'endo' : c && c.sala === 'QOBS' ? 'obs' : 'qx'; }
+/* El servicio de un caso para las tarjetas: lo hecho en la Sala de Endoscopía es de
+   Endoscopía Digestiva aunque el turno diga «Cirugía General» (quien es de los dos
+   servicios lo ve en el que corresponde). */
+function emaServicioDe(c) { return esEndo(c) ? 'Endoscopía Digestiva' : (servicioCanonico(c.servicio) || 'Otro'); }
+function emaEsDelServicio(c, s) { return mismoServicio(emaServicioDe(c), s); }
+/* Quién se mira: el propio profesional, o el elegido por la Jefatura o la Dirección. */
+function emaPersona() {
+  if (!estTodoElBloque()) { const u = usuarioActual(); return u ? { nombre: u.nombre, email: u.email, u } : null; }
+  if (!emaQuien) return null;
+  const u = DB.usuarios.find((x) => x.email === emaQuien);
+  return u ? { nombre: u.nombre, email: u.email, u } : { nombre: emaQuien, email: '', u: null };
+}
+/* Profesionales que la Jefatura o la Dirección pueden elegir: los que programan y los
+   que figuran como titulares en algún turno. */
+function emaProfesionales() {
+  const m = new Map();
+  DB.usuarios.filter((u) => u && u.nombre && programaCirugias(u)).forEach((u) => m.set(claveProfesional(u.nombre) || u.email, { v: u.email, n: profesionalCanonico(u.nombre) || u.nombre }));
+  DB.cirugias.filter((c) => cxVer(c) && c.cirujano).forEach((c) => {
+    const k = claveProfesional(c.cirujano);
+    if (k && !m.has(k)) m.set(k, { v: profesionalCanonico(c.cirujano) || c.cirujano, n: profesionalCanonico(c.cirujano) || c.cirujano });
+  });
+  return [...m.values()].sort((a, b) => a.n.localeCompare(b.n, 'es'));
+}
+/* Qué papel tuvo la persona en el caso: 'tit' (cirujano/endoscopista/obstetra a cargo),
+   'ayu' (1er ayudante u otro puesto del equipo médico) o null. */
+function emaRolEn(c, p) {
+  if (!c || !p) return null;
+  if ((p.email && c.cirujanoEmail === p.email) || mismoProfesional(c.cirujano, p.nombre)) return 'tit';
+  const eq = Array.isArray(c.equipo) ? c.equipo : [];
+  const yo = eq.find((x) => x && x.nombre && ((p.email && x.email === p.email) || mismoProfesional(x.nombre, p.nombre)));
+  if (!yo) return null;
+  return yo.rol === 'Cirujano' ? 'tit' : 'ayu';
+}
+/* Módulo que le corresponde a la persona en ese caso (o '' si no lleva). */
+function emaModuloDe(c, rol) {
+  if (!c || !c.modulo || moduloDadoDeBaja(c)) return '';
+  return rol === 'tit' ? c.modulo : moduloAyudante(c.modulo);
+}
+function emaVacio() {
+  return { casos: [], hechas: 0, cerradas: 0, faltan: 0, susp: 0, enParte: 0, urg: 0, min: 0, tit: 0, ayu: 0,
+    area: { qx: 0, endo: 0, obs: 0 }, mod: { A: 0, B: 0, C: 0 }, modPend: { A: 0, B: 0, C: 0 },
+    pract: {}, causas: {}, linea: {}, pendientes: [] };
+}
+function emaSumar(z, c, rol, porMes) {
+  z.casos.push(c);
+  if (c.estado === 'suspendida') {
+    z.susp++;
+    const k = (c.suspension && c.suspension.causa) || 'Sin causa registrada';
+    z.causas[k] = (z.causas[k] || 0) + 1;
+    return;
+  }
+  if (!operada(c)) { z.enParte++; return; }
+  const a = emaAreaDe(c);
+  z.hechas++; z.area[a]++;
+  if (rol === 'ayu') z.ayu++; else z.tit++;
+  if (prioridadEfectiva(c) <= 2 || c.urgencia) z.urg++;
+  z.min += minutosCirugia(c);
+  const cerr = cirugiaCerrada(c);
+  if (cerr) z.cerradas++; else { z.faltan++; z.pendientes.push(c); }
+  const m = emaModuloDe(c, rol);
+  if (m) (cerr ? z.mod : z.modPend)[m]++;
+  const pr = tipoTitulo(tipoDeCirugia(c));
+  z.pract[pr] = (z.pract[pr] || 0) + 1;
+  const b = porMes ? c.fecha.slice(0, 7) : emaSemana(c.fecha);
+  const l = z.linea[b] || (z.linea[b] = { qx: 0, endo: 0, obs: 0, t: 0 });
+  l[a]++; l.t++;
+}
+function emaSemana(f) { const dow = (new Date(f + 'T12:00:00').getDay() + 6) % 7; return sumarDias(f, -dow); }
+function emaPorMes(desde, hasta) { return diasEntre(desde, hasta) > 62; }
+/* Todo lo de la persona en el período, con los filtros de área y de papel. */
+function emaDatos(p, desde, hasta) {
+  const z = emaVacio(), porMes = emaPorMes(desde, hasta);
+  if (!p) return z;
+  DB.cirugias.forEach((c) => {
+    if (!cxVer(c) || !c.fecha || c.fecha < desde || c.fecha > hasta || !EMA_ESTADOS.includes(c.estado)) return;
+    const rol = emaRolEn(c, p);
+    if (!rol || (emaRol && rol !== emaRol) || (emaArea && emaAreaDe(c) !== emaArea)) return;
+    emaSumar(z, c, rol, porMes);
+  });
+  return z;
+}
+/* Lo de un servicio entero en el período (agregado, sin nombres), y la parte propia. */
+function emaServicio(s, p, desde, hasta) {
+  const z = emaVacio(), porMes = emaPorMes(desde, hasta), profes = new Set();
+  let mias = 0;
+  DB.cirugias.forEach((c) => {
+    if (!cxVer(c) || !c.fecha || c.fecha < desde || c.fecha > hasta || !EMA_ESTADOS.includes(c.estado)) return;
+    if (!emaEsDelServicio(c, s) || (emaArea && emaAreaDe(c) !== emaArea)) return;
+    emaSumar(z, c, 'tit', porMes);
+    if (operada(c)) {
+      const k = claveProfesional(c.cirujano); if (k) profes.add(k);
+      if (p && emaRolEn(c, p) === 'tit') mias++;
+    }
+  });
+  z.profes = profes.size; z.mias = mias;
+  return z;
+}
+/* Cuadritos de la línea de tiempo: todos los meses (o semanas) del período, aunque estén vacíos. */
+function emaCasilleros(desde, hasta) {
+  const out = [];
+  if (emaPorMes(desde, hasta)) {
+    let y = Number(desde.slice(0, 4)), m = Number(desde.slice(5, 7));
+    const yf = Number(hasta.slice(0, 4)), mf = Number(hasta.slice(5, 7));
+    while (y < yf || (y === yf && m <= mf)) { out.push(`${y}-${String(m).padStart(2, '0')}`); m++; if (m > 12) { m = 1; y++; } }
+  } else {
+    for (let d = emaSemana(desde); d <= hasta; d = sumarDias(d, 7)) out.push(d);
+  }
+  return out.slice(-24);
+}
+function emaRotulo(k) {
+  if (k.length === 7) return MESES_FULL[Number(k.slice(5, 7)) - 1].slice(0, 3);
+  const d = new Date(k + 'T12:00:00'); return `${d.getDate()}/${d.getMonth() + 1}`;
+}
+/* Tocar una barra: el período pasa a ser ese mes (o esa semana). */
+function emaIrA(k) {
+  if (k.length === 7) {
+    const [y, m] = k.split('-').map(Number);
+    estDesde = k + '-01'; estHasta = estIso(y, m, new Date(y, m, 0).getDate());
+  } else { estDesde = k; estHasta = sumarDias(k, 6); }
+  if (estHasta > hoyISO()) estHasta = hoyISO();
+  renderEstadisticas();
+}
+function emaSet(campo, v) {
+  if (campo === 'area') emaArea = emaArea === v ? '' : v;
+  else if (campo === 'rol') emaRol = emaRol === v ? '' : v;
+  else if (campo === 'quien') { emaQuien = v; }
+  renderEstadisticas();
+}
+function emaVerPendientes() { const el = document.getElementById('ema-pend'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
+/* Anillo de áreas con trazo animado. */
+function emaAnillo(z) {
+  const R = 52, C = 64, circ = 2 * Math.PI * R;
+  let off = 0;
+  const arcos = Object.keys(EMA_AREAS).filter((a) => z.area[a]).map((a, i) => {
+    const f = z.area[a] / z.hechas, largo = Math.max(0, f * circ - (z.hechas > z.area[a] ? 3 : 0));
+    const s = `<circle class="ema-arco" cx="${C}" cy="${C}" r="${R}" style="stroke:${EMA_AREAS[a].c};--l:${largo.toFixed(1)};--c:${circ.toFixed(1)};animation-delay:${200 + i * 180}ms"
+      stroke-dasharray="${largo.toFixed(1)} ${circ.toFixed(1)}" stroke-dashoffset="${(-off * circ).toFixed(1)}" transform="rotate(-90 ${C} ${C})"><title>${EMA_AREAS[a].n}: ${z.area[a]}</title></circle>`;
+    off += f; return s;
+  }).join('');
+  return `<svg class="ema-anillo" viewBox="0 0 128 128" role="img" aria-label="Reparto por área">
+    <circle cx="${C}" cy="${C}" r="${R}" class="ema-anillo-f"></circle>${arcos}
+    <text x="${C}" y="${C + 2}" class="ema-anillo-n" data-cuenta="${z.hechas}">${z.hechas}</text>
+    <text x="${C}" y="${C + 20}" class="ema-anillo-s">${z.hechas === 1 ? 'hecho' : 'hechos'}</text></svg>`;
+}
+function emaModulosHTML(z) {
+  const tot = MOD_LETRAS.reduce((n, m) => n + z.mod[m] + z.modPend[m], 0);
+  if (!tot) return `<p class="ema-vacio">Todavía sin módulos en el período. El módulo sale de la práctica del nomenclador cargada en el turno.</p>`;
+  const max = Math.max(1, ...MOD_LETRAS.map((m) => z.mod[m] + z.modPend[m]));
+  return `<div class="ema-mods">${MOD_LETRAS.map((m, i) => {
+    const t = z.mod[m] + z.modPend[m];
+    return `<div class="ema-mod" style="--m:${MODULOS[m].color};--i:${i}">
+      <span class="ema-mod-l">${m}</span>
+      <div class="ema-mod-txt"><b data-cuenta="${t}">${t}</b><small>${MODULOS[m].desc}</small>
+        <span class="ema-mod-bar"><i style="--w:${(z.mod[m] / max * 100).toFixed(1)}%"></i><i class="p" style="--w:${(z.modPend[m] / max * 100).toFixed(1)}%"></i></span>
+        <em>${z.mod[m]} cerrado${z.mod[m] === 1 ? '' : 's'}${z.modPend[m] ? ` · ${z.modPend[m]} por cerrar` : ''}</em></div></div>`;
+  }).join('')}</div>`;
+}
+function emaLineaHTML(z, desde, hasta) {
+  const cas = emaCasilleros(desde, hasta);
+  const max = Math.max(1, ...cas.map((k) => (z.linea[k] || {}).t || 0));
+  return `<div class="ema-linea" style="--n:${cas.length}">${cas.map((k, i) => {
+    const l = z.linea[k] || { qx: 0, endo: 0, obs: 0, t: 0 };
+    const segs = Object.keys(EMA_AREAS).filter((a) => l[a]).map((a) => `<i style="flex:${l[a]};background:${EMA_AREAS[a].c}"></i>`).join('');
+    return `<button class="ema-col" style="--h:${(l.t / max * 100).toFixed(1)}%;--i:${i}" onclick="emaIrA('${k}')" title="${l.t} en ${k.length === 7 ? nombreMes(k) : 'la semana del ' + fmtFecha(k)} — tocar para ver solo ese ${k.length === 7 ? 'mes' : 'período'}">
+      <span class="ema-col-n">${l.t || ''}</span><span class="ema-col-b">${segs}</span><small>${emaRotulo(k)}</small></button>`;
+  }).join('')}</div>`;
+}
+function emaPracticasHTML(z, n) {
+  const arr = Object.entries(z.pract).sort((a, b) => b[1] - a[1]).slice(0, n);
+  if (!arr.length) return '<p class="ema-vacio">Sin prácticas hechas en el período.</p>';
+  const max = arr[0][1];
+  return `<ol class="ema-pr">${arr.map(([nm, v], i) => `<li style="--i:${i}"><span class="ema-pr-n">${i + 1}</span><div><b>${esc(nm)}</b><span class="ema-pr-bar"><i style="--w:${(v / max * 100).toFixed(1)}%"></i></span></div><strong>${v}</strong></li>`).join('')}</ol>`;
+}
+function emaPendientesHTML(z) {
+  if (!z.pendientes.length) return '';
+  const L = z.pendientes.slice().sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
+  return `<details class="ema-pend" id="ema-pend"><summary>⏳ ${L.length} ${L.length === 1 ? 'caso hecho que falta cerrar' : 'casos hechos que faltan cerrar'} <small>Al cerrarse suman sus módulos y entran en las otras solapas</small></summary>
+    <ul>${L.map((c) => `<li><button onclick="openCirugia(${JSON.stringify(c.id).replace(/"/g, '&quot;')})"><b>${esc(fmtFecha(c.fecha))}</b><span>${esc(tipoTitulo(tipoDeCirugia(c)))}<small>Falta: ${esc(faltantesCierre(c).map((f) => f.corto).join(', ') || 'cerrar el caso')}</small></span><i>›</i></button></li>`).join('')}</ul></details>`;
+}
+function emaServiciosHTML(p, desde, hasta) {
+  const ss = p && p.u ? serviciosDe(p.u) : [];
+  if (!ss.length) return '';
+  return `<h2 class="ema-h2">🏥 ${ss.length > 1 ? 'Mis servicios' : 'Mi servicio'}${estTodoElBloque() && p ? ` <small>de ${esc(p.nombre)}</small>` : ''}</h2>
+    <div class="ema-servs">${ss.map((s, i) => {
+      const z = emaServicio(s, p, desde, hasta);
+      const col = estColorServicio(s);
+      const parte = z.hechas ? Math.round(z.mias / z.hechas * 100) : 0;
+      return `<article class="ema-serv" style="--sc:${col};--i:${i}">
+        <header><span class="ema-serv-i">${/endosc/i.test(s) ? '🔭' : /obst|gine/i.test(s) ? '👶' : '🔪'}</span><div><b>${esc(s)}</b><small>${z.profes} profesional${z.profes === 1 ? '' : 'es'} con actividad · ${fmtFecha(desde)} al ${fmtFecha(hasta)}</small></div></header>
+        <div class="ema-serv-nums">
+          <div><b data-cuenta="${z.hechas}">${z.hechas}</b><small>hechos</small></div>
+          <div><b data-cuenta="${z.cerradas}">${z.cerradas}</b><small>cerrados</small></div>
+          <div><b>${estFmt1(z.min / 60)}</b><small>horas</small></div>
+          <div><b data-cuenta="${z.urg}">${z.urg}</b><small>urgencias</small></div>
+          <div class="${z.susp ? 'rojo' : ''}"><b data-cuenta="${z.susp}">${z.susp}</b><small>suspendidos</small></div>
+        </div>
+        <div class="ema-yo"><span>Mi parte del servicio</span><span class="ema-yo-bar"><i style="--w:${parte}%"></i></span><b>${z.mias} de ${z.hechas} · ${parte} %</b></div>
+        <div class="ema-serv-mods">${MOD_LETRAS.map((m) => `<span style="--m:${MODULOS[m].color}"><i>${m}</i>${z.mod[m] + z.modPend[m]}</span>`).join('')}<small>módulos del servicio</small></div>
+        ${Object.keys(z.pract).length ? `<div class="ema-serv-top"><small>Lo que más se hizo</small>${emaPracticasHTML(z, 3)}</div>` : ''}
+      </article>`;
+    }).join('')}</div>`;
+}
+function seccionMiActividad(desde, hasta) {
+  const p = emaPersona();
+  const elegir = estTodoElBloque() ? `<div class="ema-elegir"><label>👤 Ver la actividad de</label>
+    <select onchange="emaSet('quien', this.value)"><option value="">— Elegir profesional —</option>
+      ${emaProfesionales().map((o) => `<option value="${esc(o.v)}" ${emaQuien === o.v ? 'selected' : ''}>${esc(o.n)}</option>`).join('')}</select></div>` : '';
+  if (!p) return `${elegir}<div class="ema-nadie">${estTodoElBloque() ? 'Elija un profesional para ver su tablero.' : 'Ingrese con su cuenta para ver su actividad.'}</div>`;
+  const z = emaDatos(p, desde, hasta);
+  const enArea = emaArea ? EMA_AREAS[emaArea] : null;
+  const unidad = enArea ? enArea.us : 'procedimientos';
+  const areasCon = Object.keys(EMA_AREAS).filter((a) => emaDatosArea(p, desde, hasta, a));
+  const nombreCorto = String(p.nombre || '').replace(/^(dr|dra)\.?\s+/i, '');
+  return `${elegir}
+  <section class="ema">
+    <div class="ema-hero">
+      <div class="ema-hero-txt">
+        <div class="ema-yo-id"><span class="ema-av">${esc(estIniciales(p.nombre))}</span><div><small>${estTodoElBloque() ? 'Actividad de' : 'Mi actividad'}</small><b>${esc(nombreCorto)}</b><em>${esc(p.u ? serviciosTexto(p.u) : '')}</em></div></div>
+        <p class="ema-frase">Del ${fmtFecha(desde)} al ${fmtFecha(hasta)} ${estTodoElBloque() ? 'hizo' : 'hiciste'} <b data-cuenta="${z.hechas}">${z.hechas}</b> ${unidad}${z.min ? `, <b>${estFmt1(z.min / 60)}</b> horas de sala` : ''}${z.urg ? `, <b>${z.urg}</b> de urgencia` : ''}.</p>
+        <div class="ema-chips">
+          <button class="${!emaArea ? 'on' : ''}" onclick="emaSet('area','')">Todo</button>
+          ${areasCon.map((a) => `<button class="${emaArea === a ? 'on' : ''}" style="--c:${EMA_AREAS[a].c}" onclick="emaSet('area','${a}')">${EMA_AREAS[a].i} ${EMA_AREAS[a].n}</button>`).join('')}
+          <span class="ema-sep"></span>
+          <button class="${emaRol === 'tit' ? 'on' : ''}" onclick="emaSet('rol','tit')">A cargo</button>
+          <button class="${emaRol === 'ayu' ? 'on' : ''}" onclick="emaSet('rol','ayu')">Como ayudante</button>
+        </div>
+      </div>
+      <div class="ema-hero-graf">${z.hechas ? emaAnillo(z) : '<div class="ema-cero">0<small>en el período</small></div>'}
+        <ul class="ema-ley">${Object.keys(EMA_AREAS).filter((a) => z.area[a]).map((a) => `<li style="--c:${EMA_AREAS[a].c}"><i></i>${EMA_AREAS[a].n} <b>${z.area[a]}</b></li>`).join('')}</ul></div>
+    </div>
+
+    <div class="ema-tiles">
+      <div class="ema-tile" style="--t:#16a34a;--i:0"><span>✅</span><b data-cuenta="${z.cerradas}">${z.cerradas}</b><small>Cerrados</small><em>con todo completo</em></div>
+      <button class="ema-tile" style="--t:#d97706;--i:1" ${z.faltan ? 'onclick="emaVerPendientes()"' : 'disabled'}><span>⏳</span><b data-cuenta="${z.faltan}">${z.faltan}</b><small>Falta cerrar</small><em>${z.faltan ? 'tocá para ver cuáles' : 'nada pendiente'}</em></button>
+      <div class="ema-tile" style="--t:#2563eb;--i:2"><span>🩺</span><b data-cuenta="${z.tit}">${z.tit}</b><small>A cargo</small><em>como titular</em></div>
+      <div class="ema-tile" style="--t:#7c3aed;--i:3"><span>🤝</span><b data-cuenta="${z.ayu}">${z.ayu}</b><small>Ayudante</small><em>en el equipo</em></div>
+      <div class="ema-tile" style="--t:#0891b2;--i:4"><span>📅</span><b data-cuenta="${z.enParte}">${z.enParte}</b><small>En el parte</small><em>confirmados, sin hacer aún</em></div>
+      <div class="ema-tile" style="--t:#dc2626;--i:5"><span>✋</span><b data-cuenta="${z.susp}">${z.susp}</b><small>Suspendidos</small><em>${Object.keys(z.causas).length ? esc(Object.entries(z.causas).sort((a, b) => b[1] - a[1])[0][0]) : 'ninguno'}</em></div>
+    </div>
+
+    <div class="ema-grid">
+      <div class="ema-card"><h3>🧩 Mis módulos <small>A, B y C · cerrados y por cerrar</small></h3>${emaModulosHTML(z)}</div>
+      <div class="ema-card"><h3>📈 ${emaPorMes(desde, hasta) ? 'Mes a mes' : 'Semana a semana'} <small>tocá una barra para ver solo ese ${emaPorMes(desde, hasta) ? 'mes' : 'período'}</small></h3>${emaLineaHTML(z, desde, hasta)}</div>
+      <div class="ema-card ema-card-ancha"><h3>🏅 Lo que más ${estTodoElBloque() ? 'hizo' : 'hiciste'} <small>prácticas del período</small></h3>${emaPracticasHTML(z, 8)}</div>
+    </div>
+    ${emaPendientesHTML(z)}
+    ${emaServiciosHTML(p, desde, hasta)}
+    <p class="ema-nota">${ICONS.info.replace('18', '14')}<span>Acá se cuenta todo lo <b>hecho</b> (operado o realizado), esté cerrado o no; las solapas «Por servicio», «Por cirujano» y «Por tipo» cuentan solo lo <b>cerrado</b>. De los servicios se ve el total y la parte propia, sin nombres de colegas. Sin datos de pacientes.</span></p>
+  </section>`;
+}
+/* ¿Tiene la persona algo en esa área en el período? (sin el filtro de área puesto) */
+function emaDatosArea(p, desde, hasta, a) {
+  return DB.cirugias.some((c) => cxVer(c) && c.fecha && c.fecha >= desde && c.fecha <= hasta && EMA_ESTADOS.includes(c.estado) && emaAreaDe(c) === a && emaRolEn(c, p));
+}
+function emaContar() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.ema [data-cuenta], .ema-servs [data-cuenta]').forEach((el) => {
+    const fin = Number(el.dataset.cuenta) || 0; if (!fin) return;
+    const t0 = performance.now(), dur = 900;
+    (function paso(t) { const f = Math.min(1, Math.max(0, (t - t0) / dur)); el.textContent = Math.round(fin * (1 - Math.pow(1 - f, 3))); if (f < 1) requestAnimationFrame(paso); })(t0);
+  });
+}
+
 function renderEstadisticas() {
   const u = usuarioActual();
   const [desde, hasta] = estRango();
   const clave = estTab;
   const esTipo = clave === 'tipo';
-  const visibles = esTipo ? [] : estOrdenar(estVisibles(clave));
+  const esYo = clave === 'yo';
+  const visibles = (esTipo || esYo) ? [] : estOrdenar(estVisibles(clave));
   const maxReal = Math.max(1, ...visibles.map((g) => g.realizadas));
 
   // Los totales y los dos gráficos del pie también respetan el alcance: el
@@ -25190,6 +25632,7 @@ function renderEstadisticas() {
       </div>
     </div>
 
+    ${esYo ? `${estTabsHTML(clave, 0)}${seccionMiActividad(desde, hasta)}` : `
     ${eeHTML(desde, hasta)}
     ${(() => {
       // Lo operado que todavía no cerró no entra en ninguna de estas cifras.
@@ -25223,12 +25666,7 @@ function renderEstadisticas() {
         <div class="kpi-meta">${tot.realizadas ? ((tot.urgencias / tot.realizadas) * 100).toFixed(1) : '0.0'} % de la producción${todoElBloque ? ' del período' : ' de su servicio'}</div></div>
     </div>
 
-    <div class="tabs est-tabs">
-      <button class="tab ${clave === 'servicio' ? 'active' : ''}" onclick="estTab='servicio';estServicio='';renderEstadisticas()">${ICONS.layers.replace('18', '15')} Por servicio <span class="n">${porServ.length}</span></button>
-      <button class="tab ${clave === 'cirujano' ? 'active' : ''}" onclick="estTab='cirujano';renderEstadisticas()">${ICONS.steth} Por cirujano <span class="n">${estVisibles('cirujano').length}</span></button>
-      <button class="tab ${esTipo ? 'active' : ''}" onclick="estTab='tipo';renderEstadisticas()">${ICONS.pieChart.replace('18', '15')} Por tipo de cirugía</button>
-      ${clave === 'cirujano' && estServicio ? `<button class="tab" onclick="estServicio='';renderEstadisticas()">${ICONS.x} Quitar filtro: ${esc(estServicio)}</button>` : ''}
-    </div>
+    ${estTabsHTML(clave, porServ.length)}
 
     ${esTipo ? seccionTipoCirugia() : `
 
@@ -25240,7 +25678,18 @@ function renderEstadisticas() {
       <div><strong>Cómo leer el cuadro</strong>
       ${todoElBloque ? 'Toque un servicio para ver su desglose por cirujano.' : 'El cuadro muestra el agregado de su servicio.'} Las horas de quirófano usan el tiempo real medido entre incisión y cierre; cuando no está cargado se toma la duración estimada de la solicitud. La columna <b>En espera</b> es una foto del estado actual, no del período elegido.</div></div>` : ''}
 
-    ${seccionEstGrupos(clave, visibles, { todoElBloque, totBloqueMin: totBloque.minutos, tot, causasArr, porServ })}`}`;
+    ${seccionEstGrupos(clave, visibles, { todoElBloque, totBloqueMin: totBloque.minutos, tot, causasArr, porServ })}`}`}`;
+  if (esYo) emaContar();
+}
+/* Solapas de Estadísticas. «Mi actividad» va primero y es la que se abre al entrar. */
+function estTabsHTML(clave, nServ) {
+  return `<div class="tabs est-tabs">
+      <button class="tab ${clave === 'yo' ? 'active' : ''}" onclick="estTab='yo';renderEstadisticas()">👤 ${estTodoElBloque() ? 'Por profesional' : 'Mi actividad'}</button>
+      <button class="tab ${clave === 'servicio' ? 'active' : ''}" onclick="estTab='servicio';estServicio='';renderEstadisticas()">${ICONS.layers.replace('18', '15')} Por servicio${nServ ? ` <span class="n">${nServ}</span>` : ''}</button>
+      <button class="tab ${clave === 'cirujano' ? 'active' : ''}" onclick="estTab='cirujano';renderEstadisticas()">${ICONS.steth} Por cirujano</button>
+      <button class="tab ${clave === 'tipo' ? 'active' : ''}" onclick="estTab='tipo';renderEstadisticas()">${ICONS.pieChart.replace('18', '15')} Por tipo de cirugía</button>
+      ${clave === 'cirujano' && estServicio ? `<button class="tab" onclick="estServicio='';renderEstadisticas()">${ICONS.x} Quitar filtro: ${esc(estServicio)}</button>` : ''}
+    </div>`;
 }
 
 /* ================= RECLAMOS (canal Jefe a Jefe) ================= */
@@ -37668,7 +38117,7 @@ function renderModulos() {
       <div class="field" style="min-width:240px"><label>Profesional</label>
         <select onchange="modProf=this.value;renderModulos()">
           <option value="">Todos los profesionales</option>
-          ${modProfesionales().map((n) => `<option value="${attr(n)}" ${modProf === n ? 'selected' : ''}>${esc(n)}</option>`).join('')}
+          ${modProfesionales().map((n) => `<option value="${esc(n)}" ${modProf === n ? 'selected' : ''}>${esc(n)}</option>`).join('')}
         </select>
         <span class="hint">Elegido un profesional, la consulta y la planilla muestran solo sus cirugías y sus ayudantías.</span></div>
     </div>

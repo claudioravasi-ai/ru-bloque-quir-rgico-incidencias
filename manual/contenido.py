@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.45.0'
+VERSION = '3.48.0'
 FECHA = 'Noviembre de 2026'
 
 PORTADA = {
@@ -171,6 +171,7 @@ BLOQUES = [
     'Si la cirugía entró sin la validación previa de la Jefatura (urgencias), la validación regularizada.',
 ]),
 ('nota', '**Solo lo finalizado computa.** Las estadísticas, los indicadores, los módulos y el tablero público cuentan únicamente los casos Finalizados. Una cirugía Realizada con un trámite pendiente todavía no suma, y aparece en cuanto el último trámite se completa. Así la planilla de módulos no puede adelantarse a la documentación del caso.'),
+('nota', '**Finalizada es definitivo.** Un caso Finalizado ya no se edita: no se elimina ni se pasa a otro día, y el dictamen de Admisión solo se puede rectificar en las urgencias, donde se autoriza en diferido. Queda para consulta, con su recorrido completo en verde.'),
 ('h3', 'Paso 8 — El aviso de la víspera'),
 ('p', 'A partir de las 20:00 h del día anterior a una cirugía, si el cirujano tiene la aplicación abierta, recibe un recordatorio y un **aviso hablado**, con voz femenina y pausada: «buenas noches, le recuerdo que mañana tiene una cirugía programada; la primera, a las 10 de la mañana». Dice cuántas cirugías y a qué hora es la primera, y **nunca pronuncia nombres de pacientes ni procedimientos**, porque la app se usa en pasillos y vestuarios. Habla una sola vez por jornada. Si el teléfono tiene el sonido bloqueado, habla al primer toque de pantalla. Se apaga junto con el sonido de los avisos.'),
 ('h3', 'Paso 9 — Lo que el cirujano consulta después'),
@@ -433,6 +434,11 @@ BLOQUES = [
 ('p', 'Nada de esto se carga a mano: se deriva de la actividad. Por eso no puede divergir del parte ni de la grilla. Y todo cuenta con el mismo criterio: **los casos Finalizados**.'),
 ('h2', '9.1. Estadísticas quirúrgicas'),
 ('ul', [
+    '**Mi actividad (desde la 3.48).** Es la primera solapa y la que se abre al entrar. De un vistazo, cada cirujano, endoscopista u obstetra ve **cuántos procedimientos hizo** en el período, las horas de sala y las urgencias; un anillo con el reparto por área (Quirófanos, Endoscopía, Obstetricia); seis fichas —**Cerrados**, **Falta cerrar** (al tocarla aparece la lista, y cada caso se abre con un toque), **A cargo**, **Ayudante**, **En el parte** y **Suspendidos**—; **sus módulos A, B y C** (cerrados y por cerrar, como titular y como ayudante); la **línea mes a mes** (al tocar una barra queda ese mes) y **lo que más hizo**. Arriba se filtra por área y por papel («A cargo» o «Como ayudante»).',
+    '**Mi actividad cuenta todo lo hecho** (operado o realizado), esté cerrado o no, y lo separa: así nadie ve «cero» porque le falte un parte. Las otras solapas siguen contando solo lo **cerrado**.',
+    '**Una tarjeta por cada servicio.** Quien es de dos servicios —por ejemplo, Cirugía General y Endoscopía Digestiva— ve una tarjeta por cada uno: hechos, cerrados, horas, urgencias, suspendidos, módulos del servicio, lo que más se hizo y **«Mi parte del servicio»**. Lo hecho en la Sala de Endoscopía cuenta en Endoscopía Digestiva aunque el turno diga otro servicio. De los colegas no se ve ningún nombre.',
+    '**Jefatura y Dirección:** la misma solapa se llama «Por profesional» y tiene un desplegable para elegir a quién mirar.',
+    'El período arranca en el **año en curso** (antes, en el mes, y a principios de mes casi todo daba cero).',
     'Volumen por período, por servicio, por cirujano y por tipo de cirugía; urgencias y programación fuera de horario por separado.',
     'Suspensiones y sus causas; distribución por complejidad; espera quirúrgica, con alerta sobre los turnos que superan los 90 días.',
     '**Cómo se lee (desde la 3.17).** Las tres solapas —por servicio, por cirujano y por tipo de cirugía— arrancan con una franja de **destacados** (lo que más se operó, lo que más quirófano usó, el mejor informe en plazo, la mayor suspensión) y un **panorama** de dos gráficos: un anillo de colores con la parte del bloque que ocupa cada uno y barras con lo realizado, lo suspendido (rayado rojo) y lo que todavía no cerró. Cada servicio tiene siempre el mismo color en todos los gráficos.',
@@ -560,6 +566,40 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.42'),
+('h2', 'Versión 3.48.0 — Mi actividad en Estadísticas; Ingresos más claro'),
+('ul', [
+    '**Estadísticas: «Mi actividad».** Primera solapa, con todo lo que hizo cada profesional de un vistazo: cuántos, cerrados y por cerrar, a cargo y como ayudante, módulos A, B y C, mes a mes, lo que más hizo y una tarjeta por cada uno de sus servicios (ver 9.1). Animada e interactiva: los números suben, el anillo se dibuja y las barras crecen; se filtra por área y por papel y se toca un mes para verlo solo.',
+    '**Corrección: el nombre aparecía como «Claudio%20Ravasi».** En Módulos, al elegir un profesional en el desplegable, el nombre quedaba con códigos en lugar de espacios y la consulta salía vacía. Ahora queda el nombre tal cual.',
+    '**Corrección: «no me da mis estadísticas».** El período arrancaba en el mes en curso y solo contaba lo cerrado: a principios de mes, o con partes sin cargar, daba casi cero. Mi actividad arranca en el año y cuenta lo hecho.',
+    '**Ingresos del día: la tira de pasos de la endoscopía ya no tapa los botones.** Va en su propio renglón, debajo del paciente; los rótulos son de una palabra y quedan parejos: **Autorizada · Confirmada · Pulsera · En sala**.',
+    '**Ingresos del día: estado en renglones con rótulo.** Cada paciente muestra, todos del mismo alto: **TURNO** (por ejemplo, «Operada — pendiente de cierre»), **ADMISIÓN** («Autorizada», «Falta autorizar», «Falta acreditar») y, si pasaron las 48 h, **MÓDULO** («Se liquida al 50 % (+48 h)»).',
+]),
+('h2', 'Versión 3.47.0 — Botones de la tarjeta por importancia; pasar a otro día, suspender o eliminar en una sola ventana'),
+('ul', [
+    '**Pausa endoscópica.** En Endoscopía, la ventana de la Lista de Verificación dice «Complete la fase de Entrada (antes de la inducción) y la **Pausa Endoscópica** (antes de la introducción)». En Quirófanos y Obstetricia sigue diciendo Pausa Quirúrgica (antes de la incisión).',
+    '**Botones de la tarjeta, por importancia.** En Mis Solicitudes y en la ficha, el turno confirmado muestra primero y más grande **▶ Pantalla de sala**; al lado, más chico, **Iniciar LVQ** (antes «Iniciar (LVQ Entrada + Pausa)»), que hasta el día del turno se ve apagado y dice desde cuándo se habilita; después **Pasar a otro día o suspender**; y abajo, discretos, **Resuelta por urgencia** y **Pase del paciente**.',
+    '**Sin «Bajar el consentimiento» en la tarjeta.** El PDF del consentimiento (y la firma del médico) se hace desde la ficha, al abrir el turno, y desde Consentimientos Informados.',
+    '**Pasar a otro día o suspender: una sola ventana.** Los botones «Suspender» y «Eliminar o pasar a otro día» se unieron. Al tocarlo, la app pregunta qué hacemos y ofrece tres salidas: **📅 Pasarlo a otro día** (el mismo turno se muda a la franja nueva), **⏸ Suspender con causa** (no se hace y queda anotado por qué; cuenta en las estadísticas y genera la incidencia D) y **🗑 Eliminar** (se borra y sale de la lista, como si nunca se hubiera anotado: es para un error de carga; pide la contraseña propia).',
+    '**Quién puede cada cosa (no cambió).** Pasar a otro día y eliminar: quien creó el turno, hasta el cierre de la lista (13 h del día hábil anterior). Suspender: la Jefatura de Quirófanos o, en Endoscopía, el/la Jefe/a de Endoscopía. La opción que la persona no puede usar se ve apagada y dice por qué y quién la hace. Con el turno en curso el botón dice solo «Suspender».',
+    '**Suspender: la causa se elige.** La lista de causas ya no viene con una elegida: «Confirmar suspensión» queda apagado («Falta elegir la causa») hasta elegirla. Dos causas nuevas: **El paciente no puede concurrir (avisó)** y **Médico no disponible**. Un doble toque no suspende dos veces ni muestra un cartel de más.',
+]),
+('h2', 'Versión 3.46.0 — Lista de Verificación propia de Endoscopía y enmienda con motivo'),
+('ul', [
+    '**11 puntos propios de Endoscopía, en tres momentos.** La endoscopía deja de usar los 16 puntos de la lista quirúrgica. **Antes de sedar (5):** identidad, estudio y consentimiento · ayuno y preparación · alergias y anticoagulantes · vía aérea y riesgo de aspiración · oxímetro y monitoreo. **Antes de empezar (3):** equipo presentado, paciente y estudio correctos · endoscopio reprocesado y probado · eventos críticos previstos. **Al terminar (3):** estudio realizado registrado · biopsias rotuladas (o no hubo) · problemas del equipo comunicados y cuidados de recuperación. Quirófanos y Obstetricia siguen con su lista de siempre.',
+    '**Tildan los cuatro y lo ven todos.** En la Pantalla de sala de una endoscopía se ven arriba los cuatro (endoscopista, anestesiología, enfermería de endoscopía y enfermería de anestesiología). Cualquiera de los cuatro tilda un punto y aparece al instante en los otros teléfonos. Cada tilde viaja solo, así dos personas que tildan a la vez no se pisan.',
+    '**«✓ Todo verificado» y «⚠ Hay una novedad».** El primero tilda de una vez los puntos del momento. El segundo deja escrita una novedad (por ejemplo, «toma anticoagulantes»): queda a la vista de los cuatro, con quién la anotó y la hora, y en el historial del estudio.',
+    '**Nadie confirma con puntos sin tildar.** En «Antes de empezar» los botones de confirmar quedan apagados y dicen cuántos puntos faltan. Las firmas siguen siendo las mismas de siempre (cada uno la suya).',
+    '**Enmienda con motivo.** En la ficha de un caso Finalizado, el médico del turno o su Jefatura puede tocar **✏️ Enmienda con motivo**: corrige el informe (o el parte) o agrega una aclaración, escribe el motivo y confirma con su contraseña. El texto anterior no se borra: queda guardado en la tarjeta «Enmiendas con motivo», con quién, cuándo y por qué. No reabre el caso ni cambia módulos, dictamen ni consentimiento.',
+    '**Textos de endoscopía.** Al cerrar, la ventana dice «Informe del estudio» y el cartel final «La endoscopía queda FINALIZADA».',
+]),
+('h2', 'Versión 3.45.1 — Finalizada y cerrada: el turno ya no se modifica'),
+('ul', [
+    '**Caso cerrado, caso firme.** Cuando el cirujano o el endoscopista finaliza y cierra (estado Finalizada), el turno queda para consulta. En **Mis Solicitudes** y en la ficha ya no aparecen «Modificar dictamen de Admisión» ni el botón para bajar el consentimiento firmado: en su lugar se lee «🔒 Finalizada y cerrada el … · ya no se modifica». El consentimiento firmado sigue guardado en **Consentimientos Informados**.',
+    '**Excepción: urgencias.** En las urgencias (y prioridades P1 y P2), donde Admisión y Egresos autoriza en diferido, el dictamen se puede rectificar también después del cierre.',
+    '**El recorrido, todo en verde.** Al abrir un turno finalizado desde Programación Diaria, «Lo que sigue» pasa a llamarse **El recorrido**: todos los pasos tildados y sin botones que modifiquen. El paso **Pase del paciente** de una endoscopía dice que al paciente se le avisa por correo que retire su informe y sus fotos en METRIA (o que no tiene correo cargado). El último paso dice **Ficha completa**, con la fecha y la hora del cierre, y abre la ficha solo para leer.',
+    '**Sin «Eliminar o pasar a otro día».** En un turno en curso, realizado o finalizado ese botón ya no aparece: la nota del pie explica por qué. Tampoco se puede editar el equipo de un caso cerrado y completo (lo corrige la Jefatura de Quirófanos o la Dirección Médica) ni registrar una revocación del consentimiento de un procedimiento ya hecho.',
+    '**La ✕ de cerrar, más grande.** En todas las ventanas la ✕ es más grande y va dentro de un círculo que se ve. En el turno y en la ficha, que son largas, queda siempre arriba a la derecha aunque se baje.',
+]),
 ('h2', 'Versión 3.45.0 — Al terminar la endoscopía, el paciente retira su informe en METRIA'),
 ('ul', [
     '**Pase del paciente.** Cuando una endoscopía queda finalizada (informe del estudio, Lista de Verificación y Admisión), su pase deja de mostrar el seguimiento y muestra «Tu estudio terminó — Tu informe va a estar en METRIA», con tres pasos y el botón «Retirar mi informe en METRIA». Vale también para los pases ya entregados: se actualizan solos. Las cirugías, cesáreas y partos siguen igual.',
