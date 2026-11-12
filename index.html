@@ -5232,11 +5232,13 @@
   .ing-cama { display: inline-grid; gap: 1px; border-radius: 10px; padding: 5px 9px; font-size: .78rem; font-weight: 800; color: #fff; background: var(--c); box-shadow: 0 6px 14px -8px var(--c); }
   .ing-cama small { font-weight: 600; opacity: .9; font-size: .66rem; } .ing-cama.no { color: #b91c1c; background: #fee2e2; box-shadow: none; }
   .ing-a { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
-  .ie { display: grid; gap: 5px; margin: 0; width: 100%; max-width: 300px; }
+  .ie { display: grid; grid-auto-rows: 1fr; gap: 5px; margin: 0; width: 100%; max-width: 320px; }
   .ie-r { --c: #64748b; --s: color-mix(in srgb, var(--c) 12%, var(--card)); --t: var(--ink); display: grid; grid-template-columns: 66px minmax(0, 1fr); align-items: stretch; min-height: 42px; border-radius: 10px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line)); background: var(--s); }
   .ie-r dt { display: flex; align-items: center; padding: 0 8px; font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: var(--c); }
   .ie-r dd { margin: 0; display: flex; align-items: center; gap: 6px; padding: 5px 8px; font-size: .8rem; font-weight: 700; line-height: 1.2; color: var(--t); }
   .ie-r dd i { flex: none; font-style: normal; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: .7rem; font-weight: 900; color: #fff; background: var(--c); }
+  .ie-r dd > span { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
+  .ie-r dd small { display: block; font-size: .7rem; font-weight: 600; opacity: .8; }
   .ie-turno dd i { width: 10px; height: 10px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent); }
   .ie-ok { --c: #15803d; --t: #166534; }
   .ie-no { --c: #d97706; --t: #92400e; }
@@ -5410,7 +5412,7 @@
   /* 12-11 · Pedido de Claudio: en Ingresos la tira de pasos tapaba «Acreditar» y la pulsera.
      En las endoscopías la tira va en su propio renglón, a lo ancho, debajo del paciente,
      y los botones quedan arriba a la derecha. Rótulos de una palabra: todos en un renglón. */
-  .ing-f.endo { grid-template-columns: 64px minmax(0, 1.5fr) minmax(230px, 1fr) auto; }
+  .ing-f.endo { grid-template-columns: 64px minmax(0, 1.4fr) minmax(250px, 1fr) auto; }
   .ing-f.endo .ing-a { grid-column: 4; grid-row: 1; }
   .ing-f.endo .ing-c { grid-column: 2 / -1; grid-row: 2; padding-top: 8px; border-top: 1px dashed color-mix(in srgb, #0d9488 30%, var(--line)); }
   .ing-f.endo .en-ruta { max-width: 560px; }
@@ -10437,7 +10439,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.48.0';
+const APP_VERSION = '3.48.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11493,9 +11495,33 @@ function ordenPrelacion(a, b) {
     || String(a.horaProg || '').localeCompare(String(b.horaProg || ''))
     || String(a.fechaSolicitud || '').localeCompare(String(b.fechaSolicitud || ''));
 }
+/* 12-11 · Pedido de Claudio: «Operada» es solo para cirugías y cesáreas. Una endoscopía
+   no se opera: el rótulo dice lo que se hizo («Gastroduodenoscopía realizada — pendiente
+   de cierre»), y el parto, «Parto realizado». Los demás estados no cambian. */
+/* Sugerencia de Claudio: «Gastroscopía realizada» o «Colonoscopía realizada», según
+   corresponda. Una intervención (polipectomía, dilatación…) va dentro del estudio en que
+   se hizo; si el turno no dice cuál fue, «Endoscopía realizada». */
+const EST_ENDO_NOM = { veda: 'Gastroscopía realizada', colono: 'Colonoscopía realizada', ambos: 'Gastroscopía y colonoscopía realizadas' };
+function estQueSeHizo(c) {
+  if (esParto(c)) return 'Parto realizado';
+  if (!esEndo(c)) return 'Operada';
+  const k = prepClaves(c);
+  const n = EST_ENDO_NOM[k.length > 1 ? 'ambos' : k[0]];
+  if (n) return n;
+  const txt = sinTildes(`${c.procedimiento || ''} ${(c.practica && c.practica.p) || ''}`).toLowerCase();
+  if (/\bcpre\b|colangiopancreat/.test(txt)) return 'CPRE realizada';
+  // Intervenciones que solo se hacen por vía alta: son una gastroscopía.
+  if (/varic|ligadura|dilatac|gastrostom|\bpeg\b|cuerpo extra/.test(txt)) return EST_ENDO_NOM.veda;
+  return 'Endoscopía realizada';
+}
+function estLabel(c) {
+  const k = estadoVisible(c), e = ESTC[k] || ESTC.borrador;
+  if (k === 'realizada' && c && (esEndo(c) || esParto(c))) return `${estQueSeHizo(c)} — pendiente de cierre`;
+  return e.label;
+}
 function estChip(c) {
   const e = ESTC[estadoVisible(c)];
-  return `<span class="est-chip" style="background:${e.soft};color:${e.text}"><span class="est-dot" style="background:${e.color}"></span>${e.label}</span>`;
+  return `<span class="est-chip" style="background:${e.soft};color:${e.text}"><span class="est-dot" style="background:${e.color}"></span>${esc(estLabel(c))}</span>`;
 }
 function prioChip(c) {
   const pe = prioridadEfectiva(c);
@@ -14464,7 +14490,7 @@ function paModulo(c) {
   let tono = 'ok', titulo = '';
   if (['suspendida', 'caducada', 'anticipada'].includes(c.estado)) { tono = 'info'; titulo = 'No genera módulo'; P.push(`Quedó «${ESTC[c.estado].label}»: no se hizo en ese turno, así que no hay módulo que liquidar.`); }
   else if (!c.modulo) { tono = 'warn'; titulo = 'No tiene práctica del nomenclador'; P.push('Sin práctica del nomenclador asignada no se genera módulo.', 'La asigna el médico desde el turno › «Equipo y módulos».'); }
-  else if (c.estado !== 'realizada' && c.estado !== 'finalizada') { tono = 'info'; titulo = 'Todavía no se hizo'; P.push(`Está «${ESTC[estadoVisible(c)].label}». El módulo se genera recién cuando el caso queda finalizado.`); }
+  else if (c.estado !== 'realizada' && c.estado !== 'finalizada') { tono = 'info'; titulo = 'Todavía no se hizo'; P.push(`Está «${estLabel(c)}». El módulo se genera recién cuando el caso queda finalizado.`); }
   else if (c.estado === 'realizada') {
     const tarde = cierreTardio(c);
     tono = tarde ? 'mal' : 'warn'; titulo = tarde ? 'Se va a liquidar al 50 %' : 'Todavía no cerró';
@@ -14602,7 +14628,7 @@ function paConteo(q, s) {
   const n = L.length, queTxt = typeof que === 'function' ? que(n) : que;
   return { tono: n ? (/autoriz|resolver|50/.test(queTxt) ? 'warn' : 'info') : 'ok',
     titulo: `${n} ${n === 1 ? nom[0] : nom[1]}${mias ? ' suy' + (fem ? 'a' : 'o') + (n === 1 ? '' : 's') : ''} ${queTxt}${cuando}`,
-    puntos: L.slice(0, 8).map((c) => `${fmtFecha(c.fecha)}${c.horaProg ? ' ' + c.horaProg + ' h' : ''} · ${(c.paciente && c.paciente.nombre) || 's/d'} · ${c.procedimiento || ''}${String(queTxt).startsWith('sin autorizar') ? '' : ' — ' + ESTC[estadoVisible(c)].label}`)
+    puntos: L.slice(0, 8).map((c) => `${fmtFecha(c.fecha)}${c.horaProg ? ' ' + c.horaProg + ' h' : ''} · ${(c.paciente && c.paciente.nombre) || 's/d'} · ${c.procedimiento || ''}${String(queTxt).startsWith('sin autorizar') ? '' : ' — ' + estLabel(c)}`)
       .concat(n > 8 ? [`… y ${n - 8} más.`] : []).concat(n ? [] : ['No hay ninguna en esa situación.']),
     acciones: [paBtn(jefe ? 'Ver Programación' : esJefeEndo(u) && area === 'endo' ? 'Ver Jefatura de Endoscopía' : 'Ver Mis Solicitudes', jefe ? "go('programacion')" : esJefeEndo(u) && area === 'endo' ? "go('endojefe')" : "go('mis')")] };
 }
@@ -14709,7 +14735,7 @@ function paAgenda(f) {
   const u = usuarioActual(), d = f ? f.d : hoyISO();
   const L = paCirVisibles().filter((c) => c.fecha === d && (!u || c.cirujanoEmail === u.email || jefe) && !['caducada', 'anticipada'].includes(c.estado))
     .sort((a, b) => String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
-  const P = (f && f.ojo ? [f.ojo] : []).concat(L.map((c) => `${c.horaProg || '—'} h · ${c.quirofano || 's/d'} · ${(c.paciente && c.paciente.nombre) || 's/d'} · ${c.procedimiento || ''} — ${ESTC[estadoVisible(c)].label}`));
+  const P = (f && f.ojo ? [f.ojo] : []).concat(L.map((c) => `${c.horaProg || '—'} h · ${c.quirofano || 's/d'} · ${(c.paciente && c.paciente.nombre) || 's/d'} · ${c.procedimiento || ''} — ${estLabel(c)}`));
   if (!L.length) P.push(esLaborable(d) ? 'No tiene turnos ese día.' : `No tiene turnos: es ${motivoNoLaborable(d)}.`);
   return { tono: L.length ? 'info' : 'ok', titulo: `${jefe ? 'El bloque' : 'Usted'} el ${fmtDiaLargo(d).toLowerCase()}: ${L.length} turno${L.length === 1 ? '' : 's'}`, puntos: P,
     acciones: [paBtn(`Ver Programación del ${fmtFecha(d)}`, `diaSel='${d}';go('grilla')`)] };
@@ -20140,7 +20166,7 @@ function misPanelHistorial(u, todas) {
       : `<div class="form-note">Incluye ${misHistorial.length} cirugía(s) anteriores al ${fmtFecha(desdeVentana)}, traídas de la base.</div>`) : ''}
     <div class="ms-hist-lista">${lista.slice(0, 60).map((c) => `<div class="ms-hl"><span class="ms-hl-f">${fmtFecha(c.fecha)}</span>
       <span class="ms-hl-p">${esc(c.procedimiento || '')}<small>${esc((c.paciente && c.paciente.nombre) || '')}</small></span>
-      <span class="ms-hl-e" style="--c:${(ESTC[estadoVisible(c)] || {}).color || '#94a3b8'}">${esc((ESTC[estadoVisible(c)] || {}).label || c.estado || '')}</span></div>`).join('')
+      <span class="ms-hl-e" style="--c:${(ESTC[estadoVisible(c)] || {}).color || '#94a3b8'}">${esc(estLabel(c) || c.estado || '')}</span></div>`).join('')
       || '<div class="empty" style="padding:14px">Sin solicitudes en esas fechas.</div>'}
       ${lista.length > 60 ? `<div class="form-note">y ${lista.length - 60} más: van todas en el PDF.</div>` : ''}</div>
   </div>`;
@@ -20159,7 +20185,7 @@ function misBajarPDF() {
     periodo: `Del ${fmtFecha(misHistDesde)} al ${fmtFecha(misHistHasta)}`,
     columnas: ['Fecha', 'Hora', 'Sala', 'Paciente', 'Procedimiento', 'Estado'],
     filas: lista.map((c) => { const e = ESTC[estadoVisible(c)] || {}; return [fmtFecha(c.fecha), (c.horaProg || '—') + ' h', c.quirofano || '—', (c.paciente && c.paciente.nombre) || '—', c.procedimiento || '', { txt: e.label || c.estado || '', color: e.color || '#64748b' }]; }),
-    resumen: Object.entries(lista.reduce((o, c) => { const k = (ESTC[estadoVisible(c)] || {}).label || 'Otro'; o[k] = (o[k] || 0) + 1; return o; }, {})),
+    resumen: Object.entries(lista.reduce((o, c) => { const k = estLabel(c) || 'Otro'; o[k] = (o[k] || 0) + 1; return o; }, {})),
     archivo: `mis-solicitudes-${misHistDesde}_${misHistHasta}`,
   });
 }
@@ -20698,7 +20724,7 @@ function confirmSuspender() {
   if (!$('susp-causa').value) { suspValidar(); return; }
   // Solo lo que sigue en el circuito se suspende: un formulario viejo no
   // puede pisar un turno que ya se cerró por otro lado.
-  if (!['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado)) { closeSuspender(); avisar('Este turno ya quedó «' + ESTC[estadoVisible(c)].label + '»: no se suspendió.'); return; }
+  if (!['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado)) { closeSuspender(); avisar('Este turno ya quedó «' + estLabel(c) + '»: no se suspendió.'); return; }
   suspenderTurno(c, $('susp-causa').value, $('susp-det').value.trim());
   trasResolverTurno(c);
 }
@@ -21045,7 +21071,7 @@ function rcOkSeguro(id, r) {
   // 3.32.3 · Antes volvía callado en estos casos y parecía que el botón no andaba.
   if (!c || !c.reprogCama) { avisar('No se encontró la reprogramación\n\nActualice la pantalla y vuelva a intentar.'); return; }
   if (rcCaducarVencida(c)) { avisar(`Pasó el plazo\n\nEl cierre de solicitudes (${BLOQUE.cierreSolicitudes} h ${textoDiaCierre(c.fecha)}) llegó sin todos los OK. El turno quedó Caducado y el cirujano tiene que reprogramarlo con una solicitud nueva.`, { tono: 'aviso' }); rcRedibujar(c.id); return; }
-  if (!rcActivo(c)) { avisar('Esta reprogramación ya no espera OK\n\nEstá «' + ((ESTC[estadoVisible(c)] || {}).label || c.estado) + '».'); rcRedibujar(c.id); return; }
+  if (!rcActivo(c)) { avisar('Esta reprogramación ya no espera OK\n\nEstá «' + (estLabel(c) || c.estado) + '».'); rcRedibujar(c.id); return; }
   if (c.reprogCama.oks && c.reprogCama.oks[r]) { toastTurno('Ese OK ya estaba dado ✓ (' + RC_ROLES[r] + ')', '#16a34a'); rcRedibujar(c.id); return; }
   if (c.reprogCama.estado !== 'esperando_equipo') { avisar('Ahora le toca al paciente\n\nLos tres OK del equipo ya están.'); rcRedibujar(c.id); return; }
   const pid = c.reprogCama.pid;
@@ -22078,8 +22104,10 @@ function ingEstadoHTML(c, aut) {
   const adm = dif ? { k: 'no', i: '↷', t: tarde ? 'Falta acreditar' : 'Urgencia: falta regularizar' }
     : aut ? { k: 'ok', i: '✓', t: 'Autorizada' }
     : c.auth === 'NO AUTORIZADO' ? { k: 'mal', i: '✕', t: 'No autorizada' } : { k: 'no', i: '⏳', t: 'Falta autorizar' };
-  const fila = (rot, cls, est, ico, txt) => `<div class="ie-r ${cls}"${est ? ` style="${est}"` : ''}><dt>${rot}</dt><dd><i>${ico}</i><span>${esc(txt)}</span></dd></div>`;
-  return `<dl class="ie">${fila('Turno', 'ie-turno', `--c:${e.color};--t:${e.text}`, '', e.label)}${fila('Admisión', 'ie-' + adm.k, '', adm.i, adm.t)}${tarde ? fila('Módulo', 'ie-mod', '', '½', 'Se liquida al 50 % (+48 h)') : ''}</dl>`;
+  // «Lo hecho — pendiente de cierre» va en dos líneas: lo hecho arriba, el pendiente abajo.
+  const fila = (rot, cls, est, ico, txt) => { const [a, b] = String(txt).split(' — ');
+    return `<div class="ie-r ${cls}"${est ? ` style="${est}"` : ''}><dt>${rot}</dt><dd><i>${ico}</i><span>${esc(a)}${b ? `<small>${esc(b)}</small>` : ''}</span></dd></div>`; };
+  return `<dl class="ie">${fila('Turno', 'ie-turno', `--c:${e.color};--t:${e.text}`, '', estLabel(c))}${fila('Admisión', 'ie-' + adm.k, '', adm.i, adm.t)}${tarde ? fila('Módulo', 'ie-mod', '', '½', 'Se liquida al 50 % (+48 h)') : ''}</dl>`;
 }
 function enRutaHTML(c) {
   const n = enPasoN(c), sel = enSel && String(enSel.id) === String(c.id) ? enSel.i : -1;
@@ -22162,7 +22190,7 @@ function openResolverTurno(id) {
   const u = usuarioActual();
   const esDueno = u && c.cirujanoEmail === u.email;
   if (!jefe && !esDueno) return;
-  if (!sinResolver(c)) { toastTurno('Este turno ya quedó «' + ESTC[estadoVisible(c)].label + '».'); return; }
+  if (!sinResolver(c)) { toastTurno('Este turno ya quedó «' + estLabel(c) + '».'); return; }
   resCtx = { id: c.id, k: '' };
   const confirmado = c.estado === 'confirmada';
   // 3.42.2 · Endoscopía con sus palabras: la registra el Jefe/a de Endoscopía, con informe del estudio.
@@ -22276,7 +22304,7 @@ function resGuardar() {
   if (Date.now() - (resCtx.t || 0) < 800) return;
   const c = DB.cirugias.find((x) => x.id === resCtx.id);
   if (!c) return;
-  if (!sinResolver(c)) { closeSuspender(); toastTurno('Este turno ya quedó «' + ESTC[estadoVisible(c)].label + '»: no se cambió.'); return; }
+  if (!sinResolver(c)) { closeSuspender(); toastTurno('Este turno ya quedó «' + estLabel(c) + '»: no se cambió.'); return; }
   const quien = quienResuelve(c);
   const k = resCtx.k;
   const falta = resFaltan(k);
@@ -22804,7 +22832,7 @@ function closeAnticipar() { $('susp-overlay').classList.remove('open'); antCirId
 function confirmAnticipar() {
   const c = DB.cirugias.find((x) => x.id === antCirId);
   if (!c) return;
-  if (!['borrador', 'pendiente', 'validada', 'confirmada'].includes(c.estado)) { closeAnticipar(); avisar('Este turno ya quedó «' + ESTC[estadoVisible(c)].label + '»: no se cambió.'); return; }
+  if (!['borrador', 'pendiente', 'validada', 'confirmada'].includes(c.estado)) { closeAnticipar(); avisar('Este turno ya quedó «' + estLabel(c) + '»: no se cambió.'); return; }
   const uid = $('ant-urg').value;
   const det = ($('ant-det').value || '').trim();
   const urg = uid ? DB.cirugias.find((x) => String(x.id) === String(uid)) : null;
@@ -28356,7 +28384,7 @@ function authChip(c) {
 function slotTitulo(c) {
   const est = estadoVisible(c);
   const e = ESTC[est] || ESTC.borrador;
-  const cab = e.label + (c.paciente?.nombre ? ' · ' + c.paciente.nombre : '');
+  const cab = estLabel(c) + (c.paciente?.nombre ? ' · ' + c.paciente.nombre : '');
   const p = est === 'sin_resolver' ? [] : pendientesTurno(c);
   if (p.length) return cab + '\n\nFalta para avanzar:\n' + p.map((x) => '· ' + x.largo).join('\n');
   if (est === 'suspendida') return cab + '\n\nSuspendida: ' + (c.suspension?.causa || 'sin causa registrada')
@@ -29162,7 +29190,7 @@ function openSlot(d, sid, fid) {
 
     ${c ? `<details class="tm-detalle">
       <summary>Detalle del circuito</summary>
-      <div class="det-row"><b>Estado</b> ${ESTC[estadoVisible(c)].label} — ${ESTC[estadoVisible(c)].desc}</div>
+      <div class="det-row"><b>Estado</b> ${estLabel(c)} — ${ESTC[estadoVisible(c)].desc}</div>
       ${c.registroTardio ? `<div class="det-row"><b>Registro fuera de término</b> asentado por la ${esc(c.registroTardio.autorizadoPor || JEFATURA)} el ${esc(c.registroTardio.fechaHora || '')} sobre una franja ya vencida — ${esc(c.registroTardio.motivo || '')}</div>` : ''}
       ${authDetalle(c)}
       ${jefaturaDetalle(c)}
@@ -37847,7 +37875,7 @@ function exportarModulosExcel(alcance) {
       cir.nombre || '', especialidadDe(cir, c), cir.modulo || '',
       ayu ? ayu.nombre : (c.sinAyudante ? 'SIN AYUDANTE' : 'Sin declarar'),
       ayu ? especialidadDe(ayu, c) : '', ayu ? (ayu.modulo || 'Sin módulo') : '',
-      ESTC[estadoVisible(c)] ? ESTC[estadoVisible(c)].label : ''];
+      ESTC[estadoVisible(c)] ? estLabel(c) : ''];
   });
   // Resumen por profesional: cuántas veces como cirujano y como ayudante, y sus módulos.
   const res = {};
@@ -38500,7 +38528,7 @@ function openEquipoMod(id) {
       el cirujano percibe el de la cirugía y el 1er ayudante el escalón inmediato inferior (A → B, B → C; el C no tiene
       escalón por debajo, así que el ayudante de una cirugía C no percibe módulo). Se imputan
       <b>solo cuando la cirugía esté FINALIZADA</b> —operada, con el parte quirúrgico cargado y con la aceptación de Admisión y la
-      validación de la Jefatura asentadas—${cirugiaCerrada(c) ? ' — esta ya lo está.' : `; hoy está <b>${ESTC[estadoVisible(c)].label}</b>.`}</p>
+      validación de la Jefatura asentadas—${cirugiaCerrada(c) ? ' — esta ya lo está.' : `; hoy está <b>${estLabel(c)}</b>.`}</p>
 
     <div class="form-grid" style="margin-top:8px">
       <div class="field"><label>Cirujano *</label>

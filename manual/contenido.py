@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.48.0'
+VERSION = '3.48.1'
 FECHA = 'Noviembre de 2026'
 
 PORTADA = {
@@ -566,13 +566,19 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.42'),
+('h2', 'Versión 3.48.1 — Las endoscopías dicen lo que se hizo, no «Operada»'),
+('ul', [
+    '**«Operada» es solo para cirugías y cesáreas.** Una endoscopía hecha y todavía sin cerrar dice lo que se hizo: **«Gastroscopía realizada»**, **«Colonoscopía realizada»** o **«Gastroscopía y colonoscopía realizadas»**, con «pendiente de cierre» debajo. Una intervención (polipectomía, biopsia, dilatación, ligadura de várices…) cuenta dentro del estudio en que se hizo; la ligadura, la dilatación y la gastrostomía se reconocen como gastroscopía. Si el turno no dice cuál fue, «Endoscopía realizada»; la CPRE, «CPRE realizada». El parto dice **«Parto realizado»**.',
+    'Se ve igual en Ingresos del día, en la ficha del turno, en la grilla y en los avisos.',
+    '**Ingresos del día:** los tres renglones (Turno, Admisión, Módulo) tienen siempre el mismo alto, y las palabras largas ya no se salen del renglón.',
+]),
 ('h2', 'Versión 3.48.0 — Mi actividad en Estadísticas; Ingresos más claro'),
 ('ul', [
     '**Estadísticas: «Mi actividad».** Primera solapa, con todo lo que hizo cada profesional de un vistazo: cuántos, cerrados y por cerrar, a cargo y como ayudante, módulos A, B y C, mes a mes, lo que más hizo y una tarjeta por cada uno de sus servicios (ver 9.1). Animada e interactiva: los números suben, el anillo se dibuja y las barras crecen; se filtra por área y por papel y se toca un mes para verlo solo.',
     '**Corrección: el nombre aparecía como «Claudio%20Ravasi».** En Módulos, al elegir un profesional en el desplegable, el nombre quedaba con códigos en lugar de espacios y la consulta salía vacía. Ahora queda el nombre tal cual.',
     '**Corrección: «no me da mis estadísticas».** El período arrancaba en el mes en curso y solo contaba lo cerrado: a principios de mes, o con partes sin cargar, daba casi cero. Mi actividad arranca en el año y cuenta lo hecho.',
     '**Ingresos del día: la tira de pasos de la endoscopía ya no tapa los botones.** Va en su propio renglón, debajo del paciente; los rótulos son de una palabra y quedan parejos: **Autorizada · Confirmada · Pulsera · En sala**.',
-    '**Ingresos del día: estado en renglones con rótulo.** Cada paciente muestra, todos del mismo alto: **TURNO** (por ejemplo, «Operada — pendiente de cierre»), **ADMISIÓN** («Autorizada», «Falta autorizar», «Falta acreditar») y, si pasaron las 48 h, **MÓDULO** («Se liquida al 50 % (+48 h)»).',
+    '**Ingresos del día: estado en renglones con rótulo.** Cada paciente muestra, todos del mismo alto: **TURNO** (por ejemplo, «Operada» en una cirugía o «Gastroscopía realizada» en una endoscopía, con «pendiente de cierre» debajo), **ADMISIÓN** («Autorizada», «Falta autorizar», «Falta acreditar») y, si pasaron las 48 h, **MÓDULO** («Se liquida al 50 % (+48 h)»).',
 ]),
 ('h2', 'Versión 3.47.0 — Botones de la tarjeta por importancia; pasar a otro día, suspender o eliminar en una sola ventana'),
 ('ul', [
