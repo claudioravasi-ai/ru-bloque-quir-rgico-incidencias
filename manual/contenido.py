@@ -15,7 +15,7 @@ Formato de los bloques:
 En los textos, **así** va en negrita.
 """
 
-VERSION = '3.48.1'
+VERSION = '3.48.2'
 FECHA = 'Noviembre de 2026'
 
 PORTADA = {
@@ -566,6 +566,10 @@ BLOQUES = [
 
 # ─────────────────────────────────────────────────────────────── 14
 ('h1', '14. Novedades de las versiones 3.12 a 3.42'),
+('h2', 'Versión 3.48.2 — HRU y la app del barrio ya no se borran la copia sin señal'),
+('ul', [
+    '**Copia para usar sin señal.** HRU y la app del Barrio Bahía Cauquén están publicadas en la misma dirección de GitHub. Hasta ahora, cuando una de las dos se actualizaba en un teléfono, borraba la copia guardada de la otra. Desde esta versión cada una borra solo lo suyo.',
+]),
 ('h2', 'Versión 3.48.1 — Las endoscopías dicen lo que se hizo, no «Operada»'),
 ('ul', [
     '**«Operada» es solo para cirugías y cesáreas.** Una endoscopía hecha y todavía sin cerrar dice lo que se hizo: **«Gastroscopía realizada»**, **«Colonoscopía realizada»** o **«Gastroscopía y colonoscopía realizadas»**, con «pendiente de cierre» debajo. Una intervención (polipectomía, biopsia, dilatación, ligadura de várices…) cuenta dentro del estudio en que se hizo; la ligadura, la dilatación y la gastrostomía se reconocen como gastroscopía. Si el turno no dice cuál fue, «Endoscopía realizada»; la CPRE, «CPRE realizada». El parto dice **«Parto realizado»**.',

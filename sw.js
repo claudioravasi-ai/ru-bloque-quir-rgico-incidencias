@@ -14,7 +14,7 @@
 /* Al publicar cambios hay que subir esta constante (y APP_VERSION en
    index.html): es lo que hace que los dispositivos ya instalados descarten la
    copia cacheada y estrenen la versión nueva. */
-const VERSION = 'hru-quirofanos-v131';
+const VERSION = 'hru-quirofanos-v132';
 const SHELL = [
   './',
   './index.html',
@@ -42,10 +42,13 @@ self.addEventListener('install', (e) => {
   );
 });
 
+/* 13-11-2026 · Solo se borran las copias de HRU ('hru-quirofanos-…'): la app del barrio vive
+   en la misma dirección (claudioravasi-ai.github.io) y antes cada app le borraba a la otra
+   la copia para usar sin señal. */
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((ks) => Promise.all(ks.filter((k) => k !== VERSION).map((k) => caches.delete(k))))
+      .then((ks) => Promise.all(ks.filter((k) => k !== VERSION && k.startsWith('hru-quirofanos-')).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
