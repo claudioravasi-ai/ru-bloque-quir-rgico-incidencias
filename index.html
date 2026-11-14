@@ -10449,7 +10449,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.49.5';
+const APP_VERSION = '3.49.6';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -13306,6 +13306,9 @@ async function probarNotif(btn) {
 }
 
 function refreshView() {
+  // 3.49.6 · Al cerrar una sesión, la nube manda datos mientras se suelta la cuenta: si la pantalla
+  // ya no corresponde (Ingresos sin Admisión), se vuelve al Panel en vez de pedir la clave otra vez.
+  if (!vistaSinClave(view)) { salirAlInicio(); return; }
   salaVigilar();                   // 3.39 · la planilla común se abre sola en el equipo
   if (sxId !== null) sxPintar();   // 3.38 · la pantalla de sala se actualiza sola
   // No se re-renderizan las vistas con formularios en curso para no perder lo tipeado
@@ -21673,6 +21676,7 @@ function openJefEnfModal() {
 }
 async function jefEnfLogout() {
   jefenf = false; cmEditar = false; sessionStorage.removeItem('hru_jefenf');
+  salirAlInicio();
   if (cloudOn && !jefe) await volverAlPaseAnonimo();
   cambioDeIdentidad(false); salirAlInicio();
 }
@@ -21936,6 +21940,7 @@ function openAdmisModal() {
 }
 async function admisLogout() {
   admis = false; sessionStorage.removeItem('hru_admis');
+  salirAlInicio();
   if (cloudOn && !jefe && !jefenf) await volverAlPaseAnonimo();
   cambioDeIdentidad(false); salirAlInicio();
 }

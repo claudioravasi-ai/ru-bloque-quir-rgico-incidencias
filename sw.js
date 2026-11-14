@@ -14,7 +14,7 @@
 /* Al publicar cambios hay que subir esta constante (y APP_VERSION en
    index.html): es lo que hace que los dispositivos ya instalados descarten la
    copia cacheada y estrenen la versión nueva. */
-const VERSION = 'hru-quirofanos-v138';
+const VERSION = 'hru-quirofanos-v139';
 const SHELL = [
   './',
   './index.html',
@@ -39,7 +39,9 @@ self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(VERSION)
       // addAll falla entero si un recurso falla; se agregan de a uno.
-      .then((c) => Promise.all(SHELL.map((u) => c.add(u).catch(() => null))))
+      // 3.49.6 · {cache:'reload'}: GitHub Pages deja guardar cada archivo 10 minutos en el equipo y,
+      // sin esto, la versión nueva se instalaba con los archivos viejos (la app «no cambiaba» al subir).
+      .then((c) => Promise.all(SHELL.map((u) => c.add(new Request(u, { cache: 'reload' })).catch(() => null))))
   );
 });
 
@@ -97,8 +99,9 @@ self.addEventListener('fetch', (e) => {
     || (req.headers.get('accept') || '').includes('text/html');
 
   if (esHTML) {
+    // 3.49.6 · Siempre se consulta al servidor (no-cache): la app recién subida se ve al abrir.
     e.respondWith(
-      fetch(req)
+      fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
         .then((res) => {
           const copia = res.clone();
           // Solo la app misma se guarda como respaldo sin conexión.
@@ -111,6 +114,14 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
+  // 3.49.6 · Los programas de la app (.js) van primero a la red, así nunca quedan de una versión
+  // anterior a la página; sin señal, la copia guardada.
+  if (/\.js$/.test(url.pathname)) {
+    e.respondWith(fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
+      .then((res) => { if (res && res.ok) { const copia = res.clone(); caches.open(VERSION).then((c) => c.put(url.origin + url.pathname, copia)).catch(() => {}); } return res; })
+      .catch(() => caches.match(url.origin + url.pathname, { ignoreSearch: true })));
+    return;
+  }
   e.respondWith(
     caches.match(req).then((hit) => {
       const red = fetch(req).then((res) => {
