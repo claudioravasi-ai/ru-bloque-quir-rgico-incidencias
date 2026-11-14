@@ -250,7 +250,28 @@ body.portal-pac>.oa-toast{display:block!important}
 /* ---------- ayudantes ---------- */
 setTimeout(() => { try { pintarEstiloPase(); } catch (e) {} oaCargarJS(); }, 0);
 function oaAviso(t) { const e = document.createElement('div'); e.className = 'oa-toast'; e.textContent = t; document.body.appendChild(e); setTimeout(() => e.remove(), 3400); }
-function oaCir(id) { return DB.cirugias.find((x) => String(x.id) === String(id)); }
+/* 3.49.7 · La base (Firebase) no guarda listas vacías ni campos vacíos: una orden puede volver sin
+   «anestesia» o sin algún dato y la hoja se cortaba sin mostrar nada (Claudio: «tocó PDF y no se abre
+   nada»). Se completan acá con valores vacíos, sin escribir nada en la base. */
+function oaB(b) {
+  b = b && typeof b === 'object' ? b : {};
+  ['gest', 'plan', 'afil', 'cie', 'dx', 'proc', 'obs'].forEach((k) => { if (b[k] == null) b[k] = ''; });
+  const an = b.anest;
+  b.anest = Array.isArray(an) ? an.filter(Boolean) : an && typeof an === 'object' ? Object.values(an).filter(Boolean) : an ? [String(an)] : [];
+  return b;
+}
+function oaNorm(c) {
+  const o = c && c.orden; if (!o || typeof o !== 'object') return c;
+  o.b = oaB(o.b);
+  const an = o.anuladas;
+  o.anuladas = Array.isArray(an) ? an.filter(Boolean) : an && typeof an === 'object' ? Object.values(an).filter(Boolean) : [];
+  o.anuladas.forEach((x) => { if (x && x.b) x.b = oaB(x.b); if (x && x.motivo == null) x.motivo = ''; });
+  if (!o.ver) o.ver = 1;
+  return c;
+}
+function oaCir(id) {
+  return oaNorm(DB.cirugias.find((x) => String(x.id) === String(id)));
+}
 function oaT(c) { return ppTipo(portalTipo(c)); }
 function oaMedico(c) { return (DB.usuarios || []).find((u) => u.email === c.cirujanoEmail) || null; }
 function oaEsDueno(c) { const u = usuarioActual(); return !!(u && c.cirujanoEmail && u.email === c.cirujanoEmail); }
@@ -304,6 +325,7 @@ function oaAut(c) {
   return { n: c.orden.autN || 's/n', t: c.authFecha || '', por: c.authAgente || 'Admisión y Egresos' };
 }
 function oaEstado(c) {
+  oaNorm(c);
   const o = c.orden, os = c.obraSocial || 'la obra social';
   if (!o) return { k: 'sin', t: 'Sin orden', tono: 'gr', pac: '' };
   const pac = o.b.gest === 'pac';
@@ -323,10 +345,10 @@ function oaUrlVerificar(cod) { return location.origin + location.pathname + (typ
 
 /* ---------- la hoja de la orden ---------- */
 function oaHojaHTML(c, opt) {
-  opt = opt || {};
+  opt = opt || {}; oaNorm(c);
   const o = c.orden, T = oaT(c);
   const snap = opt.snap || null;                         // versión anulada: se dibuja con lo que se firmó
-  const b = snap ? snap.b : o.b, firma = snap ? snap.firma : o.firma;
+  const b = oaB(snap ? snap.b : o.b), firma = snap ? snap.firma : o.firma;
   const fecha = snap ? snap.fecha : c.fecha, hora = snap ? snap.hora : c.horaProg, lugar = snap ? snap.sala : c.quirofano;
   const ver = snap ? snap.ver : o.ver, cod = oaCodigo(c, ver);
   const m = oaMedico(c) || {}, p = c.paciente || {};
@@ -402,6 +424,7 @@ function oaVerPublicar(c) {
 
 /* ---------- guardar, pase y anulación ---------- */
 function oaParaPase(c) {
+  oaNorm(c);
   const o = c.orden; if (!o) return null;
   const e = oaEstado(c), ult = o.anuladas[o.anuladas.length - 1];
   return { cod: oaCodigo(c, o.ver), ver: o.ver, e: e.k, pac: e.pac, gest: o.b.gest, os: c.obraSocial || '',
@@ -912,7 +935,15 @@ function oaPdfImprimir() {
 }
 function oaPDF(id) {
   const c = oaCir(id); if (!c || !c.orden || !c.orden.firma) return;
-  return oaPdfAbrir(oaHojaHTML(c), oaParaPase(c).nombre);
+  // 3.49.7 · Si algo de la orden no se puede dibujar, se avisa en la ventana (antes no pasaba nada).
+  let html = '', nombre = 'orden-de-autorizacion.pdf';
+  try { html = oaHojaHTML(c); nombre = oaParaPase(c).nombre || nombre; }
+  catch (e) {
+    try { console.error('Orden de autorización:', e); } catch (x) {}
+    oaPdfPintar(`<p class="oa-pdf-nota" style="margin:0;padding:16px">No se pudo armar la hoja de esta orden (${esc(String(e && e.message || e))}). Abrila con «Orden», revisá los datos y volvé a probar.</p>`, '');
+    return;
+  }
+  return oaPdfAbrir(html, nombre);
 }
 
 /* ---------- PACIENTE: tarjeta en el pase ---------- */
