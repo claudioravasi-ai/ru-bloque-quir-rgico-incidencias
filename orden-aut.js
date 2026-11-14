@@ -133,26 +133,48 @@ body[data-tema="noche"] #oa-modal .pp-paso b{color:#f1f5f9}body[data-tema="noche
 .oa-pdf-espera{padding:30px;text-align:center;color:#334155;font-weight:600}
 .oa-pdf-hoja{padding:10px;display:flex;justify-content:center}
 .ing-f .ing-e{grid-template-columns:minmax(0,1fr);min-width:0}
-.oa-ing-acc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;min-width:0}
+.oa-ing-acc{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;width:100%;min-width:0;container:oaacc / inline-size}
+/* 3.49.3 · Simetría: 3 por fila y la última fila siempre de lado a lado (sin huecos). */
+.oa-ing-acc>.btn{grid-column:span 2}
+.oa-ing-acc[data-n="1"]>.btn{grid-column:span 6}
+.oa-ing-acc[data-n="2"]>.btn,.oa-ing-acc[data-n="4"]>.btn,.oa-ing-acc[data-n="5"]>.btn:nth-last-child(-n+2),.oa-ing-acc[data-n="8"]>.btn:nth-last-child(-n+2){grid-column:span 3}
+.oa-ing-acc[data-n="7"]>.btn:last-child{grid-column:span 6}
 .oa-ing-acc:empty{display:none}
 .oa-ing-acc .ing-apagado,.oa-ing-acc .btn[disabled]{grid-column:1/-1;max-width:none}
 .ing-f.oa-ok .ing-a{display:none}
-.oa-ing-acc .btn.btn{--b:var(--ac,#2563eb);position:relative;display:flex;align-items:center;justify-content:flex-start;gap:9px;min-height:44px;padding:0 26px 0 6px;border-radius:12px;
-  font-weight:700;font-size:.8rem;text-align:left;color:var(--ink);background:linear-gradient(180deg,color-mix(in srgb,var(--b) 10%,var(--card,#fff)),color-mix(in srgb,var(--b) 4%,var(--card,#fff)));
+.oa-ing-acc .btn.btn{--b:var(--ac,#2563eb);position:relative;display:flex;align-items:stretch;justify-content:stretch;min-height:44px;padding:4px 8px 4px 5px;border-radius:11px;container:oabtn / inline-size;
+  font-weight:700;font-size:.78rem;text-align:left;color:var(--ink);background:linear-gradient(180deg,color-mix(in srgb,var(--b) 10%,var(--card,#fff)),color-mix(in srgb,var(--b) 4%,var(--card,#fff)));
   border:1px solid color-mix(in srgb,var(--b) 32%,var(--line,#e2e8f0));box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 4px 12px -8px color-mix(in srgb,var(--b) 60%,transparent);
-  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
-.oa-ing-acc .btn.btn::after{content:'›';position:absolute;right:10px;top:50%;transform:translateY(-52%);font-size:1.15rem;font-weight:800;opacity:.45;transition:transform .15s ease,opacity .15s}
+  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;overflow:hidden}
+/* 3.49.3 · Contenido en su propia caja: ícono, texto y flecha nunca se pisan. El botón mide su ancho
+   (container) y, si es angosto, pasa a ícono arriba y texto abajo, sin flecha (pedido de Claudio:
+   «Acreditar» y «Reimprimir pulsera» se salían de la pastilla). */
+.oa-bin{display:flex;align-items:center;gap:7px;width:100%;min-width:0}
+.oa-bt{flex:1 1 auto;min-width:0;line-height:1.15;overflow-wrap:break-word;word-break:normal;hyphens:auto;-webkit-hyphens:auto}
+.oa-fl{flex:none;font-style:normal;font-size:1.15rem;font-weight:800;line-height:1;opacity:.45;transition:transform .15s ease,opacity .15s}
 .oa-ing-acc .btn.btn:hover{transform:translateY(-1px);border-color:var(--b);box-shadow:0 10px 22px -12px var(--b)}
-.oa-ing-acc .btn.btn:hover::after{opacity:.9;transform:translate(3px,-52%)}
+.oa-ing-acc .btn.btn:hover .oa-fl{opacity:.9;transform:translateX(3px)}
 .oa-ing-acc .btn.btn:focus-visible{outline:3px solid color-mix(in srgb,var(--b) 55%,transparent);outline-offset:2px}
-.oa-bi{flex:none;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-style:normal;font-size:.95rem;background:color-mix(in srgb,var(--b) 20%,var(--card,#fff));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--b) 30%,transparent)}
-.oa-bt{min-width:0;line-height:1.15}
+.oa-bi{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-style:normal;font-size:.82rem;background:color-mix(in srgb,var(--b) 20%,var(--card,#fff));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--b) 30%,transparent)}
+.oa-bi svg{width:14px;height:14px;display:block}
 .oa-ing-acc .btn.btn.oa-prim{color:#fff;border-color:transparent;background:linear-gradient(135deg,var(--b),color-mix(in srgb,var(--b) 62%,#000));box-shadow:0 10px 22px -12px var(--b)}
 .oa-ing-acc .btn.btn.oa-prim .oa-bi{background:rgba(255,255,255,.2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}
-.oa-ing-acc .btn.btn.oa-prim::after{opacity:.8}
+.oa-ing-acc .btn.btn.oa-prim .oa-fl{opacity:.8}
 .oa-ing-acc .btn.btn.btn-red{--b:#dc2626}
-@media (prefers-reduced-motion:reduce){.oa-ing-acc .btn.btn,.oa-ing-acc .btn.btn::after{transition:none}}
-@media (max-width:600px){.oa-ing-acc .btn.btn{flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:6px 4px;min-height:58px;font-size:.72rem;text-align:center}.oa-ing-acc .btn.btn::after{display:none}.oa-bi{width:26px;height:26px;font-size:.82rem;border-radius:7px}.oa-bt{overflow-wrap:anywhere;hyphens:auto}}
+@media (prefers-reduced-motion:reduce){.oa-ing-acc .btn.btn,.oa-fl{transition:none}}
+/* Botón angosto: sigue en una línea (ícono chico + texto), sin flecha; nada de baldosas altas. */
+@container oabtn (max-width:168px){
+  .oa-bin{gap:6px}
+  .oa-bt{font-size:.72rem}
+  .oa-fl{display:none}
+  .oa-bi{width:22px;height:22px;font-size:.74rem;border-radius:7px}
+}
+@media (max-width:600px){.oa-ing-acc .btn.btn{padding:4px 6px 4px 5px}}
+/* Angosto (teléfono): 2 por fila; si queda uno solo al final, va de lado a lado. */
+@container oaacc (max-width:330px){
+  .oa-ing-acc.oa-ing-acc[data-n]>.btn.btn{grid-column:span 3}
+  .oa-ing-acc.oa-ing-acc[data-n="1"]>.btn.btn,.oa-ing-acc.oa-ing-acc[data-n="3"]>.btn.btn:last-child,.oa-ing-acc.oa-ing-acc[data-n="5"]>.btn.btn:last-child,.oa-ing-acc.oa-ing-acc[data-n="7"]>.btn.btn:last-child{grid-column:span 6}
+}
 .oa-ing-aviso{grid-column:1/-1;font-size:.78rem;font-weight:700;padding:8px 12px;border-radius:10px;border:1px dashed color-mix(in srgb,#b45309 55%,transparent);background:color-mix(in srgb,#f59e0b 12%,var(--card,#fff));color:var(--ink);margin-top:4px}
 .ing-f.oa-ok .ing-c.oa-vacia{display:none}
 .oa-cama-aqui:empty{display:none}.oa-cama-aqui .ing-cama{font-size:.72rem;padding:4px 9px;border-radius:999px}
@@ -189,12 +211,13 @@ body[data-tema="noche"] #oa-modal .pp-paso b{color:#f1f5f9}body[data-tema="noche
   .ing-f.oa-ok .ing-e>.ie{grid-column:1;grid-row:1}
   .ing-f.oa-ok .ing-e>.oa-ing-aviso{grid-column:1 / -1;grid-row:2}
   .ing-f.oa-ok .oa-ing-acc{grid-column:2;grid-row:1;grid-template-columns:1fr;gap:5px;align-content:start}
+  .ing-f.oa-ok .oa-ing-acc.oa-ing-acc[data-n]>.btn.btn{grid-column:1 / -1}
   .ing-f.oa-ok .ie-r{min-height:44px}
   .ing-f.oa-ok .oa-ing-acc .btn{min-height:44px;height:44px}
   .ing-f.oa-ok .oa-ing-acc .ing-apagado,.ing-f.oa-ok .oa-ing-acc .btn[disabled]{height:auto;font-size:.74rem}
 }
 @media (max-width:900px){.ing-f.oa-ok,.ing-f.oa-ok.endo{grid-template-columns:60px minmax(0,1fr)}.ing-f.oa-ok .ing-p{grid-column:2;grid-row:1}.ing-f.oa-ok .ing-e{grid-column:2;grid-row:2}.ing-f.oa-ok .ing-c{grid-column:2;grid-row:3}.ing-f.oa-ok .ing-h.oa-talon{grid-row:1 / span 3}.ing-f.oa-ok.endo .ing-h.oa-talon{grid-row:1 / span 2}.ing-f.oa-ok.endo .ing-c{grid-column:1 / -1;grid-row:3}.oa-talon b{font-size:.98rem}.oa-talon{justify-content:flex-start;padding-top:16px}}
-.oa-ing-acc .btn{width:100%;min-width:0;min-height:44px;justify-content:center;text-align:center;white-space:normal;line-height:1.15;padding:7px 6px;margin:0}
+.oa-ing-acc .btn{width:100%;min-width:0;min-height:44px;white-space:normal;line-height:1.15;margin:0}
 #oa-modal .btn,#oa-pdf-ov .btn,.oa-pase-blq .btn{min-height:44px}
 .ing-a.oa-vacio{display:none}
 .oa-qr img{width:118px;height:118px;image-rendering:pixelated;display:block;margin:0 auto}
@@ -715,10 +738,19 @@ function oaIngresosDecorar() {
     }
     if (acc) acc.querySelectorAll('.btn').forEach((b) => {
       if (b.querySelector('.oa-bi')) return;
+      // 3.49.3 · El ícono dibujado (svg, como el de la pulsera) se conserva; antes quedaba un «•».
+      const svg = b.querySelector('svg'); if (svg) svg.remove();
       const t = b.textContent.trim(), m = t.match(/^([^\p{L}\p{N}]+)\s*(.*)$/u);
-      b.innerHTML = m ? `<i class="oa-bi">${esc(m[1].trim())}</i><span class="oa-bt">${esc(m[2])}</span>` : `<i class="oa-bi">•</i><span class="oa-bt">${esc(t)}</span>`;
+      const ic = svg ? '' : m ? esc(m[1].trim()) : '•';
+      // Texto corto en el botón (el largo queda como ayuda al pasar el mouse).
+      let tx = m && !svg ? m[2] : t;
+      if (/^Ambulatorio:\s*/i.test(tx)) { b.title = b.title || tx; tx = tx.replace(/^Ambulatorio:\s*/i, ''); tx = tx.charAt(0).toUpperCase() + tx.slice(1); }
+      b.setAttribute('lang', 'es');
+      b.innerHTML = `<span class="oa-bin"><i class="oa-bi">${ic}</i><span class="oa-bt">${esc(tx)}</span><i class="oa-fl" aria-hidden="true">›</i></span>`;
+      if (svg) { svg.setAttribute('width', '16'); svg.setAttribute('height', '16'); b.querySelector('.oa-bi').appendChild(svg); }
       if (/btn-(blue|green|red)/.test(b.className)) b.classList.add('oa-prim');
     });
+    if (acc) acc.dataset.n = acc.querySelectorAll(':scope>.btn').length;
     oaIngFicha(f, c);
   });
 }
@@ -774,7 +806,9 @@ function oaPdfOv() {
 }
 function oaPdfCerrar() {
   const ov = document.getElementById('oa-pdf-ov'); if (ov) { ov.classList.remove('on'); ov.innerHTML = ''; }
-  const u = oaPdfAct && oaPdfAct.url; if (u) setTimeout(() => URL.revokeObjectURL(u), 1000);
+  const a = oaPdfAct;
+  if (a && a.dir) oaPdfBorrarLuego(a.dir);
+  if (a && a.blobUrl) { const u = a.blobUrl; setTimeout(() => URL.revokeObjectURL(u), 1000); }
   oaPdfAct = null;
 }
 function oaPdfPintar(cuerpo, botones) {
@@ -784,18 +818,62 @@ function oaPdfPintar(cuerpo, botones) {
     <div class="oa-pdf-acc oa-fila">${botones}</div><div class="oa-pdf-cuerpo">${cuerpo}</div></div>`;
   ov.classList.add('on');
 }
+/* 3.49.3 · Pedido de Claudio: «¿por qué no usás el mismo sistema del PDF del Libro Blanco?».
+   El Libro Blanco es un archivo con dirección propia de la app y por eso se ve, se descarga y se abre
+   en pestaña en todos lados. Ahora la orden también: el PDF armado se deja en una caché solo para esto
+   ('hru-ordenes-pdf') y el service worker lo sirve en ./orden-pdf/<código>/<nombre>.pdf. Se guarda
+   una sola orden por vez y se borra al rato (datos de salud). Si no hay service worker, queda el blob. */
+const OA_PDF_CACHE = 'hru-ordenes-pdf';
+try { if ('caches' in window) caches.delete(OA_PDF_CACHE); } catch (e) {}
+async function oaPdfDireccion(blob, nombre) {
+  try {
+    if (!('caches' in window) || !navigator.serviceWorker || !navigator.serviceWorker.controller) return '';
+    const limpio = String(nombre || 'orden.pdf').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w.\-]+/g, '_');
+    const url = new URL('./orden-pdf/' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + '/' + limpio, location.href).href;
+    const c = await caches.open(OA_PDF_CACHE);
+    for (const k of await c.keys()) await c.delete(k);
+    await c.put(url, new Response(blob, { headers: { 'Content-Type': 'application/pdf', 'Content-Length': String(blob.size) } }));
+    // Se comprueba que el service worker ya sabe servirlo (uno viejo todavía no): si no, se usa el blob.
+    const r = await fetch(url, { cache: 'no-store' });
+    if (!r.ok || !/pdf/i.test(r.headers.get('content-type') || '')) { await c.delete(url); return ''; }
+    return url;
+  } catch (e) { return ''; }
+}
+function oaPdfBorrarLuego(url) {
+  if (!url || !('caches' in window)) return;
+  setTimeout(() => { caches.open(OA_PDF_CACHE).then((c) => c.delete(url)).catch(() => {}); }, 120000);
+}
+function oaEnAppSafari() {
+  const ua = navigator.userAgent || '';
+  const safari = /Safari/.test(ua) && !/Chrome|Chromium|CriOS|Edg|Firefox|FxiOS|OPR/.test(ua);
+  const app = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  return safari && app;
+}
 function oaPdfAbrir(html, nombre) {
-  oaPdfAct = { html, nombre, blob: null, url: '' };
+  oaPdfAct = { html, nombre, blob: null, url: '', dir: '' };
   const yo = oaPdfAct;
   oaPdfPintar('<p class="oa-pdf-espera">Armando el PDF de la orden…</p>', '');
-  return oaPdfBlob(html).then((b) => {
+  return oaPdfBlob(html).then(async (b) => {
     if (oaPdfAct !== yo) return;
-    yo.blob = b; yo.url = URL.createObjectURL(b);
+    yo.blob = b;
+    yo.dir = await oaPdfDireccion(b, nombre);
+    if (oaPdfAct !== yo) { oaPdfBorrarLuego(yo.dir); return; }
+    yo.blobUrl = URL.createObjectURL(b);
+    yo.url = yo.dir || yo.blobUrl;
     const comp = !!(navigator.canShare && (() => { try { return navigator.canShare({ files: [new File([b], nombre, { type: 'application/pdf' })] }); } catch (e) { return false; } })());
-    oaPdfPintar(`<iframe class="oa-pdf-ver" src="${yo.url}#view=FitH&navpanes=0" title="Orden de autorización"></iframe>`,
-      `<button type="button" class="btn btn-blue" onclick="oaPdfGuardar()">⬇ Guardar PDF</button>`
+    const ios = typeof esIOS === 'function' && esIOS();
+    // Igual que el Libro Blanco: visor en la ventana (en iPhone/iPad la hoja, porque no muestran PDF en marco).
+    const visor = ios ? '<div class="oa-pdf-hoja" id="oa-pdf-hoja"></div>'
+      : `<iframe class="oa-pdf-ver" src="${yo.url}#view=FitH&navpanes=0" title="Orden de autorización"></iframe>`;
+    // Descarga: enlace real al archivo armado (probado en Safari 14-11: baja a Descargas). La dirección
+    // propia NO sirve para descargar: Safari saltea al service worker en las descargas y da 404.
+    const bajar = `<a class="btn btn-blue" href="${yo.blobUrl}" download="${esc(nombre)}" onclick="oaAviso('Descargando la orden en PDF (carpeta Descargas)…')">⬇ Descargar</a>`;
+    // «Abrir en pestaña nueva» solo donde la pestaña comparte la caché con la app (no en la app de Safari).
+    const pest = yo.dir && !oaEnAppSafari() ? `<a class="btn btn-outline" href="${yo.dir}" target="_blank" rel="noopener">↗ Abrir en pestaña nueva</a>` : '';
+    oaPdfPintar(visor, bajar + pest
       + (comp ? `<button type="button" class="btn btn-outline" onclick="oaPdfCompartir()">📤 Compartir</button>` : '')
       + `<button type="button" class="btn btn-outline" onclick="oaPdfImprimir()">🖨 Imprimir</button>`);
+    if (ios) { const el = document.getElementById('oa-pdf-hoja'); if (el) oaMontar(el, Math.max(260, (el.parentElement && el.parentElement.clientWidth - 20) || 600), html); }
   }).catch((e) => {
     if (oaPdfAct !== yo) return;
     try { console.warn('PDF de la orden:', e); } catch (x) {}
@@ -807,7 +885,7 @@ function oaPdfAbrir(html, nombre) {
 }
 function oaPdfGuardar() {
   const a = oaPdfAct; if (!a || !a.blob) return;
-  const l = document.createElement('a'); l.href = a.url; l.download = a.nombre; l.rel = 'noopener';
+  const l = document.createElement('a'); l.href = a.blobUrl || a.url; l.download = a.nombre; l.rel = 'noopener';
   document.body.appendChild(l); l.click(); l.remove();
   oaAviso('PDF guardado en Descargas: ' + a.nombre);
 }

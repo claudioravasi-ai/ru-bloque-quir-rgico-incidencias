@@ -14,7 +14,7 @@
 /* Al publicar cambios hay que subir esta constante (y APP_VERSION en
    index.html): es lo que hace que los dispositivos ya instalados descarten la
    copia cacheada y estrenen la versión nueva. */
-const VERSION = 'hru-quirofanos-v135';
+const VERSION = 'hru-quirofanos-v136';
 const SHELL = [
   './',
   './index.html',
@@ -68,6 +68,27 @@ self.addEventListener('fetch', (e) => {
 
   const scope = new URL('./', self.location.href).pathname;
   if (!url.pathname.startsWith(scope)) return;
+  // 3.49.3 · PDF de la orden de autorización (mismo sistema que el Libro Blanco): la app lo arma,
+  // lo deja en la caché 'hru-ordenes-pdf' y acá se sirve con dirección propia. Con ?descargar=1
+  // se manda como descarga. No sale nunca a la red: si ya no está, se explica qué hacer.
+  if (url.pathname.startsWith(scope + 'orden-pdf/')) {
+    e.respondWith(caches.open('hru-ordenes-pdf')
+      .then((c) => c.match(url.origin + url.pathname))
+      .then((r) => {
+        if (!r) {
+          return new Response('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Orden de autorización</title>'
+            + '<body style="font-family:system-ui,sans-serif;padding:40px 20px;text-align:center;color:#0f172a"><h2>La orden ya no está guardada acá</h2>'
+            + '<p>Por cuidado de los datos, el PDF de la orden se guarda solo un rato.<br>Volvé a la app y tocá «PDF» de nuevo.</p></body>',
+            { status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+        }
+        if (!url.searchParams.has('descargar')) return r;
+        const nombre = decodeURIComponent(url.pathname.split('/').pop() || 'orden.pdf').replace(/"/g, '');
+        return r.blob().then((b) => new Response(b, { headers: {
+          'Content-Type': 'application/pdf', 'Content-Length': String(b.size),
+          'Content-Disposition': 'attachment; filename="' + nombre + '"' } }));
+      }));
+    return;
+  }
   // Los demos y el manual interactivo (carpeta demo/) no se guardan: se
   // descargan solo cuando alguien los abre y no ocupan lugar en la app.
   if (url.pathname.startsWith(scope + 'demo/')) return;
