@@ -747,6 +747,15 @@ function scrResumen(conBoton) {
     <div class="s-card"><h4>${CASO.proc}</h4><p>${CASO.pac} · ${CASO.sala}</p><ul class="tiempos">${T.map(([n, h]) => `<li><span>${n}</span><b>${h}</b></li>`).join('')}</ul></div>
     ${conBoton ? btn('seguir', 'Seguir: una urgencia →') : '<p class="nota">Los tiempos van solos a las estadísticas.</p>'}`;
 }
+/* 3.49 · Admisión manda la orden de autorización a la obra social. */
+function scrOrdenAdm() {
+  return `<div class="s-h"><div><b>🗂️ Ingresos · Para autorizar</b><small>La orden llegó con el pase, antes que la paciente</small></div></div>
+    <div class="s-card k" style="--k:var(--adm)"><h4>${CASO.proc}</h4><p>${CASO.pac} · ${CASO.dia} · ${CASO.sala}</p>
+      <div class="reqs"><span>📄 Orden · firmada, falta enviarla</span></div>
+      ${campo('Correo de autorizaciones de la obra social', 'autorizaciones@obrasocial (ejemplo)')}
+      <div class="dos">${btn('enviaros', '📧 Enviar a la obra social por correo', 'ok')}${info('Baja la orden en PDF (una hoja A4) para mandarla por otro lado, por ejemplo la página de la obra social. Después se toca «Ya la mandé yo».', '⬇ PDF de la orden')}</div></div>
+    <p class="nota">El correo no lleva el diagnóstico en el texto: va en el PDF adjunto. Cuando la obra social responde, Admisión escribe su N.º y da el dictamen de siempre.</p>`;
+}
 /* El teléfono de la paciente: lo que ve Ana en cada momento. */
 function pacHTML(S) {
   const p = S.p;
@@ -766,10 +775,11 @@ function pacHTML(S) {
   return `<div class="pac-hola"><b>Hola, Ana 👋</b><small>${CASO.proc}</small><small>${CASO.dia} · ${CASO.sala} · ${R.cir.n}</small></div>
     ${p.recup ? `<div class="hecho-mini">✓ Tu cirugía terminó. El pase se cierra solo.</div>` : ''}
     <ul class="tl">${it.map(([n, c, s]) => `<li class="${c}"><i>${c === 'ok' ? '✓' : c === 'act' ? '●' : ''}</i><div><b>${n}</b>${s ? `<small>${s}</small>` : ''}</div></li>`).join('')}</ul>
+    ${p.orden && !p.recup ? `<div class="s-card k" style="--k:var(--adm)"><small style="font-weight:800;color:var(--adm)">TU ORDEN DE AUTORIZACIÓN</small><p style="margin:2px 0 0;color:var(--ink)"><b>📄 Lista · Ver · PDF · Compartir</b></p><small>${p.adm === 'ok' ? '✓ Autorizada por tu obra social' : p.ordEnv ? 'Admisión la mandó: en trámite en tu obra social' : 'Admisión la va a mandar a tu obra social'}</small></div>` : ''}
     ${p.cama && !p.recup ? '<div class="s-card k" style="--k:var(--cir)"><small style="font-weight:800;color:var(--cir)">TU INTERNACIÓN</small><p style="margin:2px 0 0;color:var(--ink)"><b>🛏 Sala General de Adultos · Hab. 12 · Cama 3</b></p></div>' : ''}
     <div class="vivo">Se actualiza solo · hace instantes</div>
     ${p.recup ? btn('reabrir', '🔄 Volver a abrir el QR', '', 'var(--pac)') : ''}
-    <p class="nota" style="margin:8px 0 0">🔒 Sin diagnóstico ni datos de otras personas.</p>`;
+    <p class="nota" style="margin:8px 0 0">🔒 Sin datos de otras personas. Tu orden (con el diagnóstico) se ve solo con tu DNI y tu código.</p>`;
 }
 
 /* ---------- Acto 4 · urgencia ---------- */
@@ -1275,7 +1285,8 @@ EQ({ e: 'Al día siguiente', r: 'dia', q: 'enfg', h: 'Jue 07:38', tit: 'Otra enf
 /* Acto 3 · Cirugía programada */
 const PR = (o) => P(Object.assign({ a: 'prog', pac: true }, o));
 PR({ e: 'Programar y pase QR', r: 'prog', q: 'cir', h: 'Lun 09:10', tit: 'El cirujano anota la cirugía', txt: `El Dr. Sosa programa la cirugía de ${CASO.pac}: procedimiento, día, sala y anestesia. Solo puede enviarla con los tres requisitos tildados: pre-anestésico, pre-quirúrgico y consentimiento firmado.`, t: 'programar', go: 'Toque «Programar»', ver: scrProgramar, hacer: (S) => { S.p.prog = true; }, ok: 'Turno cargado. Pasa a la bandeja de Admisión y Egresos.' });
-PR({ e: 'Programar y pase QR', r: 'prog', q: 'cir', h: 'Lun 09:11', tit: 'El pase de la paciente', txt: 'Con los requisitos completos y el consentimiento guardado, la app ofrece el pase: una tarjeta tipo pase de embarque con un código QR. El botón se prende recién con el correo, el DNI y la casilla de que la paciente aceptó; mientras tanto dice qué falta.', t: 'pase', go: 'Toque «Generar el pase del paciente»', ver: () => scrPase(false), hacer: (S) => { S.p.pase = true; }, ok: 'Pase generado. Se imprime o se le manda a la paciente.' });
+PR({ e: 'Programar y pase QR', r: 'prog', q: 'cir', h: 'Lun 09:11', tit: 'El pase de la paciente', txt: 'Con los requisitos completos y el consentimiento guardado, la app ofrece el pase: una tarjeta tipo pase de embarque con un código QR. El botón se prende recién con el correo, el DNI y la casilla de que la paciente aceptó; mientras tanto dice qué falta.', t: 'pase', go: 'Toque «Generar el pase del paciente»', ver: () => scrPase(false), hacer: (S) => { S.p.pase = true; S.p.orden = true; }, ok: 'Pase generado. En el mismo toque salió la orden de autorización (R/P) firmada: le llega a la paciente y a Admisión.' });
+PR({ e: 'Programar y pase QR', r: 'adm', q: 'adm', h: 'Lun 09:25', tit: 'Ana va de la consulta a Admisión', txt: 'La orden de autorización ya está en Ingresos: Admisión ve el renglón «Orden · firmada, falta enviarla» y la manda a la obra social con un toque. El correo de autorizaciones de cada obra social se carga una sola vez; después sale solo.', t: 'enviaros', go: 'Toque «📧 Enviar a la obra social por correo»', ver: scrOrdenAdm, hacer: (S) => { S.p.ordEnv = true; }, ok: 'Orden enviada con el PDF adjunto. En el teléfono de Ana: «En trámite en tu obra social».' });
 PR({ e: 'Programar y pase QR', r: 'prog', q: 'cir', h: 'Lun 09:12', tit: 'La paciente escanea el QR', txt: `${CASO.pac.split(' ')[0]} apunta la cámara al QR. Para entrar, la app le pide su DNI y un código de un solo uso que le llega al correo. Desde ahí sigue su cirugía en vivo, sin llamar a nadie.`, t: 'escanear', go: 'En el teléfono de Ana, toque «Escanear el QR»', ver: () => scrPase(true), hacer: (S) => { S.p.esc = true; }, ok: 'Ana ya ve su cirugía: «Admisión y Egresos · revisando tu turno».' });
 PR({ e: 'Programar y pase QR', r: 'prog', q: 'cir', h: 'Lun 18:20', tit: 'El consentimiento firmado, en PDF', txt: 'La paciente lee y acepta el consentimiento desde su pase. Recién entonces aparece en la ficha el botón verde (antes, para verlo, se entra en Consentimientos Informados). Si después cambia la fecha del turno, el consentimiento toma la fecha nueva, la paciente lo acepta de nuevo y la versión anterior queda en Consentimientos › No concretados. El cirujano toca «Firmar y bajar»: el PDF sale con el sello de cada firma en su lugar, el espacio de revocación anulado y las hojas numeradas («Hoja 2 de 4»), con el paciente, el código y el comienzo del SHA-256 de la firma en cada una. Cada punto va entero.', t: 'conspdf', go: 'Toque «Firmar y bajar el consentimiento»', ver: scrConsPDF, ok: 'Consentimiento firmado por la paciente y por el médico.' });
 PR({ e: 'Admisión y Jefatura', r: 'adm', q: 'adm', h: 'Lun 11:40', tit: 'Admisión y Egresos autoriza', txt: 'Admisión revisa los requisitos y la cobertura, y dictamina. Mire el teléfono de Ana: cambia en el mismo momento.', t: 'autorizar', go: 'Toque «Autorizar»', ver: scrAdmision, hacer: (S) => { S.p.adm = 'ok'; S.p.jef = 'pend'; }, ok: 'Autorizada. En el teléfono de Ana: «Admisión ✓ · Jefatura validando…».' });

@@ -10439,7 +10439,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.48.2';
+const APP_VERSION = '3.49.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -39678,5 +39678,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.__hruArranco = 1;   // 3.42 · la app arrancó: no hace falta el cartel de navegador
 });
 </script>
+<!-- 3.49 · Orden de autorización (R/P): módulo aparte que se engancha a la app -->
+<script src="orden-aut.js"></script>
 </body>
 </html>
