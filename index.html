@@ -5233,8 +5233,8 @@
   .ing-cama small { font-weight: 600; opacity: .9; font-size: .66rem; } .ing-cama.no { color: #b91c1c; background: #fee2e2; box-shadow: none; }
   .ing-a { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
   .ie { display: grid; grid-auto-rows: 1fr; gap: 5px; margin: 0; width: 100%; max-width: 320px; }
-  .ie-r { --c: #64748b; --s: color-mix(in srgb, var(--c) 12%, var(--card)); --t: var(--ink); display: grid; grid-template-columns: 66px minmax(0, 1fr); align-items: stretch; min-height: 42px; border-radius: 10px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line)); background: var(--s); }
-  .ie-r dt { display: flex; align-items: center; padding: 0 8px; font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: var(--c); }
+  .ie-r { --c: #64748b; --s: color-mix(in srgb, var(--c) 12%, var(--card)); --t: var(--ink); display: grid; grid-template-columns: 78px minmax(0, 1fr); align-items: stretch; min-height: 42px; border-radius: 10px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line)); background: var(--s); }
+  .ie-r dt { display: flex; align-items: center; padding: 0 7px; white-space: nowrap; font-size: .62rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #fff; background: var(--c); }
   .ie-r dd { margin: 0; display: flex; align-items: center; gap: 6px; padding: 5px 8px; font-size: .8rem; font-weight: 700; line-height: 1.2; color: var(--t); }
   .ie-r dd i { flex: none; font-style: normal; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: .7rem; font-weight: 900; color: #fff; background: var(--c); }
   .ie-r dd > span { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
@@ -5242,8 +5242,8 @@
   /* 14-11 · Pedido de Claudio: en el celular las pastillas de estado más finas (más bajas, rótulo angosto). */
   @media (max-width: 600px) {
     .ie { gap: 4px; }
-    .ie-r { grid-template-columns: 56px minmax(0, 1fr); min-height: 30px; border-radius: 8px; }
-    .ie-r dt { padding: 0 6px; font-size: .55rem; letter-spacing: .04em; }
+    .ie-r { grid-template-columns: 64px minmax(0, 1fr); min-height: 30px; border-radius: 8px; }
+    .ie-r dt { padding: 0 5px; font-size: .55rem; letter-spacing: .03em; }
     .ie-r dd { gap: 5px; padding: 4px 7px; font-size: .74rem; }
     .ie-r dd i { width: 15px; height: 15px; font-size: .6rem; }
     .ie-r dd small { font-size: .64rem; }
@@ -10449,7 +10449,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.49.3';
+const APP_VERSION = '3.49.4';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [

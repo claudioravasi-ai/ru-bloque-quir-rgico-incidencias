@@ -128,6 +128,7 @@ body[data-tema="noche"] #oa-modal .pp-paso b{color:#f1f5f9}body[data-tema="noche
 .oa-pdf-acc{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 16px 10px}
 .oa-pdf-acc .btn{min-height:44px}
 .oa-pdf-nota{font-size:.82rem;color:#475569}
+.oa-pdf-perm{grid-column:1 / -1;flex-basis:100%;margin:0}
 .oa-pdf-cuerpo{flex:1;min-height:0;background:#e2e8f0;overflow:auto}
 .oa-pdf-ver{width:100%;height:100%;border:0;display:block;background:#e2e8f0}
 .oa-pdf-espera{padding:30px;text-align:center;color:#334155;font-weight:600}
@@ -860,6 +861,10 @@ function oaPdfAbrir(html, nombre) {
     if (oaPdfAct !== yo) { oaPdfBorrarLuego(yo.dir); return; }
     yo.blobUrl = URL.createObjectURL(b);
     yo.url = yo.dir || yo.blobUrl;
+    // 3.49.4 · Probado con Claudio en una app del Dock de Safari (14-11): el enlace con el archivo
+    // entero adentro (data:) baja a Descargas tanto tocado como por código; el blob por código, no.
+    try { yo.datos = await new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = mal; r.readAsDataURL(b); }); } catch (e) { yo.datos = ''; }
+    if (oaPdfAct !== yo) return;
     const comp = !!(navigator.canShare && (() => { try { return navigator.canShare({ files: [new File([b], nombre, { type: 'application/pdf' })] }); } catch (e) { return false; } })());
     const ios = typeof esIOS === 'function' && esIOS();
     // Igual que el Libro Blanco: visor en la ventana (en iPhone/iPad la hoja, porque no muestran PDF en marco).
@@ -867,12 +872,13 @@ function oaPdfAbrir(html, nombre) {
       : `<iframe class="oa-pdf-ver" src="${yo.url}#view=FitH&navpanes=0" title="Orden de autorización"></iframe>`;
     // Descarga: enlace real al archivo armado (probado en Safari 14-11: baja a Descargas). La dirección
     // propia NO sirve para descargar: Safari saltea al service worker en las descargas y da 404.
-    const bajar = `<a class="btn btn-blue" href="${yo.blobUrl}" download="${esc(nombre)}" onclick="oaAviso('Descargando la orden en PDF (carpeta Descargas)…')">⬇ Descargar</a>`;
+    const bajar = `<a class="btn btn-blue" href="${yo.datos || yo.blobUrl}" download="${esc(nombre)}" onclick="oaAviso('Descargando la orden en PDF (carpeta Descargas)…')">⬇ Descargar</a>`;
     // «Abrir en pestaña nueva» solo donde la pestaña comparte la caché con la app (no en la app de Safari).
     const pest = yo.dir && !oaEnAppSafari() ? `<a class="btn btn-outline" href="${yo.dir}" target="_blank" rel="noopener">↗ Abrir en pestaña nueva</a>` : '';
     oaPdfPintar(visor, bajar + pest
       + (comp ? `<button type="button" class="btn btn-outline" onclick="oaPdfCompartir()">📤 Compartir</button>` : '')
-      + `<button type="button" class="btn btn-outline" onclick="oaPdfImprimir()">🖨 Imprimir</button>`);
+      + `<button type="button" class="btn btn-outline" onclick="oaPdfImprimir()">🖨 Imprimir</button>`
+      + `<p class="oa-pdf-nota oa-pdf-perm">Si la computadora pregunta si permitís descargas, tocá <b>Permitir</b>.</p>`);
     if (ios) { const el = document.getElementById('oa-pdf-hoja'); if (el) oaMontar(el, Math.max(260, (el.parentElement && el.parentElement.clientWidth - 20) || 600), html); }
   }).catch((e) => {
     if (oaPdfAct !== yo) return;
@@ -885,7 +891,7 @@ function oaPdfAbrir(html, nombre) {
 }
 function oaPdfGuardar() {
   const a = oaPdfAct; if (!a || !a.blob) return;
-  const l = document.createElement('a'); l.href = a.blobUrl || a.url; l.download = a.nombre; l.rel = 'noopener';
+  const l = document.createElement('a'); l.href = a.datos || a.blobUrl || a.url; l.download = a.nombre; l.rel = 'noopener';
   document.body.appendChild(l); l.click(); l.remove();
   oaAviso('PDF guardado en Descargas: ' + a.nombre);
 }
