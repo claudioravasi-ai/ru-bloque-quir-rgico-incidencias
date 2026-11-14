@@ -61,9 +61,12 @@ const OA_JS = ['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2ca
 .oa-pie{margin:12px 34px 0;display:flex;justify-content:space-between;gap:12px;font-size:9.5px;color:#6b8494;border-top:1px solid #d9e3e8;padding-top:6px}
 .oa-cinta{position:absolute;top:400px;left:-60px;right:-60px;transform:rotate(-24deg);text-align:center;font:800 64px system-ui;letter-spacing:10px;color:rgba(180,35,24,.18);border-top:4px solid rgba(180,35,24,.18);border-bottom:4px solid rgba(180,35,24,.18);pointer-events:none;z-index:5}
 .oa-cinta small{display:block;font:700 15px system-ui;letter-spacing:3px}.oa-cinta.borr{color:rgba(183,121,31,.22);border-color:rgba(183,121,31,.22)}
-.oa-esc{overflow:hidden}.oa-esc>.oa-hoja{transform-origin:top left}
+.oa-esc{overflow:hidden}html body.portal-pac>div#oa-armado.oa-armado,div#oa-armado.oa-armado{display:block!important}
+/* El dibujante del PDF arma una copia de la página en su propio marco: el pase ocultaba también ese marco. */
+html body.portal-pac>iframe.html2canvas-container:not(#oa-no-existe){display:block!important}
+.oa-esc>.oa-hoja{transform-origin:top left;flex:none;width:794px;max-width:none}
 /* ventana de la orden */
-#oa-ov .modal{max-width:1180px;width:100%;padding:22px 22px 18px}
+#oa-ov .modal{width:100%;padding:22px 22px 18px}
 .oa-ed{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:18px;align-items:start}
 .oa-ed .field{margin-bottom:10px}
 .oa-ed textarea,.oa-ed input{width:100%;font-size:16px}
@@ -90,8 +93,110 @@ const OA_JS = ['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2ca
 .oa-adm{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
 .oa-adm input{flex:1 1 180px;font-size:16px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line,#cbd5e1)}
 .oa-sticky{position:sticky;top:0}
-.oa-ing-acc{display:flex;flex-wrap:wrap;gap:6px;width:100%;max-width:320px}
-.oa-ing-acc .btn{flex:1 1 auto;justify-content:center}
+.oa-fila{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:stretch;width:100%}
+.oa-fila>.btn,.oa-fila>label.btn{width:100%;min-height:44px;margin:0;display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:normal;line-height:1.2}
+.oa-fila-n{grid-template-columns:minmax(0,1fr) auto}.oa-fila-n input{min-height:44px;font-size:16px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line,#cbd5e1);min-width:0}
+@media (max-width:420px){.oa-fila-n{grid-template-columns:1fr}}
+.oa-pdf-acc.oa-fila{padding:0 16px 10px;width:auto}
+#oa-modal{padding-left:clamp(14px,4vw,22px)!important;padding-right:clamp(14px,4vw,22px)!important}
+.oa-ed>div{min-width:0}
+#main:has(.ing-f) .btn-sm{min-height:44px}
+#oa-modal .pp-paso b{color:var(--ink,#1f2937)}#oa-modal .pp-paso small{color:var(--muted,#6b7280)}
+#oa-modal .pp-paso:not(:last-child)::after{background:var(--line,#ede9fe)}
+#oa-modal .pp-p-espera .pp-p-ico{background:transparent;border-color:var(--muted,#c4b5fd)}
+body[data-tema="noche"] #oa-modal .pp-paso b{color:#f1f5f9}body[data-tema="noche"] #oa-modal .pp-paso small{color:#cbd5e1}
+/* 14-11 · Pedido de Claudio: las ventanas de la orden y del PDF ocupan toda la pantalla disponible (sin franjas vacías). */
+.oa-pdf-acc.oa-fila{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+#oa-pdf-ov{padding:clamp(0px,1.5vw,16px)}
+.oa-pdf-marco{width:100%;height:100%;max-width:none;max-height:none}
+#oa-ov{padding:clamp(0px,1.5vw,16px)}
+#oa-ov .modal#oa-modal{width:100%;max-width:none;height:100%;max-height:none;border-radius:18px}
+@media (max-width:600px){#oa-pdf-ov,#oa-ov{padding:0}.oa-pdf-marco,#oa-ov .modal#oa-modal{border-radius:0}}
+#oa-pp-ov .marco{width:100%;max-width:none;min-height:100%}
+.oa-ops button{background:var(--card,#fff);color:var(--ink,#334155);border-color:var(--line,#d9e3e8)}
+.oa-ops button.on{background:color-mix(in srgb,#0e7c66 18%,var(--card,#fff));color:var(--ink,#0e7c66);border-color:#0e9f80}
+.oa-ops button:disabled{opacity:.7}
+.oa-ayuda{background:color-mix(in srgb,var(--ink,#0f172a) 6%,var(--card,#fff));color:var(--ink,#475569)}
+.oa-pase-blq{background:color-mix(in srgb,#14b8a6 10%,var(--card,#fff))}.oa-pase-tit{color:var(--ink,#134e4a)}
+.oa-mif{background:color-mix(in srgb,var(--ink,#0f172a) 6%,var(--card,#fff));color:var(--ink,#475569)}
+#oa-pdf-ov{position:fixed;inset:0;z-index:600;background:rgba(15,23,42,.72);display:none;align-items:center;justify-content:center;padding:12px}
+#oa-pdf-ov.on,body.portal-pac>#oa-pdf-ov.on{display:flex!important}
+.oa-pdf-marco{background:#fff;color:#0f172a;border-radius:18px;width:min(900px,100%);height:min(94vh,1100px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.oa-pdf-cab{display:flex;justify-content:space-between;align-items:center;padding:10px 12px 6px 16px}
+.oa-pdf-cab b{font-size:1rem}
+.oa-pdf-x{min-width:44px;min-height:44px;border-radius:50%;border:0;background:#f1f5f9;color:#0f172a;font-size:1.2rem;cursor:pointer}
+.oa-pdf-acc{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:0 16px 10px}
+.oa-pdf-acc .btn{min-height:44px}
+.oa-pdf-nota{font-size:.82rem;color:#475569}
+.oa-pdf-cuerpo{flex:1;min-height:0;background:#e2e8f0;overflow:auto}
+.oa-pdf-ver{width:100%;height:100%;border:0;display:block;background:#e2e8f0}
+.oa-pdf-espera{padding:30px;text-align:center;color:#334155;font-weight:600}
+.oa-pdf-hoja{padding:10px;display:flex;justify-content:center}
+.ing-f .ing-e{grid-template-columns:minmax(0,1fr);min-width:0}
+.oa-ing-acc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;min-width:0}
+.oa-ing-acc:empty{display:none}
+.oa-ing-acc .ing-apagado,.oa-ing-acc .btn[disabled]{grid-column:1/-1;max-width:none}
+.ing-f.oa-ok .ing-a{display:none}
+.oa-ing-acc .btn.btn{--b:var(--ac,#2563eb);position:relative;display:flex;align-items:center;justify-content:flex-start;gap:9px;min-height:44px;padding:0 26px 0 6px;border-radius:12px;
+  font-weight:700;font-size:.8rem;text-align:left;color:var(--ink);background:linear-gradient(180deg,color-mix(in srgb,var(--b) 10%,var(--card,#fff)),color-mix(in srgb,var(--b) 4%,var(--card,#fff)));
+  border:1px solid color-mix(in srgb,var(--b) 32%,var(--line,#e2e8f0));box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 4px 12px -8px color-mix(in srgb,var(--b) 60%,transparent);
+  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.oa-ing-acc .btn.btn::after{content:'›';position:absolute;right:10px;top:50%;transform:translateY(-52%);font-size:1.15rem;font-weight:800;opacity:.45;transition:transform .15s ease,opacity .15s}
+.oa-ing-acc .btn.btn:hover{transform:translateY(-1px);border-color:var(--b);box-shadow:0 10px 22px -12px var(--b)}
+.oa-ing-acc .btn.btn:hover::after{opacity:.9;transform:translate(3px,-52%)}
+.oa-ing-acc .btn.btn:focus-visible{outline:3px solid color-mix(in srgb,var(--b) 55%,transparent);outline-offset:2px}
+.oa-bi{flex:none;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-style:normal;font-size:.95rem;background:color-mix(in srgb,var(--b) 20%,var(--card,#fff));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--b) 30%,transparent)}
+.oa-bt{min-width:0;line-height:1.15}
+.oa-ing-acc .btn.btn.oa-prim{color:#fff;border-color:transparent;background:linear-gradient(135deg,var(--b),color-mix(in srgb,var(--b) 62%,#000));box-shadow:0 10px 22px -12px var(--b)}
+.oa-ing-acc .btn.btn.oa-prim .oa-bi{background:rgba(255,255,255,.2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}
+.oa-ing-acc .btn.btn.oa-prim::after{opacity:.8}
+.oa-ing-acc .btn.btn.btn-red{--b:#dc2626}
+@media (prefers-reduced-motion:reduce){.oa-ing-acc .btn.btn,.oa-ing-acc .btn.btn::after{transition:none}}
+@media (max-width:600px){.oa-ing-acc .btn.btn{flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:6px 4px;min-height:58px;font-size:.72rem;text-align:center}.oa-ing-acc .btn.btn::after{display:none}.oa-bi{width:26px;height:26px;font-size:.82rem;border-radius:7px}.oa-bt{overflow-wrap:anywhere;hyphens:auto}}
+.oa-ing-aviso{grid-column:1/-1;font-size:.78rem;font-weight:700;padding:8px 12px;border-radius:10px;border:1px dashed color-mix(in srgb,#b45309 55%,transparent);background:color-mix(in srgb,#f59e0b 12%,var(--card,#fff));color:var(--ink);margin-top:4px}
+.ing-f.oa-ok .ing-c.oa-vacia{display:none}
+.oa-cama-aqui:empty{display:none}.oa-cama-aqui .ing-cama{font-size:.72rem;padding:4px 9px;border-radius:999px}
+.ing-f.oa-ok{--ac:#2563eb;align-items:stretch;gap:14px}
+.ing-f.oa-ok.oa-area-endo{--ac:#0d9488}.ing-f.oa-ok.oa-area-obs{--ac:#db2777}
+.oa-talon{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:14px;padding:10px 4px;text-align:center;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--ac) 22%,var(--card,#fff)),color-mix(in srgb,var(--ac) 8%,var(--card,#fff)));border:1px solid color-mix(in srgb,var(--ac) 35%,transparent);position:relative}
+.oa-talon::after{content:'';position:absolute;left:8px;right:8px;bottom:-1px;border-bottom:2px dashed color-mix(in srgb,var(--ac) 45%,transparent)}
+.oa-talon b{font-size:1.25rem;font-weight:900;letter-spacing:-.02em;color:var(--ink)}
+.oa-tal-dia{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ac)}
+.oa-tal-sala{font-size:.66rem;font-weight:700;color:var(--muted);line-height:1.15}
+.oa-pac{display:grid;gap:8px;height:100%;align-content:start;border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--ac) 6%,var(--card,#fff));border:1px solid color-mix(in srgb,var(--ac) 18%,var(--line,#e2e8f0))}
+.oa-pac-cab{display:flex;gap:10px;align-items:center}
+.oa-ini{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:.9rem;color:#fff;background:linear-gradient(135deg,var(--ac),color-mix(in srgb,var(--ac) 55%,#000))}
+.oa-pac-cab b{font-size:1.02rem;line-height:1.2;color:var(--ink)}
+.oa-datos{display:flex;flex-wrap:wrap;gap:5px}
+.oa-dato{display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:600;padding:4px 9px;border-radius:999px;background:color-mix(in srgb,var(--ink,#0f172a) 6%,transparent);color:var(--ink)}
+.oa-dato i{font-style:normal;font-size:.72rem}
+.oa-clin{margin:0;display:grid;gap:6px}
+.oa-clin>div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px;align-items:baseline}
+.oa-clin dt{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ac)}
+.oa-clin dd{margin:0;font-size:.84rem;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.oa-clin dd em{font-style:normal;font-size:.7rem;font-weight:800;padding:1px 6px;border-radius:6px;background:var(--ink,#0f172a);color:var(--card,#fff);margin-left:4px}
+@media (max-width:600px){.oa-clin>div{grid-template-columns:1fr;gap:1px}.oa-talon b{font-size:1.05rem}.oa-ini{width:34px;height:34px}}
+.ing-f.oa-ok,.ing-f.oa-ok.endo{grid-template-columns:64px minmax(0,1fr) minmax(290px,360px)}
+.ing-f.oa-ok .ing-e{grid-column:3;grid-row:1}
+.ing-f.oa-ok .ing-e>.ie{max-width:none}
+.ing-f.oa-ok .ing-c{grid-column:2/-1;grid-row:2}
+.ing-f.oa-ok .ing-h.oa-talon{grid-column:1;grid-row:1 / span 3;align-self:stretch;min-width:0;overflow:hidden}
+.oa-talon b{white-space:nowrap}.oa-tal-dia,.oa-tal-sala{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (min-width:1200px){
+  .ing-f.oa-ok,.ing-f.oa-ok.endo{grid-template-columns:64px minmax(0,1fr) minmax(540px,620px)}
+  .ing-f.oa-ok .ing-e{grid-template-columns:minmax(0,1fr) 190px;column-gap:10px;align-items:start}
+  .ing-f.oa-ok .ing-e>.ie{grid-column:1;grid-row:1}
+  .ing-f.oa-ok .ing-e>.oa-ing-aviso{grid-column:1 / -1;grid-row:2}
+  .ing-f.oa-ok .oa-ing-acc{grid-column:2;grid-row:1;grid-template-columns:1fr;gap:5px;align-content:start}
+  .ing-f.oa-ok .ie-r{min-height:44px}
+  .ing-f.oa-ok .oa-ing-acc .btn{min-height:44px;height:44px}
+  .ing-f.oa-ok .oa-ing-acc .ing-apagado,.ing-f.oa-ok .oa-ing-acc .btn[disabled]{height:auto;font-size:.74rem}
+}
+@media (max-width:900px){.ing-f.oa-ok,.ing-f.oa-ok.endo{grid-template-columns:60px minmax(0,1fr)}.ing-f.oa-ok .ing-p{grid-column:2;grid-row:1}.ing-f.oa-ok .ing-e{grid-column:2;grid-row:2}.ing-f.oa-ok .ing-c{grid-column:2;grid-row:3}.ing-f.oa-ok .ing-h.oa-talon{grid-row:1 / span 3}.ing-f.oa-ok.endo .ing-h.oa-talon{grid-row:1 / span 2}.ing-f.oa-ok.endo .ing-c{grid-column:1 / -1;grid-row:3}.oa-talon b{font-size:.98rem}.oa-talon{justify-content:flex-start;padding-top:16px}}
+.oa-ing-acc .btn{width:100%;min-width:0;min-height:44px;justify-content:center;text-align:center;white-space:normal;line-height:1.15;padding:7px 6px;margin:0}
+#oa-modal .btn,#oa-pdf-ov .btn,.oa-pase-blq .btn{min-height:44px}
+.ing-a.oa-vacio{display:none}
 .oa-qr img{width:118px;height:118px;image-rendering:pixelated;display:block;margin:0 auto}
 #oa-ficha h4{padding-right:46px;flex-wrap:wrap}
 #oa-modal>h3{padding-right:48px}
@@ -110,7 +215,7 @@ const OA_JS = ['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2ca
 #oa-pp-ov{position:fixed;inset:0;z-index:400;background:rgba(17,24,39,.75);overflow:auto;padding:14px 8px;display:none}
 #oa-pp-ov.on,body.portal-pac>#oa-pp-ov.on{display:block!important}
 body.portal-pac>.oa-toast{display:block!important}
-#oa-pp-ov .marco{background:#fff;border-radius:18px;padding:10px;margin:0 auto;width:max-content;max-width:100%}
+#oa-pp-ov .marco{background:#fff;border-radius:18px;padding:10px;margin:0 auto;width:100%;max-width:100%}
 #oa-pp-ov .cab{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 2px 10px}
 #oa-pp-ov .cab button{min-width:44px;min-height:44px;border-radius:50%;border:0;background:#f1f5f9;font-size:1.2rem;cursor:pointer}
 .oa-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f2a3a;color:#fff;padding:12px 16px;border-radius:12px;font-size:.9rem;z-index:500;max-width:90vw}
@@ -329,7 +434,7 @@ function oaFichaHTML(c) {
       : o.anuladas.length && !o.firma ? `La orden ${esc(o.anuladas[o.anuladas.length - 1].cod)} quedó anulada (${esc(o.anuladas[o.anuladas.length - 1].motivo.toLowerCase())}). Revisá la versión ${o.ver} y firmala.`
       : !o.firma ? 'Borrador: nadie la ve todavía. Sale al paciente y a Admisión recién cuando la firmás.'
       : `Firmada el ${esc(fmtDT(o.firma.t))}. ${oaAut(c) ? `Autorizada por ${esc(c.obraSocial || 'la obra social')} (N.º ${esc(oaAut(c).n)}).` : o.env ? 'Admisión ya la mandó a la obra social.' : 'Admisión la ve en Ingresos para mandarla.'}`}</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <div class="oa-fila">
       ${dueno && (!o || !o.firma) ? `<button class="btn btn-sm btn-blue fx-btn" onclick="oaAbrir(${esc(JSON.stringify(c.id))})">✍ ${o ? 'Revisar y firmar la orden' : 'Armar la orden'}</button>` : ''}
       ${o ? `<button class="btn btn-sm btn-outline fx-btn" onclick="oaAbrir(${esc(JSON.stringify(c.id))})">📄 Ver la orden</button>` : ''}
     </div></section>`;
@@ -364,14 +469,14 @@ function oaPintar() {
     <div class="oa-blq"><h5>Mi firma dibujada</h5><p class="form-note" style="margin:0">Se guarda en tu perfil una sola vez y se pega en todas tus órdenes. Guardarla <b>no envía nada</b>.</p>
       ${u && u.firmaImg ? `<div class="oa-mif"><img src="${u.firmaImg}" alt="Mi firma guardada"><span>✔ Esta es tu firma guardada. Si dibujás o subís otra, reemplaza a esta.</span></div>` : ''}
       <div class="oa-pad"><canvas id="oa-pad" width="760" height="240"></canvas><span id="oa-pad-g">Firmá acá con el dedo, el lápiz o el mouse</span></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <div class="oa-fila" style="margin-top:8px">
         <button type="button" class="btn btn-sm btn-outline" onclick="oaPadBorrar()">Borrar</button>
-        <label class="btn btn-sm btn-outline" style="cursor:pointer">📎 Subir imagen<input type="file" accept="image/png,image/jpeg" style="display:none" onchange="oaPadArchivo(this)"></label>
+        <label class="btn btn-sm btn-outline" style="cursor:pointer;margin:0">📎 Subir imagen<input type="file" accept="image/png,image/jpeg" style="display:none" onchange="oaPadArchivo(this)"></label>
         <button type="button" class="btn btn-sm btn-green" id="oa-pad-ok" disabled onclick="oaPadGuardar()">Dibujá tu firma</button></div></div>
     <div class="oa-blq"><h5>Firmar y enviar</h5>
       ${(() => { const f = oaFaltan(c, b); return o.firma ? `<div class="oa-est ok">✔ Firmada el ${esc(fmtDT(o.firma.t))} y enviada: el paciente la ve en su pase y Admisión en Ingresos.</div>
-        <button type="button" class="btn btn-sm btn-outline" style="margin-top:8px" onclick="oaCorregir()">Corregir la orden (anula esta y arma otra)</button>`
-        : `<button type="button" class="btn btn-blue" id="oa-firmar" ${f.length ? 'disabled' : ''} onclick="oaFirmar()">${f.length ? '🔒 Falta: ' + esc(f.join(', ')) : '✍ Firmar y enviar'}</button>
+        <div class="oa-fila" style="margin-top:8px"><button type="button" class="btn btn-sm btn-outline" onclick="oaCorregir()">Corregir la orden (anula esta y arma otra)</button></div>`
+        : `<div class="oa-fila"><button type="button" class="btn btn-blue" id="oa-firmar" ${f.length ? 'disabled' : ''} onclick="oaFirmar()">${f.length ? '🔒 Falta: ' + esc(f.join(', ')) : '✍ Firmar y enviar'}</button></div>
         <div class="oa-est am">Borrador: nadie la ve todavía. Sale al paciente y a Admisión recién cuando la firmás con tu contraseña.</div>`; })()}
       ${o.anuladas.length ? `<div class="oa-vers">${o.anuladas.map((a, i) => `<div><span>Versión ${a.ver} · ${esc(a.cod)} <b style="color:#b91c1c">ANULADA</b><small>${esc(a.motivo)} · ${esc(fmtDT(a.t))}</small></span><button type="button" class="btn btn-sm btn-outline" onclick="oaVerAnulada(${i})">Ver</button></div>`).join('')}</div>` : ''}
     </div>` : '';
@@ -382,13 +487,13 @@ function oaPintar() {
     <div class="oa-ed" style="${dueno ? '' : 'grid-template-columns:1fr'}">
       ${dueno ? `<div>${izq}</div>` : ''}
       <div class="oa-sticky">${admBloque}
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+        <div class="oa-fila" style="margin-bottom:10px">
           ${admis && o.firma && !o.env && o.b.gest !== 'pac' ? '' : `<button type="button" class="btn btn-sm btn-blue" ${o.firma ? '' : 'disabled'} onclick="oaPDF(${esc(JSON.stringify(c.id))})">⬇ Descargar PDF</button>`}
           <button type="button" class="btn btn-sm btn-outline" ${o.firma ? '' : 'disabled'} onclick="window.open(oaUrlVerificar('${oaCodigo(c, o.ver)}'),'_blank')">🔍 Verificar</button>
         </div>
         <div id="oa-prev"></div></div></div>`;
   const be = $('oa-env-os'); if (be) { be.dataset.txt = be.textContent; oaOSBoton(); }
-  const prev = $('oa-prev'), w = Math.max(280, Math.min(720, prev.clientWidth || 600));
+  const prev = $('oa-prev'), w = Math.max(260, (prev.parentElement && prev.parentElement.clientWidth) || 600);
   oaMontar(prev, w, oaHojaHTML(c));
   if (dueno && puedeEd) {
     [['oa-dx', 'dx'], ['oa-cie', 'cie'], ['oa-proc', 'proc'], ['oa-obs', 'obs'], ['oa-afil', 'afil'], ['oa-plan', 'plan']].forEach(([id, k]) => {
@@ -399,7 +504,7 @@ function oaPintar() {
 }
 function oaVivo(c) {
   // actualiza la vista previa y el botón sin redibujar los casilleros (no se pierde el foco)
-  const prev = $('oa-prev'); if (prev) oaMontar(prev, parseFloat(prev.style.width) || 600, oaHojaHTML(c));
+  const prev = $('oa-prev'); if (prev) oaMontar(prev, Math.max(260, (prev.parentElement && prev.parentElement.clientWidth) || 600), oaHojaHTML(c));
   const bt = $('oa-firmar'); if (bt) { const f = oaFaltan(c, c.orden.b); bt.disabled = f.length > 0; bt.textContent = f.length ? '🔒 Falta: ' + f.join(', ') : '✍ Firmar y enviar'; }
   clearTimeout(oaVivo.t); oaVivo.t = setTimeout(() => upsert('cirugias', c), 600);
 }
@@ -483,15 +588,16 @@ function oaAdmHTML(c) {
   const ya = pasos.findIndex((p) => !p[0]);
   const acc = !o.firma ? '<div class="oa-est am">⏳ Esperando al médico: no se puede hacer nada hasta que la firme.</div>'
     : !o.env ? (pac ? `<div class="oa-est az">Próximo paso: cuando el paciente avise que la presentó en ${esc(os)}, marcalo.</div>
-      <div class="oa-adm"><button type="button" class="btn btn-sm btn-green" onclick="oaEnviada(${esc(JSON.stringify(c.id))})">📨 El paciente la presentó</button></div>`
+      <div class="oa-fila"><button type="button" class="btn btn-sm btn-green" onclick="oaEnviada(${esc(JSON.stringify(c.id))})">📨 El paciente la presentó</button></div>`
       : `<div class="oa-est az">Próximo paso: mandarla a ${esc(os)}. Con un toque la app le manda el correo a su sector de autorizaciones con la orden en PDF adjunta, y queda anotado.</div>
       <div class="field" style="margin-top:10px"><label>Correo de autorizaciones de ${esc(os)}</label>
         <input type="email" id="oa-os-mail" value="${esc(oaOSCorreo(os))}" placeholder="autorizaciones@obrasocial.com" autocomplete="off" oninput="oaOSBoton()">
         <span class="hint">${oaOSCorreo(os) ? 'Guardado de una vez anterior. Si cambió, corregilo acá.' : 'Se carga una sola vez por obra social: la próxima orden de ' + esc(os) + ' ya sale con este correo.'}</span></div>
-      <div class="oa-adm"><button type="button" class="btn btn-blue" id="oa-env-os" onclick="oaEnviarOS(${esc(JSON.stringify(c.id))}, this)">📧 Enviar a ${esc(os)} por correo</button></div>
-      <p class="form-note" style="margin:8px 0 0">¿La mandaste por otro lado (su web o en mano)? <button type="button" class="btn btn-sm btn-outline" onclick="oaPDF(${esc(JSON.stringify(c.id))})">⬇ Bajar el PDF</button> <button type="button" class="btn btn-sm btn-outline" onclick="oaEnviada(${esc(JSON.stringify(c.id))})">Ya la mandé yo</button></p>`)
+      <div class="oa-fila"><button type="button" class="btn btn-blue" id="oa-env-os" onclick="oaEnviarOS(${esc(JSON.stringify(c.id))}, this)">📧 Enviar a ${esc(os)} por correo</button></div>
+      <p class="form-note" style="margin:10px 0 6px">¿La mandaste por otro lado (su página o en mano)?</p>
+      <div class="oa-fila"><button type="button" class="btn btn-sm btn-outline" onclick="oaPDF(${esc(JSON.stringify(c.id))})">⬇ Bajar el PDF</button><button type="button" class="btn btn-sm btn-outline" onclick="oaEnviada(${esc(JSON.stringify(c.id))})">✓ Ya la mandé yo</button></div>`)
     : !oaAut(c) ? `<div class="oa-est az">Próximo paso: cuando ${esc(os)} responda, escribí su número de autorización. Después sigue el dictamen de Admisión de siempre («Autorización de Admisión»).</div>
-      <div class="oa-adm"><input id="oa-autn" value="${esc(o.autN || '')}" placeholder="N.º de autorización de ${esc(os)}" oninput="const b=$('oa-aut-ok');b.disabled=!this.value.trim();b.textContent=this.value.trim()?'Guardar el N.º y dar el dictamen':'Escribí el N.º'"><button type="button" class="btn btn-sm btn-green" id="oa-aut-ok" ${o.autN ? '' : 'disabled'} onclick="oaAutorizada(${esc(JSON.stringify(c.id))})">${o.autN ? 'Guardar el N.º y dar el dictamen' : 'Escribí el N.º'}</button></div>`
+      <div class="oa-fila oa-fila-n"><input id="oa-autn" value="${esc(o.autN || '')}" placeholder="N.º de autorización de ${esc(os)}" oninput="const b=$('oa-aut-ok');b.disabled=!this.value.trim();b.textContent=this.value.trim()?'Guardar el N.º y dar el dictamen':'Escribí el N.º'"><button type="button" class="btn btn-sm btn-green" id="oa-aut-ok" ${o.autN ? '' : 'disabled'} onclick="oaAutorizada(${esc(JSON.stringify(c.id))})">${o.autN ? 'Guardar el N.º y dar el dictamen' : 'Escribí el N.º'}</button></div>`
     : `<div class="oa-est ok">✅ Autorizada (N.º ${esc(oaAut(c).n)}). El paciente ya lo ve en su pase.</div>`;
   return `<div style="border:1px solid var(--line,#e2e8f0);border-radius:14px;padding:12px;margin-bottom:12px">
     <b style="font-size:.95rem">Admisión y Egresos · seguimiento</b>
@@ -512,8 +618,14 @@ async function oaOSGuardar(os, mail) {
   if (!cloudOn) { try { const m = JSON.parse(localStorage.getItem('oa_os_correos') || '{}'); m[k] = mail; localStorage.setItem('oa_os_correos', JSON.stringify(m)); } catch (e) {} return; }
   await firebase.database().ref('osCorreos/' + k).set({ os: String(os || ''), correo: mail, t: nowDT() });
 }
+const oaEnviando = {};
 async function oaEnviarOS(id, btn) {
   const c = oaCir(id); if (!c || !c.orden || !c.orden.firma || c.orden.env) return;
+  if (oaEnviando[id]) return;   // doble toque: un solo envío
+  oaEnviando[id] = true;
+  try { return await oaEnviarOSUno(c, btn); } finally { delete oaEnviando[id]; }
+}
+async function oaEnviarOSUno(c, btn) {
   const o = c.orden, os = c.obraSocial || 'la obra social';
   const mail = String(($('oa-os-mail') || {}).value || '').trim();
   if (!oaOSValido(mail)) { oaOSBoton(); return; }
@@ -548,6 +660,31 @@ function oaAutorizada(id) {
   oaGuardar(c, 'Admisión anotó el N.º de autorización de ' + (c.obraSocial || 'la obra social') + ': ' + n);
   oaCerrar(); pedirAutorizacion(c.id);   // el dictamen de Admisión de siempre
 }
+/* 14-11 · Pedido de Claudio: la tarjeta de Ingresos más visual y compacta. La hora como talón de pase
+   (hora grande, día y sala, con el color del área) y el paciente en una ficha: iniciales, nombre,
+   datos en etiquetas y diagnóstico / procedimiento con su rótulo. */
+function oaIngFicha(f, c) {
+  const p = c.paciente || {}, h = f.querySelector('.ing-h'), pa = f.querySelector('.ing-p');
+  if (!h || !pa || pa.dataset.oa) return;
+  pa.dataset.oa = 1;
+  const area = esEndo(c) ? 'endo' : (typeof sala === 'function' && c.sala && sala(c.sala).tipo === 'obs') ? 'obs' : 'qx';
+  f.classList.add('oa-area-' + area);
+  const ini = String(p.nombre || '?').replace(/,/g, ' ').split(/\s+/).filter(Boolean).slice(0, 2).map((x) => x[0]).join('').toUpperCase();
+  const dia = c.fecha ? fmtFecha(c.fecha).replace(/ \d{4}$/, '') : '';
+  // Nombre corto de la sala para el talón (en el teléfono «Endoscopía» no entra y se partía).
+  const lugar = String(c.quirofano || '').replace(/^Quir[oó]fano\s*Obst[ée]trico.*$|^Q\s*de Obstetricia.*$|^Qde Obstetricia.*$/i, 'Obst.').replace(/^Quir[oó]fano\s*/i, 'Q').replace(/^Sala de Endoscop[ií]a\s*/i, 'Endo ').trim();
+  h.innerHTML = `<span class="oa-tal-dia">${esc(dia)}</span><b>${esc(c.horaProg || '—')}</b><span class="oa-tal-sala">${esc(lugar)}</span>`;
+  h.classList.add('oa-talon');
+  const sello = pa.querySelector('b') ? [...pa.querySelector('b').parentElement.childNodes].filter((n) => n.nodeType === 1 && n.tagName !== 'B' && n.tagName !== 'SMALL').map((n) => n.outerHTML).join('') : '';
+  const chip = (i, t) => t ? `<span class="oa-dato"><i>${i}</i>${esc(t)}</span>` : '';
+  const ic = f.querySelector('.ing-c');
+  pa.innerHTML = `<div class="oa-pac">
+    <div class="oa-pac-cab"><span class="oa-ini">${esc(ini)}</span><div><b>${esc(p.nombre || 's/d')}</b>${sello}</div></div>
+    <div class="oa-datos">${chip('🪪', p.dni ? 'DNI ' + p.dni : '')}${chip('🎂', p.edad != null ? p.edad + ' años' : '')}${chip('🛡️', c.obraSocial || 'Sin obra social')}${chip('☎', p.telefono || '')}<span class="oa-cama-aqui"></span></div>
+    <dl class="oa-clin">${c.diagnostico ? `<div><dt>Diagnóstico</dt><dd>${esc(c.diagnostico)}${c.cie10 ? ` <em>${esc(c.cie10)}</em>` : ''}</dd></div>` : ''}${c.procedimiento ? `<div><dt>Procedimiento</dt><dd>${esc(c.procedimiento)}</dd></div>` : ''}</dl></div>`;
+  // La cama (quirófano y obstetricia) va dentro de la ficha; la ruta de la endoscopía sigue abajo, de lado a lado.
+  if (ic && !esEndo(c)) { const aqui = pa.querySelector('.oa-cama-aqui'); [...ic.childNodes].forEach((n) => aqui.appendChild(n)); ic.classList.add('oa-vacia'); }
+}
 function oaIngresosDecorar() {
   document.querySelectorAll('#main .ing-f').forEach((f) => {
     if (f.dataset.oa) return;
@@ -561,9 +698,28 @@ function oaIngresosDecorar() {
     const dl = f.querySelector('.ing-e dl.ie');
     if (dl) dl.insertAdjacentHTML('beforeend', `<div class="ie-r ${col}"><dt>Orden</dt><dd><i>${e.k === 'autorizada' ? '✓' : e.k === 'sin' ? '—' : e.k === 'anulada' ? '✕' : '📄'}</i><span>${esc(e.t)}</span></dd></div>`);
     const e2 = f.querySelector('.ing-e');
-    if (e2 && c.orden) e2.insertAdjacentHTML('beforeend', `<div class="oa-ing-acc">`
-      + `<button class="btn btn-sm ${c.orden.firma && !oaAut(c) ? 'btn-blue' : 'btn-outline'}" onclick="oaAbrir(${esc(JSON.stringify(c.id))})">📄 Orden${c.orden.firma && !c.orden.env ? ' · enviar' : c.orden.env && !oaAut(c) ? ' · cargar N.º' : ''}</button>`
-      + (c.orden.firma ? `<button class="btn btn-sm btn-outline" onclick="oaPDF(${esc(JSON.stringify(c.id))})">⬇ PDF</button>` : '') + `</div>`);
+    if (e2) e2.insertAdjacentHTML('beforeend', `<div class="oa-ing-acc">` + (!c.orden ? '' : ``
+      + `<button class="btn btn-sm ${c.orden.firma && !oaAut(c) ? 'btn-blue' : 'btn-outline'}" onclick="oaAbrir(${esc(JSON.stringify(c.id))})" title="Abrir la orden de autorización">${c.orden.firma && !c.orden.env ? '📤 Enviar' : c.orden.env && !oaAut(c) ? '🔢 Cargar N.º' : '📄 Orden'}</button>`
+      + (c.orden.firma ? `<button class="btn btn-sm btn-outline" onclick="oaPDF(${esc(JSON.stringify(c.id))})">⬇ PDF</button>` : '')) + `</div>`);
+    // 14-11 · Pedido de Claudio (simetría): TODOS los botones de la tarjeta juntos, debajo de las pastillas,
+    // en una grilla pareja. Primero lo que hay que hacer (Autorizar, cama, pulsera), después Orden y PDF, y Ficha al final.
+    const a = f.querySelector('.ing-a'), acc = f.querySelector('.oa-ing-acc');
+    if (a && acc) {
+      const bs = [...a.querySelectorAll('button')];
+      const ficha = bs.find((x) => x.textContent.trim() === 'Ficha');
+      bs.filter((x) => x !== ficha && !(x.disabled || x.classList.contains('ing-apagado'))).reverse().forEach((x) => { x.classList.add('btn-sm'); acc.insertBefore(x, acc.firstChild); });
+      // Lo que falta (botón apagado) no es una acción: va como aviso de lado a lado debajo de pastillas y botones.
+      bs.filter((x) => x.disabled || x.classList.contains('ing-apagado')).forEach((x) => { const d = document.createElement('div'); d.className = 'oa-ing-aviso'; d.textContent = x.textContent.trim(); acc.parentElement.appendChild(d); x.remove(); });
+      if (ficha) { ficha.className = 'btn btn-sm btn-outline'; ficha.textContent = '📋 Ficha'; acc.appendChild(ficha); }
+      f.classList.add('oa-ok');
+    }
+    if (acc) acc.querySelectorAll('.btn').forEach((b) => {
+      if (b.querySelector('.oa-bi')) return;
+      const t = b.textContent.trim(), m = t.match(/^([^\p{L}\p{N}]+)\s*(.*)$/u);
+      b.innerHTML = m ? `<i class="oa-bi">${esc(m[1].trim())}</i><span class="oa-bt">${esc(m[2])}</span>` : `<i class="oa-bi">•</i><span class="oa-bt">${esc(t)}</span>`;
+      if (/btn-(blue|green|red)/.test(b.className)) b.classList.add('oa-prim');
+    });
+    oaIngFicha(f, c);
   });
 }
 
@@ -574,41 +730,101 @@ function oaCargarJS() {
     const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = ok; document.head.appendChild(s);
   })));
 }
-async function oaPdfBlob(html, escala, calidad) {
+let oaArmando = Promise.resolve();
+function oaPdfBlob(html, escala, calidad) {
+  // De a uno por vez: el marco donde se arma la hoja es uno solo.
+  const t = oaArmando.then(() => oaPdfBlobUno(html, escala, calidad));
+  oaArmando = t.catch(() => {});
+  return t;
+}
+async function oaPdfBlobUno(html, escala, calidad) {
   await oaCargarJS();
   if (typeof html2canvas !== 'function' || !window.jspdf) throw new Error('No se pudieron cargar las herramientas del PDF (¿sin internet?)');
-  const box = document.createElement('div'); box.style.cssText = 'position:fixed;left:-10000px;top:0'; box.innerHTML = html; document.body.appendChild(box);
-  const h = box.querySelector('.oa-hoja'); h.style.boxShadow = 'none'; h.style.borderRadius = '0';
-  const cv = await html2canvas(h, { scale: escala || 2, backgroundColor: '#ffffff', logging: false });
-  box.remove();
-  const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
-  const W = 210, H = 297, r = cv.height / cv.width; let w = W, hh = W * r; if (hh > H) { hh = H; w = H / r; }
-  pdf.addImage(cv.toDataURL('image/jpeg', calidad || 0.92), 'JPEG', (W - w) / 2, 0, w, hh);
-  pdf.setProperties({ title: 'Orden de autorización', subject: 'Hospital Regional Ushuaia' });
-  return pdf.output('blob');
+  // 14-11 · La hoja se arma en una caja fuera de la vista, en el cuerpo de la página (el pase del paciente
+  // se redibuja solo y la borraba) y con permiso para verse aunque el pase oculte todo lo demás.
+  const box = document.createElement('div'); box.id = 'oa-armado'; box.className = 'oa-armado';
+  box.setAttribute('aria-hidden', 'true');
+  box.style.cssText = 'position:fixed;left:-10000px;top:0;width:820px';
+  box.innerHTML = html; document.body.appendChild(box);
+  try {
+    const h = box.querySelector('.oa-hoja'); h.style.boxShadow = 'none'; h.style.borderRadius = '0';
+    await Promise.all([...box.querySelectorAll('img')].map((im) => im.complete ? 0 : new Promise((ok) => { im.onload = im.onerror = ok; })));
+    try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+    const cv = await html2canvas(h, { scale: escala || 2, backgroundColor: '#ffffff', logging: false });
+    const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    const W = 210, H = 297, r = cv.height / cv.width; let w = W, hh = W * r; if (hh > H) { hh = H; w = H / r; }
+    pdf.addImage(cv.toDataURL('image/jpeg', calidad || 0.92), 'JPEG', (W - w) / 2, 0, w, hh);
+    pdf.setProperties({ title: 'Orden de autorización', subject: 'Hospital Regional Ushuaia' });
+    return pdf.output('blob');
+  } finally { box.remove(); }
 }
 function oaBajar(blob, nombre) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
+/* 3.49.2 · El PDF se muestra DENTRO de la app (sin pestaña nueva ni descarga demorada: la app
+   instalada en la Mac y Safari las bloquean). Guardar, Compartir e Imprimir se tocan con el PDF ya
+   armado, así el navegador no los frena. */
+let oaPdfAct = null;
+function oaPdfOv() {
+  let ov = document.getElementById('oa-pdf-ov');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'oa-pdf-ov'; document.body.appendChild(ov);
+    ov.addEventListener('click', (e) => { if (e.target === ov) oaPdfCerrar(); }); }
+  return ov;
+}
+function oaPdfCerrar() {
+  const ov = document.getElementById('oa-pdf-ov'); if (ov) { ov.classList.remove('on'); ov.innerHTML = ''; }
+  const u = oaPdfAct && oaPdfAct.url; if (u) setTimeout(() => URL.revokeObjectURL(u), 1000);
+  oaPdfAct = null;
+}
+function oaPdfPintar(cuerpo, botones) {
+  const ov = oaPdfOv();
+  ov.innerHTML = `<div class="oa-pdf-marco" role="dialog" aria-label="Orden de autorización en PDF">
+    <div class="oa-pdf-cab"><b>📄 Orden de autorización</b><button type="button" class="oa-pdf-x" onclick="oaPdfCerrar()" aria-label="Cerrar">✕</button></div>
+    <div class="oa-pdf-acc oa-fila">${botones}</div><div class="oa-pdf-cuerpo">${cuerpo}</div></div>`;
+  ov.classList.add('on');
+}
 function oaPdfAbrir(html, nombre) {
-  // La pestaña se abre en el MISMO toque (si se abre después de armar el PDF, Safari y las apps instaladas la bloquean).
-  let w = null; try { w = window.open('', '_blank'); } catch (e) { w = null; }
-  const escribir = (h) => { try { w.document.open(); w.document.write(h); w.document.close(); } catch (e) {} };
-  if (w) escribir(`<!doctype html><meta charset="utf-8"><title>${esc(nombre)}</title><p style="font:16px system-ui;padding:24px;color:#0f2a3a">Armando el PDF de la orden…</p>`);
-  else oaAviso('Armando el PDF…');
+  oaPdfAct = { html, nombre, blob: null, url: '' };
+  const yo = oaPdfAct;
+  oaPdfPintar('<p class="oa-pdf-espera">Armando el PDF de la orden…</p>', '');
   return oaPdfBlob(html).then((b) => {
-    const url = URL.createObjectURL(new File([b], nombre, { type: 'application/pdf' }));
-    if (w && !w.closed) w.location.href = url; else oaBajar(b, nombre);
-    setTimeout(() => URL.revokeObjectURL(url), 300000);
+    if (oaPdfAct !== yo) return;
+    yo.blob = b; yo.url = URL.createObjectURL(b);
+    const comp = !!(navigator.canShare && (() => { try { return navigator.canShare({ files: [new File([b], nombre, { type: 'application/pdf' })] }); } catch (e) { return false; } })());
+    oaPdfPintar(`<iframe class="oa-pdf-ver" src="${yo.url}#view=FitH&navpanes=0" title="Orden de autorización"></iframe>`,
+      `<button type="button" class="btn btn-blue" onclick="oaPdfGuardar()">⬇ Guardar PDF</button>`
+      + (comp ? `<button type="button" class="btn btn-outline" onclick="oaPdfCompartir()">📤 Compartir</button>` : '')
+      + `<button type="button" class="btn btn-outline" onclick="oaPdfImprimir()">🖨 Imprimir</button>`);
   }).catch((e) => {
-    // Respaldo: la hoja tal cual, lista para imprimir o «Guardar como PDF».
-    const css = (document.getElementById('oa-css') || {}).textContent || '';
-    const hoja = `<!doctype html><meta charset="utf-8"><title>${esc(nombre)}</title><style>${css}@page{size:A4;margin:0}body{margin:0}.oa-hoja{box-shadow:none;border-radius:0;zoom:.92;width:863px}</style>${html}<script>setTimeout(function(){print()},400)<\/script>`;
-    if (w && !w.closed) escribir(hoja);
-    else avisar('No se pudo armar el PDF en este navegador. Probá desde Chrome o permití las ventanas emergentes de la app.');
+    if (oaPdfAct !== yo) return;
     try { console.warn('PDF de la orden:', e); } catch (x) {}
+    // Respaldo: la hoja tal cual; «Imprimir» permite «Guardar como PDF».
+    oaPdfPintar(`<p class="oa-pdf-nota" style="margin:0;padding:10px 16px 0">Este navegador no pudo armar el PDF: al imprimir, elegí «Guardar como PDF».</p><div class="oa-pdf-hoja" id="oa-pdf-hoja"></div>`,
+      `<button type="button" class="btn btn-blue" onclick="oaPdfImprimir()">🖨 Imprimir o Guardar como PDF</button>`);
+    const el = document.getElementById('oa-pdf-hoja'); if (el) oaMontar(el, Math.max(260, (el.parentElement && el.parentElement.clientWidth - 20) || 600), html);
   });
+}
+function oaPdfGuardar() {
+  const a = oaPdfAct; if (!a || !a.blob) return;
+  const l = document.createElement('a'); l.href = a.url; l.download = a.nombre; l.rel = 'noopener';
+  document.body.appendChild(l); l.click(); l.remove();
+  oaAviso('PDF guardado en Descargas: ' + a.nombre);
+}
+async function oaPdfCompartir() {
+  const a = oaPdfAct; if (!a || !a.blob) return;
+  try { await navigator.share({ files: [new File([a.blob], a.nombre, { type: 'application/pdf' })], title: 'Orden de autorización' }); }
+  catch (e) { if (!(e && e.name === 'AbortError')) oaAviso('No se pudo compartir: usá «Guardar PDF» y adjuntalo.'); }
+}
+function oaPdfImprimir() {
+  const a = oaPdfAct; if (!a) return;
+  // Se imprime la hoja (no el PDF): así anda en todos los navegadores y permite «Guardar como PDF».
+  const css = (document.getElementById('oa-css') || {}).textContent || '';
+  const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  document.body.appendChild(f);
+  const d = f.contentWindow.document;
+  d.open(); d.write(`<!doctype html><meta charset="utf-8"><title>${esc(a.nombre)}</title><style>${css}@page{size:A4;margin:0}body{margin:0}.oa-hoja{box-shadow:none;border-radius:0;zoom:.92;width:863px}</style>${a.html}`); d.close();
+  setTimeout(() => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { oaAviso('No se pudo abrir la impresión.'); } setTimeout(() => f.remove(), 60000); }, 500);
 }
 function oaPDF(id) {
   const c = oaCir(id); if (!c || !c.orden || !c.orden.firma) return;
@@ -649,18 +865,11 @@ function oaPpVer(html, titulo) {
   if (!ov) { ov = document.createElement('div'); ov.id = 'oa-pp-ov'; document.body.appendChild(ov); }
   ov.innerHTML = `<div class="marco"><div class="cab"><b>${esc(titulo || 'Tu orden médica')}</b><button onclick="$('oa-pp-ov').classList.remove('on')" aria-label="Cerrar">✕</button></div><div id="oa-pp-hoja"></div></div>`;
   ov.classList.add('on');
-  oaMontar($('oa-pp-hoja'), Math.min(794, document.documentElement.clientWidth - 40), html);
+  oaMontar($('oa-pp-hoja'), Math.max(260, document.documentElement.clientWidth - 24), html);
 }
 function oaPpAbrir() { const or = portal.extra && portal.extra.orden; if (or && or.html) oaPpVer(or.html); }
+function oaPpCompartir() { return oaPpPdf(); }
 function oaPpPdf() { const or = portal.extra && portal.extra.orden; if (!or || !or.html) return; return oaPdfAbrir(or.html, or.nombre); }
-async function oaPpCompartir() {
-  const or = portal.extra && portal.extra.orden; if (!or || !or.html) return;
-  try {
-    const file = new File([await oaPdfBlob(or.html)], or.nombre, { type: 'application/pdf' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Orden médica' }); return; }
-    oaAviso('Este equipo no deja compartir archivos: se descarga el PDF para que lo adjuntes.'); oaBajar(file, or.nombre);
-  } catch (e) { if (!(e && e.name === 'AbortError')) oaAviso('No se pudo compartir. Probá con «PDF».'); }
-}
 
 /* ---------- verificación por QR (solo dice válida / anulada; sin diagnóstico) ---------- */
 async function oaVerificar(cod) {
@@ -745,6 +954,10 @@ function oaPaseCampos(c) {
   };
 })();
 
+window.addEventListener('resize', () => { clearTimeout(window.__oaRz); window.__oaRz = setTimeout(() => {
+  const ov = document.getElementById('oa-ov'); if (ov && ov.classList.contains('open') && oaId) oaPintar();
+  const pp = document.getElementById('oa-pp-hoja'); if (pp && pp.innerHTML) { const h = pp.querySelector('.oa-hoja'); if (h) oaMontar(pp, Math.max(260, document.documentElement.clientWidth - 24), h.outerHTML.replace(/ style="transform:[^"]*"/, '')); }
+}, 200); });
 /* ---------- enganches con la app ---------- */
 let oaUltFicha = null;
 (function oaEnganchar() {
@@ -759,6 +972,23 @@ let oaUltFicha = null;
   const oaObs = new MutationObserver(() => { if (document.querySelector('#main .ing-f:not([data-oa])')) { try { oaIngresosDecorar(); } catch (e) { console.error(e); } } });
   const oaMain = () => { const m = document.getElementById('main'); if (m) oaObs.observe(m, { childList: true, subtree: true }); else setTimeout(oaMain, 300); };
   oaMain();
+  // 14-11 · HUMANOIDE: la médica abre su turno desde la grilla y la orden no estaba a la vista
+  // (solo dentro de «Ver y completar ficha»). Ahora es un paso más, junto al pase del paciente.
+  const _pasos = tmPasosDe;
+  tmPasosDe = function (c) {
+    const b = _pasos.apply(this, arguments);
+    try {
+      const o = c && c.orden; if (!o && !(c && c.pase && c.pase.token)) return b;
+      const e = oaEstado(c), cerr = typeof cerradaFirme === 'function' && cerradaFirme(c);
+      const it = !o ? { e: 'neutro', i: '📄', t: 'Orden de autorización (R/P)', d: 'Sale sola, firmada, al generar el pase · tocar para armarla antes', a: `closeSlot();oaAbrir(${JSON.stringify(c.id)})` }
+        : !o.firma ? { e: 'falta', i: '📄', t: o.anuladas.length ? 'Firmar la orden nueva' : 'Firmar la orden de autorización', d: o.anuladas.length ? 'La anterior quedó anulada: ' + esc(String(o.anuladas[o.anuladas.length - 1].motivo).toLowerCase()) : 'Borrador: nadie la ve todavía', a: `closeSlot();oaAbrir(${JSON.stringify(c.id)})` }
+        : { e: 'hecho', i: '📄', t: 'Orden de autorización (R/P)', d: esc(e.t) + (cerr ? '' : ' · ver, corregir o bajar el PDF'), a: `closeSlot();oaAbrir(${JSON.stringify(c.id)})` };
+      let k = b.findIndex((x) => /Pase del paciente|Generar el pase del paciente/.test(x.t));
+      if (k < 0) k = b.findIndex((x) => /Consentimiento informado|Generar el consentimiento/.test(x.t));
+      b.splice(k + 1, 0, it);
+    } catch (x) { console.error(x); }
+    return b;
+  };
   const _ing = renderIngresos;
   renderIngresos = function () { const r = _ing.apply(this, arguments); try { oaIngresosDecorar(); } catch (e) { console.error(e); } return r; };
   const _up = upsert;

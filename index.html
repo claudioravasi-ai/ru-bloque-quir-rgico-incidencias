@@ -227,7 +227,7 @@
   }
 
   /* ============ MAIN ============ */
-  .main { flex: 1; padding: 34px 44px 60px; max-width: 1160px; }
+  .main { flex: 1; padding: 34px 44px 60px; max-width: none; }   /* 14-11 · Claudio: la sección ocupa todo el ancho, sin franjas vacías en pantallas grandes */
   .page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
   .page-title { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em; }
   .page-sub { color: #47555a; margin-top: 4px; font-size: 0.95rem; }
@@ -1990,7 +1990,7 @@
     .app.rail .main-col { margin-left: 68px; transition: margin-left 0.18s ease; }
     .app.rail.pin .main-col { margin-left: 275px; }
     /* Sin el menú ocupando lugar fijo, la página respira más ancho. */
-    .app.rail .main { max-width: 1400px; }
+    .app.rail .main { max-width: none; }
     /* El botón de las tres líneas vive DENTRO del menú, como un elemento más
        de la columna. En la barra superior no servía: esa barra abre su propio
        contexto de apilamiento (z-index: 50), así que el botón quedaba SIEMPRE
@@ -5239,6 +5239,15 @@
   .ie-r dd i { flex: none; font-style: normal; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: .7rem; font-weight: 900; color: #fff; background: var(--c); }
   .ie-r dd > span { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
   .ie-r dd small { display: block; font-size: .7rem; font-weight: 600; opacity: .8; }
+  /* 14-11 · Pedido de Claudio: en el celular las pastillas de estado más finas (más bajas, rótulo angosto). */
+  @media (max-width: 600px) {
+    .ie { gap: 4px; }
+    .ie-r { grid-template-columns: 56px minmax(0, 1fr); min-height: 30px; border-radius: 8px; }
+    .ie-r dt { padding: 0 6px; font-size: .55rem; letter-spacing: .04em; }
+    .ie-r dd { gap: 5px; padding: 4px 7px; font-size: .74rem; }
+    .ie-r dd i { width: 15px; height: 15px; font-size: .6rem; }
+    .ie-r dd small { font-size: .64rem; }
+  }
   .ie-turno dd i { width: 10px; height: 10px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent); }
   .ie-ok { --c: #15803d; --t: #166534; }
   .ie-no { --c: #d97706; --t: #92400e; }
@@ -5409,6 +5418,7 @@
   .en-paso { position: relative; z-index: 1; display: grid; justify-items: center; gap: 3px; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: var(--muted); }
   .en-paso i { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .72rem; font-weight: 900; background: var(--card); border: 2px solid color-mix(in srgb, #0d9488 30%, var(--line)); transition: transform .15s; }
   .en-paso small { font-size: .7rem; font-weight: 700; line-height: 1.2; text-align: center; white-space: nowrap; }
+  @media (max-width: 600px) { .en-paso small { font-size: .64rem; padding: 0 2px; } .en-paso { min-width: 0; } }   /* 14-11 · se pegaban «AutorizadaConfirmada» en el celular */
   /* 12-11 · Pedido de Claudio: en Ingresos la tira de pasos tapaba «Acreditar» y la pulsera.
      En las endoscopías la tira va en su propio renglón, a lo ancho, debajo del paciente,
      y los botones quedan arriba a la derecha. Rótulos de una palabra: todos en un renglón. */
@@ -10439,7 +10449,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.49.1';
+const APP_VERSION = '3.49.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
