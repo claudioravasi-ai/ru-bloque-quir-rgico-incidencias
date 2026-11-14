@@ -10449,7 +10449,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.49.4';
+const APP_VERSION = '3.49.5';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -14156,6 +14156,25 @@ function pintarVolver() {
     b.setAttribute('aria-label', 'Volver a ' + (TITULOS[ult.v] || 'la sección anterior'));
     b.title = 'Volver a ' + (TITULOS[ult.v] || 'la sección anterior');
   }
+}
+/* 3.49.5 · Pedido de Claudio: al cerrar una sesión (Admisión, Enfermería, Jefatura, Dirección,
+   profesional) la app queda como recién abierta: en el Panel, sin «Volver a…» ni pantallas anteriores
+   que vuelvan a pedir la clave. Y si al abrir la app la última pantalla necesitaba una clave que
+   ya no está, arranca en el Panel en vez de pedirla. */
+function vistaSinClave(v) {
+  if (v === 'ingresos' && !admis && !jefe) return false;
+  if (v === 'camas' && !jefe && !jefenf && !admis && !usuarioActual()) return false;
+  if (['confidenciales', 'programacion', 'kpis', 'usuarios', 'comunicados', 'excepcion'].includes(v) && !jefe) return false;
+  if (v === 'portales' && !jefe && !director) return false;
+  if (v === 'modulos' && !usuarioActual() && !director) return false;
+  return true;
+}
+function salirAlInicio() {
+  volverPila = [];
+  go('panel', true);
+  try { history.replaceState({ v: 'panel' }, '', location.pathname + location.search + '#panel'); } catch (e) {}
+  pintarVolver();
+  window.scrollTo(0, 0);
 }
 function volverAtras() {
   const ult = volverPila.pop(); if (!ult) return;
@@ -21655,7 +21674,7 @@ function openJefEnfModal() {
 async function jefEnfLogout() {
   jefenf = false; cmEditar = false; sessionStorage.removeItem('hru_jefenf');
   if (cloudOn && !jefe) await volverAlPaseAnonimo();
-  cambioDeIdentidad(false); go('panel');
+  cambioDeIdentidad(false); salirAlInicio();
 }
 function camasRecordatorios(add) {
   if (!jefenf && !jefe) return;
@@ -21918,7 +21937,7 @@ function openAdmisModal() {
 async function admisLogout() {
   admis = false; sessionStorage.removeItem('hru_admis');
   if (cloudOn && !jefe && !jefenf) await volverAlPaseAnonimo();
-  cambioDeIdentidad(false); go('panel');
+  cambioDeIdentidad(false); salirAlInicio();
 }
 let ingDia = '';
 /* ================= 3.30 · INGRESOS DEL DÍA PARA LA JEFATURA DE QUIRÓFANOS =================
@@ -26970,7 +26989,7 @@ async function userLogout() {
   sessionStorage.removeItem('hru_user');
   cerrarComunicado();  // sin identidad no hay a quién registrarle la lectura
   cambioDeIdentidad(false);   // se va con sus avisos: quedan los del ciclo
-  go('panel');
+  salirAlInicio();
   // Se suelta la identidad del profesional y se vuelve al pase anónimo, para
   // que la app siga abriendo y el tablero público se siga viendo.
   await volverAlPaseAnonimo();
@@ -27928,7 +27947,7 @@ async function jefeLogout() {
   // Quien cierra la sesión de jefe no deja nada abierto: siempre al Panel.
   view = 'panel';
   cambioDeIdentidad(false);
-  go('panel');
+  salirAlInicio();
   // Se suelta la identidad de Jefatura y se vuelve al pase anónimo, para que la
   // app siga funcionando para el cirujano y para quien entra sin sesión.
   await volverAlPaseAnonimo();
@@ -37626,7 +37645,7 @@ function directorLogout() {
   sessionStorage.removeItem('hru_director');
   cerrarComunicado();  // sin identidad no hay a quién registrarle la lectura
   cambioDeIdentidad(false);
-  go(usuarioActual() ? 'modulos' : 'panel');
+  if (usuarioActual()) go('modulos'); else salirAlInicio();
   if (cloudOn && !conSesionApp()) volverAlPaseAnonimo();
 }
 
@@ -39649,7 +39668,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('popstate', () => {
     const abiertos = [...document.querySelectorAll('.overlay.open')].filter((ov) => !esOverlayFijo(ov));
     if (abiertos.length) { abiertos.forEach((ov) => ov.classList.remove('open')); return; }
-    go(vistaDelHash(), true);
+    const vh = vistaDelHash();
+    if (!vistaSinClave(vh)) { salirAlInicio(); return; }
+    go(vh, true);
   });
 
   initStore(() => {
@@ -39657,7 +39678,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try { const h = hoyISO(); anestCargarFeriados(h.slice(0, 4)); anestCargarFeriados(String(Number(h.slice(0, 4)) + 1)); anestCargarMes(h.slice(0, 7)); anestCargarMes(mesSiguiente(h.slice(0, 7))); } catch (e) {}
     // Se calculan antes del primer render para que el Panel ya los muestre.
     remLista = calcRecordatorios();
-    go(vistaDelHash());
+    { const vh = vistaDelHash(); if (vistaSinClave(vh)) go(vh); else salirAlInicio(); }
     revisarRecordatorios();
     // 3.26 · Se abrió escaneando la pulsera de un paciente.
     setTimeout(pulseraAlAbrir, 400);
