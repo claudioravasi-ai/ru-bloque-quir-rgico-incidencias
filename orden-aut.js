@@ -90,6 +90,9 @@ const OA_JS = ['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2ca
 .oa-adm{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
 .oa-adm input{flex:1 1 180px;font-size:16px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line,#cbd5e1)}
 .oa-sticky{position:sticky;top:0}
+.oa-ing-acc{display:flex;flex-wrap:wrap;gap:6px;width:100%;max-width:320px}
+.oa-ing-acc .btn{flex:1 1 auto;justify-content:center}
+.oa-qr img{width:118px;height:118px;image-rendering:pixelated;display:block;margin:0 auto}
 #oa-ficha h4{padding-right:46px;flex-wrap:wrap}
 #oa-modal>h3{padding-right:48px}
 @media (max-width:980px){.oa-ed{grid-template-columns:1fr}.oa-sticky{position:static}}
@@ -184,7 +187,7 @@ function oaEstado(c) {
 }
 function oaFecha(iso) { return iso ? fmtFecha(iso) : '—'; }
 function oaQR(txt) {
-  try { if (typeof qrcode === 'undefined') return ''; const q = qrcode(0, 'M'); q.addData(txt); q.make(); return q.createSvgTag({ cellSize: 3, margin: 0, scalable: true }); }
+  try { if (typeof qrcode === 'undefined') return ''; const q = qrcode(0, 'M'); q.addData(txt); q.make(); return `<img src="${q.createDataURL(4, 0)}" alt="Código QR de verificación">`; }
   catch (e) { return ''; }
 }
 function oaUrlVerificar(cod) { return location.origin + location.pathname + (typeof forceLocal !== 'undefined' && forceLocal ? '?local&' : '?') + 'verificar=' + cod; }
@@ -557,9 +560,10 @@ function oaIngresosDecorar() {
     const col = { ok: 'ie-ok', am: 'ie-no', az: 'ie-no', ro: 'ie-mal', gr: 'ie-no' }[e.tono];
     const dl = f.querySelector('.ing-e dl.ie');
     if (dl) dl.insertAdjacentHTML('beforeend', `<div class="ie-r ${col}"><dt>Orden</dt><dd><i>${e.k === 'autorizada' ? '✓' : e.k === 'sin' ? '—' : e.k === 'anulada' ? '✕' : '📄'}</i><span>${esc(e.t)}</span></dd></div>`);
-    const a = f.querySelector('.ing-a');
-    if (a && c.orden && c.orden.firma) a.insertAdjacentHTML('afterbegin', `<button class="btn btn-sm btn-outline" onclick="oaPDF(${esc(JSON.stringify(c.id))})">⬇ PDF de la orden</button>`);
-    if (a && c.orden) a.insertAdjacentHTML('afterbegin', `<button class="btn btn-sm ${c.orden.firma && !oaAut(c) ? 'btn-blue' : 'btn-outline'}" onclick="oaAbrir(${esc(JSON.stringify(c.id))})">📄 Orden${c.orden.firma && !c.orden.env ? ' · enviar' : c.orden.env && !oaAut(c) ? ' · cargar N.º' : ''}</button>`);
+    const e2 = f.querySelector('.ing-e');
+    if (e2 && c.orden) e2.insertAdjacentHTML('beforeend', `<div class="oa-ing-acc">`
+      + `<button class="btn btn-sm ${c.orden.firma && !oaAut(c) ? 'btn-blue' : 'btn-outline'}" onclick="oaAbrir(${esc(JSON.stringify(c.id))})">📄 Orden${c.orden.firma && !c.orden.env ? ' · enviar' : c.orden.env && !oaAut(c) ? ' · cargar N.º' : ''}</button>`
+      + (c.orden.firma ? `<button class="btn btn-sm btn-outline" onclick="oaPDF(${esc(JSON.stringify(c.id))})">⬇ PDF</button>` : '') + `</div>`);
   });
 }
 
@@ -572,6 +576,7 @@ function oaCargarJS() {
 }
 async function oaPdfBlob(html, escala, calidad) {
   await oaCargarJS();
+  if (typeof html2canvas !== 'function' || !window.jspdf) throw new Error('No se pudieron cargar las herramientas del PDF (¿sin internet?)');
   const box = document.createElement('div'); box.style.cssText = 'position:fixed;left:-10000px;top:0'; box.innerHTML = html; document.body.appendChild(box);
   const h = box.querySelector('.oa-hoja'); h.style.boxShadow = 'none'; h.style.borderRadius = '0';
   const cv = await html2canvas(h, { scale: escala || 2, backgroundColor: '#ffffff', logging: false });
@@ -586,10 +591,28 @@ function oaBajar(blob, nombre) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
-async function oaPDF(id) {
+function oaPdfAbrir(html, nombre) {
+  // La pestaña se abre en el MISMO toque (si se abre después de armar el PDF, Safari y las apps instaladas la bloquean).
+  let w = null; try { w = window.open('', '_blank'); } catch (e) { w = null; }
+  const escribir = (h) => { try { w.document.open(); w.document.write(h); w.document.close(); } catch (e) {} };
+  if (w) escribir(`<!doctype html><meta charset="utf-8"><title>${esc(nombre)}</title><p style="font:16px system-ui;padding:24px;color:#0f2a3a">Armando el PDF de la orden…</p>`);
+  else oaAviso('Armando el PDF…');
+  return oaPdfBlob(html).then((b) => {
+    const url = URL.createObjectURL(new File([b], nombre, { type: 'application/pdf' }));
+    if (w && !w.closed) w.location.href = url; else oaBajar(b, nombre);
+    setTimeout(() => URL.revokeObjectURL(url), 300000);
+  }).catch((e) => {
+    // Respaldo: la hoja tal cual, lista para imprimir o «Guardar como PDF».
+    const css = (document.getElementById('oa-css') || {}).textContent || '';
+    const hoja = `<!doctype html><meta charset="utf-8"><title>${esc(nombre)}</title><style>${css}@page{size:A4;margin:0}body{margin:0}.oa-hoja{box-shadow:none;border-radius:0;zoom:.92;width:863px}</style>${html}<script>setTimeout(function(){print()},400)<\/script>`;
+    if (w && !w.closed) escribir(hoja);
+    else avisar('No se pudo armar el PDF en este navegador. Probá desde Chrome o permití las ventanas emergentes de la app.');
+    try { console.warn('PDF de la orden:', e); } catch (x) {}
+  });
+}
+function oaPDF(id) {
   const c = oaCir(id); if (!c || !c.orden || !c.orden.firma) return;
-  await oaCargarJS(); oaAviso('Armando el PDF…');
-  oaBajar(await oaPdfBlob(oaHojaHTML(c)), oaParaPase(c).nombre);
+  return oaPdfAbrir(oaHojaHTML(c), oaParaPase(c).nombre);
 }
 
 /* ---------- PACIENTE: tarjeta en el pase ---------- */
@@ -629,7 +652,7 @@ function oaPpVer(html, titulo) {
   oaMontar($('oa-pp-hoja'), Math.min(794, document.documentElement.clientWidth - 40), html);
 }
 function oaPpAbrir() { const or = portal.extra && portal.extra.orden; if (or && or.html) oaPpVer(or.html); }
-async function oaPpPdf() { const or = portal.extra && portal.extra.orden; if (!or || !or.html) return; oaAviso('Armando el PDF…'); oaBajar(await oaPdfBlob(or.html), or.nombre); }
+function oaPpPdf() { const or = portal.extra && portal.extra.orden; if (!or || !or.html) return; return oaPdfAbrir(or.html, or.nombre); }
 async function oaPpCompartir() {
   const or = portal.extra && portal.extra.orden; if (!or || !or.html) return;
   try {
