@@ -2120,16 +2120,28 @@
      de resultados dentro del propio campo, que es donde el ojo ya está. */
   .ci-buscador {
     display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 16px;
-    background: #fff; border: 1px solid var(--line); border-radius: 12px;
-    padding: 4px 14px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    background: var(--card, #fff); border: 1px solid var(--line); border-radius: 12px;
+    padding: 4px 6px 4px 14px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
     transition: border-color 0.15s, box-shadow 0.15s;
   }
   .ci-buscador:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(41, 128, 217, 0.15); }
   .ci-buscador .ci-busc-ico { display: flex; flex: 0 0 auto; color: var(--muted); }
   .ci-buscador input[type="search"] {
     flex: 1 1 auto; min-width: 0; border: none; outline: none; background: none;
-    font-family: inherit; font-size: 0.95rem; color: var(--ink); padding: 12px 0;
+    font-family: inherit; font-size: 16px; color: var(--ink); padding: 12px 0;
   }
+  .ci-buscador input[type="search"]::placeholder { color: var(--placeholder, var(--muted)); opacity: 1; }
+  /* 14-11 · Se busca al tocar la lupa (o Enter), no con cada letra. Apagado hasta que hay algo escrito. */
+  .ci-busc-btn {
+    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer;
+    background: var(--blue); color: #fff; font: inherit; font-size: 0.9rem; font-weight: 700;
+    border-radius: 9px; padding: 9px 14px; min-height: 40px; transition: opacity .15s, filter .15s;
+  }
+  .ci-busc-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .ci-busc-btn:disabled { opacity: .45; cursor: default; }
+  .cix-panel-top .cix-limpiar { color: #b91c1c; border-color: #fca5a5; }
+  .cix-panel-top .cix-limpiar + button { margin-left: 0; }
+  body[data-tema="noche"] .cix-panel-top .cix-limpiar { color: #fca5a5; border-color: #7f1d1d; }
   .ci-buscador input[type="search"]::-webkit-search-cancel-button { display: none; }
   .ci-busc-x {
     flex: 0 0 auto; border: none; background: var(--line); color: var(--muted);
@@ -2172,12 +2184,12 @@
     .ci-pend-meta { margin-left: auto; }
   }
   .ci-reg-ver { font-size: 0.72rem; color: var(--muted); margin: 0 0 9px; display: flex; align-items: center; gap: 5px; }
-  .ci-reg-ver b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.04em; color: #374151; }
-  .ci-reg-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; background: #fff; }
+  .ci-reg-ver b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.04em; color: var(--ink, #374151); }
+  .ci-reg-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; background: var(--card, #fff); color: var(--ink); }
   .ci-reg-top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   .ci-reg-top .nm { font-weight: 800; font-size: 0.92rem; }
   .ci-reg-top .dt { font-size: 0.74rem; color: var(--muted); margin-left: auto; }
-  .ci-reg-sub { font-size: 0.8rem; color: #4b5563; margin: 3px 0 9px; }
+  .ci-reg-sub { font-size: 0.8rem; color: var(--txt-suave, #4b5563); margin: 3px 0 9px; }
   .ci-reg-acc { display: flex; gap: 7px; flex-wrap: wrap; }
   @media (max-width: 1180px) {
     .franjas-row.franjas-24 { grid-template-columns: repeat(4, 1fr); }
@@ -10449,7 +10461,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.49.8';
+const APP_VERSION = '3.49.9';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -34267,8 +34279,8 @@ function ciMotivoTxt(a) {
   return m && m.m === 'fecha' ? `Cambió la fecha del turno${m.txt ? ` (${m.txt})` : ''}` : 'Cambió el texto del consentimiento';
 }
 function ciAntHTML() {
-  const q = ciRegQ.toLowerCase();
-  const L = ciReemplazadas().filter(({ r }) => !q || [r.paciente, r.dni, r.procedimiento, r.medico].some((x) => String(x || '').toLowerCase().includes(q)));
+  const q = sinTildes(ciRegQ.trim());  // 14-11 · «perez» encuentra a «Pérez»
+  const L = ciReemplazadas().filter(({ r }) => !q || [r.paciente, r.dni, r.procedimiento, r.medico].some((x) => sinTildes(x).includes(q)));
   if (!L.length) return '';
   return `<p class="cix-ant-tit">Versiones aceptadas que quedaron sin efecto (${L.length})</p>` + L.map(({ r, c, a, i }, k) => `
     <div class="ci-reg-card cix-ficha nc" style="--i:${Math.min(k, 12)}">
@@ -34300,16 +34312,16 @@ function ciRegistroAlcance() {
 }
 function ciRegistroContados() {
   const total = ciRegistroAlcance().length + (ciFiltro === 'nc' ? ciReemplazadas().length : 0);
-  const q = ciRegQ.toLowerCase();
+  const q = sinTildes(ciRegQ.trim());  // 14-11 · «perez» encuentra a «Pérez»
   if (!q) return `${total} consentimiento(s)`;
   const n = ciRegistroAlcance().filter((r) => [r.paciente, r.dni, r.procedimiento, r.medico]
-    .some((x) => String(x || '').toLowerCase().includes(q))).length;
+    .some((x) => sinTildes(x).includes(q))).length;
   return `${n} de ${total}`;
 }
 function ciRegistroLista() {
-  const q = ciRegQ.toLowerCase();
+  const q = sinTildes(ciRegQ.trim());  // 14-11 · «perez» encuentra a «Pérez»
   const list = ciRegistroAlcance()
-    .filter((r) => !q || [r.paciente, r.dni, r.procedimiento, r.medico].some((x) => String(x || '').toLowerCase().includes(q)))
+    .filter((r) => !q || [r.paciente, r.dni, r.procedimiento, r.medico].some((x) => sinTildes(x).includes(q)))
     // Lo que falta firmar va por la cirugía más próxima; lo demás, del más nuevo al más viejo.
     .sort((a, b) => (ciFiltro === 'falta' ? String(a.fechaCx || '9').localeCompare(String(b.fechaCx || '9')) : 0) || b.id - a.id);
   const ant = ciFiltro === 'nc' ? ciAntHTML() : '';
@@ -34478,8 +34490,8 @@ function ciTableroFirmas() {
       </button>`;
     }).join('')}</div>
     <div class="ci-buscador">
-      <span class="ci-busc-ico">${ico(ICONS.search, 18)}</span>
-      <input type="search" id="ci-busc" placeholder="O buscá por paciente, DNI, procedimiento o cirujano…" value="${esc(ciRegQ)}" oninput="ciRegQ=this.value;ciPanelPintar()">
+      <input type="search" id="ci-busc" enterkeyhint="search" placeholder="O buscá por paciente, DNI, procedimiento o cirujano…" value="${esc(ciRegQ)}" oninput="ciBuscEscribe(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();ciBuscar()}">
+      <button type="button" class="ci-busc-btn" id="ci-busc-go" onclick="ciBuscar()" ${ciRegQ ? '' : 'disabled'} aria-label="Buscar">${ico(ICONS.search, 17)} Buscar</button>
     </div>
     <div id="cix-panel">${ciPanelHTML()}</div>
     <p class="form-note">El consentimiento informado integra la historia clínica del paciente (Ley 26.529). Para generar uno nuevo, entrá al turno: <b>Lo que sigue › Generar el consentimiento</b>.</p>
@@ -34490,8 +34502,32 @@ function ciPanelHTML() {
   const g = CI_GRUPOS[ciFiltro];
   return `<div class="cix-panel">
     <div class="cix-panel-top"><b>${g ? esc(g.t) : 'Resultado de la búsqueda'}</b><span id="ci-busc-n">${ciRegistroContados()}</span>
+      ${ciRegQ ? `<button type="button" class="cix-limpiar" onclick="ciBuscLimpiar()">✕ Limpiar la búsqueda</button>` : ''}
       <button type="button" class="${ciAlcance === 'semana' ? 'on' : ''}" aria-pressed="${ciAlcance === 'semana'}" onclick="ciAlcance=ciAlcance==='semana'?'todo':'semana';ciPanelPintar()">${ICONS.calendar} Solo esta semana</button></div>
     <div id="ci-reg-list">${ciRegistroLista()}</div></div>`;
+}
+/* 14-11 · Claudio: «debería dejarme escribir todo y luego buscar cuando aprieto la lupa». Escribir
+   no busca (antes se redibujaba la lista con cada letra y la pantalla titilaba). Borrar todo sí
+   limpia el resultado al instante. */
+function ciBuscEscribe(i) {
+  const v = i.value.trim(), b = $('ci-busc-go');
+  if (b) b.disabled = !v;
+  if (!v && ciRegQ) { ciRegQ = ''; ciPanelPintar(); }
+}
+function ciBuscLimpiar() {
+  ciRegQ = '';
+  const i = $('ci-busc'), b = $('ci-busc-go');
+  if (i) i.value = '';
+  if (b) b.disabled = true;
+  ciPanelPintar();
+  if (i) i.focus();
+}
+function ciBuscar() {
+  const i = $('ci-busc'); if (!i) return;
+  const v = i.value.trim();
+  if (!v) return;
+  ciRegQ = v; ciPanelPintar();
+  const p = $('cix-panel'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 function ciPanelPintar() { const p = $('cix-panel'); if (p) p.innerHTML = ciPanelHTML(); }
 function ciFiltroElegir(k) {
