@@ -10449,7 +10449,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.49.7';
+const APP_VERSION = '3.49.8';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -33544,11 +33544,14 @@ const CI_CD_CSS = `
   .cd .cc-med{font-size:.92em;margin-top:.7em;border-top:1px solid #cbd5e1;padding-top:.55em}
   .cd .cc-rev{font-size:.92em;margin-top:.5em;color:#7f1d1d}
   .cd .cc-nota{font-size:.84em;color:#475569;line-height:1.4}
+  /* 14-11 · Las hojas para imprimir (body.pag) miden siempre un A4: no toman el formato de
+     celular aunque la ventana nueva arranque angosta (Safari la abre chica un instante, se
+     medían tablas apiladas y salían 7 hojas con mucho blanco en vez de 4). */
   @media screen and (max-width:560px){
-    .cd table.fil td{display:block;width:auto !important}
-    .cd table.fil td.k{border-bottom:0;padding-bottom:0;background:none;font-size:.86em}
-    .cd .firmas{flex-direction:column}
-    .cd .ci-anulada-cartel{width:90%;font-size:1em}
+    body:not(.pag) .cd table.fil td{display:block;width:auto !important}
+    body:not(.pag) .cd table.fil td.k{border-bottom:0;padding-bottom:0;background:none;font-size:.86em}
+    body:not(.pag) .cd .firmas{flex-direction:column}
+    body:not(.pag) .cd .ci-anulada-cartel{width:90%;font-size:1em}
   }
 `;
 const CI_HOJA_CSS = `
@@ -36569,7 +36572,13 @@ function renderPortal() {
     setTimeout(() => { const i = $(codigo ? 'pp-cod' : 'pp-dni'); if (i) i.focus(); }, 50);
     return;
   }
+  // 14-11 · El pase se redibuja solo cada tanto para traer novedades: los puntos que el
+  // paciente abrió (preparación, cómo venir, etc.) quedan como estaban, abiertos o cerrados.
+  const clave = (d) => d.className + '|' + ((d.querySelector('summary') || {}).textContent || '').trim();
+  const antes = {};
+  r.querySelectorAll('details').forEach((d) => { antes[clave(d)] = d.open; });
   r.innerHTML = portalMarco(portalVistaEstado(portal.foto || {}));
+  r.querySelectorAll('details').forEach((d) => { const k = clave(d); if (k in antes) d.open = antes[k]; });
 }
 /* 10-11 · Al terminar la endoscopía: dónde retira el informe y las fotos (METRIA, otra app del médico).
    El enlace no lleva ningún dato del paciente: entra con su correo, un código y su DNI. */
