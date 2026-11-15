@@ -331,7 +331,8 @@ function oaEstado(c) {
   const pac = o.b.gest === 'pac';
   if (!o.firma) return o.anuladas.length ? { k: 'anulada', t: 'Anulada · falta firmar la nueva', tono: 'ro', pac: 'Tu médico/a está actualizando la orden' } : { k: 'borrador', t: 'Falta la firma del médico', tono: 'am', pac: 'Tu médico/a la está preparando' };
   const A = oaAut(c);
-  if (o.firma && c.auth === 'NO AUTORIZADO') return { k: 'noaut', t: 'No autorizada · ' + (c.authMotivo || ''), tono: 'ro', pac: 'Admisión y Egresos no la autorizó por ahora' };
+  // 15-11 · Si el médico firmó la orden DESPUÉS del rechazo, sigue el trámite (enviar, N.º) en vez de «No autorizada».
+  if (o.firma && c.auth === 'NO AUTORIZADO' && !(String(o.firma.t || '') > String(c.authFecha || ''))) return { k: 'noaut', t: 'No autorizada · ' + (c.authMotivo || ''), tono: 'ro', pac: 'Admisión y Egresos no la autorizó por ahora' };
   if (A) return { k: 'autorizada', t: 'Autorizada · N.º ' + A.n, tono: 'ok', pac: 'Autorizada por ' + os + ' · N.º ' + A.n };
   if (o.env) return { k: 'enviada', t: pac ? 'Presentada por el paciente' : 'Enviada a ' + os, tono: 'az', pac: 'En trámite en ' + os };
   return { k: 'firmada', t: pac ? 'Firmada · falta que el paciente la presente' : 'Firmada · falta enviarla a ' + os, tono: 'am', pac: pac ? 'Falta que la presentes en ' + os : 'Admisión la va a mandar a ' + os };

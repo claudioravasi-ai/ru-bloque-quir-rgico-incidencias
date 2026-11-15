@@ -10461,7 +10461,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.49.9';
+const APP_VERSION = '3.50.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -20110,7 +20110,9 @@ function otroEstudio(id) {
 }
 function puedeReprogramarCaducada(c) {
   const u = usuarioActual();
-  return !!(c && c.estado === 'caducada' && !c.reprogramadaEn && u && !jefe && c.cirujanoEmail === u.email && programaCirugias(u));
+  // 15-11 · También la SUSPENDIDA (pedido de Claudio): los datos del paciente quedan en el turno
+  // suspendido y con «Reprogramar» vuelven a cargarse en una franja nueva, sin tipear de nuevo.
+  return !!(c && ['caducada', 'suspendida'].includes(c.estado) && !c.reprogramadaEn && u && !jefe && c.cirujanoEmail === u.email && programaCirugias(u));
 }
 function reprogramarCaducada(id) {
   const c = DB.cirugias.find((x) => String(x.id) === String(id));
@@ -20439,7 +20441,7 @@ function accionesCirugia(c, rol, enFicha) {
     a.push(`<button class="btn btn-sm btn-blue" onclick="reprogramarCaducada(${c.id})">${ICONS.refresh} Reprogramar</button>`);
   }
   /* 11-11 · «Bajar el consentimiento» ya no va en la tarjeta: está en la ficha, junto al consentimiento. */
-  if (c.estado === 'caducada' && c.reprogramadaEn) {
+  if (['caducada', 'suspendida'].includes(c.estado) && c.reprogramadaEn) {
     a.push(`<button class="btn btn-sm btn-outline" onclick="openCirugia(${c.reprogramadaEn})">${ICONS.refresh} Ver el turno nuevo</button>`);
   }
   if (jefe && (c.estado === 'caducada' || (c.estado === 'suspendida' && c.suspension && c.suspension.automatica))) {
@@ -20740,7 +20742,7 @@ function openSuspender(id, desdeResolver) {
     <p style="font-size:0.88rem;color:var(--muted);margin:6px 0 18px">${esc(c.procedimiento)} — ${esc(c.paciente?.nombre)} · ${fmtFecha(c.fecha)}. La carga de la causa es <b>obligatoria</b>.</p>
     <div class="field" style="margin-bottom:14px">
       <label>Causa de suspensión *</label>
-      <select id="susp-causa" onchange="suspValidar()"><option value="">Elija la causa…</option>${CAUSAS_SUSP.map((x) => `<option>${x}</option>`).join('')}</select>
+      <select id="susp-causa" onchange="suspValidar()"><option value="">Elija la causa…</option>${CAUSAS_SUSP.map((x) => `<option${c.auth === 'NO AUTORIZADO' && /financiador/.test(x) ? ' selected' : ''}>${x}</option>`).join('')}</select>
     </div>
     <div class="field" style="margin-bottom:18px">
       <label>Detalle</label>
@@ -20752,6 +20754,7 @@ function openSuspender(id, desdeResolver) {
     </div>
     <p class="form-note" style="margin-top:14px">${ICONS.info.replace('18', '13')} La suspensión no planificada genera automáticamente una incidencia de <b>categoría D</b> en el módulo de mejora continua.</p>`;
   abrirVentanaTurno();
+  suspValidar();
 }
 function closeSuspender() { $('susp-overlay').classList.remove('open'); }
 /* 11-11 · La causa no viene elegida: «Confirmar» queda apagado y dice qué falta. */
@@ -22148,8 +22151,9 @@ function ingEstadoHTML(c, aut) {
   const e = ESTC[estadoVisible(c)];
   const dif = authPendienteDiferida(c), tarde = dif && cierreTardio(c);
   const adm = dif ? { k: 'no', i: '↷', t: tarde ? 'Falta acreditar' : 'Urgencia: falta regularizar' }
-    : aut ? { k: 'ok', i: '✓', t: 'Autorizada' }
-    : c.auth === 'NO AUTORIZADO' ? { k: 'mal', i: '✕', t: 'No autorizada' } : { k: 'no', i: '⏳', t: 'Falta autorizar' };
+    // 15-11 · El rechazo manda aunque el turno sea exento (P1-P2): antes decía «Autorizada».
+    : c.auth === 'NO AUTORIZADO' ? { k: 'mal', i: '✕', t: 'No autorizada' }
+    : aut ? { k: 'ok', i: '✓', t: 'Autorizada' } : { k: 'no', i: '⏳', t: 'Falta autorizar' };
   // «Lo hecho — pendiente de cierre» va en dos líneas: lo hecho arriba, el pendiente abajo.
   const fila = (rot, cls, est, ico, txt) => { const [a, b] = String(txt).split(' — ');
     return `<div class="ie-r ${cls}"${est ? ` style="${est}"` : ''}><dt>${rot}</dt><dd><i>${ico}</i><span>${esc(a)}${b ? `<small>${esc(b)}</small>` : ''}</span></dd></div>`; };
@@ -22195,7 +22199,10 @@ function cierreTardioRecordatorios(add) {
 }
 function admisPorAutorizar() {
   const hoy = hoyISO();
-  return DB.cirugias.filter((c) => c.estado === 'pendiente' && !c.auth && !rcActivo(c) && !turnoProvisional(c) && c.fecha >= hoy)
+  // 15-11 · El turno NO AUTORIZADO vuelve a la lista si el médico firmó la orden de autorización
+  // después del rechazo (turnos rechazados antes de que existiera la orden con el pase).
+  const reenviada = (c) => c.auth === 'NO AUTORIZADO' && c.orden && c.orden.firma && String(c.orden.firma.t || '') > String(c.authFecha || '');
+  return DB.cirugias.filter((c) => c.estado === 'pendiente' && (!c.auth || reenviada(c)) && !rcActivo(c) && !turnoProvisional(c) && c.fecha >= hoy)
     .sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)) || String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
 }
 function admisRecordatorios(add) {
@@ -29134,7 +29141,7 @@ function openSlot(d, sid, fid) {
     ${c ? tmCircuito(c, u) : tmCircuitoNuevo(f)}
     ${!c && m ? `<div class="banner banner-blue" style="margin:10px 0">${ICONS.refresh}<div><strong>${m.otro ? '➕ Otro estudio para' : 'Reprogramación de'} ${esc(m.paciente?.nombre || 's/d')}</strong>
       ${m.otro ? 'Paciente, contacto, médico/a, apto anestésico y preoperatorios ya van cargados. Revise el estudio y guarde: después genere su consentimiento (cada estudio lleva el suyo).'
-        : `Los datos vienen de la cirugía caducada del ${esc(fmtFecha(m.deFecha))}. Revíselos y vuelva a tildar los requisitos para Admisión y Egresos.`}
+        : `Los datos vienen del turno ${m.estado === 'suspendida' ? 'suspendido' : 'caducado'} del ${esc(fmtFecha(m.deFecha))}. Revíselos y vuelva a tildar los requisitos para Admisión y Egresos.${m.estado === 'suspendida' ? ' Al generar el pase sale la orden de autorización nueva, firmada, para Admisión y el paciente.' : ''}`}
       <button type="button" class="btn btn-sm btn-outline" style="margin-top:6px" onclick="solCopia=null;solOtro=null;closeSlot();openSlot('${d}','${sid}','${fid}')">Empezar en blanco</button></div></div>` : ''}
     ${avisoAnticip}
     ${c ? feriadoBannerHTML(c) : ''}
@@ -29913,7 +29920,7 @@ async function guardarSlot() {
   if (origRep) {
     c.reprogDe = origRep.id;
     if (rcVeces(origRep)) c.sinCamaPrio = rcVeces(origRep);
-    pushHist(c, `Reprogramación de la cirugía caducada del ${fmtFecha(origRep.fecha)} ${origRep.horaProg || ''} h (${origRep.quirofano || ''})${c.sinCamaPrio ? ` — conserva la prioridad SIN CAMA ×${c.sinCamaPrio}` : ''}`);
+    pushHist(c, `Reprogramación ${origRep.estado === 'suspendida' ? 'del turno suspendido' : 'de la cirugía caducada'} del ${fmtFecha(origRep.fecha)} ${origRep.horaProg || ''} h (${origRep.quirofano || ''})${c.sinCamaPrio ? ` — conserva la prioridad SIN CAMA ×${c.sinCamaPrio}` : ''}`);
     origRep.reprogramadaEn = c.id;
     pushHist(origRep, `Reprogramada por ${cirujano}: nuevo turno el ${fmtFecha(c.fecha)} ${c.horaProg} h en ${c.quirofano}`);
     upsert('cirugias', origRep);
@@ -30138,8 +30145,8 @@ function turnoQueHacer(id) {
       <p>${esc(c.procedimiento || '')} · ${esc(c.paciente?.nombre || 's/d')}<br>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg || '—')} h · ${esc(c.quirofano || '')}</p></header>
     <div class="tq-ops">
       ${boton('mover', '📅', 'Pasarlo a otro día', `Elige la franja nueva. Se conservan el paciente${c.pase ? ', el pase del paciente (le muestra la fecha nueva)' : ''} y los requisitos. ${consentimientoDeTurno(c) ? `El consentimiento toma la fecha nueva${c.ciPaciente ? ': el paciente lo vuelve a aceptar y la versión anterior queda en «No concretados»' : ''}. ` : ''}Admisión${sinJefatura(c) ? '' : ' y la Jefatura'} lo vuelve${sinJefatura(c) ? '' : 'n'} a autorizar para esa fecha.`, `turnoMoverIniciar(${J})`)}
-      ${boton('susp', '⏸', `Suspender ${est} con causa`, `No se hace y queda anotado por qué: el paciente no puede venir, el médico no está disponible… Queda como «Suspendido» y cuenta en las estadísticas.`, `openSuspender(${J})`)}
-      ${boton('borrar', '🗑', `Eliminar ${est}`, `Se borra y sale de la lista, como si nunca se hubiera anotado. Es para un error de carga. La franja queda libre. No se puede deshacer.`, `eliminarTurnoPropio(${J})`)}
+      ${boton('susp', '⏸', `Suspender ${est} con causa`, `No se hace y queda anotado por qué: el paciente no puede venir, el médico no está disponible… Queda como «Suspendido» en Mis solicitudes con todos los datos del paciente: el médico lo vuelve a programar con «Reprogramar».`, `openSuspender(${J})`)}
+      ${boton('borrar', '🗑', `Eliminar ${est}`, `Se borra con todos los datos del paciente, como si nunca se hubiera anotado. Es solo para un error de carga. Si lo va a volver a programar, no lo elimine: suspéndalo o páselo a otro día. No se puede deshacer.`, `eliminarTurnoPropio(${J})`)}
     </div>
     <button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:10px" onclick="rcCerrar()">Volver sin cambiar nada</button>`;
   $('rc-overlay').classList.add('open');
