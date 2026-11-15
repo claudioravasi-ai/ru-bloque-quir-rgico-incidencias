@@ -326,6 +326,11 @@ function oaFaltan(c, b) {
   }
   return f;
 }
+/* 15-11 · Pedido de Claudio: si Admisión y Egresos ya autorizó la práctica (por ejemplo, con una orden
+   en papel) y la orden de la app quedó sin firmar, esa orden ya no hace falta: no se pide la firma en
+   ningún lado (ficha, pasos del turno, Mis solicitudes, Ingresos, pase del paciente) y el borrador
+   queda marcado como «no se usa». */
+function oaPapel(c) { return !!(c && c.orden && !c.orden.firma && c.auth === 'AUTORIZADO'); }
 function oaAut(c) {
   // La versión vigente de la orden cuenta como autorizada si se mandó, tiene su N.º y el dictamen es AUTORIZADO.
   if (!c.orden || !c.orden.firma || !c.orden.env || !c.orden.autN || c.auth !== 'AUTORIZADO') return null;
@@ -336,6 +341,7 @@ function oaEstado(c) {
   const o = c.orden, os = c.obraSocial || 'la obra social';
   if (!o) return { k: 'sin', t: 'Sin orden', tono: 'gr', pac: '' };
   const pac = o.b.gest === 'pac';
+  if (oaPapel(c)) return { k: 'papel', t: 'Autorizada por Admisión · no hace falta firmarla', tono: 'ok', pac: 'Autorizada por Admisión y Egresos' };
   if (!o.firma) return o.anuladas.length ? { k: 'anulada', t: 'Anulada · falta firmar la nueva', tono: 'ro', pac: 'Tu médico/a está actualizando la orden' } : { k: 'borrador', t: 'Falta la firma del médico', tono: 'am', pac: 'Tu médico/a la está preparando' };
   const A = oaAut(c);
   // 15-11 · Si el médico firmó la orden DESPUÉS del rechazo, sigue el trámite (enviar, N.º) en vez de «No autorizada».
@@ -364,12 +370,16 @@ function oaHojaHTML(c, opt) {
   const medNom = (firma && firma.por) || c.cirujano || m.nombre || '';
   const mat = (firma && firma.mat) || (m.matricula && m.matricula.numero) || 'sin matrícula cargada';
   const esp = (firma && firma.esp) || c.servicio || m.servicio || '';
+  // 15-11 · Pedido de Claudio: la firma dibujada se guarda una vez y vale para TODAS sus órdenes, también las que
+  // ya estaban firmadas sin imagen (antes cada orden copiaba la imagen solo al firmarse y esas salían con el nombre).
+  const fImg = firma ? (firma.img || (!snap && m && m.firmaImg) || '') : '';
   const emi = fmtFecha(firma ? String(firma.t).slice(0, 10) : hoyISO());
   const falta = (v) => v ? esc(v) : '<span class="oa-falta">falta</span>';
   const dest = b.gest === 'pac'
     ? `<div><b>A: ${esc(os)} · Auditoría médica</b>Presentada por el afiliado. Se solicita autorización para ${T.o === 'o' ? 'el ' : 'la '}${esc(T.n)} indicad${T.o}, en la fecha programada.</div><div><b>Copia: Admisión y Egresos · HRU</b>Controlar la autorización antes del turno.</div>`
     : `<div><b>A: Admisión y Egresos · HRU</b>Gestionar ante la cobertura la autorización del procedimiento indicado.</div><div><b>A: ${esc(os)} · Auditoría médica</b>Se solicita autorización para ${T.o === 'o' ? 'el ' : 'la '}${esc(T.n)} indicad${T.o}, en la fecha programada.</div>`;
   const cinta = snap ? `<div class="oa-cinta">ANULADA<small>${esc(snap.motivo)} · reemplazada por ${esc(snap.nueva || '')}</small></div>`
+    : !firma && oaPapel(c) ? '<div class="oa-cinta borr">NO SE USA<small>LA PRÁCTICA YA LA AUTORIZÓ ADMISIÓN Y EGRESOS</small></div>'
     : !firma ? '<div class="oa-cinta borr">BORRADOR<small>SIN FIRMA · NO SIRVE PARA TRAMITAR</small></div>' : '';
   return `<div class="oa-hoja">${cinta}
   <div class="oa-top"><div class="oa-inst"><div class="oa-logo">HRU</div><div><b>Hospital Regional Ushuaia</b><small>${esc(c.servicio || T.sector)} · Programación quirúrgica</small></div></div>
@@ -400,10 +410,10 @@ function oaHojaHTML(c, opt) {
     ${b.obs ? `<div class="oa-sec"><div class="oa-num">7</div><div><h3>Agregados</h3><div class="oa-caja oa-obs">${esc(b.obs)}</div></div></div>` : ''}
   </div>
   <div class="oa-firma"><div>
-    ${!firma ? '<div class="oa-rub" style="color:#c8d3d9">—</div>' : firma.img ? `<img class="oa-rubimg" src="${firma.img}" alt="Firma">` : `<div class="oa-rub">${esc(String(medNom).replace(/^Dra?\.\s*/, ''))}</div>`}
+    ${!firma ? '<div class="oa-rub" style="color:#c8d3d9">—</div>' : fImg ? `<img class="oa-rubimg" src="${fImg}" alt="Firma">` : `<div class="oa-rub">${esc(String(medNom).replace(/^Dra?\.\s*/, ''))}</div>`}
     <div class="oa-lin"><b>${esc(medNom)}</b> · ${esc(mat)}<br>${esc(esp)}</div>
     ${!firma ? '<div class="oa-ver">⏳ <b style="color:#b45309">Pendiente de firma.</b> Este borrador no sirve para tramitar la autorización.</div>'
-      : `<div class="oa-ver">🔒 <b>Firmada electrónicamente</b> el ${esc(fmtDT(firma.t))} por ${esc(medNom)} (${esc(mat)}), con su usuario y contraseña de la app HRU Quirófanos.${firma.img ? ' La rúbrica es la imagen que el médico guardó en su perfil; la validez la da esta firma electrónica.' : ''}<br>Verificación: escanee el código o ingrese <b>${cod}</b> en la app. Firma electrónica (Ley 25.506, art. 5).</div>`}
+      : `<div class="oa-ver">🔒 <b>Firmada electrónicamente</b> el ${esc(fmtDT(firma.t))} por ${esc(medNom)} (${esc(mat)}), con su usuario y contraseña de la app HRU Quirófanos.${fImg ? ' La rúbrica es la imagen que el médico guardó en su perfil; la validez la da esta firma electrónica.' : ''}<br>Verificación: escanee el código o ingrese <b>${cod}</b> en la app. Firma electrónica (Ley 25.506, art. 5).</div>`}
   </div><div class="oa-qr">${oaQR(oaUrlVerificar(cod))}<div>Verificar autenticidad</div></div></div>
   <div class="oa-pie"><span>Documento con datos de salud: compartir solo con la cobertura médica o Admisión.</span><span>Hoja 1 de 1 · ${cod}</span></div>
 </div>`;
@@ -484,13 +494,14 @@ function oaFichaHTML(c) {
   const pasos = [['Firmada', !!(o && o.firma)], [o && o.b.gest === 'pac' ? 'Presentada' : 'Enviada a la OS', !!(o && o.env)], ['Autorizada', !!oaAut(c)]];
   const ya = pasos.findIndex((x) => !x[1]);
   return `<section class="fx-card full" id="oa-ficha"><h4>${ico(ICONS.fileText, 15)} <span>Orden de autorización (R/P)</span><em class="fx-n ${e.tono === 'ok' ? 'ok' : e.tono === 'ro' ? 'bad' : 'warn'}">${esc(e.t)}</em></h4>
-    ${o ? `<div class="oa-pasos">${pasos.map((p, i) => `<span class="${p[1] ? 'h' : i === ya ? 'ya' : ''}">${p[1] ? '✓ ' : ''}${p[0]}</span>`).join('')}</div>` : ''}
+    ${o && !oaPapel(c) ? `<div class="oa-pasos">${pasos.map((p, i) => `<span class="${p[1] ? 'h' : i === ya ? 'ya' : ''}">${p[1] ? '✓ ' : ''}${p[0]}</span>`).join('')}</div>` : ''}
     <p class="fx-txt">${!o ? 'Sale sola, firmada, cuando generás el pase del paciente (con lo que cargaste al programar). Si querés, la podés armar antes desde acá.'
       : o.anuladas.length && !o.firma ? `La orden ${esc(o.anuladas[o.anuladas.length - 1].cod)} quedó anulada (${esc(o.anuladas[o.anuladas.length - 1].motivo.toLowerCase())}). Revisá la versión ${o.ver} y firmala.`
+      : oaPapel(c) ? 'Admisión y Egresos ya autorizó la práctica (por ejemplo, con la orden en papel). Esta orden no hace falta: no tenés que firmarla.'
       : !o.firma ? 'Borrador: nadie la ve todavía. Sale al paciente y a Admisión recién cuando la firmás.'
       : `Firmada el ${esc(fmtDT(o.firma.t))}. ${oaAut(c) ? `Autorizada por ${esc(c.obraSocial || 'la obra social')} (N.º ${esc(oaAut(c).n)}).` : o.env ? 'Admisión ya la mandó a la obra social.' : 'Admisión la ve en Ingresos para mandarla.'}`}</p>
     <div class="oa-fila">
-      ${dueno && (!o || !o.firma) ? `<button class="btn btn-sm btn-blue fx-btn" onclick="oaAbrir(${esc(JSON.stringify(c.id))})">✍ ${o ? 'Revisar y firmar la orden' : 'Armar la orden'}</button>` : ''}
+      ${dueno && (!o || !o.firma) && c.auth !== 'AUTORIZADO' ? `<button class="btn btn-sm btn-blue fx-btn" onclick="oaAbrir(${esc(JSON.stringify(c.id))})">✍ ${o ? 'Revisar y firmar la orden' : 'Armar la orden'}</button>` : ''}
       ${o ? `<button class="btn btn-sm btn-outline fx-btn" onclick="oaAbrir(${esc(JSON.stringify(c.id))})">📄 Ver la orden</button>` : ''}
     </div></section>`;
 }
@@ -521,7 +532,7 @@ function oaPintar() {
     <div class="field"><label>Cobertura · ${esc(c.obraSocial || 'sin obra social')}</label><div class="oa-par"><input id="oa-afil" value="${esc(b.afil)}" placeholder="N.º de afiliado" ${puedeEd ? '' : 'disabled'}><input id="oa-plan" value="${esc(b.plan)}" placeholder="Plan" ${puedeEd ? '' : 'disabled'}></div></div>
     <div class="field"><label>¿Quién le manda la orden a la obra social?</label><div class="oa-ops">${Object.keys(OA_GEST).map((g) => `<button type="button" class="${b.gest === g ? 'on' : ''}" ${puedeEd ? '' : 'disabled'} onclick="oaGest('${g}')">${OA_GEST[g][0]}</button>`).join('')}</div>
       <div class="oa-ayuda"><b>${OA_GEST[b.gest][0]}:</b> ${OA_GEST[b.gest][1]}</div></div>
-    <div class="oa-blq"><h5>Mi firma dibujada</h5><p class="form-note" style="margin:0">Se guarda en tu perfil una sola vez y se pega en todas tus órdenes. Guardarla <b>no envía nada</b>.</p>
+    <div class="oa-blq"><h5>Mi firma dibujada</h5><p class="form-note" style="margin:0">Se guarda en tu perfil una sola vez y sale en todas tus órdenes, también en las que ya firmaste. Guardarla <b>no envía nada</b>.</p>
       ${u && u.firmaImg ? `<div class="oa-mif"><img src="${u.firmaImg}" alt="Mi firma guardada"><span>✔ Esta es tu firma guardada. Si dibujás o subís otra, reemplaza a esta.</span></div>` : ''}
       <div class="oa-pad"><canvas id="oa-pad" width="760" height="240"></canvas><span id="oa-pad-g">Firmá acá con el dedo, el lápiz o el mouse</span></div>
       <div class="oa-fila" style="margin-top:8px">
@@ -529,7 +540,7 @@ function oaPintar() {
         <label class="btn btn-sm btn-outline" style="cursor:pointer;margin:0">📎 Subir imagen<input type="file" accept="image/png,image/jpeg" style="display:none" onchange="oaPadArchivo(this)"></label>
         <button type="button" class="btn btn-sm btn-green" id="oa-pad-ok" disabled onclick="oaPadGuardar()">Dibujá tu firma</button></div></div>
     <div class="oa-blq"><h5>Firmar y enviar</h5>
-      ${(() => { const f = oaFaltan(c, b); return o.firma ? `<div class="oa-est ok">✔ Firmada el ${esc(fmtDT(o.firma.t))} y enviada: el paciente la ve en su pase y Admisión en Ingresos.</div>
+      ${(() => { const f = oaFaltan(c, b); return oaPapel(c) ? '<div class="oa-est ok">✔ Admisión y Egresos ya autorizó la práctica (por ejemplo, con la orden en papel). Esta orden no hace falta: no tenés que firmarla.</div>' : o.firma ? `<div class="oa-est ok">✔ Firmada el ${esc(fmtDT(o.firma.t))} y enviada: el paciente la ve en su pase y Admisión en Ingresos.</div>
         <div class="oa-fila" style="margin-top:8px"><button type="button" class="btn btn-sm btn-outline" onclick="oaCorregir()">Corregir la orden (anula esta y arma otra)</button></div>`
         : `<div class="oa-fila"><button type="button" class="btn btn-blue" id="oa-firmar" ${f.length ? 'disabled' : ''} onclick="oaFirmar()">${f.length ? '🔒 Falta: ' + esc(f.join(', ')) : '✍ Firmar y enviar'}</button></div>
         <div class="oa-est am">Borrador: nadie la ve todavía. Sale al paciente y a Admisión recién cuando la firmás con tu contraseña.</div>`; })()}
@@ -617,7 +628,10 @@ function oaFirmaGuardar(img) {
   const u = usuarioActual(); if (!u) return;
   u.firmaImg = img; upsert('usuarios', u);
   const c = oaCir(oaId); if (c && c.orden && !c.orden.firma) upsert('cirugias', c);
-  oaAviso('Firma guardada en tu perfil. Todavía no se envió nada.'); oaPintar();
+  // Las órdenes ya firmadas sin imagen la toman al dibujarse; el pase del paciente se actualiza también.
+  const mias = DB.cirugias.filter((x) => x.cirujanoEmail === u.email && x.orden && x.orden.firma && !x.orden.firma.img && x.pase && x.pase.token);
+  mias.forEach((x) => { try { oaPase(x); } catch (e) { console.error(e); } });
+  oaAviso('Firma guardada en tu perfil: sale en todas tus órdenes' + (mias.length ? ', también en las ' + mias.length + ' que ya estaban firmadas' : '') + '.'); oaPintar();
   const k = $('oa-pad-ok'); if (k) { k.disabled = true; k.textContent = '✔ Firma guardada'; }
 }
 function oaPadGuardar() { oaFirmaGuardar(oaRecortar($('oa-pad'))); }
@@ -641,7 +655,8 @@ function oaAdmHTML(c) {
     [!!o.env, pac ? 'Presentada por el paciente' : 'Enviada a ' + os, o.env ? fmtDT(o.env.t) + ' · ' + o.env.por + (o.env.via === 'correo' ? ' · por correo' + (o.env.a ? ' a ' + o.env.a : '') : '') : pac ? 'La presenta el afiliado' : 'La manda Admisión'],
     [!!oaAut(c), 'Autorizada por ' + os, oaAut(c) ? 'N.º ' + oaAut(c).n + ' · dictamen de ' + oaAut(c).por + (oaAut(c).t ? ' · ' + fmtDT(oaAut(c).t) : '') : 'Admisión carga el N.º de la obra social y da el dictamen']];
   const ya = pasos.findIndex((p) => !p[0]);
-  const acc = !o.firma ? '<div class="oa-est am">⏳ Esperando al médico: no se puede hacer nada hasta que la firme.</div>'
+  const acc = oaPapel(c) ? '<div class="oa-est ok">✔ La práctica ya está autorizada por Admisión y Egresos. Esta orden no se usa: no hace falta que el médico la firme.</div>'
+    : !o.firma ? '<div class="oa-est am">⏳ Esperando al médico: no se puede hacer nada hasta que la firme.</div>'
     : !o.env ? (pac ? `<div class="oa-est az">Próximo paso: cuando el paciente avise que la presentó en ${esc(os)}, marcalo.</div>
       <div class="oa-fila"><button type="button" class="btn btn-sm btn-green" onclick="oaEnviada(${esc(JSON.stringify(c.id))})">📨 El paciente la presentó</button></div>`
       : `<div class="oa-est az">Próximo paso: mandarla a ${esc(os)}. Con un toque la app le manda el correo a su sector de autorizaciones con la orden en PDF adjunta, y queda anotado.</div>
@@ -751,7 +766,7 @@ function oaIngresosDecorar() {
     const e = oaEstado(c);
     const col = { ok: 'ie-ok', am: 'ie-no', az: 'ie-no', ro: 'ie-mal', gr: 'ie-no' }[e.tono];
     const dl = f.querySelector('.ing-e dl.ie');
-    if (dl) dl.insertAdjacentHTML('beforeend', `<div class="ie-r ${col}"><dt>Orden</dt><dd><i>${e.k === 'autorizada' ? '✓' : e.k === 'sin' ? '—' : e.k === 'anulada' ? '✕' : '📄'}</i><span>${esc(e.t)}</span></dd></div>`);
+    if (dl) dl.insertAdjacentHTML('beforeend', `<div class="ie-r ${col}"><dt>Orden</dt><dd><i>${e.k === 'autorizada' || e.k === 'papel' ? '✓' : e.k === 'sin' ? '—' : e.k === 'anulada' ? '✕' : '📄'}</i><span>${esc(e.t)}</span></dd></div>`);
     const e2 = f.querySelector('.ing-e');
     // 15-11 · Pedido de Claudio (Admisión): primero «Enviar» a la obra social (o «Cargar N.º» si ya se
     // mandó), después «Autorizar», y abajo lo que es para consultar: Orden, PDF y Ficha.
@@ -969,7 +984,7 @@ function oaPortalHTML(f) {
   const or = (portal.extra && portal.extra.orden) || null, fo = f && f.ord;
   if (!fo && !or) return '';
   const x = Object.assign({}, or || {}, fo || {});
-  if (x.e === 'sin') return '';
+  if (x.e === 'sin' || x.e === 'papel') return '';
   const listo = !!(or && or.html && ['firmada', 'enviada', 'autorizada'].includes(x.e));
   const os = x.os || 'tu obra social';
   const aviso = x.gest === 'pac' ? `📨 <b>Tenés que presentarla vos</b> en ${esc(os)} (por su app, su correo o en la delegación). Tocá «Compartir» para mandarla.`
@@ -1061,14 +1076,14 @@ function oaPaseCampos(c) {
   const _form = paseFormulario;
   paseFormulario = function (c) {
     const h = _form.apply(this, arguments);
-    if (!c || (c.orden && c.orden.firma)) return h;
+    if (!c || (c.orden && c.orden.firma) || c.auth === 'AUTORIZADO') return h;
     return h.replace('<label class="check-row pase-ok">', oaPaseCampos(c) + '<label class="check-row pase-ok">')
       .replace(/, sin diagnóstico,/, ', con su orden de autorización,');
   };
   const _falt = paseFaltan;
   paseFaltan = function (c) {
     const f = _falt.apply(this, arguments);
-    if (c && !(c.orden && c.orden.firma) && $('pase-afil')) {
+    if (c && !(c.orden && c.orden.firma) && c.auth !== 'AUTORIZADO' && $('pase-afil')) {
       if (!String($('pase-afil').value).trim()) f.splice(f.length - (f.includes('marcar que el paciente aceptó') ? 1 : 0), 0, 'N.º de afiliado');
       if ($('pase-plan') && !String($('pase-plan').value).trim() && !/pami/i.test(c.obraSocial || '')) f.splice(f.length - (f.includes('marcar que el paciente aceptó') ? 1 : 0), 0, 'plan');
     }
@@ -1076,7 +1091,7 @@ function oaPaseCampos(c) {
   };
   const _gen = generarPase;
   generarPase = async function (c) {
-    if (c && !(c.orden && c.orden.firma)) {
+    if (c && !(c.orden && c.orden.firma) && c.auth !== 'AUTORIZADO') {
       const o = oaDe(c, true);
       if ($('pase-afil')) o.b.afil = String($('pase-afil').value).trim();
       if ($('pase-plan')) o.b.plan = String($('pase-plan').value).trim();
@@ -1116,6 +1131,7 @@ let oaUltFicha = null;
       const o = c && c.orden; if (!o && !(c && c.pase && c.pase.token)) return b;
       const e = oaEstado(c), cerr = typeof cerradaFirme === 'function' && cerradaFirme(c);
       const it = !o ? { e: 'neutro', i: '📄', t: 'Orden de autorización (R/P)', d: 'Sale sola, firmada, al generar el pase · tocar para armarla antes', a: `closeSlot();oaAbrir(${JSON.stringify(c.id)})` }
+        : oaPapel(c) ? { e: 'hecho', i: '📄', t: 'Orden de autorización (R/P)', d: 'Autorizada por Admisión · no hace falta firmarla', a: `closeSlot();oaAbrir(${JSON.stringify(c.id)})` }
         : !o.firma ? { e: 'falta', i: '📄', t: o.anuladas.length ? 'Firmar la orden nueva' : 'Firmar la orden de autorización', d: o.anuladas.length ? 'La anterior quedó anulada: ' + esc(String(o.anuladas[o.anuladas.length - 1].motivo).toLowerCase()) : 'Borrador: nadie la ve todavía', a: `closeSlot();oaAbrir(${JSON.stringify(c.id)})` }
         : { e: 'hecho', i: '📄', t: 'Orden de autorización (R/P)', d: esc(e.t) + (cerr ? '' : ' · ver, corregir o bajar el PDF'), a: `closeSlot();oaAbrir(${JSON.stringify(c.id)})` };
       let k = b.findIndex((x) => /Pase del paciente|Generar el pase del paciente/.test(x.t));
