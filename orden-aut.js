@@ -64,6 +64,9 @@ const OA_JS = ['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2ca
 .oa-esc{overflow:hidden}html body.portal-pac>div#oa-armado.oa-armado,div#oa-armado.oa-armado{display:block!important}
 /* El dibujante del PDF arma una copia de la página en su propio marco: el pase ocultaba también ese marco. */
 html body.portal-pac>iframe.html2canvas-container:not(#oa-no-existe){display:block!important}
+/* 3.51.2 · El dibujante también pone una cajita invisible (sin id ni clase) para medir la altura de las
+   letras; el pase la ocultaba, medía cero y subía el CIE-10, el R/P y las casillas (Claudio, 15-11). */
+html body.portal-pac>div:not(#oa-no-existe):not([id]):not([class]){display:block!important}
 .oa-esc>.oa-hoja{transform-origin:top left;flex:none;width:794px;max-width:none}
 /* ventana de la orden */
 #oa-ov .modal{width:100%;padding:22px 22px 18px}
@@ -240,8 +243,10 @@ body[data-tema="noche"] #oa-modal .pp-paso b{color:#f1f5f9}body[data-tema="noche
 #oa-pp-ov.on,body.portal-pac>#oa-pp-ov.on{display:block!important}
 body.portal-pac>.oa-toast{display:block!important}
 #oa-pp-ov .marco{background:#fff;border-radius:18px;padding:10px;margin:0 auto;width:100%;max-width:100%}
-#oa-pp-ov .cab{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 2px 10px}
-#oa-pp-ov .cab button{min-width:44px;min-height:44px;border-radius:50%;border:0;background:#f1f5f9;font-size:1.2rem;cursor:pointer}
+#oa-pp-ov .cab{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 2px 10px;position:sticky;top:-24px;z-index:2;background:#fff;border-radius:18px 18px 0 0}
+/* 3.51.2 · Colores fijos: la apariencia «nocturna» (que se pone sola de noche) pintaba la ✕ de blanco. */
+#oa-pp-ov .cab b{color:#0f172a;-webkit-text-fill-color:#0f172a;font-size:1.05rem}
+#oa-pp-ov .cab button{min-width:44px;min-height:44px;border-radius:50%;border:1.5px solid #cbd5e1;background:#e2e8f0!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a;font-size:1.3rem;font-weight:700;line-height:1;cursor:pointer;flex:none}
 .oa-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f2a3a;color:#fff;padding:12px 16px;border-radius:12px;font-size:.9rem;z-index:500;max-width:90vw}
 `;
   document.head.appendChild(s);
@@ -981,7 +986,9 @@ function oaPpVer(html, titulo) {
   if (!ov) { ov = document.createElement('div'); ov.id = 'oa-pp-ov'; document.body.appendChild(ov); }
   ov.innerHTML = `<div class="marco"><div class="cab"><b>${esc(titulo || 'Tu orden médica')}</b><button onclick="$('oa-pp-ov').classList.remove('on')" aria-label="Cerrar">✕</button></div><div id="oa-pp-hoja"></div></div>`;
   ov.classList.add('on');
-  oaMontar($('oa-pp-hoja'), Math.max(260, document.documentElement.clientWidth - 24), html);
+  // 3.51.2 · El ancho lo da el marco (antes la hoja quedaba 12 px más ancha y se cortaba a la derecha).
+  const marco = ov.querySelector('.marco');
+  oaMontar($('oa-pp-hoja'), Math.max(260, ((marco && marco.clientWidth) || document.documentElement.clientWidth - 16) - 20), html);
 }
 function oaPpAbrir() { const or = portal.extra && portal.extra.orden; if (or && or.html) oaPpVer(or.html); }
 function oaPpCompartir() { return oaPpPdf(); }
