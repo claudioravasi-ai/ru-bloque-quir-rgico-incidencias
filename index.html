@@ -10553,7 +10553,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.51.0';
+const APP_VERSION = '3.51.1';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -20107,7 +20107,7 @@ function parteCard(c) {
         <span>${ICONS.user} ${esc(c.servicio)}</span>
         <span>${ICONS.fileText} ${esc(c.diagnostico)}${c.cie10 ? ' (CIE-10: ' + esc(c.cie10) + ')' : ''}</span>
       </div>
-      ${c.estado === 'suspendida' && c.suspension ? `<div class="banner banner-red" style="margin:12px 0 0;padding:10px 14px"><div><strong>Suspendida: ${esc(c.suspension.causa)}</strong>${esc(c.suspension.detalle || '')}</div></div>` : ''}
+      ${c.estado === 'suspendida' && c.suspension ? `<div class="banner banner-red" style="margin:12px 0 0;padding:10px 14px"><div><strong>Suspendida: ${esc(c.suspension.causa)}</strong>${esc(c.suspension.detalle || '')}${franjaLiberada(c) ? `<div style="margin-top:4px">Se suspendió antes de su hora: el horario del ${esc(fmtFecha(c.fecha))} (${esc(c.horaProg || '—')} h) quedó libre para otro paciente.</div>` : ''}</div></div>` : ''}
     </div>`;
 }
 
@@ -20941,7 +20941,8 @@ function suspenderTurno(c, causa, det) {
   const tarde = sinResolver(c);
   c.estado = 'suspendida';
   c.suspension = { causa, detalle: det, fechaHora: nowDT(), por: quien };
-  pushHist(c, 'Suspendida: ' + causa + (tarde ? ` — asentado por ${quien} después de la fecha del turno (${fmtFecha(c.fecha)})` : ''));
+  pushHist(c, 'Suspendida: ' + causa + (tarde ? ` — asentado por ${quien} después de la fecha del turno (${fmtFecha(c.fecha)})` : '')
+    + (franjaLiberada(c) ? ` — el horario del ${fmtFecha(c.fecha)} (${c.horaProg || '—'} h) quedó libre para otro paciente` : ''));
   upsert('cirugias', c);
   // Incidencia automática categoría D (suspensión no planificada)
   upsert('incidencias', {
@@ -22687,7 +22688,8 @@ function caducarTurno(c, motivo, detalle, quien, automatica, baja) {
   c.caducada = { motivo, detalle: detalle || '', desdeEstado: c.estado, por: quien, t: nowDT(), automatica: !!automatica };
   if (baja) c.caducada.baja = true;   // 3.40.4 · baja por falta de autorización: se avisa al paciente y al médico
   c.estado = 'caducada';
-  pushHist(c, `Caducada — ${motivo}${detalle ? ': ' + detalle : ''}. Asentado por ${quien}. El turno del ${fmtFecha(c.fecha)} nunca llegó a confirmarse en el parte`);
+  pushHist(c, `Caducada — ${motivo}${detalle ? ': ' + detalle : ''}. Asentado por ${quien}. El turno del ${fmtFecha(c.fecha)} nunca llegó a confirmarse en el parte`
+    + (franjaLiberada(c) ? ` — el horario (${c.horaProg || '—'} h) quedó libre para otro paciente` : ''));
   upsert('cirugias', c);
 }
 /* La ventana se reusa: siempre arranca arriba. */
@@ -22705,7 +22707,7 @@ function trasResolverTurno(c) {
   if ($('cir-overlay').classList.contains('open') && $('cir-modal').classList.contains('fx-modal')) openCirugia(c.id);
   refreshView();
   const e = ESTC[estadoVisible(c)] || ESTC.borrador;
-  toastTurno(`Listo: el turno quedó «${e.label}»`, e.color);
+  toastTurno(`Listo: el turno quedó «${e.label}»${franjaLiberada(c) ? ' · el horario quedó libre' : ''}`, e.color);
 }
 let toastTimer = null;
 function toastTurno(texto, color) {
@@ -24129,7 +24131,7 @@ function fichaSiguiente(c) {
   }
   if (c.estado === 'suspendida' && c.suspension) {
     return caja('bad', ICONS.x, 'Suspendida — ' + esc(c.suspension.causa),
-      `${c.suspension.detalle ? esc(c.suspension.detalle) + '<br>' : ''}<small>${fmtDT(c.suspension.fechaHora)}${c.suspension.por ? ' · ' + esc(c.suspension.por) : ''}${c.suspension.automatica ? ' · cierre automático: nadie indicó qué pasó' : ''}</small>`);
+      `${c.suspension.detalle ? esc(c.suspension.detalle) + '<br>' : ''}${franjaLiberada(c) ? `Se suspendió antes de su hora: el horario de las ${esc(c.horaProg || '—')} h quedó libre para otro paciente.<br>` : ''}<small>${fmtDT(c.suspension.fechaHora)}${c.suspension.por ? ' · ' + esc(c.suspension.por) : ''}${c.suspension.automatica ? ' · cierre automático: nadie indicó qué pasó' : ''}</small>`);
   }
   if (c.estado === 'anticipada' && c.anticipada) {
     return caja('violeta', ICONS.zap, c.anticipada.tipo === 'adelanto' ? 'Adelantada a otra fecha' : 'Resuelta por urgencia',
@@ -28325,7 +28327,21 @@ function copiarAgendaA(origen, dias, soloHabiles) {
    anterior (la guardia de 08 a 08) pero se operan en la fecha siguiente. */
 function diaDeGrilla(c) { return c.diaGrilla || c.fecha; }
 function turnoEn(d, sid, fid) {
-  return DB.cirugias.find((c) => diaDeGrilla(c) === d && c.sala === sid && c.franja === fid) || null;
+  return DB.cirugias.find((c) => diaDeGrilla(c) === d && c.sala === sid && c.franja === fid && !franjaLiberada(c)) || null;
+}
+/* 3.51.1 · Suspendida o dada de baja ANTES de su hora: el horario vuelve a estar libre para otro
+   paciente (pedido de Claudio, 15-11: «suspendí las dos endoscopías de mañana y los turnos siguen
+   ocupados»). El turno no se toca: conserva sala, horario, causa e historia (de la sala depende,
+   por ejemplo, saber que es de Endoscopía), solo deja de ocupar la grilla. Se calcula con la hora
+   en que se suspendió, así que vale también para las que ya estaban suspendidas, sin escribir nada.
+   Si se suspendió durante o después de su hora (el paciente no vino), sigue como estaba. */
+function franjaLiberada(c) {
+  if (!c || !['suspendida', 'caducada'].includes(c.estado)) return false;
+  const t = c.estado === 'suspendida' ? c.suspension && c.suspension.fechaHora : c.caducada && c.caducada.t;
+  const f = franjaDe(c.sala, c.franja);
+  if (!t || !f) return false;
+  const cuando = new Date(t), ini = inicioDeFranja(diaDeGrilla(c), f);
+  return !isNaN(cuando) && !isNaN(ini) && cuando.getTime() < ini.getTime();
 }
 /* Fecha y hora reales de comienzo de una franja del día `d`. */
 function fechaDeFranja(d, f) { return f && f.nd ? sumarDias(d, f.nd) : d; }
