@@ -1017,12 +1017,12 @@ async function oaVerificar(cod) {
    En la consulta el médico genera el pase: en ese mismo toque se arma y se firma la orden
    con lo que cargó al programar, y les llega al paciente (junto con el pase) y a Admisión.
    El paciente sale de la consulta y va directo a Admisión a iniciar la autorización. */
-function oaFirmaAuto(c) {
+function oaFirmaAuto(c, cuando) {
   const o = oaDe(c, true), u = usuarioActual() || {}, m = oaMedico(c) || u;
   o.firma = { t: nowDT(), por: c.cirujano || m.nombre || '', mat: (m.matricula && m.matricula.numero) || '', esp: c.servicio || m.servicio || '', img: u.firmaImg || '',
     auto: true, datos: { fecha: c.fecha, hora: c.horaProg || '', sala: c.quirofano || '', procBase: c.procedimiento || '' } };
   o.env = null; o.autN = '';
-  pushHist(c, `Orden de autorización ${oaCodigo(c, o.ver)} emitida y firmada por ${o.firma.por} al generar el pase: le llega al paciente y a Admisión y Egresos`);
+  pushHist(c, `Orden de autorización ${oaCodigo(c, o.ver)} emitida y firmada por ${o.firma.por} ${cuando || 'al generar el pase'}: le llega al paciente y a Admisión y Egresos`);
 }
 function oaPaseCampos(c) {
   const os = c.obraSocial || '', conOS = os && !/sin obra/i.test(os), u = usuarioActual() || {};
