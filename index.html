@@ -873,7 +873,7 @@
   .fx-hist summary { cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 10px 0; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
   .fx-hist summary em { margin-left: auto; font-style: normal; text-transform: none; letter-spacing: 0; font-weight: 600; }
   .fx-hist .hist { margin: 4px 0 12px 4px; }
-  .fx-acc { position: sticky; bottom: 0; z-index: 2; margin: 0 !important; padding: 12px 30px; background: inherit; border-top: 1px solid var(--line);
+  .fx-acc { position: sticky; bottom: 0; z-index: 2; margin: 0 !important; padding: 12px 30px; background-color: inherit; background-image: none !important; /* 3.51.3 · heredaba también la franja del monitor y la dibujaba en el pie */ border-top: 1px solid var(--line);
     border-radius: 0 0 18px 18px; display: flex; flex-wrap: wrap; gap: 8px; box-shadow: 0 -8px 18px -12px rgba(0,0,0,0.25); }
   @media (max-width: 720px) {
     .fx-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -10553,7 +10553,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.51.2';
+const APP_VERSION = '3.51.3';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
