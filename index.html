@@ -10553,7 +10553,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.51.3';
+const APP_VERSION = '3.51.4';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -22253,7 +22253,7 @@ function renderIngresos() {
         ${rc ? `<button class="btn btn-sm btn-red" onclick="openCirugia(${c.id})">Reprogramación: dar el OK</button>`
           : c.estado === 'pendiente' && !aut ? ((f) => f.length
             ? `<button class="btn btn-sm btn-blue ing-apagado" disabled title="${esc(f.join(' · '))}">🔒 Falta: ${esc(f.map(reqCorto).join(', '))}</button>`
-            : `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ Autorizar</button>`)(!authExenta(c) && !operada(c) ? requisitosAdmision(c) : [])
+            : `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ Autorizar práctica</button>`)(!authExenta(c) && !operada(c) ? requisitosAdmision(c) : [])
           : authPendienteDiferida(c) || (c.estado === 'realizada' && !c.auth) ? `<button class="btn btn-sm btn-blue" onclick="pedirAutorizacion(${c.id})">🗂️ ${esEndo(c) ? 'Acreditar' : 'Regularizar'}</button>` : ''}
         ${camaPuedeCargarse(c) ? `<button class="btn btn-sm ${k ? 'btn-outline' : 'btn-green'}" onclick="pedirCama(${c.id})">🛏 ${k ? 'Cambiar cama' : 'Anotar cama'}</button>` : ''}
         ${k ? `<button class="btn btn-sm btn-outline" onclick="reimprimirPulsera(${c.id})">🏷️ Pulsera</button>` : ''}

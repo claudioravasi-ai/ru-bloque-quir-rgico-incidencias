@@ -165,6 +165,8 @@ body[data-tema="noche"] #oa-modal .pp-paso b{color:#f1f5f9}body[data-tema="noche
 .oa-ing-acc .btn.btn.oa-prim .oa-bi{background:rgba(255,255,255,.2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}
 .oa-ing-acc .btn.btn.oa-prim .oa-fl{opacity:.8}
 .oa-ing-acc .btn.btn.btn-red{--b:#dc2626}
+.oa-paso{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;font-weight:900;line-height:1;background:var(--b);color:#fff;margin-right:-2px}
+.oa-ing-acc .btn.btn.oa-prim .oa-paso{background:#fff;color:color-mix(in srgb,var(--b) 80%,#000)}
 @media (prefers-reduced-motion:reduce){.oa-ing-acc .btn.btn,.oa-fl{transition:none}}
 /* Botón angosto: sigue en una línea (ícono chico + texto), sin flecha; nada de baldosas altas. */
 @container oabtn (max-width:168px){
@@ -751,19 +753,25 @@ function oaIngresosDecorar() {
     const dl = f.querySelector('.ing-e dl.ie');
     if (dl) dl.insertAdjacentHTML('beforeend', `<div class="ie-r ${col}"><dt>Orden</dt><dd><i>${e.k === 'autorizada' ? '✓' : e.k === 'sin' ? '—' : e.k === 'anulada' ? '✕' : '📄'}</i><span>${esc(e.t)}</span></dd></div>`);
     const e2 = f.querySelector('.ing-e');
-    if (e2) e2.insertAdjacentHTML('beforeend', `<div class="oa-ing-acc">` + (!c.orden ? '' : ``
-      + `<button class="btn btn-sm ${c.orden.firma && !oaAut(c) ? 'btn-blue' : 'btn-outline'}" onclick="oaAbrir(${esc(JSON.stringify(c.id))})" title="Abrir la orden de autorización">${c.orden.firma && !c.orden.env ? '📤 Enviar' : c.orden.env && !oaAut(c) ? '🔢 Cargar N.º' : '📄 Orden'}</button>`
-      + (c.orden.firma ? `<button class="btn btn-sm btn-outline" onclick="oaPDF(${esc(JSON.stringify(c.id))})">⬇ PDF</button>` : '')) + `</div>`);
+    // 15-11 · Pedido de Claudio (Admisión): primero «Enviar» a la obra social (o «Cargar N.º» si ya se
+    // mandó), después «Autorizar», y abajo lo que es para consultar: Orden, PDF y Ficha.
+    const oid = esc(JSON.stringify(c.id));
+    const ordTx = !c.orden ? '' : c.orden.firma && !c.orden.env ? '📤 Enviar a Obra Social' : c.orden.env && !oaAut(c) ? '🔢 Cargar N.º' : '📄 Orden';
+    const ordHacer = !!ordTx && ordTx !== '📄 Orden';
+    const ordBtn = ordTx ? `<button class="btn btn-sm ${c.orden.firma && !oaAut(c) ? 'btn-blue' : 'btn-outline'}"${ordHacer ? '' : ' data-oa-sec="1"'} onclick="oaAbrir(${oid})" title="Abrir la orden de autorización">${ordTx}</button>` : '';
+    const pdfBtn = c.orden && c.orden.firma ? `<button class="btn btn-sm btn-outline" data-oa-sec="1" onclick="oaPDF(${oid})">⬇ PDF</button>` : '';
+    if (e2) e2.insertAdjacentHTML('beforeend', `<div class="oa-ing-acc">${ordBtn}${pdfBtn}</div>`);
     // 14-11 · Pedido de Claudio (simetría): TODOS los botones de la tarjeta juntos, debajo de las pastillas,
-    // en una grilla pareja. Primero lo que hay que hacer (Autorizar, cama, pulsera), después Orden y PDF, y Ficha al final.
+    // en una grilla pareja. Lo que hay que hacer (Enviar, Autorizar, cama, pulsera) va arriba; Orden y PDF, y Ficha al final.
     const a = f.querySelector('.ing-a'), acc = f.querySelector('.oa-ing-acc');
     if (a && acc) {
       const bs = [...a.querySelectorAll('button')];
       const ficha = bs.find((x) => x.textContent.trim() === 'Ficha');
-      bs.filter((x) => x !== ficha && !(x.disabled || x.classList.contains('ing-apagado'))).reverse().forEach((x) => { x.classList.add('btn-sm'); acc.insertBefore(x, acc.firstChild); });
+      const sec = acc.querySelector('[data-oa-sec]');
+      bs.filter((x) => x !== ficha && !(x.disabled || x.classList.contains('ing-apagado'))).forEach((x) => { x.classList.add('btn-sm'); acc.insertBefore(x, sec); });
       // Lo que falta (botón apagado) no es una acción: va como aviso de lado a lado debajo de pastillas y botones.
       bs.filter((x) => x.disabled || x.classList.contains('ing-apagado')).forEach((x) => { const d = document.createElement('div'); d.className = 'oa-ing-aviso'; d.textContent = x.textContent.trim(); acc.parentElement.appendChild(d); x.remove(); });
-      if (ficha) { ficha.className = 'btn btn-sm btn-outline'; ficha.textContent = '📋 Ficha'; acc.appendChild(ficha); }
+      if (ficha) { ficha.className = 'btn btn-sm btn-outline'; ficha.textContent = '📋 Ficha'; ficha.dataset.oaSec = '1'; acc.appendChild(ficha); }
       f.classList.add('oa-ok');
     }
     if (acc) acc.querySelectorAll('.btn').forEach((b) => {
@@ -780,6 +788,10 @@ function oaIngresosDecorar() {
       if (svg) { svg.setAttribute('width', '16'); svg.setAttribute('height', '16'); b.querySelector('.oa-bi').appendChild(svg); }
       if (/btn-(blue|green|red)/.test(b.className)) b.classList.add('oa-prim');
     });
+    // 15-11 · Pedido de Claudio: los pasos que hay que hacer llevan su número (1 Enviar, 2 Autorizar…);
+    // Orden, PDF y Ficha son para consultar y van sin número.
+    if (acc) { const pasos = [...acc.querySelectorAll(':scope>.btn:not([data-oa-sec])')];
+      if (pasos.length > 1) pasos.forEach((b, i) => { const bin = b.querySelector('.oa-bin'); if (bin && !bin.querySelector('.oa-paso')) { bin.insertAdjacentHTML('afterbegin', `<b class="oa-paso" aria-hidden="true">${i + 1}</b>`); b.setAttribute('aria-label', `Paso ${i + 1}: ${b.textContent.replace(/[›\d]/g, '').trim()}`); } }); }
     if (acc) acc.dataset.n = acc.querySelectorAll(':scope>.btn').length;
     oaIngFicha(f, c);
   });
