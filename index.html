@@ -10553,7 +10553,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.51.6';
+const APP_VERSION = '3.51.7';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -12772,6 +12772,7 @@ function calcRecordatorios() {
   try { autRecordatorios(add); } catch (e) {}
   /* 09-11 · Endoscopía hecha y sin cerrar: aviso a las 24 h (quedan X h) y a las 48 h (módulo al 50 %). */
   try { cierreTardioRecordatorios(add); } catch (e) {}
+  try { endoSuspRecordatorios(add); } catch (e) {}
 
   /* ---- 3 ter. Trámite administrativo diferido, todavía sin regularizar ----
      Vale también para las cirugías ya realizadas: la excepción libera de pedir
@@ -12895,7 +12896,7 @@ function calcRecordatorios() {
   });
 
   /* ---- 7. Anatomía Patológica: muestras sin envío confirmado ---- */
-  DB.cirugias.filter((c) => cxVer(c) && ['realizada', 'finalizada', 'en_curso'].includes(c.estado) && (c.muestras || []).some((m) => !m.enviada))
+  DB.cirugias.filter((c) => cxVer(c) && ['realizada', 'en_curso'].includes(c.estado) && (c.muestras || []).some((m) => !m.enviada))
     .forEach((c) => {
       const pend = (c.muestras || []).filter((m) => !m.enviada);
       const congelacion = pend.some((m) => m.tipo && m.tipo.indexOf('congelación') >= 0);
@@ -20944,6 +20945,10 @@ function suspenderTurno(c, causa, det) {
   pushHist(c, 'Suspendida: ' + causa + (tarde ? ` — asentado por ${quien} después de la fecha del turno (${fmtFecha(c.fecha)})` : '')
     + (franjaLiberada(c) ? ` — el horario del ${fmtFecha(c.fecha)} (${c.horaProg || '—'} h) quedó libre para otro paciente` : ''));
   upsert('cirugias', c);
+  // 3.51.7 · Endoscopía no tiene que ver con la Jefatura de Quirófanos (Claudio, 17-11): la
+  // suspensión NO va al canal de incidencias (que lee solo esa Jefatura); se la avisa al
+  // Jefe/a de Endoscopía con un recordatorio (ver endoSuspRecordatorios).
+  if (esEndo(c)) return;
   // Incidencia automática categoría D (suspensión no planificada)
   upsert('incidencias', {
     id: Date.now(),
@@ -22341,6 +22346,19 @@ function admisPorAcreditar() {
   const desde = sumarDias(hoyISO(), -60);
   return DB.cirugias.filter((c) => c.estado === 'realizada' && (c.fecha || '') >= desde && (authPendienteDiferida(c) || !c.auth))
     .sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)) || String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+}
+/* 3.51.7 · Endoscopía suspendida: el aviso va al Jefe/a de Endoscopía (no a la Jefatura de Quirófanos).
+   Los últimos 7 días; no se le avisa lo que suspendió él/ella mismo/a. */
+function endoSuspRecordatorios(add) {
+  const u = usuarioActual();
+  if (jefe || admis || !esJefeEndo(u)) return;
+  const desde = sumarDias(hoyISO(), -7);
+  DB.cirugias.filter((c) => esEndo(c) && c.estado === 'suspendida' && c.suspension && String(c.suspension.fechaHora || '').slice(0, 10) >= desde)
+    .filter((c) => !String(c.suspension.por || '').startsWith(JEFATURA_ENDO))
+    .forEach((c) => add({ key: 'endo-susp-' + c.id, nivel: 'warn', notif: true, vista: 'endojefe', cirugia: c.id,
+      titulo: `Endoscopía suspendida — ${c.paciente?.nombre || 's/d'}`,
+      texto: `${c.procedimiento || ''} · ${fmtFecha(c.fecha)} ${c.horaProg || '—'} h${c.quirofano ? ' · ' + c.quirofano : ''}. Causa: ${c.suspension.causa}${c.suspension.detalle ? ' — ' + c.suspension.detalle : ''}. Asentó: ${c.suspension.por || '—'}.${franjaLiberada(c) ? ' El horario quedó libre para otro paciente.' : ''}`,
+      cuando: fmtDT(c.suspension.fechaHora) }));
 }
 function cierreTardioRecordatorios(add) {
   if (admis) return;   // Admisión tiene su propio aviso (admisRecordatorios)
@@ -23874,7 +23892,8 @@ function openCirugia(id) {
   // adelantar mientras la cirugía está en curso, o completar el de un turno
   // viejo que quedó sin él.
   const puedeInforme = (jefe || esDueno) && (c.estado === 'en_curso' || c.estado === 'realizada');
-  const puedeMuestras = (jefe || esDueno) && ['confirmada', 'en_curso', 'realizada', 'finalizada'].includes(c.estado);
+  // 3.51.7 · Pedido de Claudio (17-11): finalizada = cerrada; Anatomía Patológica queda solo para consulta.
+  const puedeMuestras = (jefe || esDueno) && ['confirmada', 'en_curso', 'realizada'].includes(c.estado);
   const pe = prioridadEfectiva(c);
   const faltan = coordFaltantes(c);
 
@@ -24025,6 +24044,7 @@ function openCirugia(id) {
               ${puedeMuestras ? `<button class="rem-go" onclick="toggleMuestra(${c.id}, ${idx})">${m.enviada ? 'Revertir' : 'Marcar enviada'}</button>
                 <button class="rem-go" style="color:var(--red)" onclick="delMuestra(${c.id}, ${idx})" aria-label="Quitar la muestra">${ICONS.trash}</button>` : ''}</li>`).join('')}</ul>`
             : '<p class="fx-txt">Sin muestras registradas para este procedimiento.</p>'}
+          ${cerradaFirme(c) ? `<p class="fx-txt">🔒 Caso finalizado y cerrado: las muestras quedan solo para consulta. No se registran, quitan ni modifican.</p>` : ''}
           ${puedeMuestras ? `
             <div class="form-grid" style="margin-top:10px">
               <div class="field"><label>Tipo de muestra</label>
@@ -24169,9 +24189,14 @@ function setCoord(id, k, val) {
   if (acc) acc.innerHTML = accionesCirugia(c, jefe ? 'jefe' : 'cirujano', true).join('') || '<span class="fx-txt">Sin acciones disponibles para su perfil en este estado.</span>';
 }
 /* ---- Anatomía Patológica ---- */
+function muestrasCerradas(c) {
+  if (!cerradaFirme(c)) return false;
+  avisar('Caso finalizado y cerrado\n\nLas muestras de Anatomía Patológica quedan solo para consulta: no se registran, quitan ni modifican.');
+  return true;
+}
 function agregarMuestra(id) {
   const c = DB.cirugias.find((x) => x.id === id);
-  if (!c) return;
+  if (!c || muestrasCerradas(c)) return;
   const tipo = $('mu-tipo-' + id).value;
   const rotulo = $('mu-rot-' + id).value.trim();
   if (!rotulo) { alert('Indique el rótulo o identificación de la muestra. El rotulado correcto es obligatorio en la LVQ de Salida.'); return; }
@@ -24183,7 +24208,7 @@ function agregarMuestra(id) {
 }
 function toggleMuestra(id, idx) {
   const c = DB.cirugias.find((x) => x.id === id);
-  if (!c || !c.muestras || !c.muestras[idx]) return;
+  if (!c || !c.muestras || !c.muestras[idx] || muestrasCerradas(c)) return;
   const m = c.muestras[idx];
   m.enviada = !m.enviada;
   m.fechaEnvio = m.enviada ? nowDT() : '';
@@ -24193,7 +24218,7 @@ function toggleMuestra(id, idx) {
 }
 async function delMuestra(id, idx) {
   const c = DB.cirugias.find((x) => x.id === id);
-  if (!c || !c.muestras || !c.muestras[idx]) return;
+  if (!c || !c.muestras || !c.muestras[idx] || muestrasCerradas(c)) return;
   if (!await preguntar('Se borra el registro de la muestra enviada a Anatomía Patológica.',
     { titulo: '¿Eliminar la muestra?', tono: 'peligro', si: 'Sí, eliminar' })) return;
   const m = c.muestras.splice(idx, 1)[0];
