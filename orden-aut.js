@@ -154,7 +154,7 @@ body[data-tema="noche"] #oa-modal .pp-paso b{color:#f1f5f9}body[data-tema="noche
    (container) y, si es angosto, pasa a ícono arriba y texto abajo, sin flecha (pedido de Claudio:
    «Acreditar» y «Reimprimir pulsera» se salían de la pastilla). */
 .oa-bin{display:flex;align-items:center;gap:7px;width:100%;min-width:0}
-.oa-bt{flex:1 1 auto;min-width:0;line-height:1.15;overflow-wrap:break-word;word-break:normal;hyphens:auto;-webkit-hyphens:auto}
+.oa-bt{flex:1 1 auto;min-width:0;line-height:1.15;overflow-wrap:normal;word-break:keep-all;hyphens:none;-webkit-hyphens:none}
 .oa-fl{flex:none;font-style:normal;font-size:1.15rem;font-weight:800;line-height:1;opacity:.45;transition:transform .15s ease,opacity .15s}
 .oa-ing-acc .btn.btn:hover{transform:translateY(-1px);border-color:var(--b);box-shadow:0 10px 22px -12px var(--b)}
 .oa-ing-acc .btn.btn:hover .oa-fl{opacity:.9;transform:translateX(3px)}
@@ -224,6 +224,23 @@ body[data-tema="noche"] #oa-modal .pp-paso b{color:#f1f5f9}body[data-tema="noche
 }
 @media (max-width:900px){.ing-f.oa-ok,.ing-f.oa-ok.endo{grid-template-columns:60px minmax(0,1fr)}.ing-f.oa-ok .ing-p{grid-column:2;grid-row:1}.ing-f.oa-ok .ing-e{grid-column:2;grid-row:2}.ing-f.oa-ok .ing-c{grid-column:2;grid-row:3}.ing-f.oa-ok .ing-h.oa-talon{grid-row:1 / span 3}.ing-f.oa-ok.endo .ing-h.oa-talon{grid-row:1 / span 2}.ing-f.oa-ok.endo .ing-c{grid-column:1 / -1;grid-row:3}.oa-talon b{font-size:.98rem}.oa-talon{justify-content:flex-start;padding-top:16px}}
 .oa-ing-acc .btn{width:100%;min-width:0;min-height:44px;white-space:normal;line-height:1.15;margin:0}
+/* 17-11 · Pedido de Claudio: ninguna palabra cortada y botones parejos. De 2 por fila (la última,
+   si queda sola, de lado a lado); 3 por fila solo si cada botón tiene lugar (grilla de 600 px o más). */
+.oa-ing-acc.oa-ing-acc[data-n]>.btn.btn{grid-column:span 3}
+.oa-ing-acc.oa-ing-acc[data-n="1"]>.btn.btn,.oa-ing-acc.oa-ing-acc[data-n="3"]>.btn.btn:last-child,.oa-ing-acc.oa-ing-acc[data-n="5"]>.btn.btn:last-child,.oa-ing-acc.oa-ing-acc[data-n="7"]>.btn.btn:last-child{grid-column:span 6}
+@container oaacc (min-width:600px){
+  .oa-ing-acc.oa-ing-acc[data-n]>.btn.btn{grid-column:span 2}
+  .oa-ing-acc.oa-ing-acc[data-n="1"]>.btn.btn{grid-column:span 6}
+  .oa-ing-acc.oa-ing-acc[data-n="2"]>.btn.btn,.oa-ing-acc.oa-ing-acc[data-n="4"]>.btn.btn,.oa-ing-acc.oa-ing-acc[data-n="5"]>.btn.btn:nth-last-child(-n+2),.oa-ing-acc.oa-ing-acc[data-n="8"]>.btn.btn:nth-last-child(-n+2){grid-column:span 3}
+  .oa-ing-acc.oa-ing-acc[data-n="3"]>.btn.btn:last-child{grid-column:span 2}
+  .oa-ing-acc.oa-ing-acc[data-n="7"]>.btn.btn:last-child{grid-column:span 6}
+}
+/* Angosto (teléfono, menos de 400 px de grilla): uno por fila, a lo ancho; así ninguna palabra queda cortada. */
+@container oaacc (max-width:399px){.oa-ing-acc.oa-ing-acc[data-n]>.btn.btn,.oa-ing-acc.oa-ing-acc[data-n]>.btn.btn:last-child{grid-column:1 / -1}}
+@media (min-width:1200px){.ing-f.oa-ok .oa-ing-acc.oa-ing-acc[data-n]>.btn.btn{grid-column:1 / -1}}
+.oa-ing-acc .btn.btn.oa-hecho{--b:#16a34a;color:var(--ink);background:linear-gradient(180deg,color-mix(in srgb,#16a34a 22%,var(--card,#fff)),color-mix(in srgb,#16a34a 12%,var(--card,#fff)));border-color:color-mix(in srgb,#16a34a 55%,transparent)}
+.oa-ing-acc .btn.btn.oa-hecho .oa-paso{background:#16a34a;color:#fff;font-size:.8rem}
+.oa-ing-acc .btn.btn.oa-hecho .oa-bi{background:color-mix(in srgb,#16a34a 28%,var(--card,#fff))}
 #oa-modal .btn,#oa-pdf-ov .btn,.oa-pase-blq .btn{min-height:44px}
 .ing-a.oa-vacio{display:none}
 .oa-qr img{width:118px;height:118px;image-rendering:pixelated;display:block;margin:0 auto}
@@ -801,12 +818,14 @@ function oaIngresosDecorar() {
       b.setAttribute('lang', 'es');
       b.innerHTML = `<span class="oa-bin"><i class="oa-bi">${ic}</i><span class="oa-bt">${esc(tx)}</span><i class="oa-fl" aria-hidden="true">›</i></span>`;
       if (svg) { svg.setAttribute('width', '16'); svg.setAttribute('height', '16'); b.querySelector('.oa-bi').appendChild(svg); }
-      if (/btn-(blue|green|red)/.test(b.className)) b.classList.add('oa-prim');
+      // 17-11 · Pedido de Claudio: lo que ya está hecho (pulsera impresa, consentimiento firmado) va en VERDE con ✓.
+      if (b.classList.contains('hecha')) b.classList.add('oa-hecho');
+      else if (/btn-(blue|green|red)/.test(b.className)) b.classList.add('oa-prim');
     });
     // 15-11 · Pedido de Claudio: los pasos que hay que hacer llevan su número (1 Enviar, 2 Autorizar…);
     // Orden, PDF y Ficha son para consultar y van sin número.
     if (acc) { const pasos = [...acc.querySelectorAll(':scope>.btn:not([data-oa-sec])')];
-      if (pasos.length > 1) pasos.forEach((b, i) => { const bin = b.querySelector('.oa-bin'); if (bin && !bin.querySelector('.oa-paso')) { bin.insertAdjacentHTML('afterbegin', `<b class="oa-paso" aria-hidden="true">${i + 1}</b>`); b.setAttribute('aria-label', `Paso ${i + 1}: ${b.textContent.replace(/[›\d]/g, '').trim()}`); } }); }
+      if (pasos.length > 1) pasos.forEach((b, i) => { const bin = b.querySelector('.oa-bin'); if (bin && !bin.querySelector('.oa-paso')) { const ok = b.classList.contains('oa-hecho'); bin.insertAdjacentHTML('afterbegin', `<b class="oa-paso" aria-hidden="true">${ok ? '✓' : i + 1}</b>`); b.setAttribute('aria-label', `Paso ${i + 1}${ok ? ' (hecho)' : ''}: ${b.textContent.replace(/[›✓\d]/g, '').trim()}`); } }); }
     if (acc) acc.dataset.n = acc.querySelectorAll(':scope>.btn').length;
     oaIngFicha(f, c);
   });
