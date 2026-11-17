@@ -1218,6 +1218,35 @@
     display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px;
   }
   .overlay.open { display: flex; }
+  /* 3.52 · Firma de puño y letra en Admisión (tablet o teléfono). */
+  .modal.cp-modal { background: #fff; max-width: 720px; max-height: 94vh; overflow-y: auto; padding: 18px 18px 20px; }
+  .cp-hero { border-radius: 16px; padding: 14px 16px; margin: 4px 36px 12px 0; color: #fff; background: linear-gradient(120deg, #0f766e, #0e7490); }
+  .cp-hero span { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; opacity: .85; font-weight: 700; }
+  .cp-hero h2 { margin: 2px 0 4px; font-size: 1.25rem; } .cp-hero p { margin: 0; font-size: .88rem; opacity: .95; }
+  .cp-e { border-radius: 12px; padding: 9px 12px; font-size: .88rem; font-weight: 600; margin-bottom: 10px; }
+  .cp-e.ok { background: #dcfce7; color: #14532d; } .cp-e.no { background: #fef3c7; color: #78350f; }
+  .cp-paso { border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .cp-paso > b { font-size: .95rem; color: #0f172a; } .cp-paso small { color: #475569; font-size: .8rem; }
+  .cp-paso label { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; font-weight: 600; color: #334155; }
+  .cp-paso input:not([type=checkbox]) { font-size: 16px; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-family: inherit; }
+  .cp-dni-m { font-size: .82rem; font-weight: 700; min-height: 1em; } .cp-dni-m.ok { color: #15803d; } .cp-dni-m.mal { color: #b91c1c; }
+  .cp-doc { width: 100%; height: 55vh; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; }
+  .cp-vias { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 8px; }
+  .cp-via { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; text-align: left; padding: 12px; border-radius: 12px; border: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; font-family: inherit; }
+  .cp-via i { grid-row: span 2; font-style: normal; font-size: 1.5rem; align-self: center; } .cp-via b { font-size: .92rem; } .cp-via small { font-size: .78rem; color: #64748b; }
+  .cp-via.sel { border-color: #0f766e; background: #ecfdf5; }
+  .cp-lienzo { position: relative; border: 2px dashed #94a3b8; border-radius: 14px; background: #fff; height: min(42vh, 260px); min-height: 170px; }
+  .cp-lienzo canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; border-radius: 12px; }
+  .cp-linea { position: absolute; left: 6%; right: 6%; bottom: 18%; border-top: 1.5px solid #64748b; font-size: .75rem; color: #64748b; padding-top: 3px; pointer-events: none; }
+  .cp-chk { flex-direction: row !important; align-items: flex-start; gap: 8px !important; font-weight: 600; }
+  .cp-chk input { width: 22px; height: 22px; flex: none; margin-top: 1px; }
+  .cp-ok { width: 100%; justify-content: center; min-height: 48px; font-size: 1rem; }
+  .cp-ok.apagado { background: #cbd5e1 !important; color: #334155 !important; border-color: #cbd5e1 !important; cursor: not-allowed; }
+  .cp-hecho { text-align: center; border: 2px solid #0f766e; border-radius: 14px; padding: 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .cp-hecho img { max-width: 100%; width: 420px; border-bottom: 1.5px solid #0f172a; }
+  .cp-btn { background: #0f766e; color: #fff; border: none; } .cp-hecha { background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+  .cp-nota { margin: 6px 0 0; color: #92400e; } .cp-nota.ok { color: #166534; }
+  @media (max-width: 520px) { .cp-modal { padding: 14px 12px 16px; max-height: 96vh; } .overlay:has(.cp-modal) { padding: 6px; } }
   /* La credencial se pide DESDE adentro de otra ventana —Admisión dictamina con
      el turno abierto a la vista— así que tiene que pintarse por encima de ella.
      Queda por debajo del comunicado obligatorio (200) y de los diálogos (300). */
@@ -10553,7 +10582,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.51.7';
+const APP_VERSION = '3.52.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -22263,6 +22292,7 @@ function renderIngresos() {
         ${camaPuedeCargarse(c) ? `<button class="btn btn-sm ${k ? 'btn-outline' : 'btn-green'}" onclick="pedirCama(${c.id})">🛏 ${k ? 'Cambiar cama' : 'Anotar cama'}</button>` : ''}
         ${k ? `<button class="btn btn-sm btn-outline" onclick="reimprimirPulsera(${c.id})">🏷️ Pulsera</button>` : ''}
         ${!k && pulseraAmbulatoriaPuede(c) ? `<button class="btn btn-sm en-pul${c.pulsera ? ' hecha' : ''}" onclick="pulseraAmbulatoria(${c.id})">${EN_PULSERA} ${c.pulsera ? 'Reimprimir pulsera' : esEndo(c) ? 'Imprimir pulsera' : 'Ambulatorio: pulsera sin cama'}</button>` : ''}
+        ${ciPresBotonHTML(c)}
         <button class="btn btn-sm btn-outline" onclick="openCirugia(${c.id})">Ficha</button>
       </div></div>`;
   };
@@ -23987,7 +24017,7 @@ function openCirugia(id) {
               : c.ciPase ? `<span class="fx-pill bad">${ico(ICONS.clockSm, 12)} Falta que el paciente lo acepte en su pase</span>` : ''}
           </div>
           ${c.pase && prepFaltaCargar(c).length ? `<p class="form-note" style="color:#b45309">Falta cargar en la app el protocolo oficial: ${esc(prepFaltaCargar(c).join(' · '))}. Hasta entonces el correo no lleva la preparación.</p>` : ''}
-          ${!consentimientoDeTurno(c) || ciDesfasado(c).length ? `<button class="btn btn-sm btn-outline fx-btn" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Abrir y corregir el consentimiento' : 'Generar el consentimiento informado'}</button>` : ''}${ciBajaDesdeTurno(c) ? `<button class="btn btn-sm btn-green fx-btn" onclick="ciFirmadoDescargar(${esc(JSON.stringify(c.id))})">${ico(ICONS.download, 14)} ${esc(ciFirmadoRotulo(c))}</button>` : cerradaFirme(c) && puedeBajarCiFirmado(c) ? '<p class="form-note" style="margin:6px 0 0">🔒 Caso cerrado: el consentimiento firmado queda guardado en <b>Consentimientos Informados</b>.</p>' : ciFichaNotaHTML(c)}${puedeRegistrarRevocacion(c) ? `<button class="btn btn-sm btn-outline fx-btn" style="border-color:#fca5a5;color:#b91c1c" onclick="ciRegistrarRevocacion(${esc(JSON.stringify(c.id))})">⛔ Registrar revocación</button>` : ''}${ciDesfaseHTML(c)}${aaotFichaHTML(c)}`)}
+          ${!consentimientoDeTurno(c) || ciDesfasado(c).length ? `<button class="btn btn-sm btn-outline fx-btn" onclick="closeCirugia();irAConsentimiento(${c.id})">${ICONS.fileText} ${consentimientoDeTurno(c) ? 'Abrir y corregir el consentimiento' : 'Generar el consentimiento informado'}</button>` : ''}${ciBajaDesdeTurno(c) ? `<button class="btn btn-sm btn-green fx-btn" onclick="ciFirmadoDescargar(${esc(JSON.stringify(c.id))})">${ico(ICONS.download, 14)} ${esc(ciFirmadoRotulo(c))}</button>` : cerradaFirme(c) && puedeBajarCiFirmado(c) ? '<p class="form-note" style="margin:6px 0 0">🔒 Caso cerrado: el consentimiento firmado queda guardado en <b>Consentimientos Informados</b>.</p>' : ciFichaNotaHTML(c)}${puedeRegistrarRevocacion(c) ? `<button class="btn btn-sm btn-outline fx-btn" style="border-color:#fca5a5;color:#b91c1c" onclick="ciRegistrarRevocacion(${esc(JSON.stringify(c.id))})">⛔ Registrar revocación</button>` : ''}${ciDesfaseHTML(c)}${ciPresFichaHTML(c)}${aaotFichaHTML(c)}`)}
 
         ${tarjeta(ICONS.calendar, 'Programación', kv([
           ['Fecha y hora', `${fmtFecha(c.fecha)} · ${c.horaProg || '—'} h`],
@@ -33766,6 +33796,8 @@ const CI_CD_CSS = `
   .cd .cc-ok{margin-top:.5em;text-align:center;font-weight:800;color:#15803d}
   .cd .cc-ok.no{color:#b45309}
   .cd .cc-med{font-size:.92em;margin-top:.7em;border-top:1px solid #cbd5e1;padding-top:.55em}
+  .cd .cc-aud{margin-top:.7em;font-size:.88em}.cd .cc-aud table{width:100%;border-collapse:collapse;margin-top:.3em}.cd .cc-aud th,.cd .cc-aud td{border:1px solid #cbd5e1;padding:.25em .45em;text-align:left;vertical-align:top}.cd .cc-aud th{width:34%;background:#f1f5f9;font-weight:700}
+  .cd .cc-pres{margin-top:.7em;font-size:.9em;border:1.5pt solid #0f766e;border-radius:.6em;padding:.5em .7em;break-inside:avoid}.cd .cc-pres.falta{border-color:#d97706;color:#78350f}.cd .cc-pres-fila{display:flex;gap:.8em;align-items:center;margin-top:.3em}.cd .cc-pres img{width:14em;max-width:45%;border-bottom:1px solid #000}.cd .cc-papel{font-style:italic}
   .cd .cc-rev{font-size:.92em;margin-top:.5em;color:#7f1d1d}
   .cd .cc-nota{font-size:.84em;color:#475569;line-height:1.4}
   /* 14-11 · Las hojas para imprimir (body.pag) miden siempre un A4: no toman el formato de
@@ -35194,6 +35226,7 @@ body.portal-pac .pp-input::placeholder{color:#9ca3af;-webkit-text-fill-color:#9c
 .pp-ci.ok{border-color:#86efac;background:linear-gradient(135deg,#f0fdf4,#fff)} .pp-ci.ok>b{color:#15803d}
 .pp-ci-doc{display:block;width:100%;height:70vh;border:1px solid #ddd6fe;border-radius:12px;background:#fff;margin-top:6px}
 .pp-ci-ayuda{font-size:.8rem;font-weight:700;color:#7c3aed;margin:2px 0}
+.pp-ci-dia{display:block;margin:8px 0 2px;padding:8px 10px;border-radius:10px;background:#fef3c7;color:#78350f;font-size:.85rem;font-weight:600}
 .pp-ci-tilde{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:12px;background:#f5f3ff;cursor:pointer;font-weight:700;font-size:.95rem;color:#3b0764;line-height:1.35}
 .pp-ci-tilde input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:#7c3aed}
 .pp-ci-tilde.off{opacity:.5;cursor:not-allowed}
@@ -35601,6 +35634,8 @@ async function ciAceptacionesVigilar() {
       // 3.37.1 · La misma firma que ya se dio por revocada.
       if (c.ciRevocado && c.ciRevocado.firmado === f.t) continue;
       c.ciPaciente = { t: f.t, hash: f.hash || '', via: f.via || 'pase', vigente: f.hash === c.ciPase.hash };
+      // 3.52 · Registro de auditoría (ingreso con DNI + código, apertura, lectura, equipo).
+      if (f.aud || f.ingreso || f.correo) c.ciPaciente.aud = Object.assign({}, f.aud || {}, { ingreso: f.ingreso || '', correo: f.correo || '' });
       delete c.ciCambio; delete c.ciRevocado;
       c.hce = { ...(c.hce || {}), consentimiento: true };
       pushHist(c, `El paciente aceptó el consentimiento informado desde su pase («Leí y comprendo los alcances del consentimiento médico informado») · ${fmtDT(f.t)} · huella ${String(f.hash || '').slice(0, 12)}…`);
@@ -35826,12 +35861,13 @@ async function ciFirmadoDescargar(id, antI) {
     <div class="cc-ok ${coincide ? '' : 'no'}">${coincide
       ? '✓ Verificado al descargar: este texto es idéntico, carácter por carácter, al que aceptó el paciente.'
       : '⚠ No se encontró la copia exacta del texto aceptado: esta es una copia regenerada del consentimiento. La huella de arriba corresponde al texto original aceptado.'}</div>
+    ${ant || rev ? '' : ciAudConstanciaHTML(f.aud) + ciPresConstanciaHTML(c, f.hash)}
     <div class="cc-med">${med
       ? `<b>Firma electrónica del médico:</b> ${esc(med.nombre)}${med.mat ? ` · Mat. ${esc(med.mat)}` : ''} · ${esc(fmtDT(med.t))}. Firmó con su cuenta personal (${esc(enmascararMail(med.email))}) el documento aceptado por el paciente.`
       : '<b>Firma electrónica del médico:</b> pendiente. La pone ' + (esEndo(c) ? 'el/la endoscopista' : 'el/la cirujano/a') + ' del turno desde su cuenta, con «Firmar y bajar el consentimiento».'}</div>
     ${rev ? `<div class="cc-rev"><b>Revocación:</b> ${esc(fmtDT(rev.t))} · ${esc(rev.por)}${rev.via === 'pase' ? ', con su DNI y un código de un solo uso' : ''}.</div>` : ''}
     <p class="cc-nota">El diseño de la hoja, los sellos y la anulación del espacio de revocación se aplican al emitir este PDF: no modifican el texto verificado.</p>
-    <p class="cc-nota">Firma electrónica en los términos del art. 5 de la Ley 25.506. Consentimiento informado según la Ley 26.529 de Derechos del Paciente.
+    <p class="cc-nota">Firma electrónica en los términos del art. 5 de la Ley 25.506. Este consentimiento forma parte de la historia clínica, que según la Ley 27.706 (Programa Federal Único de Informatización y Digitalización de Historias Clínicas) y su reglamentación puede firmarse con firma digital o electrónica. Consentimiento informado según la Ley 26.529 de Derechos del Paciente.
       El paciente puede revocarlo en cualquier momento antes del procedimiento. Documento emitido por HRU Quirófanos el ${esc(fmtDT(nowDT()))} para su incorporación a la historia clínica.</p>
   </div>`;
   const sellado = ciSellarDoc(html, { paciente: cuando, medico: med ? fmtDT(med.t) : '', faltaMedico: !med, alDia: fmtDT(nowDT()),
@@ -35845,6 +35881,194 @@ async function ciFirmadoDescargar(id, antI) {
   // 3.40.2 · Firmó: la ficha abierta no puede seguir ofreciendo «Firmar y bajar».
   if (firmo) { toastTurno('Consentimiento firmado ✓', '#059669'); if ($('cir-overlay') && $('cir-overlay').classList.contains('open')) openCirugia(c.id); }
   setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 500);
+}
+
+/* ================= 3.52 · AUDITORÍA DE LA FIRMA ELECTRÓNICA =================
+   Lo que queda en la constancia para probar quién aceptó, cuándo y cómo (Ley 25.506,
+   art. 5: si el paciente desconoce la firma electrónica, el hospital tiene que probarla). */
+function segTxt(n) { n = Number(n); if (!Number.isFinite(n) || n < 0) return '—'; const m = Math.floor(n / 60), x = n % 60; return m ? `${m} min ${x} s` : `${x} s`; }
+function ciAudConstanciaHTML(a) {
+  const fila = (k, v) => `<tr><th>${k}</th><td>${v}</td></tr>`;
+  if (!a) return `<div class="cc-aud"><b>Registro de auditoría:</b> aceptado antes de la versión 3.52; solo quedaron la fecha, la hora y la huella.</div>`;
+  return `<div class="cc-aud"><b>Registro de auditoría de la firma electrónica</b><table>
+    ${fila('Identificación', `DNI del paciente + código de un solo uso enviado a ${esc(a.correo || 'su correo')}`)}
+    ${a.ingreso ? fila('Ingreso al pase', esc(fmtDT(a.ingreso))) : ''}
+    ${a.abierto ? fila('Abrió el texto', esc(fmtDT(a.abierto))) : ''}
+    ${a.alFinal != null ? fila('Llegó al final del texto', `a los ${esc(segTxt(a.alFinal))} de abrirlo`) : ''}
+    ${a.lectura != null ? fila('Tiempo hasta aceptar', esc(segTxt(a.lectura))) : ''}
+    ${a.equipo ? fila('Equipo y navegador', esc(a.equipo)) : ''}
+  </table></div>`;
+}
+function ciPresConstanciaHTML(c, hash) {
+  const p = c.ciPresencial;
+  if (!p) return `<div class="cc-pres falta"><b>Firma de puño y letra en Admisión:</b> pendiente. Se hace el día del ingreso, con el DNI a la vista.</div>`;
+  const otra = hash && p.hash && p.hash !== hash;
+  return `<div class="cc-pres"><b>Firma de puño y letra en Admisión y Egresos${otra ? ' (sobre una versión anterior del texto)' : ''}</b>
+    <div class="cc-pres-fila">${p.via === 'pantalla' && p.img ? `<img src="${p.img}" alt="Firma del paciente">` : '<span class="cc-papel">Firmado en papel con lapicera · el original está en la historia clínica</span>'}
+    <div>${esc(fmtDT(p.t))} · ${p.via === 'pantalla' ? 'firmó con el dedo en la pantalla' : 'firmó el ejemplar impreso'}<br>
+      DNI verificado en persona: ${esc(Number(p.dni || 0).toLocaleString('es-AR'))} · verificó: ${esc(p.por || '—')}${p.via === 'pantalla' ? `<br>${esc(String(p.trazos || 0))} trazos en ${esc(segTxt(Math.round((p.durMs || 0) / 1000)))} · ${esc(p.equipo || '')}` : ''}
+      ${p.sello ? `<br><small>Sello de la firma (SHA-256): ${esc(String(p.sello).toUpperCase().slice(0, 32))}…</small>` : ''}</div></div></div>`;
+}
+
+/* ================= 3.52 · FIRMA DE PUÑO Y LETRA EN ADMISIÓN =================
+   El día del ingreso, Admisión y Egresos verifica el DNI en persona y el/la paciente (o su
+   representante) firma el consentimiento de puño y letra: con el dedo en la pantalla del
+   teléfono o la tablet, o con lapicera en el ejemplar impreso (que se archiva en la historia
+   clínica). En pantalla se guardan la imagen y los trazos con su tiempo (para una pericia),
+   el equipo y un sello SHA-256 que ata la firma al texto. */
+const CP_DESDE_DIAS = 1;   // desde la víspera, como la pulsera
+function ciPresPuede(c) {
+  if (!c || !consentimientoDeTurno(c) || c._pub) return false;
+  if (!['pendiente', 'validada', 'confirmada', 'en_curso'].includes(c.estado)) return false;
+  return String(c.fecha || '') <= sumarDias(hoyISO(), CP_DESDE_DIAS);
+}
+function ciPresBotonHTML(c) {
+  if (!ciPresPuede(c) && !c.ciPresencial) return '';
+  const p = c.ciPresencial, J = esc(JSON.stringify(c.id));
+  if (p) return `<button class="btn btn-sm cp-hecha" onclick="cpAbrir(${J})">✍️ Firmado en Admisión ✓</button>`;
+  return `<button class="btn btn-sm cp-btn" onclick="cpAbrir(${J})">✍️ Firma del consentimiento</button>`;
+}
+function ciPresFichaHTML(c) {
+  if (!consentimientoDeTurno(c)) return '';
+  const p = c.ciPresencial;
+  return `<p class="form-note cp-nota${p ? ' ok' : ''}">${p ? `✍️ Firmado de puño y letra en Admisión el ${esc(fmtDT(p.t))} (${p.via === 'pantalla' ? 'en pantalla' : 'en papel'}) · DNI verificado por ${esc(p.por || '—')}.`
+    : '✍️ Firma de puño y letra en Admisión: pendiente (se hace el día del ingreso, con el DNI).'}</p>`;
+}
+let cp = null;   // estado de la ventana de firma
+function cpDoc(c) {
+  const ci = consentimientoDeTurno(c) || {};
+  const h = (c.ciPaciente && c.ciPaciente.hash) || (c.ciPase && c.ciPase.hash) || '';
+  const exacto = h && ci.pase && ci.pase[h];
+  return { html: exacto || (ci.datos ? ciDocImprimible(ciDocHTML({ ...CI_VACIO, ...ci.datos })) : ''), hash: exacto ? h : '', exacto: !!exacto };
+}
+function cpOverlay() {
+  let o = $('cp-overlay');
+  if (!o) { o = document.createElement('div'); o.id = 'cp-overlay'; o.className = 'overlay'; o.innerHTML = '<div class="modal cp-modal" id="cp-modal" role="dialog" aria-modal="true" aria-label="Firma del consentimiento"></div>'; document.body.appendChild(o); }
+  return o;
+}
+function cpCerrar() { const o = $('cp-overlay'); if (o) o.classList.remove('open'); cp = null; if (view === 'ingresos') renderIngresos(); }
+async function cpAbrir(id) {
+  const c = DB.cirugias.find((x) => String(x.id) === String(id)); if (!c) return;
+  if (c.ciRevocado && !c.ciPaciente) { avisar('El consentimiento fue revocado\n\nNo se puede firmar en Admisión: el médico tiene que hablar antes con el paciente.'); return; }
+  const d = cpDoc(c); if (!d.html) { avisar('Todavía no hay consentimiento generado para este turno.\n\nLo genera el médico desde la ficha.'); return; }
+  if (!d.hash) d.hash = await sha256Hex(d.html);
+  const quien = ciFirmante(consentimientoDeTurno(c));
+  cp = { id: c.id, doc: d, quien, via: '', trazos: [], ini: 0, fin: 0, verDoc: false, papelOk: false, dni: '', por: '' };
+  cpOverlay().classList.add('open');
+  cpPintar();
+}
+function cpDniEsperado() { return soloDigitos(cp.quien.dni || ((DB.cirugias.find((x) => String(x.id) === String(cp.id)) || {}).paciente || {}).dni); }
+function cpFalta() {
+  const f = [];
+  if (!cp.dni || soloDigitos(cp.dni) !== cpDniEsperado()) f.push(cp.dni ? 'el DNI no coincide' : 'el DNI');
+  if (String(cp.por).trim().length < 3) f.push('quién verifica');
+  if (!cp.via) f.push('elegir cómo firma');
+  else if (cp.via === 'pantalla' && (cp.trazos.length < 1 || cpLargo() < 120)) f.push('la firma');
+  else if (cp.via === 'papel' && !cp.papelOk) f.push('confirmar el papel firmado');
+  return f;
+}
+function cpLargo() { let L = 0; cp.trazos.forEach((t) => { for (let i = 1; i < t.length; i++) L += Math.hypot(t[i][0] - t[i - 1][0], t[i][1] - t[i - 1][1]); }); return L; }
+function cpBoton() {
+  const b = $('cp-ok'); if (!b) return;
+  const f = cpFalta();
+  b.disabled = !!f.length; b.classList.toggle('apagado', !!f.length);
+  b.textContent = f.length ? '🔒 Falta: ' + f.join(', ') : '✓ Guardar la firma';
+}
+function cpPintar() {
+  const c = DB.cirugias.find((x) => String(x.id) === String(cp.id)); if (!c) return cpCerrar();
+  const p = c.ciPresencial, pa = c.paciente || {}, e = c.ciPaciente;
+  const cab = `<button class="modal-close" onclick="cpCerrar()" aria-label="Cerrar">✕</button>
+    <header class="cp-hero"><span>Admisión y Egresos · consentimiento informado</span><h2>${esc(cp.quien.nombre || pa.nombre || 'Paciente')}</h2>
+      <p>${cp.quien.rep ? `Representante legal de ${esc(cp.quien.paciente)} · ` : ''}${esc(c.procedimiento || '')}<br>${esc(fmtDiaLargo(c.fecha))} · ${esc(c.horaProg || '—')} h · ${esc(c.quirofano || '')}</p></header>
+    <div class="cp-e ${e ? 'ok' : 'no'}">${e ? `📱 Lo aceptó en su pase el ${esc(fmtDT(e.t))} (firma electrónica).` : '📱 No lo aceptó en su pase: léanlo juntos ahora, completo, antes de firmar.'}</div>`;
+  if (p) {
+    $('cp-modal').innerHTML = cab + `<div class="cp-hecho"><b>✓ Firmado de puño y letra</b>
+      ${p.via === 'pantalla' && p.img ? `<img src="${p.img}" alt="Firma">` : '<p>Firmó el ejemplar impreso con lapicera: el original quedó en la historia clínica.</p>'}
+      <small>${esc(fmtDT(p.t))} · DNI ${esc(Number(p.dni || 0).toLocaleString('es-AR'))} verificado por ${esc(p.por || '—')}</small></div>
+      <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="cpCerrar()">Cerrar</button>`;
+    return;
+  }
+  $('cp-modal').innerHTML = cab + `
+    <section class="cp-paso"><b>1 · El consentimiento</b>
+      <button class="btn btn-sm btn-outline" onclick="cp.verDoc=!cp.verDoc;cpPintar()">${cp.verDoc ? 'Ocultar el texto' : '📄 Ver el consentimiento completo'}</button>
+      ${cp.verDoc ? `<iframe class="cp-doc" sandbox="allow-same-origin" title="Consentimiento" srcdoc="${esc(cp.doc.html)}"></iframe>` : ''}
+      <small>${cp.doc.exacto ? 'Es el mismo texto que recibió en su pase (huella ' + esc(cp.doc.hash.slice(0, 12)) + '…).' : 'Texto generado por el médico (huella ' + esc(cp.doc.hash.slice(0, 12)) + '…).'} Pregúntele si lo leyó y si tiene dudas: si las tiene, que hable con el médico antes de firmar.</small></section>
+    <section class="cp-paso"><b>2 · DNI en mano</b>
+      <label>Número del DNI que le muestra ${cp.quien.rep ? 'el/la representante' : 'el/la paciente'}<input id="cp-dni" inputmode="numeric" autocomplete="off" value="${esc(cp.dni)}" oninput="cp.dni=this.value;cpBoton();cpDniMarca()" placeholder="Sin puntos"></label>
+      <span id="cp-dni-m" class="cp-dni-m"></span>
+      <label>Apellido y nombre de quien verifica (Admisión)<input id="cp-por" autocomplete="off" value="${esc(cp.por)}" oninput="cp.por=this.value;cpBoton()"></label></section>
+    <section class="cp-paso"><b>3 · Firma de puño y letra</b>
+      <div class="cp-vias"><button class="cp-via${cp.via === 'pantalla' ? ' sel' : ''}" onclick="cp.via='pantalla';cpPintar()"><i>✍️</i><b>En esta pantalla</b><small>Firma con el dedo en el teléfono o la tablet</small></button>
+        <button class="cp-via${cp.via === 'papel' ? ' sel' : ''}" onclick="cp.via='papel';cpPintar()"><i>🖨️</i><b>En papel</b><small>Imprime el ejemplar y firma con lapicera</small></button></div>
+      ${cp.via === 'pantalla' ? `<div class="cp-lienzo"><canvas id="cp-canvas" aria-label="Espacio para firmar"></canvas><span class="cp-linea">Firma de ${esc(cp.quien.nombre || pa.nombre || '')}</span></div>
+        <button class="btn btn-sm btn-outline" onclick="cpBorrar()">Borrar y volver a firmar</button>` : ''}
+      ${cp.via === 'papel' ? `<button class="btn btn-sm btn-blue" onclick="cpImprimir()">🖨️ Imprimir el ejemplar para firmar</button>
+        <label class="cp-chk"><input type="checkbox" ${cp.papelOk ? 'checked' : ''} onchange="cp.papelOk=this.checked;cpBoton()"> Firmó el ejemplar impreso con lapicera, con aclaración y DNI, y queda en la historia clínica.</label>` : ''}
+    </section>
+    <button class="btn btn-green cp-ok" id="cp-ok" onclick="cpGuardar()"></button>`;
+  cpBoton(); cpDniMarca();
+  if (cp.via === 'pantalla') cpLienzo();
+}
+function cpDniMarca() {
+  const m = $('cp-dni-m'); if (!m) return;
+  const v = soloDigitos(cp.dni), ok = v && v === cpDniEsperado();
+  m.textContent = !v ? '' : ok ? '✓ Coincide con el turno' : v.length >= 7 ? '✕ No coincide con el DNI del turno: revise el documento' : '';
+  m.className = 'cp-dni-m ' + (ok ? 'ok' : 'mal');
+}
+function cpLienzo() {
+  const cv = $('cp-canvas'); if (!cv) return;
+  const r = cv.getBoundingClientRect(), k = window.devicePixelRatio || 1;
+  cv.width = Math.round(r.width * k); cv.height = Math.round(r.height * k);
+  const g = cv.getContext('2d'); g.scale(k, k); g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#0b2545'; g.lineWidth = 2.6;
+  const dib = () => { g.clearRect(0, 0, r.width, r.height); cp.trazos.forEach((t) => { g.beginPath(); t.forEach((q, i) => (i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]))); g.stroke(); }); };
+  dib();
+  let act = null;
+  const pt = (e) => { const b = cv.getBoundingClientRect(); return [Math.round(e.clientX - b.left), Math.round(e.clientY - b.top), Date.now() - (cp.ini || Date.now()), Math.round((e.pressure || 0.5) * 100)]; };
+  cv.onpointerdown = (e) => { e.preventDefault(); cv.setPointerCapture(e.pointerId); if (!cp.ini) cp.ini = Date.now(); act = [pt(e)]; cp.trazos.push(act); };
+  cv.onpointermove = (e) => { if (!act) return; e.preventDefault(); const q = pt(e), u = act[act.length - 1]; if (Math.hypot(q[0] - u[0], q[1] - u[1]) < 1.5) return; act.push(q); g.beginPath(); g.moveTo(u[0], u[1]); g.lineTo(q[0], q[1]); g.stroke(); };
+  cv.onpointerup = cv.onpointercancel = () => { if (act) { cp.fin = Date.now(); act = null; cpBoton(); } };
+}
+function cpBorrar() { cp.trazos = []; cp.ini = 0; cp.fin = 0; cpLienzo(); cpBoton(); }
+/* Ejemplar para firmar con lapicera: el mismo texto, con el espacio de firma, aclaración y DNI. */
+function cpImprimir() {
+  const c = DB.cirugias.find((x) => String(x.id) === String(cp.id)); if (!c) return;
+  const w = window.open('', '_blank'); if (!w) { alert('El navegador bloqueó la ventana. Habilite las ventanas emergentes.'); return; }
+  const nombre = cp.quien.nombre || (c.paciente || {}).nombre || '';
+  const hoja = `<div class="ci-const"><h2>FIRMA DE PUÑO Y LETRA EN ADMISIÓN Y EGRESOS</h2>
+    <p>${c.ciPaciente ? `Aceptado electrónicamente desde el pase el ${esc(fmtDT(c.ciPaciente.t))}. ` : ''}Leí este consentimiento, recibí las explicaciones y lo firmo en presencia del personal de Admisión, que verificó mi DNI.</p>
+    <p style="margin-top:3.2em;border-top:1px solid #000;padding-top:.3em">Firma de ${esc(nombre)}${cp.quien.rep ? ` (representante legal de ${esc(cp.quien.paciente)})` : ''}</p>
+    <p style="margin-top:2.2em;border-top:1px solid #000;padding-top:.3em">Aclaración y DNI</p>
+    <p style="margin-top:2.2em;border-top:1px solid #000;padding-top:.3em">Fecha y hora · Firma y aclaración de quien verificó (Admisión)</p>
+    <p style="text-align:center"><b>Código del documento (SHA-256):</b><br><span style="font-family:monospace;word-break:break-all">${esc(String(cp.doc.hash).toUpperCase())}</span></p></div>`;
+  const doc = ciConDiseno(cp.doc.html).replace(/<\/div>\s*<\/body>/, () => hoja + '</div></body>');
+  w.document.open(); w.document.write(doc.includes(hoja) ? doc : doc.replace(/<\/body>/, () => hoja + '</body>')); w.document.close();
+  try { ciPaginar(w.document); } catch (e) {}
+  setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 500);
+}
+async function cpGuardar() {
+  if (!cp || cpFalta().length) return cpBoton();
+  const c = DB.cirugias.find((x) => String(x.id) === String(cp.id)); if (!c) return;
+  const t = nowDT(), dni = soloDigitos(cp.dni), por = String(cp.por).trim().slice(0, 80);
+  const reg = { t, via: cp.via, dni, por, hash: cp.doc.hash, exacto: cp.doc.exacto, rep: !!cp.quien.rep };
+  if (cp.via === 'pantalla') {
+    const cv = $('cp-canvas');
+    // Imagen liviana (fondo blanco, ancho máx. 600 px) y los trazos con tiempo y presión.
+    const r = cv.getBoundingClientRect(), esc2 = Math.min(1, 600 / r.width), o = document.createElement('canvas');
+    o.width = Math.round(r.width * esc2); o.height = Math.round(r.height * esc2);
+    const g = o.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, o.width, o.height); g.drawImage(cv, 0, 0, o.width, o.height);
+    reg.img = o.toDataURL('image/png');
+    reg.trazos = cp.trazos.length; reg.durMs = Math.max(0, (cp.fin || Date.now()) - (cp.ini || Date.now()));
+    reg.puntos = cp.trazos.map((tr) => tr.map((q) => q.join(',')).join(' ')).join('|').slice(0, 60000);
+    reg.lienzo = `${Math.round(r.width)}x${Math.round(r.height)}`;
+    reg.equipo = ppEquipo();
+  }
+  reg.sello = await sha256Hex([reg.hash, reg.t, reg.dni, reg.via, reg.img || '', reg.puntos || ''].join('|'));
+  c.ciPresencial = reg;
+  c.hce = { ...(c.hce || {}), consentimiento: true };
+  pushHist(c, `Consentimiento firmado de puño y letra en Admisión y Egresos (${cp.via === 'pantalla' ? 'en pantalla' : 'en papel'}) · DNI ${dni} verificado por ${por} · huella del texto ${String(reg.hash).slice(0, 12)}…`);
+  upsert('cirugias', c);
+  toastTurno('Firma guardada ✓', '#059669');
+  cpPintar();
 }
 
 /* ================= (3.34.2) EDAD Y CIE-10 EN EL TURNO =================
@@ -36990,7 +37214,7 @@ async function portalValidar() {
   if (!cloudOn) res = await portalDemoValidar(cod);
   else { try { res = await portalServicio({ accion: 'validarCodigo', token: PORTAL_TOKEN, codigo: cod }); } catch (e) { res = { error: 'red' }; } }
   if (res && res.ok) {
-    portal.sesion = res.sesion; portal.foto = res.foto; portal.act = new Date(); portal.paso = res.foto && res.foto.caducado ? 'caducado' : 'estado'; portal.cadClave = (res.foto && res.foto.clave) || '';
+    portal.sesion = res.sesion; portal.ingresoT = nowDT(); portal.foto = res.foto; portal.act = new Date(); portal.paso = res.foto && res.foto.caducado ? 'caducado' : 'estado'; portal.cadClave = (res.foto && res.foto.clave) || '';
     portal.extra = res.extra || null; portal.ciOk = res.ciOk || null; portal.fer = res.fer || null;
     portal.demoCodigo = '';
     clearInterval(portal.timer);
@@ -37073,7 +37297,9 @@ function ppCiHTML() {
   const revocado = !!(portal.foto && portal.foto.ci === 'rev') || !!(portal.ciOk && portal.ciOk.revocado);
   const firma = ci.rep ? `<p class="pp-ci-ayuda">Lo firma ${esc(ci.rep)}, como representante legal. Aceptalo solo si sos esa persona.</p>` : '';
   if (portalCiVigente()) return `<section class="pp-card pp-ci ok"><small>Tu consentimiento informado</small><b>✓ Aceptado</b>
-    <span>Tildaste «Leí y comprendo los alcances del consentimiento médico informado» el ${esc(fmtDT(portal.ciOk.t))}. El hospital ya lo tiene.</span>
+    <span>Tildaste «Leí y comprendo los alcances del consentimiento médico informado» el ${esc(fmtDT(portal.ciOk.t))}. El hospital ya lo tiene.${portal.ciCopia ? ' Te mandamos un aviso al correo.' : ''}</span>
+    <span class="pp-ci-dia">🪪 El día del turno, en Admisión: llevá tu DNI. Te lo van a pedir y vas a firmar el consentimiento de puño y letra.</span>
+    <button class="pp-btn" onclick="ppCiCopia()">📄 Guardar mi copia</button>
     <button class="pp-link" onclick="portal.ciAbierto=!portal.ciAbierto;renderPortal()">${portal.ciAbierto ? 'Cerrar el texto' : 'Volver a leerlo'}</button>
     ${portal.ciAbierto ? `<iframe class="pp-ci-doc" sandbox="allow-same-origin" title="Consentimiento informado" srcdoc="${esc(ciSellarDoc(ci.html, { paciente: fmtDT(portal.ciOk.t), alDia: fmtDT(nowDT()) }))}"></iframe>` : ''}
     ${portal.ciRevPide ? `<div class="pp-error" role="alert"><b>¿Revocar tu consentimiento?</b><br>Tu médico/a y el hospital reciben un aviso, y no se puede hacer ${((T) => (T.o === 'o' ? 'el ' : 'la ') + esc(T.n))(ppTipo(portal.foto && portal.foto.tipo))} salvo que lo aceptes de nuevo. No tenés que explicar el motivo.</div>
@@ -37082,7 +37308,7 @@ function ppCiHTML() {
       <button class="pp-link" onclick="portal.ciRevPide=false;portal.ciError='';renderPortal()">No, dejarlo como está</button>`
     : '<button class="pp-link pp-link-rev" onclick="portal.ciRevPide=true;renderPortal()">Revocar mi consentimiento</button>'}</section>`;
   return `<section class="pp-card pp-ci${nuevo ? ' nuevo' : ''}"><small>Tu consentimiento informado</small><b>${revocado ? '⛔ Revocaste tu consentimiento' : porFecha ? '⚠️ Cambió la fecha de tu turno: aceptá de nuevo tu consentimiento' : nuevo ? '⚠️ Tu médico/a lo actualizó: leelo y aceptalo de nuevo' : '📝 Leelo y aceptalo desde acá'}</b>
-    <span>${revocado ? 'Tu médico/a ya está avisado/a. Si cambiás de idea, podés leerlo y aceptarlo otra vez.' : `${porFecha ? 'El consentimiento ahora dice la fecha nueva, así que la aceptación anterior ya no vale para esta versión.' : nuevo ? 'Cambió algo del texto, así que la aceptación anterior ya no vale para esta versión.' : 'Es el mismo texto que te explicó tu médico/a.'} No hace falta imprimirlo ni firmarlo a mano.`}</span>
+    <span>${revocado ? 'Tu médico/a ya está avisado/a. Si cambiás de idea, podés leerlo y aceptarlo otra vez.' : `${porFecha ? 'El consentimiento ahora dice la fecha nueva, así que la aceptación anterior ya no vale para esta versión.' : nuevo ? 'Cambió algo del texto, así que la aceptación anterior ya no vale para esta versión.' : 'Es el mismo texto que te explicó tu médico/a.'} Leelo tranquilo/a y aceptalo acá. El día del turno, en Admisión, te piden el DNI y lo firmás de puño y letra.`}</span>
     ${firma}
     ${portal.ciAbierto ? `<p class="pp-ci-ayuda">⬇ Leelo completo: al final está la casilla para aceptarlo.</p>
       <iframe class="pp-ci-doc" id="pp-ci-doc" sandbox="allow-same-origin" scrolling="no" title="Consentimiento informado" srcdoc="${esc(ci.html)}" onload="ppCiMirar(this)"></iframe>
@@ -37092,13 +37318,41 @@ function ppCiHTML() {
       ${portal.ciError ? `<div class="pp-error" role="alert">${esc(portal.ciError)}</div>` : ''}
       <button class="pp-btn${portal.ciTilde && portal.ciLeido ? '' : ' pp-apagado'}" id="pp-ci-go" ${portal.ciTilde && portal.ciLeido ? '' : 'disabled'} onclick="portalCiAceptar()">${ppCiBotonTxt()}</button>
       <p class="pp-ci-nota">Queda registrado con la fecha y la hora. Si tenés dudas, no lo aceptes: consultá antes a tu médico/a. Podés revocarlo hasta el momento del ${esc(ppTipo(portal.foto && portal.foto.tipo).n)}.</p>`
-    : '<button class="pp-btn" onclick="portal.ciAbierto=true;renderPortal()">Leer mi consentimiento</button>'}</section>`;
+    : '<button class="pp-btn" onclick="ppCiAbrir()">Leer mi consentimiento</button>'}</section>`;
 }
 /* Llegó al final del texto: recién ahí se habilita la casilla.
    3.34.2 · El texto ya no se desliza DENTRO de un recuadro (en el iPhone ese recuadro
    no avisa y la casilla nunca se habilitaba): el marco toma el alto de todo el texto,
    se baja con la página, y cuando el final del texto aparece en pantalla, listo. */
 /* 07-11 · El botón apagado dice qué falta: leer hasta el final o tildar la casilla. */
+/* 3.52 · Registro de auditoría: cuándo abrió el texto, cuándo llegó al final y en qué equipo. */
+function ppCiAbrir() { if (!portal.ciAbiertoMs) { portal.ciAbiertoMs = Date.now(); portal.ciAbiertoT = nowDT(); } portal.ciAbierto = true; renderPortal(); }
+function ppEquipo() {
+  const ua = navigator.userAgent || '';
+  const so = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' + ((ua.match(/Android ([\d.]+)/) || [])[1] ? ' ' + ua.match(/Android ([\d.]+)/)[1] : '')
+    : /Windows/.test(ua) ? 'Windows' : /Mac OS X/.test(ua) ? 'Mac' : /Linux/.test(ua) ? 'Linux' : 'otro sistema';
+  const nav = /Edg\//.test(ua) ? 'Edge' : /SamsungBrowser/.test(ua) ? 'Samsung Internet' : /CriOS|Chrome\//.test(ua) ? 'Chrome' : /FxiOS|Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'otro navegador';
+  const tipo = /Mobi|iPhone|Android.*Mobile/.test(ua) ? 'teléfono' : /iPad|Tablet|Android/.test(ua) ? 'tablet' : 'computadora';
+  return `${tipo} · ${so} · ${nav} · pantalla ${screen.width}×${screen.height}`;
+}
+function ppCiAud() {
+  const ahora = Date.now(), ini = portal.ciAbiertoMs || ahora;
+  return { abierto: portal.ciAbiertoT || nowDT(), lectura: Math.round((ahora - ini) / 1000), alFinal: portal.ciFinMs ? Math.round((portal.ciFinMs - ini) / 1000) : null, equipo: ppEquipo() };
+}
+/* 3.52 · La copia exacta del texto aceptado, para guardar o imprimir desde el teléfono. */
+function ppCiCopia() {
+  const ci = portal.extra && portal.extra.ci; if (!ci || !portal.ciOk) return;
+  const w = window.open('', '_blank'); if (!w) { alert('Tu navegador bloqueó la ventana. Permití las ventanas emergentes y volvé a tocar «Guardar mi copia».'); return; }
+  const doc = ciSellarDoc(ci.html, { paciente: fmtDT(portal.ciOk.t), alDia: fmtDT(nowDT()) });
+  const pie = `<div style="margin:18px auto;max-width:720px;border:2px solid #0f766e;border-radius:12px;padding:12px 16px;font:14px Arial,sans-serif;color:#134e4a">
+    <b>Tu copia del consentimiento aceptado</b><br>Aceptado el ${esc(fmtDT(portal.ciOk.t))} desde tu pase del Hospital Regional Ushuaia.<br>
+    Código de verificación (SHA-256): <span style="font-family:monospace;word-break:break-all">${esc(String(ci.hash || '').toUpperCase())}</span><br>
+    <small>Firma electrónica (Ley 25.506, art. 5). Forma parte de tu historia clínica, que según la Ley 27.706 puede firmarse con firma digital o electrónica.</small><br>
+    <small>Para guardarla como PDF, elegí «Guardar como PDF» en la ventana de imprimir.</small></div>`;
+  w.document.open(); w.document.write(doc.replace(/<\/body>/, () => pie + '</body>')); w.document.close();
+  try { ciPaginar(w.document); } catch (e) {}
+  setTimeout(() => { try { w.focus(); w.print(); } catch (e) {} }, 500);
+}
 function ppCiBotonTxt() { return !portal.ciLeido ? '🔒 Falta: leerlo hasta el final' : !portal.ciTilde ? '🔒 Falta: tildar la casilla' : 'Aceptar el consentimiento'; }
 function ppCiBoton() {
   const b = $('pp-ci-go'); if (!b || b.classList.contains('pp-cargando')) return;
@@ -37106,7 +37360,7 @@ function ppCiBoton() {
   b.disabled = !listo; b.classList.toggle('pp-apagado', !listo); b.textContent = ppCiBotonTxt();
 }
 function ppCiMirar(fr) {
-  const listo = () => { if (portal.ciLeido) return; portal.ciLeido = true;
+  const listo = () => { if (portal.ciLeido) return; portal.ciLeido = true; portal.ciFinMs = Date.now();
     const k = $('pp-ci-chk'), l = $('pp-ci-lbl'), a = $('pp-ci-ayuda'); if (k) k.disabled = false; if (l) l.classList.remove('off'); if (a) a.textContent = '✓ Llegaste al final del texto.'; ppCiBoton();
     if (window.ppCiObs) { window.ppCiObs.disconnect(); window.ppCiObs = null; } };
   let d = null; try { d = fr.contentDocument; } catch (e) { d = null; }
@@ -37135,10 +37389,12 @@ async function portalCiAceptar() {
   let res;
   if (!cloudOn) {
     const m = portalDemoLeer(), t = nowDT();
-    m[PORTAL_TOKEN] = Object.assign(m[PORTAL_TOKEN] || {}, { firma: { t, hash: ci.hash, via: 'pase', texto: 'Leí y comprendo los alcances del consentimiento médico informado' } });
-    portalDemoGuardar(m); res = { ok: true, t };
-  } else { try { res = await portalServicio({ accion: 'ciAceptar', token: PORTAL_TOKEN, sesion: portal.sesion, hash: ci.hash }); } catch (e) { res = { error: 'red' }; } }
-  if (res && res.ok) { portal.ciOk = { t: res.t, hash: ci.hash }; portal.ciAbierto = false; portal.ciError = ''; }
+    const p = m[PORTAL_TOKEN] || {};
+    m[PORTAL_TOKEN] = Object.assign(p, { firma: { t, hash: ci.hash, via: 'pase', texto: 'Leí y comprendo los alcances del consentimiento médico informado',
+      ingreso: portal.ingresoT || '', correo: enmascararMail((p.priv || {}).email || ''), aud: ppCiAud() } });
+    portalDemoGuardar(m); res = { ok: true, t, copia: !!(p.priv && p.priv.email) };
+  } else { try { res = await portalServicio({ accion: 'ciAceptar', token: PORTAL_TOKEN, sesion: portal.sesion, hash: ci.hash, aud: ppCiAud() }); } catch (e) { res = { error: 'red' }; } }
+  if (res && res.ok) { portal.ciOk = { t: res.t, hash: ci.hash }; portal.ciCopia = !!res.copia; portal.ciAbierto = false; portal.ciError = ''; }
   else portal.ciError = res && res.error === 'ciCambio' ? 'Tu médico/a actualizó el consentimiento. Salí y volvé a entrar para leer la versión nueva.' : (PORTAL_ERRORES[(res && res.error) || 'red'] || PORTAL_ERRORES.red);
   renderPortal();
 }
