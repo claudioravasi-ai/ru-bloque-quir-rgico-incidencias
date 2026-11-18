@@ -556,7 +556,7 @@ const fuera = () => ELEC.horario !== 'en';
 function inicial() {
   return {
     p: { prog: false, pase: false, esc: false, adm: 'pend', jef: 'espera', llego: false, enf: false, inst: false, ent: false, rec1: false, pausa: false, ini: false, rec2: false, sal: false, recup: false, qr: false },
-    u: { carga: false, adm: false, jef: false, anest: false, eq: false, ini: false, sal: false },
+    u: { carga: false, cama: false, adm: false, jef: false, anest: false, eq: false, ini: false, sal: false },
     c: { sin: false, cir: false, adm: false, jef: false, pac: false, no: false },
     m: { pinto: false, envio: false, recibido: false, ingreso: false },
     e: { cambio: false, inst: false, enf: false, anest: false, lleg: false, reemp: false },
@@ -795,8 +795,18 @@ function scrElegir() {
 function scrCargaUrg() {
   return `<div class="s-h"><div><b>🚑 Cargar urgencia</b><small>La urgencia no espera a nadie</small></div></div>
     <div class="campos">${campo('Paciente', URG.pac + ' (ejemplo)')}${campo('DNI', '38.004.551')}${campo('Procedimiento', URG.proc, true)}${campo('Prioridad', 'P1 · Emergencia')}${campo('Sala', URG.sala + ' (libre)')}</div>
-    <div class="s-card" style="margin-top:8px"><p>Sin pase QR: la urgencia opera sin esperar y no hay nada que seguir desde casa.</p><p>Admisión y Jefatura: ${fuera() ? '<b>diferidas</b> hasta que vuelvan.' : '<b>reciben el aviso ahora</b>.'}</p></div>
+    <div class="s-card" style="margin-top:8px"><p>Con pase del paciente: la urgencia no espera trámites, y el paciente (o su familiar) sigue su atención, recibe la copia del consentimiento y, en Endoscopía, el aviso de METRIA.</p><p>Admisión y Jefatura: ${fuera() ? '<b>diferidas</b> hasta que vuelvan.' : '<b>reciben el aviso ahora</b>.'}</p></div>
     ${btn('urg', '🚑 Cargar la urgencia', 'mal')}`;
+}
+function scrCamaUrg() {
+  return `<div class="s-h"><div><b>✍️ Firma a pie de cama</b><small>El paciente está internado: no pasa por Admisión</small></div></div>
+    <div class="s-card"><p><b>1 · El consentimiento.</b> Lo leen juntos en la cama, completo.</p>
+    <p><b>2 · Quién firma y su DNI.</b></p>
+    <div class="fila"><div class="esp"><b>🙋 El/la paciente</b><small>Con su DNI</small></div><span class="tag ok">Lo habitual</span></div>
+    <div class="fila"><div class="esp"><b>👪 Un familiar</b><small>Si el paciente no puede: cónyuge, hijo/a, padre, madre, hermano/a o allegado (Ley 26.529, art. 6)</small></div></div>
+    <div class="fila"><div class="esp"><b>⚠️ No puede firmar</b><small>Sin nadie y con riesgo de vida: se asienta la excepción (art. 9)</small></div></div>
+    <p><b>3 · Firma</b> con el dedo en el teléfono o en papel. Después firma el médico y al paciente le llega la copia completa.</p></div>
+    ${btn('firmar', '✍️ Firma a pie de cama', 'ok')}`;
 }
 function scrAlertaUrg(k) {
   const adm = k === 'adm';
@@ -1372,6 +1382,7 @@ CM({ e: 'Todo el recorrido', r: 'mapa', q: 'jef', h: '—', tit: 'El recorrido c
 const UR = (o) => P(Object.assign({ a: 'urg', tab: true }, o));
 UR({ id: 'urg-elige', e: '¿En qué horario?', r: 'urg', q: 'cir', h: '—', tit: 'Llega una urgencia', txt: 'La urgencia sigue el mismo circuito, pero no espera a nadie. Lo que cambia es cuándo actúan Admisión y Jefatura, según la hora.', t: ['fuera', 'en'], go: 'Elija «Fuera del horario laboral» o «En horario laboral»', ver: scrElegir, elegir: (t) => { ELEC.horario = t; }, ok: (t) => t === 'fuera' ? 'Sábado, 02:40. Admisión y Jefatura no están.' : 'Martes, 11:15. Admisión y Jefatura están trabajando.' });
 UR({ id: 'urg-carga', e: 'Carga', r: 'urg', q: 'cir', h: () => horaU('Sáb 02:40', 'Mar 11:15'), tit: 'El cirujano carga la urgencia', txt: () => `Prioridad P1, la primera sala libre. ${fuera() ? 'Fuera de horario, Admisión y Jefatura quedan <b>diferidas</b>: se opera igual y lo regularizan al volver.' : 'En horario, Admisión y Jefatura reciben el aviso <b>ahora</b> y validan mientras se prepara la sala.'}`, t: 'urg', go: 'Toque «Cargar la urgencia»', ver: scrCargaUrg, hacer: (S) => { S.u.carga = true; }, ok: () => fuera() ? 'Urgencia cargada. En el tablero: Admisión y Jefatura «diferidas».' : 'Urgencia cargada. Admisión y Jefatura ya tienen el aviso en rojo.' });
+UR({ e: 'Consentimiento', r: 'urg', q: 'cir', h: () => horaU('Sáb 02:44', 'Mar 11:16'), tit: 'Firma a pie de cama', txt: 'La urgencia no pasa por Admisión: el médico le pide el DNI y el paciente firma el consentimiento en su cama. Si no puede, firma un familiar; si no hay nadie y no se puede esperar, se asienta la excepción por emergencia.', t: 'firmar', go: 'Toque «Firma a pie de cama»', ver: scrCamaUrg, hacer: (S) => { S.u.cama = true; }, ok: 'Firmado. El médico pone su firma y al paciente le llega la copia por correo.' });
 UR({ si: () => ELEC.horario === 'en', e: 'Validación en el momento', r: 'adm', q: 'adm', h: 'Mar 11:17', tit: 'Admisión actúa en tiempo real', txt: 'En horario, Admisión ve la urgencia apenas se carga y acepta el ingreso en el momento.', t: 'aceptar', go: 'Toque «Aceptar el ingreso»', ver: () => scrAlertaUrg('adm'), hacer: (S) => { S.u.adm = true; }, ok: 'Ingreso aceptado en tiempo real.' });
 UR({ si: () => ELEC.horario === 'en', e: 'Validación en el momento', r: 'jef', q: 'jef', h: 'Mar 11:19', tit: 'La Jefatura valida en el momento', txt: 'La Jefatura la ve en Quirófanos en vivo, en rojo, y la valida sin frenar a nadie.', t: 'validar', go: 'Toque «Validar la urgencia»', ver: () => scrAlertaUrg('jef'), hacer: (S) => { S.u.jef = true; }, ok: 'Validada. Todo al día antes de empezar.' });
 UR({ e: 'Equipo de guardia', r: 'eq', q: 'anest', h: () => horaU('Sáb 02:48', 'Mar 11:22'), tit: 'Anestesia de guardia da el OK', txt: 'La app avisa a quien está de guardia según la lista mensual de Anestesiología. Llega y toma la urgencia.', t: 'tomar', go: 'Toque «Llegué y tomo la urgencia»', ver: (S) => scrGuardia(S, 'anest'), hacer: (S) => { S.u.anest = true; }, ok: 'Anestesia en la sala.' });
