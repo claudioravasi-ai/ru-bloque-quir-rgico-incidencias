@@ -297,7 +297,7 @@ function oaCir(id) {
   return oaNorm(DB.cirugias.find((x) => String(x.id) === String(id)));
 }
 function oaT(c) { return ppTipo(portalTipo(c)); }
-function oaMedico(c) { return (DB.usuarios || []).find((u) => u.email === c.cirujanoEmail) || null; }
+function oaMedico(c) { const e = String(c.cirujanoEmail || '').toLowerCase(); return (DB.usuarios || []).find((u) => String(u.email || '').toLowerCase() === e) || null; }
 function oaEsDueno(c) { const u = usuarioActual(); return !!(u && c.cirujanoEmail && u.email === c.cirujanoEmail); }
 function oaAnestDe(c) {
   const a = String(c.anestesia || '');
@@ -389,7 +389,7 @@ function oaHojaHTML(c, opt) {
   const esp = (firma && firma.esp) || c.servicio || m.servicio || '';
   // 15-11 · Pedido de Claudio: la firma dibujada se guarda una vez y vale para TODAS sus órdenes, también las que
   // ya estaban firmadas sin imagen (antes cada orden copiaba la imagen solo al firmarse y esas salían con el nombre).
-  const fImg = firma ? (firma.img || (!snap && m && m.firmaImg) || '') : '';
+  const fImg = firma ? (firma.img || (!snap && firmaDe(c.cirujanoEmail)) || '') : '';   // 3.52.2 · firma en su lugar propio
   const emi = fmtFecha(firma ? String(firma.t).slice(0, 10) : hoyISO());
   const falta = (v) => v ? esc(v) : '<span class="oa-falta">falta</span>';
   const dest = b.gest === 'pac'
@@ -550,7 +550,7 @@ function oaPintar() {
     <div class="field"><label>¿Quién le manda la orden a la obra social?</label><div class="oa-ops">${Object.keys(OA_GEST).map((g) => `<button type="button" class="${b.gest === g ? 'on' : ''}" ${puedeEd ? '' : 'disabled'} onclick="oaGest('${g}')">${OA_GEST[g][0]}</button>`).join('')}</div>
       <div class="oa-ayuda"><b>${OA_GEST[b.gest][0]}:</b> ${OA_GEST[b.gest][1]}</div></div>
     <div class="oa-blq"><h5>Mi firma dibujada</h5><p class="form-note" style="margin:0">Se guarda en tu perfil una sola vez y sale en todas tus órdenes, también en las que ya firmaste. Guardarla <b>no envía nada</b>.</p>
-      ${u && u.firmaImg ? `<div class="oa-mif"><img src="${u.firmaImg}" alt="Mi firma guardada"><span>✔ Esta es tu firma guardada. Si dibujás o subís otra, reemplaza a esta.</span></div>` : ''}
+      ${u && firmaDe(u.email) ? `<div class="oa-mif"><img src="${firmaDe(u.email)}" alt="Mi firma guardada"><span>✔ Esta es tu firma guardada. Si dibujás o subís otra, reemplaza a esta.</span></div>` : ''}
       <div class="oa-pad"><canvas id="oa-pad" width="760" height="240"></canvas><span id="oa-pad-g">Firmá acá con el dedo, el lápiz o el mouse</span></div>
       <div class="oa-fila" style="margin-top:8px">
         <button type="button" class="btn btn-sm btn-outline" onclick="oaPadBorrar()">Borrar</button>
@@ -604,7 +604,7 @@ function oaFirmar() {
     desc: `Al confirmar, la orden ${oaCodigo(c, o.ver)} queda firmada a tu nombre y la ven el paciente en su pase y Admisión en Ingresos.`,
     onOk: async () => {
       const m = oaMedico(c) || u || {};
-      o.firma = { t: nowDT(), por: c.cirujano || m.nombre, mat: (m.matricula && m.matricula.numero) || '', esp: c.servicio || m.servicio || '', img: (u && u.firmaImg) || '',
+      o.firma = { t: nowDT(), por: c.cirujano || m.nombre, mat: (m.matricula && m.matricula.numero) || '', esp: c.servicio || m.servicio || '', img: (u && firmaDe(u.email)) || '',
         datos: { fecha: c.fecha, hora: c.horaProg || '', sala: c.quirofano || '', procBase: c.procedimiento || '' } };
       o.env = null; o.autN = '';
       oaGuardar(c, `Orden de autorización ${oaCodigo(c, o.ver)} firmada y enviada al pase y a Admisión`);
@@ -643,7 +643,7 @@ function oaRecortar(cv) {
 }
 function oaFirmaGuardar(img) {
   const u = usuarioActual(); if (!u) return;
-  u.firmaImg = img; upsert('usuarios', u);
+  guardarFirmaMedico(u, img);   // 3.52.2 · en firmas/<correo> (no se pierde) y en el legajo
   const c = oaCir(oaId); if (c && c.orden && !c.orden.firma) upsert('cirugias', c);
   // Las órdenes ya firmadas sin imagen la toman al dibujarse; el pase del paciente se actualiza también.
   const mias = DB.cirugias.filter((x) => x.cirujanoEmail === u.email && x.orden && x.orden.firma && !x.orden.firma.img && x.pase && x.pase.token);
@@ -657,7 +657,7 @@ function oaPadArchivo(inp) {
   if (f.size > 2e6) { oaAviso('La imagen pesa más de 2 MB. Probá con una foto más chica o un recorte.'); return; }
   const r = new FileReader();
   r.onload = () => { const im = new Image(); im.onload = () => {
-    const cv = document.createElement('canvas'), k = Math.min(1, 760 / im.width); cv.width = Math.round(im.width * k); cv.height = Math.round(im.height * k);
+    const cv = document.createElement('canvas'), k = Math.min(1, 600 / im.width); cv.width = Math.round(im.width * k); cv.height = Math.round(im.height * k);
     const x = cv.getContext('2d'); x.drawImage(im, 0, 0, cv.width, cv.height);
     const px = x.getImageData(0, 0, cv.width, cv.height), d = px.data;
     for (let i = 0; i < d.length; i += 4) { if ((d[i] + d[i + 1] + d[i + 2]) / 3 > 185) d[i + 3] = 0; }
@@ -1072,7 +1072,7 @@ async function oaVerificar(cod) {
    El paciente sale de la consulta y va directo a Admisión a iniciar la autorización. */
 function oaFirmaAuto(c, cuando) {
   const o = oaDe(c, true), u = usuarioActual() || {}, m = oaMedico(c) || u;
-  o.firma = { t: nowDT(), por: c.cirujano || m.nombre || '', mat: (m.matricula && m.matricula.numero) || '', esp: c.servicio || m.servicio || '', img: u.firmaImg || '',
+  o.firma = { t: nowDT(), por: c.cirujano || m.nombre || '', mat: (m.matricula && m.matricula.numero) || '', esp: c.servicio || m.servicio || '', img: firmaDe(u.email) || '',
     auto: true, datos: { fecha: c.fecha, hora: c.horaProg || '', sala: c.quirofano || '', procBase: c.procedimiento || '' } };
   o.env = null; o.autN = '';
   pushHist(c, `Orden de autorización ${oaCodigo(c, o.ver)} emitida y firmada por ${o.firma.por} ${cuando || 'al generar el pase'}: le llega al paciente y a Admisión y Egresos`);
@@ -1084,7 +1084,7 @@ function oaPaseCampos(c) {
     <div class="oa-pase-tit">📄 Con el pase sale la <b>orden de autorización (R/P)</b> firmada por usted: le llega al paciente y a Admisión y Egresos en el momento.</div>
     ${conOS ? `<div class="field"><label>N.º de afiliado · ${esc(os)} *</label><input type="text" id="pase-afil" value="${esc(b.afil || p.afiliado || '')}" oninput="paseValidar()" autocomplete="off"></div>
     <div class="field"><label>Plan${/pami/i.test(os) ? '' : ' *'}</label><input type="text" id="pase-plan" value="${esc(b.plan || p.plan || '')}" oninput="paseValidar()" autocomplete="off"></div>` : '<p class="form-note">Sin obra social cargada: la orden sale igual, para Admisión.</p>'}
-    <p class="form-note" style="margin:4px 0 0">${u.firmaImg ? '✔ Lleva su firma dibujada guardada.' : 'No tiene firma dibujada guardada: sale con su nombre. Puede dibujarla después desde la orden, en el turno.'} Si después cambia la fecha, la sala o la cirugía, la orden se anula sola y sale otra.</p>
+    <p class="form-note" style="margin:4px 0 0">${firmaDe(u.email) ? '✔ Lleva su firma dibujada guardada.' : 'No tiene firma dibujada guardada: sale con su nombre. Puede dibujarla después desde la orden, en el turno.'} Si después cambia la fecha, la sala o la cirugía, la orden se anula sola y sale otra.</p>
   </div>`;
 }
 (function oaConElPase() {

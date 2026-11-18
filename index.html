@@ -10584,7 +10584,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.52.1';
+const APP_VERSION = '3.52.2';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -11288,6 +11288,7 @@ async function initStore(onReady) {
     COLS.forEach((col) => suscribirCol(col, () => {
       if (--pending === 0) { clearTimeout(guarda); listo(); }
     }));
+    suscribirFirmas();   // 3.52.2 · la firma de cada médico
     // Los seis contadores del tablero abierto: nodo aparte, sin datos de nadie.
     suscribirEstadisticasPublicas();
   });
@@ -11368,6 +11369,7 @@ function resuscribir() {
   if (!cloudOn || typeof firebase === 'undefined' || !firebase.apps.length) return;
   if (!conSesionApp()) tableroSinSesion();   // 3.36 · al salir no queda la copia con datos de pacientes
   COLS.forEach((col) => suscribirCol(col, null));
+  suscribirFirmas();
   // Con la identidad nueva puede haber permiso para lo que antes esperaba en
   // la cola —el legajo de un alta recién hecha, por ejemplo—: se descarga ya.
   if (conectado) vaciarCola();
@@ -20336,7 +20338,9 @@ function textoSemana(lunes) {
   const f = (d) => { const [, m, dd] = d.split('-'); return `${Number(dd)} ${MESES_FULL[Number(m) - 1].slice(0, 3).toLowerCase()}`; };
   return `Lunes ${f(lunes)} al domingo ${f(dom)}`;
 }
+let ingresosAbierto = '', misAbierto = false;
 function renderMis() {
+  if (!misAbierto) { misAbierto = true; setTimeout(() => { try { ciCopiasPendientes(); } catch (e) {} }, 0); }
   const u = usuarioActual();
   if (!u) { go('acceso'); return; }
   const lunHoy = lunesDe(hoyISO());
@@ -20554,6 +20558,8 @@ function accionesCirugia(c, rol, enFicha) {
   const a = [];
   // Pasó el día y el turno sigue en el circuito: lo único que se ofrece es
   // decir qué pasó. Iniciar, validar o suspender suelto ya no tienen sentido.
+  // 3.52.2 · Pedido de Claudio: el consentimiento se firma también desde Mis turnos (y la ficha), no solo desde la grilla del día.
+  if (!enFicha && rol !== 'jefe' && puedeFirmarMedico(c)) a.push(`<button class="btn btn-sm btn-green" onclick="event.stopPropagation();ciFirmadoDescargar(${esc(JSON.stringify(c.id))})">🖋️ Firmar el consentimiento</button>`);
   const vencido = sinResolver(c);
   if (vencido && (jefe || esDueno)) {
     a.push(`<button class="btn btn-sm btn-red" onclick="openResolverTurno(${c.id})">${ico(ICONS.alertTri, 14)} Resolver turno</button>`);
@@ -22268,6 +22274,7 @@ function renderIngresosJefe() {
   </div>`;
 }
 function renderIngresos() {
+  if (view === 'ingresos' && ingresosAbierto !== ingDia + '|' + view) { ingresosAbierto = ingDia + '|' + view; setTimeout(() => { try { ciCopiasPendientes(); } catch (e) {} }, 0); }
   // 3.30 · La Jefatura de Quirófanos solo mira: su propia pantalla, sin botones que cambien nada.
   if (jefe && !admis) { renderIngresosJefe(); return; }
   const hoy = hoyISO();
@@ -35703,6 +35710,8 @@ function ciFichaNotaHTML(c) {
 }
 function puedeBajarCiFirmado(c) {
   const u = usuarioActual();
+  // 3.52.2 · Admisión y Egresos también lo baja (una vez firmado en el pase o de puño y letra en Admisión).
+  if (c && admis && !jefe && (c.ciPaciente || c.ciPresencial)) return true;
   return !!(c && (c.ciPaciente || c.ciRevocado) && (jefe || (u && c.cirujanoEmail === u.email)));
 }
 /* 3.37.1 · Quién firma: el/la paciente o, si no puede hacerlo, su representante legal. */
@@ -35840,11 +35849,13 @@ async function ciFirmadoDescargar(id, antI) {
   // 3.37 · El botón decía «Firmar y bajar»: tocarlo es la firma del médico, con su cuenta.
   if (!ant && puedeFirmarMedico(c)) {
     const yo = usuarioActual(), d = (consentimientoDeTurno(c) || {}).datos || {};
-    c.ciMedico = { t: nowDT(), nombre: d.m_nombre || yo.nombre || '', mat: d.m_mat || '', email: yo.email, hash: c.ciPaciente.hash, img: yo.firmaImg || '' };
+    c.ciMedico = { t: nowDT(), nombre: d.m_nombre || yo.nombre || '', mat: d.m_mat || '', email: yo.email, hash: c.ciPaciente.hash, img: firmaDe(yo.email) };
     pushHist(c, `${c.ciMedico.nombre} firmó electrónicamente el consentimiento aceptado por el paciente · huella ${String(c.ciPaciente.hash || '').slice(0, 12)}…`);
     firmo = true;
   }
-  const f = ant ? { t: ant.t, hash: ant.hash } : rev ? { t: rev.firmado, hash: rev.hash } : c.ciPaciente, ci = consentimientoDeTurno(c), pa = c.paciente || {}, med = ant ? ant.medico : rev ? rev.medico : c.ciMedico;
+  // 3.52.2 · Sin aceptación en el pase pero firmado de puño y letra en Admisión: vale esa firma.
+  const soloPres = !ant && !rev && !c.ciPaciente && c.ciPresencial ? c.ciPresencial : null;
+  const f = ant ? { t: ant.t, hash: ant.hash } : rev ? { t: rev.firmado, hash: rev.hash } : soloPres ? { t: soloPres.t, hash: soloPres.hash } : c.ciPaciente, ci = consentimientoDeTurno(c), pa = c.paciente || {}, med = ant ? ant.medico : rev ? rev.medico : c.ciMedico;
   const quien = ciFirmante(ci);
   let html = ci && ci.pase && ci.pase[f.hash], original = !!html;
   if (!html && ci && ci.datos) html = ciDocImprimible(ciDocHTML({ ...CI_VACIO, ...ci.datos }));
@@ -35870,15 +35881,15 @@ async function ciFirmadoDescargar(id, antI) {
         <b>Código de pase:</b> ${esc((c.pase && c.pase.ref) || '—')}
       </div>
     </div>
-    <p><b>Leído y validado ${quien.rep ? 'por el/la representante legal' : 'por el paciente'}.</b> ${quien.rep ? `El/la representante legal ingresó al pase de ${esc(quien.paciente)} con el DNI del paciente` : 'El/la paciente ingresó a su pase del Hospital Regional Ushuaia identificándose con su DNI'}
+    ${soloPres ? `<p><b>Firmado de puño y letra en Admisión y Egresos.</b> No lo aceptó desde el pase: lo leyó en el hospital y lo firmó ante el personal de Admisión, que verificó su DNI.</p>` : `<p><b>Leído y validado ${quien.rep ? 'por el/la representante legal' : 'por el paciente'}.</b> ${quien.rep ? `El/la representante legal ingresó al pase de ${esc(quien.paciente)} con el DNI del paciente` : 'El/la paciente ingresó a su pase del Hospital Regional Ushuaia identificándose con su DNI'}
       y con un código de un solo uso enviado a su correo electrónico (${esc(enmascararMail(pa.email) || 's/d')}), leyó este documento completo
-      y tildó: <i>«Leí y comprendo los alcances del consentimiento médico informado»</i>.</p>
+      y tildó: <i>«Leí y comprendo los alcances del consentimiento médico informado»</i>.</p>`}
     <p style="text-align:center;margin-bottom:.2em"><b>Código de verificación de la firma (SHA-256 del documento aceptado):</b></p>
     <div class="cc-hash">${hashTxt.split(' ').map((g) => `<span>${esc(g)}</span>`).join('')}</div>
     <div class="cc-ok ${coincide ? '' : 'no'}">${coincide
       ? '✓ Verificado al descargar: este texto es idéntico, carácter por carácter, al que aceptó el paciente.'
       : '⚠ No se encontró la copia exacta del texto aceptado: esta es una copia regenerada del consentimiento. La huella de arriba corresponde al texto original aceptado.'}</div>
-    ${ant || rev ? '' : ciAudConstanciaHTML(f.aud) + ciPresConstanciaHTML(c, f.hash)}
+    ${ant || rev ? '' : (soloPres ? '' : ciAudConstanciaHTML(f.aud)) + ciPresConstanciaHTML(c, f.hash)}
     <div class="cc-med">${med
       ? `${ciImgMedico(med) ? `<img class="cc-med-img" src="${ciImgMedico(med)}" alt="Firma del médico">` : ''}<b>Firma electrónica del médico:</b> ${esc(med.nombre)}${med.mat ? ` · Mat. ${esc(med.mat)}` : ''} · ${esc(fmtDT(med.t))}. Firmó con su cuenta personal (${esc(enmascararMail(med.email))}) el documento aceptado por el paciente.`
       : '<b>Firma electrónica del médico:</b> pendiente. La pone ' + (esEndo(c) ? 'el/la endoscopista' : 'el/la cirujano/a') + ' del turno desde su cuenta, con «Firmar y bajar el consentimiento».'}</div>
@@ -35895,7 +35906,7 @@ async function ciFirmadoDescargar(id, antI) {
     .replace('<div class="cd">', () => '<div class="cd">' + cinta).replace(/<\/div>\s*<\/body>/, () => constancia + '</div></body>');
   w.document.open(); w.document.write(doc); w.document.close();
   ciPaginar(w.document);
-  pushHist(c, `Se descargó el consentimiento ${ant ? 'aceptado antes (versión sin efecto)' : rev ? 'revocado' : 'firmado electrónicamente por el paciente'} (${coincide ? 'texto verificado por SHA-256' : 'copia regenerada'}) — ${(usuarioActual() || {}).nombre || JEFATURA}`);
+  pushHist(c, `Se descargó el consentimiento ${ant ? 'aceptado antes (versión sin efecto)' : rev ? 'revocado' : 'firmado electrónicamente por el paciente'} (${coincide ? 'texto verificado por SHA-256' : 'copia regenerada'}) — ${(usuarioActual() || {}).nombre || (admis && !jefe ? 'Admisión y Egresos' : JEFATURA)}`);
   upsert('cirugias', c);
   // 3.40.2 · Firmó: la ficha abierta no puede seguir ofreciendo «Firmar y bajar».
   if (firmo) ciCompletar(c);
@@ -35931,12 +35942,53 @@ function ciPresConstanciaHTML(c, hash) {
       ${p.sello ? `<br><small>Sello de la firma (SHA-256): ${esc(String(p.sello).toUpperCase().slice(0, 32))}…</small>` : ''}</div></div></div>`;
 }
 
+/* ================= 3.52.2 · LA FIRMA DE CADA MÉDICO, EN SU PROPIO LUGAR =================
+   Pedido de Claudio (17-11): la firma subida no salía en sus órdenes ni en sus consentimientos.
+   Vivía dentro del legajo (`usuarios`), que la app reescribe entero en cada ingreso: un equipo
+   con una copia vieja del legajo la borraba. Ahora vive en `firmas/<correo>` = { img, t }, que
+   escribe solo el propio médico; el legajo la conserva como respaldo. */
+const FIRMAS = {};
+const FIRMAS_LS = 'hruq_firmas_v1';
+function claveFirma(m) { return String(m || '').toLowerCase().replace(/[.#$\[\]\/]/g, ','); }
+function firmaDe(email) {
+  const k = claveFirma(email); if (!k) return '';
+  if (FIRMAS[k] && FIRMAS[k].img) return FIRMAS[k].img;
+  const u = (DB.usuarios || []).find((x) => String(x.email || '').toLowerCase() === String(email || '').toLowerCase());
+  return (u && u.firmaImg) || '';
+}
+function firmasCargarLocal() { try { Object.assign(FIRMAS, JSON.parse(localStorage.getItem(FIRMAS_LS) || '{}')); } catch (e) {} }
+function firmasGuardarLocal() { try { localStorage.setItem(FIRMAS_LS, JSON.stringify(FIRMAS)); } catch (e) {} }
+let firmasRef = null;
+function suscribirFirmas() {
+  if (!cloudOn || typeof firebase === 'undefined' || !firebase.apps.length) return;
+  try { if (firmasRef) firmasRef.off(); } catch (e) {}
+  firmasRef = firebase.database().ref('firmas');
+  firmasRef.on('value', (snap) => {
+    const v = snap.val() || {};
+    Object.keys(FIRMAS).forEach((k) => { if (!v[k]) delete FIRMAS[k]; });
+    Object.assign(FIRMAS, v); firmasGuardarLocal(); firmaMigrar();
+  }, () => {});
+}
+/* Guarda la firma del médico que está usando la app (solo la suya). */
+async function guardarFirmaMedico(u, img) {
+  if (!u || !img) return false;
+  const k = claveFirma(u.email), reg = { img, t: nowDT() };
+  FIRMAS[k] = reg; firmasGuardarLocal();
+  u.firmaImg = img; upsert('usuarios', u);   // respaldo en el legajo (versiones anteriores de la app)
+  if (!cloudOn) return true;
+  try { await firebase.database().ref('firmas/' + k).set(reg); return true; } catch (e) { console.error('Firma:', e); return false; }
+}
+/* La firma que quedó solo en el legajo pasa a su lugar propio la primera vez que entra su dueño. */
+function firmaMigrar() {
+  const u = usuarioActual(); if (!u || !u.firmaImg) return;
+  const k = claveFirma(u.email); if (FIRMAS[k] && FIRMAS[k].img) return;
+  guardarFirmaMedico(u, u.firmaImg);
+}
+firmasCargarLocal();
 /* 3.52.1 · La firma del médico: la que quedó al firmar o, si no tenía, la guardada en su perfil. */
 function ciImgMedico(med) {
   if (!med) return '';
-  if (med.img) return med.img;
-  const u = DB.usuarios.find((x) => String(x.email || '').toLowerCase() === String(med.email || '').toLowerCase());
-  return (u && u.firmaImg) || '';
+  return med.img || firmaDe(med.email);
 }
 /* 3.52.1 · Lo que ve el paciente en su pase: la firma del médico y la de puño y letra en Admisión. */
 function ciFirmasParaPase(c) {
@@ -35947,6 +35999,20 @@ function ciFirmasParaPase(c) {
 }
 /* 3.52.1 · Pedido de Claudio: la copia al paciente sale cuando están las TRES firmas (pase, médico
    y puño y letra en Admisión). Se actualiza el pase y se pide el correo una sola vez. */
+const ciCopiaEnCurso = new Set(), ciCopiaReintento = {};
+/* 3.52.2 · Sin relojes (pedido de Claudio: «que no quede nada rodando solo»). Se revisa UNA vez cuando
+   una persona abre Ingresos (Admisión) o Mis turnos (el médico): un consentimiento con las tres firmas
+   que todavía no mandó la copia (firmado con una versión anterior, o sin conexión en ese momento) la
+   manda en ese momento. El servicio la manda una sola vez aunque la pidan dos equipos. */
+function ciCopiasPendientes() {
+  const u = usuarioActual();
+  if (!(jefe || admis || u) || (cloudOn && (!conectado || !nubeLista))) return;
+  DB.cirugias.filter((c) => c.ciPaciente && c.ciMedico && c.ciPresencial && c.pase && c.pase.token && !c.pase.caducado
+    && !(c.ciCopiaFinal && c.ciCopiaFinal.pres === c.ciPresencial.t)
+    && (jefeDe(c) || admis || (u && c.cirujanoEmail === u.email))
+    && Date.now() - (ciCopiaReintento[String(c.id)] || 0) > 5 * 60000)
+    .slice(0, 5).forEach((c) => { ciCompletar(c); });
+}
 async function ciCompletar(c) {
   if (!c || !c.pase || !c.pase.token || c.pase.caducado) return;
   // Solo se agregan las firmas al pase (no se rearma nada más: Admisión no toca el texto ni los datos).
@@ -35956,9 +36022,18 @@ async function ciCompletar(c) {
     else await firebase.database().ref('portalPrivado/' + t + '/ci/firmas').set(fs);
   } catch (e) {}
   if (!(c.ciPaciente && c.ciMedico && c.ciPresencial) || (c.ciCopiaFinal && c.ciCopiaFinal.pres === c.ciPresencial.t)) return;
+  if (ciCopiaEnCurso.has(String(c.id))) return;
+  ciCopiaEnCurso.add(String(c.id));
   let ok = !cloudOn;
-  if (cloudOn) { try { const r = await portalServicio({ accion: 'ciCopiaFinal', id: String(c.id) }); ok = !!(r && r.ok); } catch (e) { ok = false; } }
-  if (!ok) return;
+  try {
+    // 3.52.2 · Primero que la cirugía con las tres firmas esté confirmada en la nube: el servicio la lee
+    // de ahí (antes podía leerla un instante antes de que llegara la firma, y no mandaba nada).
+    if (cloudOn) {
+      const enNube = await upsert('cirugias', c);
+      if (enNube) { try { const r = await portalServicio({ accion: 'ciCopiaFinal', id: String(c.id) }); ok = !!(r && r.ok); } catch (e) { ok = false; } }
+    }
+  } finally { ciCopiaEnCurso.delete(String(c.id)); }
+  if (!ok) { ciCopiaReintento[String(c.id)] = Date.now(); return; }
   c.ciCopiaFinal = { t: nowDT(), pres: c.ciPresencial.t };
   pushHist(c, 'Consentimiento completo (paciente en el pase, médico y puño y letra en Admisión): se le mandó al paciente el aviso con su copia');
   upsert('cirugias', c);
@@ -36040,7 +36115,8 @@ function cpPintar() {
     $('cp-modal').innerHTML = cab + `<div class="cp-hecho"><b>✓ Firmado de puño y letra</b>
       ${p.via === 'pantalla' && p.img ? `<img src="${p.img}" alt="Firma">` : '<p>Firmó el ejemplar impreso con lapicera: el original quedó en la historia clínica.</p>'}
       <small>${esc(fmtDT(p.t))} · DNI ${esc(Number(p.dni || 0).toLocaleString('es-AR'))} verificado por ${esc(p.por || '—')}</small></div>
-      <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="cpCerrar()">Cerrar</button>`;
+      ${puedeBajarCiFirmado(c) ? `<button class="btn btn-green cp-ok" onclick="ciFirmadoDescargar(${esc(JSON.stringify(c.id))})">⬇ Bajar el consentimiento firmado (PDF)</button>` : ''}
+      <button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:8px" onclick="cpCerrar()">Cerrar</button>`;
     return;
   }
   $('cp-modal').innerHTML = cab + `
@@ -36121,6 +36197,8 @@ async function cpGuardar() {
   }
   reg.sello = await sha256Hex([reg.hash, reg.t, reg.dni, reg.via, reg.img || '', reg.puntos || ''].join('|'));
   c.ciPresencial = reg;
+  // 3.52.2 · El texto que se firmó queda guardado por su huella (para bajarlo idéntico después).
+  if (!cp.doc.exacto) { const ci = consentimientoDeTurno(c); if (ci) { ci.pase = Object.assign({}, ci.pase || {}, { [reg.hash]: cp.doc.html }); upsert('consentimientos', ci); } }
   c.hce = { ...(c.hce || {}), consentimiento: true };
   pushHist(c, `Consentimiento firmado de puño y letra en Admisión y Egresos (${cp.via === 'pantalla' ? 'en pantalla' : 'en papel'}) · DNI ${dni} verificado por ${por} · huella del texto ${String(reg.hash).slice(0, 12)}…`);
   upsert('cirugias', c);
