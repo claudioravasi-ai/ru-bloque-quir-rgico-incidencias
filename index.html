@@ -5271,6 +5271,84 @@
   .cm-env-sec header { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; font-size: .82rem; } .cm-env-sec header b { color: var(--c); } .cm-env-sec header span { color: #64748b; } .cm-env-sec header em { margin-left: auto; font-style: normal; font-weight: 900; color: #16a34a; }
   @media (prefers-reduced-motion: reduce) { .cm-envio-i, .cm-cama { animation: none !important; } }
 
+  /* 3.54 · Procedimientos autorizados (Admisión) */
+  .pra-busca { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .pra-busca input { flex: 1 1 220px; min-width: 0; font-size: 16px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-family: inherit; }
+  .pra-blq { margin-bottom: 16px; } .pra-blq h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 4px 4px 8px; font-size: 1.05rem; } .pra-blq h2 small { font-size: .76rem; font-weight: 500; color: var(--muted); }
+  .pra-blq.prox { padding-top: 10px; border-top: 2px dashed var(--line); }
+  .pra-l { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .pra-est { border-radius: 999px; padding: 3px 10px; font-size: .72rem; font-weight: 800; background: var(--s); color: var(--t); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); white-space: nowrap; }
+  .pra-sec > header { flex-direction: row !important; align-items: center; } .pra-sec > header span { margin-left: auto; border-radius: 999px; padding: 1px 9px; font-weight: 800; background: var(--sup2, #f1f5f9); }
+  .pra-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; }
+  .pra-tot { width: 100%; font-size: .82rem; color: var(--muted); padding: 0 4px; } .pra-tot b { color: var(--ink); font-size: 1rem; }
+  .pra-ch { --c: #2563eb; min-height: 38px; border-radius: 999px; padding: 0 13px; font: inherit; font-size: .8rem; cursor: pointer; border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line)); background: color-mix(in srgb, var(--c) 8%, var(--card)); color: var(--ink); transition: transform .2s, background .2s, color .2s; }
+  .pra-ch.pra-endo { --c: #0d9488; } .pra-ch.pra-obs { --c: #d97706; } .pra-ch:hover { transform: translateY(-2px); }
+  .pra-ch.on { background: var(--c); color: #fff; border-color: var(--c); box-shadow: 0 8px 18px -10px var(--c); } .pra-ch.limpiar { --c: #64748b; }
+  .pra-f { --c: #2563eb; list-style: none; border-radius: 18px; background: var(--card); border: 1px solid var(--line); overflow: hidden; animation: praSube .45s cubic-bezier(.2,.9,.3,1.15) both; animation-delay: calc(var(--i) * 45ms); transition: box-shadow .25s, border-color .25s; }
+  .pra-f.pra-endo { --c: #0d9488; } .pra-f.pra-obs { --c: #d97706; }
+  .pra-f:hover, .pra-f.ab { border-color: color-mix(in srgb, var(--c) 45%, var(--line)); box-shadow: 0 14px 28px -20px var(--c); }
+  @keyframes praSube { from { opacity: 0; transform: translateY(14px); } }
+  .pra-tk { width: 100%; display: grid; grid-template-columns: 58px minmax(0, 1fr) auto 18px; gap: 10px; align-items: center; padding: 9px 10px 9px 9px; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  .pra-d { display: grid; justify-items: center; padding: 6px 0 5px; border-radius: 14px; color: #fff; background: linear-gradient(160deg, var(--c), color-mix(in srgb, var(--c) 60%, #0f172a)); line-height: 1.05; }
+  .pra-d small { font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; opacity: .9; } .pra-d b { font-size: 1.35rem; } .pra-d em { font-style: normal; color: #fff; font-size: .62rem; font-weight: 700; margin-top: 3px; padding: 1px 6px; border-radius: 99px; background: rgba(255,255,255,.22); }
+  .ing-sec .pra-d em { color: #fff; background: rgba(255,255,255,.22); font-style: normal; }
+  .pra-p { display: grid; min-width: 0; overflow-wrap: anywhere; } .pra-p b { font-size: .93rem; } .pra-p small { font-size: .74rem; color: var(--muted); } .pra-p .pra-pr { color: var(--ink); font-weight: 600; }
+  .pra-sello { display: grid; justify-items: center; gap: 1px; padding: 5px 9px; border: 2px solid #16a34a; border-radius: 10px; color: #15803d; font-size: .64rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; transform: rotate(-7deg); animation: praSello .6s cubic-bezier(.2,.9,.3,1.4) both; animation-delay: calc(var(--i) * 45ms + .25s); }
+  .pra-sello i { font-style: normal; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: #16a34a; color: #fff; font-size: .7rem; } .pra-sello small { font-size: .56rem; letter-spacing: 0; text-transform: none; font-weight: 700; color: var(--muted); }
+  @keyframes praSello { from { opacity: 0; transform: rotate(-20deg) scale(1.8); } 70% { opacity: 1; transform: rotate(-5deg) scale(.95); } to { transform: rotate(-7deg) scale(1); } }
+  .pra-chev { width: 18px; height: 18px; border-radius: 50%; background: color-mix(in srgb, var(--c) 14%, transparent); position: relative; transition: transform .3s; }
+  .pra-chev::after { content: ''; position: absolute; left: 6px; top: 4px; width: 5px; height: 5px; border-right: 2px solid var(--c); border-bottom: 2px solid var(--c); transform: rotate(45deg); }
+  .pra-f.ab .pra-chev { transform: rotate(180deg); }
+  .pra-det { padding: 2px 12px 12px; animation: praAbre .3s ease-out; }
+  .pra-det dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; margin: 0 0 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .pra-det dl > div { padding: 7px 9px; border-radius: 12px; background: var(--sup2, #f8fafc); min-width: 0; overflow-wrap: anywhere; }
+  .pra-det dt { font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); } .pra-det dd { margin: 2px 0 0; font-size: .84rem; font-weight: 700; } .pra-det dd small { display: block; font-size: .72rem; font-weight: 500; color: var(--muted); }
+  .pra-nota { margin: 0; font-size: .74rem; color: var(--muted); }
+  @media (max-width: 480px) { .pra-tk { grid-template-columns: 52px minmax(0, 1fr) 18px; } .pra-sello { grid-column: 2; justify-self: start; grid-auto-flow: column; align-items: center; gap: 5px; transform: rotate(-2deg); } .pra-sello small { margin-left: 2px; } }
+  @media (prefers-reduced-motion: reduce) { .pra-f, .pra-sello, .pra-det { animation: none; } }
+  /* 19-11 · Almanaque de semanas (cinta + mes desplegable), animado */
+  .pra-cal { position: relative; overflow: hidden; margin-bottom: 12px; padding: 12px; border-radius: 22px; color: #fff;
+    background: radial-gradient(120% 140% at 0% 0%, #0ea5e9 0%, transparent 55%), radial-gradient(120% 140% at 100% 100%, #10b981 0%, transparent 55%), linear-gradient(135deg, #1e3a8a, #0f766e);
+    background-size: 160% 160%; animation: praAurora 14s ease-in-out infinite alternate; box-shadow: 0 18px 40px -22px #0f766e; }
+  .pra-cal.hist { background: radial-gradient(120% 140% at 0% 0%, #a78bfa 0%, transparent 55%), radial-gradient(120% 140% at 100% 100%, #f59e0b 0%, transparent 60%), linear-gradient(135deg, #312e81, #7c2d12); background-size: 160% 160%; }
+  @keyframes praAurora { from { background-position: 0% 0%; } to { background-position: 100% 100%; } }
+  .pra-cal-top { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 6px; }
+  .pra-flecha { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.14); color: #fff; font-size: 1.6rem; line-height: 1; cursor: pointer; transition: transform .2s, background .2s; }
+  .pra-flecha:hover:not(:disabled) { transform: scale(1.1); background: rgba(255,255,255,.26); } .pra-flecha:active:not(:disabled) { transform: scale(.92); } .pra-flecha:disabled { opacity: .3; cursor: default; }
+  .pra-cal-t { text-align: center; display: grid; animation: praEntra .45s cubic-bezier(.2,.9,.3,1.3); }
+  .pra-cal-t small { font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
+  .pra-cal-t b { font-size: 1.7rem; line-height: 1.1; letter-spacing: -.02em; } .pra-cal-t b span { font-size: 1rem; font-weight: 700; opacity: .85; }
+  .pra-cal-t em { font-style: normal; color: inherit; font-size: .74rem; opacity: .85; }
+  @keyframes praEntra { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: none; } }
+  .pra-cinta { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; padding: 12px 2px 6px; margin-top: 4px; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent); mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent); }
+  .pra-cinta::-webkit-scrollbar { display: none; }
+  .pra-w { flex: none; scroll-snap-align: center; width: 92px; display: grid; gap: 3px; justify-items: center; padding: 8px 6px; border-radius: 16px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.1); color: #fff; font: inherit; cursor: pointer; transition: transform .25s cubic-bezier(.2,.9,.3,1.3), background .25s, box-shadow .25s; }
+  .pra-w:hover { transform: translateY(-3px); background: rgba(255,255,255,.2); }
+  .pra-w small { font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; opacity: .85; white-space: nowrap; } .pra-w b { font-size: .95rem; white-space: nowrap; } .pra-w em { font-style: normal; color: inherit; font-size: .6rem; opacity: .85; white-space: nowrap; }
+  .pra-w-bar { width: 100%; height: 5px; border-radius: 99px; background: rgba(255,255,255,.2); overflow: hidden; }
+  .pra-w-bar i { display: block; height: 100%; width: calc(var(--v) * 100%); min-width: 0; border-radius: 99px; background: linear-gradient(90deg, #fde68a, #fff); transform-origin: left; animation: praBarra .7s ease-out both; }
+  @keyframes praBarra { from { transform: scaleX(0); } }
+  .pra-w.sel { background: #fff; color: #0f3d5e; transform: translateY(-4px) scale(1.06); box-shadow: 0 12px 24px -12px rgba(0,0,0,.6); }
+  .pra-w.sel .pra-w-bar { background: #e2e8f0; } .pra-w.sel .pra-w-bar i { background: linear-gradient(90deg, #0ea5e9, #10b981); }
+  .pra-w.hoy:not(.sel) { border-color: #fde68a; box-shadow: inset 0 0 0 1px #fde68a; }
+  .pra-cal-acc { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 6px; }
+  .pra-otra, .pra-volver { min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.4); background: rgba(255,255,255,.14); color: #fff; font: inherit; font-weight: 800; font-size: .82rem; cursor: pointer; transition: background .2s, transform .2s; }
+  .pra-otra:hover, .pra-volver:hover { background: rgba(255,255,255,.26); transform: translateY(-1px); } .pra-otra.on { background: #fff; color: #0f3d5e; } .pra-volver { background: #fde68a; color: #713f12; border-color: #fde68a; }
+  .pra-mes { margin: 12px auto 2px; max-width: 360px; padding: 12px; border-radius: 18px; background: var(--card); color: var(--ink); box-shadow: 0 16px 34px -18px rgba(0,0,0,.55); animation: praAbre .35s cubic-bezier(.2,.9,.3,1.2); transform-origin: top center; }
+  @keyframes praAbre { from { opacity: 0; transform: translateY(-8px) scaleY(.85); } to { opacity: 1; transform: none; } }
+  .pra-mes-t { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; text-align: center; margin-bottom: 6px; } .pra-mes-t b { text-transform: capitalize; font-size: 1rem; }
+  .pra-mes-t button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--sup2, #f1f5f9); color: var(--ink); font-size: 1.3rem; cursor: pointer; } .pra-mes-t button:disabled { opacity: .3; cursor: default; }
+  .pra-mes-g, .pra-mes-f { position: relative; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; padding-right: 22px; }
+  .pra-mes-g span { text-align: center; font-size: .68rem; font-weight: 800; color: var(--muted); padding: 4px 0; }
+  .pra-mes-f { border-radius: 12px; transition: background .2s; } .pra-mes-f:hover:not(.fut), .pra-mes-f:focus-within { background: color-mix(in srgb, #0ea5e9 16%, transparent); }
+  .pra-mes-f.sel { background: linear-gradient(90deg, #0ea5e9, #10b981); } .pra-mes-f.sel button { color: #fff; }
+  .pra-mes-f button { height: 38px; border: 0; background: none; color: var(--ink); font: inherit; font-weight: 700; font-size: .88rem; border-radius: 10px; cursor: pointer; animation: praDia .35s ease-out both; animation-delay: calc(var(--i) * 12ms); }
+  @keyframes praDia { from { opacity: 0; transform: scale(.6); } }
+  .pra-mes-f button.otro { opacity: .38; } .pra-mes-f button:disabled { opacity: .22; cursor: default; }
+  .pra-mes-f button.hoy { box-shadow: inset 0 0 0 2px #f59e0b; }
+  .pra-mes-n { position: absolute; right: 0; top: 50%; transform: translateY(-50%); min-width: 18px; height: 18px; padding: 0 4px; border-radius: 99px; background: #10b981; color: #fff; font-size: .62rem; font-style: normal; font-weight: 800; display: grid; place-items: center; pointer-events: none; }
+  .pra-mes p { margin: 8px 0 0; text-align: center; font-size: .72rem; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .pra-cal, .pra-cal-t, .pra-w-bar i, .pra-mes, .pra-mes-f button { animation: none; } .pra-cinta { scroll-behavior: auto; } }
   /* ================= 3.27 · Ingresos del día (Admisión) ================= */
   .ing-sec { border-radius: 18px; background: var(--card); border: 1px solid var(--line); padding: 10px; margin-bottom: 14px; }
   .ing-sec > header { display: flex; align-items: baseline; gap: 10px; margin: 2px 4px 8px; } .ing-sec > header b { font-size: 1rem; } .ing-sec > header span { color: var(--muted); font-size: .8rem; } .ing-sec em { color: #b91c1c; font-style: normal; font-weight: 800; }
@@ -10595,7 +10673,7 @@ const BLOQUE = {
 /* Versión publicada. Al subir cambios a GitHub hay que incrementarla acá y en
    la constante VERSION de sw.js: es lo que dispara la actualización automática
    en los dispositivos que ya tienen la app instalada. */
-const APP_VERSION = '3.53.0';
+const APP_VERSION = '3.54.0';
 
 /* ================= ANATOMÍA PATOLÓGICA ================= */
 const TIPOS_MUESTRA = [
@@ -14100,6 +14178,7 @@ function renderSidebar() {
   if (soloAdmision()) {
     $('nav').innerHTML = `<div class="nav-sep">Admisión y Egresos</div>
       <button class="nav-btn ${view === 'ingresos' ? 'active' : ''}" onclick="go('ingresos')"><span class="nv-ico" style="--h:#ea580c">🗂️</span><span class="nv-lbl">Ingresos del día</span>${admisPorAutorizar().length ? `<span class="nav-badge" title="Turnos para autorizar">${admisPorAutorizar().length}</span>` : ''}</button>
+      <button class="nav-btn ${view === 'autorizados' ? 'active' : ''}" onclick="go('autorizados')"><span class="nv-ico" style="--h:#15803d">✅</span><span class="nv-lbl">Procedimientos autorizados</span></button>
       <button class="nav-btn ${view === 'camas' ? 'active' : ''}" onclick="go('camas')"><span class="nv-ico" style="--h:#16a34a">🛏️</span><span class="nv-lbl">Mapa de camas</span></button>
       <button class="nav-btn ${view === 'recordatorios' ? 'active' : ''}" onclick="go('recordatorios')"><span class="nv-ico" style="--h:#fbbf24">${ICONS.bellRing}</span><span class="nv-lbl">Avisos</span>${nRem ? `<span class="nav-badge">${nRem}</span>` : ''}</button>`;
     navLuzIniciar(); renderBottomNav();
@@ -14180,6 +14259,7 @@ function renderSidebar() {
     items.push({ id: 'portales', icon: ICONS.users, label: 'Portales del equipo' });
     items.push({ id: 'camas', icon: '🛏️', label: 'Mapa de camas' });
     items.push({ id: 'ingresos', icon: '🗂️', label: 'Ingresos del día' });
+    items.push({ id: 'autorizados', icon: '✅', label: 'Procedimientos autorizados' });
     items.push({ id: 'kpis', icon: ICONS.chart, label: 'Indicadores' });
     items.push({ id: 'estadisticas', icon: ICONS.pieChart, label: 'Estadísticas' });
     const pendCta = DB.usuarios.filter((x) => estadoCuenta(x) === 'pendiente').length;
@@ -14321,7 +14401,7 @@ try { if (/Mac|iPhone|iPad/.test(navigator.platform)) document.addEventListener(
 /* ================= NAVEGACIÓN ================= */
 const VIEWS = {};
 const TITULOS = {
-  panel: 'Panel', grilla: 'Programación Diaria', parte: 'Parte Quirúrgico', recordatorios: 'Recordatorios', camas: 'Mapa de camas', ingresos: 'Ingresos del día',
+  panel: 'Panel', grilla: 'Programación Diaria', parte: 'Parte Quirúrgico', recordatorios: 'Recordatorios', camas: 'Mapa de camas', ingresos: 'Ingresos del día', autorizados: 'Procedimientos autorizados',
   nueva: 'Nueva Incidencia', confidenciales: 'Incidencias Confidenciales',
   solicitud: 'Nueva solicitud quirúrgica', mis: 'Mis Solicitudes', reclamos: 'Reclamos',
   perfil: 'Mi Perfil', programacion: 'Programación', confidenciales: 'Incidencias Confidenciales',
@@ -14387,7 +14467,7 @@ function pintarVolver() {
    que vuelvan a pedir la clave. Y si al abrir la app la última pantalla necesitaba una clave que
    ya no está, arranca en el Panel en vez de pedirla. */
 function vistaSinClave(v) {
-  if (v === 'ingresos' && !admis && !jefe) return false;
+  if (['ingresos', 'autorizados'].includes(v) && !admis && !jefe) return false;
   if (v === 'camas' && !jefe && !jefenf && !admis && !usuarioActual()) return false;
   if (['confidenciales', 'programacion', 'kpis', 'usuarios', 'comunicados', 'excepcion'].includes(v) && !jefe) return false;
   if (v === 'portales' && !jefe && !director) return false;
@@ -14442,8 +14522,8 @@ function go(v, silencioso) {
   // 3.26 · Jefatura de Enfermería: solo el Mapa de camas.
   if (soloEnfermeria() && v !== 'camas') v = 'camas';
   // 3.27 · Admisión y Egresos: Ingresos del día, Mapa de camas y Avisos.
-  if (soloAdmision() && !['ingresos', 'camas', 'recordatorios'].includes(v)) v = 'ingresos';
-  if (v === 'ingresos' && !admis && !jefe) { closeDrawer(); openAdmisModal(); return; }
+  if (soloAdmision() && !['ingresos', 'autorizados', 'camas', 'recordatorios'].includes(v)) v = 'ingresos';
+  if (['ingresos', 'autorizados'].includes(v) && !admis && !jefe) { closeDrawer(); openAdmisModal(); return; }
   if (v === 'camas' && !jefe && !jefenf && !admis && !usuarioActual()) { closeDrawer(); openJefEnfModal(); return; }
   if (v === 'confidenciales' && !jefe) { closeDrawer(); openJefeModal(); return; }
   if (['programacion', 'kpis', 'usuarios', 'comunicados', 'excepcion'].includes(v) && !jefe) { closeDrawer(); openJefeModal(); return; }
@@ -14524,6 +14604,7 @@ function renderBottomNav() {
   const n = remSinLeer().length;
   const items = soloAdmision() ? [
     { id: 'ingresos', icon: '🗂️', label: 'Ingresos' },
+    { id: 'autorizados', icon: '✅', label: 'Autorizados' },
     { id: 'camas', icon: '🛏️', label: 'Camas' },
     { id: 'recordatorios', icon: ICONS.bellRing, label: 'Avisos', badge: n },
   ] : soloEnfermeria() ? [
@@ -14710,7 +14791,7 @@ function paFecha(q) {
 }
 /* 10-11 · «Abrí módulos», «ir a reclamos»: atajos a las pantallas (idea de react-cmdk y Sol). */
 const PA_IR = [[/modul/, 'modulos', 'Módulos'], [/reclam/, 'reclamos', 'Reclamos'], [/solicitud|mis turnos/, 'mis', 'Mis Solicitudes'], [/programacion|grilla/, 'grilla', 'Programación Diaria'], [/\bparte\b/, 'parte', 'Parte del día'],
-  [/recordatorio|aviso/, 'recordatorios', 'Recordatorios'], [/perfil/, 'perfil', 'Mi Perfil'], [/estadistic/, 'estadisticas', 'Estadísticas'], [/consentimiento/, 'consentimientos', 'Consentimientos'], [/endoscopia|jefatura de endo/, 'endojefe', 'Jefatura de Endoscopía'], [/manual/, 'libro', 'Manual'], [/cama/, 'camas', 'Mapa de camas'], [/ingreso/, 'ingresos', 'Ingresos']];
+  [/recordatorio|aviso/, 'recordatorios', 'Recordatorios'], [/perfil/, 'perfil', 'Mi Perfil'], [/estadistic/, 'estadisticas', 'Estadísticas'], [/consentimiento/, 'consentimientos', 'Consentimientos'], [/endoscopia|jefatura de endo/, 'endojefe', 'Jefatura de Endoscopía'], [/manual/, 'libro', 'Manual'], [/cama/, 'camas', 'Mapa de camas'], [/ingreso/, 'ingresos', 'Ingresos'], [/autorizad/, 'autorizados', 'Procedimientos autorizados']];
 function paIr(s) {
   const m = s.match(/^(ir a|abri|abrir|abre|mostrame|llevame a|quiero ver)\s+(la |el |los |las |mis |mi )?(.+)$/); if (!m) return null;
   const x = PA_IR.find((r) => r[0].test(m[3]) && VIEWS[r[1]]);
@@ -22455,6 +22536,178 @@ function admisPorAutorizar() {
   const reenviada = (c) => c.auth === 'NO AUTORIZADO' && c.orden && c.orden.firma && String(c.orden.firma.t || '') > String(c.authFecha || '');
   return DB.cirugias.filter((c) => c.estado === 'pendiente' && (!c.auth || reenviada(c)) && !rcActivo(c) && !turnoProvisional(c) && c.fecha >= hoy)
     .sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)) || String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+}
+/* 3.54 · Pedido de Claudio (19-11): «Procedimientos autorizados». Una vez que Admisión autorizaba,
+   el turno salía de «Para autorizar» y no había dónde volver a verlo. Esta pantalla junta TODAS las
+   autorizaciones de cirugías, endoscopías y partos/cesáreas. A la vista, solo la semana en curso
+   (lunes a domingo): las que se hacen esta semana y las que se autorizaron esta semana para más
+   adelante. Lo anterior NO se copia a ningún lado (cero espacio extra en la base): ya está guardado
+   en la cirugía misma. Las semanas que el equipo tiene cargadas se muestran al instante; las más
+   viejas se piden a la base en una consulta puntual, de solo lectura, que no queda escuchando ni
+   se guarda en el equipo (se olvidan al cerrar la sesión). */
+let autSem = '';          // lunes de la semana que se mira ('' = la semana en curso)
+let autBusca = '';        // filtro por paciente / DNI / médico / N.º, dentro de la semana
+const autHist = {};       // lunes → cirugías traídas de la base (solo en memoria)
+let autTrayendo = '';
+const autAbiertos = new Set();   // talones desplegados
+let autTipoF = '';               // filtro: '' | 'qx' | 'endo' | 'obs'
+function autAbrir(id) { id = String(id); if (autAbiertos.has(id)) autAbiertos.delete(id); else autAbiertos.add(id); renderAutorizados(); }
+function autFiltroTipo(t) { autTipoF = autTipoF === t ? '' : t; renderAutorizados(); }
+function autLunesHoy() { return lunesDe(hoyISO()); }
+function autAutorizada(c) { return c && c.auth === 'AUTORIZADO'; }
+function autDeSemana(lun) {
+  const dom = sumarDias(lun, 6), dentro = (f) => !!f && f >= lun && f <= dom;
+  const vistos = new Set(), L = [];
+  (DB.cirugias || []).concat(autHist[lun] || []).forEach((c) => {
+    if (!autAutorizada(c) || vistos.has(String(c.id))) return;
+    // 19-11 · Pedido de Claudio: en la semana en curso también TODO lo autorizado para días venideros.
+    const prox = lun === autLunesHoy() && String(c.fecha || '') > dom;
+    if (dentro(c.fecha) || dentro(String(c.authFecha || '').slice(0, 10)) || prox) { vistos.add(String(c.id)); L.push(c); }
+  });
+  return L.sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)) || String(a.horaProg || '').localeCompare(String(b.horaProg || '')));
+}
+/* ¿La semana queda fuera de lo que el equipo ya tiene cargado? Entonces hay que pedirla a la base. */
+function autFueraDeVentana(lun) { return lun < ventanaSync().desde; }
+async function autTraer(lun) {
+  if (!cloudOn || autHist[lun] || autTrayendo) return;
+  autTrayendo = lun; renderAutorizados();
+  try {
+    // Por fecha del procedimiento (el índice que ya tiene la base): la semana y hasta 60 días después,
+    // para incluir lo autorizado esa semana que se hizo más adelante.
+    const snap = await firebase.database().ref('cirugias').orderByChild('fecha').startAt(lun).endAt(sumarDias(lun, 66)).once('value');
+    autHist[lun] = Object.values(snap.val() || {}).filter(autAutorizada);
+  } catch (e) { autTrayendo = ''; toastTurno('No se pudo traer esa semana de la base. Probá de nuevo.', '#b91c1c'); renderAutorizados(); return; }
+  autTrayendo = ''; renderAutorizados();
+}
+function autIr(lun) {
+  const hoyL = autLunesHoy();
+  lun = lunesDe(lun || hoyL); if (lun > hoyL) lun = hoyL;
+  autSem = lun === hoyL ? '' : lun; autBusca = '';
+  renderAutorizados();
+  if (lun !== hoyL && autFueraDeVentana(lun)) autTraer(lun);
+}
+function autFiltrar(L) {
+  const q = sinTildesAut(autBusca.trim());
+  if (!q) return L;
+  return L.filter((c) => sinTildesAut([c.paciente?.nombre, c.paciente?.dni, c.cirujano, c.procedimiento, c.obraSocial, c.authAgente, c.orden?.autN].join(' ')).includes(q));
+}
+function sinTildesAut(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+function autBuscar() { const i = $('aut-q'); autBusca = i ? i.value : ''; renderAutorizados(); }
+function diaSemAut(f) { return ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'][new Date(f + 'T12:00:00').getDay()]; }
+function autTipo(c) { const a = areaDe(c); return a === 'endo' ? 'endo' : a === 'obs' ? 'obs' : 'qx'; }
+/* 19-11 · Pedido de Claudio: el almanaque «más innovador, interactivo y animado». Arriba, una cinta
+   de semanas que se desliza (cada una con la cantidad de autorizados que tiene cargados el equipo);
+   al tocar «Otra fecha» se despliega un almanaque propio por mes: al pasar por un día se marca su
+   semana entera y al tocarlo se va a esa semana. Lo de otros meses no se descarga hasta elegirlo. */
+let autCalAbierto = false, autCalMes = '';
+const AUT_MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+function autConteoSemanas() {
+  // El número de cada semana = lo mismo que se ve al abrirla (null si está solo en la base).
+  const m = {};
+  return new Proxy(m, { get: (o, w) => { if (typeof w !== 'string') return undefined; if (!(w in o)) o[w] = autFueraDeVentana(w) && !autHist[w] ? 0 : autDeSemana(w).length; return o[w]; } });
+}
+function autRango(lun) {
+  const dom = sumarDias(lun, 6), d1 = +lun.slice(8), d2 = +dom.slice(8), m1 = AUT_MESES[+lun.slice(5, 7) - 1].slice(0, 3), m2 = AUT_MESES[+dom.slice(5, 7) - 1].slice(0, 3);
+  return m1 === m2 ? { n: `${d1}–${d2}`, m: m1 } : { n: `${d1} ${m1} – ${d2}`, m: m2 };
+}
+function autCalHTML(lun, actual) {
+  const hoyL = autLunesHoy(), cnt = autConteoSemanas();
+  // La cinta: 12 semanas hasta la elegida (o hasta la actual) y, si se mira una vieja, hasta 3 después.
+  const fin = actual ? hoyL : [3, 2, 1, 0].map((k) => sumarDias(lun, 7 * k)).find((x) => x <= hoyL);
+  const semanas = []; for (let k = 11; k >= 0; k--) semanas.push(sumarDias(fin, -7 * k));
+  const max = Math.max(1, ...semanas.map((w) => cnt[w] || 0));
+  const r = autRango(lun);
+  const chip = (w) => { const x = autRango(w), n = cnt[w] || 0, sel = w === lun, viejo = autFueraDeVentana(w) && !autHist[w];
+    return `<button type="button" class="pra-w${sel ? ' sel' : ''}${w === hoyL ? ' hoy' : ''}" data-w="${w}" onclick="autIr('${w}')" aria-pressed="${sel}" aria-label="Semana ${esc(x.n)} ${esc(x.m)}">
+      <small>${w === hoyL ? 'Esta semana' : esc(x.m)}</small><b>${esc(x.n)}</b>
+      <span class="pra-w-bar"><i style="--v:${viejo ? 0 : (n / max).toFixed(3)}"></i></span><em>${viejo ? '☁ en la base' : n + ' autoriz.'}</em></button>`; };
+  return `<div class="pra-cal${actual ? '' : ' hist'}">
+    <div class="pra-cal-top">
+      <button type="button" class="pra-flecha" onclick="autIr('${sumarDias(lun, -7)}')" aria-label="Semana anterior">‹</button>
+      <div class="pra-cal-t" key="${lun}"><small>${actual ? '● Semana en curso' : 'Historial'}</small><b>${esc(r.n)} <span>${esc(r.m)}</span></b><em>lunes ${esc(fmtFecha(lun))} al domingo ${esc(fmtFecha(sumarDias(lun, 6)))}</em></div>
+      <button type="button" class="pra-flecha" ${actual ? 'disabled' : ''} onclick="autIr('${sumarDias(lun, 7)}')" aria-label="Semana siguiente">›</button>
+    </div>
+    <div class="pra-cinta" id="pra-cinta">${semanas.map(chip).join('')}</div>
+    <div class="pra-cal-acc">
+      <button type="button" class="pra-otra${autCalAbierto ? ' on' : ''}" onclick="autCalToggle()" aria-expanded="${autCalAbierto}">📅 ${autCalAbierto ? 'Cerrar el almanaque' : 'Otra fecha'}</button>
+      ${actual ? '' : `<button type="button" class="pra-volver" onclick="autIr('')">↺ Volver a esta semana</button>`}
+    </div>
+    ${autCalAbierto ? autMesHTML(lun, cnt) : ''}
+  </div>`;
+}
+function autMesHTML(lun, cnt) {
+  if (!autCalMes) autCalMes = lun.slice(0, 7);
+  const [y, m] = autCalMes.split('-').map(Number), pri = `${autCalMes}-01`, hoy = hoyISO(), hoyL = autLunesHoy();
+  const ini = lunesDe(pri), filas = [];
+  for (let w = ini; w.slice(0, 7) <= autCalMes && filas.length < 6; w = sumarDias(w, 7)) filas.push(w);
+  const ant = new Date(y, m - 2, 1), sig = new Date(y, m, 1), iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const puedeSig = iso(sig) <= hoy.slice(0, 7);
+  let k = 0;
+  return `<div class="pra-mes">
+    <div class="pra-mes-t"><button type="button" onclick="autMes('${iso(ant)}')" aria-label="Mes anterior">‹</button><b>${AUT_MESES[m - 1]} ${y}</b><button type="button" ${puedeSig ? '' : 'disabled'} onclick="autMes('${iso(sig)}')" aria-label="Mes siguiente">›</button></div>
+    <div class="pra-mes-g"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+    ${filas.map((w) => `<div class="pra-mes-f${w === lun ? ' sel' : ''}${w > hoyL ? ' fut' : ''}">${[0, 1, 2, 3, 4, 5, 6].map((i) => { const d = sumarDias(w, i), otro = d.slice(0, 7) !== autCalMes;
+      return `<button type="button" class="${otro ? 'otro' : ''}${d === hoy ? ' hoy' : ''}" style="--i:${k++}" ${w > hoyL ? 'disabled' : `onclick="autCalAbierto=false;autIr('${d}')"`}>${+d.slice(8)}</button>`; }).join('')}${w <= hoyL && cnt[w] ? `<i class="pra-mes-n" title="Autorizados esa semana">${cnt[w]}</i>` : ''}</div>`).join('')}
+    <p>Tocá cualquier día: se abre su semana entera.</p></div>`;
+}
+function autCalToggle() { autCalAbierto = !autCalAbierto; autCalMes = (autSem || autLunesHoy()).slice(0, 7); renderAutorizados(); }
+function autMes(ym) { autCalMes = ym; renderAutorizados(); }
+function autCintaCentrar() {
+  const c = $('pra-cinta'), s = c && c.querySelector('.pra-w.sel'); if (!c || !s) return;
+  const a = c.getBoundingClientRect(), b = s.getBoundingClientRect();
+  c.style.scrollBehavior = 'auto'; c.scrollLeft += (b.left + b.width / 2) - (a.left + a.width / 2); c.style.scrollBehavior = '';
+}
+function renderAutorizados() {
+  if (!admis && !jefe) { openAdmisModal(); return; }
+  const hoyL = autLunesHoy(), lun = autSem || hoyL, dom = sumarDias(lun, 6), actual = lun === hoyL;
+  const pidiendo = !actual && autFueraDeVentana(lun) && !autHist[lun];
+  const todo = autDeSemana(lun), L = autFiltrar(todo).filter((c) => !autTipoF || autTipo(c) === autTipoF);
+  const n = (t) => todo.filter((c) => autTipo(c) === t).length;
+  const esProxF = (c) => String(c.fecha || '') > dom;
+  const enDB = (c) => DB.cirugias.some((x) => String(x.id) === String(c.id));
+  // 19-11 · Pedido de Claudio: la consulta, también interactiva y animada. Cada autorización es un
+  // talón: a la vista lo esencial y el sello; al tocarlo se despliega todo lo del trámite.
+  let k = 0;
+  const fila = (c) => {
+    const e = ESTC[estadoVisible(c)] || { color: '#64748b', soft: '#e2e8f0', text: '#334155' };
+    const nAut = c.orden && c.orden.autN, ab = autAbiertos.has(String(c.id)), idj = esc(JSON.stringify(String(c.id)));
+    const dato = (r, v) => `<div><dt>${r}</dt><dd>${v}</dd></div>`;
+    return `<li class="pra-f pra-${autTipo(c)}${ab ? ' ab' : ''}" style="--i:${Math.min(k++, 14)}">
+      <button type="button" class="pra-tk" onclick="autAbrir(${idj})" aria-expanded="${ab}">
+        <span class="pra-d"><small>${esc(diaSemAut(c.fecha).slice(0, 3))}</small><b>${+String(c.fecha).slice(8)}</b><small>${esc(AUT_MESES[+String(c.fecha).slice(5, 7) - 1].slice(0, 3))}</small><em>${esc(c.horaProg || '—')}${c.horaProg ? ' h' : ''}</em></span>
+        <span class="pra-p"><b>${esc(c.paciente?.nombre || 's/d')}</b><small class="pra-pr">${esc(c.procedimiento || 'Sin nombre')}</small><small>${esc(c.cirujano || '—')} · ${esc(String(c.quirofano || c.sala || '').replace(/^Quir[oó]fano\s*/i, 'Q'))}</small></span>
+        <span class="pra-sello" aria-label="Autorizada"><i>✓</i>Autorizada${nAut ? `<small>N.º ${esc(nAut)}</small>` : ''}</span>
+        <span class="pra-chev" aria-hidden="true"></span>
+      </button>
+      ${ab ? `<div class="pra-det"><dl>
+        ${dato('Paciente', `${esc(c.paciente?.nombre || 's/d')}<small>DNI ${esc(c.paciente?.dni || '—')}${c.paciente?.edad != null ? ' · ' + esc(c.paciente.edad) + ' años' : ''}</small>`)}
+        ${dato('Obra social', esc(c.obraSocial || 'sin obra social'))}
+        ${dato('Turno', `${esc(fmtFecha(c.fecha))} · ${esc(c.horaProg || '—')} h<small>${esc(c.quirofano || c.sala || '')}</small>`)}
+        ${dato('Autorizó', `${esc(c.authAgente || 'Admisión y Egresos')}<small>${esc(c.authFecha ? fmtDT(c.authFecha) : '—')}</small>`)}
+        ${dato('N.º de autorización', esc(nAut || '—'))}
+        ${dato('Estado hoy', `<span class="pra-est" style="--c:${e.color};--s:${e.soft || '#e2e8f0'};--t:${e.text}">${esc(estLabel(c))}</span>`)}
+      </dl>${enDB(c) ? `<button class="btn btn-sm btn-blue" onclick="openCirugia(${esc(JSON.stringify(c.id))})">Abrir la ficha completa</button>` : '<p class="pra-nota">Del historial guardado: la ficha completa se ve desde la semana en curso.</p>'}</div>` : ''}</li>`;
+  };
+  const grupos = [['qx', '🔪 Cirugías · Quirófanos centrales'], ['endo', '🔭 Endoscopías'], ['obs', '👶 Obstetricia y cesáreas']];
+  // Dos bloques: lo de la semana que se mira y, en la semana en curso, lo autorizado para días venideros.
+  const esProx = esProxF;
+  const bloque = (B, tit, sub, cls) => { const h = grupos.map(([t, tg]) => { const G = B.filter((c) => autTipo(c) === t); return G.length ? `<section class="ing-sec pra-sec pra-${t}"><header><b>${tg}</b><span>${G.length}</span></header><ol class="pra-l">${G.map(fila).join('')}</ol></section>` : ''; }).join('');
+    return h ? `<div class="pra-blq ${cls}"><h2>${tit}<small>${sub}</small></h2>${h}</div>` : ''; };
+  $('main').innerHTML = `
+    <div class="page-head"><div class="head-row"><div class="head-icon">✅</div><div>
+      <h1 class="page-title">Procedimientos autorizados</h1><p class="page-sub">Admisión y Egresos · todo lo que ya autorizó, para volver a verlo</p></div></div></div>
+    ${autCalHTML(lun, actual)}
+    <div class="pra-chips"><span class="pra-tot"><b>${todo.filter((c) => !esProxF(c)).length}</b> ${actual ? 'esta semana' : 'esa semana'} · <b>${todo.filter(esProxF).length}</b> próximos días</span>
+      ${[['qx', '🔪', 'cirugía', 'cirugías'], ['endo', '🔭', 'endoscopía', 'endoscopías'], ['obs', '👶', 'obstetricia', 'obstetricia']].map(([t, i, u, v]) => `<button type="button" class="pra-ch pra-${t}${autTipoF === t ? ' on' : ''}" aria-pressed="${autTipoF === t}" onclick="autFiltroTipo('${t}')">${i} <b>${n(t)}</b> ${n(t) === 1 ? u : v}</button>`).join('')}
+      ${autTipoF ? '<button type="button" class="pra-ch limpiar" onclick="autFiltroTipo(autTipoF)">✕ Ver todo</button>' : ''}</div>
+    <div class="pra-busca"><input id="aut-q" type="search" value="${esc(autBusca)}" placeholder="Paciente, DNI, médico o N.º de autorización" onkeydown="if(event.key==='Enter')autBuscar()"><button type="button" class="btn btn-sm btn-blue" onclick="autBuscar()">Buscar</button>${autBusca ? `<button type="button" class="btn btn-sm btn-outline" onclick="autBusca='';renderAutorizados()">✕ Limpiar</button>` : ''}</div>
+    ${pidiendo ? `<div class="empty">${autTrayendo === lun ? 'Trayendo esa semana de la base…' : cloudOn ? 'Esa semana es del historial guardado en la base.' : 'En modo local no hay historial guardado en la base.'}
+        ${cloudOn && autTrayendo !== lun ? `<br><button class="btn btn-sm btn-blue" style="margin-top:8px" onclick="autTraer('${lun}')">Traer esa semana</button>` : ''}</div>`
+      : (bloque(L.filter((c) => !esProx(c)), actual ? '📍 Esta semana' : '📍 Esa semana', `lunes ${esc(fmtFecha(lun))} al domingo ${esc(fmtFecha(dom))}`, 'sem')
+        + bloque(L.filter(esProx), '📅 Para los próximos días', actual ? 'todo lo ya autorizado desde el lunes ' + esc(fmtFecha(sumarDias(dom, 1))) + ' en adelante' : 'autorizados esa semana para más adelante', 'prox'))
+        || `<div class="empty">${autBusca ? 'Nada coincide con la búsqueda en esta semana.' : actual ? 'Todavía no hay procedimientos autorizados esta semana.' : 'No hubo procedimientos autorizados esa semana.'}</div>`}
+    <p class="form-note">A la vista queda la semana en curso y, aparte, todo lo ya autorizado para los próximos días. Las semanas anteriores no ocupan lugar extra: se leen de la base, tal como quedaron guardadas, solo cuando las pide con «← Anterior» o con «Ir a la semana del…», y no se guardan en este equipo.</p>`;
+  requestAnimationFrame(autCintaCentrar);
 }
 function admisRecordatorios(add) {
   if (!admis) return;
@@ -40423,6 +40676,7 @@ Object.assign(VIEWS, {
   parte: renderParte,
   camas: renderCamas,
   ingresos: renderIngresos,
+  autorizados: renderAutorizados,
   reconocimiento: renderReconocimiento,
   sala: renderSala,
   relevo: renderRelevo,
